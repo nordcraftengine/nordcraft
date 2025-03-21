@@ -5,9 +5,9 @@ import type {
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import type { RequireFields } from '@nordcraft/core/dist/types'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
 import { isContextProvider } from '../context/isContextProvider'
@@ -146,35 +146,36 @@ export function createComponent({
         },
       })
     } else {
-      apis[name] = createAPI(api, {
-        ...ctx,
-        apis,
-        component,
-        dataSignal: componentDataSignal,
-        abortSignal: abortController.signal,
-        isRootComponent: false,
-        formulaCache,
-        package: node.package ?? ctx.package,
-        triggerEvent: (eventTrigger, data) => {
-          const eventHandler = Object.values(node.events).find(
-            (e) => e.trigger === eventTrigger,
-          )
-          if (eventHandler) {
-            eventHandler.actions.forEach((action) =>
-              handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
+      apis[name] = createAPI({
+        apiRequest: api,
+        ctx: {
+          ...ctx,
+          apis,
+          component,
+          dataSignal: componentDataSignal,
+          abortSignal: abortController.signal,
+          isRootComponent: false,
+          formulaCache,
+          package: node.package ?? ctx.package,
+          triggerEvent: (eventTrigger, data) => {
+            const eventHandler = Object.values(node.events).find(
+              (e) => e.trigger === eventTrigger,
             )
-          }
+            if (eventHandler) {
+              eventHandler.actions.forEach((action) =>
+                handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
+              )
+            }
+          },
         },
+        componentData: componentDataSignal.get(),
       })
     }
   })
   Object.values(apis)
-    .filter(
-      (api): api is RequireFields<ContextApi, 'triggerActions'> =>
-        api.triggerActions !== undefined,
-    )
+    .filter(isContextApiV2)
     .forEach((api) => {
-      api.triggerActions()
+      api.triggerActions(componentDataSignal.get())
     })
 
   const onEvent = (eventTrigger: string, data: any) => {

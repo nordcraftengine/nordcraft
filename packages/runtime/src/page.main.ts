@@ -12,7 +12,6 @@ import type {
   FormulaHandler,
   FormulaHandlerV2,
   PluginActionV2,
-  RequireFields,
   Toddle,
 } from '@nordcraft/core/dist/types'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
@@ -21,13 +20,14 @@ import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import fastDeepEqual from 'fast-deep-equal'
 import { match } from 'path-to-regexp'
+import { isContextApiV2 } from './api/apiUtils'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
 import { renderComponent } from './components/renderComponent'
 import { isContextProvider } from './context/isContextProvider'
 import { initLogState, registerComponentToLogState } from './debug/logState'
 import { signal } from './signal/signal'
-import type { ComponentContext, ContextApi, LocationSignal } from './types'
+import type { ComponentContext, LocationSignal } from './types'
 
 initLogState()
 
@@ -377,17 +377,18 @@ export const createRoot = (domNode: HTMLElement) => {
     if (isLegacyApi(api)) {
       ctx.apis[name] = createLegacyAPI(api, ctx)
     } else {
-      ctx.apis[name] = createAPI(api, ctx)
+      ctx.apis[name] = createAPI({
+        apiRequest: api,
+        ctx,
+        componentData: dataSignal.get(),
+      })
     }
   })
   // Trigger actions for all APIs after all of them are created.
   Object.values(ctx.apis)
-    .filter(
-      (api): api is RequireFields<ContextApi, 'triggerActions'> =>
-        api.triggerActions !== undefined,
-    )
+    .filter(isContextApiV2)
     .forEach((api) => {
-      api.triggerActions()
+      api.triggerActions(dataSignal.get())
     })
 
   let providers = ctx.providers
