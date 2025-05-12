@@ -64,6 +64,16 @@ export const matchRoutes = <T>({
     .sort((a, b) => {
       const routeA = getRoute(a)
       const routeB = getRoute(b)
+      const staticSegmentsA = routeA.path.filter(
+        (segment) => segment.type === 'static',
+      ).length
+      const staticSegmentsB = routeB.path.filter(
+        (segment) => segment.type === 'static',
+      ).length
+      // Prefer routes with more static segments (hence static matches)
+      if (staticSegmentsA !== staticSegmentsB) {
+        return staticSegmentsB - staticSegmentsA
+      }
       // Prefer shorter routes
       const diff = routeA.path.length - routeB.path.length
       if (diff !== 0) {
