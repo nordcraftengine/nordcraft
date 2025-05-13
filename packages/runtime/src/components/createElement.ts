@@ -140,7 +140,7 @@ export function createElement({
         package: ctx.package,
         toddle: ctx.toddle,
         env: ctx.env,
-      })
+      }) as any
       return unit ? value + unit : value
     })
     sig.subscribe((value) => elem.style.setProperty(`--${name}`, value))

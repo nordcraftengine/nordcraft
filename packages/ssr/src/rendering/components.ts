@@ -354,7 +354,7 @@ const renderComponent = async ({
                                       package: _packageName,
                                       env,
                                       toddle,
-                                    }),
+                                    }) as any,
                                   ]),
                               ),
                             },
@@ -502,7 +502,7 @@ const createComponent = async ({
           applyFormula(formula.formula, {
             ...formulaContext,
             data,
-          }),
+          }) as any,
         ]),
     ),
   }

@@ -52,7 +52,7 @@ export const getUrl = (
   let urlQueryParams = new URLSearchParams()
   let parsedUrl: URL | undefined
   const url = applyFormula(api.url, formulaContext)
-  if (['string', 'number'].includes(typeof url)) {
+  if (typeof url === 'string' || typeof url === 'number') {
     const urlInput = typeof url === 'number' ? String(url) : url
     try {
       // Try to parse the URL to extract potential path and query parameters

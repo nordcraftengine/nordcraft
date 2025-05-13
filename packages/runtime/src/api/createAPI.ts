@@ -60,13 +60,13 @@ export function createLegacyAPI(
             .map(
               (param) =>
                 `${param.name}=${encodeURIComponent(
-                  applyFormula(param.formula, formulaContext),
+                  applyFormula(param.formula, formulaContext) as any,
                 )}`,
             )
             .join('&')
         : ''
     const headers = isFormula(api.headers) // this is supporting a few legacy cases where the whole header object was set as a formula. This is no longer possible
-      ? applyFormula(api.headers, {
+      ? (applyFormula(api.headers, {
           data,
           component: ctx.component,
           formulaCache: ctx.formulaCache,
@@ -74,17 +74,19 @@ export function createLegacyAPI(
           package: ctx.package,
           toddle: ctx.toddle,
           env: ctx.env,
-        })
-      : mapValues(api.headers ?? {}, (value) =>
-          applyFormula(value, {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          }),
+        }) as any)
+      : mapValues(
+          api.headers ?? {},
+          (value) =>
+            applyFormula(value, {
+              data,
+              component: ctx.component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+            }) as any,
         )
     const contentType = String(
       Object.entries(headers).find(

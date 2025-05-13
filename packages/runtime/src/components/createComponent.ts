@@ -196,16 +196,17 @@ export function createComponent({
         .filter(([, formula]) => formula.exposeInContext)
         .map(([name, formula]) => [
           name,
-          componentDataSignal.map((data) =>
-            applyFormula(formula.formula, {
-              data,
-              component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+          componentDataSignal.map(
+            (data) =>
+              applyFormula(formula.formula, {
+                data,
+                component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+              }) as any,
           ),
         ]),
     )

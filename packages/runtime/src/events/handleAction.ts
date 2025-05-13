@@ -95,7 +95,7 @@ export function handleAction(
             package: ctx.package,
             toddle: ctx.toddle,
             env: ctx.env,
-          })
+          }) as any
           // historyMode was previously not declared explicitly, and we default
           // to push for state changes and replace for query changes
           let historyMode: SetURLParameterAction['historyMode'] | undefined

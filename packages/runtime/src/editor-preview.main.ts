@@ -1442,16 +1442,17 @@ export const createRoot = (
           .filter(([, formula]) => formula.exposeInContext)
           .map(([name, formula]) => [
             name,
-            dataSignal.map((data) =>
-              applyFormula(formula.formula, {
-                data,
-                component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: window.toddle,
-                env,
-              }),
+            dataSignal.map(
+              (data) =>
+                applyFormula(formula.formula, {
+                  data,
+                  component,
+                  formulaCache: ctx.formulaCache,
+                  root: ctx.root,
+                  package: ctx.package,
+                  toddle: window.toddle,
+                  env,
+                }) as any,
             ),
           ]),
       )
