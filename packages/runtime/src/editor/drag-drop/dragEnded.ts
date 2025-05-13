@@ -1,3 +1,4 @@
+import { isElementInViewport } from '../../utils/isElementInViewport'
 import { tryStartViewTransition } from '../../utils/tryStartViewTransition'
 import type { DragState } from '../types'
 import { DRAG_MOVE_CLASSNAME } from './dragMove'
@@ -18,14 +19,14 @@ export async function dragEnded(dragState: DragState, canceled: boolean) {
     'dropped-item-self',
   )
   siblings.forEach((node, i) => {
-    if (node instanceof HTMLElement) {
+    if (node instanceof HTMLElement && isElementInViewport(node)) {
       node.style.setProperty(
         'view-transition-name',
         'dropped-item-sibling-' + i,
       )
     }
   })
-  dragState.repeatedNodes.forEach((node, i) => {
+  dragState.repeatedNodes.filter(isElementInViewport).forEach((node, i) => {
     node.style.setProperty('view-transition-name', 'dropped-item-repeated-' + i)
   })
   await tryStartViewTransition(() => {
