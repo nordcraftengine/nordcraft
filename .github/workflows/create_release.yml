@@ -43,3 +43,20 @@ jobs:
         run: gh release upload ${{ inputs.version }} ./dist/*
     env:
       GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+  announce_release:
+    needs:
+      - create_release
+      - upload_assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Send release announcement
+        run: bun bin/sendReleaseAnnouncement.ts ${{ inputs.version }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+      MAKE_WEBHOOK_URL: ${{ secrets.MAKE_WEBHOOK_URL }}
