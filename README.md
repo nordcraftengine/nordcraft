@@ -2,7 +2,7 @@
 
 Create highly performant web apps with SSR, branching, version control, components, and much more! Visit [nordcraft.com](https://nordcraft.com?utm_medium=web&utm_source=GitHub) to learn more.
 
-[Discord](https://discord.com/invite/svBKYZf3UR) | [BlueSky](https://bsky.app/profile/toddle.dev) | [YouTube](https://youtube.com/@toddledev) | [LinkedIn](https://www.linkedin.com/company/toddledev) | [X](https://x.com/toddledev/)
+[Discord](https://discord.com/invite/svBKYZf3UR) | [BlueSky](https://bsky.app/profile/nordcraft.com) | [YouTube](https://youtube.com/@nordcraftengine) | [LinkedIn](https://www.linkedin.com/company/nordcraft) | [X](https://x.com/nordcraftengine)
 
 ![Test status](https://github.com/nordcraftengine/nordcraft/actions/workflows/test.yml/badge.svg)
 ![Release status](https://github.com/nordcraftengine/nordcraft/actions/workflows/main.yml/badge.svg)
@@ -34,9 +34,9 @@ While we consume all packages internally in the Nordcraft framework, this projec
 
 ## Plan
 
-As [announced in July '24](https://blog.nordcraft.com/toddle-is-soon-open-source), Nordcraft is going open source. The goal is to move more and more code into this repository and make it possible to self host a Nordcraft application.
+As [announced in July '24](https://blog.nordcraft.com/toddle-is-soon-open-source), Nordcraft is in the process of going fully open source. The goal is to move more and more code into this repository and make it possible to self host a Nordcraft application.
 
-We're currently working on moving more and more of the server-side rendering logic into this repository. This means that most updates are going to be in the ssr package for the time being.
+We're currently working on moving more of the server-side rendering logic into this repository. This means that most updates are going to be in the ssr package for the time being.
 
 ## Dependencies
 
@@ -48,7 +48,7 @@ The dependencies between the packages are as follows:
 
 ## Releases
 
-Currently, we're not using GitHub releases, but once the repository is more mature, we will start using them. We do release to npm atm though, which is also where we consume packages from internally.
+We use GitHub releases and release to npm atm, which is where we consume packages from internally.
 
 To release a new version to npm:
 
@@ -67,3 +67,11 @@ If you have any questions, feel free to ask them in our [Discord](https://discor
 To consume all packages locally, it's useful to run `bun run link` in the root of the repository. This will use `bun link` on all packages in the repository.
 
 Other than that, the best way to test atm is to use the hono example.
+
+## Documentation
+
+The Nordcraft docs are open source.
+
+If you'd like to contribute to the documentation, [view all open issues on GitHub](https://github.com/nordcraftengine/documentation/issues), or [open an issue](https://github.com/nordcraftengine/documentation/issues/new) if you find something wrong or missing.
+
+[View the Nordcraft official documentation](https://docs.nordcraft.com).
