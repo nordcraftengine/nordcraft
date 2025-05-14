@@ -39,6 +39,7 @@ type MediaQuery = {
 export interface StyleVariant {
   autofill?: boolean
   'nth-child(even)'?: boolean
+  'even-child'?: boolean
   'first-child'?: boolean
   'first-of-type'?: boolean
   'focus-visible'?: boolean
@@ -144,7 +145,10 @@ export type SlotNodeModel = {
 export const variantSelector = (variant: StyleVariant) =>
   [
     (variant.className ?? variant['class']) && `.${variant.className}`,
-    (variant.evenChild ?? variant['nth-child(even)']) && ':nth-child(even)',
+    (variant.evenChild ??
+      variant['even-child'] ??
+      variant['nth-child(even)']) &&
+      ':nth-child(even)',
     (variant.firstChild ?? variant['first-child']) && ':first-child',
     (variant.focusWithin ?? variant['focus-within']) && ':focus-within',
     (variant.lastChild ?? variant['last-child']) && ':last-child',
