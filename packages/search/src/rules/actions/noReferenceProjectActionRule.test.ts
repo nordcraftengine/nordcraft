@@ -70,7 +70,7 @@ describe('noReferenceProjectAction', () => {
                       arguments: [],
                     },
                   ],
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

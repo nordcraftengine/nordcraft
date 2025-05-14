@@ -158,7 +158,7 @@ describe('noReferenceFormulaRule', () => {
                       },
                     ],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -241,7 +241,7 @@ describe('noReferenceFormulaRule', () => {
                     index: 0,
                   },
                 },
-                '@toddle/metadata': {
+                '@nordcraft/metadata': {
                   comments: null,
                 },
               },

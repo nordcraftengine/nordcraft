@@ -69,7 +69,7 @@ describe('unknownEvent', () => {
                   dummyEvent: {
                     name: 'Name',
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -97,7 +97,7 @@ describe('unknownEvent', () => {
                       dummyEvent: {
                         name: 'Name',
                       },
-                      '@toddle/metadata': {
+                      '@nordcraft/metadata': {
                         comments: null,
                       },
                     },
@@ -190,7 +190,7 @@ describe('unknownEvent', () => {
                   dummyEvent: {
                     name: 'Name',
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -218,7 +218,7 @@ describe('unknownEvent', () => {
                       dummyEvent: {
                         name: 'Name',
                       },
-                      '@toddle/metadata': {
+                      '@nordcraft/metadata': {
                         comments: null,
                       },
                     },

@@ -43,7 +43,7 @@ describe('noReferenceEventRule', () => {
                   dummyEvent: {
                     name: 'Name',
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -121,7 +121,7 @@ describe('noReferenceEventRule', () => {
                   dummyEvent: {
                     name: 'Name',
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -131,7 +131,7 @@ describe('noReferenceEventRule', () => {
                   dummyEvent: {
                     name: 'Name',
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

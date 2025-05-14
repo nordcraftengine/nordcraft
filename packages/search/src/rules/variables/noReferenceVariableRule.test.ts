@@ -17,7 +17,7 @@ describe('noReferenceVariableRule', () => {
               variables: {
                 'my-variable': {
                   initialValue: { type: 'value', value: null },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -67,7 +67,7 @@ describe('noReferenceVariableRule', () => {
                       },
                     ],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -77,7 +77,7 @@ describe('noReferenceVariableRule', () => {
               variables: {
                 'my-variable': {
                   initialValue: { type: 'value', value: null },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

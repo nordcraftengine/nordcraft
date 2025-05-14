@@ -27,7 +27,7 @@ describe('noReferenceComponentFormulaRule', () => {
                   arguments: [],
                   memoize: false,
                   exposeInContext: true,
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -37,7 +37,7 @@ describe('noReferenceComponentFormulaRule', () => {
               variables: {
                 'my-variable': {
                   initialValue: { type: 'value', value: 5 },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -88,7 +88,7 @@ describe('noReferenceComponentFormulaRule', () => {
                   arguments: [],
                   memoize: false,
                   exposeInContext: true,
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -102,7 +102,7 @@ describe('noReferenceComponentFormulaRule', () => {
                   arguments: [],
                   memoize: false,
                   exposeInContext: true,
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -116,7 +116,7 @@ describe('noReferenceComponentFormulaRule', () => {
                     name: 'my-formula',
                     arguments: [],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -172,7 +172,7 @@ describe('noReferenceComponentFormulaRule', () => {
                   arguments: [],
                   memoize: false,
                   exposeInContext: true,
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -198,7 +198,7 @@ describe('noReferenceComponentFormulaRule', () => {
                     type: 'path',
                     path: ['Contexts', 'page', 'my-formula'],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -243,7 +243,7 @@ describe('noReferenceComponentFormulaRule', () => {
                   arguments: [],
                   memoize: false,
                   exposeInContext: true,
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -311,7 +311,7 @@ describe('noReferenceComponentFormulaRule', () => {
                     ],
                   },
                   arguments: [],
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

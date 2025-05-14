@@ -4,8 +4,8 @@ import type {
   CustomFormulaHandler,
   FormulaHandler,
   FormulaLookup,
+  NordcraftMetadata,
   Toddle,
-  ToddleMetadata,
 } from '../types'
 import { isDefined, toBoolean } from '../utils/util'
 import { isToddleFormula } from './formulaTypes'
@@ -14,18 +14,7 @@ import { isToddleFormula } from './formulaTypes'
 declare const document: Document | undefined
 type ShadowRoot = DocumentFragment
 
-interface BaseOperation extends ToddleMetadata {
-  type:
-    | 'path'
-    | 'function'
-    | 'object'
-    | 'array'
-    | 'record'
-    | 'value'
-    | 'apply'
-    | 'or'
-    | 'and'
-    | 'switch'
+interface BaseOperation extends NordcraftMetadata {
   label?: string
 }
 
