@@ -1,4 +1,7 @@
-export function isElementInViewport(element: HTMLElement, offset = 0): boolean {
+export function isElementInViewport(
+  element: HTMLElement,
+  thresholdPx = 0,
+): boolean {
   const rect = element.getBoundingClientRect()
   const viewportHeight =
     window.innerHeight || document.documentElement.clientHeight
@@ -6,9 +9,9 @@ export function isElementInViewport(element: HTMLElement, offset = 0): boolean {
     window.innerWidth || document.documentElement.clientWidth
 
   return (
-    rect.top >= 0 - offset &&
-    rect.left >= 0 - offset &&
-    rect.bottom <= viewportHeight + offset &&
-    rect.right <= viewportWidth + offset
+    rect.top >= 0 - thresholdPx &&
+    rect.left >= 0 - thresholdPx &&
+    rect.bottom <= viewportHeight + thresholdPx &&
+    rect.right <= viewportWidth + thresholdPx
   )
 }
