@@ -1,8 +1,10 @@
 import { FlatCompat } from '@eslint/eslintrc'
 import js from '@eslint/js'
+import html from '@html-eslint/eslint-plugin'
 import typescriptEslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 import inclusiveLanguage from 'eslint-plugin-inclusive-language'
+import { defineConfig } from 'eslint/config'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -14,7 +16,15 @@ const compat = new FlatCompat({
   allConfig: js.configs.all,
 })
 
-export default [
+export default defineConfig([
+  {
+    ...html.configs['flat/recommended'],
+    files: ['**/*.html', '**/*.ts'],
+    rules: {
+      ...html.configs['flat/recommended'].rules, // Must be defined. If not, all recommended rules will be lost
+      '@html-eslint/indent': ['error', 2],
+    },
+  },
   {
     ignores: [
       '**/node_modules/',
@@ -80,4 +90,4 @@ export default [
       'no-console': 'error',
     },
   },
-]
+])
