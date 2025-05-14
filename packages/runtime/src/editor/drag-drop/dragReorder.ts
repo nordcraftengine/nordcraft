@@ -1,3 +1,4 @@
+import { isElementInViewport } from '../../utils/isElementInViewport'
 import { tryStartViewTransition } from '../../utils/tryStartViewTransition'
 import type { DragState } from '../types'
 import { DRAG_MOVE_CLASSNAME } from './dragMove'
@@ -50,11 +51,12 @@ export function dragReorder(dragState: DragState | null) {
   ) {
     dragState.isTransitioning = true
     const siblings = Array.from(dragState.initialContainer.childNodes)
-    siblings.forEach((sibling, i) => {
-      if (sibling instanceof HTMLElement) {
+    siblings
+      .filter((sibling) => sibling instanceof HTMLElement)
+      .filter(isElementInViewport)
+      .forEach((sibling, i) => {
         sibling.style.setProperty('view-transition-name', 'item-' + i)
-      }
-    })
+      })
     dragState.element.style.setProperty('view-transition-name', '__drag-item')
 
     const prevLeft = dragState.element.offsetLeft

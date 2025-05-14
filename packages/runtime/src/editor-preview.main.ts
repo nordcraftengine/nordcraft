@@ -882,18 +882,17 @@ export const createRoot = (
           const styleElem = document.createElement('style')
           styleElem.appendChild(
             document.createTextNode(`
-              @keyframes preview_timeline {
-                ${Object.values(keyframes)
-                  .map(
-                    ({ key, value, position, easing }) =>
-                      `${position * 100}% {
-                        ${key}: ${value};
-                        ${easing ? `animation-timing-function: ${easing};` : ''}
-                      }`,
-                  )
-                  .join('\n')}
-              }
-            `),
+@keyframes preview_timeline {
+  ${Object.values(keyframes)
+    .map(
+      ({ key, value, position, easing }) =>
+        `${position * 100}% {
+          ${key}: ${value};
+          ${easing ? `animation-timing-function: ${easing};` : ''}
+        }`,
+    )
+    .join('\n')}
+}`),
           )
           styleElem.setAttribute('data-timeline-keyframes', '')
           document.head.appendChild(styleElem)
