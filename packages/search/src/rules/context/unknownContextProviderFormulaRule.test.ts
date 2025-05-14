@@ -28,7 +28,7 @@ describe('unknownContextFormulaProviderRule', () => {
                     type: 'path',
                     path: ['Contexts', 'known', 'test'],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -68,7 +68,7 @@ describe('unknownContextFormulaProviderRule', () => {
                   exposeInContext: false,
                   formula: valueFormula(true),
                   arguments: [],
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -89,7 +89,7 @@ describe('unknownContextFormulaProviderRule', () => {
                     type: 'path',
                     path: ['Contexts', 'known', 'test'],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -129,7 +129,7 @@ describe('unknownContextFormulaProviderRule', () => {
                   exposeInContext: true,
                   formula: valueFormula(true),
                   arguments: [],
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -150,7 +150,7 @@ describe('unknownContextFormulaProviderRule', () => {
                     type: 'path',
                     path: ['Contexts', 'known', 'test'],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

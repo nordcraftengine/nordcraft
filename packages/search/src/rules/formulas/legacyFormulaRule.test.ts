@@ -198,7 +198,7 @@ describe('legacyFormula', () => {
                     name: 'ADD',
                     arguments: [],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -309,7 +309,7 @@ describe('legacyFormula', () => {
                     type: 'value',
                     value: null,
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

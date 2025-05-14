@@ -25,7 +25,7 @@ describe('noContextConsumersRule', () => {
                     value: 1,
                   },
                   exposeInContext: true,
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -70,7 +70,7 @@ describe('noContextConsumersRule', () => {
                   exposeInContext: true,
                   name: 'test',
                   parameters: [],
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -149,7 +149,7 @@ describe('noContextConsumersRule', () => {
                     value: 1,
                   },
                   exposeInContext: true,
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -160,7 +160,7 @@ describe('noContextConsumersRule', () => {
                   exposeInContext: true,
                   name: 'test',
                   parameters: [],
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -207,7 +207,7 @@ describe('noContextConsumersRule', () => {
                     value: 1,
                   },
                   exposeInContext: true,
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -218,7 +218,7 @@ describe('noContextConsumersRule', () => {
                   exposeInContext: true,
                   name: 'test',
                   parameters: [],
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

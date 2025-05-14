@@ -35,7 +35,7 @@ describe('unknownCookie', () => {
                       },
                     },
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -88,7 +88,7 @@ describe('unknownCookie', () => {
                       },
                     },
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

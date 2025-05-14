@@ -1,7 +1,7 @@
 import type { ApiStatus, ComponentAPI, LegacyApiStatus } from '../api/apiTypes'
 import type { Formula } from '../formula/formula'
 import type { StyleTokenCategory } from '../styling/theme'
-import type { RequireFields, ToddleMetadata } from '../types'
+import type { NordcraftMetadata, RequireFields } from '../types'
 
 interface ListItem {
   Item: unknown
@@ -188,7 +188,7 @@ export interface Component {
   exported?: boolean
 }
 
-export interface ComponentFormula extends ToddleMetadata {
+export interface ComponentFormula extends NordcraftMetadata {
   name: string
   arguments?: Array<{ name: string; testValue: any }> | null
   memoize?: boolean
@@ -196,7 +196,7 @@ export interface ComponentFormula extends ToddleMetadata {
   formula: Formula
 }
 
-export interface ComponentWorkflow extends ToddleMetadata {
+export interface ComponentWorkflow extends NordcraftMetadata {
   name: string
   parameters: Array<{ name: string; testValue: any }>
   actions: ActionModel[]
@@ -344,17 +344,17 @@ export type ActionModel =
   | SetMultiUrlParameterAction
   | WorkflowActionModel
 
-export interface ComponentEvent extends ToddleMetadata {
+export interface ComponentEvent extends NordcraftMetadata {
   name: string
   // eslint-disable-next-line inclusive-language/use-inclusive-words
   dummyEvent: any
 }
 
-export interface ComponentVariable extends ToddleMetadata {
+export interface ComponentVariable extends NordcraftMetadata {
   initialValue: Formula
 }
 
-export interface ComponentAttribute extends ToddleMetadata {
+export interface ComponentAttribute extends NordcraftMetadata {
   name: string
   testValue: unknown
 }

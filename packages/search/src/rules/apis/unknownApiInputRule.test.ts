@@ -23,7 +23,7 @@ describe('unknownApiInput', () => {
                     type: 'path',
                     path: ['ApiInputs', 'unknown-input'],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -66,7 +66,7 @@ describe('unknownApiInput', () => {
                     type: 'path',
                     path: ['ApiInputs', 'known-input'],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

@@ -30,7 +30,7 @@ describe('noReferenceApiRule', () => {
                   version: 2,
                   autoFetch: valueFormula(true),
                   inputs: {},
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -89,7 +89,7 @@ describe('noReferenceApiRule', () => {
                   version: 2,
                   autoFetch: valueFormula(true),
                   inputs: {},
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -145,7 +145,7 @@ describe('noReferenceApiRule', () => {
                   version: 2,
                   autoFetch: valueFormula(true),
                   inputs: {},
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

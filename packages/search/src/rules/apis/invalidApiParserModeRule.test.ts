@@ -19,7 +19,7 @@ describe('invalidApiParserMode', () => {
                   version: 2,
                   autoFetch: valueFormula(true),
                   inputs: {},
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                   server: {
@@ -70,7 +70,7 @@ describe('invalidApiParserMode', () => {
                   client: {
                     parserMode: 'json',
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

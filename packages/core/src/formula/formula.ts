@@ -4,8 +4,8 @@ import type {
   CustomFormulaHandler,
   FormulaHandler,
   FormulaLookup,
+  NordcraftMetadata,
   Toddle,
-  ToddleMetadata,
 } from '../types'
 import { isDefined, toBoolean } from '../utils/util'
 import { isToddleFormula } from './formulaTypes'
@@ -14,7 +14,11 @@ import { isToddleFormula } from './formulaTypes'
 declare const document: Document | undefined
 type ShadowRoot = DocumentFragment
 
-export interface PathOperation extends ToddleMetadata {
+interface BaseOperation extends NordcraftMetadata {
+  label?: string
+}
+
+export interface PathOperation extends BaseOperation {
   type: 'path'
   path: string[]
 }
@@ -25,7 +29,7 @@ type FunctionArgument = {
   formula: Formula
 }
 
-export interface FunctionOperation extends ToddleMetadata {
+export interface FunctionOperation extends BaseOperation {
   type: 'function'
   name: string
   display_name?: string | null
@@ -34,45 +38,45 @@ export interface FunctionOperation extends ToddleMetadata {
   variableArguments?: boolean
 }
 
-export interface RecordOperation extends ToddleMetadata {
+export interface RecordOperation extends BaseOperation {
   type: 'record'
   entries: FunctionArgument[]
 }
 
-export interface ObjectOperation extends ToddleMetadata {
+export interface ObjectOperation extends BaseOperation {
   type: 'object'
   arguments?: FunctionArgument[]
 }
 
-export interface ArrayOperation extends ToddleMetadata {
+export interface ArrayOperation extends BaseOperation {
   type: 'array'
   arguments: Array<{ formula: Formula }>
 }
 
-export interface OrOperation extends ToddleMetadata {
+export interface OrOperation extends BaseOperation {
   type: 'or'
   arguments: Array<{ formula: Formula }>
 }
 
-export interface AndOperation extends ToddleMetadata {
+export interface AndOperation extends BaseOperation {
   type: 'and'
   arguments: Array<{ formula: Formula }>
 }
 
-export interface ApplyOperation extends ToddleMetadata {
+export interface ApplyOperation extends BaseOperation {
   type: 'apply'
   name: string
   arguments: FunctionArgument[]
 }
 
-export interface ValueOperation extends ToddleMetadata {
+export interface ValueOperation extends BaseOperation {
   type: 'value'
   value: ValueOperationValue
 }
 
 export type ValueOperationValue = string | number | boolean | null | object
 
-export interface SwitchOperation extends ToddleMetadata {
+export interface SwitchOperation extends BaseOperation {
   type: 'switch'
   cases: Array<{
     condition: Formula
