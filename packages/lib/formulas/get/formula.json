@@ -12,7 +12,7 @@
       "name": "Path",
       "formula": { "type": "value", "value": "Item" },
       "description": "The Path can be either a Number, a String, or an Array.",
-      "type": { "type": "Array \\| Number \\| String" }
+      "type": { "type": "Array<String> \\| Number \\| String" }
     }
   ],
   "output": {
