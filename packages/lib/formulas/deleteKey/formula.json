@@ -5,7 +5,7 @@
     {
       "name": "Object",
       "formula": { "type": "value", "value": null },
-      "description": "The input record",
+      "description": "The input record.",
       "type": { "type": "Array \\| Object" }
     },
     {
