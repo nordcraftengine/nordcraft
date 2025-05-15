@@ -12,7 +12,7 @@
       "name": "Path",
       "formula": { "type": "value", "value": "Item" },
       "description": "The path can be either a Number (if the first argument is an array), a String, or an Array of strings. If an Array is given, the property at that path will be removed.",
-      "type": { "type": "Array<String \\| Number> \\| Number \\| String" }
+      "type": { "type": "Array<Number \\| String> \\| Number \\| String" }
     }
   ],
   "output": {
