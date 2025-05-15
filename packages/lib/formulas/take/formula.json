@@ -6,15 +6,7 @@
       "name": "Array",
       "formula": { "type": "value", "value": null },
       "description": "Input Array or String.",
-      "type": {
-        "type": "Union",
-        "types": [
-          {
-            "type": "String"
-          },
-          { "type": "Array" }
-        ]
-      }
+      "type": { "type": "Array \\| String" }
     },
     {
       "name": "Count",
@@ -25,14 +17,6 @@
   ],
   "output": {
     "description": "The first items from the Array or String.",
-    "type": {
-      "type": "Union",
-      "types": [
-        {
-          "type": "String"
-        },
-        { "type": "Array" }
-      ]
-    }
+    "type": { "type": "Array \\| String" }
   }
 }

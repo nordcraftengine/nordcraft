@@ -5,11 +5,8 @@
     {
       "name": "Array",
       "formula": { "type": "value", "value": "" },
-      "description": "The Array or String to search.",
-      "type": {
-        "type": "Union",
-        "types": [{ "type": "String" }, { "type": "Array" }]
-      }
+      "description": "The value to search.",
+      "type": { "type": "Array \\| String" }
     },
     {
       "name": "Item",

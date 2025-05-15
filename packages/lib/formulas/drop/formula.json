@@ -5,16 +5,8 @@
     {
       "name": "Array",
       "formula": { "type": "value", "value": null },
-      "description": "Input array",
-      "type": {
-        "type": "Union",
-        "types": [
-          {
-            "type": "String"
-          },
-          { "type": "Array" }
-        ]
-      }
+      "description": "Input value.",
+      "type": { "type": "Array \\| String" }
     },
     {
       "name": "Count",
@@ -25,14 +17,6 @@
   ],
   "output": {
     "description": "A copy of the list without the first items.",
-    "type": {
-      "type": "Union",
-      "types": [
-        {
-          "type": "String"
-        },
-        { "type": "Array" }
-      ]
-    }
+    "type": { "type": "Array \\| String" }
   }
 }

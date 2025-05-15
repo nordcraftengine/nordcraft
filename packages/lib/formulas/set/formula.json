@@ -12,14 +12,7 @@
       "name": "Path",
       "formula": { "type": "value", "value": "Key" },
       "description": "The Path can be either a Number, a String or an Array of Strings.",
-      "type": {
-        "type": "Union",
-        "types": [
-          { "type": "Array" },
-          { "type": "String" },
-          { "type": "Number" }
-        ]
-      }
+      "type": { "type": "Array \\| Number \\| String" }
     },
     {
       "name": "Value",
