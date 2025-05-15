@@ -12,7 +12,11 @@ export const serviceWorker = async (c: Context<HonoEnv>) => {
       ? // We don't need to provide a context for applyFormula, as the formula should just be a value formula
         applyFormula(config.meta.serviceWorker.formula, undefined as any)
       : undefined
-    const url = validateUrl(serviceWorkerUrl)
+    const requestUrl = new URL(c.req.url)
+    const url = validateUrl({
+      path: serviceWorkerUrl,
+      origin: requestUrl.origin,
+    })
     if (url) {
       // return a (streamed) response with the body from the service worker
       const { body, ok } = await fetch(url)

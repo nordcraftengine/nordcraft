@@ -12,7 +12,11 @@ export const manifest = async (c: Context<HonoEnv>) => {
       c.var.project.files.config?.meta?.manifest?.formula,
       undefined as any,
     )
-    const validManifestUrl = validateUrl(manifestUrl)
+    const requestUrl = new URL(c.req.url)
+    const validManifestUrl = validateUrl({
+      path: manifestUrl,
+      origin: requestUrl.origin,
+    })
     if (typeof validManifestUrl === 'string') {
       // return a (streamed) response with the body from the manifest file
       const { body, ok } = await fetch(manifestUrl)

@@ -43,7 +43,7 @@ describe('unknownTriggerEventRule', () => {
                   dummyEvent: {
                     name: 'Name',
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -100,7 +100,7 @@ describe('unknownTriggerEventRule', () => {
                   dummyEvent: {
                     name: 'Name',
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

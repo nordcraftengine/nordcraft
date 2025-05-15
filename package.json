@@ -2,7 +2,7 @@
   "name": "nordcraft",
   "type": "module",
   "license": "Apache-2.0",
-  "version": "1.0.10",
+  "version": "1.0.12",
   "homepage": "https://github.com/nordcraftengine/nordcraft",
   "private": "false",
   "workspaces": [
@@ -10,8 +10,9 @@
   ],
   "devDependencies": {
     "@eslint/js": "9.26.0",
-    "@typescript-eslint/eslint-plugin": "8.32.0",
-    "@typescript-eslint/parser": "8.32.0",
+    "@octokit/core": "6.1.5",
+    "@typescript-eslint/eslint-plugin": "8.32.1",
+    "@typescript-eslint/parser": "8.32.1",
     "@types/jest": "29.5.14",
     "esbuild": "0.25.4",
     "eslint": "9.26.0",

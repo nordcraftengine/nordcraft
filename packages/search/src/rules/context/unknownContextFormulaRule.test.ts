@@ -19,7 +19,7 @@ describe('unknownContextFormulaRule', () => {
                     type: 'path',
                     path: ['Contexts', 'unknown', 'test'],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -28,7 +28,7 @@ describe('unknownContextFormulaRule', () => {
                     type: 'path',
                     path: ['Contexts', 'known', 'unknown'],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -69,7 +69,7 @@ describe('unknownContextFormulaRule', () => {
                     type: 'path',
                     path: ['Contexts', 'known', 'test'],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

@@ -165,8 +165,8 @@ export class ToddleApiV2<Handler> implements ApiRequest {
     return this.api.timeout
   }
 
-  get '@toddle/metadata'() {
-    return this.api['@toddle/metadata']
+  get '@nordcraft/metadata'() {
+    return this.api['@nordcraft/metadata']
   }
 
   *formulasInApi(): Generator<{

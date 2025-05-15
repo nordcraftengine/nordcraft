@@ -50,7 +50,7 @@ describe('unknownTriggerWorkflowParameterRule', () => {
                       testValue: 4,
                     },
                   ],
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -113,7 +113,7 @@ describe('unknownTriggerWorkflowParameterRule', () => {
                       testValue: 4,
                     },
                   ],
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -158,7 +158,7 @@ describe('unknownTriggerWorkflowParameterRule', () => {
                     },
                   ],
                   exposeInContext: true,
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -246,7 +246,7 @@ describe('unknownTriggerWorkflowParameterRule', () => {
                     },
                   ],
                   exposeInContext: true,
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -330,7 +330,7 @@ describe('unknownTriggerWorkflowParameterRule', () => {
                         },
                       ],
                       exposeInContext: true,
-                      '@toddle/metadata': {
+                      '@nordcraft/metadata': {
                         comments: null,
                       },
                     },
@@ -421,7 +421,7 @@ describe('unknownTriggerWorkflowParameterRule', () => {
                         },
                       ],
                       exposeInContext: true,
-                      '@toddle/metadata': {
+                      '@nordcraft/metadata': {
                         comments: null,
                       },
                     },

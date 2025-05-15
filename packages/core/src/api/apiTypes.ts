@@ -1,6 +1,6 @@
 import type { EventModel } from '../component/component.types'
 import type { Formula } from '../formula/formula'
-import type { ToddleMetadata } from '../types'
+import type { NordcraftMetadata } from '../types'
 
 export type ComponentAPI = LegacyComponentAPI | ApiRequest
 
@@ -52,7 +52,7 @@ export type ApiParserMode =
   | 'json-stream'
   | 'blob'
 
-export interface ApiBase extends ToddleMetadata {
+export interface ApiBase extends NordcraftMetadata {
   url?: Formula
   path?: Record<string, { formula: Formula; index: number }>
   queryParams?: Record<

@@ -13,9 +13,16 @@ export const proxyRequestHandler = async (
 ): Promise<Response> => {
   const req = c.req.raw
   const requestCookies = getRequestCookies(req)
+  const requestUrl = new URL(req.url)
   const outgoingRequestUrl = validateUrl(
     // Replace potential cookie values in the URL
-    applyTemplateValues(req.headers.get(PROXY_URL_HEADER), requestCookies),
+    {
+      path: applyTemplateValues(
+        req.headers.get(PROXY_URL_HEADER),
+        requestCookies,
+      ),
+      origin: requestUrl.origin,
+    },
   )
   if (!outgoingRequestUrl) {
     return c.json(

@@ -88,7 +88,7 @@ describe('unknownVariableSetter', () => {
               variables: {
                 known: {
                   initialValue: { type: 'value', value: null },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

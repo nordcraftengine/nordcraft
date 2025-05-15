@@ -75,6 +75,7 @@ export const createStylesheet = (
   // eslint-disable-next-line max-params
 ) => {
   const hashes = new Set<string>()
+  const animationHashes = new Set<string>()
 
   // Get fonts used on the page
   const fonts = getAllFonts(components)
@@ -211,6 +212,11 @@ ${selector}::-webkit-scrollbar {
           node.animations
             ? Object.entries(node.animations)
                 .map(([animationName, keyframes]) => {
+                  // Animation names are stored by their hash, so no need to render them more than once.
+                  if (animationHashes.has(animationName)) {
+                    return ''
+                  }
+                  animationHashes.add(animationName)
                   return `
                   @keyframes ${animationName} {
                     ${Object.values(keyframes)

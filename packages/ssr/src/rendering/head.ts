@@ -164,9 +164,10 @@ export const getHeadItems = ({
       )}" />`,
     )
   }
-  const manifestUrl = validateUrl(
-    applyFormula(files.config?.meta?.manifest?.formula, context),
-  )
+  const manifestUrl = validateUrl({
+    path: applyFormula(files.config?.meta?.manifest?.formula, context),
+    origin: url.origin,
+  })
   if (manifestUrl) {
     const manifestUrl = urlWithCacheBuster('/manifest.json', cacheBuster)
     headItems.set(

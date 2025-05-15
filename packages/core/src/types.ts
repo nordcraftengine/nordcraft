@@ -134,8 +134,8 @@ export interface Comment {
   text: string
 }
 
-export interface ToddleMetadata {
-  '@toddle/metadata'?: {
+export interface NordcraftMetadata {
+  '@nordcraft/metadata'?: {
     comments: Record<string, Comment & { index: number }> | null
   } | null
 }

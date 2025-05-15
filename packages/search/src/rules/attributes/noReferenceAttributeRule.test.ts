@@ -17,7 +17,7 @@ describe('noReferenceAttributeRule', () => {
                 'my-attribute': {
                   name: 'my-attribute-name',
                   testValue: { type: 'value', value: null },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -64,7 +64,7 @@ describe('noReferenceAttributeRule', () => {
                       },
                     ],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -74,7 +74,7 @@ describe('noReferenceAttributeRule', () => {
                 'my-attribute': {
                   name: 'my-attribute',
                   testValue: { type: 'value', value: null },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -114,7 +114,7 @@ describe('noReferenceAttributeRule', () => {
                       },
                     ],
                   },
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

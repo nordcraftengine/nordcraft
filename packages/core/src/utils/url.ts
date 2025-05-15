@@ -6,13 +6,18 @@ export const isLocalhostUrl = (hrefOrOrigin: string) =>
 export const isLocalhostHostname = (hostname: string) =>
   hostname === 'localhost' || hostname === '127.0.0.1'
 
-export const validateUrl = (url?: string | null, base?: string) => {
-  if (typeof url !== 'string') {
+export const validateUrl = ({
+  path,
+  origin,
+}: {
+  path: string | null | undefined
+  origin: string | undefined
+}) => {
+  if (typeof path !== 'string') {
     return false
   }
-
   try {
-    const urlObject = new URL(url, base)
+    const urlObject = new URL(path, origin)
     // Creating a new URL object will not correctly encode the search params
     // So we need to iterate over them to make sure they are encoded as that happens when setting them explicitly
     const searchCopy = new URLSearchParams(urlObject.searchParams)

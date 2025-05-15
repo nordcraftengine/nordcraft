@@ -33,7 +33,7 @@ describe('duplicateWorkflowParameterRule', () => {
                     },
                   ],
                   actions: [],
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },
@@ -88,7 +88,7 @@ describe('duplicateWorkflowParameterRule', () => {
                     },
                   ],
                   actions: [],
-                  '@toddle/metadata': {
+                  '@nordcraft/metadata': {
                     comments: null,
                   },
                 },

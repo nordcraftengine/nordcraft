@@ -15,12 +15,12 @@
     },
     {
       "name": "Options",
-      "description": "Optional Object for configuring the formatting of the output. See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#syntax for all options.",
+      "description": "Optional Object for configuring the formatting of the output. See the [DateTimeFormat syntax on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#syntax).",
       "type": { "type": "Object" },
       "formula": { "type": "value", "value": null }
     }
   ],
-  "description": "Format a date using the Intl.DateTimeFormat API. See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat for more information.",
+  "description": "Format a date using the Intl.DateTimeFormat API. See the [DateTimeFormat docs on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat).",
   "output": {
     "description": "The Date input formatted as a String.",
     "type": { "type": "String" }

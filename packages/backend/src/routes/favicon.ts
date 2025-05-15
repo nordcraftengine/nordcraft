@@ -11,7 +11,11 @@ export const favicon = async (c: Context<HonoEnv<HonoProject>>) => {
       c.var.config?.meta?.icon?.formula,
       undefined as any,
     )
-    const validIconUrl = validateUrl(iconUrl)
+    const requestUrl = new URL(c.req.url)
+    const validIconUrl = validateUrl({
+      path: iconUrl,
+      origin: requestUrl.origin,
+    })
     if (validIconUrl) {
       // return a (streamed) response with the icon
       const { body, ok, headers: iconHeaders } = await fetch(validIconUrl)

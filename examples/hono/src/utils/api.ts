@@ -284,7 +284,10 @@ const fetchApiV2 = async ({
       },
     })
     if (typeof location === 'string') {
-      const url = validateUrl(location, originalRequestUrl.origin)
+      const url = validateUrl({
+        path: location,
+        origin: originalRequestUrl.origin,
+      })
       if (url) {
         // Opt out early to avoid additional API requests/rendering
         throw new RedirectError({

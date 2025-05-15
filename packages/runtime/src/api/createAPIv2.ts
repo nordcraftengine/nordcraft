@@ -118,7 +118,10 @@ export function createAPI(
         },
       })
       if (typeof location === 'string') {
-        const url = validateUrl(location, window.location.href)
+        const url = validateUrl({
+          path: location,
+          origin: window.location.origin,
+        })
         if (url) {
           if (ctx.env.runtime === 'preview') {
             // Attempt to notify the parent about the failed navigation attempt

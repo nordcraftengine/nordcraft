@@ -8,7 +8,7 @@
     "@nordcraft/core": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "22.15.17"
+    "@types/node": "22.15.18"
   },
   "scripts": {
     "build": "bun ./bin/generate.js && tsc --project tsconfig.build.json",
