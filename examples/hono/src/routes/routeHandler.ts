@@ -1,5 +1,6 @@
 import { NON_BODY_RESPONSE_CODES } from '@nordcraft/core/dist/api/api'
 import { REWRITE_HEADER } from '@nordcraft/core/dist/utils/url'
+import { serverEnv } from '@nordcraft/ssr/dist/rendering/formulaContext'
 import { getRouteDestination } from '@nordcraft/ssr/dist/routing/routing'
 import type { Route } from '@nordcraft/ssr/dist/ssr.types'
 import type { Context } from 'hono'
@@ -10,6 +11,8 @@ export const routeHandler = async (c: Context<HonoEnv>, route: Route) => {
     files: c.var.project.files,
     req: c.req.raw,
     route,
+    // might not want to use main branch here
+    env: serverEnv({ branchName: 'main', req: c.req.raw, logErrors: false }),
   })
   if (!destination) {
     return c.html(`Invalid destination`, {

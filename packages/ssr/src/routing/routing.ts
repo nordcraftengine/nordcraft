@@ -4,6 +4,7 @@ import type {
   PageRoute,
   RouteDeclaration,
 } from '@nordcraft/core/dist/component/component.types'
+import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import {
   getParameters,
@@ -87,10 +88,12 @@ export const getRouteDestination = ({
   files,
   req,
   route,
+  env,
 }: {
   files: ProjectFiles
   req: Request
   route: Route
+  env: ToddleEnv
 }) => {
   try {
     const requestUrl = new URL(req.url)
@@ -106,12 +109,14 @@ export const getRouteDestination = ({
       // the route's source definition + global formulas.
       {
         data: {
+          Attributes: {},
           'Route parameters': {
             path: pathParams,
             query: searchParamsWithDefaults,
           },
         },
         toddle: getServerToddleObject(files),
+        env,
       } as any,
       // Redirects can redirect to relative URLs - rewrites can't
       route.type === 'redirect' ? requestUrl.origin : undefined,
