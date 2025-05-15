@@ -4,5 +4,23 @@ updates:
   - package-ecosystem: 'bun'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
     open-pull-requests-limit: 5
+    groups:
+      linting:
+        patterns:
+          - '*eslint*'
+          - 'eslint'
+          - 'eslint*'
+      formatting:
+        patterns:
+          - 'prettier'
+          - 'prettier-plugin-organize-imports'
+      test:
+        patterns:
+          - 'jest'
+          - '@types/jest'
+      cloudflare:
+        patterns:
+          - '@cloudflare/workers-types'
+          - 'wrangler'
