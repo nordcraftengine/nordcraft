@@ -45,6 +45,6 @@ app.get('/serviceWorker.js', loadProjectInfo, serviceWorker)
 
 app.get('/*', pageLoader) // routes + single page
 
-app.notFound()
+app.notFound(notFoundLoader)
 
 export default app

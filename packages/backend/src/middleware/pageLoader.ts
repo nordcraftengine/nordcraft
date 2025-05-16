@@ -2,12 +2,12 @@ import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
 import { matchPageForUrl } from '@nordcraft/ssr/dist/routing/routing'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { MiddlewareHandler } from 'hono'
-import type { HonoEnv, HonoPage, HonoRoutes } from '../../hono'
+import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 import { nordcraftPage } from '../routes/nordcraftPage'
 import { loadJsFile } from './jsLoader'
 
 export const pageLoader: MiddlewareHandler<
-  HonoEnv<HonoRoutes & HonoPage>
+  HonoEnv<HonoRoutes & HonoProject>
 > = async (ctx, next) => {
   const url = new URL(ctx.req.url)
   const page = matchPageForUrl({
@@ -25,7 +25,8 @@ export const pageLoader: MiddlewareHandler<
     return nordcraftPage({
       req: ctx.req.raw,
       project: ctx.var.project,
-      files: {},
+      // TODO: pass in global toddle formulas
+      files: {} as any,
       page: component,
     })
   }
