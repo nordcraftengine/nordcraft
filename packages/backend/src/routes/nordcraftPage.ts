@@ -14,24 +14,26 @@ import {
 import { getCharset, getHtmlLanguage } from '@nordcraft/ssr/dist/rendering/html'
 import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
 import { removeTestData } from '@nordcraft/ssr/src/rendering/testData'
+import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
+import type { HonoEnv } from '../../hono'
 
 export const nordcraftPage = async ({
-  req,
+  hono,
   project,
   files,
   page,
 }: {
-  req: Request
+  hono: Context<HonoEnv<any>>
   project: ToddleProject
   files: ProjectFiles & { customCode: boolean }
   page: PageComponent
 }) => {
-  const url = new URL(req.url)
+  const url = new URL(hono.req.raw.url)
   const formulaContext = getPageFormulaContext({
     component: page,
     branchName: 'main',
-    req,
+    req: hono.req.raw,
     logErrors: true,
     files,
   })
@@ -95,7 +97,7 @@ export const nordcraftPage = async ({
     component: toddleComponent,
     formulaContext,
     env: formulaContext.env as ToddleServerEnv,
-    req,
+    req: hono.req.raw,
     files: files,
     includedComponents,
     evaluateComponentApis: async (_) => ({
@@ -153,7 +155,7 @@ export const nordcraftPage = async ({
     `
   }
 
-  return c.html(
+  return hono.html(
     html`<!doctype html>
       <html lang="${language}">
         <head>

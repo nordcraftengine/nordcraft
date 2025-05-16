@@ -1,6 +1,7 @@
 import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
 import { Hono } from 'hono'
 import type { HonoEnv } from '../hono'
+import { notFoundLoader } from './middleware/notFoundLoader'
 import { pageLoader } from './middleware/pageLoader'
 import { loadProjectInfo } from './middleware/projectInfo'
 import { routesLoader } from './middleware/routesLoader'
@@ -45,6 +46,6 @@ app.get('/serviceWorker.js', loadProjectInfo, serviceWorker)
 
 app.get('/*', pageLoader) // routes + single page
 
-app.notFound(notFoundLoader)
+app.notFound(notFoundLoader as any)
 
 export default app

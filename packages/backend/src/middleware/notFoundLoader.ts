@@ -18,10 +18,9 @@ export const notFoundLoader: NotFoundHandler<
     })
   }
   return nordcraftPage({
-    req: ctx.req.raw,
+    hono: ctx,
     project: ctx.var.project,
-    // TODO: pass in global toddle formulas
-    files: {} as any,
+    files: pageContent,
     page: component,
   })
 }

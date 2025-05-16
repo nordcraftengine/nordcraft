@@ -23,10 +23,9 @@ export const pageLoader: MiddlewareHandler<
       return next()
     }
     return nordcraftPage({
-      req: ctx.req.raw,
+      hono: ctx,
       project: ctx.var.project,
-      // TODO: pass in global toddle formulas
-      files: {} as any,
+      files: pageContent,
       page: component,
     })
   }
