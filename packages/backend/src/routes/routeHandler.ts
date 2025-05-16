@@ -1,6 +1,9 @@
 import { NON_BODY_RESPONSE_CODES } from '@nordcraft/core/dist/api/api'
 import { REWRITE_HEADER } from '@nordcraft/core/dist/utils/url'
-import { serverEnv } from '@nordcraft/ssr/dist/rendering/formulaContext'
+import {
+  getServerToddleObject,
+  serverEnv,
+} from '@nordcraft/ssr/dist/rendering/formulaContext'
 import {
   getRouteDestination,
   matchRouteForUrl,
@@ -13,17 +16,21 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes>> = async (c, next) => {
   const route = matchRouteForUrl({
     url,
     routes: c.var.routes?.routes ?? {},
+    env: serverEnv({ branchName: 'main', req: c.req.raw, logErrors: false }),
+    req: c.req.raw,
+    // TODO: We should pass in global toddle formulas from project + packages here
+    serverContext: getServerToddleObject({} as any),
   })
   if (!route) {
     return next()
   }
   const destination = getRouteDestination({
-    files: {} as any, // c.var.project.files,
-    req: c.req.raw,
-    route,
-
     // might not want to use main branch here
     env: serverEnv({ branchName: 'main', req: c.req.raw, logErrors: false }),
+    req: c.req.raw,
+    route,
+    // TODO: We should pass in global toddle formulas from project + packages here
+    serverContext: getServerToddleObject({} as any),
   })
   if (!destination) {
     return c.html(`Invalid destination`, {

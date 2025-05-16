@@ -98,7 +98,7 @@ export type Formula =
   | ApplyOperation
 
 export type FormulaContext = {
-  component: Component
+  component: Component | undefined
   formulaCache?: Record<
     string,
     {
@@ -297,7 +297,7 @@ export function applyFormula(
           applyFormula(entry.formula, ctx),
         )
       case 'apply': {
-        const componentFormula = ctx.component.formulas?.[formula.name]
+        const componentFormula = ctx.component?.formulas?.[formula.name]
         if (!componentFormula) {
           if (ctx.env?.logErrors) {
             console.log(

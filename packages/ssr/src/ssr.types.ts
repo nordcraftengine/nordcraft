@@ -103,6 +103,7 @@ export interface PluginAction {
 interface BaseRoute {
   source: RouteDeclaration
   destination: ApiBase
+  enabled?: Formula
 }
 
 export interface RewriteRoute extends BaseRoute {
