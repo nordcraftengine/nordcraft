@@ -10,16 +10,18 @@
   ],
   "devDependencies": {
     "@eslint/js": "9.26.0",
+    "@html-eslint/eslint-plugin": "^0.40.3",
+    "@html-eslint/parser": "^0.40.0",
     "@octokit/core": "6.1.5",
+    "@types/jest": "29.5.14",
     "@typescript-eslint/eslint-plugin": "8.32.1",
     "@typescript-eslint/parser": "8.32.1",
-    "@types/jest": "29.5.14",
     "esbuild": "0.25.4",
-    "eslint": "9.26.0",
     "eslint-plugin-inclusive-language": "2.2.1",
+    "eslint": "9.26.0",
     "jest": "29.7.0",
-    "prettier": "3.5.3",
     "prettier-plugin-organize-imports": "4.1.0",
+    "prettier": "3.5.3",
     "typescript": "5.8.3"
   },
   "scripts": {
