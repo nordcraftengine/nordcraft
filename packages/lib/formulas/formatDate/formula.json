@@ -10,7 +10,7 @@
     {
       "name": "Locale(s)",
       "description": "Optional locale to use for formatting the Date, e.g. \"en\" or \"fr\". Multiple locales can be provided (as an Array of Strings) to provide a fallback locale. The default value is the runtime's locale.",
-      "type": { "type": "String or Array" },
+      "type": { "type": "Array \\| String" },
       "formula": { "type": "value", "value": null }
     },
     {

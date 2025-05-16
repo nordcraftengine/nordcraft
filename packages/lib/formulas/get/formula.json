@@ -6,27 +6,13 @@
       "name": "Object",
       "formula": { "type": "value", "value": null },
       "description": "The Object, Array or String you want to extract an item from.",
-      "type": {
-        "type": "Union",
-        "types": [
-          { "type": "Object" },
-          { "type": "Array" },
-          { "type": "String" }
-        ]
-      }
+      "type": { "type": "Array \\| Object \\| String" }
     },
     {
       "name": "Path",
       "formula": { "type": "value", "value": "Item" },
       "description": "The Path can be either a Number, a String, or an Array.",
-      "type": {
-        "type": "Union",
-        "types": [
-          { "type": "Array", "ofType": { "type": "String" } },
-          { "type": "String" },
-          { "type": "Number" }
-        ]
-      }
+      "type": { "type": "Array<String> \\| Number \\| String" }
     }
   ],
   "output": {

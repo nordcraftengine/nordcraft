@@ -6,14 +6,7 @@
       "name": "Collection",
       "formula": { "type": "value", "value": [1, 2, 3] },
       "description": "The collection to get the size of.",
-      "type": {
-        "type": "Union",
-        "types": [
-          { "type": "String" },
-          { "type": "Array" },
-          { "type": "Object" }
-        ]
-      }
+      "type": { "type": "Array \\| Object \\| String" }
     }
   ],
   "output": {
