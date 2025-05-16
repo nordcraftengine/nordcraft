@@ -1,12 +1,5 @@
-import type {
-  Component,
-  PageComponent,
-} from '@nordcraft/core/dist/component/component.types'
-import type {
-  ProjectFiles,
-  Route,
-  ToddleProject,
-} from '@nordcraft/ssr/dist/ssr.types'
+import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
 import type { Routes } from './src/middleware/routesLoader'
 
 export interface HonoEnv<T = never> {
@@ -24,18 +17,8 @@ export interface HonoRoutes {
   routes: Routes
 }
 
-export interface HonoRoute {
-  route?: Route
-}
-
 export interface HonoComponent {
   // Holds all relevant files for a given component
   files: ProjectFiles & { customCode: boolean }
   component: Component
-}
-
-export interface HonoPage {
-  // Holds all relevant files for a given component
-  files: ProjectFiles & { customCode: boolean }
-  page: PageComponent
 }
