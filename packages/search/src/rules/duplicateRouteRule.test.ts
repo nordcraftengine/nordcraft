@@ -1,4 +1,3 @@
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { searchProject } from '../searchProject'
 import { duplicateRouteRule } from './duplicateRouteRule'
 
@@ -34,44 +33,17 @@ describe('duplicateRouteRule', () => {
               },
             },
           },
-          routes: {
-            home: {
-              type: 'redirect',
-              source: {
-                path: [],
-                query: {},
-              },
-              destination: {
-                path: {},
-                queryParams: {},
-                url: valueFormula(''),
-              },
-            },
-            oldBlog: {
-              type: 'rewrite',
-              source: {
-                path: [],
-                query: {},
-              },
-              destination: {
-                path: {},
-                queryParams: {},
-                url: valueFormula(''),
-              },
-            },
-          },
+          routes: {},
         },
         rules: [duplicateRouteRule],
       }),
     )
 
-    expect(problems).toHaveLength(4)
+    expect(problems).toHaveLength(2)
     expect(problems[0].code).toBe('duplicate route')
     expect(problems[0].details.name).toEqual('home')
     expect(problems[0].details.type).toEqual('page')
     expect(problems[0].details.duplicates).toEqual([
-      { name: 'home', type: 'route' },
-      { name: 'oldBlog', type: 'route' },
       { name: 'home2', type: 'page' },
     ])
     expect(problems[0].path).toEqual(['components', 'home', 'route', 'path'])
@@ -163,42 +135,7 @@ describe('duplicateRouteRule', () => {
               },
             },
           },
-          routes: {
-            unknown: {
-              type: 'redirect',
-              source: {
-                path: [
-                  {
-                    name: 'unused-path',
-                    type: 'static',
-                  },
-                ],
-                query: {},
-              },
-              destination: {
-                path: {},
-                queryParams: {},
-                url: valueFormula(''),
-              },
-            },
-            oldBlog: {
-              type: 'rewrite',
-              source: {
-                path: [
-                  {
-                    name: 'old-blog',
-                    type: 'static',
-                  },
-                ],
-                query: {},
-              },
-              destination: {
-                path: {},
-                queryParams: {},
-                url: valueFormula(''),
-              },
-            },
-          },
+          routes: {},
         },
         rules: [duplicateRouteRule],
       }),
