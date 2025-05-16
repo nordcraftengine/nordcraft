@@ -46,6 +46,7 @@ import { noReferenceVariableRule } from './rules/variables/noReferenceVariableRu
 import { unknownVariableRule } from './rules/variables/unknownVariableRule'
 import { unknownVariableSetterRule } from './rules/variables/unknownVariableSetterRule'
 import { duplicateWorkflowParameterRule } from './rules/workflows/duplicateWorkflowParameterRule'
+import { noPostNavigateAction } from './rules/workflows/noPostNavigateAction'
 import { noReferenceComponentWorkflowRule } from './rules/workflows/noReferenceComponentWorkflowRule'
 import { unknownContextProviderWorkflowRule } from './rules/workflows/unknownContextProviderWorkflowRule'
 import { unknownContextWorkflowRule } from './rules/workflows/unknownContextWorkflowRule'
@@ -125,6 +126,7 @@ const RULES = [
   legacyFormulaRule,
   noContextConsumersRule,
   nonEmptyVoidElementRule,
+  noPostNavigateAction,
   noReferenceApiRule,
   noReferenceAttributeRule,
   noReferenceComponentFormulaRule,

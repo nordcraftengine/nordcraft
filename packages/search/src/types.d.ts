@@ -32,6 +32,7 @@ type Code =
   | 'legacy api'
   | 'legacy formula'
   | 'no context consumers'
+  | 'no post navigate action'
   | 'no-console'
   | 'no-reference api input'
   | 'no-reference api'
