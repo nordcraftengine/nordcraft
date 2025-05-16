@@ -390,7 +390,10 @@ export function createAPI(
           () => {
             run().then(resolve, reject)
           },
-          applyFormula(api.client?.debounce?.formula, getFormulaContext(api)),
+          applyFormula(
+            api.client?.debounce?.formula,
+            getFormulaContext(api),
+          ) as any,
         )
       })
     }
@@ -746,9 +749,12 @@ export function createAPI(
       request: constructRequest(api),
       api: getApiForComparison(api),
       autoFetch: api.autoFetch
-        ? applyFormula(api.autoFetch, payloadContext)
+        ? (applyFormula(api.autoFetch, payloadContext) as any)
         : false,
-      proxy: applyFormula(api.server?.proxy?.enabled.formula, payloadContext),
+      proxy: applyFormula(
+        api.server?.proxy?.enabled.formula,
+        payloadContext,
+      ) as any,
     }
   })
   payloadSignal.subscribe(async (_) => {
@@ -899,7 +905,7 @@ export function createAPI(
       api = newApi
       const updateContext = getFormulaContext(api)
       const autoFetch =
-        api.autoFetch && applyFormula(api.autoFetch, updateContext)
+        api.autoFetch && (applyFormula(api.autoFetch, updateContext) as any)
       if (autoFetch) {
         payloadSignal?.set({
           request: constructRequest(newApi),
@@ -908,7 +914,7 @@ export function createAPI(
           proxy: applyFormula(
             newApi.server?.proxy?.enabled.formula,
             updateContext,
-          ),
+          ) as any,
         })
       }
     },

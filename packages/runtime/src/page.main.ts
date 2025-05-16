@@ -182,14 +182,14 @@ export const createRoot = (domNode: HTMLElement) => {
     dataSignal
       .map<string | null>(() =>
         component
-          ? applyFormula(titleFormula, {
+          ? (applyFormula(titleFormula, {
               data: dataSignal.get(),
               component,
               root: document,
               package: undefined,
               toddle: window.toddle,
               env,
-            })
+            }) as any)
           : null,
       )
       .subscribe((newTitle) => {
@@ -249,14 +249,14 @@ export const createRoot = (domNode: HTMLElement) => {
       dataSignal
         .map<string | null>((data) =>
           component
-            ? applyFormula(descriptionFormula, {
+            ? (applyFormula(descriptionFormula, {
                 data,
                 component,
                 root: document,
                 package: undefined,
                 toddle: window.toddle,
                 env,
-              })
+              }) as any)
             : null,
         )
         .subscribe((newDescription) => {
@@ -398,16 +398,17 @@ export const createRoot = (domNode: HTMLElement) => {
         .filter(([, formula]) => formula.exposeInContext)
         .map(([name, formula]) => [
           name,
-          dataSignal.map((data) =>
-            applyFormula(formula.formula, {
-              data,
-              component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: window.toddle,
-              env,
-            }),
+          dataSignal.map(
+            (data) =>
+              applyFormula(formula.formula, {
+                data,
+                component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: window.toddle,
+                env,
+              }) as any,
           ),
         ]),
     )

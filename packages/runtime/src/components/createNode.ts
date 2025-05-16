@@ -218,7 +218,7 @@ export function createNode({
           }
 
           let childKey = node.repeatKey
-            ? applyFormula(node.repeatKey, {
+            ? (applyFormula(node.repeatKey, {
                 data: childData,
                 component: ctx.component,
                 formulaCache: ctx.formulaCache,
@@ -226,7 +226,7 @@ export function createNode({
                 package: ctx.package,
                 toddle: ctx.toddle,
                 env: ctx.env,
-              })
+              }) as any)
             : Key
 
           // Can't we just use the Item reference as key as we have fine-grained reactivity at this point?
