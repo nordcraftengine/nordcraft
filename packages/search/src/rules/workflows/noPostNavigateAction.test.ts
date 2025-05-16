@@ -109,7 +109,7 @@ describe('noPostNavigateAction', () => {
       'events',
       'click',
       'actions',
-      '1',
+      '0',
     ])
   })
   test('should detect workflow actions after a url navigate action', () => {
@@ -193,7 +193,7 @@ describe('noPostNavigateAction', () => {
       'workflows',
       'RGyFQC',
       'actions',
-      '1',
+      '0',
     ])
   })
   test('should detect onLoad actions after a url navigate action', () => {
@@ -273,7 +273,7 @@ describe('noPostNavigateAction', () => {
       'nav',
       'onLoad',
       'actions',
-      '1',
+      '0',
     ])
   })
   test('should not report issues if navigate is the last action', () => {

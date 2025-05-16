@@ -23,8 +23,9 @@ export const noPostNavigateAction: Rule<{ parameter: string }> = {
       return
     }
     const actionIndex = Number(_actionIndex)
-    actions.slice(actionIndex + 1).forEach((_, i) => {
-      report([...actionsArrayPath, String(actionIndex + 1 + i)])
-    })
+    if (actionIndex < actions.length - 1) {
+      // If the action is not the last one in the array, report it
+      report(path)
+    }
   },
 }
