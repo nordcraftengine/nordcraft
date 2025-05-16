@@ -3,6 +3,7 @@ import { matchPageForUrl } from '@nordcraft/ssr/dist/routing/routing'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { MiddlewareHandler } from 'hono'
 import type { HonoEnv, HonoPage, HonoRoutes } from '../../hono'
+import { nordcraftPage } from '../routes/nordcraftPage'
 import { loadJsFile } from './jsLoader'
 
 export const pageLoader: MiddlewareHandler<
@@ -19,17 +20,14 @@ export const pageLoader: MiddlewareHandler<
     >(`./components/${page.name}.js`)
     const component = pageContent?.components?.[page.name]
     if (!component || !isPageComponent(component)) {
-      return ctx.text('Page content not found', { status: 404 })
+      return next()
     }
-    ctx.set('page', component)
-    ctx.set('files', pageContent)
-    return next()
+    return nordcraftPage({
+      req: ctx.req.raw,
+      project: ctx.var.project,
+      files: {},
+      page: component,
+    })
   }
-  return ctx.text('Page not found', {
-    status: 404,
-    headers: {
-      // Temporary debug header for debugging the backend's routing logic
-      X_NC_DEBUG: JSON.stringify(ctx.var.routes.pages),
-    },
-  })
+  return next()
 }
