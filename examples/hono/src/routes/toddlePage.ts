@@ -5,7 +5,11 @@ import type { ToddleInternals } from '@nordcraft/core/dist/types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
 import { renderPageBody } from '@nordcraft/ssr/dist/rendering/components'
-import { getPageFormulaContext } from '@nordcraft/ssr/dist/rendering/formulaContext'
+import {
+  getPageFormulaContext,
+  getServerToddleObject,
+  serverEnv,
+} from '@nordcraft/ssr/dist/rendering/formulaContext'
 import {
   getHeadItems,
   renderHeadItems,
@@ -28,7 +32,14 @@ export const toddlePage = async (c: Context<HonoEnv>) => {
   const project = c.var.project
   const url = new URL(c.req.url)
   // Prefer routes over pages in case of conflicts
-  const route = matchRouteForUrl({ url, routes: project.files.routes })
+  const route = matchRouteForUrl({
+    // might not want to use main branch here
+    env: serverEnv({ branchName: 'main', req: c.req.raw, logErrors: false }),
+    req: c.req.raw,
+    routes: project.files.routes,
+    serverContext: getServerToddleObject(project.files),
+    url,
+  })
   if (route) {
     return routeHandler(c, route)
   }

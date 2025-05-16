@@ -12,10 +12,7 @@ export const duplicateRouteRule: Rule<{
   category: 'Quality',
   visit: (report, args) => {
     const { nodeType, value, files, memo, path } = args
-    if (
-      (nodeType !== 'component' || !isPageComponent(value)) &&
-      nodeType !== 'project-route'
-    ) {
+    if (nodeType !== 'component' || !isPageComponent(value)) {
       return
     }
     const getRouteKey = (route: RouteDeclaration['path']) =>
@@ -24,22 +21,7 @@ export const duplicateRouteRule: Rule<{
         '/',
       )
     const allRoutes = memo('allRoutes', () => {
-      const routes = new Map<
-        string,
-        Array<{ name: string; type: 'route' | 'page' }>
-      >()
-      Object.entries(files.routes ?? {}).map(([route, routeValue]) => {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (routeValue.source) {
-          const key = getRouteKey(routeValue.source.path)
-          const existing = routes.get(key)
-          if (existing) {
-            existing.push({ name: route, type: 'route' })
-          } else {
-            routes.set(key, [{ name: route, type: 'route' }])
-          }
-        }
-      })
+      const routes = new Map<string, string[]>()
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       Object.entries(files.components ?? {}).map(
         ([component, componentValue]) => {
@@ -47,37 +29,24 @@ export const duplicateRouteRule: Rule<{
             const key = getRouteKey(componentValue.route.path)
             const existing = routes.get(key)
             if (existing) {
-              existing.push({ name: component, type: 'page' })
+              existing.push(component)
             } else {
-              routes.set(key, [{ name: component, type: 'page' }])
+              routes.set(key, [component])
             }
           }
         },
       )
       return routes
     })
-    if (nodeType === 'project-route') {
-      const match = allRoutes.get(getRouteKey(value.source.path))
-      if (match && match.length > 1) {
-        report([...path, 'source', 'path'], {
-          name: args.routeName,
-          type: 'route',
-          duplicates: match.filter(
-            (m) => m.name !== args.routeName || m.type === 'page',
-          ),
-        })
-      }
-    } else if (isPageComponent(value)) {
-      const match = allRoutes.get(getRouteKey(value.route?.path))
-      if (match && match.length > 1) {
-        report([...path, 'route', 'path'], {
-          name: value.name,
-          type: 'page',
-          duplicates: match.filter(
-            (m) => m.name !== value.name || m.type === 'route',
-          ),
-        })
-      }
+    const match = allRoutes.get(getRouteKey(value.route?.path))
+    if (match && match.length > 1) {
+      report([...path, 'route', 'path'], {
+        name: value.name,
+        type: 'page',
+        duplicates: match
+          .filter((m) => m !== value.name)
+          .map((name) => ({ name, type: 'page' })),
+      })
     }
   },
 }
