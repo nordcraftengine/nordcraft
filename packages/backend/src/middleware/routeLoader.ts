@@ -20,7 +20,11 @@ export const routeLoader = createMiddleware<HonoEnv<HonoRoutes & HonoRoute>>(
     }
     route = matchRouteForUrl({
       // might not want to use main branch here
-      env: serverEnv({ branchName: 'main', req: c.req.raw, logErrors: false }),
+      env: serverEnv({
+        branchName: 'main',
+        req: ctx.req.raw,
+        logErrors: false,
+      }),
       req: ctx.req.raw,
       url,
       routes: ctx.var.routes.routes,
