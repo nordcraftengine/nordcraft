@@ -1,3 +1,4 @@
+import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { type ToddleServerEnv } from '@nordcraft/core/dist/formula/formula'
 import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
@@ -11,22 +12,28 @@ import {
   renderHeadItems,
 } from '@nordcraft/ssr/dist/rendering/head'
 import { getCharset, getHtmlLanguage } from '@nordcraft/ssr/dist/rendering/html'
+import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
 import { removeTestData } from '@nordcraft/ssr/src/rendering/testData'
 import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
-import type { HonoEnv, HonoPage, HonoProject, HonoRoutes } from '../../hono'
+import type { HonoEnv } from '../../hono'
 
-export const nordcraftPage = async (
-  c: Context<HonoEnv<HonoProject & HonoRoutes & HonoPage>>,
-) => {
-  const project = c.var.project
-  const files = c.var.files
-  const page = c.var.page
-  const url = new URL(c.req.url)
+export const nordcraftPage = async ({
+  hono,
+  project,
+  files,
+  page,
+}: {
+  hono: Context<HonoEnv<any>>
+  project: ToddleProject
+  files: ProjectFiles & { customCode: boolean }
+  page: PageComponent
+}) => {
+  const url = new URL(hono.req.raw.url)
   const formulaContext = getPageFormulaContext({
     component: page,
     branchName: 'main',
-    req: c.req.raw,
+    req: hono.req.raw,
     logErrors: true,
     files,
   })
@@ -90,7 +97,7 @@ export const nordcraftPage = async (
     component: toddleComponent,
     formulaContext,
     env: formulaContext.env as ToddleServerEnv,
-    req: c.req.raw,
+    req: hono.req.raw,
     files: files,
     includedComponents,
     evaluateComponentApis: async (_) => ({
@@ -148,7 +155,7 @@ export const nordcraftPage = async (
     `
   }
 
-  return c.html(
+  return hono.html(
     html`<!doctype html>
       <html lang="${language}">
         <head>

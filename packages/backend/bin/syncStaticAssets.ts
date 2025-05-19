@@ -23,7 +23,7 @@ fs.mkdirSync(staticDir, { recursive: true })
   'page.main.esm.js.map',
   'custom-element.main.esm.js',
 ].forEach((f) => {
-  const source = resolvePath('../node_modules/@nordcraft/runtime/dist', f)
+  const source = resolvePath('../../../node_modules/@nordcraft/runtime/dist', f)
   const destination = resolvePath('../assets/_static', f)
   fs.copyFileSync(source, destination)
 })

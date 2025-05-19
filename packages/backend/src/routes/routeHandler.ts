@@ -1,15 +1,22 @@
 import { NON_BODY_RESPONSE_CODES } from '@nordcraft/core/dist/api/api'
 import { REWRITE_HEADER } from '@nordcraft/core/dist/utils/url'
 import { serverEnv } from '@nordcraft/ssr/dist/rendering/formulaContext'
-import { getRouteDestination } from '@nordcraft/ssr/dist/routing/routing'
-import type { Route } from '@nordcraft/ssr/dist/ssr.types'
-import type { Context } from 'hono'
-import type { HonoEnv, HonoRoute, HonoRoutes } from '../../hono'
+import {
+  getRouteDestination,
+  matchRouteForUrl,
+} from '@nordcraft/ssr/dist/routing/routing'
+import type { Handler } from 'hono'
+import type { HonoEnv, HonoRoutes } from '../../hono'
 
-export const routeHandler = async (
-  c: Context<HonoEnv<HonoRoutes & HonoRoute>>,
-  route: Route,
-) => {
+export const routeHandler: Handler<HonoEnv<HonoRoutes>> = async (c, next) => {
+  const url = new URL(c.req.url)
+  const route = matchRouteForUrl({
+    url,
+    routes: c.var.routes?.routes ?? {},
+  })
+  if (!route) {
+    return next()
+  }
   const destination = getRouteDestination({
     files: {} as any, // c.var.project.files,
     req: c.req.raw,
