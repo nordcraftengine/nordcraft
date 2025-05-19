@@ -3,10 +3,10 @@ import { matchPageForUrl } from '@nordcraft/ssr/dist/routing/routing'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { MiddlewareHandler } from 'hono'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
-import { nordcraftPage } from '../routes/nordcraftPage'
-import { loadJsFile } from './jsLoader'
+import { loadJsFile } from '../middleware/jsLoader'
+import { nordcraftPage } from './nordcraftPage'
 
-export const pageLoader: MiddlewareHandler<
+export const pageHandler: MiddlewareHandler<
   HonoEnv<HonoRoutes & HonoProject>
 > = async (ctx, next) => {
   const url = new URL(ctx.req.url)
