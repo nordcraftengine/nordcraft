@@ -159,7 +159,10 @@ export const nordcraftPage = async ({
     html`<!doctype html>
       <html lang="${language}">
         <head>
-          ${raw(head)} ${raw(codeImport)}
+          ${raw(head)}
+          <!--googleoff: all-->
+          ${raw(codeImport)}
+          <!--googleon: all-->
         </head>
         <body>
           <div id="App">${raw(body)}</div>
