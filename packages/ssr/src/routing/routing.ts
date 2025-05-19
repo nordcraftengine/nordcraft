@@ -49,7 +49,7 @@ export const matchRoutes = <T>({
 }): T | undefined => {
   const pathSegments = getPathSegments(url)
   // E.g. /fruit/:fruitId => 1.2
-  // E.g. /:blog/:slug => 2.2
+  // E.g. /:blog/:slug/:author => 2.2.2
   // E.g. /:dynamic/static => 2.1
   const getPathHash = (path: PageRoute['path']) =>
     path.map((segment) => (segment.type === 'static' ? '1' : '2')).join('.')
@@ -71,6 +71,7 @@ export const matchRoutes = <T>({
       const routeBHash = getPathHash(getRoute(b).path)
       // Favors static segments over dynamic segments and shorter paths over longer paths
       // E.g. /fruit/:fruitId wins over /:blog/:slug for /fruit/apple
+      // E.g. /fruit/:fruitId/:category wins over /:blog/:slug for /fruit/apple
       return routeAHash.localeCompare(routeBHash)
     })
   return matches[0]
