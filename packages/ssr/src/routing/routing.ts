@@ -48,6 +48,11 @@ export const matchRoutes = <T>({
   getRoute: (entry: T) => Pick<PageRoute, 'path' | 'query'>
 }): T | undefined => {
   const pathSegments = getPathSegments(url)
+  // E.g. /fruit/:fruitId => 1.2
+  // E.g. /:blog/:slug/:author => 2.2.2
+  // E.g. /:dynamic/static => 2.1
+  const getPathHash = (path: PageRoute['path']) =>
+    path.map((segment) => (segment.type === 'static' ? '1' : '2')).join('.')
   const matches = Object.values(entries)
     .filter((entry) => {
       const route = getRoute(entry)
@@ -62,24 +67,12 @@ export const matchRoutes = <T>({
       )
     })
     .sort((a, b) => {
-      const routeA = getRoute(a)
-      const routeB = getRoute(b)
-      // Prefer shorter routes
-      const diff = routeA.path.length - routeB.path.length
-      if (diff !== 0) {
-        return diff
-      }
-      for (let i = 0; i < pathSegments.length; i++) {
-        // Prefer static segments over dynamic ones
-        // We don't need to check if the name matches, since we did that in the filter above
-        const aScore = routeA.path[i].type === 'static' ? 1 : 0
-        const bScore = routeB.path[i].type === 'static' ? 1 : 0
-        if (aScore !== bScore) {
-          return bScore - aScore
-        }
-      }
-      // TODO: Before giving up on a tie, we could compare the query params?
-      return 0
+      const routeAHash = getPathHash(getRoute(a).path)
+      const routeBHash = getPathHash(getRoute(b).path)
+      // Favors static segments over dynamic segments and shorter paths over longer paths
+      // E.g. /fruit/:fruitId wins over /:blog/:slug for /fruit/apple
+      // E.g. /fruit/:fruitId/:category wins over /:blog/:slug for /fruit/apple
+      return routeAHash.localeCompare(routeBHash)
     })
   return matches[0]
 }
