@@ -92,6 +92,7 @@ export interface Toddle<LocationSignal, ShowSignal> {
     name: string,
     packageName: string | undefined,
   ) => PluginActionV2 | undefined
+  // eslint-disable-next-line max-params
   getArgumentInputData: (
     name: string,
     items: unknown[],
