@@ -1,0 +1,61 @@
+{
+  "name": "Set Http-Only Cookie",
+  "description": "Save a key/value pair as an Http-Only cookie. Useful for storing JWTs or other tokens.",
+  "arguments": [
+    {
+      "name": "Name",
+      "description": "The name of the cookie.",
+      "type": { "type": "String" },
+      "formula": {
+        "type": "value",
+        "value": "access_token"
+      }
+    },
+    {
+      "name": "Value",
+      "description": "The value to be stored in the cookie.",
+      "type": { "type": "String" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      }
+    },
+    {
+      "name": "Expires in",
+      "description": "(Optional) Time in seconds until the cookie expires. Defaults to 3600 (1 hour). This should be left blank for JWTs.",
+      "type": { "type": "Number" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      }
+    },
+    {
+      "name": "SameSite",
+      "description": "(Optional) The SameSite attribute of the cookie. Defaults to Lax.",
+      "type": { "type": "String" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      }
+    },
+    {
+      "name": "Path",
+      "description": "(Optional) The Path attribute of the cookie. Defaults to /.",
+      "type": { "type": "String" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      }
+    }
+  ],
+  "events": {
+    "Success": {
+      "description": "This event is triggered once the cookie has been saved.",
+      "actions": []
+    },
+    "Error": {
+      "description": "This event is triggered if the cookie could not be saved.",
+      "actions": []
+    }
+  }
+}
