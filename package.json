@@ -13,6 +13,7 @@
     "@html-eslint/eslint-plugin": "0.41.0",
     "@html-eslint/parser": "0.41.0",
     "@octokit/core": "6.1.5",
+    "@types/bun": "1.2.13",
     "@types/jest": "29.5.14",
     "@typescript-eslint/eslint-plugin": "8.33.0",
     "@typescript-eslint/parser": "8.33.0",
