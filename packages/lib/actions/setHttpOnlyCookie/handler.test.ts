@@ -16,9 +16,23 @@ describe('set http only cookie', async () => {
     spyFetch.mockReset()
   })
   it('should set a cookie', async () => {
-    const mockGetExample = async (url: string) => {
-      expect(url).toBe(
-        '/.toddle/cookies/set-session-cookie?name=my_cookie&value=my_value&sameSite=Lax&path=%2F&includeSubdomains=true&ttl=3600',
+    const name = 'my_cookie'
+    const value = 'my_value'
+    const ttl = 3600
+    const sameSite = 'Lax'
+    const path = '/'
+    const includeSubdomains = true
+
+    const mockGetExample = async (href: string) => {
+      const url = new URL(href, 'http://localhost')
+      expect(url.pathname).toBe('/.nordcraft/cookies/set-cookie')
+      expect(url.searchParams.get('name')).toBe(name)
+      expect(url.searchParams.get('value')).toBe(value)
+      expect(url.searchParams.get('sameSite')).toBe(sameSite)
+      expect(url.searchParams.get('path')).toBe(path)
+      expect(url.searchParams.get('ttl')).toBe(String(ttl))
+      expect(url.searchParams.get('includeSubdomains')).toBe(
+        String(includeSubdomains),
       )
       return new Response(`{"success":true}`)
     }
@@ -30,7 +44,7 @@ describe('set http only cookie', async () => {
     })
     expect(
       () =>
-        handler(['my_cookie', 'my_value', 3600, 'Lax', '/'], {
+        handler([name, value, ttl, sameSite, path, includeSubdomains], {
           triggerActionEvent,
         } as any) as any,
     ).not.toThrow()
