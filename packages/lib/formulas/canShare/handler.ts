@@ -1,7 +1,7 @@
-import type { ActionHandler } from '@nordcraft/core/dist/types'
+import type { FormulaHandler } from '@nordcraft/core/dist/types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 
-const handler: ActionHandler = ([url, title, text]) => {
+const handler: FormulaHandler<boolean> = ([url, title, text]) => {
   if (!isDefined(navigator.canShare)) {
     return false
   }

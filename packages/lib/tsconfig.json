@@ -8,6 +8,7 @@
     "noEmit": true,
     "preserveConstEnums": true,
     "sourceMap": true,
+    "skipLibCheck": true,
     "strict": true,
     "strictBuiltinIteratorReturn": true,
     "target": "ESNext",
