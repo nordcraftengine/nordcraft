@@ -1,8 +1,4 @@
-/**
- * @jest-environment jsdom
- */
-
-import { describe, expect, test } from '@jest/globals'
+import { describe, expect, test } from 'bun:test'
 import handler from './handler'
 
 describe('Action: Share', () => {

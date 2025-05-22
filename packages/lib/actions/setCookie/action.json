@@ -1,6 +1,6 @@
 {
-  "name": "Set Http-Only Cookie",
-  "description": "Save a key/value pair as an Http-Only cookie. Useful for storing JWTs or other tokens.",
+  "name": "Set Cookie",
+  "description": "Save a key/value pair as a non-http-only cookie (readable on the client). Useful for storing user preferences.",
   "arguments": [
     {
       "name": "Name",
@@ -8,7 +8,7 @@
       "type": { "type": "String" },
       "formula": {
         "type": "value",
-        "value": "access_token"
+        "value": ""
       }
     },
     {
@@ -22,7 +22,7 @@
     },
     {
       "name": "Expires in",
-      "description": "(Optional) Time in seconds until the cookie expires. Defaults to 3600 (1 hour). This should be left blank for JWTs.",
+      "description": "(Optional) Time in seconds until the cookie expires. If left blank, the cookie will expire at the end of the user's session.",
       "type": { "type": "Number" },
       "formula": {
         "type": "value",

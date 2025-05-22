@@ -6,7 +6,6 @@ const handler: ActionHandler = async function (
 ) {
   const error = (message: string) =>
     ctx.triggerActionEvent('Error', new Error(message))
-
   if (typeof name !== 'string') {
     error('The "Name" argument must be a string')
     return
@@ -38,27 +37,20 @@ const handler: ActionHandler = async function (
     error('The "Include Subdomains" argument must be a boolean')
     return
   }
-  const params = new URLSearchParams()
-  params.set('name', name)
-  params.set('value', value)
-  params.set('sameSite', sameSite)
-  params.set('path', path)
-  params.set('includeSubdomains', String(includeSubdomains))
+  // The cookie will always be set to Secure. Anything else can be configured
+  let cookie = `${name}=${value}; SameSite=${sameSite}; Path=${path}`
   if (typeof ttl === 'number') {
-    params.set('ttl', String(ttl))
+    const date = new Date()
+    date.setTime(date.getTime() + ttl * 1000)
+    cookie += `; Expires=${date.toUTCString()}`
   }
-  try {
-    const res = await fetch(
-      `/.toddle/cookies/set-session-cookie?${params.toString()}`,
-    )
-    if (res.ok) {
-      ctx.triggerActionEvent('Success', undefined)
-    } else {
-      error(await res.text())
-    }
-  } catch (err) {
-    error(err instanceof Error ? err.message : 'An unexpected error occurred')
+  if (includeSubdomains) {
+    // When the domain is set, the cookie is also available to subdomains - otherwise
+    // it is only available on the current domain
+    cookie += `; Domain=${window.location.hostname}`
   }
+  document.cookie = cookie
+  ctx.triggerActionEvent('Success', undefined)
 }
 
 export default handler

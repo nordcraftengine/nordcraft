@@ -16,10 +16,6 @@ updates:
         patterns:
           - 'prettier'
           - 'prettier-plugin-organize-imports'
-      test:
-        patterns:
-          - 'jest'
-          - '@types/jest'
       cloudflare:
         patterns:
           - '@cloudflare/workers-types'

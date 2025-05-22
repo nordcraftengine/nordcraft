@@ -1,59 +1,32 @@
-import {
-  afterAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  mock,
-  spyOn,
-} from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { Window } from 'happy-dom'
 import handler from './handler'
 
-const spyFetch = spyOn(globalThis, 'fetch')
+let window: Window | undefined
 
-describe('set http only cookie', async () => {
+describe('set cookie', async () => {
   beforeEach(() => {
-    spyFetch.mockReset()
+    const window = new Window({ url: 'https://localhost:8080' })
+    const document = window.document
+    globalThis.document = document as any
+  })
+  afterEach(async () => {
+    await window?.happyDOM.close()
+    globalThis.document = undefined as any
   })
   it('should set a cookie', async () => {
-    const mockGetExample = async (url: string) => {
-      expect(url).toBe(
-        '/.toddle/cookies/set-session-cookie?name=my_cookie&value=my_value&sameSite=Lax&path=%2F&includeSubdomains=true&ttl=3600',
-      )
-      return new Response(`{"success":true}`)
-    }
-    spyFetch.mockImplementation(mockGetExample as any)
-
     const triggerActionEvent = mock((trigger: string, event: any) => {
       expect(trigger).toBe('Success')
       expect(event).toBe(undefined)
     })
     expect(
       () =>
-        handler(['my_cookie', 'my_value', 3600, 'Lax', '/'], {
+        handler(['my_cookie', 'my_value', 3600, 'Lax', '/', true], {
           triggerActionEvent,
         } as any) as any,
     ).not.toThrow()
     expect(triggerActionEvent).toHaveBeenCalled()
-  })
-  it('should handle network errors', async () => {
-    const mockFailedExample = async () => {
-      return new Response('This operation is not permitted', { status: 403 })
-    }
-    spyFetch.mockImplementation(mockFailedExample as any)
-
-    const triggerActionEvent = mock((trigger: string, event: any) => {
-      expect(trigger).toBe('Error')
-      expect(event).toBeInstanceOf(Error)
-      expect((event as Error).message).toBe('This operation is not permitted')
-    })
-    expect(
-      () =>
-        handler(['my_cookie', 'my_value', 3600, 'Lax', '/'], {
-          triggerActionEvent,
-        } as any) as any,
-    ).not.toThrow()
-    expect(triggerActionEvent).toHaveBeenCalled()
+    expect(document.cookie).toContain('my_cookie=my_value')
   })
   it('should fail for invalid values', async () => {
     const triggerActionEvent = mock((trigger: string, event: any) => {
@@ -162,8 +135,5 @@ describe('set http only cookie', async () => {
         } as any) as any,
     ).not.toThrow()
     expect(triggerActionEvent).toHaveBeenCalled()
-  })
-  afterAll(() => {
-    spyFetch.mockRestore()
   })
 })

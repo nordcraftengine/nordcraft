@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals'
+import { describe, expect, test } from 'bun:test'
 import crypto from 'crypto'
 import { deepSortObject } from './collections'
 import { sha1, stableStringify } from './sha1'
