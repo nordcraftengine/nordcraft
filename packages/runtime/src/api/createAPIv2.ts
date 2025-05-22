@@ -47,7 +47,9 @@ export function createAPI(
   let timer: any = null
   let api = { ...apiRequest }
 
-  function constructRequest(api: ApiRequest) {
+  function constructRequest(
+    api: ApiRequest,
+  ): ReturnType<typeof createApiRequest> {
     // Get baseUrl and validate it. (It wont be in web component context)
     let baseUrl: string | undefined = window.origin
     try {
@@ -56,12 +58,26 @@ export function createAPI(
       baseUrl = undefined
     }
 
-    return createApiRequest({
+    const request = createApiRequest({
       api,
       formulaContext: getFormulaContext(api),
       baseUrl,
       defaultHeaders: undefined,
     })
+    return {
+      ...request,
+      requestSettings: {
+        ...request.requestSettings,
+        // credentials is a browser specific setting and cannot be set in the
+        // createApiRequest function directly as it's shared between server and client
+        credentials:
+          api.client?.credentials &&
+          ['include', 'same-origin', 'omit'].includes(api.client.credentials)
+            ? api.client.credentials
+            : // Default to same-origin
+              undefined,
+      },
+    }
   }
 
   // Create the formula context for the api
