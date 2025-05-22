@@ -43,13 +43,14 @@ const handler: ActionHandler = async function (
   params.set('value', value)
   params.set('sameSite', sameSite)
   params.set('path', path)
+  params.set('ttl', String(ttl))
   params.set('includeSubdomains', String(includeSubdomains))
   if (typeof ttl === 'number') {
     params.set('ttl', String(ttl))
   }
   try {
     const res = await fetch(
-      `/.toddle/cookies/set-session-cookie?${params.toString()}`,
+      `/.nordcraft/cookies/set-cookie?${params.toString()}`,
     )
     if (res.ok) {
       ctx.triggerActionEvent('Success', undefined)
