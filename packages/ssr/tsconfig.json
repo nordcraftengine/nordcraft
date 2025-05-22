@@ -12,6 +12,7 @@
     "strict": true,
     "strictBuiltinIteratorReturn": true,
     "target": "ESNext",
+    "types": ["bun-types"],
     "verbatimModuleSyntax": true
   },
   "include": ["src"],

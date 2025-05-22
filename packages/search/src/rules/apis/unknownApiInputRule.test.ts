@@ -2,6 +2,7 @@ import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { searchProject } from '../../searchProject'
 import { unknownApiInputRule } from './unknownApiInputRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('unknownApiInput', () => {
   test('should report reading unknown api inputs from a formula', () => {
     const problems = Array.from(

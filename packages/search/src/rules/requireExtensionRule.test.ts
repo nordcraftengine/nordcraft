@@ -1,6 +1,7 @@
 import { searchProject } from '../searchProject'
 import { requireExtensionRule } from './requireExtensionRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('requireExtension', () => {
   test('should report missing browser extension', () => {
     const problems = Array.from(

@@ -2,6 +2,7 @@ import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { searchProject } from '../../searchProject'
 import { unknownProjectFormulaInputRule } from './unknownProjectFormulaInputRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('unknownProjectFormulaInput', () => {
   test('should detect invalid project formula input references', () => {
     const problems = Array.from(

@@ -2,6 +2,7 @@ import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { searchProject } from '../../searchProject'
 import { noReferenceEventRule } from './noReferenceEventRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('noReferenceEventRule', () => {
   test('should detect events with no references', () => {
     const problems = Array.from(

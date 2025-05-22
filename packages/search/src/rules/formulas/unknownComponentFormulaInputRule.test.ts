@@ -1,6 +1,7 @@
 import { searchProject } from '../../searchProject'
 import { unknownComponentFormulaInputRule } from './unknownComponentFormulaInputRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('unknownComponentFormulaInput', () => {
   test('should detect invalid component formula input references', () => {
     const problems = Array.from(

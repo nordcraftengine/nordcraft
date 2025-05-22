@@ -1,6 +1,7 @@
 import { searchProject } from '../../searchProject'
 import { unknownComponentRule } from './unknownComponentRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('unknownComponent', () => {
   test('should report unknown component node references', () => {
     const problems = Array.from(

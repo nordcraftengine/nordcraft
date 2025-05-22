@@ -1,6 +1,7 @@
 import { searchProject } from '../../searchProject'
 import { unknownVariableRule } from './unknownVariableRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('unknownVariable', () => {
   test('should report reading unknown variables', () => {
     const problems = Array.from(

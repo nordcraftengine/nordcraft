@@ -2,6 +2,7 @@ import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { searchProject } from '../../searchProject'
 import { unknownContextProviderFormulaRule } from './unknownContextProviderFormulaRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('unknownContextFormulaProviderRule', () => {
   test('should detect invalid context provider formula references', () => {
     const problems = Array.from(

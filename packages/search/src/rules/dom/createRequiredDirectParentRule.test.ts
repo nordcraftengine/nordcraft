@@ -1,6 +1,7 @@
 import { searchProject } from '../../searchProject'
 import { createRequiredDirectParentRule } from './createRequiredDirectParentRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('createRequiredDirectParentRule', () => {
   test('should detect wrong direct parent', () => {
     const problems = Array.from(

@@ -1,6 +1,7 @@
 import { searchProject } from '../../searchProject'
 import { unknownUrlParameterRule } from './unknownUrlParameterRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('unknownUrlParameterRule', () => {
   test('should report reading unknown URL parameters', () => {
     const problems = Array.from(

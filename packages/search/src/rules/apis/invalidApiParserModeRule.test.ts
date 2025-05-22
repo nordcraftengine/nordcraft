@@ -2,6 +2,7 @@ import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { searchProject } from '../../searchProject'
 import { invalidApiParserModeRule } from './invalidApiParserModeRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('invalidApiParserMode', () => {
   test('should report invalid parser modes for an API with SSR enabled', () => {
     const problems = Array.from(

@@ -5,6 +5,7 @@ import {
 import { searchProject } from '../../searchProject'
 import { unknownProjectFormulaRule } from './unknownProjectFormulaRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('unknownProjectFormulaRule', () => {
   test('should find unknown project formulas', () => {
     const problems = Array.from(

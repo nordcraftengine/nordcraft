@@ -2,6 +2,7 @@ import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { searchProject } from '../../searchProject'
 import { unknownTriggerEventRule } from './unknownTriggerEventRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('unknownTriggerEventRule', () => {
   test('should report unknown trigger events', () => {
     const problems = Array.from(
