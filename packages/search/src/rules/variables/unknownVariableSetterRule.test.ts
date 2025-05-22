@@ -1,6 +1,7 @@
 import { searchProject } from '../../searchProject'
 import { unknownVariableSetterRule } from './unknownVariableSetterRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('unknownVariableSetter', () => {
   test('should report setting unknown variables', () => {
     const problems = Array.from(

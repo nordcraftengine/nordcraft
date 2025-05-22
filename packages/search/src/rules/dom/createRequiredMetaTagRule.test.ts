@@ -1,6 +1,7 @@
 import { searchProject } from '../../searchProject'
 import { createRequiredMetaTagRule } from './createRequiredMetaTagRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('createRequiredMetaTagRule', () => {
   test('should detect missing required meta tag', () => {
     const problems = Array.from(

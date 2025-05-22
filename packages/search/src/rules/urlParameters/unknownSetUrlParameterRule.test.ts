@@ -2,6 +2,7 @@ import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { searchProject } from '../../searchProject'
 import { unknownSetUrlParameterRule } from './unknownSetUrlParameterRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('unknownSetUrlParameterRule', () => {
   test('should report setting unknown URL parameters', () => {
     const problems = Array.from(

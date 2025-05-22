@@ -1,6 +1,7 @@
 import { searchProject } from '../../searchProject'
 import { legacyActionRule } from './legacyActionRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('legacyAction', () => {
   test('should detect legacy actions used in components', () => {
     const problems = Array.from(
