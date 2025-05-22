@@ -40,8 +40,7 @@ const handler: ActionHandler = async function (
   // The cookie will always be set to Secure. Anything else can be configured
   let cookie = `${name}=${value}; SameSite=${sameSite}; Path=${path}`
   if (typeof ttl === 'number') {
-    const date = new Date()
-    date.setTime(date.getTime() + ttl * 1000)
+    const date = new Date(Date.now() + ttl * 1000)
     cookie += `; Expires=${date.toUTCString()}`
   }
   if (includeSubdomains) {
