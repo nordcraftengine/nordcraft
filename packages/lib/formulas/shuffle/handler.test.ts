@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals'
+import { describe, expect, test } from 'bun:test'
 import handler from './handler'
 
 // Mock Math.random() to return predictable "random" results

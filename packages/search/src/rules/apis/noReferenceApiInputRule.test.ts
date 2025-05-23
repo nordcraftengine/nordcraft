@@ -5,6 +5,7 @@ import {
 import { searchProject } from '../../searchProject'
 import { noReferenceApiInputRule } from './noReferenceApiInputRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('noReferenceApiInputRule', () => {
   test('should detect API inputs with no references', () => {
     const problems = Array.from(

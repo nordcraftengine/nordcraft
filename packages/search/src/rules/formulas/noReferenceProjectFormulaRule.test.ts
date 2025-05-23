@@ -1,6 +1,7 @@
 import { searchProject } from '../../searchProject'
 import { noReferenceProjectFormulaRule } from './noReferenceProjectFormulaRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('noReferenceFormulaRule', () => {
   test('should detect unused global formulas', () => {
     const problems = Array.from(

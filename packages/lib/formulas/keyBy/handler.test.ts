@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals'
+import { describe, expect, test } from 'bun:test'
 import handler from './handler'
 
 describe('Formula: Key by', () => {
@@ -11,15 +11,15 @@ describe('Formula: Key by', () => {
     expect(
       handler([list, (Args: any) => Args.item.role], undefined as any),
     ).toEqual({
-      Admin: { name: 'Andreas', role: 'Admin' },
-      User: { name: 'Bobo', role: 'User' },
+      Admin: { name: 'Andreas', role: 'Admin' } as any,
+      User: { name: 'Bobo', role: 'User' } as any,
     })
     expect(
       handler([list, (Args: any) => Args.item.name], undefined as any),
     ).toEqual({
-      Andreas: { name: 'Andreas', role: 'Admin' },
-      John: { name: 'John', role: 'User' },
-      Bobo: { name: 'Bobo', role: 'User' },
+      Andreas: { name: 'Andreas', role: 'Admin' } as any,
+      John: { name: 'John', role: 'User' } as any,
+      Bobo: { name: 'Bobo', role: 'User' } as any,
     })
   })
   test('should return an empty object given an empty array', () => {

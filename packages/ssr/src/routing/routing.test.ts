@@ -1,5 +1,5 @@
-import { describe, expect, test } from '@jest/globals'
 import type { RouteDeclaration } from '@nordcraft/core/dist/component/component.types'
+import { describe, expect, test } from 'bun:test'
 import { matchPageForUrl } from './routing'
 
 describe('matchPageForUrl', () => {

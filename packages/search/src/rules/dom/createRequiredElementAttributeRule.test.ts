@@ -1,6 +1,7 @@
 import { searchProject } from '../../searchProject'
 import { createRequiredElementAttributeRule } from './createRequiredElementAttributeRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('requiredElementAttributeRule', () => {
   test('should detect missing required element attribute', () => {
     const problems = Array.from(

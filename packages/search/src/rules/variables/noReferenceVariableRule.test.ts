@@ -1,6 +1,7 @@
 import { searchProject } from '../../searchProject'
 import { noReferenceVariableRule } from './noReferenceVariableRule'
 
+import { describe, expect, test } from 'bun:test'
 describe('noReferenceVariableRule', () => {
   test('should detect variables with no references', () => {
     const problems = Array.from(
