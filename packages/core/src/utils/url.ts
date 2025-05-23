@@ -10,7 +10,7 @@ export const validateUrl = ({
   path,
   origin,
 }: {
-  path: string | null | undefined
+  path: unknown
   origin: string | undefined
 }) => {
   if (typeof path !== 'string') {
