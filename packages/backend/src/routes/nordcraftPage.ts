@@ -117,8 +117,8 @@ export const nordcraftPage = async ({
         status: e.redirect.statusCode ?? 302,
         // Header for helping the client (user) know which API caused the redirect
         headers: {
-          'x-toddle-redirect-api-name': e.redirect.apiName,
-          'x-toddle-redirect-component-name': e.redirect.componentName,
+          'x-nordcraft-redirect-api-name': e.redirect.apiName,
+          'x-nordcraft-redirect-component-name': e.redirect.componentName,
           location: e.redirect.url.href,
         },
       })
