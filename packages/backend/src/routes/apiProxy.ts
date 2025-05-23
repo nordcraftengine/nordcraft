@@ -61,6 +61,11 @@ export const proxyRequestHandler = async (
     })
     let response: Response
     try {
+      // Remove the cf-connecting-ip header if the request is from localhost
+      // This is to prevent cf to throw an error when the requester ip is ::1
+      if ((request.headers.get('host') ?? '').startsWith('localhost')) {
+        request.headers.delete('cf-connecting-ip')
+      }
       response = await fetch(request)
     } catch (e: any) {
       // eslint-disable-next-line no-console
