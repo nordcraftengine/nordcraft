@@ -95,6 +95,8 @@ export interface ApiRequest extends ApiBase {
     // auto: The response will be handled based on the content type of the response
     // stream: The response will be handled as a stream
     parserMode: ApiParserMode
+    // Whether to include credentials (cookies) in the request or not. Default is 'same-origin'
+    credentials?: 'include' | 'same-origin' | 'omit'
   }
   // Shared logic for client/server 👇
   // The user could distinguish using an environment
