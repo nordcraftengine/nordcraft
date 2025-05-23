@@ -1,19 +1,19 @@
+import type { ApiRequest as CoreApiRequest } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   ActionModel,
   Component,
   ComponentData,
 } from '@nordcraft/core/dist/component/component.types'
-import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
+import type {
+  Formula,
+  ToddleEnv,
+  ValueOperationValue,
+} from '@nordcraft/core/dist/formula/formula'
 import type {
   Toddle as NewToddle,
   Toddle,
   ToddleInternals,
 } from '@nordcraft/core/dist/types'
-import type { ApiRequest as CoreApiRequest } from '@toddledev/core/dist/api/apiTypes'
-import type {
-  Formula,
-  ValueOperationValue,
-} from '@toddledev/core/dist/formula/formula'
 import type { ApiRequest } from './api/createAPI'
 import type { Signal } from './signal/signal'
 
@@ -109,8 +109,8 @@ export interface ContextApiV2 {
     componentData: ComponentData
   }) => Promise<unknown>
   destroy: Function
-  update: (newApi: CoreApiRequest, componentData: ComponentData) => void // for updating the dataSignal (v2 only)
-  triggerActions: (componentData: ComponentData) => void // for triggering actions explicitly. Useful when initializing apis (v2 only)
+  update: (newApi: CoreApiRequest, componentData: ComponentData) => void // for updating the dataSignal
+  triggerActions: (componentData: ComponentData) => void // for triggering actions explicitly. Useful when initializing apis
 }
 
 export type FormulaCache = Record<

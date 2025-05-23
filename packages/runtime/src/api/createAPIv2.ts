@@ -18,6 +18,7 @@ import {
   isJsonStreamHeader,
   isTextHeader,
 } from '@nordcraft/core/dist/api/headers'
+import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type {
   Formula,
   FormulaContext,
@@ -30,7 +31,6 @@ import {
 } from '@nordcraft/core/dist/utils/collections'
 import { PROXY_URL_HEADER, validateUrl } from '@nordcraft/core/dist/utils/url'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { ComponentData } from '@toddledev/core/dist/component/component.types'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
