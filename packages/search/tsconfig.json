@@ -11,8 +11,7 @@
     "sourceMap": true,
     "strict": true,
     "strictBuiltinIteratorReturn": true,
-    "target": "ESNext",
-    "verbatimModuleSyntax": true
+    "target": "ESNext"
   },
   "include": ["src"]
 }
