@@ -13,7 +13,8 @@
     "sourceMap": true,
     "strict": true,
     "strictBuiltinIteratorReturn": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "verbatimModuleSyntax": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/*.test.ts"]
