@@ -48,6 +48,7 @@ import { signal } from './signal/signal'
 import { insertStyles, styleToCss } from './styles/style'
 import type {
   ComponentContext,
+  ContextApiV2,
   LocationSignal,
   PreviewShowSignal,
 } from './types'
@@ -724,7 +725,7 @@ export const createRoot = (
               },
             },
           }))
-          ctx?.apis[apiKey]?.fetch({})
+          void ctx?.apis[apiKey]?.fetch({} as any)
           break
         case 'drag-started':
           const draggedElement = getDOMNodeFromNodeId(selectedNodeId)
@@ -1319,11 +1320,16 @@ export const createRoot = (
           newCtx.apis[api] = createLegacyAPI(apiInstance, newCtx)
         }
       } else {
-        if (!newCtx.apis[api]) {
-          newCtx.apis[api] = createAPI(apiInstance, newCtx)
+        const existingApi = newCtx.apis[api] as ContextApiV2 | undefined
+        if (!existingApi) {
+          newCtx.apis[api] = createAPI({
+            apiRequest: apiInstance,
+            ctx: newCtx,
+            componentData: dataSignal.get(),
+          })
         } else {
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          newCtx.apis[api].update && newCtx.apis[api].update(apiInstance)
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          existingApi?.update(apiInstance, dataSignal.get())
         }
       }
     }

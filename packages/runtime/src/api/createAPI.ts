@@ -24,7 +24,7 @@ export type ApiRequest = {
 export function createLegacyAPI(
   api: LegacyComponentAPI,
   ctx: ComponentContext,
-): { fetch: Function; destroy: Function } {
+) {
   let timer: any = null
 
   // Create the payload we send to toddle's back-end

@@ -11,6 +11,7 @@ import type { Signal } from '../signal/signal'
 import type {
   ComponentChild,
   ComponentContext,
+  ContextApi,
   FormulaCache,
   LocationSignal,
   PreviewShowSignal,
@@ -22,7 +23,7 @@ interface RenderComponentProps {
   component: Component
   components: Component[]
   dataSignal: Signal<ComponentData>
-  apis: Record<string, { fetch: Function; destroy: Function }>
+  apis: Record<string, ContextApi>
   abortSignal: AbortSignal
   onEvent: (event: string, data: unknown) => void
   isRootComponent: boolean
