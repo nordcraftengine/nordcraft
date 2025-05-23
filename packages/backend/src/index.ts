@@ -18,7 +18,7 @@ import { sitemap } from './routes/sitemap'
 // Inject isEqual on globalThis used by some builtin formulas
 initIsEqual()
 
-const app = new Hono<HonoEnv>()
+const app = new Hono<HonoEnv>({ strict: false })
 
 // Nordcraft specific endpoints/services on /.toddle/ subpath 👇
 app.route('/.toddle/fonts', fontRouter)

@@ -5,6 +5,7 @@ import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
 import type { ToddleInternals } from '@nordcraft/core/dist/types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
+import type { ApiCache } from '@nordcraft/ssr/dist/rendering/api'
 import { renderPageBody } from '@nordcraft/ssr/dist/rendering/components'
 import { getPageFormulaContext } from '@nordcraft/ssr/dist/rendering/formulaContext'
 import {
@@ -17,6 +18,7 @@ import { removeTestData } from '@nordcraft/ssr/src/rendering/testData'
 import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
 import type { HonoEnv } from '../../hono'
+import { evaluateComponentApis, RedirectError } from '../utils/api'
 
 export const nordcraftPage = async ({
   hono,
@@ -85,7 +87,7 @@ export const nordcraftPage = async ({
       // Just to be explicit about where to grab the reset stylesheet from
       resetStylesheetPath: '/_static/reset.css',
       // This refers to the generated stylesheet for each page
-      pageStylesheetPath: `/_static/${page.name.toLowerCase()}.css`,
+      pageStylesheetPath: `/_static/${page.name}.css`,
       page: toddleComponent,
       files: files,
       project,
@@ -93,18 +95,37 @@ export const nordcraftPage = async ({
       theme,
     }),
   })
-  const { html: body } = await renderPageBody({
-    component: toddleComponent,
-    formulaContext,
-    env: formulaContext.env as ToddleServerEnv,
-    req: hono.req.raw,
-    files: files,
-    includedComponents,
-    evaluateComponentApis: async (_) => ({
-      // TODO: Show an example of how to evaluate APIs - potentially using an adapter
-    }),
-    projectId: 'my_project',
-  })
+
+  let apiCache: ApiCache
+  let body: string
+  try {
+    const pageBody = await renderPageBody({
+      component: toddleComponent,
+      formulaContext,
+      env: formulaContext.env as ToddleServerEnv,
+      req: hono.req.raw,
+      files: files,
+      includedComponents,
+      evaluateComponentApis,
+      projectId: 'my_project',
+    })
+    apiCache = pageBody.apiCache
+    body = pageBody.html
+  } catch (e) {
+    if (e instanceof RedirectError) {
+      return new Response(null, {
+        status: e.redirect.statusCode ?? 302,
+        // Header for helping the client (user) know which API caused the redirect
+        headers: {
+          'x-nordcraft-redirect-api-name': e.redirect.apiName,
+          'x-nordcraft-redirect-component-name': e.redirect.componentName,
+          location: e.redirect.url.href,
+        },
+      })
+    } else {
+      return new Response('Internal server error', { status: 500 })
+    }
+  }
   const charset = getCharset({
     pageInfo: toddleComponent.route?.info,
     formulaContext,
@@ -115,7 +136,12 @@ export const nordcraftPage = async ({
     project: project.short_id,
     branch: 'main',
     commit: 'unknown',
-    pageState: formulaContext.data,
+    pageState: {
+      ...formulaContext.data,
+      Apis: {
+        ...apiCache,
+      },
+    },
     component: removeTestData(page),
     components: includedComponents.map(removeTestData),
     isPageLoaded: false,

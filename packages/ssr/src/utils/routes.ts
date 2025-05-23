@@ -74,7 +74,7 @@ export const splitRoutes = (json: {
           const output = generateCustomCodeFile({
             code,
             componentName: component.name,
-            projectId: 'toddle',
+            projectId: json.project.short_id,
           })
           codeMap[name] = output
         }

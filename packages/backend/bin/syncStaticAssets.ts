@@ -44,18 +44,12 @@ const json = JSON.parse(projectFile.toString())
 const { project, routes, files, styles, code } = splitRoutes(json)
 // Create a stylesheet for each component
 Object.entries(styles).forEach(([name, style]) => {
-  const styleDestination = resolvePath(
-    '../assets/_static',
-    `${name.toLowerCase()}.css`,
-  )
+  const styleDestination = resolvePath('../assets/_static', `${name}.css`)
   fs.writeFileSync(styleDestination, style)
 })
 // Create a js file with custom code for each component
 Object.entries(code).forEach(([name, c]) => {
-  const ccDestination = resolvePath(
-    '../assets/_static',
-    `cc_${name.toLowerCase()}.js`,
-  )
+  const ccDestination = resolvePath('../assets/_static', `cc_${name}.js`)
   fs.writeFileSync(ccDestination, c)
 })
 // Serving dynamic assets as ESModule is slightly faster than JSON
