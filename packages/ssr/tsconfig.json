@@ -1,18 +1,17 @@
 {
   "compilerOptions": {
     "alwaysStrict": true,
-    "declaration": true,
     "esModuleInterop": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "outDir": "dist",
     "preserveConstEnums": true,
     "sourceMap": true,
     "strict": true,
     "strictBuiltinIteratorReturn": true,
     "target": "ESNext",
-    "verbatimModuleSyntax": true
+    "outDir": "dist",
+    "declaration": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/*.test.ts"]
