@@ -33,7 +33,7 @@ app.get(
   loadProjectInfo,
   customElement,
 )
-app.post('/.nordcraft/cookies/set-cookie', setCookieHandler)
+app.get('/.nordcraft/cookies/set-cookie', setCookieHandler)
 
 // Load project info and all routes for endpoints below to use
 app.use(routesLoader, loadProjectInfo)

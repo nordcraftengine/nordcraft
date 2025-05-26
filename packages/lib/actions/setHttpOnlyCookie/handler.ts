@@ -51,7 +51,6 @@ const handler: ActionHandler = async function (
   try {
     const res = await fetch(
       `/.nordcraft/cookies/set-cookie?${params.toString()}`,
-      { method: 'POST' },
     )
     if (res.ok) {
       ctx.triggerActionEvent('Success', undefined)

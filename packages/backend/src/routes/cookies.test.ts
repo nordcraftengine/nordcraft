@@ -9,7 +9,7 @@ describe('Set cookie', () => {
     })
     const res = await app.request(
       `/.nordcraft/cookies/set-cookie?${searchParams.toString()}`,
-      { method: 'POST' },
+      {},
     )
     expect(res.status).toBe(200)
     const header = res.headers.get('set-cookie')
@@ -27,7 +27,7 @@ describe('Set cookie', () => {
     })
     const res = await app.request(
       `/.nordcraft/cookies/set-cookie?${searchParams.toString()}`,
-      { method: 'POST' },
+      {},
     )
     expect(res.status).toBe(400)
     const body = await res.json<{ error: string }>()
