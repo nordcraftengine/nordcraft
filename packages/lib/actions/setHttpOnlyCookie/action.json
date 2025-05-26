@@ -22,7 +22,7 @@
     },
     {
       "name": "Expires in",
-      "description": "(Optional) Time in seconds until the cookie expires. Defaults to 3600 (1 hour). This should be left blank for JWTs.",
+      "description": "(Optional) Time in seconds until the cookie expires. Defaults to 3600 (1 hour). This should be null for JWTs to use the JWT's expiration.",
       "type": { "type": "Number" },
       "formula": {
         "type": "value",

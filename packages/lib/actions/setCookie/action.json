@@ -22,7 +22,7 @@
     },
     {
       "name": "Expires in",
-      "description": "(Optional) Time in seconds until the cookie expires. If left blank, the cookie will expire at the end of the user's session.",
+      "description": "(Optional) Time in seconds until the cookie expires. If this is null, the cookie will expire at the end of the user's session.",
       "type": { "type": "Number" },
       "formula": {
         "type": "value",
