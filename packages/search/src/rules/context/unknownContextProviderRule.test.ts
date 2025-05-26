@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { unknownContextProviderRule } from './unknownContextProviderRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('unknownContextProviderRule', () => {
   test('should detect context from component that does not exist', () => {
     const problems = Array.from(

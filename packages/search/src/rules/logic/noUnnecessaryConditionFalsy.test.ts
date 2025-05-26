@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { noUnnecessaryConditionFalsy } from './noUnnecessaryConditionFalsy'
 
-import { describe, expect, test } from 'bun:test'
 describe('noUnnecessaryConditionFalsy', () => {
   test('should report unnecessary truthy conditions', () => {
     const problems = Array.from(

@@ -2,10 +2,10 @@ import {
   pathFormula,
   valueFormula,
 } from '@nordcraft/core/dist/formula/formulaUtils'
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { noReferenceApiRule } from './noReferenceApiRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('noReferenceApiRule', () => {
   test('should detect APIs with no references', () => {
     const problems = Array.from(

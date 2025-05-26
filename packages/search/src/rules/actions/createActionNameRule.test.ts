@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { createActionNameRule } from './createActionNameRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('createActionNameRule', () => {
   test('should report use of console log', () => {
     const problems = Array.from(

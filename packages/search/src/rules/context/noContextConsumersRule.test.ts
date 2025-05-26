@@ -1,8 +1,8 @@
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { noContextConsumersRule } from './noContextConsumersRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('noContextConsumersRule', () => {
   test('should detect component with exposed formulas but no slot/component child', () => {
     const problems = Array.from(

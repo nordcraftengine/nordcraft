@@ -1,8 +1,8 @@
 import { HeadTagTypes } from '@nordcraft/core/dist/component/component.types'
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { noReferenceComponentFormulaRule } from './noReferenceComponentFormulaRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('noReferenceComponentFormulaRule', () => {
   test('should detect component formulas with no references', () => {
     const problems = Array.from(

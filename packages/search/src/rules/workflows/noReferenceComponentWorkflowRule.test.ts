@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { noReferenceComponentWorkflowRule } from './noReferenceComponentWorkflowRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('noReferenceComponentWorkflowRule', () => {
   test('should detect component workflows with no references', () => {
     const problems = Array.from(

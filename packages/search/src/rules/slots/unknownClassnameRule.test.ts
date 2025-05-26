@@ -1,8 +1,8 @@
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { unknownClassnameRule } from './unknownClassnameRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('unknownClassname', () => {
   test('should report referencing unknown classnames', () => {
     const problems = Array.from(

@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { imageWithoutDimensionRule } from './imageWithoutDimensionRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('imageWithoutDimensionRule', () => {
   test('should detect missing image dimensions', () => {
     const problems = Array.from(

@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { duplicateEventTriggerRule } from './duplicateEventTriggerRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('duplicateEventTriggerRule', () => {
   test('should detect duplicate event triggers', () => {
     const problems = Array.from(

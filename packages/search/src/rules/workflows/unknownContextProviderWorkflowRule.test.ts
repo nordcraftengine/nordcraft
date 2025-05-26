@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { unknownContextProviderWorkflowRule } from './unknownContextProviderWorkflowRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('unknownContextProviderWorkflowRule', () => {
   test('should detect invalid context provider workflow references', () => {
     const problems = Array.from(

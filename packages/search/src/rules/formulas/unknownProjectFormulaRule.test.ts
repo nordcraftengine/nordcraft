@@ -2,10 +2,10 @@ import {
   functionFormula,
   valueFormula,
 } from '@nordcraft/core/dist/formula/formulaUtils'
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { unknownProjectFormulaRule } from './unknownProjectFormulaRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('unknownProjectFormulaRule', () => {
   test('should find unknown project formulas', () => {
     const problems = Array.from(

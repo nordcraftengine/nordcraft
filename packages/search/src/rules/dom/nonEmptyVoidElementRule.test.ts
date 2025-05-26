@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { nonEmptyVoidElementRule } from './nonEmptyVoidElementRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('voidElementRule', () => {
   test('should detect void elements with children', () => {
     const problems = Array.from(

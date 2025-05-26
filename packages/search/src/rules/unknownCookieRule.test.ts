@@ -1,8 +1,8 @@
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../searchProject'
 import { unknownCookieRule } from './unknownCookieRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('unknownCookie', () => {
   test('should report unknown cookies', () => {
     const problems = Array.from(

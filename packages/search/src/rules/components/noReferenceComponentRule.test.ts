@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { noReferenceComponentRule } from './noReferenceComponentRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('noReferenceComponentRule', () => {
   test('should detect components with no references', () => {
     const problems = Array.from(

@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { duplicateUrlParameterRule } from './duplicateUrlParameterRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('duplicateUrlParameterRule', () => {
   test('should detect duplicate URL parameters', () => {
     const problems = Array.from(

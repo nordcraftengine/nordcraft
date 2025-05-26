@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { unknownComponentSlotRule } from './unknownComponentSlotRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('unknownComponentSlotRule', () => {
   test('should detect elements in unknown component slots', () => {
     const problems = Array.from(

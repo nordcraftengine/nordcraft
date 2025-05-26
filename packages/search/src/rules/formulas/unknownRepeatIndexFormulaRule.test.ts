@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { unknownRepeatIndexFormulaRule } from './unknownRepeatIndexFormulaRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('unknownRepeatIndexFormulaRule', () => {
   test('should find unknown repeat index formulas', () => {
     const problems = Array.from(

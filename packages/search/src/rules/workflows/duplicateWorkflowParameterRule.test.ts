@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { duplicateWorkflowParameterRule } from './duplicateWorkflowParameterRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('duplicateWorkflowParameterRule', () => {
   test('should detect duplicate workflow parameters', () => {
     const problems = Array.from(

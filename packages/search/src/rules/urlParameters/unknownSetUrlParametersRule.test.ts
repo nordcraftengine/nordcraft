@@ -1,8 +1,8 @@
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { unknownSetUrlParametersRule } from './unknownSetUrlParametersRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('unknownSetUrlParametersRule', () => {
   test('should report setting unknown URL parameters', () => {
     const problems = Array.from(

@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { noReferenceAttributeRule } from './noReferenceAttributeRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('noReferenceAttributeRule', () => {
   test('should detect attributes with no references', () => {
     const problems = Array.from(

@@ -1,8 +1,8 @@
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { unknownEventRule } from './unknownEventRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('unknownEvent', () => {
   test('should report unknown events', () => {
     const problems = Array.from(

@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { unknownContextFormulaRule } from './unknownContextFormulaRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('unknownContextFormulaRule', () => {
   test('should detect context formulas that are not subscribed', () => {
     const problems = Array.from(

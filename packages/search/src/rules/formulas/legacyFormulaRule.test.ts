@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { legacyFormulaRule } from './legacyFormulaRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('legacyFormula', () => {
   test('should detect legacy formulas used in global formula', () => {
     const problems = Array.from(

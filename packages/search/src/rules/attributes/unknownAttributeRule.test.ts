@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { unknownAttributeRule } from './unknownAttributeRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('unknownAttribute', () => {
   test('should report reading unknown attributes', () => {
     const problems = Array.from(

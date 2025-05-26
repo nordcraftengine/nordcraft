@@ -1,8 +1,8 @@
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../searchProject'
 import { duplicateRouteRule } from './duplicateRouteRule'
 
-import { describe, expect, test } from 'bun:test'
 describe('duplicateRouteRule', () => {
   test('should detect duplicate route declarations', () => {
     const problems = Array.from(

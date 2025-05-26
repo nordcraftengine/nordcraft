@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../searchProject'
 import { noPostNavigateAction } from './noPostNavigateAction'
 
-import { describe, expect, test } from 'bun:test'
 describe('noPostNavigateAction', () => {
   test('should detect actions after a url navigate action', () => {
     const problems = Array.from(
