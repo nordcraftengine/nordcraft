@@ -110,8 +110,8 @@ export function createAPI({
     }, {})
 
     const data = {
-      ...formulaContext.data,
       ...componentData,
+      ...formulaContext.data,
       ApiInputs: {
         ...evaluatedInputs,
       },
