@@ -31,7 +31,7 @@ import {
   sortObjectEntries,
 } from '@nordcraft/core/dist/utils/collections'
 import { PROXY_URL_HEADER, validateUrl } from '@nordcraft/core/dist/utils/url'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
@@ -440,20 +440,21 @@ export function createAPI({
 
     // Debounce the request if needed
     if (api.client?.debounce?.formula) {
-      return new Promise((resolve, reject) => {
-        if (typeof timer === 'number') {
-          clearTimeout(timer)
-        }
-        timer = setTimeout(
-          () => {
+      const timeout = applyFormula(
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        api.client?.debounce?.formula,
+        getFormulaContext(api, componentData),
+      )
+      if (typeof timeout === 'number') {
+        return new Promise((resolve, reject) => {
+          if (typeof timer === 'number') {
+            clearTimeout(timer)
+          }
+          timer = setTimeout(() => {
             run().then(resolve, reject)
-          },
-          applyFormula(
-            api.client?.debounce?.formula,
-            getFormulaContext(api, componentData),
-          ),
-        )
-      })
+          }, timeout)
+        })
+      }
     }
 
     return run()
@@ -859,9 +860,11 @@ export function createAPI({
       request: constructRequest(api, initialComponentData),
       api: getApiForComparison(api),
       autoFetch: api.autoFetch
-        ? applyFormula(api.autoFetch, payloadContext)
+        ? toBoolean(applyFormula(api.autoFetch, payloadContext))
         : false,
-      proxy: applyFormula(api.server?.proxy?.enabled.formula, payloadContext),
+      proxy: toBoolean(
+        applyFormula(api.server?.proxy?.enabled.formula, payloadContext),
+      ),
     }
   })
   payloadSignal.subscribe(async (_) => {
@@ -872,6 +875,7 @@ export function createAPI({
       // since the autofetch formula could've evaluated to true during SSR
       isDefined(api.autoFetch) &&
       (api.autoFetch.type !== 'value' || api.autoFetch.value === true) &&
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       (window?.__toddle?.isPageLoaded ?? false) === false
         ? (ctx.toddle.pageState.Apis?.[
             requestHash(url, requestSettings)
@@ -1014,16 +1018,14 @@ export function createAPI({
     update: (newApi, componentData) => {
       api = newApi
       const updateContext = getFormulaContext(api, componentData)
-      const autoFetch =
-        api.autoFetch && applyFormula(api.autoFetch, updateContext)
+      const autoFetch = toBoolean(applyFormula(api.autoFetch, updateContext))
       if (autoFetch) {
         payloadSignal?.set({
           request: constructRequest(newApi, componentData),
           api: getApiForComparison(newApi),
           autoFetch,
-          proxy: applyFormula(
-            newApi.server?.proxy?.enabled.formula,
-            updateContext,
+          proxy: toBoolean(
+            applyFormula(newApi.server?.proxy?.enabled.formula, updateContext),
           ),
         })
       }

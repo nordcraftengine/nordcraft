@@ -143,7 +143,11 @@ export function createElement({
       })
       return unit ? value + unit : value
     })
-    sig.subscribe((value) => elem.style.setProperty(`--${name}`, value))
+    sig.subscribe((value) => {
+      if (typeof value === 'string' || value === null) {
+        elem.style.setProperty(`--${name}`, value)
+      }
+    })
   })
   Object.values(node.events).forEach((event) => {
     const handler = (e: Event) => {
