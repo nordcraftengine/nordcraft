@@ -11,7 +11,11 @@ export const robots = async (c: Context<HonoEnv<HonoProject>>) => {
     const robots = c.var.config?.meta?.robots
     // we don't provide a context below, as the formula should just be a value formula
     const robotsUrl = applyFormula(robots?.formula, undefined as any)
-    const validatedRobotsUrl = validateUrl(robotsUrl)
+    const requestUrl = new URL(c.req.url)
+    const validatedRobotsUrl = validateUrl({
+      path: robotsUrl,
+      origin: requestUrl.origin,
+    })
     if (validatedRobotsUrl) {
       // return a (streamed) response with the body from robots.txt
       const { body, ok } = await fetch(validatedRobotsUrl)
