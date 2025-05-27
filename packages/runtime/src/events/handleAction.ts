@@ -9,6 +9,7 @@ import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { mapValues, omitKeys } from '@nordcraft/core/dist/utils/collections'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import fastDeepEqual from 'fast-deep-equal'
+import { isContextApiV2 } from '../api/apiUtils'
 import type { ComponentContext, Location } from '../types'
 import { getLocationUrl } from '../utils/url'
 
@@ -233,61 +234,56 @@ export function handleAction(
       }
       case 'Fetch': {
         const api = ctx.apis[action.api]
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (!api) {
           console.error('The api ', action.api, 'does not exist')
           return
         }
 
-        const isv2 = ctx.component.apis?.[action.api]?.version === 2
-
-        // Evaluate potential inputs here to make sure the api have the right values
-        // This is needed if the inputs are formulas referencing workflow parameters
-        const actionInputs = isv2
-          ? mapValues(action.inputs ?? {}, (input) =>
-              applyFormula(input.formula, {
-                data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-              }),
-            )
-          : undefined
-
-        const actionModels = isv2
-          ? {
-              onCompleted: action.onSuccess?.actions,
-              onFailed: action.onError?.actions,
-              onMessage: action.onMessage?.actions,
+        if (isContextApiV2(api)) {
+          // Evaluate potential inputs here to make sure the api have the right values
+          // This is needed if the inputs are formulas referencing workflow parameters
+          const actionInputs = mapValues(action.inputs ?? {}, (input) =>
+            applyFormula(input.formula, {
+              data,
+              component: ctx.component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+            }),
+          )
+          const actionModels = {
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            onCompleted: action.onSuccess?.actions ?? [],
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            onFailed: action.onError?.actions ?? [],
+            onMessage: action.onMessage?.actions ?? [],
+          }
+          void api.fetch({ actionInputs, actionModels, componentData: data })
+        } else {
+          const triggerActions = (actions: ActionModel[]) => {
+            for (const subAction of actions) {
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
+              handleAction(
+                subAction,
+                { ...data, ...ctx.dataSignal.get() },
+                ctx,
+                event,
+              )
             }
-          : undefined
-
-        const triggerActions = (actions: ActionModel[]) => {
-          // Actions from the fetch action is handled by the api itself
-          if (isv2) {
-            return
           }
-          for (const subAction of actions) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            handleAction(
-              subAction,
-              { ...data, ...ctx.dataSignal.get() },
-              ctx,
-              event,
-            )
-          }
+          api.fetch().then(
+            () => {
+              triggerActions(action.onSuccess.actions)
+            },
+            () => {
+              triggerActions(action.onError.actions)
+            },
+          )
         }
 
-        api.fetch({ actionInputs, actionModels }).then(
-          () => {
-            triggerActions(action.onSuccess.actions)
-          },
-          () => {
-            triggerActions(action.onError.actions)
-          },
-        )
         break
       }
       case 'TriggerWorkflow': {
