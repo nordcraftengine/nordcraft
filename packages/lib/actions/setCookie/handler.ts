@@ -1,7 +1,7 @@
 import type { ActionHandler } from '@nordcraft/core/dist/types'
 
 const handler: ActionHandler = async function (
-  [name, value, ttl, sameSite = 'Lax', path = '/', includeSubdomains = true],
+  [name, value, ttl, _sameSite, _path, _includeSubdomains],
   ctx,
 ) {
   const error = (message: string) =>
@@ -14,6 +14,7 @@ const handler: ActionHandler = async function (
     error('The "Value" argument must be a string')
     return
   }
+  const sameSite = _sameSite ?? 'Lax' // Default value
   if (
     typeof sameSite !== 'string' ||
     !['lax', 'strict', 'none'].includes(sameSite.toLocaleLowerCase())
@@ -21,6 +22,7 @@ const handler: ActionHandler = async function (
     error('The "SameSite" argument must be "Lax", "Strict" or "None"')
     return
   }
+  const path = _path ?? '/' // Default value
   if (typeof path !== 'string' || !path.startsWith('/')) {
     error('The "Path" argument must be a string and start with /')
     return
@@ -33,12 +35,14 @@ const handler: ActionHandler = async function (
     error('The "Expires in" argument must be a number')
     return
   }
+  const includeSubdomains = _includeSubdomains ?? true // Default value
   if (typeof includeSubdomains !== 'boolean') {
     error('The "Include Subdomains" argument must be a boolean')
     return
   }
   // The cookie will always be set to Secure. Anything else can be configured
   let cookie = `${name}=${value}; SameSite=${sameSite}; Path=${path}`
+  // If no ttl is set, the cookie will be a session cookie
   if (typeof ttl === 'number') {
     const date = new Date(Date.now() + ttl * 1000)
     cookie += `; Expires=${date.toUTCString()}`
