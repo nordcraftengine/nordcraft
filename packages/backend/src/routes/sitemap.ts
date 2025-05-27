@@ -17,9 +17,13 @@ export const sitemap = async (
     const routes = c.var.routes
     const sitemapFormula = config?.meta?.sitemap?.formula
     if (isDefined(sitemapFormula)) {
+      const requestUrl = new URL(c.req.url)
       const sitemapUrl = validateUrl(
         // we don't provide a context for applyFormula, as the formula should just be a value formula
-        applyFormula(sitemapFormula, undefined as any),
+        {
+          path: applyFormula(sitemapFormula, undefined as any),
+          origin: requestUrl.origin,
+        },
       )
       if (sitemapUrl) {
         // return a (streamed) response with the body from sitemap.xml

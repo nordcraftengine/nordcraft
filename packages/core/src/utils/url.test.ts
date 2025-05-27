@@ -29,6 +29,15 @@ describe('validateUrl()', () => {
     expect((url as URL).href).toBe('https://nordcraft.com/my-path')
   })
 
+  test("it ignores the origin if it's part of the path", () => {
+    const url = validateUrl({
+      path: 'https://nordcraft.com/my-path',
+      origin: 'https://otherdomain.com',
+    })
+    expect(url).toBeInstanceOf(URL)
+    expect((url as URL).href).toBe('https://nordcraft.com/my-path')
+  })
+
   test("it doesn't accept relative urls when no base is provided", () => {
     const url = validateUrl({ path: '/my-path', origin: undefined })
     expect(url).toBe(false)
