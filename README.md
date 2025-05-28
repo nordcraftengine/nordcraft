@@ -34,7 +34,7 @@ While we consume all packages internally in the Nordcraft framework, this projec
 
 ## Plan
 
-As [announced in July '24](https://blog.nordcraft.com/toddle-is-soon-open-source), Nordcraft is in the process of going fully open source. The goal is to move more and more code into this repository and make it possible to self host a Nordcraft application.
+As [announced in July '24](https://blog.nordcraft.com/nordcraft-is-soon-open-source), Nordcraft is in the process of going fully open source. The goal is to move more and more code into this repository and make it possible to self host a Nordcraft application.
 
 We're currently working on moving more of the server-side rendering logic into this repository. This means that most updates are going to be in the ssr package for the time being.
 
