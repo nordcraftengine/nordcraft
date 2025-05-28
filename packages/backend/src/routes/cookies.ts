@@ -69,16 +69,22 @@ export const setCookieHandler: Handler<HonoEnv> = async (ctx) => {
 
   const headers = new Headers()
   // We will always set the cookie to Secure and HttpOnly. Anything else can be configured
-  let cookieHeader = `${name}=${value}; Secure; HttpOnly; SameSite=${sameSite}; Path=${path}`
+  const cookieParts = [
+    `${name}=${value}`,
+    'Secure',
+    'HttpOnly',
+    `SameSite=${sameSite}`,
+    `Path=${path}`,
+  ]
   if (expirationDate) {
-    cookieHeader += `; Expires=${expirationDate.toUTCString()};`
+    cookieParts.push(`Expires=${expirationDate.toUTCString()}`)
   }
   if (includeSubdomains) {
     // When the domain is set, the cookie is also available to subdomains - otherwise
     // it is only available on the current domain
-    cookieHeader += `; Domain=${url.hostname};`
+    cookieParts.push(`Domain=${url.hostname}`)
   }
-  headers.append('Set-Cookie', cookieHeader)
+  headers.append('Set-Cookie', cookieParts.join('; '))
 
   return new Response(undefined, {
     headers,
