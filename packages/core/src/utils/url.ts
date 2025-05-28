@@ -33,6 +33,8 @@ export const validateUrl = ({
   }
 }
 
-export const PROXY_URL_HEADER = 'x-toddle-url'
+export const PROXY_URL_HEADER = 'x-nordcraft-url'
 
-export const REWRITE_HEADER = 'x-toddle-rewrite'
+export const PROXY_TEMPLATES_IN_BODY = 'x-nordcraft-templates-in-body'
+
+export const REWRITE_HEADER = 'x-nordcraft-rewrite'
