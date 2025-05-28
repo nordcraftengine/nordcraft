@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals'
+import { describe, expect, test } from 'bun:test'
 import isEqual from 'fast-deep-equal'
 import handler from './handler'
 ;(globalThis as any).toddle = { isEqual }

@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test'
 import type { Line, Point } from '../editor/types'
 import { findNearestLine } from './findNearestLine'
 

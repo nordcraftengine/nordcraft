@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals'
+import { describe, expect, test } from 'bun:test'
 import handler from './handler'
 
 describe('Formula: DateFromTimestamp', () => {

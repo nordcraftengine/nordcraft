@@ -5,6 +5,7 @@ import { notFoundLoader } from './middleware/notFoundLoader'
 import { loadProjectInfo } from './middleware/projectInfo'
 import { routesLoader } from './middleware/routesLoader'
 import { proxyRequestHandler } from './routes/apiProxy'
+import { setCookieHandler } from './routes/cookies'
 import { customElement } from './routes/customElement'
 import { favicon } from './routes/favicon'
 import { fontRouter } from './routes/font'
@@ -32,6 +33,7 @@ app.get(
   loadProjectInfo,
   customElement,
 )
+app.get('/.nordcraft/cookies/set-cookie', setCookieHandler)
 
 // Load project info and all routes for endpoints below to use
 app.use(routesLoader, loadProjectInfo)
