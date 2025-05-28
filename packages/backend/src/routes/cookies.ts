@@ -57,7 +57,7 @@ export const setCookieHandler: Handler<HonoEnv> = async (ctx) => {
   }
 
   let expirationDate: Date | undefined
-  if (typeof ttl === 'string') {
+  if (typeof ttl === 'string' && Number(ttl) > 0) {
     expirationDate = new Date(Date.now() + Number(ttl) * 1000)
   } else {
     // If no ttl was provided, in case this is a jwt, we determine the expiry date from the payload
