@@ -60,6 +60,8 @@ export interface ApiBase extends NordcraftMetadata {
     // The enabled formula is used to determine if the query parameter should be included in the request or not
     { formula: Formula; enabled?: Formula | null }
   >
+  // hash is relevant for redirects and rewrites, but not for API calls
+  hash?: { formula: Formula } | null
 }
 
 export interface ApiRequest extends ApiBase {

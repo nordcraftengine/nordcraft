@@ -72,13 +72,17 @@ export const getUrl = (
   ])
   const queryString =
     [...queryParams.entries()].length > 0 ? `?${queryParams.toString()}` : ''
+  const hash = applyFormula(api.hash?.formula, formulaContext)
+  const hashString =
+    typeof hash === 'string' && hash.length > 0 ? `#${hash}` : ''
   if (parsedUrl) {
     const combinedUrl = new URL(parsedUrl.origin, baseUrl)
     combinedUrl.pathname = path
     combinedUrl.search = queryParams.toString()
+    combinedUrl.hash = hashString
     return combinedUrl
   } else {
-    return new URL(`${path}${queryString}`, baseUrl)
+    return new URL(`${path}${queryString}${hashString}`, baseUrl)
   }
 }
 

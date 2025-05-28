@@ -160,27 +160,50 @@ describe('getUrl()', () => {
     )
     expect(url.href).toBe('https://mysite.com/test/path/hello/world')
   })
-})
-test('supports query parameters in url declaration', () => {
-  const url = getUrl(
-    {
-      url: valueFormula('/test/path/?q=test&hello=world'),
-      path: {
-        a: { formula: valueFormula('hello'), index: 0 },
-        b: { formula: valueFormula('world'), index: 1 },
-      },
-      queryParams: {
-        search: {
-          formula: valueFormula('test'),
+  test('supports query parameters in url declaration', () => {
+    const url = getUrl(
+      {
+        url: valueFormula('/test/path/?q=test&hello=world'),
+        path: {
+          a: { formula: valueFormula('hello'), index: 0 },
+          b: { formula: valueFormula('world'), index: 1 },
+        },
+        queryParams: {
+          search: {
+            formula: valueFormula('test'),
+          },
         },
       },
-    },
-    undefined as any,
-    'https://mysite.com',
-  )
-  expect(url.href).toBe(
-    'https://mysite.com/test/path/hello/world?q=test&hello=world&search=test',
-  )
+      undefined as any,
+      'https://mysite.com',
+    )
+    expect(url.href).toBe(
+      'https://mysite.com/test/path/hello/world?q=test&hello=world&search=test',
+    )
+  })
+  test('supports hash parameter', () => {
+    const url = getUrl(
+      {
+        url: valueFormula('https://mysite.com/test/path/?q=test&hello=world'),
+        path: {
+          a: { formula: valueFormula('hello'), index: 0 },
+          b: { formula: valueFormula('world'), index: 1 },
+        },
+        queryParams: {
+          search: {
+            formula: valueFormula('test'),
+          },
+        },
+        hash: { formula: valueFormula('my-hash') },
+      },
+      undefined as any,
+      'https://mysite.com',
+    )
+    expect(url.hash).toBe('#my-hash')
+    expect(url.href).toBe(
+      'https://mysite.com/test/path/hello/world?q=test&hello=world&search=test#my-hash',
+    )
+  })
 })
 describe('getApiHeaders()', () => {
   test('it returns valid headers', () => {
