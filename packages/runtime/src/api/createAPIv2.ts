@@ -179,7 +179,6 @@ export function createAPI({
     }
     componentData: ComponentData
   }) {
-    const formulaContext = getFormulaContext(api, componentData)
     switch (eventName) {
       case 'message': {
         const event = createApiEvent('message', data.body)
@@ -187,7 +186,7 @@ export function createAPI({
           handleAction(
             action,
             {
-              ...formulaContext.data,
+              ...getFormulaContext(api, componentData).data,
               Event: event,
             },
             ctx,
@@ -202,7 +201,7 @@ export function createAPI({
           handleAction(
             action,
             {
-              ...formulaContext.data,
+              ...getFormulaContext(api, componentData).data,
               Event: event,
             },
             ctx,
@@ -220,7 +219,7 @@ export function createAPI({
           handleAction(
             action,
             {
-              ...formulaContext.data,
+              ...getFormulaContext(api, componentData).data,
               Event: event,
             },
             ctx,
