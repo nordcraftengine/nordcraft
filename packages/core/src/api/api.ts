@@ -82,7 +82,7 @@ export const getUrl = (
   }
 }
 
-const HttpMethodsWithAllowedBody: ApiMethod[] = [
+export const HttpMethodsWithAllowedBody: ApiMethod[] = [
   ApiMethod.POST,
   ApiMethod.DELETE,
   ApiMethod.PUT,

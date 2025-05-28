@@ -12,11 +12,11 @@ export const skipCookieHeader = (headers: Headers) => {
 }
 
 /**
- * Omit the x-toddle-url header from a set of headers.
- * Since this header is only relevant for toddle requests, it's not useful
+ * Omit the x-nordcraft-url header from a set of headers.
+ * Since this header is only relevant for Nordcraft requests, it's not useful
  * for other services to receive this.
  */
-export const skipToddleHeader = (headers: Headers) => {
+export const skipNordcraftHeader = (headers: Headers) => {
   const newHeaders = new Headers(headers)
   newHeaders.delete(PROXY_URL_HEADER)
   return newHeaders
