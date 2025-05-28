@@ -56,11 +56,10 @@ export const setCookieHandler: Handler<HonoEnv> = async (ctx) => {
     )
   }
 
-  let expirationDate = new Date(
-    // Prefer the ttl from the search parameters, but default to 1 hour
-    Date.now() + (typeof ttl === 'string' ? Number(ttl) : 3600) * 1000,
-  )
-  if (typeof ttl !== 'string') {
+  let expirationDate: Date | undefined
+  if (typeof ttl === 'string') {
+    expirationDate = new Date(Date.now() + Number(ttl) * 1000)
+  } else {
     // If no ttl was provided, in case this is a jwt, we determine the expiry date from the payload
     const accessTokenPayload = decodeToken(value)
     if (typeof accessTokenPayload?.exp === 'number') {
@@ -69,9 +68,11 @@ export const setCookieHandler: Handler<HonoEnv> = async (ctx) => {
   }
 
   const headers = new Headers()
-  const expires = expirationDate.toUTCString()
   // We will always set the cookie to Secure and HttpOnly. Anything else can be configured
-  let cookieHeader = `${name}=${value}; Expires=${expires}; Secure; HttpOnly; SameSite=${sameSite}; Path=${path}`
+  let cookieHeader = `${name}=${value}; Secure; HttpOnly; SameSite=${sameSite}; Path=${path}`
+  if (expirationDate) {
+    cookieHeader += `; Expires=${expirationDate.toUTCString()};`
+  }
   if (includeSubdomains) {
     // When the domain is set, the cookie is also available to subdomains - otherwise
     // it is only available on the current domain
