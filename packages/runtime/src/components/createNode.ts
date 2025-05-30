@@ -217,7 +217,7 @@ export function createNode({
             },
           }
 
-          let childKey = node.repeatKey
+          const evaluatedChildKey = node.repeatKey
             ? applyFormula(node.repeatKey, {
                 data: childData,
                 component: ctx.component,
@@ -227,7 +227,12 @@ export function createNode({
                 toddle: ctx.toddle,
                 env: ctx.env,
               })
-            : Key
+            : undefined
+          let childKey =
+            typeof evaluatedChildKey === 'string' ||
+            typeof evaluatedChildKey === 'number'
+              ? evaluatedChildKey
+              : Key
 
           // Can't we just use the Item reference as key as we have fine-grained reactivity at this point?
           // That way we won't need repeatKey at all as everything will be optimized by reference?!?

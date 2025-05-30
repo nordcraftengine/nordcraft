@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import { isLegacyApi, sortApiObjects } from '@nordcraft/core/dist/api/api'
 import type {
   Component,
@@ -180,18 +181,20 @@ export const createRoot = (domNode: HTMLElement) => {
   const dynamicTitle = titleFormula && titleFormula.type !== 'value'
   if (dynamicTitle) {
     dataSignal
-      .map<string | null>(() =>
-        component
-          ? applyFormula(titleFormula, {
-              data: dataSignal.get(),
-              component,
-              root: document,
-              package: undefined,
-              toddle: window.toddle,
-              env,
-            })
-          : null,
-      )
+      .map<string | null>(() => {
+        if (component) {
+          const newTitle = applyFormula(titleFormula, {
+            data: dataSignal.get(),
+            component,
+            root: document,
+            package: undefined,
+            toddle: window.toddle,
+            env,
+          })
+          return typeof newTitle === 'string' ? newTitle : null
+        }
+        return null
+      })
       .subscribe((newTitle) => {
         if (isDefined(newTitle) && document.title !== newTitle) {
           document.title = newTitle
@@ -247,18 +250,20 @@ export const createRoot = (domNode: HTMLElement) => {
     }
     if (dynamicDescription) {
       dataSignal
-        .map<string | null>((data) =>
-          component
-            ? applyFormula(descriptionFormula, {
-                data,
-                component,
-                root: document,
-                package: undefined,
-                toddle: window.toddle,
-                env,
-              })
-            : null,
-        )
+        .map<string | null>((data) => {
+          if (component) {
+            const newDescription = applyFormula(descriptionFormula, {
+              data,
+              component,
+              root: document,
+              package: undefined,
+              toddle: window.toddle,
+              env,
+            })
+            return typeof newDescription === 'string' ? newDescription : null
+          }
+          return null
+        })
         .subscribe((newDescription) => {
           if (isDefined(newDescription)) {
             let descriptionElement = document
@@ -399,16 +404,17 @@ export const createRoot = (domNode: HTMLElement) => {
         .filter(([, formula]) => formula.exposeInContext)
         .map(([name, formula]) => [
           name,
-          dataSignal.map((data) =>
-            applyFormula(formula.formula, {
-              data,
-              component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: window.toddle,
-              env,
-            }),
+          dataSignal.map(
+            (data) =>
+              applyFormula(formula.formula, {
+                data,
+                component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: window.toddle,
+                env,
+              }) as any,
           ),
         ]),
     )

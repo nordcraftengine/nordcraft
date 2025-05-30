@@ -54,13 +54,15 @@ export const getUrl = (
   const url = applyFormula(api.url, formulaContext)
   if (['string', 'number'].includes(typeof url)) {
     const urlInput = typeof url === 'number' ? String(url) : url
-    try {
-      // Try to parse the URL to extract potential path and query parameters
-      parsedUrl = new URL(urlInput, baseUrl)
-      urlPathname = parsedUrl.pathname
-      urlQueryParams = parsedUrl.searchParams
-      // eslint-disable-next-line no-empty
-    } catch {}
+    if (typeof urlInput === 'string') {
+      try {
+        // Try to parse the URL to extract potential path and query parameters
+        parsedUrl = new URL(urlInput, baseUrl)
+        urlPathname = parsedUrl.pathname
+        urlQueryParams = parsedUrl.searchParams
+        // eslint-disable-next-line no-empty
+      } catch {}
+    }
   }
   const pathParams = getRequestPath(api.path, formulaContext)
   // Combine potential path parameters from the url declaration with the actual path parameters
