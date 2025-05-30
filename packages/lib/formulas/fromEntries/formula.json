@@ -1,16 +1,16 @@
 {
   "name": "From entries",
-  "description": "Create a record from an Array of entries. This formula is the reverse of Entries.",
+  "description": "Transform an Array of key-value pairs into an Object. This formula is the reverse of Entries.",
   "arguments": [
     {
       "name": "Array",
       "formula": { "type": "value", "value": null },
-      "description": "The array of entries.",
+      "description": "An Array of Objects. Each Object should have a `key` and `value` property named `key` and `value` respectively e.g. `[{ key: 'yourKey', value: 'yourValue' }]`.",
       "type": { "type": "Array" }
     }
   ],
   "output": {
-    "description": "An Object containing all entries from the input Array.",
+    "description": "An Object containing all entries from the input Array in the format `{yourKey: yourValue}`.",
     "type": { "type": "Object" }
   }
 }
