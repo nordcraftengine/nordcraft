@@ -81,7 +81,7 @@ export const proxyRequestHandler = async (
 
     const returnResponse = new Response(body, {
       status: response.status,
-      headers: Object.fromEntries(response.headers),
+      headers: new Headers(response.headers),
     })
     return returnResponse
   } catch (e) {

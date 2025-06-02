@@ -11,7 +11,11 @@ import type {
   LegacyApiStatus,
   RedirectStatusCode,
 } from '@nordcraft/core/dist/api/apiTypes'
-import { isJsonHeader, isTextHeader } from '@nordcraft/core/dist/api/headers'
+import {
+  isJsonHeader,
+  isTextHeader,
+  mapHeadersToObject,
+} from '@nordcraft/core/dist/api/headers'
 import { ToddleApiV2 } from '@nordcraft/core/dist/api/ToddleApiV2'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
@@ -157,7 +161,7 @@ const fetchApi = async ({
     formulaContext,
     baseUrl: url.origin,
     defaultHeaders: new Headers({
-      ...Object.fromEntries(req.headers.entries()),
+      ...mapHeadersToObject(req.headers),
       // Override accept + accept-encoding to increase the chance that we can work with the response
       // from an API fetched during SSR. Many servers don't support br encoding for instance.
       accept: '*/*',
@@ -239,7 +243,7 @@ const fetchApiV2 = async ({
       error: `Error getting response body: ${e}`,
       response: {
         status: 500,
-        headers: Object.fromEntries(response.headers.entries()),
+        headers: mapHeadersToObject(response.headers),
       },
     }
   }
@@ -251,7 +255,7 @@ const fetchApiV2 = async ({
       body: responseBody,
       ok: response.ok,
       status: response.status,
-      headers: Object.fromEntries(response.headers.entries()),
+      headers: mapHeadersToObject(response.headers),
     },
     formulaContext,
     errorFormula,
@@ -264,7 +268,7 @@ const fetchApiV2 = async ({
     error: isError ? (responseBody ?? response.statusText) : null,
     response: {
       status: response.status,
-      headers: Object.fromEntries(response.headers.entries()),
+      headers: mapHeadersToObject(response.headers),
       performance,
     },
   }
