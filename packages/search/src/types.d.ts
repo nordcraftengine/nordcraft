@@ -19,6 +19,7 @@ import type {
   PluginAction,
   ProjectFiles,
   Route,
+  ToddleProject,
 } from '@nordcraft/ssr/dist/ssr.types'
 
 type Code =
@@ -129,6 +130,7 @@ type NonHttpOnlyCookie = ApplicationCookie & {
 export interface ApplicationState {
   cookiesAvailable?: Array<HttpOnlyCookie | NonHttpOnlyCookie>
   isBrowserExtensionAvailable?: boolean
+  projectDetails?: ToddleProject
 }
 
 type Base = {
