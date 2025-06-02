@@ -46,7 +46,7 @@
         "fast-deep-equal": "3.1.3",
       },
       "devDependencies": {
-        "@happy-dom/global-registrator": "17.4.7",
+        "@happy-dom/global-registrator": "17.5.6",
         "@types/node": "22.15.23",
       },
     },
@@ -59,7 +59,7 @@
         "path-to-regexp": "6.3.0",
       },
       "devDependencies": {
-        "@happy-dom/global-registrator": "17.4.7",
+        "@happy-dom/global-registrator": "17.5.6",
       },
     },
     "packages/search": {
@@ -169,7 +169,7 @@
 
     "@fastify/busboy": ["@fastify/busboy@2.1.1", "", {}, "sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA=="],
 
-    "@happy-dom/global-registrator": ["@happy-dom/global-registrator@17.4.7", "", { "dependencies": { "happy-dom": "^17.4.7" } }, "sha512-BsKWeI115LT0J/lKJ4Kz638oy4zO+nC4TLh3cYPY6BBypttPZg8Fg+EXL2If4KHMSy3Wx+yRiM+68Hr1iGgiWA=="],
+    "@happy-dom/global-registrator": ["@happy-dom/global-registrator@17.5.6", "", { "dependencies": { "happy-dom": "^17.5.6" } }, "sha512-nOUwjNp1GJUgAE8cVHIWgOgCUaxTCQBbVbbuapf2rEvXVh4aauyZ/mgiLbMXSI3Xz8HgGbETkxeJRFdKIoYCzA=="],
 
     "@html-eslint/eslint-plugin": ["@html-eslint/eslint-plugin@0.41.0", "", { "dependencies": { "@eslint/plugin-kit": "^0.3.1", "@html-eslint/parser": "^0.41.0", "@html-eslint/template-parser": "^0.41.0", "@html-eslint/template-syntax-parser": "^0.41.0" }, "peerDependencies": { "eslint": "^8.0.0 || ^9.0.0" } }, "sha512-kZhOdLOx5xGogw9CE/uGKkoo8t7fNK9PxU6kosIvu9Yveir3r2VhGYC4II/2OEGQ+O4cPk2LxV1fCpYt7XFMtQ=="],
 
