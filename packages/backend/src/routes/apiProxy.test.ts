@@ -78,9 +78,8 @@ describe('API proxy', () => {
         targetUrl.searchParams.get('param2'),
       )
       expect(req.method).toBe('POST')
-      console.log('Incoming request', req)
       const body = await req.text()
-      expect(body).toBe('hello world') // The body should not be modified
+      expect(body).toBe('{"myToken":"my_refresh_token"}') // The body should not be modified
       // The PROXY_URL_HEADER should be removed from the request headers
       expect(req.headers.get(PROXY_URL_HEADER)).toBeNull()
       return new Response(`{"success":true}`)
@@ -95,11 +94,14 @@ describe('API proxy', () => {
           componentName: 'MyComponent',
           apiName: 'MyApi',
         },
-        // body: { test: 'hello' },
-      } as any,
+      },
       {
-        headers: { [PROXY_URL_HEADER]: targetUrl.href },
-        body: { test: 'hello' },
+        headers: {
+          [PROXY_URL_HEADER]: targetUrl.href,
+          Cookies: 'refresh_token=my_refresh_token',
+        },
+        body: { myToken: STRING_TEMPLATE('cookies', 'refresh_token') },
+        // type casting is needed because Hono's test client doesn't currently support a body in its types
       } as any,
     )
     expect(res.status).toBe(200)
