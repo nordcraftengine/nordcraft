@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@types/node": "22.15.23",
-    "@happy-dom/global-registrator": "17.4.7"
+    "@happy-dom/global-registrator": "17.5.6"
   },
   "scripts": {
     "build": "bun ./bin/generate.js && tsc --project tsconfig.build.json",
