@@ -130,7 +130,7 @@ export class ToddleComponent extends HTMLElement {
                   package: this.#ctx.package,
                   toddle: this.#ctx.toddle,
                   env: this.#ctx.env,
-                }) as any,
+                }) as ComponentData,
             ),
           ]),
       )

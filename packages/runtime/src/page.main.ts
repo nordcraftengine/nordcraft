@@ -414,7 +414,7 @@ export const createRoot = (domNode: HTMLElement) => {
                 package: ctx.package,
                 toddle: window.toddle,
                 env,
-              }) as any,
+              }) as ComponentData,
           ),
         ]),
     )

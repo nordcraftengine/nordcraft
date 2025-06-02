@@ -354,7 +354,7 @@ const renderComponent = async ({
                                       package: _packageName,
                                       env,
                                       toddle,
-                                    }) as any,
+                                    }) as Record<string, unknown>,
                                   ]),
                               ),
                             },
@@ -488,7 +488,7 @@ const createComponent = async ({
           ...formulaContext.data,
           Contexts: contexts,
         },
-      }) as any
+      })
     }),
     Apis: apis,
   }
@@ -502,7 +502,7 @@ const createComponent = async ({
           applyFormula(formula.formula, {
             ...formulaContext,
             data,
-          }) as any,
+          }) as Record<string, unknown>,
         ]),
     ),
   }
