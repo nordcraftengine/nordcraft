@@ -6,9 +6,13 @@ export const noReferenceComponentRule: Rule<void> = {
   code: 'no-reference component',
   level: 'warning',
   category: 'No References',
-  visit: (report, { path, nodeType, files, value }) => {
+  visit: (report, { path, nodeType, files, value }, state) => {
     // We need a way to flag if a component is exported as a web component, as it would be a valid orphan
-    if (nodeType !== 'component' || isPage(value) || value.exported === true) {
+    if (
+      nodeType !== 'component' ||
+      isPage(value) ||
+      (state?.projectDetails?.type === 'package' && value.exported === true)
+    ) {
       return
     }
 

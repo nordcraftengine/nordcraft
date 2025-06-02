@@ -102,7 +102,7 @@ type ToddlePreviewEvent =
   | { type: 'keyup'; key: string; altKey: boolean; metaKey: boolean }
   | {
       type: 'get_computed_style'
-      styles: string[]
+      styles?: string[]
     }
   | {
       type: 'set_timeline_keyframes'
@@ -863,7 +863,7 @@ export const createRoot = (
             {
               type: 'computedStyle',
               computedStyle: Object.fromEntries(
-                styles.map((style) => [
+                (styles ?? []).map((style) => [
                   style,
                   computedStyle.getPropertyValue(style),
                 ]),
