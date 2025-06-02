@@ -1,3 +1,4 @@
+import { mapHeadersToObject } from '@nordcraft/core/dist/api/headers'
 import type {
   PageComponent,
   PageRoute,
@@ -180,7 +181,7 @@ export const serverEnv = ({
     // isServer will be true for SSR + proxied requests
     isServer: true,
     request: {
-      headers: Object.fromEntries(req.headers.entries()),
+      headers: mapHeadersToObject(req.headers),
       cookies: getRequestCookies(req),
       url: req.url,
     },

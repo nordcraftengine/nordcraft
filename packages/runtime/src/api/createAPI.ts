@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import type { LegacyComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
+import { mapHeadersToObject } from '@nordcraft/core/dist/api/headers'
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula, isFormula } from '@nordcraft/core/dist/formula/formula'
 import { mapValues } from '@nordcraft/core/dist/utils/collections'
@@ -362,10 +363,7 @@ export function createLegacyAPI(
         url: request?.url ?? apiPayload.url,
         method: request?.method ?? apiPayload.method,
         auth: request?.auth ?? apiPayload.auth,
-        headers: [...headers.entries()].reduce<Record<string, string>>(
-          (acc, [key, value]) => ({ ...acc, [key]: value }),
-          {},
-        ),
+        headers: mapHeadersToObject(headers),
         body,
       }
       return trigger(payload)

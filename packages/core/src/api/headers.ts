@@ -39,3 +39,19 @@ export const isImageHeader = (header?: string | null) => {
   }
   return /^image\//.test(header)
 }
+
+/**
+ * Returns an object with headers from a Headers object
+ * Duplicate header values (set-cookie for instance) are encoded as a comma-separated string
+ */
+export const mapHeadersToObject = (headers: Headers) => {
+  const headersObject: Record<string, string> = {}
+  for (const [key, value] of headers.entries()) {
+    if (headersObject[key]) {
+      headersObject[key] += `, ${value}`
+    } else {
+      headersObject[key] = value
+    }
+  }
+  return headersObject
+}

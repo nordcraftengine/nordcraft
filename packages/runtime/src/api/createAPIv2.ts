@@ -17,6 +17,7 @@ import {
   isJsonHeader,
   isJsonStreamHeader,
   isTextHeader,
+  mapHeadersToObject,
 } from '@nordcraft/core/dist/api/headers'
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type {
@@ -582,7 +583,7 @@ export function createAPI({
       error: null,
       response: {
         status: res.status,
-        headers: Object.fromEntries(res.headers.entries()),
+        headers: mapHeadersToObject(res.headers),
       },
     }
     return endResponse({ api, apiStatus: status, componentData, performance })
@@ -607,7 +608,7 @@ export function createAPI({
       error: null,
       response: {
         status: res.status,
-        headers: Object.fromEntries(res.headers.entries()),
+        headers: mapHeadersToObject(res.headers),
       },
     }
     return endResponse({ api, apiStatus: status, componentData, performance })
@@ -700,7 +701,7 @@ export function createAPI({
                 data: parseChunksForData(this.chunks),
                 error: null,
                 response: {
-                  headers: Object.fromEntries(res.headers.entries()),
+                  headers: mapHeadersToObject(res.headers),
                 },
               },
             },
@@ -754,7 +755,7 @@ export function createAPI({
       error: null,
       response: {
         status: res.status,
-        headers: Object.fromEntries(res.headers.entries()),
+        headers: mapHeadersToObject(res.headers),
       },
     }
 
