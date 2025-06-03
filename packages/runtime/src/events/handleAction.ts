@@ -96,7 +96,7 @@ export function handleAction(
             package: ctx.package,
             toddle: ctx.toddle,
             env: ctx.env,
-          }) as string // Technically, we should probably only allow strings/null
+          }) as string
 
           // historyMode was previously not declared explicitly, and we default
           // to push for state changes and replace for query changes
