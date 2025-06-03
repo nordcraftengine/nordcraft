@@ -111,7 +111,7 @@ describe('API proxy', () => {
     )
     expect(res.status).toBe(200)
   })
-  it("Should ignore the request's body if the special", async () => {
+  it("Should proxy the request's body untouched if the special header is not set", async () => {
     // Create the test client from the app instance
     const client = testClient(
       new Hono().post(
