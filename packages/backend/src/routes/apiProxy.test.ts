@@ -36,6 +36,7 @@ describe('API proxy', () => {
       )
       // The PROXY_URL_HEADER should be removed from the request headers
       expect(req.headers.get(PROXY_URL_HEADER)).toBeNull()
+      expect(req.headers.get(PROXY_TEMPLATES_IN_BODY)).toBeNull()
       expect(req.headers.get('Authorization')).toBe(`Bearer my_value`)
       return new Response(`{"success":true}`)
     }
@@ -80,6 +81,7 @@ describe('API proxy', () => {
       expect(body).toEqual({ myToken: 'my_refresh_token' }) // The body should have been updated with the template value
       // The PROXY_URL_HEADER should be removed from the request headers
       expect(req.headers.get(PROXY_URL_HEADER)).toBeNull()
+      expect(req.headers.get(PROXY_TEMPLATES_IN_BODY)).toBeNull()
       return new Response(`{"success":true}`, { status: 200 })
     }
 
@@ -134,6 +136,7 @@ describe('API proxy', () => {
       })
       // The PROXY_URL_HEADER should be removed from the request headers
       expect(req.headers.get(PROXY_URL_HEADER)).toBeNull()
+      expect(req.headers.get(PROXY_TEMPLATES_IN_BODY)).toBeNull()
       return new Response(`{"success":true}`, { status: 200 })
     }
 

@@ -30,8 +30,12 @@ import {
   omitPaths,
   sortObjectEntries,
 } from '@nordcraft/core/dist/utils/collections'
-import { PROXY_URL_HEADER, validateUrl } from '@nordcraft/core/dist/utils/url'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import {
+  PROXY_TEMPLATES_IN_BODY,
+  PROXY_URL_HEADER,
+  validateUrl,
+} from '@nordcraft/core/dist/utils/url'
+import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
@@ -411,6 +415,15 @@ export function createAPI({
             PROXY_URL_HEADER,
             decodeURIComponent(url.href.replace(/\+/g, ' ')),
           )
+          const allowBodyTemplateValues = toBoolean(
+            applyFormula(
+              api.server?.proxy?.useTemplatesInBody?.formula,
+              getFormulaContext(api, componentData),
+            ),
+          )
+          if (allowBodyTemplateValues) {
+            headers.set(PROXY_TEMPLATES_IN_BODY, 'true')
+          }
           requestSettings.headers = headers
           response = await fetch(proxyUrl, requestSettings)
         }
