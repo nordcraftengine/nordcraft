@@ -28,6 +28,7 @@ type Code =
   | 'duplicate workflow parameter'
   | 'duplicate route'
   | 'invalid api parser mode'
+  | 'invalid api proxy body setting'
   | 'legacy action'
   | 'legacy api'
   | 'legacy formula'
