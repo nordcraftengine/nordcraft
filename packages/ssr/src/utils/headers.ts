@@ -15,9 +15,9 @@ export const skipCookieHeader = (headers: Headers) => {
 }
 
 /**
- * Omit the x-nordcraft-url header from a set of headers.
- * Since this header is only relevant for Nordcraft requests, it's not useful
- * for other services to receive this.
+ * Omit the "x-nordcraft-url" and "x-nordcraft-templates-in-body" headers
+ * from a set of headers. Since these headers are only relevant for the
+ * Nordcraft API proxy, it's not useful for other services to receive them
  */
 export const skipNordcraftHeaders = (headers: Headers) => {
   const newHeaders = new Headers(headers)
