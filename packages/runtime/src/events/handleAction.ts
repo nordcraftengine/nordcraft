@@ -96,7 +96,8 @@ export function handleAction(
             package: ctx.package,
             toddle: ctx.toddle,
             env: ctx.env,
-          })
+          }) as string
+
           // historyMode was previously not declared explicitly, and we default
           // to push for state changes and replace for query changes
           let historyMode: SetURLParameterAction['historyMode'] | undefined
@@ -243,16 +244,18 @@ export function handleAction(
         if (isContextApiV2(api)) {
           // Evaluate potential inputs here to make sure the api have the right values
           // This is needed if the inputs are formulas referencing workflow parameters
-          const actionInputs = mapValues(action.inputs ?? {}, (input) =>
-            applyFormula(input.formula, {
-              data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+          const actionInputs = mapValues(
+            action.inputs ?? {},
+            (input) =>
+              applyFormula(input.formula, {
+                data,
+                component: ctx.component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+              }) as any,
           )
           const actionModels = {
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

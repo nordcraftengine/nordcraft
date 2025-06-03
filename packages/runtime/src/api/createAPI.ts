@@ -3,7 +3,6 @@ import type { LegacyComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import { mapHeadersToObject } from '@nordcraft/core/dist/api/headers'
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula, isFormula } from '@nordcraft/core/dist/formula/formula'
-import { mapValues } from '@nordcraft/core/dist/utils/collections'
 import { parseJSONWithDate } from '@nordcraft/core/dist/utils/json'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
@@ -54,20 +53,38 @@ export function createLegacyAPI(
 
     // build querystring
     const queryParams = Object.values(api.queryParams ?? {})
+    const evaluatedQueryParams = queryParams
+      .map((param) => ({
+        name: param.name,
+        value: applyFormula(param.formula, formulaContext),
+      }))
+      // Ensure we only pass valid parameters to encodeURIComponent below
+      .filter(
+        (param): param is { name: string; value: string | number | boolean } =>
+          typeof param.value === 'string' ||
+          typeof param.value === 'number' ||
+          typeof param.value === 'boolean',
+      )
     const queryString =
-      queryParams.length > 0
+      evaluatedQueryParams.length > 0
         ? '?' +
-          queryParams
-            .map(
-              (param) =>
-                `${param.name}=${encodeURIComponent(
-                  applyFormula(param.formula, formulaContext),
-                )}`,
-            )
+          evaluatedQueryParams
+            .map((param) => `${param.name}=${encodeURIComponent(param.value)}`)
             .join('&')
         : ''
-    const headers = isFormula(api.headers) // this is supporting a few legacy cases where the whole header object was set as a formula. This is no longer possible
-      ? applyFormula(api.headers, {
+    const headers: Record<string, string> = {}
+    if (isFormula(api.headers)) {
+      const evaluatedHeaders = applyFormula(api.headers, formulaContext)
+      if (typeof evaluatedHeaders === 'object' && evaluatedHeaders !== null) {
+        Object.entries(evaluatedHeaders).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            headers[key] = value
+          }
+        })
+      }
+    } else {
+      Object.entries(api.headers ?? {}).forEach(([key, value]) => {
+        const evaluatedValue = applyFormula(value, {
           data,
           component: ctx.component,
           formulaCache: ctx.formulaCache,
@@ -76,17 +93,11 @@ export function createLegacyAPI(
           toddle: ctx.toddle,
           env: ctx.env,
         })
-      : mapValues(api.headers ?? {}, (value) =>
-          applyFormula(value, {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          }),
-        )
+        if (typeof evaluatedValue === 'string') {
+          headers[key] = evaluatedValue
+        }
+      })
+    }
     const contentType = String(
       Object.entries(headers).find(
         ([key]) => key.toLocaleLowerCase() === 'content-type',
@@ -178,6 +189,7 @@ export function createLegacyAPI(
         },
       },
     })
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     api.onCompleted?.actions?.forEach((action) => {
       handleAction(action, ctx.dataSignal.get(), ctx)
     })
@@ -195,6 +207,7 @@ export function createLegacyAPI(
         },
       },
     })
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     api.onFailed?.actions?.forEach((action) => {
       handleAction(action, ctx.dataSignal.get(), ctx)
     })

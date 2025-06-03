@@ -120,16 +120,17 @@ export class ToddleComponent extends HTMLElement {
           .filter(([, formula]) => formula.exposeInContext)
           .map(([name, formula]) => [
             name,
-            this.#signal.map((data) =>
-              applyFormula(formula.formula, {
-                data,
-                component: this.#component,
-                formulaCache: this.#ctx.formulaCache,
-                root: this.#ctx.root,
-                package: this.#ctx.package,
-                toddle: this.#ctx.toddle,
-                env: this.#ctx.env,
-              }),
+            this.#signal.map(
+              (data) =>
+                applyFormula(formula.formula, {
+                  data,
+                  component: this.#component,
+                  formulaCache: this.#ctx.formulaCache,
+                  root: this.#ctx.root,
+                  package: this.#ctx.package,
+                  toddle: this.#ctx.toddle,
+                  env: this.#ctx.env,
+                }) as ComponentData,
             ),
           ]),
       )
