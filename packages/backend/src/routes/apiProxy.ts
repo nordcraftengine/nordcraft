@@ -63,8 +63,8 @@ export const proxyRequestHandler = async (
       HttpMethodsWithAllowedBody.includes(req.method as ApiMethod) &&
       req.headers.get(PROXY_TEMPLATES_IN_BODY) !== null
     ) {
-      // If the request has the PROXY_TEMPLATES_IN_BODY header set to true,
-      // we need to apply the template values to the body as well
+      // If the request has the PROXY_TEMPLATES_IN_BODY header set,
+      // we must apply the template values to the body as well
       try {
         const bodyText = await req.text()
         templateBody = applyTemplateValues(bodyText, requestCookies)
