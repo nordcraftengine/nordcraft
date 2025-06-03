@@ -78,9 +78,6 @@ export interface ApiRequest extends ApiBase {
     // We should only accept server side proxy requests if proxy is defined
     proxy?: {
       enabled: { formula: Formula }
-      // Allow replacing template values in the body of a proxied request
-      // This is useful for cases where the body should include an http only cookie for instance
-      useTemplatesInBody?: boolean
     } | null
     ssr?: {
       // We should only fetch a request server side during SSR if this is true
