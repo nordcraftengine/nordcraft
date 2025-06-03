@@ -106,3 +106,18 @@ jobs:
         run: |
           cd packages/search
           bun test
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout backend
+        uses: actions/checkout@v4
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build
+        run: bun run build
+      - name: Test backend
+        run: |
+          cd packages/backend
+          bun test

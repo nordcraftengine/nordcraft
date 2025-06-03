@@ -1,4 +1,7 @@
-import { PROXY_URL_HEADER } from '@nordcraft/core/dist/utils/url'
+import {
+  PROXY_TEMPLATES_IN_BODY,
+  PROXY_URL_HEADER,
+} from '@nordcraft/core/dist/utils/url'
 
 /**
  * Omit the `cookie` header from a set of headers.
@@ -12,12 +15,13 @@ export const skipCookieHeader = (headers: Headers) => {
 }
 
 /**
- * Omit the x-toddle-url header from a set of headers.
- * Since this header is only relevant for toddle requests, it's not useful
- * for other services to receive this.
+ * Omit the "x-nordcraft-url" and "x-nordcraft-templates-in-body" headers
+ * from a set of headers. Since these headers are only relevant for the
+ * Nordcraft API proxy, it's not useful for other services to receive them
  */
-export const skipToddleHeader = (headers: Headers) => {
+export const skipNordcraftHeaders = (headers: Headers) => {
   const newHeaders = new Headers(headers)
   newHeaders.delete(PROXY_URL_HEADER)
+  newHeaders.delete(PROXY_TEMPLATES_IN_BODY)
   return newHeaders
 }
