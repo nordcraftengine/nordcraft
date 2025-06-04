@@ -288,6 +288,18 @@ export class ToddleApiV2<Handler> implements ApiRequest {
       path: ['apis', apiKey, 'server', 'proxy', 'enabled', 'formula'],
     })
     yield* getFormulasInFormula({
+      formula: api.server?.proxy?.useTemplatesInBody?.formula,
+      globalFormulas: this.globalFormulas,
+      path: [
+        'apis',
+        apiKey,
+        'server',
+        'proxy',
+        'useTemplatesInBody',
+        'formula',
+      ],
+    })
+    yield* getFormulasInFormula({
       formula: api.server?.ssr?.enabled?.formula,
       globalFormulas: this.globalFormulas,
       path: ['apis', apiKey, 'server', 'ssr', 'enabled', 'formula'],
