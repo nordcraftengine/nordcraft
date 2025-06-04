@@ -941,7 +941,9 @@ export function createAPI({
           requestSettings,
           componentData: initialComponentData,
         })
-      } else {
+      } else if (!ctx.dataSignal.get().Apis?.[api.name]) {
+        // If the api is not set in the dataSignal, we need to initialize it.
+        // If it is set and autoFetch is false, we do not want to reset it.
         ctx.dataSignal.update((data) => {
           return {
             ...data,
