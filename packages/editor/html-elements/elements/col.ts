@@ -1,0 +1,25 @@
+import type { ExportedHtmlElement } from '../../types'
+
+const col: ExportedHtmlElement = {
+  "metadata": {
+    "description": "An HTML element representing the col element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/col",
+    "aliases": []
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "col",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}
+export default col
