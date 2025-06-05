@@ -53,7 +53,7 @@ export const matchRouteForUrl = ({
         route,
         serverContext,
       })
-      return toBoolean(applyFormula(route.enabled, formulaContext))
+      return toBoolean(applyFormula(route.enabled.formula, formulaContext))
     }),
     getRoute: (route) => route.source,
   })

@@ -9,9 +9,12 @@ import {
   matchRouteForUrl,
 } from '@nordcraft/ssr/dist/routing/routing'
 import type { Handler } from 'hono'
-import type { HonoEnv, HonoRoutes } from '../../hono'
+import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 
-export const routeHandler: Handler<HonoEnv<HonoRoutes>> = async (c, next) => {
+export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
+  c,
+  next,
+) => {
   const url = new URL(c.req.url)
   const route = matchRouteForUrl({
     url,
@@ -29,7 +32,7 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes>> = async (c, next) => {
     env: serverEnv({ branchName: 'main', req: c.req.raw, logErrors: false }),
     req: c.req.raw,
     route,
-    // TODO: We should pass in global toddle formulas from project + packages here
+    // TODO: We should pass in global Nordcraft formulas from project + packages here
     serverContext: getServerToddleObject({} as any),
   })
   if (!destination) {

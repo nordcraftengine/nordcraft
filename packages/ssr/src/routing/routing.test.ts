@@ -1,6 +1,9 @@
 import type { RouteDeclaration } from '@nordcraft/core/dist/component/component.types'
+import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { describe, expect, test } from 'bun:test'
-import { matchPageForUrl } from './routing'
+import { serverEnv } from '../rendering/formulaContext'
+import type { Route } from '../ssr.types'
+import { matchPageForUrl, matchRouteForUrl } from './routing'
 
 describe('matchPageForUrl', () => {
   test('it finds the correct page for a url', () => {
@@ -149,5 +152,127 @@ describe('matchPageForUrl', () => {
     ).toBeUndefined()
     const docsUrl = new URL('http://localhost:3000/docs/intro/help')
     expect(matchPageForUrl({ url: docsUrl, components: pages })).toBeUndefined()
+  })
+})
+describe('matchRouteForUrl', () => {
+  test('it finds the correct route for a url', () => {
+    const routes: Record<string, Route> = {
+      testRedirect: {
+        type: 'redirect',
+        source: {
+          path: [
+            { type: 'static', name: 'not-docs' },
+            { type: 'param', testValue: '', name: 'slug' },
+          ],
+          query: {},
+        },
+        destination: {
+          url: { type: 'value', value: 'https://google.com' },
+          path: {},
+        },
+      },
+      docsRedirect: {
+        type: 'redirect',
+        source: {
+          path: [
+            { type: 'static', name: 'docs' },
+            { type: 'param', testValue: '', name: 'slug' },
+          ],
+          query: {},
+        },
+        destination: {
+          url: { type: 'value', value: 'https://docs.nordcraft.com' },
+          path: {
+            first: {
+              index: 0,
+              formula: valueFormula('slug'),
+            },
+          },
+        },
+      },
+    }
+
+    const docsUrl = new URL('http://localhost:3000/docs/intro')
+    const request = new Request(docsUrl)
+    expect(
+      matchRouteForUrl({
+        url: docsUrl,
+        routes,
+        env: serverEnv({
+          branchName: 'main',
+          req: request,
+          logErrors: false,
+        }),
+        req: request,
+        serverContext: {
+          errors: [],
+          getFormula: () => undefined,
+          getCustomFormula: () => undefined,
+        },
+      }),
+    ).toEqual(routes['docsRedirect'])
+  })
+  test('it ignores disabled routes', () => {
+    const routes: Record<string, Route> = {
+      disabledRedirect: {
+        type: 'redirect',
+        enabled: { formula: valueFormula(false) },
+        source: {
+          path: [
+            { type: 'static', name: 'docs' },
+            { type: 'param', testValue: '', name: 'slug' },
+          ],
+          query: {},
+        },
+        destination: {
+          url: { type: 'value', value: 'https://docs.nordcraft.com' },
+          path: {
+            first: {
+              index: 0,
+              formula: valueFormula('slug'),
+            },
+          },
+        },
+      },
+      docsRedirect: {
+        type: 'redirect',
+        source: {
+          path: [
+            { type: 'param', testValue: 'docs', name: 'docs' },
+            { type: 'param', testValue: '', name: 'slug' },
+          ],
+          query: {},
+        },
+        destination: {
+          url: { type: 'value', value: 'https://docs.nordcraft.com' },
+          path: {
+            first: {
+              index: 0,
+              formula: valueFormula('slug'),
+            },
+          },
+        },
+      },
+    }
+
+    const docsUrl = new URL('http://localhost:3000/docs/intro')
+    const request = new Request(docsUrl)
+    expect(
+      matchRouteForUrl({
+        url: docsUrl,
+        routes,
+        env: serverEnv({
+          branchName: 'main',
+          req: request,
+          logErrors: false,
+        }),
+        req: request,
+        serverContext: {
+          errors: [],
+          getFormula: () => undefined,
+          getCustomFormula: () => undefined,
+        },
+      }),
+    ).toEqual(routes['docsRedirect'])
   })
 })
