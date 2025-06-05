@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the meter element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter",
+    "aliases": [
+      "gauge",
+      "measurement"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "meter",
+        "type": "element",
+        "attrs": {
+          "value": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

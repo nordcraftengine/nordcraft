@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the q element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q",
+    "aliases": [
+      "inline-quote"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "q",
+        "type": "element",
+        "attrs": {
+          "cite": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the button element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button",
+    "aliases": [
+      "form-button",
+      "action-button",
+      "submit-button"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "button",
+        "type": "element",
+        "attrs": {
+          "type": {
+            "type": "value",
+            "value": "button"
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

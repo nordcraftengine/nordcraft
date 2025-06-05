@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the area element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/area",
+    "aliases": [
+      "imagemap-area"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "area",
+        "type": "element",
+        "attrs": {
+          "alt": {
+            "type": "value",
+            "value": ""
+          },
+          "coords": {
+            "type": "value",
+            "value": ""
+          },
+          "shape": {
+            "type": "value",
+            "value": "rect"
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

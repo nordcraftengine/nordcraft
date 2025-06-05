@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the abbr element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/abbr",
+    "aliases": [
+      "abbreviation"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "abbr",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

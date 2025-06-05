@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the p element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p",
+    "aliases": [
+      "paragraph",
+      "text-block",
+      "text"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "p",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

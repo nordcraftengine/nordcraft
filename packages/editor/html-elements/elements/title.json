@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the title element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title",
+    "aliases": [
+      "document-title"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "title",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

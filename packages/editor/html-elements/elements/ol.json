@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the ol element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol",
+    "aliases": [
+      "ordered-list",
+      "numbered-list",
+      "list"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "ol",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

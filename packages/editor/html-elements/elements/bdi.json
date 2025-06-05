@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the bdi element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdi",
+    "aliases": [
+      "bidirectional-isolation"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "bdi",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

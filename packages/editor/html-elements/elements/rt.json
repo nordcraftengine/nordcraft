@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the rt element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rt",
+    "aliases": [
+      "ruby-text"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "rt",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

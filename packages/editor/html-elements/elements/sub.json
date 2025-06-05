@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the sub element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub",
+    "aliases": [
+      "subscript"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "sub",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

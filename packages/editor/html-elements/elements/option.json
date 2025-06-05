@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the option element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option",
+    "aliases": [
+      "select-option"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "option",
+        "type": "element",
+        "attrs": {
+          "value": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the em element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em",
+    "aliases": [
+      "emphasis",
+      "italic"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "em",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

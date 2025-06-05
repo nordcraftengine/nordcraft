@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the caption element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/caption",
+    "aliases": [
+      "table-caption"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "caption",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}
