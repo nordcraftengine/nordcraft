@@ -52,13 +52,6 @@ const elements: Record<
       href: { type: 'value', value: '/' },
       'data-prerender': { type: 'value', value: 'moderate' },
     },
-    children: ['JvOLtWFjJNmeBrBN5IgvA'],
-    nodes: {
-      JvOLtWFjJNmeBrBN5IgvA: {
-        type: 'text',
-        value: { type: 'value', value: 'Link' },
-      },
-    },
   },
   abbr: { aliases: ['abbreviation'] },
   address: { aliases: ['contact-info'] },

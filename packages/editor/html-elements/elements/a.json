@@ -11,13 +11,6 @@
     "type": "nodes",
     "source": "catalog",
     "nodes": {
-      "JvOLtWFjJNmeBrBN5IgvA": {
-        "type": "text",
-        "value": {
-          "type": "value",
-          "value": "Link"
-        }
-      },
       "root": {
         "tag": "a",
         "type": "element",
@@ -34,9 +27,7 @@
         "style": {},
         "events": {},
         "classes": {},
-        "children": [
-          "JvOLtWFjJNmeBrBN5IgvA"
-        ]
+        "children": []
       }
     }
   }
