@@ -121,3 +121,18 @@ jobs:
         run: |
           cd packages/backend
           bun test
+  test-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build
+        run: bun run build
+      - name: Prepare assets
+        run: bun bin/prepareReleaseAssets.ts
+      - name: List files
+        run: ls -la ./dist

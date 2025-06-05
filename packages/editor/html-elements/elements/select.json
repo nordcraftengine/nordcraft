@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the select element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select",
+    "aliases": [
+      "dropdown",
+      "select-box"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "select",
+        "type": "element",
+        "attrs": {
+          "name": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

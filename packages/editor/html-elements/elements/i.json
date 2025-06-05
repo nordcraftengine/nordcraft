@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the i element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/i",
+    "aliases": [
+      "italic",
+      "alternate-voice"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "i",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

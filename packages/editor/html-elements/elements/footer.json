@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the footer element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer",
+    "aliases": [
+      "page-footer",
+      "section-footer"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "footer",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

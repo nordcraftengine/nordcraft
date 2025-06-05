@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "description": "An HTML element representing the dd element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dd",
+    "aliases": [
+      "description-details"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "dd",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

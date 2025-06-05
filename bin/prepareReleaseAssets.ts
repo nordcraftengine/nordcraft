@@ -3,6 +3,18 @@ import { RESET_STYLES } from '@nordcraft/core/dist/styling/theme.const'
 import type { BuildOptions } from 'esbuild'
 import { build } from 'esbuild'
 import { mkdirSync, rmSync, writeFileSync } from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import { combineHtmlElements } from '../packages/editor/html-elements/combineElements'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const resolvePath = (...segments: string[]) =>
+  path.resolve(__dirname, ...segments)
+
+const distPath = '../dist'
+const distDir = resolvePath(distPath)
 
 const bundleFiles = (
   files: BuildOptions['entryPoints'],
@@ -21,12 +33,12 @@ const bundleFiles = (
   })
 
 const setup = () => {
-  rmSync('dist/', { recursive: true, force: true })
-  mkdirSync('dist/', { recursive: true })
+  rmSync(distDir, { recursive: true, force: true })
+  mkdirSync(distDir, { recursive: true })
 }
 
 const createTempFileFromValue = (filename, value) => {
-  const path = `dist/${filename}`
+  const path = resolvePath(distPath, filename)
   writeFileSync(path, value)
   return path
 }
@@ -69,6 +81,12 @@ const run = async () => {
     allowOverwrite: true,
     entryNames: `[name].esm`,
   })
+
+  // Build html elements for the editor
+  createTempFileFromValue(
+    'elements.json',
+    JSON.stringify(combineHtmlElements(), null, 2),
+  )
 
   return `Build finished in ${Date.now() - t1}ms`
 }
