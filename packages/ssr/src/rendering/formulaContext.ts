@@ -14,7 +14,7 @@ import { mapValues } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import { getPathSegments } from '../routing/routing'
-import type { ProjectFiles } from '../ssr.types'
+import type { InstalledPackage, ProjectFiles } from '../ssr.types'
 import { getRequestCookies } from './cookies'
 import { escapeSearchParameters } from './request'
 
@@ -71,7 +71,9 @@ export const getPageFormulaContext = ({
 }
 
 export const getServerToddleObject = (
-  files: ProjectFiles,
+  files: Pick<ProjectFiles, 'formulas' | 'packages'> & {
+    packages?: Record<string, Pick<InstalledPackage, 'formulas'>>
+  },
 ): FormulaContext['toddle'] => {
   const coreFormulas = Object.fromEntries(
     Object.entries(libFormulas).map(([name, module]) => [

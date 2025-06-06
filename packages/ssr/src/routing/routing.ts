@@ -4,12 +4,13 @@ import type {
   PageRoute,
   RouteDeclaration,
 } from '@nordcraft/core/dist/component/component.types'
-import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
-import {
-  getParameters,
-  getServerToddleObject,
-} from '../rendering/formulaContext'
+import type {
+  FormulaContext,
+  ToddleEnv,
+} from '@nordcraft/core/dist/formula/formula'
+import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+import { getParameters } from '../rendering/formulaContext'
 import type { ProjectFiles, Route } from '../ssr.types'
 
 export const matchPageForUrl = ({
@@ -25,16 +26,35 @@ export const matchPageForUrl = ({
     getRoute: (route) => route.route,
   })
 
-export const matchRouteForUrl = <T extends { source: RouteDeclaration }>({
-  url,
+export const matchRouteForUrl = ({
+  env,
+  req,
   routes,
+  serverContext,
+  url,
 }: {
+  env: ToddleEnv
+  req: Request
+  routes?: Record<string, Route>
+  serverContext: FormulaContext['toddle']
   url: URL
-  routes?: Record<string, T>
 }) =>
   matchRoutes({
     url,
-    entries: Object.values(routes ?? {}),
+    entries: Object.values(routes ?? {}).filter((route) => {
+      if (!isDefined(route.enabled)) {
+        // If the route does not have an explicit enabled property, we assume it is enabled
+        return true
+      }
+      // Only include routes that are enabled
+      const formulaContext = getRouteFormulaContext({
+        env,
+        req,
+        route,
+        serverContext,
+      })
+      return toBoolean(applyFormula(route.enabled.formula, formulaContext))
+    }),
     getRoute: (route) => route.source,
   })
 
@@ -78,12 +98,12 @@ export const matchRoutes = <T>({
 }
 
 export const getRouteDestination = ({
-  files,
+  serverContext,
   req,
   route,
   env,
 }: {
-  files: ProjectFiles
+  serverContext: FormulaContext['toddle']
   req: Request
   route: Route
   env: ToddleEnv
@@ -91,26 +111,16 @@ export const getRouteDestination = ({
   try {
     const requestUrl = new URL(req.url)
 
-    const { searchParamsWithDefaults, pathParams } = getParameters({
-      route: route.source,
+    const formulaContext = getRouteFormulaContext({
+      env,
       req,
+      route,
+      serverContext,
     })
 
     const url = getUrl(
       route.destination,
-      // destination formulas should only have access to URL parameters from
-      // the route's source definition + global formulas.
-      {
-        data: {
-          Attributes: {},
-          'Route parameters': {
-            path: pathParams,
-            query: searchParamsWithDefaults,
-          },
-        },
-        toddle: getServerToddleObject(files),
-        env,
-      } as any,
+      formulaContext,
       // Redirects can redirect to relative URLs - rewrites can't
       route.type === 'redirect' ? requestUrl.origin : undefined,
     )
@@ -130,6 +140,38 @@ export const getRouteDestination = ({
     return url
     // eslint-disable-next-line no-empty
   } catch {}
+}
+
+const getRouteFormulaContext = ({
+  env,
+  req,
+  route,
+  serverContext,
+}: {
+  env: ToddleEnv
+  req: Request
+  route: Route
+  serverContext: FormulaContext['toddle']
+}): FormulaContext => {
+  const { searchParamsWithDefaults, pathParams } = getParameters({
+    route: route.source,
+    req,
+  })
+  return {
+    component: undefined,
+    // destination formulas should only have access to URL parameters from
+    // the route's source definition + global formulas.
+    data: {
+      Attributes: {},
+      'Route parameters': {
+        path: pathParams ?? {},
+        query: searchParamsWithDefaults,
+      },
+    },
+    env,
+    package: undefined,
+    toddle: serverContext,
+  }
 }
 
 export const get404Page = (components: ProjectFiles['components']) =>

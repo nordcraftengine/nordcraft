@@ -1,29 +1,39 @@
 import { NON_BODY_RESPONSE_CODES } from '@nordcraft/core/dist/api/api'
 import { REWRITE_HEADER } from '@nordcraft/core/dist/utils/url'
-import { serverEnv } from '@nordcraft/ssr/dist/rendering/formulaContext'
+import {
+  getServerToddleObject,
+  serverEnv,
+} from '@nordcraft/ssr/dist/rendering/formulaContext'
 import {
   getRouteDestination,
   matchRouteForUrl,
 } from '@nordcraft/ssr/dist/routing/routing'
 import type { Handler } from 'hono'
-import type { HonoEnv, HonoRoutes } from '../../hono'
+import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 
-export const routeHandler: Handler<HonoEnv<HonoRoutes>> = async (c, next) => {
+export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
+  c,
+  next,
+) => {
   const url = new URL(c.req.url)
   const route = matchRouteForUrl({
     url,
     routes: c.var.routes?.routes ?? {},
+    env: serverEnv({ branchName: 'main', req: c.req.raw, logErrors: false }),
+    req: c.req.raw,
+    // TODO: We should pass in global Nordcraft formulas from project + packages here
+    serverContext: getServerToddleObject({} as any),
   })
   if (!route) {
     return next()
   }
   const destination = getRouteDestination({
-    files: {} as any, // c.var.project.files,
-    req: c.req.raw,
-    route,
-
     // might not want to use main branch here
     env: serverEnv({ branchName: 'main', req: c.req.raw, logErrors: false }),
+    req: c.req.raw,
+    route,
+    // TODO: We should pass in global Nordcraft formulas from project + packages here
+    serverContext: getServerToddleObject({} as any),
   })
   if (!destination) {
     return c.html(`Invalid destination`, {
