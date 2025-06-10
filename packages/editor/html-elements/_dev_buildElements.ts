@@ -297,7 +297,6 @@ const elements: Record<
       datetime: { type: 'value', value: '' },
     },
   },
-  title: { aliases: ['document-title'] },
   tr: { aliases: ['table-row'] },
   track: {
     aliases: ['media-track', 'subtitles'],
