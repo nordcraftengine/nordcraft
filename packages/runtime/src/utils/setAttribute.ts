@@ -22,7 +22,9 @@ export function setAttribute(
       if (elem instanceof SVGElement) {
         // The type attribute on SVG elements should just be added as an attribute
         // See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/type
-        elem.setAttribute(attr, String(value))
+        if (toBoolean(value)) {
+          elem.setAttribute(attr, String(value))
+        }
       } else {
         let val = value
         if (elem instanceof HTMLProgressElement) {
