@@ -19,16 +19,22 @@ export function setAttribute(
       break
     case 'value':
     case 'type': {
-      let val = value
-      if (elem instanceof HTMLProgressElement) {
-        // An HTMLProgressElement will break other elements in our editor if the value is not a (finite) number
-        // See docs here https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress#value
-        // and original issue here https://discord.com/channels/972416966683926538/1317827591230722048
-        if (!isDefined(value) || !Number.isFinite(Number(value))) {
-          val = 0
+      if (elem instanceof SVGElement) {
+        // The type attribute on SVG elements should just be added as an attribute
+        // See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/type
+        elem.setAttribute(attr, String(value))
+      } else {
+        let val = value
+        if (elem instanceof HTMLProgressElement) {
+          // An HTMLProgressElement will break other elements in our editor if the value is not a (finite) number
+          // See docs here https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress#value
+          // and original issue here https://discord.com/channels/972416966683926538/1317827591230722048
+          if (!isDefined(value) || !Number.isFinite(Number(value))) {
+            val = 0
+          }
         }
+        ;(elem as any)[attr] = toBoolean(val) ? String(val) : undefined
       }
-      ;(elem as any)[attr] = toBoolean(val) ? String(val) : undefined
       break
     }
     case 'muted':
