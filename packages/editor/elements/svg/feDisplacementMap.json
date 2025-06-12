@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feDisplacementMap",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feDisplacementMap element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDisplacementMap",
+    "aliases": [
+      "displacement-map",
+      "svg-displacement"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feDisplacementMap",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

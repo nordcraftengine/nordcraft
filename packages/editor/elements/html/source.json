@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "name": "source",
+    "categories": [
+      "media"
+    ],
+    "description": "An HTML element representing the source element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source",
+    "aliases": [
+      "media-source"
+    ],
+    "isVoid": true
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "source",
+        "type": "element",
+        "attrs": {
+          "src": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

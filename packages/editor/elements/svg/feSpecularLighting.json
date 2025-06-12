@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feSpecularLighting",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feSpecularLighting element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feSpecularLighting",
+    "aliases": [
+      "specular-light",
+      "svg-specular"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feSpecularLighting",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

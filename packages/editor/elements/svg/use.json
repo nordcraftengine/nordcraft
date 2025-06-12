@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "use",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG use element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use",
+    "aliases": [
+      "svg-use",
+      "reference"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "use",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

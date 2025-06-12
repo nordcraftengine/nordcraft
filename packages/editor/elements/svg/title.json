@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "title",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG title element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/title",
+    "aliases": [
+      "svg-title",
+      "caption"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "title",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "table",
+    "categories": [
+      "semantic"
+    ],
+    "description": "An HTML element representing the table element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table",
+    "aliases": [
+      "data-table"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "table",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

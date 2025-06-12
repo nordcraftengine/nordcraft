@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "marker",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG marker element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/marker",
+    "aliases": [
+      "svg-marker",
+      "arrowhead"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "marker",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "name": "ins",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the ins element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins",
+    "aliases": [
+      "inserted-text",
+      "addition"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "ins",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      },
+      "MsVwQCP4yKPh_00L4fAhT": {
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

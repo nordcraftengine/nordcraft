@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "switch",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG switch element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/switch",
+    "aliases": [
+      "svg-switch",
+      "conditional"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "switch",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

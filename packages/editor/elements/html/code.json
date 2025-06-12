@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "name": "code",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the code element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code",
+    "aliases": [
+      "inline-code",
+      "source-code"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "code",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      },
+      "MsVwQCP4yKPh_00L4fAhT": {
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

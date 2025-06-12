@@ -2,9 +2,12 @@ import type { ElementNodeModel } from '@nordcraft/core/dist/component/component.
 
 export interface ExportedHtmlElement {
   metadata: {
+    name: string
+    categories: ExportedHtmlElementCategory[]
     description?: string
     link?: string
     aliases?: string[]
+    isVoid?: true
   }
   element: {
     type: 'nodes'
@@ -12,3 +15,10 @@ export interface ExportedHtmlElement {
     nodes: Record<string, ElementNodeModel>
   }
 }
+
+export type ExportedHtmlElementCategory =
+  | 'form'
+  | 'typography'
+  | 'media'
+  | 'svg'
+  | 'semantic'

@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "name": "progress",
+    "categories": [
+      "form"
+    ],
+    "description": "An HTML element representing the progress element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress",
+    "aliases": [
+      "progress-bar",
+      "loading"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "progress",
+        "type": "element",
+        "attrs": {
+          "value": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

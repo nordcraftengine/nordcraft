@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feMerge",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feMerge element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMerge",
+    "aliases": [
+      "merge-filter",
+      "svg-merge"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feMerge",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

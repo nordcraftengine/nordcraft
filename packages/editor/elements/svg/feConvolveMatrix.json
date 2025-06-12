@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feConvolveMatrix",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feConvolveMatrix element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feConvolveMatrix",
+    "aliases": [
+      "convolve-matrix",
+      "svg-convolve"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feConvolveMatrix",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

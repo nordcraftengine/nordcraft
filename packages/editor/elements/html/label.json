@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "label",
+    "categories": [
+      "form"
+    ],
+    "description": "An HTML element representing the label element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
+    "aliases": [
+      "form-label"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "label",
+        "type": "element",
+        "attrs": {
+          "for": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

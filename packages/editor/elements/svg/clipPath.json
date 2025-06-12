@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "name": "clipPath",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG clipPath element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/clipPath",
+    "aliases": [
+      "clipping",
+      "svg-clip",
+      "masking"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "clipPath",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

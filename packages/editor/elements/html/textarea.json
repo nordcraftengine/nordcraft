@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "textarea",
+    "categories": [
+      "form"
+    ],
+    "description": "An HTML element representing the textarea element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea",
+    "aliases": [
+      "multiline-input"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "textarea",
+        "type": "element",
+        "attrs": {
+          "name": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

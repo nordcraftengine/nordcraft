@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "address",
+    "categories": [
+      "semantic"
+    ],
+    "description": "An HTML element representing the address element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/address",
+    "aliases": [
+      "contact-info"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "address",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

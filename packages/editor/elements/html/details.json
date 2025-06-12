@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "details",
+    "categories": [
+      "semantic"
+    ],
+    "description": "An HTML element representing the details element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details",
+    "aliases": [
+      "disclosure",
+      "expandable"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "details",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

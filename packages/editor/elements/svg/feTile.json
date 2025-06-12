@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feTile",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feTile element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feTile",
+    "aliases": [
+      "tile-filter",
+      "svg-tile"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feTile",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

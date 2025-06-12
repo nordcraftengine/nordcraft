@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "dialog",
+    "categories": [
+      "semantic"
+    ],
+    "description": "An HTML element representing the dialog element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog",
+    "aliases": [
+      "modal",
+      "popup"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "dialog",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

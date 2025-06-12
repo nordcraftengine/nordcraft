@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "animate",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG animate element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animate",
+    "aliases": [
+      "animation",
+      "svg-animate"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "animate",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "fePointLight",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG fePointLight element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/fePointLight",
+    "aliases": [
+      "point-light",
+      "svg-point"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "fePointLight",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

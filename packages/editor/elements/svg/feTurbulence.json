@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feTurbulence",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feTurbulence element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feTurbulence",
+    "aliases": [
+      "turbulence-filter",
+      "svg-turbulence"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feTurbulence",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

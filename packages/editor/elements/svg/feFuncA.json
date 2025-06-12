@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feFuncA",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feFuncA element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncA",
+    "aliases": [
+      "function-a",
+      "svg-func-a"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feFuncA",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

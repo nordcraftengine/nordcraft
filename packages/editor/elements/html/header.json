@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "header",
+    "categories": [
+      "semantic"
+    ],
+    "description": "An HTML element representing the header element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header",
+    "aliases": [
+      "page-header",
+      "section-header"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "header",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

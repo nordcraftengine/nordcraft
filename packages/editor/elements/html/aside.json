@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "aside",
+    "categories": [
+      "semantic"
+    ],
+    "description": "An HTML element representing the aside element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside",
+    "aliases": [
+      "sidebar"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "aside",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

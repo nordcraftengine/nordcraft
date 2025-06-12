@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "ellipse",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG ellipse element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/ellipse",
+    "aliases": [
+      "oval",
+      "svg-ellipse"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "ellipse",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

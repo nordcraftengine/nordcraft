@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "meta",
+    "categories": [
+      "semantic"
+    ],
+    "description": "An HTML element representing the meta element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta",
+    "aliases": [
+      "metadata"
+    ],
+    "isVoid": true
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "meta",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

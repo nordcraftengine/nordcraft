@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "name": "video",
+    "categories": [
+      "media"
+    ],
+    "description": "An HTML element representing the video element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video",
+    "aliases": [
+      "movie",
+      "media",
+      "film"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "video",
+        "type": "element",
+        "attrs": {
+          "src": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

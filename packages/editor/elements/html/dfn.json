@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "name": "dfn",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the dfn element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dfn",
+    "aliases": [
+      "definition"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "dfn",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      },
+      "MsVwQCP4yKPh_00L4fAhT": {
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

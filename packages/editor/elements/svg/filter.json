@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "filter",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG filter element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/filter",
+    "aliases": [
+      "svg-filter",
+      "effect"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "filter",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

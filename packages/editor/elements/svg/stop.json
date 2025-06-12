@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "name": "stop",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG stop element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/stop",
+    "aliases": [
+      "gradient-stop",
+      "svg-stop",
+      "gradient"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "stop",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

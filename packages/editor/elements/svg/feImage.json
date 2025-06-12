@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feImage",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feImage element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feImage",
+    "aliases": [
+      "image-filter",
+      "svg-image"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feImage",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

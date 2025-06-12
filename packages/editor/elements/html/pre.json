@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "name": "pre",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the pre element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre",
+    "aliases": [
+      "preformatted",
+      "code-block"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "pre",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      },
+      "MsVwQCP4yKPh_00L4fAhT": {
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

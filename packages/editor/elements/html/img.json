@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "name": "img",
+    "categories": [
+      "media"
+    ],
+    "description": "An HTML element representing the img element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img",
+    "aliases": [
+      "image",
+      "picture"
+    ],
+    "isVoid": true
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "img",
+        "type": "element",
+        "attrs": {
+          "src": {
+            "type": "value",
+            "value": ""
+          },
+          "alt": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

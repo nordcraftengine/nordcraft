@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "name": "script",
+    "categories": [
+      "semantic"
+    ],
+    "description": "An HTML element representing the script element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script",
+    "aliases": [
+      "javascript",
+      "client-script"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "script",
+        "type": "element",
+        "attrs": {
+          "src": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

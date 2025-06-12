@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "main",
+    "categories": [
+      "semantic"
+    ],
+    "description": "An HTML element representing the main element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main",
+    "aliases": [
+      "main-content"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "main",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}
