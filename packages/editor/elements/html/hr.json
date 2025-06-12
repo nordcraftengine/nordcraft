@@ -9,7 +9,8 @@
     "aliases": [
       "horizontal-rule",
       "divider"
-    ]
+    ],
+    "isVoid": true
   },
   "element": {
     "type": "nodes",

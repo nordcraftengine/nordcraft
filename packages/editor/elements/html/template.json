@@ -2,7 +2,7 @@
   "metadata": {
     "name": "template",
     "categories": [
-      "html-element"
+      "semantic"
     ],
     "description": "An HTML element representing the template element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template",

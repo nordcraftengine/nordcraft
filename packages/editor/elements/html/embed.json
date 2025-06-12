@@ -9,7 +9,8 @@
     "aliases": [
       "external-content",
       "plugin"
-    ]
+    ],
+    "isVoid": true
   },
   "element": {
     "type": "nodes",

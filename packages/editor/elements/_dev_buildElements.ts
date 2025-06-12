@@ -13,6 +13,23 @@ const init = () => {
         description: `An HTML element representing the ${element} element.`,
         link: `https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${element}`,
         aliases: aliases,
+        isVoid: [
+          'area',
+          'base',
+          'br',
+          'col',
+          'embed',
+          'hr',
+          'img',
+          'input',
+          'link',
+          'meta',
+          'source',
+          'track',
+          'wbr',
+        ].includes(element)
+          ? true
+          : undefined,
       },
       element: {
         type: 'nodes',
@@ -84,14 +101,64 @@ const elements: Record<
 > = {
   a: {
     aliases: ['link', 'anchor'],
-    categories: ['html-element'],
+    categories: ['semantic'],
     attrs: {
       href: { type: 'value', value: '/' },
       'data-prerender': { type: 'value', value: 'moderate' },
     },
+    nodes: {
+      root: {
+        tag: 'a',
+        type: 'element',
+        attrs: {
+          href: {
+            type: 'value',
+            value: '/',
+          },
+          'data-prerender': {
+            type: 'value',
+            value: 'moderate',
+          },
+        },
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Link',
+        },
+      },
+    },
   },
-  abbr: { aliases: ['abbreviation'], categories: ['typography'] },
-  address: { aliases: ['contact-info'], categories: ['html-element'] },
+  abbr: {
+    aliases: ['abbreviation'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'abbr',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
+  address: { aliases: ['contact-info'], categories: ['semantic'] },
   area: {
     aliases: ['imagemap-area'],
     categories: ['media'],
@@ -103,22 +170,85 @@ const elements: Record<
   },
   article: {
     aliases: ['blog-post', 'news-article'],
-    categories: ['html-element'],
+    categories: ['semantic'],
   },
-  aside: { aliases: ['sidebar'], categories: ['html-element'] },
+  aside: { aliases: ['sidebar'], categories: ['semantic'] },
   audio: { aliases: ['sound', 'music'], categories: ['media'] },
-  b: { aliases: ['bold'], categories: ['typography'] },
+  b: {
+    aliases: ['bold'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'b',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   base: {
     aliases: ['base-url'],
-    categories: ['html-element'],
+    categories: ['semantic'],
     attrs: {
       href: { type: 'value', value: '' },
     },
   },
-  bdi: { aliases: ['bidirectional-isolation'], categories: ['typography'] },
+  bdi: {
+    aliases: ['bidirectional-isolation'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'bdi',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   bdo: {
     aliases: ['bidirectional-override'],
     categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'categories',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
     attrs: {
       dir: { type: 'value', value: 'ltr' },
     },
@@ -126,11 +256,33 @@ const elements: Record<
   blockquote: {
     aliases: ['quote', 'quotation'],
     categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'categories',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
     attrs: {
       cite: { type: 'value', value: '' },
     },
   },
-  br: { aliases: ['line-break'], categories: ['typography'] },
+  br: {
+    aliases: ['line-break'],
+    categories: ['typography'],
+  },
   button: {
     aliases: ['form-button', 'action-button', 'submit-button'],
     categories: ['form'],
@@ -142,37 +294,144 @@ const elements: Record<
     aliases: ['drawing', 'graphics'],
     categories: ['media'],
   },
-  caption: { aliases: ['table-caption'], categories: ['html-element'] },
-  cite: { aliases: ['citation', 'reference'], categories: ['typography'] },
-  code: { aliases: ['inline-code', 'source-code'], categories: ['typography'] },
+  caption: { aliases: ['table-caption'], categories: ['semantic'] },
+  cite: {
+    aliases: ['citation', 'reference'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'cite',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
+  code: {
+    aliases: ['inline-code', 'source-code'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'code',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   col: {
     aliases: ['table-column'],
-    categories: ['html-element'],
+    categories: ['semantic'],
   },
-  colgroup: { aliases: ['table-column-group'], categories: ['html-element'] },
+  colgroup: { aliases: ['table-column-group'], categories: ['semantic'] },
   data: {
     aliases: ['machine-readable'],
-    categories: ['html-element'],
+    categories: ['semantic'],
     attrs: {
       value: { type: 'value', value: '' },
     },
   },
   datalist: { aliases: ['input-suggestions'], categories: ['form'] },
-  dd: { aliases: ['description-details'], categories: ['html-element'] },
+  dd: { aliases: ['description-details'], categories: ['semantic'] },
   del: {
     aliases: ['deleted-text', 'remove'],
     categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'categories',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
   },
   details: {
     aliases: ['disclosure', 'expandable'],
-    categories: ['html-element'],
+    categories: ['semantic'],
   },
-  dfn: { aliases: ['definition'], categories: ['typography'] },
-  dialog: { aliases: ['modal', 'popup'], categories: ['html-element'] },
-  div: { aliases: ['container', 'division'], categories: ['html-element'] },
-  dl: { aliases: ['description-list'], categories: ['html-element'] },
-  dt: { aliases: ['description-term'], categories: ['html-element'] },
-  em: { aliases: ['emphasis', 'italic'], categories: ['typography'] },
+  dfn: {
+    aliases: ['definition'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'dfn',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
+  dialog: { aliases: ['modal', 'popup'], categories: ['semantic'] },
+  div: { aliases: ['container', 'division'], categories: ['semantic'] },
+  dl: { aliases: ['description-list'], categories: ['semantic'] },
+  dt: { aliases: ['description-term'], categories: ['semantic'] },
+  em: {
+    aliases: ['emphasis', 'italic'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'em',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   embed: {
     aliases: ['external-content', 'plugin'],
     categories: ['media'],
@@ -186,7 +445,7 @@ const elements: Record<
   figure: { aliases: ['illustration', 'media'], categories: ['media'] },
   footer: {
     aliases: ['page-footer', 'section-footer'],
-    categories: ['html-element'],
+    categories: ['semantic'],
   },
   form: {
     aliases: ['input-form', 'user-input'],
@@ -195,14 +454,64 @@ const elements: Record<
       action: { type: 'value', value: '' },
     },
   },
-  h1: { aliases: ['heading-1', 'main-heading'], categories: ['typography'] },
+  h1: {
+    aliases: ['heading-1', 'main-heading'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'h1',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   header: {
     aliases: ['page-header', 'section-header'],
-    categories: ['html-element'],
+    categories: ['semantic'],
   },
-  hgroup: { aliases: ['heading-group'], categories: ['typography'] },
-  hr: { aliases: ['horizontal-rule', 'divider'], categories: ['typography'] },
-  i: { aliases: ['italic', 'alternate-voice'], categories: ['typography'] },
+  hgroup: {
+    aliases: ['heading-group'],
+    categories: ['typography'],
+  },
+  hr: {
+    aliases: ['horizontal-rule', 'divider'],
+    categories: ['typography'],
+  },
+  i: {
+    aliases: ['italic', 'alternate-voice'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'i',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   iframe: {
     aliases: ['inline-frame', 'embed-page', 'frame'],
     categories: ['media'],
@@ -230,8 +539,49 @@ const elements: Record<
   ins: {
     aliases: ['inserted-text', 'addition'],
     categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'categories',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
   },
-  kbd: { aliases: ['keyboard-input'], categories: ['typography'] },
+  kbd: {
+    aliases: ['keyboard-input'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'kbd',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   label: {
     aliases: ['form-label'],
     categories: ['form'],
@@ -242,17 +592,17 @@ const elements: Record<
   legend: { aliases: ['fieldset-caption'], categories: ['form'] },
   li: {
     aliases: ['list-item'],
-    categories: ['html-element'],
+    categories: ['semantic'],
   },
   link: {
     aliases: ['stylesheet-link', 'external-resource'],
-    categories: ['html-element'],
+    categories: ['semantic'],
     attrs: {
       rel: { type: 'value', value: '' },
       href: { type: 'value', value: '' },
     },
   },
-  main: { aliases: ['main-content'], categories: ['html-element'] },
+  main: { aliases: ['main-content'], categories: ['semantic'] },
   map: {
     aliases: ['imagemap'],
     categories: ['media'],
@@ -260,14 +610,36 @@ const elements: Record<
       name: { type: 'value', value: '' },
     },
   },
-  mark: { aliases: ['highlight'], categories: ['typography'] },
+  mark: {
+    aliases: ['highlight'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'mark',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   menu: {
     aliases: ['context-menu', 'list-menu'],
-    categories: ['html-element'],
+    categories: ['semantic'],
   },
   meta: {
     aliases: ['metadata'],
-    categories: ['html-element'],
+    categories: ['semantic'],
   },
   meter: {
     aliases: ['gauge', 'measurement'],
@@ -276,8 +648,8 @@ const elements: Record<
       value: { type: 'value', value: '' },
     },
   },
-  nav: { aliases: ['navigation', 'menu'], categories: ['html-element'] },
-  noscript: { aliases: ['no-javascript'], categories: ['html-element'] },
+  nav: { aliases: ['navigation', 'menu'], categories: ['semantic'] },
+  noscript: { aliases: ['no-javascript'], categories: ['semantic'] },
   object: {
     aliases: ['embedded-object', 'plugin'],
     categories: ['media'],
@@ -288,7 +660,7 @@ const elements: Record<
   },
   ol: {
     aliases: ['ordered-list', 'numbered-list', 'list'],
-    categories: ['html-element'],
+    categories: ['semantic'],
   },
   optgroup: {
     aliases: ['option-group'],
@@ -311,9 +683,50 @@ const elements: Record<
   p: {
     aliases: ['paragraph', 'text-block', 'text'],
     categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'categories',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
   },
   picture: { aliases: ['responsive-image', 'image'], categories: ['media'] },
-  pre: { aliases: ['preformatted', 'code-block'], categories: ['typography'] },
+  pre: {
+    aliases: ['preformatted', 'code-block'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'pre',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   progress: {
     aliases: ['progress-bar', 'loading'],
     categories: ['form'],
@@ -324,24 +737,153 @@ const elements: Record<
   q: {
     aliases: ['inline-quote'],
     categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'categories',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
     attrs: {
       cite: { type: 'value', value: '' },
     },
   },
-  rp: { aliases: ['ruby-parenthesis'], categories: ['typography'] },
-  rt: { aliases: ['ruby-text'], categories: ['typography'] },
-  ruby: { aliases: ['ruby-annotation'], categories: ['typography'] },
-  s: { aliases: ['strikethrough', 'deleted'], categories: ['typography'] },
-  samp: { aliases: ['sample-output'], categories: ['typography'] },
+  rp: {
+    aliases: ['ruby-parenthesis'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'rp',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
+  rt: {
+    aliases: ['ruby-text'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'rt',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
+  ruby: {
+    aliases: ['ruby-annotation'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'ruby',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
+  s: {
+    aliases: ['strikethrough', 'deleted'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 's',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
+  samp: {
+    aliases: ['sample-output'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'samp',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   script: {
     aliases: ['javascript', 'client-script'],
-    categories: ['html-element'],
+    categories: ['semantic'],
     attrs: {
       src: { type: 'value', value: '' },
     },
   },
-  search: { aliases: ['search-region'], categories: ['html-element'] },
-  section: { aliases: ['content-section'], categories: ['html-element'] },
+  search: { aliases: ['search-region'], categories: ['form'] },
+  section: { aliases: ['content-section'], categories: ['semantic'] },
   select: {
     aliases: ['dropdown', 'select-box'],
     categories: ['form'],
@@ -349,7 +891,29 @@ const elements: Record<
       name: { type: 'value', value: '' },
     },
   },
-  small: { aliases: ['fine-print'], categories: ['typography'] },
+  small: {
+    aliases: ['fine-print'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'small',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   source: {
     aliases: ['media-source'],
     categories: ['media'],
@@ -357,19 +921,85 @@ const elements: Record<
       src: { type: 'value', value: '' },
     },
   },
-  span: { aliases: ['inline-container'], categories: ['html-element'] },
-  strong: { aliases: ['bold', 'importance'], categories: ['typography'] },
+  span: { aliases: ['inline-container'], categories: ['semantic'] },
+  strong: {
+    aliases: ['bold', 'importance'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'strong',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   style: {
     aliases: ['css', 'stylesheet'],
-    categories: ['html-element', 'svg'],
+    categories: ['semantic', 'svg'],
   },
-  sub: { aliases: ['subscript'], categories: ['typography'] },
-  summary: { aliases: ['details-summary'], categories: ['html-element'] },
-  sup: { aliases: ['superscript'], categories: ['typography'] },
-  table: { aliases: ['data-table'], categories: ['html-element'] },
-  tbody: { aliases: ['table-body'], categories: ['html-element'] },
-  td: { aliases: ['table-cell'], categories: ['html-element'] },
-  template: { aliases: ['html-template'], categories: ['html-element'] },
+  sub: {
+    aliases: ['subscript'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'sub',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
+  summary: { aliases: ['details-summary'], categories: ['semantic'] },
+  sup: {
+    aliases: ['superscript'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'sup',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
+  table: { aliases: ['data-table'], categories: ['semantic'] },
+  tbody: { aliases: ['table-body'], categories: ['semantic'] },
+  td: { aliases: ['table-cell'], categories: ['semantic'] },
+  template: { aliases: ['html-template'], categories: ['semantic'] },
   textarea: {
     aliases: ['multiline-input'],
     categories: ['form'],
@@ -377,17 +1007,17 @@ const elements: Record<
       name: { type: 'value', value: '' },
     },
   },
-  tfoot: { aliases: ['table-footer'], categories: ['html-element'] },
-  th: { aliases: ['table-header-cell'], categories: ['html-element'] },
-  thead: { aliases: ['table-header'], categories: ['html-element'] },
+  tfoot: { aliases: ['table-footer'], categories: ['semantic'] },
+  th: { aliases: ['table-header-cell'], categories: ['semantic'] },
+  thead: { aliases: ['table-header'], categories: ['semantic'] },
   time: {
     aliases: ['datetime', 'timestamp'],
-    categories: ['html-element'],
+    categories: ['semantic'],
     attrs: {
       datetime: { type: 'value', value: '' },
     },
   },
-  tr: { aliases: ['table-row'], categories: ['html-element'] },
+  tr: { aliases: ['table-row'], categories: ['semantic'] },
   track: {
     aliases: ['media-track', 'subtitles'],
     categories: ['media'],
@@ -395,12 +1025,56 @@ const elements: Record<
       src: { type: 'value', value: '' },
     },
   },
-  u: { aliases: ['underline'], categories: ['typography'] },
+  u: {
+    aliases: ['underline'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'u',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   ul: {
     aliases: ['unordered-list', 'bulleted-list', 'list'],
-    categories: ['html-element'],
+    categories: ['semantic'],
   },
-  var: { aliases: ['variable'], categories: ['typography'] },
+  var: {
+    aliases: ['variable'],
+    categories: ['typography'],
+    nodes: {
+      root: {
+        tag: 'var',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: {
+        type: 'text',
+        value: {
+          type: 'value',
+          value: 'Text',
+        },
+      },
+    },
+  },
   video: {
     aliases: ['movie', 'media', 'film'],
     categories: ['media'],
@@ -408,7 +1082,10 @@ const elements: Record<
       src: { type: 'value', value: '' },
     },
   },
-  wbr: { aliases: ['word-break'], categories: ['typography'] },
+  wbr: {
+    aliases: ['word-break'],
+    categories: ['typography'],
+  },
 }
 
 const svgElements: Record<
@@ -423,7 +1100,7 @@ const svgElements: Record<
 > = {
   svg: {
     aliases: ['vector', 'graphic', 'svg-root'],
-    categories: ['html-element', 'svg'],
+    categories: ['semantic', 'svg'],
   },
   animate: { aliases: ['animation', 'svg-animate'], categories: ['svg'] },
   animateMotion: {

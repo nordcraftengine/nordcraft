@@ -2,7 +2,7 @@
   "metadata": {
     "name": "script",
     "categories": [
-      "html-element"
+      "semantic"
     ],
     "description": "An HTML element representing the script element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script",

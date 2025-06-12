@@ -2,7 +2,7 @@
   "metadata": {
     "name": "li",
     "categories": [
-      "html-element"
+      "semantic"
     ],
     "description": "An HTML element representing the li element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li",

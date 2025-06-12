@@ -7,6 +7,7 @@ export interface ExportedHtmlElement {
     description?: string
     link?: string
     aliases?: string[]
+    isVoid?: true
   }
   element: {
     type: 'nodes'
@@ -20,4 +21,4 @@ export type ExportedHtmlElementCategory =
   | 'typography'
   | 'media'
   | 'svg'
-  | 'html-element'
+  | 'semantic'

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "style",
     "categories": [
-      "html-element",
+      "semantic",
       "svg"
     ],
     "description": "An HTML element representing the style element.",

@@ -9,7 +9,8 @@
     "aliases": [
       "image",
       "picture"
-    ]
+    ],
+    "isVoid": true
   },
   "element": {
     "type": "nodes",

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "menu",
     "categories": [
-      "html-element"
+      "semantic"
     ],
     "description": "An HTML element representing the menu element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/menu",

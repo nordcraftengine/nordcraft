@@ -2,7 +2,7 @@
   "metadata": {
     "name": "search",
     "categories": [
-      "html-element"
+      "form"
     ],
     "description": "An HTML element representing the search element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search",

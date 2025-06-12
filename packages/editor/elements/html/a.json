@@ -2,7 +2,7 @@
   "metadata": {
     "name": "a",
     "categories": [
-      "html-element"
+      "semantic"
     ],
     "description": "An HTML element representing the a element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
@@ -32,6 +32,13 @@
         "events": {},
         "classes": {},
         "children": []
+      },
+      "MsVwQCP4yKPh_00L4fAhT": {
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Link"
+        }
       }
     }
   }

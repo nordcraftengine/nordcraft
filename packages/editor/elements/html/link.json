@@ -2,14 +2,15 @@
   "metadata": {
     "name": "link",
     "categories": [
-      "html-element"
+      "semantic"
     ],
     "description": "An HTML element representing the link element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link",
     "aliases": [
       "stylesheet-link",
       "external-resource"
-    ]
+    ],
+    "isVoid": true
   },
   "element": {
     "type": "nodes",

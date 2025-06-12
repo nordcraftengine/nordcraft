@@ -2,7 +2,7 @@
   "metadata": {
     "name": "summary",
     "categories": [
-      "html-element"
+      "semantic"
     ],
     "description": "An HTML element representing the summary element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary",

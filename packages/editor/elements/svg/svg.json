@@ -2,7 +2,7 @@
   "metadata": {
     "name": "svg",
     "categories": [
-      "html-element",
+      "semantic",
       "svg"
     ],
     "description": "An SVG element representing the SVG svg element.",

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "article",
     "categories": [
-      "html-element"
+      "semantic"
     ],
     "description": "An HTML element representing the article element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article",

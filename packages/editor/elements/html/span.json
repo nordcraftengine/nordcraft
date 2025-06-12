@@ -2,7 +2,7 @@
   "metadata": {
     "name": "span",
     "categories": [
-      "html-element"
+      "semantic"
     ],
     "description": "An HTML element representing the span element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span",

@@ -2,13 +2,14 @@
   "metadata": {
     "name": "col",
     "categories": [
-      "html-element"
+      "semantic"
     ],
     "description": "An HTML element representing the col element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/col",
     "aliases": [
       "table-column"
-    ]
+    ],
+    "isVoid": true
   },
   "element": {
     "type": "nodes",

@@ -2,13 +2,14 @@
   "metadata": {
     "name": "base",
     "categories": [
-      "html-element"
+      "semantic"
     ],
     "description": "An HTML element representing the base element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base",
     "aliases": [
       "base-url"
-    ]
+    ],
+    "isVoid": true
   },
   "element": {
     "type": "nodes",

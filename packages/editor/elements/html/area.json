@@ -8,7 +8,8 @@
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/area",
     "aliases": [
       "imagemap-area"
-    ]
+    ],
+    "isVoid": true
   },
   "element": {
     "type": "nodes",

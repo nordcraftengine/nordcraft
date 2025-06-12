@@ -9,7 +9,8 @@
     "aliases": [
       "media-track",
       "subtitles"
-    ]
+    ],
+    "isVoid": true
   },
   "element": {
     "type": "nodes",

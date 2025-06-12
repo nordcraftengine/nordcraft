@@ -9,7 +9,8 @@
     "aliases": [
       "form-input",
       "user-input"
-    ]
+    ],
+    "isVoid": true
   },
   "element": {
     "type": "nodes",
