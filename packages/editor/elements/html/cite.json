@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "cite",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the cite element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite",
+    "aliases": [
+      "citation",
+      "reference"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "cite",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

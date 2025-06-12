@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "data",
+    "categories": [
+      "html-element"
+    ],
+    "description": "An HTML element representing the data element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/data",
+    "aliases": [
+      "machine-readable"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "data",
+        "type": "element",
+        "attrs": {
+          "value": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

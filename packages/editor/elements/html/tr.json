@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "tr",
+    "categories": [
+      "html-element"
+    ],
+    "description": "An HTML element representing the tr element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr",
+    "aliases": [
+      "table-row"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "tr",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

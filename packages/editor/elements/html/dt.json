@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "dt",
+    "categories": [
+      "html-element"
+    ],
+    "description": "An HTML element representing the dt element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt",
+    "aliases": [
+      "description-term"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "dt",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

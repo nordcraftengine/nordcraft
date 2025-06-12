@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "noscript",
+    "categories": [
+      "html-element"
+    ],
+    "description": "An HTML element representing the noscript element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/noscript",
+    "aliases": [
+      "no-javascript"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "noscript",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

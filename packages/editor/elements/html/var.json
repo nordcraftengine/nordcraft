@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "var",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the var element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/var",
+    "aliases": [
+      "variable"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "var",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

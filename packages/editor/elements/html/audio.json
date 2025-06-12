@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "audio",
+    "categories": [
+      "media"
+    ],
+    "description": "An HTML element representing the audio element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio",
+    "aliases": [
+      "sound",
+      "music"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "audio",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

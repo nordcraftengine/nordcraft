@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "symbol",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG symbol element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/symbol",
+    "aliases": [
+      "svg-symbol",
+      "icon"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "symbol",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

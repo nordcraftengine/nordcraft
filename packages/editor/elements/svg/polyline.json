@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "polyline",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG polyline element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/polyline",
+    "aliases": [
+      "svg-polyline",
+      "line-sequence"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "polyline",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "name": "a",
+    "categories": [
+      "html-element"
+    ],
+    "description": "An HTML element representing the a element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
+    "aliases": [
+      "link",
+      "anchor"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "a",
+        "type": "element",
+        "attrs": {
+          "href": {
+            "type": "value",
+            "value": "/"
+          },
+          "data-prerender": {
+            "type": "value",
+            "value": "moderate"
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "text",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG text element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/text",
+    "aliases": [
+      "svg-text",
+      "label"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "text",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "line",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG line element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/line",
+    "aliases": [
+      "svg-line",
+      "segment"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "line",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

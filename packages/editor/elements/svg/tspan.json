@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "tspan",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG tspan element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/tspan",
+    "aliases": [
+      "text-span",
+      "svg-tspan"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "tspan",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

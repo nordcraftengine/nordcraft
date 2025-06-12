@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "mask",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG mask element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/mask",
+    "aliases": [
+      "svg-mask",
+      "masking"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "mask",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

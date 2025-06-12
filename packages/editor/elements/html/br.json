@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "br",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the br element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br",
+    "aliases": [
+      "line-break"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "br",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

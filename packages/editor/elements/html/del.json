@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "del",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the del element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del",
+    "aliases": [
+      "deleted-text",
+      "remove"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "del",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

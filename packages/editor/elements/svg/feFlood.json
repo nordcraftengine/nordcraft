@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feFlood",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feFlood element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFlood",
+    "aliases": [
+      "flood-filter",
+      "svg-flood"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feFlood",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "template",
+    "categories": [
+      "html-element"
+    ],
+    "description": "An HTML element representing the template element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template",
+    "aliases": [
+      "html-template"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "template",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

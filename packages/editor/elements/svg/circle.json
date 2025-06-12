@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "name": "circle",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG circle element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/circle",
+    "aliases": [
+      "ellipse",
+      "svg-circle",
+      "round"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "circle",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

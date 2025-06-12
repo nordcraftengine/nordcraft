@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "set",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG set element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/set",
+    "aliases": [
+      "svg-set",
+      "attribute-set"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "set",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

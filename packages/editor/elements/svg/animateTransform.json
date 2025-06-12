@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "animateTransform",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG animateTransform element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animateTransform",
+    "aliases": [
+      "transform-animation",
+      "svg-transform"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "animateTransform",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

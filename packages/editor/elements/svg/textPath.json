@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "textPath",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG textPath element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/textPath",
+    "aliases": [
+      "text-path",
+      "svg-textpath"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "textPath",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

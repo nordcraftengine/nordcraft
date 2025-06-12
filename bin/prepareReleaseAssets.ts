@@ -5,7 +5,7 @@ import { build } from 'esbuild'
 import { mkdirSync, rmSync, writeFileSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { combineHtmlElements } from '../packages/editor/html-elements/combineElements'
+import { combineElements } from '../packages/editor/elements/combineElements'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -85,7 +85,7 @@ const run = async () => {
   // Build html elements for the editor
   createTempFileFromValue(
     'elements.json',
-    JSON.stringify(combineHtmlElements(), null, 2),
+    JSON.stringify(combineElements(), null, 2),
   )
 
   return `Build finished in ${Date.now() - t1}ms`

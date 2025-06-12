@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "dl",
+    "categories": [
+      "html-element"
+    ],
+    "description": "An HTML element representing the dl element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl",
+    "aliases": [
+      "description-list"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "dl",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

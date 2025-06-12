@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "bdo",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the bdo element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdo",
+    "aliases": [
+      "bidirectional-override"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "bdo",
+        "type": "element",
+        "attrs": {
+          "dir": {
+            "type": "value",
+            "value": "ltr"
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

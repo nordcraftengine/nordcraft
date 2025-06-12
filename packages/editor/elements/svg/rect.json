@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "name": "rect",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG rect element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/rect",
+    "aliases": [
+      "rectangle",
+      "svg-rect",
+      "box"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "rect",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

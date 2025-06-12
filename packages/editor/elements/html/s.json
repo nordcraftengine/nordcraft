@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "s",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the s element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/s",
+    "aliases": [
+      "strikethrough",
+      "deleted"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "s",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "sup",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the sup element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup",
+    "aliases": [
+      "superscript"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "sup",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

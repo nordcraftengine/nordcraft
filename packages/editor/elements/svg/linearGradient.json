@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "name": "linearGradient",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG linearGradient element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/linearGradient",
+    "aliases": [
+      "linear-gradient",
+      "svg-gradient",
+      "gradient"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "linearGradient",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

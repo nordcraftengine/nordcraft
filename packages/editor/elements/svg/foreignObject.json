@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "foreignObject",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG foreignObject element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/foreignObject",
+    "aliases": [
+      "foreign-object",
+      "svg-foreign"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "foreignObject",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

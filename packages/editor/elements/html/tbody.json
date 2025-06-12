@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "tbody",
+    "categories": [
+      "html-element"
+    ],
+    "description": "An HTML element representing the tbody element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tbody",
+    "aliases": [
+      "table-body"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "tbody",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

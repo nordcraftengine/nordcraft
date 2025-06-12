@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feFuncR",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feFuncR element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncR",
+    "aliases": [
+      "function-r",
+      "svg-func-r"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feFuncR",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

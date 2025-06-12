@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feDistantLight",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feDistantLight element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDistantLight",
+    "aliases": [
+      "distant-light",
+      "svg-light"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feDistantLight",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feGaussianBlur",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feGaussianBlur element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feGaussianBlur",
+    "aliases": [
+      "gaussian-blur",
+      "svg-blur"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feGaussianBlur",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

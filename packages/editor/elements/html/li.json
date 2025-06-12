@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "li",
+    "categories": [
+      "html-element"
+    ],
+    "description": "An HTML element representing the li element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li",
+    "aliases": [
+      "list-item"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "li",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

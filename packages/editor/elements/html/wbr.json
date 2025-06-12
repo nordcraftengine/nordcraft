@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "wbr",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the wbr element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/wbr",
+    "aliases": [
+      "word-break"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "wbr",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

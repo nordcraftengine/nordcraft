@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "kbd",
+    "categories": [
+      "typography"
+    ],
+    "description": "An HTML element representing the kbd element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd",
+    "aliases": [
+      "keyboard-input"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "kbd",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

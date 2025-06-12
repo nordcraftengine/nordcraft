@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feDropShadow",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feDropShadow element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDropShadow",
+    "aliases": [
+      "drop-shadow",
+      "svg-shadow"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feDropShadow",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

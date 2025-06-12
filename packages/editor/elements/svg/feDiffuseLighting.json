@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feDiffuseLighting",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feDiffuseLighting element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDiffuseLighting",
+    "aliases": [
+      "diffuse-light",
+      "svg-lighting"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feDiffuseLighting",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

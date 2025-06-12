@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feOffset",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feOffset element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feOffset",
+    "aliases": [
+      "offset-filter",
+      "svg-offset"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feOffset",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "name": "svg",
+    "categories": [
+      "html-element",
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG svg element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/svg",
+    "aliases": [
+      "vector",
+      "graphic",
+      "svg-root"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "svg",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

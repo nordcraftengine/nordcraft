@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feComposite",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feComposite element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feComposite",
+    "aliases": [
+      "composite-filter",
+      "svg-composite"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feComposite",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

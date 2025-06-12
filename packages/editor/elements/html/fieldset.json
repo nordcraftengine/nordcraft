@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "fieldset",
+    "categories": [
+      "form"
+    ],
+    "description": "An HTML element representing the fieldset element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset",
+    "aliases": [
+      "form-group"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "fieldset",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

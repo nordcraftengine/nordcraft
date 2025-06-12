@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "defs",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG defs element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/defs",
+    "aliases": [
+      "definitions",
+      "svg-defs"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "defs",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

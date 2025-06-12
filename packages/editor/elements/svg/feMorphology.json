@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "feMorphology",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG feMorphology element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMorphology",
+    "aliases": [
+      "morphology-filter",
+      "svg-morphology"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "feMorphology",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

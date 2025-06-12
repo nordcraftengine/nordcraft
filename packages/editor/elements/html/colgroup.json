@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "name": "colgroup",
+    "categories": [
+      "html-element"
+    ],
+    "description": "An HTML element representing the colgroup element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/colgroup",
+    "aliases": [
+      "table-column-group"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "colgroup",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "name": "image",
+    "categories": [
+      "svg"
+    ],
+    "description": "An SVG element representing the SVG image element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/image",
+    "aliases": [
+      "svg-image",
+      "bitmap"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "tag": "image",
+        "type": "element",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}
