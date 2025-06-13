@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "name": "text",
-    "categories": ["semantic"],
+    "name": "Text",
+    "categories": ["typography"],
     "description": "Defines a text element.",
-    "aliases": ["text"]
+    "aliases": ["Text"]
   },
   "element": {
     "type": "nodes",
