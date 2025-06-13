@@ -2,7 +2,7 @@
   "metadata": {
     "name": "h2",
     "categories": ["typography"],
-    "description": "Represents the second level heading",
+    "description": "Represents a second-level heading",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h2",
     "aliases": ["heading-2", "heading", "sub-heading"]
   },

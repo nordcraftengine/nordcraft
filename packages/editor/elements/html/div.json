@@ -2,7 +2,7 @@
   "metadata": {
     "name": "div",
     "categories": ["semantic"],
-    "description": "Generic container for flow content, used for layout and styling",
+    "description": "Generic container for content, used for layout and styling",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div",
     "aliases": ["container", "division"]
   },
