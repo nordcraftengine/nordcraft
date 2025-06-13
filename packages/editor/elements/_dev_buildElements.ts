@@ -95,6 +95,14 @@ const init = () => {
   })
 }
 
+const defaultTextElement: NodeModel = {
+  type: 'text',
+  value: {
+    type: 'value',
+    value: 'Text',
+  },
+}
+
 const elements: Record<
   string,
   {
@@ -154,13 +162,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   address: { aliases: ['contact-info'], categories: ['semantic'] },
@@ -193,13 +195,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   bdi: {
@@ -216,13 +212,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   bdo: {
@@ -239,13 +229,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
     attrs: {
       dir: { type: 'value', value: 'ltr' },
@@ -265,13 +249,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
     attrs: {
       cite: { type: 'value', value: '' },
@@ -307,13 +285,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   code: {
@@ -330,13 +302,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   col: {
@@ -367,13 +333,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   details: {
@@ -394,13 +354,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   dialog: { aliases: ['modal', 'popup'], categories: ['semantic'] },
@@ -421,13 +375,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   embed: {
@@ -466,13 +414,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   h2: {
@@ -489,13 +431,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   h3: {
@@ -512,13 +448,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   h4: {
@@ -535,13 +465,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   h5: {
@@ -558,13 +482,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   h6: {
@@ -581,13 +499,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   header: {
@@ -616,13 +528,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   iframe: {
@@ -663,13 +569,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   kbd: {
@@ -686,13 +586,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   label: {
@@ -737,13 +631,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   menu: {
@@ -807,13 +695,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   picture: { aliases: ['responsive-image', 'image'], categories: ['media'] },
@@ -831,13 +713,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   progress: {
@@ -861,13 +737,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
     attrs: {
       cite: { type: 'value', value: '' },
@@ -887,13 +757,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   rt: {
@@ -910,13 +774,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   ruby: {
@@ -933,13 +791,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   s: {
@@ -956,13 +808,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   samp: {
@@ -979,13 +825,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   script: {
@@ -1018,13 +858,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   source: {
@@ -1049,13 +883,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   style: {
@@ -1076,13 +904,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   summary: { aliases: ['details-summary'], categories: ['semantic'] },
@@ -1100,13 +922,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   table: { aliases: ['data-table'], categories: ['semantic'] },
@@ -1152,13 +968,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   ul: {
@@ -1179,13 +989,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: {
-        type: 'text',
-        value: {
-          type: 'value',
-          value: 'Text',
-        },
-      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement,
     },
   },
   video: {
