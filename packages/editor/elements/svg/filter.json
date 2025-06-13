@@ -2,7 +2,7 @@
   "metadata": {
     "name": "filter",
     "categories": ["svg"],
-    "description": "Defines graphical effects like blurring or color shifting to be applied to elements.",
+    "description": "Defines graphical effects like blurring or color shifting to be applied to elements",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/filter",
     "aliases": ["svg-filter", "effect"]
   },

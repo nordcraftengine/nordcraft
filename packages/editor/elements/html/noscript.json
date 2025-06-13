@@ -2,7 +2,7 @@
   "metadata": {
     "name": "noscript",
     "categories": ["semantic"],
-    "description": "Provides alternate content for users without JavaScript.",
+    "description": "Provides alternate content for users without JavaScript",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/noscript",
     "aliases": ["no-javascript"]
   },

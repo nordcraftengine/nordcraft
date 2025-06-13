@@ -2,7 +2,7 @@
   "metadata": {
     "name": "time",
     "categories": ["semantic"],
-    "description": "Represents a specific time or date.",
+    "description": "Represents a specific time or date",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time",
     "aliases": ["datetime", "timestamp"]
   },

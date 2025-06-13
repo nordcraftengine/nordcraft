@@ -2,7 +2,7 @@
   "metadata": {
     "name": "text",
     "categories": ["svg"],
-    "description": "Renders text within the SVG canvas.",
+    "description": "Renders text within the SVG canvas",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/text",
     "aliases": ["svg-text", "label"]
   },

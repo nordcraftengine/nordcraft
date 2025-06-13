@@ -2,7 +2,7 @@
   "metadata": {
     "name": "textPath",
     "categories": ["svg"],
-    "description": "Renders text along the shape of a path.",
+    "description": "Renders text along the shape of a path",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/textPath",
     "aliases": ["text-path", "svg-textpath"]
   },

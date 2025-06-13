@@ -2,7 +2,7 @@
   "metadata": {
     "name": "hgroup",
     "categories": ["typography"],
-    "description": "Groups a set of heading elements.",
+    "description": "Groups a set of heading elements",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hgroup",
     "aliases": ["heading-group"]
   },

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feComposite",
     "categories": ["svg"],
-    "description": "Combines images using arithmetic or compositing operations.",
+    "description": "Combines images using arithmetic or compositing operations",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feComposite",
     "aliases": ["composite-filter", "svg-composite"]
   },

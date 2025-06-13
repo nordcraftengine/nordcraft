@@ -2,7 +2,7 @@
   "metadata": {
     "name": "figure",
     "categories": ["media"],
-    "description": "Represents self-contained content, like images or diagrams.",
+    "description": "Represents self-contained content, like images or diagrams",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figure",
     "aliases": ["illustration", "media"]
   },

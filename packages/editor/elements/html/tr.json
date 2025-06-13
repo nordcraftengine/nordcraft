@@ -2,7 +2,7 @@
   "metadata": {
     "name": "tr",
     "categories": ["semantic"],
-    "description": "Defines a row in a table.",
+    "description": "Defines a row in a table",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr",
     "aliases": ["table-row"]
   },

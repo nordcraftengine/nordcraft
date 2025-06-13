@@ -2,7 +2,7 @@
   "metadata": {
     "name": "aside",
     "categories": ["semantic"],
-    "description": "Contains content tangentially related to the main content, like a sidebar.",
+    "description": "Contains content tangentially related to the main content, like a sidebar",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside",
     "aliases": ["sidebar"]
   },

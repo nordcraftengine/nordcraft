@@ -2,7 +2,7 @@
   "metadata": {
     "name": "menu",
     "categories": ["semantic"],
-    "description": "Represents a list of commands or menu options.",
+    "description": "Represents a list of commands or menu options",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/menu",
     "aliases": ["context-menu", "list-menu"]
   },

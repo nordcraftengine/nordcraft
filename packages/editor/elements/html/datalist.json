@@ -2,7 +2,7 @@
   "metadata": {
     "name": "datalist",
     "categories": ["form"],
-    "description": "Contains a set of option elements for input suggestions.",
+    "description": "Contains a set of option elements for input suggestions",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist",
     "aliases": ["input-suggestions"]
   },

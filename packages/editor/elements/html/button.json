@@ -2,7 +2,7 @@
   "metadata": {
     "name": "button",
     "categories": ["form"],
-    "description": "Creates a clickable button for user interaction.",
+    "description": "Creates a clickable button for user interaction",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button",
     "aliases": ["form-button", "action-button", "submit-button"]
   },

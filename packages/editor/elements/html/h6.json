@@ -1,17 +1,17 @@
 {
   "metadata": {
-    "name": "pre",
+    "name": "h6",
     "categories": ["typography"],
-    "description": "Displays preformatted text, preserving whitespace and line breaks",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre",
-    "aliases": ["preformatted", "code-block"]
+    "description": "Represents a sixth-level heading",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h6",
+    "aliases": ["heading-6", "heading", "sub-heading"]
   },
   "element": {
     "type": "nodes",
     "source": "catalog",
     "nodes": {
       "root": {
-        "tag": "pre",
+        "tag": "h6",
         "type": "element",
         "attrs": {},
         "style": {},

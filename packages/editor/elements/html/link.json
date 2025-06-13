@@ -2,7 +2,7 @@
   "metadata": {
     "name": "link",
     "categories": ["semantic"],
-    "description": "Specifies relationships between the current document and external resources.",
+    "description": "Specifies relationships between the current document and external resources",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link",
     "aliases": ["stylesheet-link", "external-resource"],
     "isVoid": true

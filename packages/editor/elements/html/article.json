@@ -2,7 +2,7 @@
   "metadata": {
     "name": "article",
     "categories": ["semantic"],
-    "description": "Represents a self-contained, independent piece of content.",
+    "description": "Represents a self-contained, independent piece of content",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article",
     "aliases": ["blog-post", "news-article"]
   },

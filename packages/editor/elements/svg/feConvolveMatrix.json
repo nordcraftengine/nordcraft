@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feConvolveMatrix",
     "categories": ["svg"],
-    "description": "Applies a matrix convolution filter for effects like edge detection or blurring.",
+    "description": "Applies a matrix convolution filter for effects like edge detection or blurring",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feConvolveMatrix",
     "aliases": ["convolve-matrix", "svg-convolve"]
   },

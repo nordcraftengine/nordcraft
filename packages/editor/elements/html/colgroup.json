@@ -2,7 +2,7 @@
   "metadata": {
     "name": "colgroup",
     "categories": ["semantic"],
-    "description": "Groups one or more columns in a table for formatting.",
+    "description": "Groups one or more columns in a table for formatting",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/colgroup",
     "aliases": ["table-column-group"]
   },

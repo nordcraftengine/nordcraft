@@ -2,7 +2,7 @@
   "metadata": {
     "name": "input",
     "categories": ["form"],
-    "description": "Accepts user input in a form.",
+    "description": "Accepts user input in a form",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input",
     "aliases": ["form-input", "user-input"],
     "isVoid": true

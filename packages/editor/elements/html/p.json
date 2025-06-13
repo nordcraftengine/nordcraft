@@ -2,7 +2,7 @@
   "metadata": {
     "name": "p",
     "categories": ["typography"],
-    "description": "Represents a paragraph of text.",
+    "description": "Represents a paragraph of text",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p",
     "aliases": ["paragraph", "text-block", "text"]
   },
@@ -11,13 +11,14 @@
     "source": "catalog",
     "nodes": {
       "root": {
-        "tag": "p",
+        "tag": "categories",
         "type": "element",
         "attrs": {},
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
+        "style-variables": []
       },
       "MsVwQCP4yKPh_00L4fAhT": {
         "type": "text",

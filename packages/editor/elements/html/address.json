@@ -2,7 +2,7 @@
   "metadata": {
     "name": "address",
     "categories": ["semantic"],
-    "description": "Provides contact information for a person, organization, or author.",
+    "description": "Provides contact information for a person, organization, or author",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/address",
     "aliases": ["contact-info"]
   },

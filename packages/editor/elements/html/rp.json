@@ -2,7 +2,7 @@
   "metadata": {
     "name": "rp",
     "categories": ["typography"],
-    "description": "Provides fallback text for browsers that do not support ruby annotations.",
+    "description": "Provides fallback text for browsers that do not support ruby annotations",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rp",
     "aliases": ["ruby-parenthesis"]
   },
@@ -17,7 +17,8 @@
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
+        "style-variables": []
       },
       "MsVwQCP4yKPh_00L4fAhT": {
         "type": "text",

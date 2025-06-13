@@ -2,7 +2,7 @@
   "metadata": {
     "name": "script",
     "categories": ["semantic"],
-    "description": "Embeds or references executable JavaScript code.",
+    "description": "Embeds or references executable JavaScript code",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script",
     "aliases": ["javascript", "client-script"]
   },

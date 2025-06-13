@@ -2,7 +2,7 @@
   "metadata": {
     "name": "em",
     "categories": ["typography"],
-    "description": "Stresses emphasis of its contents, typically rendered in italics.",
+    "description": "Stresses emphasis of its contents, typically rendered in italics",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em",
     "aliases": ["emphasis", "italic"]
   },
@@ -17,7 +17,8 @@
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
+        "style-variables": []
       },
       "MsVwQCP4yKPh_00L4fAhT": {
         "type": "text",

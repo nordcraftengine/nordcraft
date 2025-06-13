@@ -2,7 +2,7 @@
   "metadata": {
     "name": "textarea",
     "categories": ["form"],
-    "description": "Allows multi-line text input in a form.",
+    "description": "Allows multi-line text input in a form",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea",
     "aliases": ["multiline-input"]
   },

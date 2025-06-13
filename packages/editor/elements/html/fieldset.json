@@ -2,7 +2,7 @@
   "metadata": {
     "name": "fieldset",
     "categories": ["form"],
-    "description": "Groups related elements in a form.",
+    "description": "Groups related elements in a form",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset",
     "aliases": ["form-group"]
   },

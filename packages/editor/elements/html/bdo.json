@@ -2,7 +2,7 @@
   "metadata": {
     "name": "bdo",
     "categories": ["typography"],
-    "description": "Overrides the current text direction for its children.",
+    "description": "Overrides the current text direction for its children",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdo",
     "aliases": ["bidirectional-override"]
   },
@@ -11,18 +11,14 @@
     "source": "catalog",
     "nodes": {
       "root": {
-        "tag": "bdo",
+        "tag": "categories",
         "type": "element",
-        "attrs": {
-          "dir": {
-            "type": "value",
-            "value": "ltr"
-          }
-        },
+        "attrs": {},
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
+        "style-variables": []
       },
       "MsVwQCP4yKPh_00L4fAhT": {
         "type": "text",

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feFuncG",
     "categories": ["svg"],
-    "description": "Defines the transfer function for the green channel in feComponentTransfer.",
+    "description": "Defines the transfer function for the green channel in feComponentTransfer",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncG",
     "aliases": ["function-g", "svg-func-g"]
   },

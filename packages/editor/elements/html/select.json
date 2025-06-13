@@ -2,7 +2,7 @@
   "metadata": {
     "name": "select",
     "categories": ["form"],
-    "description": "Creates a dropdown list for selecting options.",
+    "description": "Creates a dropdown list for selecting options",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select",
     "aliases": ["dropdown", "select-box"]
   },

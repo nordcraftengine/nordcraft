@@ -2,7 +2,7 @@
   "metadata": {
     "name": "img",
     "categories": ["media"],
-    "description": "Embeds an image into the document.",
+    "description": "Embeds an image into the document",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img",
     "aliases": ["image", "picture"],
     "isVoid": true

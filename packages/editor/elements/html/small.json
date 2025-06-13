@@ -2,7 +2,7 @@
   "metadata": {
     "name": "small",
     "categories": ["typography"],
-    "description": "Renders text in a smaller font size for side comments or fine print.",
+    "description": "Renders text in a smaller font size for side comments or fine print",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/small",
     "aliases": ["fine-print"]
   },
@@ -17,7 +17,8 @@
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
+        "style-variables": []
       },
       "MsVwQCP4yKPh_00L4fAhT": {
         "type": "text",

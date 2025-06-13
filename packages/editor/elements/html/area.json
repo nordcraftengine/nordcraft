@@ -2,7 +2,7 @@
   "metadata": {
     "name": "area",
     "categories": ["media"],
-    "description": "Defines a clickable area inside an image map.",
+    "description": "Defines a clickable area inside an image map",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/area",
     "aliases": ["imagemap-area"],
     "isVoid": true

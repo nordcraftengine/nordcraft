@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feDistantLight",
     "categories": ["svg"],
-    "description": "Defines a distant light source for lighting effects.",
+    "description": "Defines a distant light source for lighting effects",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDistantLight",
     "aliases": ["distant-light", "svg-light"]
   },

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "var",
     "categories": ["typography"],
-    "description": "Represents a variable in a mathematical expression or programming context.",
+    "description": "Represents a variable in a mathematical expression or programming context",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/var",
     "aliases": ["variable"]
   },
@@ -17,7 +17,8 @@
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
+        "style-variables": []
       },
       "MsVwQCP4yKPh_00L4fAhT": {
         "type": "text",

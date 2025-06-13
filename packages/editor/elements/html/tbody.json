@@ -2,7 +2,7 @@
   "metadata": {
     "name": "tbody",
     "categories": ["semantic"],
-    "description": "Groups the body content in a table.",
+    "description": "Groups the body content in a table",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tbody",
     "aliases": ["table-body"]
   },

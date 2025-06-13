@@ -2,7 +2,7 @@
   "metadata": {
     "name": "a",
     "categories": ["semantic"],
-    "description": "Defines a hyperlink to link to another page or resource.",
+    "description": "Defines a hyperlink to link to another page or resource",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
     "aliases": ["link", "anchor"]
   },
@@ -26,7 +26,8 @@
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
+        "style-variables": []
       },
       "MsVwQCP4yKPh_00L4fAhT": {
         "type": "text",

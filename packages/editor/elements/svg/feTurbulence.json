@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feTurbulence",
     "categories": ["svg"],
-    "description": "Generates a noise or turbulence pattern for texture effects.",
+    "description": "Generates a noise or turbulence pattern for texture effects",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feTurbulence",
     "aliases": ["turbulence-filter", "svg-turbulence"]
   },

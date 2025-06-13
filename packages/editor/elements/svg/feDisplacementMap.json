@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feDisplacementMap",
     "categories": ["svg"],
-    "description": "Distorts an image using another image as a displacement map.",
+    "description": "Distorts an image using another image as a displacement map",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDisplacementMap",
     "aliases": ["displacement-map", "svg-displacement"]
   },

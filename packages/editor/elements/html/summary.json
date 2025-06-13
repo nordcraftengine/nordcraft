@@ -2,7 +2,7 @@
   "metadata": {
     "name": "summary",
     "categories": ["semantic"],
-    "description": "Provides a summary or heading for a details element.",
+    "description": "Provides a summary or heading for a details element",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary",
     "aliases": ["details-summary"]
   },
