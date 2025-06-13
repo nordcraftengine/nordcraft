@@ -3,7 +3,7 @@
     "name": "Text",
     "categories": ["semantic"],
     "description": "Defines a text element.",
-    "aliases": ["text"]
+    "aliases": ["Text"]
   },
   "element": {
     "type": "nodes",
