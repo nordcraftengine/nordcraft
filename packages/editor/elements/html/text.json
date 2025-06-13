@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "name": "text",
+    "name": "Text",
     "categories": ["semantic"],
     "description": "Defines a text element.",
     "aliases": ["text"]
