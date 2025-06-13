@@ -2,7 +2,7 @@
   "metadata": {
     "name": "ol",
     "categories": ["semantic"],
-    "description": "Represents an ordered list of items.",
+    "description": "Represents an ordered list of items",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol",
     "aliases": ["ordered-list", "numbered-list", "list"]
   },

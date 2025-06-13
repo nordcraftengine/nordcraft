@@ -2,7 +2,7 @@
   "metadata": {
     "name": "th",
     "categories": ["semantic"],
-    "description": "Defines a header cell in a table.",
+    "description": "Defines a header cell in a table",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th",
     "aliases": ["table-header-cell"]
   },

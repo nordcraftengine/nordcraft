@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feSpotLight",
     "categories": ["svg"],
-    "description": "Defines a spotlight source for lighting effects.",
+    "description": "Defines a spotlight source for lighting effects",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feSpotLight",
     "aliases": ["spot-light", "svg-spot"]
   },

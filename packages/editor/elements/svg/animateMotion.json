@@ -2,7 +2,7 @@
   "metadata": {
     "name": "animateMotion",
     "categories": ["svg"],
-    "description": "Animates an element along a motion path.",
+    "description": "Animates an element along a motion path",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animateMotion",
     "aliases": ["motion-animation", "svg-motion"]
   },

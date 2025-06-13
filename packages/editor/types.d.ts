@@ -1,4 +1,4 @@
-import type { ElementNodeModel } from '@nordcraft/core/dist/component/component.types'
+import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
 
 export interface ExportedHtmlElement {
   metadata: {
@@ -12,7 +12,7 @@ export interface ExportedHtmlElement {
   element: {
     type: 'nodes'
     source: 'catalog'
-    nodes: Record<string, ElementNodeModel>
+    nodes: Record<string, NodeModel>
   }
 }
 

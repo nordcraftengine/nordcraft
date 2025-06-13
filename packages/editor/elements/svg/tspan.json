@@ -2,7 +2,7 @@
   "metadata": {
     "name": "tspan",
     "categories": ["svg"],
-    "description": "Allows for styling or positioning parts of text within a text element.",
+    "description": "Allows for styling or positioning parts of text within a text element",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/tspan",
     "aliases": ["text-span", "svg-tspan"]
   },

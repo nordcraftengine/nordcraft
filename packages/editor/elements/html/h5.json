@@ -1,17 +1,17 @@
 {
   "metadata": {
-    "name": "pre",
+    "name": "h5",
     "categories": ["typography"],
-    "description": "Displays preformatted text, preserving whitespace and line breaks",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre",
-    "aliases": ["preformatted", "code-block"]
+    "description": "Represents the fifth level heading",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h5",
+    "aliases": ["heading-5", "heading", "sub-heading"]
   },
   "element": {
     "type": "nodes",
     "source": "catalog",
     "nodes": {
       "root": {
-        "tag": "pre",
+        "tag": "h5",
         "type": "element",
         "attrs": {},
         "style": {},

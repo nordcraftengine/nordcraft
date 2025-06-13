@@ -2,7 +2,7 @@
   "metadata": {
     "name": "meta",
     "categories": ["semantic"],
-    "description": "Provides metadata about the HTML document.",
+    "description": "Provides metadata about the HTML document",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta",
     "aliases": ["metadata"],
     "isVoid": true

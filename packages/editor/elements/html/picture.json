@@ -2,7 +2,7 @@
   "metadata": {
     "name": "picture",
     "categories": ["media"],
-    "description": "Provides multiple sources for responsive images.",
+    "description": "Provides multiple sources for responsive images",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture",
     "aliases": ["responsive-image", "image"]
   },

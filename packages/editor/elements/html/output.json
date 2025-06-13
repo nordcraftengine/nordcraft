@@ -2,7 +2,7 @@
   "metadata": {
     "name": "output",
     "categories": ["form"],
-    "description": "Displays the result of a calculation or user action.",
+    "description": "Displays the result of a calculation or user action",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output",
     "aliases": ["calculation-result"]
   },

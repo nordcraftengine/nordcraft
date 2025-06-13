@@ -2,7 +2,7 @@
   "metadata": {
     "name": "br",
     "categories": ["typography"],
-    "description": "Produces a single line break in text.",
+    "description": "Produces a single line break in text",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br",
     "aliases": ["line-break"],
     "isVoid": true

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feOffset",
     "categories": ["svg"],
-    "description": "Offsets the input image by a specified amount.",
+    "description": "Offsets the input image by a specified amount",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feOffset",
     "aliases": ["offset-filter", "svg-offset"]
   },

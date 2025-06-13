@@ -2,7 +2,7 @@
   "metadata": {
     "name": "switch",
     "categories": ["svg"],
-    "description": "Renders the first child element that matches certain conditions.",
+    "description": "Renders the first child element that matches certain conditions",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/switch",
     "aliases": ["svg-switch", "conditional"]
   },

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "header",
     "categories": ["semantic"],
-    "description": "Specifies introductory content or navigational links.",
+    "description": "Specifies introductory content or navigational links",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header",
     "aliases": ["page-header", "section-header"]
   },

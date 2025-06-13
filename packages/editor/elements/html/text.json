@@ -2,7 +2,7 @@
   "metadata": {
     "name": "Text",
     "categories": ["typography"],
-    "description": "Defines a text element.",
+    "description": "Defines a Nordcraft text element. This is a special element used for text content and cannot have any child elements",
     "aliases": ["Text"]
   },
   "element": {

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "thead",
     "categories": ["semantic"],
-    "description": "Groups the header content in a table.",
+    "description": "Groups the header content in a table",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/thead",
     "aliases": ["table-header"]
   },

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "search",
     "categories": ["form"],
-    "description": "Represents a search section within a document.",
+    "description": "Represents a search section within a document",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search",
     "aliases": ["search-region"]
   },

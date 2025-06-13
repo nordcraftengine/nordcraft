@@ -2,7 +2,7 @@
   "metadata": {
     "name": "optgroup",
     "categories": ["form"],
-    "description": "Groups related options in a dropdown list.",
+    "description": "Groups related options in a dropdown list",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup",
     "aliases": ["option-group"]
   },

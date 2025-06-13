@@ -2,7 +2,7 @@
   "metadata": {
     "name": "ellipse",
     "categories": ["svg"],
-    "description": "Draws an ellipse based on a center point and radii.",
+    "description": "Draws an ellipse based on a center point and radii",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/ellipse",
     "aliases": ["oval", "svg-ellipse"]
   },

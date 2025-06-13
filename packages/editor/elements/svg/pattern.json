@@ -2,7 +2,7 @@
   "metadata": {
     "name": "pattern",
     "categories": ["svg"],
-    "description": "Defines a repeating graphic pattern for filling shapes.",
+    "description": "Defines a repeating graphic pattern for filling shapes",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/pattern",
     "aliases": ["svg-pattern", "fill-pattern"]
   },

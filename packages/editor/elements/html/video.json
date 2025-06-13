@@ -2,7 +2,7 @@
   "metadata": {
     "name": "video",
     "categories": ["media"],
-    "description": "Embeds a video player for video playback.",
+    "description": "Embeds a video player for video playback",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video",
     "aliases": ["movie", "media", "film"]
   },

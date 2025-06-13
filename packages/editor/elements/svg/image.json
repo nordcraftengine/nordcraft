@@ -2,7 +2,7 @@
   "metadata": {
     "name": "image",
     "categories": ["svg"],
-    "description": "Embeds an external image within the SVG.",
+    "description": "Embeds an external image within the SVG",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/image",
     "aliases": ["svg-image", "bitmap"]
   },

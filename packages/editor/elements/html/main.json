@@ -2,7 +2,7 @@
   "metadata": {
     "name": "main",
     "categories": ["semantic"],
-    "description": "Represents the main content of a document.",
+    "description": "Represents the main content of a document",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main",
     "aliases": ["main-content"]
   },

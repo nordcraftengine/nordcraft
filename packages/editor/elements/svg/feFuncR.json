@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feFuncR",
     "categories": ["svg"],
-    "description": "Defines the transfer function for the red channel in feComponentTransfer.",
+    "description": "Defines the transfer function for the red channel in feComponentTransfer",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncR",
     "aliases": ["function-r", "svg-func-r"]
   },

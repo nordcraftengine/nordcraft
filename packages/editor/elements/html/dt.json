@@ -2,7 +2,7 @@
   "metadata": {
     "name": "dt",
     "categories": ["semantic"],
-    "description": "Specifies a term or name in a description list.",
+    "description": "Specifies a term or name in a description list",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt",
     "aliases": ["description-term"]
   },

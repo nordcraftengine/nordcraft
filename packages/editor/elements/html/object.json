@@ -2,7 +2,7 @@
   "metadata": {
     "name": "object",
     "categories": ["media"],
-    "description": "Embeds external resources like images, audio, or plugins.",
+    "description": "Embeds external resources like images, audio, or plugins",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object",
     "aliases": ["embedded-object", "plugin"]
   },

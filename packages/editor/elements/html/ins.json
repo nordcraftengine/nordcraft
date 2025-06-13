@@ -2,7 +2,7 @@
   "metadata": {
     "name": "ins",
     "categories": ["typography"],
-    "description": "Indicates inserted or added text.",
+    "description": "Indicates inserted or added text",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins",
     "aliases": ["inserted-text", "addition"]
   },
@@ -11,13 +11,14 @@
     "source": "catalog",
     "nodes": {
       "root": {
-        "tag": "ins",
+        "tag": "categories",
         "type": "element",
         "attrs": {},
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
+        "style-variables": []
       },
       "MsVwQCP4yKPh_00L4fAhT": {
         "type": "text",

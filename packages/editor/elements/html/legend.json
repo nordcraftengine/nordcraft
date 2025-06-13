@@ -2,7 +2,7 @@
   "metadata": {
     "name": "legend",
     "categories": ["form"],
-    "description": "Provides a caption for a fieldset.",
+    "description": "Provides a caption for a fieldset",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/legend",
     "aliases": ["fieldset-caption"]
   },

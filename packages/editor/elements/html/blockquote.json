@@ -2,7 +2,7 @@
   "metadata": {
     "name": "blockquote",
     "categories": ["typography"],
-    "description": "Indicates a section quoted from another source.",
+    "description": "Indicates a section quoted from another source",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/blockquote",
     "aliases": ["quote", "quotation"]
   },
@@ -11,18 +11,14 @@
     "source": "catalog",
     "nodes": {
       "root": {
-        "tag": "blockquote",
+        "tag": "categories",
         "type": "element",
-        "attrs": {
-          "cite": {
-            "type": "value",
-            "value": ""
-          }
-        },
+        "attrs": {},
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
+        "style-variables": []
       },
       "MsVwQCP4yKPh_00L4fAhT": {
         "type": "text",

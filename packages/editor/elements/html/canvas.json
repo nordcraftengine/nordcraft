@@ -2,7 +2,7 @@
   "metadata": {
     "name": "canvas",
     "categories": ["media"],
-    "description": "Provides an area for drawing graphics via scripting.",
+    "description": "Provides an area for drawing graphics via scripting",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas",
     "aliases": ["drawing", "graphics"]
   },

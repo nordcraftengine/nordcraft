@@ -2,7 +2,7 @@
   "metadata": {
     "name": "template",
     "categories": ["semantic"],
-    "description": "Holds client-side content that is not rendered when the page loads.",
+    "description": "Holds client-side content that is not rendered when the page loads",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template",
     "aliases": ["html-template"]
   },

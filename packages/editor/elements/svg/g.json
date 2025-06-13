@@ -2,7 +2,7 @@
   "metadata": {
     "name": "g",
     "categories": ["svg"],
-    "description": "Groups SVG shapes together so they can be transformed or styled as a unit.",
+    "description": "Groups SVG shapes together so they can be transformed or styled as a unit",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/g",
     "aliases": ["group", "svg-group"]
   },

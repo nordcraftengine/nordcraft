@@ -2,7 +2,7 @@
   "metadata": {
     "name": "dl",
     "categories": ["semantic"],
-    "description": "Represents a description list of terms and their descriptions.",
+    "description": "Represents a description list of terms and their descriptions",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl",
     "aliases": ["description-list"]
   },

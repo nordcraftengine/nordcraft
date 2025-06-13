@@ -2,7 +2,7 @@
   "metadata": {
     "name": "wbr",
     "categories": ["typography"],
-    "description": "Suggests a line break opportunity within text.",
+    "description": "Suggests a line break opportunity within text",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/wbr",
     "aliases": ["word-break"],
     "isVoid": true

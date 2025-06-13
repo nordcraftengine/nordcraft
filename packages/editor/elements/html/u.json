@@ -2,7 +2,7 @@
   "metadata": {
     "name": "u",
     "categories": ["typography"],
-    "description": "Renders text with an underline.",
+    "description": "Renders text with an underline",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/u",
     "aliases": ["underline"]
   },
@@ -17,7 +17,8 @@
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
+        "style-variables": []
       },
       "MsVwQCP4yKPh_00L4fAhT": {
         "type": "text",

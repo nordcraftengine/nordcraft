@@ -2,7 +2,7 @@
   "metadata": {
     "name": "path",
     "categories": ["svg"],
-    "description": "Draws complex shapes using a series of commands and coordinates.",
+    "description": "Draws complex shapes using a series of commands and coordinates",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/path",
     "aliases": ["svg-path", "bezier"]
   },

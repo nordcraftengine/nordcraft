@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feFlood",
     "categories": ["svg"],
-    "description": "Fills the filter region with a solid color.",
+    "description": "Fills the filter region with a solid color",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFlood",
     "aliases": ["flood-filter", "svg-flood"]
   },

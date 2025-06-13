@@ -2,7 +2,7 @@
   "metadata": {
     "name": "data",
     "categories": ["semantic"],
-    "description": "Associates a machine-readable value with its human-readable content.",
+    "description": "Associates a machine-readable value with its human-readable content",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/data",
     "aliases": ["machine-readable"]
   },

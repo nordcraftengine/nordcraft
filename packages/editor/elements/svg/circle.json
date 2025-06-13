@@ -2,7 +2,7 @@
   "metadata": {
     "name": "circle",
     "categories": ["svg"],
-    "description": "Draws a circle based on a center point and radius.",
+    "description": "Draws a circle based on a center point and radius",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/circle",
     "aliases": ["ellipse", "svg-circle", "round"]
   },
