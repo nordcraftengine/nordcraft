@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "pre",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the pre element.",
+    "categories": ["typography"],
+    "description": "Displays preformatted text, preserving whitespace and line breaks.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre",
-    "aliases": [
-      "preformatted",
-      "code-block"
-    ]
+    "aliases": ["preformatted", "code-block"]
   },
   "element": {
     "type": "nodes",

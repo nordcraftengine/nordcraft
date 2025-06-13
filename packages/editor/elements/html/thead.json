@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "thead",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the thead element.",
+    "categories": ["semantic"],
+    "description": "Groups the header content in a table.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/thead",
-    "aliases": [
-      "table-header"
-    ]
+    "aliases": ["table-header"]
   },
   "element": {
     "type": "nodes",

@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "blockquote",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the blockquote element.",
+    "categories": ["typography"],
+    "description": "Indicates a section quoted from another source.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/blockquote",
-    "aliases": [
-      "quote",
-      "quotation"
-    ]
+    "aliases": ["quote", "quotation"]
   },
   "element": {
     "type": "nodes",

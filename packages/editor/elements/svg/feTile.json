@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feTile",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feTile element.",
+    "categories": ["svg"],
+    "description": "Repeats the input image to fill the filter region.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feTile",
-    "aliases": [
-      "tile-filter",
-      "svg-tile"
-    ]
+    "aliases": ["tile-filter", "svg-tile"]
   },
   "element": {
     "type": "nodes",

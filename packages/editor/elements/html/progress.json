@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "progress",
-    "categories": [
-      "form"
-    ],
-    "description": "An HTML element representing the progress element.",
+    "categories": ["form"],
+    "description": "Shows the progress of a task or operation.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress",
-    "aliases": [
-      "progress-bar",
-      "loading"
-    ]
+    "aliases": ["progress-bar", "loading"]
   },
   "element": {
     "type": "nodes",

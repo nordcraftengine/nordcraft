@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "del",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the del element.",
+    "categories": ["typography"],
+    "description": "Represents deleted or removed text.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del",
-    "aliases": [
-      "deleted-text",
-      "remove"
-    ]
+    "aliases": ["deleted-text", "remove"]
   },
   "element": {
     "type": "nodes",

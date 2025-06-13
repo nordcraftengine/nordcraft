@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "td",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the td element.",
+    "categories": ["semantic"],
+    "description": "Defines a cell in a table row.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td",
-    "aliases": [
-      "table-cell"
-    ]
+    "aliases": ["table-cell"]
   },
   "element": {
     "type": "nodes",

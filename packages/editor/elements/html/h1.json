@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "h1",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the h1 element.",
+    "categories": ["typography"],
+    "description": "Represents the most important heading.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1",
-    "aliases": [
-      "heading-1",
-      "main-heading"
-    ]
+    "aliases": ["heading-1", "main-heading"]
   },
   "element": {
     "type": "nodes",

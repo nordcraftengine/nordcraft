@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "tbody",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the tbody element.",
+    "categories": ["semantic"],
+    "description": "Groups the body content in a table.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tbody",
-    "aliases": [
-      "table-body"
-    ]
+    "aliases": ["table-body"]
   },
   "element": {
     "type": "nodes",

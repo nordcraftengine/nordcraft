@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feBlend",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feBlend element.",
+    "categories": ["svg"],
+    "description": "Blends two images together using a specified blending mode.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feBlend",
-    "aliases": [
-      "blend-filter",
-      "svg-blend"
-    ]
+    "aliases": ["blend-filter", "svg-blend"]
   },
   "element": {
     "type": "nodes",

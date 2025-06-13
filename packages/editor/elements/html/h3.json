@@ -1,17 +1,17 @@
 {
   "metadata": {
-    "name": "cite",
+    "name": "h3",
     "categories": ["typography"],
-    "description": "Cites the title of a creative work.",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite",
-    "aliases": ["citation", "reference"]
+    "description": "Represents the third level heading.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h3",
+    "aliases": ["heading-3", "heading", "sub-heading"]
   },
   "element": {
     "type": "nodes",
     "source": "catalog",
     "nodes": {
       "root": {
-        "tag": "cite",
+        "tag": "h3",
         "type": "element",
         "attrs": {},
         "style": {},

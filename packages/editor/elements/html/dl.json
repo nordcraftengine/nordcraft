@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "dl",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the dl element.",
+    "categories": ["semantic"],
+    "description": "Represents a description list of terms and their descriptions.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl",
-    "aliases": [
-      "description-list"
-    ]
+    "aliases": ["description-list"]
   },
   "element": {
     "type": "nodes",

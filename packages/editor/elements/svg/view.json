@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "view",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG view element.",
+    "categories": ["svg"],
+    "description": "Defines a view for the SVG, specifying a viewport and transformation.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/view",
-    "aliases": [
-      "svg-view",
-      "viewport"
-    ]
+    "aliases": ["svg-view", "viewport"]
   },
   "element": {
     "type": "nodes",

@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "legend",
-    "categories": [
-      "form"
-    ],
-    "description": "An HTML element representing the legend element.",
+    "categories": ["form"],
+    "description": "Provides a caption for a fieldset.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/legend",
-    "aliases": [
-      "fieldset-caption"
-    ]
+    "aliases": ["fieldset-caption"]
   },
   "element": {
     "type": "nodes",

@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "script",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the script element.",
+    "categories": ["semantic"],
+    "description": "Embeds or references executable JavaScript code.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script",
-    "aliases": [
-      "javascript",
-      "client-script"
-    ]
+    "aliases": ["javascript", "client-script"]
   },
   "element": {
     "type": "nodes",

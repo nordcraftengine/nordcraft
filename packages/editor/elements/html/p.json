@@ -1,16 +1,10 @@
 {
   "metadata": {
     "name": "p",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the p element.",
+    "categories": ["typography"],
+    "description": "Represents a paragraph of text.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p",
-    "aliases": [
-      "paragraph",
-      "text-block",
-      "text"
-    ]
+    "aliases": ["paragraph", "text-block", "text"]
   },
   "element": {
     "type": "nodes",

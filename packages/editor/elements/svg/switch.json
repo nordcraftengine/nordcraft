@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "switch",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG switch element.",
+    "categories": ["svg"],
+    "description": "Renders the first child element that matches certain conditions.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/switch",
-    "aliases": [
-      "svg-switch",
-      "conditional"
-    ]
+    "aliases": ["svg-switch", "conditional"]
   },
   "element": {
     "type": "nodes",

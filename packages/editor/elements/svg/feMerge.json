@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feMerge",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feMerge element.",
+    "categories": ["svg"],
+    "description": "Combines multiple filter effects into a single output.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMerge",
-    "aliases": [
-      "merge-filter",
-      "svg-merge"
-    ]
+    "aliases": ["merge-filter", "svg-merge"]
   },
   "element": {
     "type": "nodes",

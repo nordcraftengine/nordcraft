@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "summary",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the summary element.",
+    "categories": ["semantic"],
+    "description": "Provides a summary or heading for a details element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary",
-    "aliases": [
-      "details-summary"
-    ]
+    "aliases": ["details-summary"]
   },
   "element": {
     "type": "nodes",

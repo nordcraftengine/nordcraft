@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "var",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the var element.",
+    "categories": ["typography"],
+    "description": "Represents a variable in a mathematical expression or programming context.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/var",
-    "aliases": [
-      "variable"
-    ]
+    "aliases": ["variable"]
   },
   "element": {
     "type": "nodes",

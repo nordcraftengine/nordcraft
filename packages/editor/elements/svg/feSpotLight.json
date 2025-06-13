@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feSpotLight",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feSpotLight element.",
+    "categories": ["svg"],
+    "description": "Defines a spotlight source for lighting effects.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feSpotLight",
-    "aliases": [
-      "spot-light",
-      "svg-spot"
-    ]
+    "aliases": ["spot-light", "svg-spot"]
   },
   "element": {
     "type": "nodes",

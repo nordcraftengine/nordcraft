@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "defs",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG defs element.",
+    "categories": ["svg"],
+    "description": "Container for elements that can be referenced later, such as gradients or filters.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/defs",
-    "aliases": [
-      "definitions",
-      "svg-defs"
-    ]
+    "aliases": ["definitions", "svg-defs"]
   },
   "element": {
     "type": "nodes",

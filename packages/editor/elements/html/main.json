@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "main",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the main element.",
+    "categories": ["semantic"],
+    "description": "Represents the main content of a document.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main",
-    "aliases": [
-      "main-content"
-    ]
+    "aliases": ["main-content"]
   },
   "element": {
     "type": "nodes",

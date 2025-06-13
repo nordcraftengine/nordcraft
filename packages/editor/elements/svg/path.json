@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "path",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG path element.",
+    "categories": ["svg"],
+    "description": "Draws complex shapes using a series of commands and coordinates.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/path",
-    "aliases": [
-      "svg-path",
-      "bezier"
-    ]
+    "aliases": ["svg-path", "bezier"]
   },
   "element": {
     "type": "nodes",

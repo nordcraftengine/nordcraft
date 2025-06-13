@@ -1,17 +1,17 @@
 {
   "metadata": {
-    "name": "cite",
+    "name": "h4",
     "categories": ["typography"],
-    "description": "Cites the title of a creative work.",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite",
-    "aliases": ["citation", "reference"]
+    "description": "Represents the fourth level heading.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h4",
+    "aliases": ["heading-4", "heading", "sub-heading"]
   },
   "element": {
     "type": "nodes",
     "source": "catalog",
     "nodes": {
       "root": {
-        "tag": "cite",
+        "tag": "h4",
         "type": "element",
         "attrs": {},
         "style": {},

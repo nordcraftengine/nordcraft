@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "filter",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG filter element.",
+    "categories": ["svg"],
+    "description": "Defines graphical effects like blurring or color shifting to be applied to elements.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/filter",
-    "aliases": [
-      "svg-filter",
-      "effect"
-    ]
+    "aliases": ["svg-filter", "effect"]
   },
   "element": {
     "type": "nodes",

@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "optgroup",
-    "categories": [
-      "form"
-    ],
-    "description": "An HTML element representing the optgroup element.",
+    "categories": ["form"],
+    "description": "Groups related options in a dropdown list.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup",
-    "aliases": [
-      "option-group"
-    ]
+    "aliases": ["option-group"]
   },
   "element": {
     "type": "nodes",

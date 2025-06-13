@@ -1,16 +1,10 @@
 {
   "metadata": {
     "name": "linearGradient",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG linearGradient element.",
+    "categories": ["svg"],
+    "description": "Defines a linear color gradient for filling shapes.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/linearGradient",
-    "aliases": [
-      "linear-gradient",
-      "svg-gradient",
-      "gradient"
-    ]
+    "aliases": ["linear-gradient", "svg-gradient", "gradient"]
   },
   "element": {
     "type": "nodes",

@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "ruby",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the ruby element.",
+    "categories": ["typography"],
+    "description": "Represents ruby annotation for East Asian typography.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ruby",
-    "aliases": [
-      "ruby-annotation"
-    ]
+    "aliases": ["ruby-annotation"]
   },
   "element": {
     "type": "nodes",

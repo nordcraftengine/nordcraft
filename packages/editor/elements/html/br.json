@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "br",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the br element.",
+    "categories": ["typography"],
+    "description": "Produces a single line break in text.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br",
-    "aliases": [
-      "line-break"
-    ],
+    "aliases": ["line-break"],
     "isVoid": true
   },
   "element": {

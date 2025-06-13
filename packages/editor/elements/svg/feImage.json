@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feImage",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feImage element.",
+    "categories": ["svg"],
+    "description": "Uses an external image as input for a filter effect.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feImage",
-    "aliases": [
-      "image-filter",
-      "svg-image"
-    ]
+    "aliases": ["image-filter", "svg-image"]
   },
   "element": {
     "type": "nodes",

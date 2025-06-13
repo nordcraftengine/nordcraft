@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "image",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG image element.",
+    "categories": ["svg"],
+    "description": "Embeds an external image within the SVG.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/image",
-    "aliases": [
-      "svg-image",
-      "bitmap"
-    ]
+    "aliases": ["svg-image", "bitmap"]
   },
   "element": {
     "type": "nodes",

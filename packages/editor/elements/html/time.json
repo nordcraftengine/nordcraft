@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "time",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the time element.",
+    "categories": ["semantic"],
+    "description": "Represents a specific time or date.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time",
-    "aliases": [
-      "datetime",
-      "timestamp"
-    ]
+    "aliases": ["datetime", "timestamp"]
   },
   "element": {
     "type": "nodes",

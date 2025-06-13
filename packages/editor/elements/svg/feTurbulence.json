@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feTurbulence",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feTurbulence element.",
+    "categories": ["svg"],
+    "description": "Generates a noise or turbulence pattern for texture effects.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feTurbulence",
-    "aliases": [
-      "turbulence-filter",
-      "svg-turbulence"
-    ]
+    "aliases": ["turbulence-filter", "svg-turbulence"]
   },
   "element": {
     "type": "nodes",

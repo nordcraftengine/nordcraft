@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "tspan",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG tspan element.",
+    "categories": ["svg"],
+    "description": "Allows for styling or positioning parts of text within a text element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/tspan",
-    "aliases": [
-      "text-span",
-      "svg-tspan"
-    ]
+    "aliases": ["text-span", "svg-tspan"]
   },
   "element": {
     "type": "nodes",

@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "small",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the small element.",
+    "categories": ["typography"],
+    "description": "Renders text in a smaller font size for side comments or fine print.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/small",
-    "aliases": [
-      "fine-print"
-    ]
+    "aliases": ["fine-print"]
   },
   "element": {
     "type": "nodes",

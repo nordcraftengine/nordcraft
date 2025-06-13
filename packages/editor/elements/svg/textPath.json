@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "textPath",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG textPath element.",
+    "categories": ["svg"],
+    "description": "Renders text along the shape of a path.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/textPath",
-    "aliases": [
-      "text-path",
-      "svg-textpath"
-    ]
+    "aliases": ["text-path", "svg-textpath"]
   },
   "element": {
     "type": "nodes",

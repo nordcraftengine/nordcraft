@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "textarea",
-    "categories": [
-      "form"
-    ],
-    "description": "An HTML element representing the textarea element.",
+    "categories": ["form"],
+    "description": "Allows multi-line text input in a form.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea",
-    "aliases": [
-      "multiline-input"
-    ]
+    "aliases": ["multiline-input"]
   },
   "element": {
     "type": "nodes",

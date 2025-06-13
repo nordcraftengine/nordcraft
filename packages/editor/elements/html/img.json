@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "img",
-    "categories": [
-      "media"
-    ],
-    "description": "An HTML element representing the img element.",
+    "categories": ["media"],
+    "description": "Embeds an image into the document.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img",
-    "aliases": [
-      "image",
-      "picture"
-    ],
+    "aliases": ["image", "picture"],
     "isVoid": true
   },
   "element": {

@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "sub",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the sub element.",
+    "categories": ["typography"],
+    "description": "Renders text as subscript.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub",
-    "aliases": [
-      "subscript"
-    ]
+    "aliases": ["subscript"]
   },
   "element": {
     "type": "nodes",

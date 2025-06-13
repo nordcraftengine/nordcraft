@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feOffset",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feOffset element.",
+    "categories": ["svg"],
+    "description": "Offsets the input image by a specified amount.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feOffset",
-    "aliases": [
-      "offset-filter",
-      "svg-offset"
-    ]
+    "aliases": ["offset-filter", "svg-offset"]
   },
   "element": {
     "type": "nodes",

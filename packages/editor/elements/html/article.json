@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "article",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the article element.",
+    "categories": ["semantic"],
+    "description": "Represents a self-contained, independent piece of content.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article",
-    "aliases": [
-      "blog-post",
-      "news-article"
-    ]
+    "aliases": ["blog-post", "news-article"]
   },
   "element": {
     "type": "nodes",

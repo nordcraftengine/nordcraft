@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "section",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the section element.",
+    "categories": ["semantic"],
+    "description": "Defines a standalone section of content.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/section",
-    "aliases": [
-      "content-section"
-    ]
+    "aliases": ["content-section"]
   },
   "element": {
     "type": "nodes",

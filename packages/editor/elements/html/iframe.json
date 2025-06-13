@@ -1,16 +1,10 @@
 {
   "metadata": {
     "name": "iframe",
-    "categories": [
-      "media"
-    ],
-    "description": "An HTML element representing the iframe element.",
+    "categories": ["media"],
+    "description": "Embeds another HTML page within the current page.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe",
-    "aliases": [
-      "inline-frame",
-      "embed-page",
-      "frame"
-    ]
+    "aliases": ["inline-frame", "embed-page", "frame"]
   },
   "element": {
     "type": "nodes",

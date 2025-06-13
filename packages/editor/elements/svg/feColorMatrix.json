@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feColorMatrix",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feColorMatrix element.",
+    "categories": ["svg"],
+    "description": "Applies a matrix transformation to the colors of the input image, enabling effects like grayscale or sepia.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feColorMatrix",
-    "aliases": [
-      "color-matrix",
-      "svg-color"
-    ]
+    "aliases": ["color-matrix", "svg-color"]
   },
   "element": {
     "type": "nodes",

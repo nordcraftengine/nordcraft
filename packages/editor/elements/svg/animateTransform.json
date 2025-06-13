@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "animateTransform",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG animateTransform element.",
+    "categories": ["svg"],
+    "description": "Animates transformations such as scale, rotate, or translate on an element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animateTransform",
-    "aliases": [
-      "transform-animation",
-      "svg-transform"
-    ]
+    "aliases": ["transform-animation", "svg-transform"]
   },
   "element": {
     "type": "nodes",

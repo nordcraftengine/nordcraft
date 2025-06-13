@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "tfoot",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the tfoot element.",
+    "categories": ["semantic"],
+    "description": "Groups the footer content in a table.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tfoot",
-    "aliases": [
-      "table-footer"
-    ]
+    "aliases": ["table-footer"]
   },
   "element": {
     "type": "nodes",

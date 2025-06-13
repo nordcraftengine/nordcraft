@@ -1,0 +1,21 @@
+{
+  "metadata": {
+    "name": "text",
+    "categories": ["semantic"],
+    "description": "Defines a text element.",
+    "aliases": ["text"]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

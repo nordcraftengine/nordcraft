@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "animate",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG animate element.",
+    "categories": ["svg"],
+    "description": "Animates an attribute of an SVG element over time.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animate",
-    "aliases": [
-      "animation",
-      "svg-animate"
-    ]
+    "aliases": ["animation", "svg-animate"]
   },
   "element": {
     "type": "nodes",

@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "caption",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the caption element.",
+    "categories": ["semantic"],
+    "description": "Specifies the caption or title for a table.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/caption",
-    "aliases": [
-      "table-caption"
-    ]
+    "aliases": ["table-caption"]
   },
   "element": {
     "type": "nodes",

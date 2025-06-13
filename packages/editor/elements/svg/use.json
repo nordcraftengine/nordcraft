@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "use",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG use element.",
+    "categories": ["svg"],
+    "description": "References and reuses an existing SVG element defined elsewhere.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use",
-    "aliases": [
-      "svg-use",
-      "reference"
-    ]
+    "aliases": ["svg-use", "reference"]
   },
   "element": {
     "type": "nodes",

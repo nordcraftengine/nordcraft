@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "noscript",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the noscript element.",
+    "categories": ["semantic"],
+    "description": "Provides alternate content for users without JavaScript.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/noscript",
-    "aliases": [
-      "no-javascript"
-    ]
+    "aliases": ["no-javascript"]
   },
   "element": {
     "type": "nodes",

@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "metadata",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG metadata element.",
+    "categories": ["svg"],
+    "description": "Embeds metadata within the SVG, such as licensing or author information.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/metadata",
-    "aliases": [
-      "svg-metadata",
-      "meta"
-    ]
+    "aliases": ["svg-metadata", "meta"]
   },
   "element": {
     "type": "nodes",

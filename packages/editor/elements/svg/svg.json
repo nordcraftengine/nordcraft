@@ -1,17 +1,10 @@
 {
   "metadata": {
     "name": "svg",
-    "categories": [
-      "semantic",
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG svg element.",
+    "categories": ["semantic", "svg"],
+    "description": "Container element for SVG graphics, defining the coordinate system and viewport.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/svg",
-    "aliases": [
-      "vector",
-      "graphic",
-      "svg-root"
-    ]
+    "aliases": ["vector", "graphic", "svg-root"]
   },
   "element": {
     "type": "nodes",
