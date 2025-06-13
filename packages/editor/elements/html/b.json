@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "b",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the b element.",
+    "categories": ["typography"],
+    "description": "Renders text in bold for emphasis without conveying extra importance.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/b",
-    "aliases": [
-      "bold"
-    ]
+    "aliases": ["bold"]
   },
   "element": {
     "type": "nodes",

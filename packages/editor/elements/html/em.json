@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "em",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the em element.",
+    "categories": ["typography"],
+    "description": "Stresses emphasis of its contents, typically rendered in italics.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em",
-    "aliases": [
-      "emphasis",
-      "italic"
-    ]
+    "aliases": ["emphasis", "italic"]
   },
   "element": {
     "type": "nodes",

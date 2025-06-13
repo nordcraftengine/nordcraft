@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "form",
-    "categories": [
-      "form"
-    ],
-    "description": "An HTML element representing the form element.",
+    "categories": ["form"],
+    "description": "Collects user input via interactive controls.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form",
-    "aliases": [
-      "input-form",
-      "user-input"
-    ]
+    "aliases": ["input-form", "user-input"]
   },
   "element": {
     "type": "nodes",

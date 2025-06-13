@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "line",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG line element.",
+    "categories": ["svg"],
+    "description": "Draws a straight line between two points.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/line",
-    "aliases": [
-      "svg-line",
-      "segment"
-    ]
+    "aliases": ["svg-line", "segment"]
   },
   "element": {
     "type": "nodes",

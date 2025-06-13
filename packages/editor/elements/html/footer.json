@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "footer",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the footer element.",
+    "categories": ["semantic"],
+    "description": "Defines a footer for a section or page.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer",
-    "aliases": [
-      "page-footer",
-      "section-footer"
-    ]
+    "aliases": ["page-footer", "section-footer"]
   },
   "element": {
     "type": "nodes",

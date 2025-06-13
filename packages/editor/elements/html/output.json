@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "output",
-    "categories": [
-      "form"
-    ],
-    "description": "An HTML element representing the output element.",
+    "categories": ["form"],
+    "description": "Displays the result of a calculation or user action.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output",
-    "aliases": [
-      "calculation-result"
-    ]
+    "aliases": ["calculation-result"]
   },
   "element": {
     "type": "nodes",

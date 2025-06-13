@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "title",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG title element.",
+    "categories": ["svg"],
+    "description": "Provides a title for the SVG content, often shown as a tooltip.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/title",
-    "aliases": [
-      "svg-title",
-      "caption"
-    ]
+    "aliases": ["svg-title", "caption"]
   },
   "element": {
     "type": "nodes",

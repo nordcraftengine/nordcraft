@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "colgroup",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the colgroup element.",
+    "categories": ["semantic"],
+    "description": "Groups one or more columns in a table for formatting.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/colgroup",
-    "aliases": [
-      "table-column-group"
-    ]
+    "aliases": ["table-column-group"]
   },
   "element": {
     "type": "nodes",

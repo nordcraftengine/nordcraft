@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feDistantLight",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feDistantLight element.",
+    "categories": ["svg"],
+    "description": "Defines a distant light source for lighting effects.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDistantLight",
-    "aliases": [
-      "distant-light",
-      "svg-light"
-    ]
+    "aliases": ["distant-light", "svg-light"]
   },
   "element": {
     "type": "nodes",

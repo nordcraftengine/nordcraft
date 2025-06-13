@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "figcaption",
-    "categories": [
-      "media"
-    ],
-    "description": "An HTML element representing the figcaption element.",
+    "categories": ["media"],
+    "description": "Provides a caption or legend for a figure element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figcaption",
-    "aliases": [
-      "figure-caption"
-    ]
+    "aliases": ["figure-caption"]
   },
   "element": {
     "type": "nodes",

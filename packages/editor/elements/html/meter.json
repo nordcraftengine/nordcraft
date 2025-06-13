@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "meter",
-    "categories": [
-      "form"
-    ],
-    "description": "An HTML element representing the meter element.",
+    "categories": ["form"],
+    "description": "Displays a scalar measurement within a known range.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter",
-    "aliases": [
-      "gauge",
-      "measurement"
-    ]
+    "aliases": ["gauge", "measurement"]
   },
   "element": {
     "type": "nodes",

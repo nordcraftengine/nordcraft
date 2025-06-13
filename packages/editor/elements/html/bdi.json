@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "bdi",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the bdi element.",
+    "categories": ["typography"],
+    "description": "Isolates a span of text that might have a different text direction.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdi",
-    "aliases": [
-      "bidirectional-isolation"
-    ]
+    "aliases": ["bidirectional-isolation"]
   },
   "element": {
     "type": "nodes",

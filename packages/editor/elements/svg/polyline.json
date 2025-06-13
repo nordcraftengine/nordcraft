@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "polyline",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG polyline element.",
+    "categories": ["svg"],
+    "description": "Draws a series of connected straight lines.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/polyline",
-    "aliases": [
-      "svg-polyline",
-      "line-sequence"
-    ]
+    "aliases": ["svg-polyline", "line-sequence"]
   },
   "element": {
     "type": "nodes",

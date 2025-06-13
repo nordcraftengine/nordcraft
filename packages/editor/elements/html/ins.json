@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "ins",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the ins element.",
+    "categories": ["typography"],
+    "description": "Indicates inserted or added text.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins",
-    "aliases": [
-      "inserted-text",
-      "addition"
-    ]
+    "aliases": ["inserted-text", "addition"]
   },
   "element": {
     "type": "nodes",

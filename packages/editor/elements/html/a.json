@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "a",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the a element.",
+    "categories": ["semantic"],
+    "description": "Defines a hyperlink to link to another page or resource.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
-    "aliases": [
-      "link",
-      "anchor"
-    ]
+    "aliases": ["link", "anchor"]
   },
   "element": {
     "type": "nodes",

@@ -1,16 +1,10 @@
 {
   "metadata": {
     "name": "ul",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the ul element.",
+    "categories": ["semantic"],
+    "description": "Represents an unordered list of items.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul",
-    "aliases": [
-      "unordered-list",
-      "bulleted-list",
-      "list"
-    ]
+    "aliases": ["unordered-list", "bulleted-list", "list"]
   },
   "element": {
     "type": "nodes",

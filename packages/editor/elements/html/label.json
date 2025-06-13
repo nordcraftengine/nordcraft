@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "label",
-    "categories": [
-      "form"
-    ],
-    "description": "An HTML element representing the label element.",
+    "categories": ["form"],
+    "description": "Defines a label for a form control.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
-    "aliases": [
-      "form-label"
-    ]
+    "aliases": ["form-label"]
   },
   "element": {
     "type": "nodes",

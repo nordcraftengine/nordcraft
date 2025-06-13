@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feSpecularLighting",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feSpecularLighting element.",
+    "categories": ["svg"],
+    "description": "Simulates specular lighting on an image for shiny highlights.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feSpecularLighting",
-    "aliases": [
-      "specular-light",
-      "svg-specular"
-    ]
+    "aliases": ["specular-light", "svg-specular"]
   },
   "element": {
     "type": "nodes",

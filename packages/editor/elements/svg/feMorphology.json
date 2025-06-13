@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feMorphology",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feMorphology element.",
+    "categories": ["svg"],
+    "description": "Applies erosion or dilation to the input image.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMorphology",
-    "aliases": [
-      "morphology-filter",
-      "svg-morphology"
-    ]
+    "aliases": ["morphology-filter", "svg-morphology"]
   },
   "element": {
     "type": "nodes",

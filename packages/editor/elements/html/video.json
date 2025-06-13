@@ -1,16 +1,10 @@
 {
   "metadata": {
     "name": "video",
-    "categories": [
-      "media"
-    ],
-    "description": "An HTML element representing the video element.",
+    "categories": ["media"],
+    "description": "Embeds a video player for video playback.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video",
-    "aliases": [
-      "movie",
-      "media",
-      "film"
-    ]
+    "aliases": ["movie", "media", "film"]
   },
   "element": {
     "type": "nodes",

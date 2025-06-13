@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "polygon",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG polygon element.",
+    "categories": ["svg"],
+    "description": "Draws a closed shape defined by a series of points.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/polygon",
-    "aliases": [
-      "svg-polygon",
-      "shape"
-    ]
+    "aliases": ["svg-polygon", "shape"]
   },
   "element": {
     "type": "nodes",

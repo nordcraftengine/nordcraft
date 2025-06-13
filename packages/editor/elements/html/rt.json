@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "rt",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the rt element.",
+    "categories": ["typography"],
+    "description": "Specifies the pronunciation of characters in ruby annotations.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rt",
-    "aliases": [
-      "ruby-text"
-    ]
+    "aliases": ["ruby-text"]
   },
   "element": {
     "type": "nodes",

@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "search",
-    "categories": [
-      "form"
-    ],
-    "description": "An HTML element representing the search element.",
+    "categories": ["form"],
+    "description": "Represents a search section within a document.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search",
-    "aliases": [
-      "search-region"
-    ]
+    "aliases": ["search-region"]
   },
   "element": {
     "type": "nodes",

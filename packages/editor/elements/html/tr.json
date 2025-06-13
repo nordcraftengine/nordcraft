@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "tr",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the tr element.",
+    "categories": ["semantic"],
+    "description": "Defines a row in a table.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr",
-    "aliases": [
-      "table-row"
-    ]
+    "aliases": ["table-row"]
   },
   "element": {
     "type": "nodes",

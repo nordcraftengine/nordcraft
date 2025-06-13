@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "figure",
-    "categories": [
-      "media"
-    ],
-    "description": "An HTML element representing the figure element.",
+    "categories": ["media"],
+    "description": "Represents self-contained content, like images or diagrams.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figure",
-    "aliases": [
-      "illustration",
-      "media"
-    ]
+    "aliases": ["illustration", "media"]
   },
   "element": {
     "type": "nodes",

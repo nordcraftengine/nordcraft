@@ -1,16 +1,10 @@
 {
   "metadata": {
     "name": "radialGradient",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG radialGradient element.",
+    "categories": ["svg"],
+    "description": "Defines a radial color gradient for filling shapes.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/radialGradient",
-    "aliases": [
-      "radial-gradient",
-      "svg-gradient",
-      "gradient"
-    ]
+    "aliases": ["radial-gradient", "svg-gradient", "gradient"]
   },
   "element": {
     "type": "nodes",

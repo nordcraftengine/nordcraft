@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "details",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the details element.",
+    "categories": ["semantic"],
+    "description": "Creates a disclosure widget for additional information.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details",
-    "aliases": [
-      "disclosure",
-      "expandable"
-    ]
+    "aliases": ["disclosure", "expandable"]
   },
   "element": {
     "type": "nodes",

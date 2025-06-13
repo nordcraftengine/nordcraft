@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "q",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the q element.",
+    "categories": ["typography"],
+    "description": "Indicates a short inline quotation.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q",
-    "aliases": [
-      "inline-quote"
-    ]
+    "aliases": ["inline-quote"]
   },
   "element": {
     "type": "nodes",

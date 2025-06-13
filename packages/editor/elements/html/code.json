@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "code",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the code element.",
+    "categories": ["typography"],
+    "description": "Displays a fragment of computer code.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code",
-    "aliases": [
-      "inline-code",
-      "source-code"
-    ]
+    "aliases": ["inline-code", "source-code"]
   },
   "element": {
     "type": "nodes",

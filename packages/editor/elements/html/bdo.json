@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "bdo",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the bdo element.",
+    "categories": ["typography"],
+    "description": "Overrides the current text direction for its children.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdo",
-    "aliases": [
-      "bidirectional-override"
-    ]
+    "aliases": ["bidirectional-override"]
   },
   "element": {
     "type": "nodes",

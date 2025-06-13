@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "address",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the address element.",
+    "categories": ["semantic"],
+    "description": "Provides contact information for a person, organization, or author.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/address",
-    "aliases": [
-      "contact-info"
-    ]
+    "aliases": ["contact-info"]
   },
   "element": {
     "type": "nodes",

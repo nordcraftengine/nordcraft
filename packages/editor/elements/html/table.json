@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "table",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the table element.",
+    "categories": ["semantic"],
+    "description": "Represents tabular data in rows and columns.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table",
-    "aliases": [
-      "data-table"
-    ]
+    "aliases": ["data-table"]
   },
   "element": {
     "type": "nodes",

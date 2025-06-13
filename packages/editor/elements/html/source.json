@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "source",
-    "categories": [
-      "media"
-    ],
-    "description": "An HTML element representing the source element.",
+    "categories": ["media"],
+    "description": "Specifies multiple media resources for media elements.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source",
-    "aliases": [
-      "media-source"
-    ],
+    "aliases": ["media-source"],
     "isVoid": true
   },
   "element": {

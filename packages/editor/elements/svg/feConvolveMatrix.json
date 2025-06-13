@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feConvolveMatrix",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feConvolveMatrix element.",
+    "categories": ["svg"],
+    "description": "Applies a matrix convolution filter for effects like edge detection or blurring.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feConvolveMatrix",
-    "aliases": [
-      "convolve-matrix",
-      "svg-convolve"
-    ]
+    "aliases": ["convolve-matrix", "svg-convolve"]
   },
   "element": {
     "type": "nodes",

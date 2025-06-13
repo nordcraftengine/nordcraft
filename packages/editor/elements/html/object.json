@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "object",
-    "categories": [
-      "media"
-    ],
-    "description": "An HTML element representing the object element.",
+    "categories": ["media"],
+    "description": "Embeds external resources like images, audio, or plugins.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object",
-    "aliases": [
-      "embedded-object",
-      "plugin"
-    ]
+    "aliases": ["embedded-object", "plugin"]
   },
   "element": {
     "type": "nodes",

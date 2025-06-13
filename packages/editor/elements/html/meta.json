@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "meta",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the meta element.",
+    "categories": ["semantic"],
+    "description": "Provides metadata about the HTML document.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta",
-    "aliases": [
-      "metadata"
-    ],
+    "aliases": ["metadata"],
     "isVoid": true
   },
   "element": {

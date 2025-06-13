@@ -28,8 +28,8 @@
     "clean": "rm -rf node_modules && rm bun.lock && rm -rf packages/core/node_modules && rm -rf packages/lib/node_modules && rm -rf packages/runtime/node_modules && rm -rf packages/ssr/node_modules && rm -rf packages/search/node_modules && bun i",
     "link": "cd packages/core && bun link && cd ../lib && bun link && cd ../ssr && bun link && cd ../search && bun link && cd ../runtime && bun link",
     "lint": "eslint --quiet --report-unused-disable-directives .",
-    "prettier": "prettier --check '*.{json,js}' '**/*.{js,ts}'",
-    "prettier:write": "prettier --write  '*.{json,js}' './**/*.{js,ts}'",
+    "prettier": "prettier --check '*.{json,js}' '**/*.{js,ts}' 'packages/editor/elements/**/*.json'",
+    "prettier:write": "prettier --write  '*.{json,js}' './**/*.{js,ts}' 'packages/editor/elements/**/*.json'",
     "typecheck": "cd packages/core && bun typecheck && cd ../ssr && bun run typecheck && cd ../lib && bun run typecheck && cd ../search && bun run typecheck && cd ../runtime && bun run typecheck && cd ../backend && bun run typecheck"
   }
 }

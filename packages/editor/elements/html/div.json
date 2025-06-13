@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "div",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the div element.",
+    "categories": ["semantic"],
+    "description": "Generic container for flow content, used for layout and styling.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div",
-    "aliases": [
-      "container",
-      "division"
-    ]
+    "aliases": ["container", "division"]
   },
   "element": {
     "type": "nodes",

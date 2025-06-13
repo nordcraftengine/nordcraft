@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "dd",
-    "categories": [
-      "semantic"
-    ],
-    "description": "An HTML element representing the dd element.",
+    "categories": ["semantic"],
+    "description": "Provides the description or value for a term in a description list.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dd",
-    "aliases": [
-      "description-details"
-    ]
+    "aliases": ["description-details"]
   },
   "element": {
     "type": "nodes",

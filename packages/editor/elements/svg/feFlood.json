@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "feFlood",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG feFlood element.",
+    "categories": ["svg"],
+    "description": "Fills the filter region with a solid color.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFlood",
-    "aliases": [
-      "flood-filter",
-      "svg-flood"
-    ]
+    "aliases": ["flood-filter", "svg-flood"]
   },
   "element": {
     "type": "nodes",

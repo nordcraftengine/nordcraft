@@ -1,14 +1,10 @@
 {
   "metadata": {
     "name": "samp",
-    "categories": [
-      "typography"
-    ],
-    "description": "An HTML element representing the samp element.",
+    "categories": ["typography"],
+    "description": "Represents sample output from a computer program.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/samp",
-    "aliases": [
-      "sample-output"
-    ]
+    "aliases": ["sample-output"]
   },
   "element": {
     "type": "nodes",

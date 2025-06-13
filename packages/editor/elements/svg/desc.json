@@ -1,15 +1,10 @@
 {
   "metadata": {
     "name": "desc",
-    "categories": [
-      "svg"
-    ],
-    "description": "An SVG element representing the SVG desc element.",
+    "categories": ["svg"],
+    "description": "Provides a description of the SVG content for accessibility.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/desc",
-    "aliases": [
-      "description",
-      "svg-desc"
-    ]
+    "aliases": ["description", "svg-desc"]
   },
   "element": {
     "type": "nodes",
