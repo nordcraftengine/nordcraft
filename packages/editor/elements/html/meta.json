@@ -18,7 +18,8 @@
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": [],
+        "style-variables": []
       }
     }
   }

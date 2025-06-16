@@ -17,7 +17,15 @@
         "style": {},
         "events": {},
         "classes": {},
-        "children": []
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
+        "style-variables": []
+      },
+      "MsVwQCP4yKPh_00L4fAhT": {
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": ""
+        }
       }
     }
   }
