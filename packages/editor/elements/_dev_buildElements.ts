@@ -221,7 +221,7 @@ const elements: Record<
     categories: ['typography'],
     nodes: {
       root: {
-        tag: 'categories',
+        tag: 'bdo',
         type: 'element',
         attrs: {},
         style: {},
@@ -241,7 +241,7 @@ const elements: Record<
     categories: ['typography'],
     nodes: {
       root: {
-        tag: 'categories',
+        tag: 'blockquote',
         type: 'element',
         attrs: {},
         style: {},
@@ -325,7 +325,7 @@ const elements: Record<
     categories: ['typography'],
     nodes: {
       root: {
-        tag: 'categories',
+        tag: 'del',
         type: 'element',
         attrs: {},
         style: {},
@@ -561,7 +561,7 @@ const elements: Record<
     categories: ['typography'],
     nodes: {
       root: {
-        tag: 'categories',
+        tag: 'ins',
         type: 'element',
         attrs: {},
         style: {},
@@ -687,7 +687,7 @@ const elements: Record<
     categories: ['typography'],
     nodes: {
       root: {
-        tag: 'categories',
+        tag: 'p',
         type: 'element',
         attrs: {},
         style: {},
@@ -729,7 +729,7 @@ const elements: Record<
     categories: ['typography'],
     nodes: {
       root: {
-        tag: 'categories',
+        tag: 'q',
         type: 'element',
         attrs: {},
         style: {},
