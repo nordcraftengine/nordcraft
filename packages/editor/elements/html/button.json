@@ -25,7 +25,7 @@
         "type": "text",
         "value": {
           "type": "value",
-          "value": "Text"
+          "value": "Button text"
         }
       }
     }

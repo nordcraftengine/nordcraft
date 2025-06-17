@@ -294,7 +294,7 @@ const elements: Record<
         children: ['MsVwQCP4yKPh_00L4fAhT'],
         'style-variables': [],
       },
-      MsVwQCP4yKPh_00L4fAhT: defaultTextElement(),
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement('Button text'),
     },
   },
   canvas: {
