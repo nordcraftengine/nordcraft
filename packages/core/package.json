@@ -4,7 +4,7 @@
   "type": "module",
   "homepage": "https://github.com/nordcraftengine/nordcraft",
   "devDependencies": {
-    "@types/react": "19.1.6"
+    "@types/react": "19.1.8"
   },
   "scripts": {
     "build": "tsc",
