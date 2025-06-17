@@ -1,5 +1,6 @@
 import { getUrl } from '@nordcraft/core/dist/api/api'
 import type {
+  Component,
   PageComponent,
   PageRoute,
   RouteDeclaration,
@@ -9,6 +10,7 @@ import type {
   ToddleEnv,
 } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import { filterObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { getParameters } from '../rendering/formulaContext'
 import type { ProjectFiles, Route } from '../ssr.types'
@@ -18,12 +20,12 @@ export const matchPageForUrl = ({
   components,
 }: {
   url: URL
-  components: Partial<Record<string, { route?: RouteDeclaration | null }>>
+  components: Partial<Record<string, Component>>
 }) =>
   matchRoutes({
     url,
-    entries: getPages(components),
-    getRoute: (route) => route.route,
+    entries: Object.fromEntries(getPages(components).map((p) => [p.name, p])),
+    getRoute: (page) => page.route,
   })
 
 export const matchRouteForUrl = ({
@@ -38,25 +40,27 @@ export const matchRouteForUrl = ({
   routes?: Record<string, Route>
   serverContext: FormulaContext['toddle']
   url: URL
-}) =>
-  matchRoutes({
+}) => {
+  const enabledRoutes = filterObject(routes ?? {}, ([_name, route]) => {
+    if (!isDefined(route.enabled)) {
+      // If the route does not have an explicit enabled property, we assume it is enabled
+      return true
+    }
+    // Only include routes that are enabled
+    const formulaContext = getRouteFormulaContext({
+      env,
+      req,
+      route,
+      serverContext,
+    })
+    return toBoolean(applyFormula(route.enabled.formula, formulaContext))
+  })
+  return matchRoutes({
     url,
-    entries: Object.values(routes ?? {}).filter((route) => {
-      if (!isDefined(route.enabled)) {
-        // If the route does not have an explicit enabled property, we assume it is enabled
-        return true
-      }
-      // Only include routes that are enabled
-      const formulaContext = getRouteFormulaContext({
-        env,
-        req,
-        route,
-        serverContext,
-      })
-      return toBoolean(applyFormula(route.enabled.formula, formulaContext))
-    }),
+    entries: enabledRoutes,
     getRoute: (route) => route.source,
   })
+}
 
 export const matchRoutes = <T>({
   url,
@@ -64,17 +68,17 @@ export const matchRoutes = <T>({
   getRoute,
 }: {
   url: URL
-  entries: T[]
+  entries: Record<string, T>
   getRoute: (entry: T) => Pick<PageRoute, 'path' | 'query'>
-}): T | undefined => {
+}): { name: string; route: T } | undefined => {
   const pathSegments = getPathSegments(url)
   // E.g. /fruit/:fruitId => 1.2
   // E.g. /:blog/:slug/:author => 2.2.2
   // E.g. /:dynamic/static => 2.1
   const getPathHash = (path: PageRoute['path']) =>
     path.map((segment) => (segment.type === 'static' ? '1' : '2')).join('.')
-  const matches = Object.values(entries)
-    .filter((entry) => {
+  const matches = Object.entries(entries)
+    .filter(([_, entry]) => {
       const route = getRoute(entry)
       return (
         pathSegments.length <= route.path.length &&
@@ -86,7 +90,7 @@ export const matchRoutes = <T>({
         )
       )
     })
-    .sort((a, b) => {
+    .sort(([_keyA, a], [_keyB, b]) => {
       const routeAHash = getPathHash(getRoute(a).path)
       const routeBHash = getPathHash(getRoute(b).path)
       // Favors static segments over dynamic segments and shorter paths over longer paths
@@ -94,7 +98,11 @@ export const matchRoutes = <T>({
       // E.g. /fruit/:fruitId/:category wins over /:blog/:slug for /fruit/apple
       return routeAHash.localeCompare(routeBHash)
     })
-  return matches[0]
+  const bestMatch = matches[0]
+  if (!isDefined(bestMatch)) {
+    return
+  }
+  return { name: bestMatch[0], route: bestMatch[1] }
 }
 
 export const getRouteDestination = ({

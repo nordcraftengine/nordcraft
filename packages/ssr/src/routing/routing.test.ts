@@ -1,4 +1,4 @@
-import type { RouteDeclaration } from '@nordcraft/core/dist/component/component.types'
+import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { describe, expect, test } from 'bun:test'
 import { serverEnv } from '../rendering/formulaContext'
@@ -7,22 +7,32 @@ import { matchPageForUrl, matchRouteForUrl } from './routing'
 
 describe('matchPageForUrl', () => {
   test('it finds the correct page for a url', () => {
-    const pages: Record<
-      string,
-      {
-        route?: RouteDeclaration | null
-      }
-    > = {
+    const pages: Record<string, PageComponent> = {
       searchPage: {
+        name: 'searchPage',
+        attributes: {},
+        variables: {},
+        apis: {},
+        nodes: {},
         route: { path: [{ type: 'static', name: 'search' }], query: {} },
       },
       categoryPage: {
+        name: 'categoryPage',
+        attributes: {},
+        variables: {},
+        apis: {},
+        nodes: {},
         route: {
           path: [{ type: 'param', name: 'category', testValue: 'fruit' }],
           query: {},
         },
       },
       docsPage: {
+        name: 'docsPage',
+        attributes: {},
+        variables: {},
+        apis: {},
+        nodes: {},
         route: {
           path: [
             { type: 'static', name: 'docs' },
@@ -32,6 +42,11 @@ describe('matchPageForUrl', () => {
         },
       },
       helloPage: {
+        name: 'helloPage',
+        attributes: {},
+        variables: {},
+        apis: {},
+        nodes: {},
         route: {
           path: [
             { type: 'param', name: 'test', testValue: '' },
@@ -41,6 +56,11 @@ describe('matchPageForUrl', () => {
         },
       },
       otherPage: {
+        name: 'otherPage',
+        attributes: {},
+        variables: {},
+        apis: {},
+        nodes: {},
         route: {
           path: [
             { type: 'param', name: 'other', testValue: '' },
@@ -52,34 +72,39 @@ describe('matchPageForUrl', () => {
     }
 
     const searchUrl = new URL('http://localhost:3000/search')
-    expect(matchPageForUrl({ url: searchUrl, components: pages })).toEqual(
-      pages['searchPage'],
-    )
+    expect(matchPageForUrl({ url: searchUrl, components: pages })).toEqual({
+      name: 'searchPage',
+      route: pages['searchPage'],
+    })
     const categoryUrl = new URL('http://localhost:3000/fruit')
-    expect(matchPageForUrl({ url: categoryUrl, components: pages })).toEqual(
-      pages['categoryPage'],
-    )
+    expect(matchPageForUrl({ url: categoryUrl, components: pages })).toEqual({
+      name: 'categoryPage',
+      route: pages['categoryPage'],
+    })
     const docsUrl = new URL('http://localhost:3000/docs/intro')
-    expect(matchPageForUrl({ url: docsUrl, components: pages })).toEqual(
-      pages['docsPage'],
-    )
+    expect(matchPageForUrl({ url: docsUrl, components: pages })).toEqual({
+      name: 'docsPage',
+      route: pages['docsPage'],
+    })
     const helloUrl = new URL('http://localhost:3000/bla/hello')
-    expect(matchPageForUrl({ url: helloUrl, components: pages })).toEqual(
-      pages['helloPage'],
-    )
+    expect(matchPageForUrl({ url: helloUrl, components: pages })).toEqual({
+      name: 'helloPage',
+      route: pages['helloPage'],
+    })
     const otherUrl = new URL('http://localhost:3000/hello/world')
-    expect(matchPageForUrl({ url: otherUrl, components: pages })).toEqual(
-      pages['otherPage'],
-    )
+    expect(matchPageForUrl({ url: otherUrl, components: pages })).toEqual({
+      name: 'otherPage',
+      route: pages['otherPage'],
+    })
   })
   test('it prefers static path segments in urls', () => {
-    const pages: Record<
-      string,
-      {
-        route?: RouteDeclaration | null
-      }
-    > = {
+    const pages: Record<string, PageComponent> = {
       otherPage: {
+        name: 'otherPage',
+        attributes: {},
+        variables: {},
+        apis: {},
+        nodes: {},
         route: {
           path: [
             // /:other/:page
@@ -90,6 +115,11 @@ describe('matchPageForUrl', () => {
         },
       },
       guidesPage: {
+        name: 'guidesPage',
+        attributes: {},
+        variables: {},
+        apis: {},
+        nodes: {},
         route: {
           path: [
             // /guides/:p1/:p2
@@ -102,40 +132,49 @@ describe('matchPageForUrl', () => {
       },
     }
     const guidesUrl = new URL('http://localhost:3000/guides/category/explore')
-    expect(matchPageForUrl({ url: guidesUrl, components: pages })).toEqual(
-      pages['guidesPage'],
-    )
+    expect(matchPageForUrl({ url: guidesUrl, components: pages })).toEqual({
+      name: 'guidesPage',
+      route: pages['guidesPage'],
+    })
     const guidesUrl2 = new URL('http://localhost:3000/guides')
-    expect(matchPageForUrl({ url: guidesUrl2, components: pages })).toEqual(
-      pages['guidesPage'],
-    )
+    expect(matchPageForUrl({ url: guidesUrl2, components: pages })).toEqual({
+      name: 'guidesPage',
+      route: pages['guidesPage'],
+    })
     const guidesUrl3 = new URL('http://localhost:3000/test')
-    expect(matchPageForUrl({ url: guidesUrl3, components: pages })).toEqual(
-      pages['otherPage'],
-    )
+    expect(matchPageForUrl({ url: guidesUrl3, components: pages })).toEqual({
+      name: 'otherPage',
+      route: pages['otherPage'],
+    })
     const guidesUrl4 = new URL('http://localhost:3000/test/hello')
-    expect(matchPageForUrl({ url: guidesUrl4, components: pages })).toEqual(
-      pages['otherPage'],
-    )
+    expect(matchPageForUrl({ url: guidesUrl4, components: pages })).toEqual({
+      name: 'otherPage',
+      route: pages['otherPage'],
+    })
     const guidesUrl5 = new URL('http://localhost:3000/test/hello/world')
     expect(
       matchPageForUrl({ url: guidesUrl5, components: pages }),
     ).toBeUndefined()
   })
   test('it does not find a match for unknown paths', () => {
-    const pages: Record<
-      string,
-      {
-        route?: RouteDeclaration | null
-      }
-    > = {
+    const pages: Record<string, PageComponent> = {
       otherPage: {
+        name: 'otherPage',
+        attributes: {},
+        variables: {},
+        apis: {},
+        nodes: {},
         route: {
           path: [{ type: 'static', name: 'search' }],
           query: {},
         },
       },
       guidesPage: {
+        name: 'guidesPage',
+        attributes: {},
+        variables: {},
+        apis: {},
+        nodes: {},
         route: {
           path: [
             // /:other/page
@@ -210,7 +249,7 @@ describe('matchRouteForUrl', () => {
           getCustomFormula: () => undefined,
         },
       }),
-    ).toEqual(routes['docsRedirect'])
+    ).toEqual({ name: 'docsRedirect', route: routes['docsRedirect'] })
   })
   test('it ignores disabled routes', () => {
     const routes: Record<string, Route> = {
@@ -273,6 +312,6 @@ describe('matchRouteForUrl', () => {
           getCustomFormula: () => undefined,
         },
       }),
-    ).toEqual(routes['docsRedirect'])
+    ).toEqual({ name: 'docsRedirect', route: routes['docsRedirect'] })
   })
 })

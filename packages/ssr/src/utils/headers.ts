@@ -14,6 +14,11 @@ export const skipCookieHeader = (headers: Headers) => {
   return newHeaders
 }
 
+export const REDIRECT_API_NAME_HEADER = 'x-nordcraft-redirect-api-name'
+export const REDIRECT_COMPONENT_NAME_HEADER =
+  'x-nordcraft-redirect-component-name'
+export const REDIRECT_ROUTE_NAME_HEADER = 'x-nordcraft-redirect-route-name'
+
 /**
  * Omit the "x-nordcraft-url" and "x-nordcraft-templates-in-body" headers
  * from a set of headers. Since these headers are only relevant for the
