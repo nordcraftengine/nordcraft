@@ -4,7 +4,8 @@
     "categories": ["svg"],
     "description": "Draws a rectangle, optionally with rounded corners",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/rect",
-    "aliases": ["rectangle", "svg-rect", "box"]
+    "aliases": ["rectangle", "svg-rect", "box"],
+    "isPopular": true
   },
   "element": {
     "type": "nodes",

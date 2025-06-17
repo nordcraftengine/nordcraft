@@ -33,6 +33,10 @@ const popularElements = [
   'p',
   'span',
   'ul',
+  'svg',
+  'path',
+  'line',
+  'rect',
 ]
 
 const init = () => {
@@ -86,6 +90,7 @@ const init = () => {
           `An SVG element representing the SVG ${element} element.`,
         link: `https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/${element}`,
         aliases: aliases,
+        isPopular: popularElements.includes(element) ? true : undefined,
       },
       element: {
         type: 'nodes',
