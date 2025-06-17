@@ -8,7 +8,7 @@
     "@nordcraft/core": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "22.15.30",
+    "@types/node": "24.0.3",
     "@happy-dom/global-registrator": "18.0.1"
   },
   "scripts": {
