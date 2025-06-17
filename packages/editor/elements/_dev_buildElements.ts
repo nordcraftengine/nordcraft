@@ -30,14 +30,12 @@ const popularElements = [
   'input',
   'label',
   'li',
-  'line',
   'p',
-  'path',
-  'rect',
   'span',
-  'svg',
   'ul',
 ]
+
+const popularSvgElements = ['line', 'path', 'rect', 'svg']
 
 const init = () => {
   Object.entries(elements).forEach(([element, settings]) => {
@@ -90,7 +88,7 @@ const init = () => {
           `An SVG element representing the SVG ${element} element.`,
         link: `https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/${element}`,
         aliases: aliases,
-        isPopular: popularElements.includes(element) ? true : undefined,
+        isPopular: popularSvgElements.includes(element) ? true : undefined,
       },
       element: {
         type: 'nodes',
