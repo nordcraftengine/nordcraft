@@ -2,6 +2,7 @@
   "metadata": {
     "name": "h5",
     "categories": ["typography"],
+    "popular": true,
     "description": "Represents a fifth-level heading",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h5",
     "aliases": ["heading-5", "heading", "sub-heading"]

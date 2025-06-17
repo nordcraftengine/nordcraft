@@ -1,6 +1,7 @@
 {
   "metadata": {
     "name": "button",
+    "popular": true,
     "categories": ["form"],
     "description": "Creates a clickable button for user interaction",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button",
@@ -22,8 +23,15 @@
         "style": {},
         "events": {},
         "classes": {},
-        "children": [],
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
         "style-variables": []
+      }
+    },
+    "MsVwQCP4yKPh_00L4fAhT": {
+      "type": "text",
+      "value": {
+        "type": "value",
+        "value": "Button text"
       }
     }
   }

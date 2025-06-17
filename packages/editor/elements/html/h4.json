@@ -2,6 +2,7 @@
   "metadata": {
     "name": "h4",
     "categories": ["typography"],
+    "popular": true,
     "description": "Represents a fourth-level heading",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h4",
     "aliases": ["heading-4", "heading", "sub-heading"]

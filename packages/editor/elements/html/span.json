@@ -2,6 +2,7 @@
   "metadata": {
     "name": "span",
     "categories": ["semantic"],
+    "popular": true,
     "description": "Generic inline container for text or other elements",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span",
     "aliases": ["inline-container"]

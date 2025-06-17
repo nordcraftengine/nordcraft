@@ -2,6 +2,7 @@
   "metadata": {
     "name": "h6",
     "categories": ["typography"],
+    "popular": true,
     "description": "Represents a sixth-level heading",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h6",
     "aliases": ["heading-6", "heading", "sub-heading"]

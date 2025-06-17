@@ -2,6 +2,7 @@
   "metadata": {
     "name": "h1",
     "categories": ["typography"],
+    "popular": true,
     "description": "Represents a top-level heading",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1",
     "aliases": ["heading-1", "main-heading"]
