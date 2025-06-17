@@ -1,6 +1,5 @@
 import { getUrl } from '@nordcraft/core/dist/api/api'
 import type {
-  Component,
   PageComponent,
   PageRoute,
   RouteDeclaration,
@@ -17,14 +16,14 @@ import type { ProjectFiles, Route } from '../ssr.types'
 
 export const matchPageForUrl = ({
   url,
-  components,
+  pages,
 }: {
   url: URL
-  components: Partial<Record<string, Component>>
+  pages: Pick<PageComponent, 'name' | 'route'>[]
 }) =>
   matchRoutes({
     url,
-    entries: Object.fromEntries(getPages(components).map((p) => [p.name, p])),
+    entries: Object.fromEntries(pages.map((p) => [p.name, p])),
     getRoute: (page) => page.route,
   })
 
