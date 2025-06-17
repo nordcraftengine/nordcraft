@@ -29,14 +29,14 @@ const popularElements = [
   'img',
   'input',
   'label',
+  'line',
   'li',
   'p',
-  'span',
-  'ul',
-  'svg',
   'path',
-  'line',
   'rect',
+  'span',
+  'svg',
+  'ul',
 ]
 
 const init = () => {
