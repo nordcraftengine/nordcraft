@@ -4,7 +4,8 @@
     "categories": ["semantic"],
     "description": "Generic container for content, used for layout and styling",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div",
-    "aliases": ["container", "division"]
+    "aliases": ["container", "division"],
+    "isPopular": true
   },
   "element": {
     "type": "nodes",

@@ -5,7 +5,8 @@
     "description": "Embeds an image into the document",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img",
     "aliases": ["image", "picture"],
-    "isVoid": true
+    "isVoid": true,
+    "isPopular": true
   },
   "element": {
     "type": "nodes",

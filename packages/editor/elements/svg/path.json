@@ -4,7 +4,8 @@
     "categories": ["svg"],
     "description": "Draws complex shapes using a series of commands and coordinates",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/path",
-    "aliases": ["svg-path", "bezier"]
+    "aliases": ["svg-path", "bezier"],
+    "isPopular": true
   },
   "element": {
     "type": "nodes",

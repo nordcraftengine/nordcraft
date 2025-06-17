@@ -4,7 +4,8 @@
     "categories": ["semantic"],
     "description": "Represents an item in a list",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li",
-    "aliases": ["list-item"]
+    "aliases": ["list-item"],
+    "isPopular": true
   },
   "element": {
     "type": "nodes",

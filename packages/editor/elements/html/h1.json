@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Represents a top-level heading",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1",
-    "aliases": ["heading-1", "main-heading"]
+    "aliases": ["heading-1", "main-heading"],
+    "isPopular": true
   },
   "element": {
     "type": "nodes",

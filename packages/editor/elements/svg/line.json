@@ -4,7 +4,8 @@
     "categories": ["svg"],
     "description": "Draws a straight line between two points",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/line",
-    "aliases": ["svg-line", "segment"]
+    "aliases": ["svg-line", "segment"],
+    "isPopular": true
   },
   "element": {
     "type": "nodes",

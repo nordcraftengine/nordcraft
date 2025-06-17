@@ -4,7 +4,8 @@
     "categories": ["form"],
     "description": "Creates a clickable button for user interaction",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button",
-    "aliases": ["form-button", "action-button", "submit-button"]
+    "aliases": ["form-button", "action-button", "submit-button"],
+    "isPopular": true
   },
   "element": {
     "type": "nodes",
@@ -13,17 +14,19 @@
       "root": {
         "tag": "button",
         "type": "element",
-        "attrs": {
-          "type": {
-            "type": "value",
-            "value": "button"
-          }
-        },
+        "attrs": {},
         "style": {},
         "events": {},
         "classes": {},
-        "children": [],
+        "children": ["MsVwQCP4yKPh_00L4fAhT"],
         "style-variables": []
+      },
+      "MsVwQCP4yKPh_00L4fAhT": {
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Button text"
+        }
       }
     }
   }

@@ -8,6 +8,7 @@ export interface ExportedHtmlElement {
     link?: string
     aliases?: string[]
     isVoid?: true
+    isPopular?: true
   }
   element: {
     type: 'nodes'
