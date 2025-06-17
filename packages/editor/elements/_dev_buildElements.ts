@@ -3,6 +3,38 @@ import type { ValueOperation } from '@nordcraft/core/dist/formula/formula'
 import { writeFileSync } from 'fs'
 import type { ExportedHtmlElement, ExportedHtmlElementCategory } from '../types'
 
+const voidElements = [
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'source',
+  'track',
+  'wbr',
+]
+const popularElements = [
+  'a',
+  'button',
+  'div',
+  'form',
+  'h1',
+  'h2',
+  'h3',
+  'img',
+  'input',
+  'label',
+  'li',
+  'p',
+  'span',
+  'ul',
+]
+
 const init = () => {
   Object.entries(elements).forEach(([element, settings]) => {
     const { aliases, attrs, nodes, categories } = settings
@@ -15,23 +47,8 @@ const init = () => {
           `An HTML element representing the ${element} element.`,
         link: `https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${element}`,
         aliases: aliases,
-        isVoid: [
-          'area',
-          'base',
-          'br',
-          'col',
-          'embed',
-          'hr',
-          'img',
-          'input',
-          'link',
-          'meta',
-          'source',
-          'track',
-          'wbr',
-        ].includes(element)
-          ? true
-          : undefined,
+        isVoid: voidElements.includes(element) ? true : undefined,
+        isPopular: popularElements.includes(element) ? true : undefined,
       },
       element: {
         type: 'nodes',

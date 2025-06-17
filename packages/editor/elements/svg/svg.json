@@ -2,7 +2,6 @@
   "metadata": {
     "name": "svg",
     "categories": ["semantic", "svg"],
-    "popular": true,
     "description": "Container element for SVG graphics, defining the coordinate system and viewport",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/svg",
     "aliases": ["vector", "graphic", "svg-root"]

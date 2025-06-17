@@ -2,10 +2,10 @@
   "metadata": {
     "name": "h3",
     "categories": ["typography"],
-    "popular": true,
     "description": "Represents a third-level heading",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h3",
-    "aliases": ["heading-3", "heading", "sub-heading"]
+    "aliases": ["heading-3", "heading", "sub-heading"],
+    "isPopular": true
   },
   "element": {
     "type": "nodes",

@@ -2,7 +2,6 @@
   "metadata": {
     "name": "iframe",
     "categories": ["media"],
-    "popular": true,
     "description": "Embeds another HTML page within the current page",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe",
     "aliases": ["inline-frame", "embed-page", "frame"]

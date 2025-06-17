@@ -2,10 +2,10 @@
   "metadata": {
     "name": "p",
     "categories": ["typography"],
-    "popular": true,
     "description": "Represents a paragraph of text",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p",
-    "aliases": ["paragraph", "text-block", "text"]
+    "aliases": ["paragraph", "text-block", "text"],
+    "isPopular": true
   },
   "element": {
     "type": "nodes",
