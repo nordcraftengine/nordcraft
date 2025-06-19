@@ -12,10 +12,7 @@ export const pageHandler: MiddlewareHandler<
   const url = new URL(ctx.req.url)
   const page = matchPageForUrl({
     url,
-    pages: Object.values(ctx.var.routes.pages).map((p) => ({
-      name: p.name,
-      route: p.route,
-    })),
+    pages: Object.values(ctx.var.routes.pages),
   })
   if (page) {
     const pageContent = await loadJsFile<

@@ -14,12 +14,14 @@ import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { getParameters } from '../rendering/formulaContext'
 import type { ProjectFiles, Route } from '../ssr.types'
 
-export const matchPageForUrl = ({
+export const matchPageForUrl = <
+  P extends Pick<PageComponent, 'name' | 'route'>,
+>({
   url,
   pages,
 }: {
   url: URL
-  pages: Pick<PageComponent, 'name' | 'route'>[]
+  pages: P[]
 }) =>
   matchRoutes({
     url,

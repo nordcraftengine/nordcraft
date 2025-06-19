@@ -8,7 +8,7 @@ import {
   getRouteDestination,
   matchRouteForUrl,
 } from '@nordcraft/ssr/dist/routing/routing'
-import { REDIRECT_ROUTE_NAME_HEADER } from '@nordcraft/ssr/src/utils/headers'
+import { REDIRECT_NAME_HEADER } from '@nordcraft/ssr/src/utils/headers'
 import type { Handler } from 'hono'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 
@@ -47,7 +47,7 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     return new Response(null, {
       headers: {
         location: destination.href,
-        [REDIRECT_ROUTE_NAME_HEADER]: routeName,
+        [REDIRECT_NAME_HEADER]: routeName,
       },
       status: route.status ?? 302,
     })
