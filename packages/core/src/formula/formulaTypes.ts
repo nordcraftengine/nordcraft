@@ -13,7 +13,7 @@ export interface BaseFormula {
   variableArguments?: boolean | null
 }
 
-export interface ToddleFormula extends BaseFormula {
+export interface NordcraftFormula extends BaseFormula {
   formula: Formula
 }
 
@@ -26,12 +26,12 @@ export interface CodeFormula<Handler = string | Function> extends BaseFormula {
 }
 
 export type PluginFormula<Handler = string | Function> =
-  | ToddleFormula
+  | NordcraftFormula
   | CodeFormula<Handler>
 
-export const isToddleFormula = <Handler>(
+export const isNordcraftFormula = <Handler>(
   formula: PluginFormula<Handler>,
-): formula is ToddleFormula => Object.hasOwn(formula, 'formula')
+): formula is NordcraftFormula => Object.hasOwn(formula, 'formula')
 
 export interface GlobalFormulas<Handler = string | Function> {
   formulas?: Record<string, PluginFormula<Handler>>

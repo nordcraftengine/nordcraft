@@ -6,7 +6,7 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import type {
   FormulaContext,
-  ToddleEnv,
+  NordcraftEnv,
 } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
@@ -33,10 +33,10 @@ export const matchRouteForUrl = ({
   serverContext,
   url,
 }: {
-  env: ToddleEnv
+  env: NordcraftEnv
   req: Request
   routes?: Record<string, Route>
-  serverContext: FormulaContext['toddle']
+  serverContext: FormulaContext['nordcraft']
   url: URL
 }) =>
   matchRoutes({
@@ -103,10 +103,10 @@ export const getRouteDestination = ({
   route,
   env,
 }: {
-  serverContext: FormulaContext['toddle']
+  serverContext: FormulaContext['nordcraft']
   req: Request
   route: Route
-  env: ToddleEnv
+  env: NordcraftEnv
 }) => {
   try {
     const requestUrl = new URL(req.url)
@@ -148,10 +148,10 @@ const getRouteFormulaContext = ({
   route,
   serverContext,
 }: {
-  env: ToddleEnv
+  env: NordcraftEnv
   req: Request
   route: Route
-  serverContext: FormulaContext['toddle']
+  serverContext: FormulaContext['nordcraft']
 }): FormulaContext => {
   const { searchParamsWithDefaults, pathParams } = getParameters({
     route: route.source,
@@ -170,7 +170,7 @@ const getRouteFormulaContext = ({
     },
     env,
     package: undefined,
-    toddle: serverContext,
+    nordcraft: serverContext,
   }
 }
 

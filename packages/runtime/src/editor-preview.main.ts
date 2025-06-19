@@ -12,7 +12,7 @@ import type {
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
 import type {
   FormulaContext,
-  ToddleEnv,
+  NordcraftEnv,
 } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
@@ -26,8 +26,8 @@ import type {
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
+  Nordcraft,
   PluginActionV2,
-  Toddle,
 } from '@nordcraft/core/dist/types'
 import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
@@ -153,7 +153,7 @@ enum TextNodeComputedStyles {
   VERTICAL_ALIGN = 'vertical-align',
 }
 
-let env: ToddleEnv
+let env: NordcraftEnv
 
 export const initGlobalObject = ({
   formulas,
@@ -173,7 +173,7 @@ export const initGlobalObject = ({
     const legacyActions: Record<string, ActionHandler> = {}
     const legacyFormulas: Record<string, FormulaHandler> = {}
     const argumentInputDataList: Record<string, ArgumentInputDataFunction> = {}
-    const toddle: Toddle<LocationSignal, PreviewShowSignal> = {
+    const toddle: Nordcraft<LocationSignal, PreviewShowSignal> = {
       isEqual: fastDeepEqual,
       errors: [],
       formulas,
@@ -216,7 +216,6 @@ export const initGlobalObject = ({
       eventLog: [],
       project: window.__toddle.project,
       branch: window.__toddle.branch,
-      commit: window.__toddle.commit,
       components: window.__toddle.components,
       pageState: window.__toddle.pageState,
       locationSignal: signal<any>({
@@ -1156,7 +1155,7 @@ export const createRoot = (
         data: { Attributes },
         root: document,
         package: ctx?.package,
-        toddle: window.toddle,
+        nordcraft: window.toddle,
         env,
       })
     }
@@ -1201,7 +1200,7 @@ export const createRoot = (
               root: ctx?.root,
               formulaCache: {},
               package: ctx?.package,
-              toddle: window.toddle,
+              nordcraft: window.toddle,
               env,
             }
 
@@ -1264,7 +1263,7 @@ export const createRoot = (
             component: _component!,
             root: document,
             package: ctx?.package,
-            toddle: window.toddle,
+            nordcraft: window.toddle,
             env,
           }),
         ],
@@ -1436,7 +1435,7 @@ export const createRoot = (
       formulaCache: createFormulaCache(component),
       providers: {},
       package: undefined,
-      toddle: window.toddle,
+      nordcraft: window.toddle,
       env,
     }
 
@@ -1454,7 +1453,7 @@ export const createRoot = (
                 formulaCache: ctx.formulaCache,
                 root: ctx.root,
                 package: ctx.package,
-                toddle: window.toddle,
+                nordcraft: window.toddle,
                 env,
               }),
             ),

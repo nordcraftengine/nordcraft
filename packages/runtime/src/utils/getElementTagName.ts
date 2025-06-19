@@ -7,7 +7,7 @@ export function getElementTagName(
   id: string,
 ) {
   if (ctx.component.version === 2 && id === 'root') {
-    return `${ctx.package ?? ctx.toddle.project}-${node.tag}`
+    return `${ctx.package ?? ctx.nordcraft.project}-${node.tag}`
   }
 
   return node.tag

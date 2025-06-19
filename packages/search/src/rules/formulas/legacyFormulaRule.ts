@@ -1,5 +1,5 @@
 import type { FunctionOperation } from '@nordcraft/core/dist/formula/formula'
-import { isToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
+import { isNordcraftFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { Rule } from '../../types'
@@ -31,7 +31,7 @@ const isLegacyFormula = (
   if (
     isUpperCase(formula.name) &&
     isDefined(pluginFormula) &&
-    !isToddleFormula(pluginFormula) &&
+    !isNordcraftFormula(pluginFormula) &&
     pluginFormula.version === undefined &&
     (builtInFormulas.has(formula.name.toLowerCase()) ||
       legacyFormulas.has(formula.name.toLowerCase()))

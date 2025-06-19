@@ -3,8 +3,8 @@ import type {
   ComponentData,
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
-import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
-import type { Toddle } from '@nordcraft/core/dist/types'
+import type { NordcraftEnv } from '@nordcraft/core/dist/formula/formula'
+import type { Nordcraft } from '@nordcraft/core/dist/types'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
@@ -42,9 +42,9 @@ interface RenderComponentProps {
   package: string | undefined
   parentElement: Element | ShadowRoot
   instance: Record<string, string>
-  toddle: Toddle<LocationSignal, PreviewShowSignal>
+  nordcraft: Nordcraft<LocationSignal, PreviewShowSignal>
   namespace?: SupportedNamespaces
-  env: ToddleEnv
+  env: NordcraftEnv
 }
 
 const BATCH_QUEUE = new BatchQueue()
@@ -65,7 +65,7 @@ export function renderComponent({
   package: packageName,
   parentElement,
   instance,
-  toddle,
+  nordcraft: toddle,
   namespace,
   env,
 }: RenderComponentProps): ReadonlyArray<Element | Text> {
@@ -82,7 +82,7 @@ export function renderComponent({
     root,
     providers,
     package: packageName,
-    toddle,
+    nordcraft: toddle,
     env,
   }
 

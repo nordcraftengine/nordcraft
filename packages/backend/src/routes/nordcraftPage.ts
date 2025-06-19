@@ -1,8 +1,8 @@
 import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import { type ToddleServerEnv } from '@nordcraft/core/dist/formula/formula'
+import type { NordcraftServerEnv } from '@nordcraft/core/dist/formula/formula'
 import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
-import type { ToddleInternals } from '@nordcraft/core/dist/types'
+import type { NordcraftInternals } from '@nordcraft/core/dist/types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
 import type { ApiCache } from '@nordcraft/ssr/dist/rendering/api'
@@ -102,7 +102,7 @@ export const nordcraftPage = async ({
     const pageBody = await renderPageBody({
       component: toddleComponent,
       formulaContext,
-      env: formulaContext.env as ToddleServerEnv,
+      env: formulaContext.env as NordcraftServerEnv,
       req: hono.req.raw,
       files: files,
       includedComponents,
@@ -132,10 +132,9 @@ export const nordcraftPage = async ({
   })
 
   // Prepare the data to be passed to the client for hydration
-  const toddleInternals: ToddleInternals = {
+  const nordcraftInternals: NordcraftInternals = {
     project: project.short_id,
     branch: 'main',
-    commit: 'unknown',
     pageState: {
       ...formulaContext.data,
       Apis: {
@@ -155,7 +154,7 @@ export const nordcraftPage = async ({
               import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
               import { loadCustomCode, formulas, actions } from '/_static/cc_${toddleComponent.name}.js';
 
-              window.__toddle = ${JSON.stringify(toddleInternals).replaceAll(
+              window.__toddle = ${JSON.stringify(nordcraftInternals).replaceAll(
                 '</script>',
                 '<\\/script>',
               )};
@@ -170,7 +169,7 @@ export const nordcraftPage = async ({
         <script type="module">
           import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
 
-          window.__toddle = ${JSON.stringify(toddleInternals).replaceAll(
+          window.__toddle = ${JSON.stringify(nordcraftInternals).replaceAll(
             '</script>',
             '<\\/script>',
           )};

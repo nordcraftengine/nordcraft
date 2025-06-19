@@ -52,7 +52,7 @@ export function subscribeToContext(
       else if (
         !provider &&
         ctx.env.runtime === 'preview' &&
-        ctx.toddle._preview
+        ctx.nordcraft._preview
       ) {
         const testProvider = ctx.components?.find(
           (comp) =>
@@ -81,7 +81,7 @@ export function subscribeToContext(
           root: ctx?.root,
           formulaCache: {},
           package: testProviderPackage ?? ctx?.package,
-          toddle: ctx.toddle,
+          nordcraft: ctx.nordcraft,
           env: ctx.env,
         }
 
