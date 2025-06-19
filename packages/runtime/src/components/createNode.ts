@@ -90,7 +90,7 @@ export function createNode({
           formulaCache: ctx.formulaCache,
           root: ctx.root,
           package: ctx.package,
-          toddle: ctx.toddle,
+          nordcraft: ctx.nordcraft,
           env: ctx.env,
         }),
       ),
@@ -149,8 +149,8 @@ export function createNode({
         childDataSignal?.destroy()
       },
     })
-    if (ctx.env.runtime === 'preview' && ctx.toddle._preview) {
-      ctx.toddle._preview.showSignal.subscribe(
+    if (ctx.env.runtime === 'preview' && ctx.nordcraft._preview) {
+      ctx.nordcraft._preview.showSignal.subscribe(
         ({ displayedNodes, testMode }) => {
           if (displayedNodes.includes(path) && !testMode) {
             // only override the default show if we are in design mode (not test mode)
@@ -183,7 +183,7 @@ export function createNode({
         formulaCache: ctx.formulaCache,
         root: ctx.root,
         package: ctx.package,
-        toddle: ctx.toddle,
+        nordcraft: ctx.nordcraft,
         env: ctx.env,
       })
       if (typeof list !== 'object') {
@@ -224,7 +224,7 @@ export function createNode({
                 formulaCache: ctx.formulaCache,
                 root: ctx.root,
                 package: ctx.package,
-                toddle: ctx.toddle,
+                nordcraft: ctx.nordcraft,
                 env: ctx.env,
               })
             : Key

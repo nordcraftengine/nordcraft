@@ -8,7 +8,7 @@ import type {
 } from './formula'
 import { isFormula } from './formula'
 import type { GlobalFormulas } from './formulaTypes'
-import { isToddleFormula } from './formulaTypes'
+import { isNordcraftFormula } from './formulaTypes'
 
 export const valueFormula = (
   value: string | number | boolean | null | object,
@@ -97,7 +97,7 @@ export function* getFormulasInFormula<Handler>({
       // if this formula wasn't already visited
       if (
         globalFormula &&
-        isToddleFormula(globalFormula) &&
+        isNordcraftFormula(globalFormula) &&
         shouldVisitFormula
       ) {
         yield* getFormulasInFormula({

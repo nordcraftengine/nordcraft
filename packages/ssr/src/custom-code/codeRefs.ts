@@ -4,7 +4,7 @@ import type {
   CodeFormula,
   PluginFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
-import { isToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
+import { isNordcraftFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { PluginAction, ProjectFiles, ToddleProject } from '../ssr.types'
@@ -165,7 +165,7 @@ export const generateCustomCodeFile = ({
     filterObject(code, ([_, c]) =>
       Object.values(c.formulas).some(
         // Ignore legacy code formulas
-        (f) => isToddleFormula(f) || f.version === 2,
+        (f) => isNordcraftFormula(f) || f.version === 2,
       ),
     ),
     ([packageName, c]) => [
@@ -199,7 +199,7 @@ export const loadCustomCode = () => {
   ${Object.values(code.__PROJECT__.formulas)
     .filter(
       (a) =>
-        !isToddleFormula(a) &&
+        !isNordcraftFormula(a) &&
         typeof a.name === 'string' &&
         a.version === undefined,
     )
@@ -233,9 +233,9 @@ export const formulas = {
     .map(
       ([packageName, { formulas }]) => `"${packageName}": {
     ${Object.values(formulas)
-      .filter((f) => isToddleFormula(f) || f.version === 2)
+      .filter((f) => isNordcraftFormula(f) || f.version === 2)
       .map((f) =>
-        isToddleFormula(f)
+        isNordcraftFormula(f)
           ? `"${f.name}": {
       arguments: ${JSON.stringify(f.arguments)},
       formula: ${JSON.stringify(f.formula)}

@@ -1,11 +1,11 @@
 import { STRING_TEMPLATE } from '@nordcraft/core/dist/api/template'
-import type { ToddleServerEnv } from '@nordcraft/core/dist/formula/formula'
+import type { NordcraftServerEnv } from '@nordcraft/core/dist/formula/formula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { skipCookieHeader, skipNordcraftHeaders } from '../utils/headers'
 
 export const applyTemplateValues = (
   input: string | null | undefined,
-  cookies: Partial<ToddleServerEnv['request']['cookies']>,
+  cookies: Partial<NordcraftServerEnv['request']['cookies']>,
 ) => {
   if (!isDefined(input)) {
     return ''

@@ -11,7 +11,7 @@ import type {
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type {
   FormulaContext,
-  ToddleServerEnv,
+  NordcraftServerEnv,
 } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
@@ -34,7 +34,7 @@ const renderComponent = async ({
   env,
   evaluateComponentApis,
   files,
-  toddle,
+  nordcraft,
   includedComponents,
   instance,
   packageName,
@@ -47,10 +47,10 @@ const renderComponent = async ({
   children?: Record<string, string>
   component: Component
   data: ComponentData
-  env: ToddleServerEnv
+  env: NordcraftServerEnv
   evaluateComponentApis: ApiEvaluator
   files: ProjectFiles
-  toddle: FormulaContext['toddle']
+  nordcraft: FormulaContext['nordcraft']
   includedComponents: Component[]
   instance: Record<string, string>
   packageName: string | undefined
@@ -83,7 +83,7 @@ const renderComponent = async ({
       component,
       package: packageName,
       env,
-      toddle,
+      nordcraft,
     }
     if (node.repeat) {
       const items = applyFormula(node.repeat, formulaContext)
@@ -167,7 +167,7 @@ const renderComponent = async ({
           component,
           packageName,
           env,
-          toddle,
+          nordcraft,
         })
         const classHash = getClassName([node.style, node.variants])
         let classList = Object.entries(node.classes)
@@ -310,7 +310,7 @@ const renderComponent = async ({
             package:
               node.package ?? (isLocalComponent ? undefined : packageName),
             env,
-            toddle,
+            nordcraft,
           },
           req,
           apiCache,
@@ -353,7 +353,7 @@ const renderComponent = async ({
                                       component,
                                       package: _packageName,
                                       env,
-                                      toddle,
+                                      nordcraft,
                                     }),
                                   ]),
                               ),
@@ -370,13 +370,13 @@ const renderComponent = async ({
                                   component,
                                   package: _packageName,
                                   env,
-                                  toddle,
+                                  nordcraft,
                                 })
                               },
                             ),
                           },
                           env,
-                          toddle,
+                          nordcraft,
                         }),
                       ]),
                   ),
@@ -465,7 +465,7 @@ const createComponent = async ({
   children?: Record<string, string>
   component: Component
   contexts?: Record<string, Record<string, any>>
-  env: ToddleServerEnv
+  env: NordcraftServerEnv
   evaluateComponentApis: ApiEvaluator
   files: ProjectFiles
   formulaContext: FormulaContext
@@ -521,7 +521,7 @@ const createComponent = async ({
     projectId,
     namespace,
     req,
-    toddle: formulaContext.toddle,
+    nordcraft: formulaContext.nordcraft,
     updateApiCache,
   })
 }
@@ -540,7 +540,7 @@ export const renderPageBody = async ({
   projectId,
 }: {
   component: ToddleComponent<string>
-  env: ToddleServerEnv
+  env: NordcraftServerEnv
   evaluateComponentApis: ApiEvaluator
   files: ProjectFiles
   formulaContext: FormulaContext
@@ -572,7 +572,7 @@ export const renderPageBody = async ({
     packageName: undefined,
     projectId,
     req,
-    toddle: formulaContext.toddle,
+    nordcraft: formulaContext.nordcraft,
     updateApiCache,
   })
   return { html, apiCache }

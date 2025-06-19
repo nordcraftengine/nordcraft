@@ -5,11 +5,11 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import type {
   FormulaContext,
-  ToddleServerEnv,
+  NordcraftServerEnv,
 } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import { isToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
+import { isNordcraftFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import { mapValues } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
@@ -34,12 +34,12 @@ export const getPageFormulaContext = ({
   req: Request
   logErrors: boolean
   files: ProjectFiles
-}): FormulaContext & { env: ToddleServerEnv } => {
+}): FormulaContext & { env: NordcraftServerEnv } => {
   const env = serverEnv({ req, branchName, logErrors })
   const { searchParamsWithDefaults, hash, combinedParams, url } = getParameters(
     { route: component.route, req },
   )
-  const formulaContext: FormulaContext & { env: ToddleServerEnv } = {
+  const formulaContext: FormulaContext & { env: NordcraftServerEnv } = {
     data: {
       Location: {
         page: component.page ?? '',
@@ -59,7 +59,7 @@ export const getPageFormulaContext = ({
     root: null,
     package: undefined,
     env,
-    toddle: getServerToddleObject(files),
+    nordcraft: getServerToddleObject(files),
   }
   formulaContext.data.Variables = mapValues(
     component.variables,
@@ -74,7 +74,7 @@ export const getServerToddleObject = (
   files: Pick<ProjectFiles, 'formulas' | 'packages'> & {
     packages?: Record<string, Pick<InstalledPackage, 'formulas'>>
   },
-): FormulaContext['toddle'] => {
+): FormulaContext['nordcraft'] => {
   const coreFormulas = Object.fromEntries(
     Object.entries(libFormulas).map(([name, module]) => [
       '@toddle/' + name,
@@ -92,7 +92,7 @@ export const getServerToddleObject = (
         formula = files.formulas?.[name]
       }
 
-      if (formula && isToddleFormula(formula)) {
+      if (formula && isNordcraftFormula(formula)) {
         return formula
       }
     },
@@ -188,4 +188,4 @@ export const serverEnv = ({
       url: req.url,
     },
     logErrors,
-  }) as ToddleServerEnv
+  }) as NordcraftServerEnv

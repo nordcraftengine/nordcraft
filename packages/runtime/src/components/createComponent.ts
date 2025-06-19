@@ -62,7 +62,7 @@ export function createComponent({
             formulaCache: ctx.formulaCache,
             root: ctx.root,
             package: ctx.package,
-            toddle: ctx.toddle,
+            nordcraft: ctx.nordcraft,
             env: ctx.env,
           })
         : value?.value,
@@ -84,7 +84,7 @@ export function createComponent({
             formulaCache: ctx.formulaCache,
             root: ctx.root,
             package: ctx.package,
-            toddle: ctx.toddle,
+            nordcraft: ctx.nordcraft,
             env: ctx.env,
           })
             ? true
@@ -106,7 +106,7 @@ export function createComponent({
         formulaCache: ctx.formulaCache,
         root: ctx.root,
         package: ctx.package,
-        toddle: ctx.toddle,
+        nordcraft: ctx.nordcraft,
         env: ctx.env,
       }),
     ]),
@@ -204,7 +204,7 @@ export function createComponent({
               formulaCache: ctx.formulaCache,
               root: ctx.root,
               package: ctx.package,
-              toddle: ctx.toddle,
+              nordcraft: ctx.nordcraft,
               env: ctx.env,
             }),
           ),
@@ -269,7 +269,7 @@ export function createComponent({
     package: node.package ?? ctx.package,
     parentElement,
     onEvent,
-    toddle: ctx.toddle,
+    nordcraft: ctx.nordcraft,
     env: ctx.env,
     namespace,
     // If the root node is another component, then append and forward previous instance

@@ -4,11 +4,11 @@ import type {
   CustomFormulaHandler,
   FormulaHandler,
   FormulaLookup,
+  Nordcraft,
   NordcraftMetadata,
-  Toddle,
 } from '../types'
 import { isDefined, toBoolean } from '../utils/util'
-import { isToddleFormula } from './formulaTypes'
+import { isNordcraftFormula } from './formulaTypes'
 
 // Define the some objects types as union of ServerSide and ClientSide runtime types as applyFormula is used in both
 declare const document: Document | undefined
@@ -109,15 +109,15 @@ export type FormulaContext = {
   data: ComponentData
   root?: Document | ShadowRoot | null
   package: string | undefined
-  toddle: {
+  nordcraft: {
     getFormula: FormulaLookup
     getCustomFormula: CustomFormulaHandler
     errors: Error[]
   }
-  env: ToddleEnv | undefined
+  env: NordcraftEnv | undefined
 }
 
-export type ToddleServerEnv = {
+export type NordcraftServerEnv = {
   branchName: string
   // isServer will be true for SSR + proxied requests
   isServer: true
@@ -130,8 +130,8 @@ export type ToddleServerEnv = {
   logErrors: boolean
 }
 
-export type ToddleEnv =
-  | ToddleServerEnv
+export type NordcraftEnv =
+  | NordcraftServerEnv
   | {
       branchName: string
       // isServer will be false for client-side
@@ -200,11 +200,14 @@ export function applyFormula(
       case 'function': {
         const packageName = formula.package ?? ctx.package
         const newFunc = (
-          ctx.toddle ??
-          ((globalThis as any).toddle as Toddle<unknown, unknown> | undefined)
+          ctx.nordcraft ??
+          ((globalThis as any).toddle as
+            | Nordcraft<unknown, unknown>
+            | undefined)
         )?.getCustomFormula(formula.name, packageName)
         const legacyFunc: FormulaHandler | undefined = (
-          ctx.toddle ?? ((globalThis as any).toddle as Toddle<unknown, unknown>)
+          ctx.nordcraft ??
+          ((globalThis as any).toddle as Nordcraft<unknown, unknown>)
         ).getFormula(formula.name)
         if (isDefined(newFunc)) {
           ctx.package = packageName
@@ -227,7 +230,7 @@ export function applyFormula(
             {},
           )
           try {
-            return isToddleFormula(newFunc)
+            return isNordcraftFormula(newFunc)
               ? applyFormula(newFunc.formula, {
                   ...ctx,
                   data: { ...ctx.data, Args: args },
@@ -237,7 +240,7 @@ export function applyFormula(
                   env: ctx.env,
                 } as any)
           } catch (e) {
-            ctx.toddle.errors.push(e as Error)
+            ctx.nordcraft.errors.push(e as Error)
             if (ctx.env?.logErrors) {
               console.error(e)
             }
@@ -261,7 +264,7 @@ export function applyFormula(
           try {
             return legacyFunc(args, ctx as any)
           } catch (e) {
-            ctx.toddle.errors.push(e as Error)
+            ctx.nordcraft.errors.push(e as Error)
             if (ctx.env?.logErrors) {
               console.error(e)
             }

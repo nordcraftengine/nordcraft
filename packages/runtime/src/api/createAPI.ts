@@ -40,7 +40,7 @@ export function createLegacyAPI(
       formulaCache: ctx.formulaCache,
       root: ctx.root,
       package: ctx.package,
-      toddle: ctx.toddle,
+      nordcraft: ctx.nordcraft,
       env: ctx.env,
     }
 
@@ -73,7 +73,7 @@ export function createLegacyAPI(
           formulaCache: ctx.formulaCache,
           root: ctx.root,
           package: ctx.package,
-          toddle: ctx.toddle,
+          nordcraft: ctx.nordcraft,
           env: ctx.env,
         })
       : mapValues(api.headers ?? {}, (value) =>
@@ -83,7 +83,7 @@ export function createLegacyAPI(
             formulaCache: ctx.formulaCache,
             root: ctx.root,
             package: ctx.package,
-            toddle: ctx.toddle,
+            nordcraft: ctx.nordcraft,
             env: ctx.env,
           }),
         )
@@ -102,7 +102,7 @@ export function createLegacyAPI(
               formulaCache: ctx.formulaCache,
               root: ctx.root,
               package: ctx.package,
-              toddle: ctx.toddle,
+              nordcraft: ctx.nordcraft,
               env: ctx.env,
             }),
             contentType,
@@ -291,7 +291,7 @@ export function createLegacyAPI(
               formulaCache: ctx.formulaCache,
               root: ctx.root,
               package: ctx.package,
-              toddle: ctx.toddle,
+              nordcraft: ctx.nordcraft,
               env: ctx.env,
             })
               ? true
@@ -313,7 +313,7 @@ export function createLegacyAPI(
           formulaCache: ctx.formulaCache,
           root: ctx.root,
           package: ctx.package,
-          toddle: ctx.toddle,
+          nordcraft: ctx.nordcraft,
           env: ctx.env,
         })
       ) {
@@ -321,7 +321,7 @@ export function createLegacyAPI(
         // we don't fetch data for component APIs during SSR
         if (firstRun && ctx.isRootComponent) {
           firstRun = false
-          const cached = ctx.toddle?.pageState?.Apis?.[api.name]
+          const cached = ctx.nordcraft?.pageState?.Apis?.[api.name]
           if (cached && cached.data) {
             if (typeof cached.data === 'string') {
               // Mimic the behavior from getBody and parse

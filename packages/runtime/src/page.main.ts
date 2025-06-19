@@ -3,7 +3,7 @@ import type {
   Component,
   ComponentData,
 } from '@nordcraft/core/dist/component/component.types'
-import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
+import type { NordcraftEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import type {
@@ -11,8 +11,8 @@ import type {
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
+  Nordcraft,
   PluginActionV2,
-  Toddle,
 } from '@nordcraft/core/dist/types'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
@@ -31,7 +31,7 @@ import type { ComponentContext, LocationSignal } from './types'
 
 initLogState()
 
-let env: ToddleEnv
+let env: NordcraftEnv
 
 export const initGlobalObject = (code?: {
   formulas: Record<string, Record<string, PluginFormula<FormulaHandlerV2>>>
@@ -50,12 +50,11 @@ export const initGlobalObject = (code?: {
     const legacyActions: Record<string, ActionHandler> = {}
     const legacyFormulas: Record<string, FormulaHandler> = {}
     const argumentInputDataList: Record<string, ArgumentInputDataFunction> = {}
-    const toddle: Toddle<LocationSignal, never> = {
+    const toddle: Nordcraft<LocationSignal, never> = {
       isEqual: fastDeepEqual,
       errors: [],
       project: window.__toddle.project,
       branch: window.__toddle.branch,
-      commit: window.__toddle.commit,
       components: window.__toddle.components,
       formulas: code?.formulas ?? {},
       actions: code?.actions ?? {},
@@ -169,7 +168,7 @@ export const createRoot = (domNode: HTMLElement) => {
         formulaCache: {},
         root: document,
         package: undefined,
-        toddle: window.toddle,
+        nordcraft: window.toddle,
         env,
       }),
     ]),
@@ -187,7 +186,7 @@ export const createRoot = (domNode: HTMLElement) => {
               component,
               root: document,
               package: undefined,
-              toddle: window.toddle,
+              nordcraft: window.toddle,
               env,
             })
           : null,
@@ -254,7 +253,7 @@ export const createRoot = (domNode: HTMLElement) => {
                 component,
                 root: document,
                 package: undefined,
-                toddle: window.toddle,
+                nordcraft: window.toddle,
                 env,
               })
             : null,
@@ -319,7 +318,7 @@ export const createRoot = (domNode: HTMLElement) => {
                           component,
                           root: document,
                           package: undefined,
-                          toddle: window.toddle,
+                          nordcraft: window.toddle,
                           env,
                         }),
                       }
@@ -364,7 +363,7 @@ export const createRoot = (domNode: HTMLElement) => {
     formulaCache: {},
     providers: {},
     apis: {},
-    toddle: window.toddle,
+    nordcraft: window.toddle,
     triggerEvent: (event: string, data: unknown) =>
       // eslint-disable-next-line no-console
       console.info('EVENT FIRED', event, data),
@@ -406,7 +405,7 @@ export const createRoot = (domNode: HTMLElement) => {
               formulaCache: ctx.formulaCache,
               root: ctx.root,
               package: ctx.package,
-              toddle: window.toddle,
+              nordcraft: window.toddle,
               env,
             }),
           ),

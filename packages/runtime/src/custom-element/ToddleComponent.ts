@@ -3,12 +3,12 @@ import type {
   Component,
   ComponentData,
 } from '@nordcraft/core/dist/component/component.types'
-import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
+import type { NordcraftEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
 import type { Theme } from '@nordcraft/core/dist/styling/theme'
 import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
-import type { Toddle } from '@nordcraft/core/dist/types'
+import type { Nordcraft } from '@nordcraft/core/dist/types'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
@@ -24,9 +24,9 @@ import type { ComponentContext, LocationSignal } from '../types'
  */
 export class ToddleComponent extends HTMLElement {
   /**
-   * Public reference to the toddle instance for debugging purposes. `el.toddle.errors` can be used to check for non-verbose errors.
+   * Public reference to the nordcraft instance for debugging purposes. `el.toddle.errors` can be used to check for non-verbose errors.
    */
-  toddle: Toddle<LocationSignal, never>
+  nordcraft: Nordcraft<LocationSignal, never>
   #component: Component
   #ctx: ComponentContext
   #shadowRoot: ShadowRoot
@@ -36,10 +36,10 @@ export class ToddleComponent extends HTMLElement {
   constructor(
     component: Component,
     options: { components: Component[]; themes: Theme[] },
-    toddle: Toddle<LocationSignal, never>,
+    nordcraft: Nordcraft<LocationSignal, never>,
   ) {
     super()
-    this.toddle = toddle
+    this.nordcraft = nordcraft
     const internals = this.attachInternals()
     if (internals.shadowRoot) {
       // Not used yet, but can be used to hydrate rather than render the shadow dom
@@ -48,8 +48,8 @@ export class ToddleComponent extends HTMLElement {
       this.#shadowRoot = this.attachShadow({ mode: 'open' })
     }
 
-    const env: ToddleEnv = {
-      branchName: toddle.branch || 'main',
+    const env: NordcraftEnv = {
+      branchName: nordcraft.branch ?? 'main',
       isServer: false,
       request: undefined,
       runtime: 'custom-element',
@@ -60,7 +60,7 @@ export class ToddleComponent extends HTMLElement {
     this.#signal = createSignal({
       component,
       root: this.#shadowRoot,
-      toddle,
+      nordcraft,
       env,
     })
     this.#files = {
@@ -87,7 +87,7 @@ export class ToddleComponent extends HTMLElement {
       children: {},
       providers: {},
       package: undefined,
-      toddle,
+      nordcraft,
       env,
     }
   }
@@ -127,7 +127,7 @@ export class ToddleComponent extends HTMLElement {
                 formulaCache: this.#ctx.formulaCache,
                 root: this.#ctx.root,
                 package: this.#ctx.package,
-                toddle: this.#ctx.toddle,
+                nordcraft: this.#ctx.nordcraft,
                 env: this.#ctx.env,
               }),
             ),
@@ -275,13 +275,13 @@ export class ToddleComponent extends HTMLElement {
 export const createSignal = ({
   component,
   root,
-  toddle,
+  nordcraft,
   env,
 }: {
   component: Component
   root: ShadowRoot
-  toddle: Toddle<LocationSignal, never>
-  env: ToddleEnv
+  nordcraft: Nordcraft<LocationSignal, never>
+  env: NordcraftEnv
 }) => {
   return signal<ComponentData>({
     // Pages are not supported as custom elements, so no need to add location signal
@@ -299,7 +299,7 @@ export const createSignal = ({
           component: component,
           root,
           package: undefined,
-          toddle,
+          nordcraft,
           env,
         }),
       ]

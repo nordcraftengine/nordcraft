@@ -102,7 +102,7 @@ export function createAPI({
       formulaCache: ctx.formulaCache,
       root: ctx.root,
       package: ctx.package,
-      toddle: ctx.toddle,
+      nordcraft: ctx.nordcraft,
       env: ctx.env,
     }
 
@@ -128,7 +128,7 @@ export function createAPI({
       root: ctx.root,
       package: ctx.package,
       data,
-      toddle: ctx.toddle,
+      nordcraft: ctx.nordcraft,
       env: ctx.env,
     }
   }
@@ -886,7 +886,7 @@ export function createAPI({
       isDefined(api.autoFetch) &&
       (api.autoFetch.type !== 'value' || api.autoFetch.value === true) &&
       (window?.__toddle?.isPageLoaded ?? false) === false
-        ? (ctx.toddle.pageState.Apis?.[
+        ? (ctx.nordcraft.pageState.Apis?.[
             requestHash(url, requestSettings)
           ] as ApiStatus)
         : undefined

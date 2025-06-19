@@ -131,7 +131,7 @@ const fetchApi = async ({
     package: formulaContext.package,
     data,
     env: formulaContext.env,
-    toddle: formulaContext.toddle,
+    nordcraft: formulaContext.nordcraft,
   }
 
   const ssrEnabled = isDefined(api.server?.ssr?.enabled)
