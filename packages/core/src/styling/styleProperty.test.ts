@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test'
 import type { CssSyntax, CssSyntaxNode, StyleProperty } from './styleProperty'
 import {
   stringifySyntaxNode,
