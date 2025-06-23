@@ -16,12 +16,7 @@ export class StylePropertyStyleSheet {
   constructor(styleSheet?: CSSStyleSheet | null) {
     if (styleSheet) {
       this.styleSheet = styleSheet
-      console.log(
-        `Using provided stylesheet with ${styleSheet.cssRules.length} rules.`,
-        this,
-      )
     } else {
-      console.log('Creating new stylesheet for style properties.')
       this.styleSheet = new CSSStyleSheet()
       document.adoptedStyleSheets.push(this.getStyleSheet())
     }
@@ -41,16 +36,12 @@ export class StylePropertyStyleSheet {
     // Check if the selector already exists
     let rule = this.ruleMap.get(selector)
     if (!rule) {
-      console.log(`Creating new style rule for selector: ${selector}`)
       const ruleIndex = this.styleSheet.insertRule(`${selector} {}`)
       rule = this.styleSheet.cssRules[ruleIndex] as CSSStyleRule
       this.ruleMap.set(selector, rule)
     }
 
     return (newValue: string) => {
-      console.log(
-        `Updating style property ${name} for selector ${selector} to ${newValue};`,
-      )
       rule.style.setProperty(`--${name}`, newValue)
     }
   }
@@ -62,7 +53,6 @@ export class StylePropertyStyleSheet {
 
     const rule = this.ruleMap.get(selector)
     if (rule) {
-      console.log(`Removing style property ${name} for selector ${selector};`)
       rule.style.removeProperty(`--${name}`)
       if (rule.style.length === 0) {
         this.ruleMap.delete(selector)
