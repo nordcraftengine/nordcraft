@@ -15,6 +15,10 @@ import {
 import { getCharset, getHtmlLanguage } from '@nordcraft/ssr/dist/rendering/html'
 import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
 import { removeTestData } from '@nordcraft/ssr/src/rendering/testData'
+import {
+  REDIRECT_API_NAME_HEADER,
+  REDIRECT_COMPONENT_NAME_HEADER,
+} from '@nordcraft/ssr/src/utils/headers'
 import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
 import type { HonoEnv } from '../../hono'
@@ -119,8 +123,8 @@ export const nordcraftPage = async ({
         status: e.redirect.statusCode ?? 302,
         // Header for helping the client (user) know which API caused the redirect
         headers: {
-          'x-nordcraft-redirect-api-name': e.redirect.apiName,
-          'x-nordcraft-redirect-component-name': e.redirect.componentName,
+          [REDIRECT_API_NAME_HEADER]: e.redirect.apiName,
+          [REDIRECT_COMPONENT_NAME_HEADER]: e.redirect.componentName,
           location: e.redirect.url.href,
         },
       })

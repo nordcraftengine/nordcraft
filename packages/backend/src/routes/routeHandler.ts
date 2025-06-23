@@ -8,6 +8,7 @@ import {
   getRouteDestination,
   matchRouteForUrl,
 } from '@nordcraft/ssr/dist/routing/routing'
+import { REDIRECT_NAME_HEADER } from '@nordcraft/ssr/src/utils/headers'
 import type { Handler } from 'hono'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 
@@ -16,7 +17,7 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
   next,
 ) => {
   const url = new URL(c.req.url)
-  const route = matchRouteForUrl({
+  const routeMatch = matchRouteForUrl({
     url,
     routes: c.var.routes?.routes ?? {},
     env: serverEnv({ branchName: 'main', req: c.req.raw, logErrors: false }),
@@ -24,9 +25,10 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     // TODO: We should pass in global Nordcraft formulas from project + packages here
     serverContext: getServerToddleObject({} as any),
   })
-  if (!route) {
+  if (!routeMatch) {
     return next()
   }
+  const { route, name: routeName } = routeMatch
   const destination = getRouteDestination({
     // might not want to use main branch here
     env: serverEnv({ branchName: 'main', req: c.req.raw, logErrors: false }),
@@ -42,7 +44,13 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
   }
   if (route.type === 'redirect') {
     // Return a redirect to the destination with the provided status code
-    return c.redirect(destination.href, route.status ?? 302)
+    return new Response(null, {
+      headers: {
+        location: destination.href,
+        [REDIRECT_NAME_HEADER]: routeName,
+      },
+      status: route.status ?? 302,
+    })
   }
 
   // Rewrite handling: fetch the destination and return the response
