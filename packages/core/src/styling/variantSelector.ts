@@ -4,6 +4,8 @@ import type {
   EventModel,
 } from '../component/component.types'
 import type { Formula } from '../formula/formula'
+import type { CssSyntaxNode } from './styleProperty'
+import type { StyleTokenCategory } from './theme'
 
 export type Shadow = {
   x: number
@@ -68,6 +70,12 @@ export interface StyleVariant {
   startingStyle?: boolean
   style: StyleDeclarationBlock
   visited?: boolean
+  'style-variables'?: Array<{
+    version: 2
+    name: string
+    syntax: CssSyntaxNode
+    formula: Formula
+  }>
 }
 
 export interface NodeStyleModel extends StyleDeclarationBlock {
@@ -105,6 +113,21 @@ export type ElementNodeModel = {
   animations?: Record<string, Record<string, AnimationKeyframe>>
   children: NodeModel[]
   events: EventModel[]
+  'style-variables'?: Array<
+    | {
+        version: 1 | undefined
+        category: StyleTokenCategory
+        name: string
+        formula: Formula
+        unit?: string
+      }
+    | {
+        version: 2
+        name: string
+        syntax: CssSyntaxNode
+        formula: Formula
+      }
+  >
 }
 
 export type ComponentNodeModel = {
@@ -121,6 +144,12 @@ export type ComponentNodeModel = {
   attrs: Record<string, Formula>
   children: NodeModel[]
   events: EventModel[]
+  'style-variables'?: Array<{
+    version: 2
+    name: string
+    syntax: CssSyntaxNode
+    formula: Formula
+  }>
 }
 
 export type TextNodeModel = {
