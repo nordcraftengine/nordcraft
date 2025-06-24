@@ -32,6 +32,7 @@ type Code =
   | 'legacy action'
   | 'legacy api'
   | 'legacy formula'
+  | 'limit element instances'
   | 'no context consumers'
   | 'no post navigate action'
   | 'no-console'
