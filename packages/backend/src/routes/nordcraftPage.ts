@@ -153,18 +153,20 @@ export const nordcraftPage = async ({
     isPageLoaded: false,
     cookies: Object.keys(formulaContext.env.request.cookies),
   }
-  const usesCustomCode = files.customCode
   let codeImport = ''
-  if (usesCustomCode) {
+  if (files.customCode) {
     codeImport = `
+            <script type="application/json" id="nordcraft-data">
+              ${JSON.stringify(toddleInternals).replaceAll(
+                '</script>',
+                '<\\/script>',
+              )}
+            </script>
             <script type="module">
               import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
               import { loadCustomCode, formulas, actions } from '/_static/cc_${toddleComponent.name}.js';
 
-              window.__toddle = ${JSON.stringify(toddleInternals).replaceAll(
-                '</script>',
-                '<\\/script>',
-              )};
+              window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
               window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
               initGlobalObject({formulas, actions});
               loadCustomCode();
@@ -173,13 +175,16 @@ export const nordcraftPage = async ({
           `
   } else {
     codeImport = `
+        <script type="application/json" id="nordcraft-data">
+          ${JSON.stringify(toddleInternals).replaceAll(
+            '</script>',
+            '<\\/script>',
+          )}
+        </script>
         <script type="module">
           import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
 
-          window.__toddle = ${JSON.stringify(toddleInternals).replaceAll(
-            '</script>',
-            '<\\/script>',
-          )};
+          window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
           window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
           initGlobalObject({formulas: {}, actions: {}});
           createRoot(document.getElementById("App"));
@@ -201,6 +206,7 @@ export const nordcraftPage = async ({
         </head>
         <body>
           <div id="App">${raw(body)}</div>
+          ${raw(codeImport)}
         </body>
       </html>`,
     {
