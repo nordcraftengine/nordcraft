@@ -1,5 +1,6 @@
 import type { ApiStatus, ComponentAPI, LegacyApiStatus } from '../api/apiTypes'
 import type { Formula } from '../formula/formula'
+import type { CssSyntaxNode } from '../styling/styleProperty'
 import type { StyleTokenCategory } from '../styling/theme'
 import type { NordcraftMetadata, RequireFields } from '../types'
 
@@ -59,7 +60,14 @@ export interface StyleVariant {
   mediaQuery?: MediaQuery
   breakpoint: 'small' | 'medium' | 'large'
   startingStyle?: boolean
+  pseudoElement?: string
   style: NodeStyleModel
+  'style-variables'?: Array<{
+    version: 2
+    name: string
+    syntax: CssSyntaxNode
+    formula: Formula
+  }>
 }
 
 export type NodeStyleModel = Record<string, string>
@@ -90,12 +98,21 @@ export interface ElementNodeModel {
   children: string[]
   events: Record<string, EventModel>
   classes: Record<string, { formula?: Formula }>
-  'style-variables'?: Array<{
-    category: StyleTokenCategory
-    name: string
-    formula: Formula
-    unit?: string
-  }>
+  'style-variables'?: Array<
+    | {
+        version: 1 | undefined
+        category: StyleTokenCategory
+        name: string
+        formula: Formula
+        unit?: string
+      }
+    | {
+        version: 2
+        name: string
+        syntax: CssSyntaxNode
+        formula: Formula
+      }
+  >
 }
 
 export interface ComponentNodeModel {
@@ -114,6 +131,12 @@ export interface ComponentNodeModel {
   attrs: Record<string, Formula>
   children: string[]
   events: Record<string, EventModel>
+  'style-variables'?: Array<{
+    version: 2
+    name: string
+    syntax: CssSyntaxNode
+    formula: Formula
+  }>
 }
 
 export interface SlotNodeModel {

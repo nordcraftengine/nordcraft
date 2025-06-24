@@ -77,18 +77,23 @@ export function getNodeAttrs({
     [],
   )
   const styleVariables = Object.values(node['style-variables'] ?? {}).map(
-    ({ name, formula, unit }) =>
-      `--${name}: ${
+    (styleVariable) => {
+      if (styleVariable.version !== undefined) {
+        return null
+      }
+
+      return `--${styleVariable.name}: ${
         String(
-          applyFormula(formula, {
+          applyFormula(styleVariable.formula, {
             data,
             component,
             package: packageName,
             env,
             toddle,
           }),
-        ) + (unit ?? '')
-      }`,
+        ) + (styleVariable.unit ?? '')
+      }`
+    },
   )
 
   // Handle the style-attribute independently to merge with style variables

@@ -102,6 +102,7 @@ export const nordcraftPage = async ({
 
   let apiCache: ApiCache
   let body: string
+  let styleVariables: string
   try {
     const pageBody = await renderPageBody({
       component: toddleComponent,
@@ -115,6 +116,7 @@ export const nordcraftPage = async ({
     })
     apiCache = pageBody.apiCache
     body = pageBody.html
+    styleVariables = Array.from(pageBody.styleVariables).join('\n')
   } catch (e) {
     if (e instanceof RedirectError) {
       return new Response(null, {
@@ -193,6 +195,9 @@ export const nordcraftPage = async ({
           <!--googleoff: all-->
           ${raw(codeImport)}
           <!--googleon: all-->
+          <style id="initial-style-variables">
+            ${raw(styleVariables)}
+          </style>
         </head>
         <body>
           <div id="App">${raw(body)}</div>
