@@ -11,7 +11,7 @@ export class StylePropertyStyleSheet {
   private styleSheet: CSSStyleSheet
 
   // Selector to rule index mapping
-  private ruleMap: Map<string, CSSStyleRule> | undefined
+  private ruleMap: Map<string, CSSStyleRule | CSSNestedDeclarations> | undefined
 
   constructor(styleSheet?: CSSStyleSheet | null) {
     if (styleSheet) {
@@ -25,6 +25,9 @@ export class StylePropertyStyleSheet {
   /**
    * @param selector The CSS selector to apply the property to.
    * @param name The name of the property, without the `--` prefix.
+   * @param options Optional parameters to specify media queries or starting styles.
+   *                - `media`: A media query string to apply the property under.
+   *                - `startingStyle`: If true, the property will be applied as a starting style.
    * @returns A function to update the property value efficiently.
    */
   public registerStyleProperty(
@@ -37,7 +40,16 @@ export class StylePropertyStyleSheet {
     let rule = this.ruleMap.get(selector)
     if (!rule) {
       const ruleIndex = this.styleSheet.insertRule(`${selector} {}`)
-      rule = this.styleSheet.cssRules[ruleIndex] as CSSStyleRule
+      let newRule = this.styleSheet.cssRules[ruleIndex]
+
+      // We are only interested in the dynamic style, so get the actual style rule, not media or other nested rules
+      while (
+        Object.prototype.hasOwnProperty.call(newRule, 'cssRules') &&
+        (newRule as CSSGroupingRule).cssRules.length
+      ) {
+        newRule = (newRule as CSSGroupingRule).cssRules[0]
+      }
+      rule = newRule as CSSStyleRule | CSSNestedDeclarations
       this.ruleMap.set(selector, rule)
     }
 
@@ -55,6 +67,13 @@ export class StylePropertyStyleSheet {
     if (rule) {
       rule.style.removeProperty(`--${name}`)
       if (rule.style.length === 0) {
+        let parentRule: CSSRule = rule
+        while (rule.parentRule) {
+          parentRule = rule.parentRule
+        }
+        this.styleSheet.deleteRule(
+          Array.from(this.styleSheet.cssRules).indexOf(parentRule),
+        )
         this.ruleMap.delete(selector)
       }
     }
