@@ -37,7 +37,7 @@ export function handleAction(
                 formulaCache: ctx.formulaCache,
                 root: ctx.root,
                 package: ctx.package,
-                toddle: ctx.toddle,
+                nordcraft: ctx.nordcraft,
                 env: ctx.env,
               }),
             ),
@@ -59,7 +59,7 @@ export function handleAction(
           formulaCache: ctx.formulaCache,
           root: ctx.root,
           package: ctx.package,
-          toddle: ctx.toddle,
+          nordcraft: ctx.nordcraft,
           env: ctx.env,
         })
         ctx.dataSignal.update((data) => {
@@ -80,21 +80,21 @@ export function handleAction(
           formulaCache: ctx.formulaCache,
           root: ctx.root,
           package: ctx.package,
-          toddle: ctx.toddle,
+          nordcraft: ctx.nordcraft,
           env: ctx.env,
         })
         ctx.triggerEvent(action.event, payload)
         break
       }
       case 'SetURLParameter': {
-        ctx.toddle.locationSignal.update((current) => {
+        ctx.nordcraft.locationSignal.update((current) => {
           const value = applyFormula(action.data, {
             data,
             component: ctx.component,
             formulaCache: ctx.formulaCache,
             root: ctx.root,
             package: ctx.package,
-            toddle: ctx.toddle,
+            nordcraft: ctx.nordcraft,
             env: ctx.env,
           })
           // historyMode was previously not declared explicitly, and we default
@@ -153,7 +153,7 @@ export function handleAction(
         if (parameters.length === 0) {
           return
         }
-        ctx.toddle.locationSignal.update((current) => {
+        ctx.nordcraft.locationSignal.update((current) => {
           if (!current.route) {
             // A route must exist for us to update/validate against it
             return current
@@ -168,7 +168,7 @@ export function handleAction(
             formulaCache: ctx.formulaCache,
             root: ctx.root,
             package: ctx.package,
-            toddle: ctx.toddle,
+            nordcraft: ctx.nordcraft,
             env: ctx.env,
           }
           // Only match on p.type === 'param'
@@ -250,7 +250,7 @@ export function handleAction(
               formulaCache: ctx.formulaCache,
               root: ctx.root,
               package: ctx.package,
-              toddle: ctx.toddle,
+              nordcraft: ctx.nordcraft,
               env: ctx.env,
             }),
           )
@@ -294,7 +294,7 @@ export function handleAction(
             formulaCache: ctx.formulaCache,
             root: ctx.root,
             package: ctx.package,
-            toddle: ctx.toddle,
+            nordcraft: ctx.nordcraft,
             env: ctx.env,
           }),
         )
@@ -371,10 +371,9 @@ export function handleAction(
           }
           const newAction =
             action.version === 2
-              ? (ctx.toddle.getCustomAction ?? ctx.toddle.getCustomAction)(
-                  action.name,
-                  action.package ?? ctx.package,
-                )
+              ? (
+                  ctx.nordcraft.getCustomAction ?? ctx.nordcraft.getCustomAction
+                )(action.name, action.package ?? ctx.package)
               : undefined
           if (newAction) {
             // First evaluate any arguments (input) to the action
@@ -389,7 +388,7 @@ export function handleAction(
                   formulaCache: ctx.formulaCache,
                   root: ctx.root,
                   package: ctx.package,
-                  toddle: ctx.toddle,
+                  nordcraft: ctx.nordcraft,
                   env: ctx.env,
                 }),
               }),
@@ -428,7 +427,7 @@ export function handleAction(
 
             return result
           } else {
-            const legacyHandler = ctx.toddle.getAction(action.name)
+            const legacyHandler = ctx.nordcraft.getAction(action.name)
             if (!legacyHandler) {
               console.error('Missing custom action', action.name)
               return
@@ -441,7 +440,7 @@ export function handleAction(
                 formulaCache: ctx.formulaCache,
                 root: ctx.root,
                 package: ctx.package,
-                toddle: ctx.toddle,
+                nordcraft: ctx.nordcraft,
                 env: ctx.env,
               }),
             ) ?? [
@@ -451,7 +450,7 @@ export function handleAction(
                 formulaCache: ctx.formulaCache,
                 root: ctx.root,
                 package: ctx.package,
-                toddle: ctx.toddle,
+                nordcraft: ctx.nordcraft,
                 env: ctx.env,
               }),
             ] // action.data is a fallback to handle an older version of the action spec.

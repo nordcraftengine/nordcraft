@@ -1,5 +1,5 @@
 import type { Component, ComponentData } from './component/component.types'
-import type { Formula, ToddleEnv } from './formula/formula'
+import type { Formula, NordcraftEnv } from './formula/formula'
 import type { PluginFormula } from './formula/formulaTypes'
 
 export type FormulaHandlerV2<R = unknown> = (
@@ -7,7 +7,7 @@ export type FormulaHandlerV2<R = unknown> = (
   args: Record<string, unknown>,
   ctx: {
     root: Document | ShadowRoot
-    env: ToddleEnv
+    env: NordcraftEnv
   },
 ) => R | null
 
@@ -27,7 +27,7 @@ export type ActionHandler<Args = unknown[]> = (
   args: Args,
   ctx: {
     triggerActionEvent: (trigger: string, data: any, event?: Event) => void
-    env: ToddleEnv
+    env: NordcraftEnv
     abortSignal: AbortSignal
   },
   event?: Event,
@@ -39,7 +39,7 @@ export type FormulaHandler<T = void> = (
     component: Component
     data: ComponentData
     root: Document | ShadowRoot
-    env: ToddleEnv
+    env: NordcraftEnv
   },
 ) => T | null
 
@@ -71,10 +71,9 @@ export type CustomFormulaHandler = (
 
 export type FormulaLookup = (name: string) => FormulaHandler | undefined
 
-export interface Toddle<LocationSignal, ShowSignal> {
+export interface Nordcraft<LocationSignal, ShowSignal> {
   project: string
   branch: string
-  commit: string
   errors: Error[]
   formulas: Record<string, Record<string, PluginFormula<FormulaHandlerV2>>>
   actions: Record<string, Record<string, PluginActionV2>>
@@ -116,13 +115,12 @@ export interface Toddle<LocationSignal, ShowSignal> {
   }
   // We temporarily expose the env here until we add a new version of
   // the APPLY_FORMULA function that can handle the env as an argument
-  env: ToddleEnv
+  env: NordcraftEnv
 }
 
-export interface ToddleInternals {
+export interface NordcraftInternals {
   project: string
   branch: string
-  commit: string
   pageState: ComponentData
   component: Component
   components: Component[]

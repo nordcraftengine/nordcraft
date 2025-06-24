@@ -5,7 +5,7 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import type {
   FormulaContext,
-  ToddleEnv,
+  NordcraftEnv,
 } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
@@ -50,14 +50,14 @@ export function getNodeAttrs({
   component,
   packageName,
   env,
-  toddle,
+  nordcraft,
 }: {
   node: Pick<ElementNodeModel, 'attrs' | 'style-variables'>
   data: ComponentData
   component: Component
   packageName: string | undefined
-  env: ToddleEnv
-  toddle: FormulaContext['toddle']
+  env: NordcraftEnv
+  nordcraft: FormulaContext['nordcraft']
 }) {
   const { style, ...restAttrs } = node.attrs
   const nodeAttrs = Object.entries(restAttrs).reduce<string[]>(
@@ -67,7 +67,7 @@ export function getNodeAttrs({
         component,
         package: packageName,
         env,
-        toddle,
+        nordcraft,
       })
       if (toBoolean(value)) {
         appliedAttributes.push(`${name}="${escapeAttrValue(value)}"`)
@@ -85,7 +85,7 @@ export function getNodeAttrs({
             component,
             package: packageName,
             env,
-            toddle,
+            nordcraft,
           }),
         ) + (unit ?? '')
       }`,
@@ -100,7 +100,7 @@ export function getNodeAttrs({
             component,
             package: packageName,
             env,
-            toddle,
+            nordcraft,
           }),
         ]
       : []),

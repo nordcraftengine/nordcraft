@@ -1,6 +1,6 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import { isToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
+import { isNordcraftFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import { ToddleFormula } from '@nordcraft/core/dist/formula/ToddleFormula'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
@@ -385,7 +385,7 @@ function* visitNode(
     }
 
     case 'project-formula':
-      if (isToddleFormula(value)) {
+      if (isNordcraftFormula(value)) {
         const formula = new ToddleFormula({
           formula: value.formula,
           globalFormulas: {

@@ -6,13 +6,13 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import type {
   Formula,
-  ToddleEnv,
+  NordcraftEnv,
   ValueOperationValue,
 } from '@nordcraft/core/dist/formula/formula'
 import type {
-  Toddle as NewToddle,
-  Toddle,
-  ToddleInternals,
+  Nordcraft as NewNordcraft,
+  Nordcraft,
+  NordcraftInternals,
 } from '@nordcraft/core/dist/types'
 import type { ApiRequest } from './api/createAPI'
 import type { Signal } from './signal/signal'
@@ -20,8 +20,8 @@ import type { Signal } from './signal/signal'
 declare global {
   interface Window {
     __components: Record<string, Signal<ComponentData>> // used for debugging
-    __toddle: ToddleInternals
-    toddle: NewToddle<LocationSignal, PreviewShowSignal>
+    __toddle: NordcraftInternals
+    toddle: NewNordcraft<LocationSignal, PreviewShowSignal>
   }
 }
 
@@ -80,8 +80,8 @@ export interface ComponentContext {
       ctx: ComponentContext
     }
   >
-  toddle: Toddle<LocationSignal, PreviewShowSignal>
-  env: ToddleEnv
+  nordcraft: Nordcraft<LocationSignal, PreviewShowSignal>
+  env: NordcraftEnv
 }
 
 export type ContextApi = ContextApiV1 | ContextApiV2

@@ -2,7 +2,7 @@ import type { Formula } from './formula'
 import type { GlobalFormulas } from './formulaTypes'
 import { getFormulasInFormula } from './formulaUtils'
 
-export class ToddleFormula<Handler> {
+export class NordcraftFormula<Handler> {
   private formula: Formula
   private globalFormulas: GlobalFormulas<Handler>
 
