@@ -15,6 +15,7 @@ import { noContextConsumersRule } from './rules/context/noContextConsumersRule'
 import { unknownContextFormulaRule } from './rules/context/unknownContextFormulaRule'
 import { unknownContextProviderFormulaRule } from './rules/context/unknownContextProviderFormulaRule'
 import { unknownContextProviderRule } from './rules/context/unknownContextProviderRule'
+import { createLimitElementInstancesRule } from './rules/dom/createLimitElementInstancesRule'
 import { createRequiredDirectChildRule } from './rules/dom/createRequiredDirectChildRule'
 import { createRequiredDirectParentRule } from './rules/dom/createRequiredDirectParentRule'
 import { createRequiredElementAttributeRule } from './rules/dom/createRequiredElementAttributeRule'
@@ -84,6 +85,10 @@ export type Options = {
 
 const RULES = [
   createActionNameRule({ name: '@toddle/logToConsole', code: 'no-console' }),
+  // Pages should only have one h1
+  createLimitElementInstancesRule('h1', 1),
+  // Pages should only have one main element
+  createLimitElementInstancesRule('main', 1),
   createRequiredElementAttributeRule('a', 'href'),
   createRequiredElementAttributeRule('img', 'alt'),
   createRequiredElementAttributeRule('img', 'src'),

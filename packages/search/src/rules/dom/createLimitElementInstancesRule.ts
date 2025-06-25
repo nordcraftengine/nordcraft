@@ -1,5 +1,9 @@
+import type {
+  Component,
+  NodeModel,
+} from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import { isFormula } from '@nordcraft/core/dist/formula/formula'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Level, Rule } from '../../types'
 
 export function createLimitElementInstancesRule(
@@ -9,6 +13,7 @@ export function createLimitElementInstancesRule(
 ): Rule<{
   tag: string
   limit: number
+  instances: number
 }> {
   return {
     code: 'limit element instances',
@@ -31,19 +36,64 @@ export function createLimitElementInstancesRule(
           packages: files.packages,
         },
       })
-      const subComponents = page.uniqueSubComponents
 
-      const tagValue = value.route.info?.[tag as keyof typeof value.route.info]
-      const formula = isFormula(tagValue?.formula)
-        ? tagValue.formula
-        : undefined
+      const visitedComponentMatches = new Map<string, number>()
+      const visitNode = (
+        node: NodeModel,
+        packageName?: string,
+        repeat: boolean = false,
+      ): number => {
+        if (node.type === 'element' && node.tag === tag) {
+          return repeat ? 10 : 1
+        }
+        if (node.type !== 'component') {
+          return 0
+        }
+        let component: Component | undefined
+        let componentName: string
+        if (node.package) {
+          component = files.packages?.[node.package]?.components[node.name]
+          componentName = `${node.package}/${node.name}`
+        } else {
+          component = files.components[node.name]
+          componentName = node.name
+        }
+        if (!isDefined(component)) {
+          return 0
+        }
+        if (visitedComponentMatches.has(componentName)) {
+          return (
+            (node.repeat ? 10 : 1) *
+            (visitedComponentMatches.get(componentName) ?? 0)
+          )
+        }
 
-      if (
-        !tagValue ||
-        !formula ||
-        (formula.type === 'value' && !formula.value)
-      ) {
-        report(path, { tag: tag })
+        const tagMatches = Object.values(component.nodes).reduce(
+          (acc, node) =>
+            acc +
+            visitNode(
+              node,
+              (node.type === 'component' ? node.package : undefined) ??
+                packageName,
+              isDefined(node.repeat),
+            ),
+          0,
+        )
+        visitedComponentMatches.set(componentName, tagMatches)
+        return tagMatches
+      }
+      const tagMatches = Object.values(page.nodes).reduce(
+        (acc, node) =>
+          acc +
+          visitNode(
+            node,
+            node.type === 'component' ? node.package : undefined,
+            isDefined(node.repeat),
+          ),
+        0,
+      )
+      if (tagMatches > limit) {
+        report(path, { tag, limit, instances: tagMatches })
       }
     },
   }
