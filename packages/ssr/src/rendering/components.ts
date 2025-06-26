@@ -5,6 +5,7 @@ import type {
 import type {
   Component,
   ComponentData,
+  MediaQuery,
   NodeModel,
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
@@ -61,7 +62,14 @@ const renderComponent = async ({
   projectId: string
   req: Request
   updateApiCache: (key: string, value: ApiStatus) => void
-  addStyleVariable: (selector: string) => void
+  addStyleVariable: (
+    selector: string,
+    rule: string,
+    options?: {
+      mediaQuery?: MediaQuery
+      startingStyle?: boolean
+    },
+  ) => void
   namespace?: SupportedNamespaces
 }): Promise<string> => {
   const renderNode = async ({
@@ -102,7 +110,7 @@ const renderComponent = async ({
         items.map((Item, Index) =>
           renderNode({
             id,
-            path: `${path}(${Index})`,
+            path: Index ? `${path}(${Index})` : path,
             node: { ...node, repeat: undefined },
             data: {
               ...data,
@@ -194,25 +202,25 @@ const renderComponent = async ({
           ?.filter((styleVariable) => styleVariable.version === 2)
           .forEach((styleVariable) => {
             addStyleVariable(
-              `[data-id="${path}"].${classHash} {
-  --${styleVariable.name}: ${applyFormula(
-    styleVariable.formula,
-    formulaContext,
-  )};
-}`,
+              `[data-id="${path}"].${classHash}`,
+              `--${styleVariable.name}: ${applyFormula(
+                styleVariable.formula,
+                formulaContext,
+              )}`,
             )
           })
 
         node.variants?.forEach((variant) => {
           variant['style-variables']?.forEach((styleVariable) => {
             // style-variables on variants are always version 2
+
             addStyleVariable(
-              `[data-id="${path}"].${classHash}${variantSelector(variant)} {
-  --${styleVariable.name}: ${applyFormula(
-    styleVariable.formula,
-    formulaContext,
-  )};
-            }`,
+              `[data-id="${path}"].${classHash}${variantSelector(variant)}`,
+              `--${styleVariable.name}: ${applyFormula(
+                styleVariable.formula,
+                formulaContext,
+              )}`,
+              variant,
             )
           })
         })
@@ -438,12 +446,11 @@ const renderComponent = async ({
         // Add extra instance styling for each style-variable
         node['style-variables']?.forEach((styleVariable) => {
           addStyleVariable(
-            `[data-id="${path}"].${component.name}\\:${id} { 
-  --${styleVariable.name}: ${applyFormula(
-    styleVariable.formula,
-    formulaContext,
-  )}
-}`,
+            `[data-id="${path}"].${component.name}\\:${id}`,
+            `--${styleVariable.name}: ${applyFormula(
+              styleVariable.formula,
+              formulaContext,
+            )}`,
           )
         })
 
@@ -452,12 +459,12 @@ const renderComponent = async ({
             addStyleVariable(
               `[data-id="${path}"].${component.name}\\:${id}${variantSelector(
                 variant,
-              )} {
-  --${styleVariable.name}: ${applyFormula(
-    styleVariable.formula,
-    formulaContext,
-  )}
-}`,
+              )}`,
+              `--${styleVariable.name}: ${applyFormula(
+                styleVariable.formula,
+                formulaContext,
+              )}`,
+              variant,
             )
           })
         })
@@ -547,7 +554,14 @@ const createComponent = async ({
   req: Request
   namespace?: SupportedNamespaces
   updateApiCache: (key: string, value: ApiStatus) => void
-  addStyleVariable: (selector: string) => void
+  addStyleVariable: (
+    selector: string,
+    rule: string,
+    options?: {
+      mediaQuery?: MediaQuery
+      startingStyle?: boolean
+    },
+  ) => void
 }): Promise<string> => {
   const data: ComponentData = {
     Location: formulaContext.data.Location,
@@ -625,9 +639,31 @@ export const renderPageBody = async ({
   const apiCache: ApiCache = {}
   const updateApiCache = (key: string, value: ApiStatus) =>
     (apiCache[key] = value)
-  const styleVariables: Set<string> = new Set()
-  const addStyleVariable = (selector: string) => {
-    styleVariables.add(selector)
+  const styleVariables: Map<string, Set<string>> = new Map()
+  const addStyleVariable = (
+    selector: string,
+    rule: string,
+    options?: {
+      mediaQuery?: MediaQuery
+      startingStyle?: boolean
+    },
+  ) => {
+    selector = options?.startingStyle
+      ? `${selector} { @starting-style { __RULES__ } }`
+      : `${selector} { __RULES__ }`
+
+    if (options?.mediaQuery) {
+      selector = `@media (${Object.entries(options.mediaQuery)
+        .map(([key, value]) => `${key}: ${value}`)
+        .filter(Boolean)
+        .join(') and (')}) { ${selector} }`
+    }
+
+    if (!styleVariables.has(selector)) {
+      styleVariables.set(selector, new Set())
+    }
+
+    styleVariables.get(selector)?.add(rule)
   }
 
   const apis = await evaluateComponentApis({
@@ -656,5 +692,13 @@ export const renderPageBody = async ({
     updateApiCache,
     addStyleVariable,
   })
-  return { html, apiCache, styleVariables }
+  return {
+    html,
+    apiCache,
+    styleVariables: [...styleVariables]
+      .map(([selector, vars]) =>
+        selector.replace('__RULES__', Array.from(vars).join(';\n')),
+      )
+      .toReversed(),
+  }
 }

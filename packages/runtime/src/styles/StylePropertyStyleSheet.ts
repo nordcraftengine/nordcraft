@@ -1,3 +1,5 @@
+import type { MediaQuery } from '@nordcraft/core/dist/component/component.types'
+
 /**
  * StylePropertyStyleSheet is a utility class that manages CSS custom properties
  * (variables) in a dedicated CSSStyleSheet. It allows for efficient registration,
@@ -33,19 +35,32 @@ export class StylePropertyStyleSheet {
   public registerStyleProperty(
     selector: string,
     name: string,
+    options?: {
+      mediaQuery?: MediaQuery
+      startingStyle?: boolean
+    },
   ): (newValue: string) => void {
     this.ruleMap ??= this.generateRuleMap()
+
+    selector =
+      selector + (options?.startingStyle ? ' { @starting-style { }}' : ' { }')
+    if (options?.mediaQuery) {
+      selector = `@media (${Object.entries(options.mediaQuery)
+        .map(([key, value]) => `${key}: ${value}`)
+        .filter(Boolean)
+        .join(') and (')}) { ${selector}}`
+    }
 
     // Check if the selector already exists
     let rule = this.ruleMap.get(selector)
     if (!rule) {
-      const ruleIndex = this.styleSheet.insertRule(`${selector} {}`)
+      const ruleIndex = this.styleSheet.insertRule(selector)
       let newRule = this.styleSheet.cssRules[ruleIndex]
 
-      // We are only interested in the dynamic style, so get the actual style rule, not media or other nested rules
+      // We are only interested in the dynamic style, so get the actual style rule, not media or other nested rules. Loop until we are at the bottom most rule.
       while (
-        Object.prototype.hasOwnProperty.call(newRule, 'cssRules') &&
-        (newRule as CSSGroupingRule).cssRules.length
+        (newRule as any).cssRules &&
+        (newRule as CSSGroupingRule).cssRules.length > 0
       ) {
         newRule = (newRule as CSSGroupingRule).cssRules[0]
       }
@@ -58,9 +73,25 @@ export class StylePropertyStyleSheet {
     }
   }
 
-  public unregisterStyleProperty(selector: string, name: string): void {
+  public unregisterStyleProperty(
+    selector: string,
+    name: string,
+    options?: {
+      mediaQuery?: MediaQuery
+      startingStyle?: boolean
+    },
+  ): void {
     if (!this.ruleMap) {
       return
+    }
+
+    selector =
+      selector + (options?.startingStyle ? ' { @starting-style { }}' : ' { }')
+    if (options?.mediaQuery) {
+      selector = `@media (${Object.entries(options.mediaQuery)
+        .map(([key, value]) => `${key}: ${value}`)
+        .filter(Boolean)
+        .join(') and (')}) { ${selector} }`
     }
 
     const rule = this.ruleMap.get(selector)
@@ -91,11 +122,50 @@ export class StylePropertyStyleSheet {
   private generateRuleMap() {
     const ruleIndex: Map<string, CSSStyleRule> = new Map()
     for (let i = 0; i < this.styleSheet.cssRules.length; i++) {
-      const rule = this.styleSheet.cssRules[i]
-      if (rule instanceof CSSStyleRule) {
-        ruleIndex.set(rule.selectorText, rule)
+      let rule = this.styleSheet.cssRules[i]
+      const selector = StylePropertyStyleSheet.getFullSelector(rule)
+      // Get last part of the selector, which is the actual selector we are interested in
+      while (
+        (rule as any).cssRules &&
+        (rule as CSSGroupingRule).cssRules.length > 0
+      ) {
+        rule = (rule as CSSGroupingRule).cssRules[0]
       }
+
+      ruleIndex.set(selector, rule as CSSStyleRule)
     }
     return ruleIndex
+  }
+
+  private static getFullSelector(rule: CSSRule): string {
+    switch (rule.constructor.name) {
+      case 'CSSStyleRule':
+        // For these rules, we just return (potentially with subrules if any cssRules exist)
+        return `${(rule as CSSStyleRule).selectorText} { ${Array.from(
+          (rule as CSSStyleRule).cssRules,
+        )
+          .map(StylePropertyStyleSheet.getFullSelector)
+          .join(', ')}}`
+      case 'CSSStartingStyleRule':
+        return `@starting-style { ${Array.from(
+          (rule as CSSStartingStyleRule).cssRules,
+        )
+          .map(StylePropertyStyleSheet.getFullSelector)
+          .join(', ')}}`
+      case 'CSSMediaRule':
+        return `@media ${(rule as CSSMediaRule).media.mediaText} { ${Array.from(
+          (rule as CSSMediaRule).cssRules,
+        )
+          .map(StylePropertyStyleSheet.getFullSelector)
+          .join(', ')}}`
+      case 'CSSNestedDeclarations':
+        return ''
+      default:
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Unsupported CSS rule type: ${rule.constructor.name}. Returning empty selector.`,
+        )
+        return ''
+    }
   }
 }

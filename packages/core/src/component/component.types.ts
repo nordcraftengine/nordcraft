@@ -174,7 +174,7 @@ export interface DynamicPathSegment {
   name: string
 }
 
-type MediaQuery = {
+export type MediaQuery = {
   'min-width'?: string
   'max-width'?: string
   'min-height'?: string

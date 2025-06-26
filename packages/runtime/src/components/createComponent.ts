@@ -123,6 +123,7 @@ export function createComponent({
         STYLE_VARIABLE_STYLESHEET.registerStyleProperty(
           selector,
           styleVariable.name,
+          variant,
         ),
         {
           destroy: () =>
