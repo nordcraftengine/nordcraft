@@ -17,10 +17,17 @@ export function createRequiredElementAttributeRule(
       if (
         nodeType === 'component-node' &&
         value.type === 'element' &&
-        value.tag === tag &&
-        !isDefined(value.attrs[attribute])
+        value.tag === tag
       ) {
-        report(path, { tag, attribute })
+        const attributeValue = value.attrs[attribute]
+        if (
+          !isDefined(attributeValue) ||
+          (attributeValue.type === 'value' &&
+            (attributeValue.value === '' || !isDefined(attributeValue.value)))
+        ) {
+          // Report the missing attribute if it is not defined or statically empty/nullish
+          report(path, { tag, attribute })
+        }
       }
     },
   }
