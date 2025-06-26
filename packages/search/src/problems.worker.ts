@@ -84,9 +84,13 @@ export type Options = {
 
 const RULES = [
   createActionNameRule({ name: '@toddle/logToConsole', code: 'no-console' }),
-  createRequiredElementAttributeRule('a', 'href'),
-  createRequiredElementAttributeRule('img', 'alt'),
-  createRequiredElementAttributeRule('img', 'src'),
+  createRequiredElementAttributeRule({ tag: 'a', attribute: 'href' }),
+  createRequiredElementAttributeRule({
+    tag: 'img',
+    attribute: 'alt',
+    allowEmptyString: true,
+  }),
+  createRequiredElementAttributeRule({ tag: 'img', attribute: 'src' }),
   createRequiredMetaTagRule('description'),
   createRequiredMetaTagRule('title'),
   createRequiredDirectChildRule(['ul', 'ol'], ['li', 'script', 'template']),
