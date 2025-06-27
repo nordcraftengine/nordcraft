@@ -577,7 +577,7 @@ const elements: Record<
     categories: ['media'],
     attrs: {
       src: { type: 'value', value: '' },
-      alt: { type: 'value', value: '' },
+      alt: { type: 'value', value: null },
     },
   },
   input: {
