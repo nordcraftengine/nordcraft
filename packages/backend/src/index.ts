@@ -1,5 +1,6 @@
 import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
 import { Hono } from 'hono'
+import { poweredBy } from 'hono/powered-by'
 import type { HonoEnv } from '../hono'
 import { notFoundLoader } from './middleware/notFoundLoader'
 import { loadProjectInfo } from './middleware/projectInfo'
@@ -21,10 +22,7 @@ initIsEqual()
 
 const app = new Hono<HonoEnv>({ strict: false })
 
-app.use('*', (c, next) => {
-  c.header('X-Powered-By', 'Nordcraft') // 🌲🌲🌲
-  return next()
-})
+app.use(poweredBy({ serverName: 'Nordcraft' })) // 🌲🌲🌲
 
 // Nordcraft specific endpoints/services on /.toddle/ subpath 👇
 app.route('/.toddle/fonts', fontRouter)
