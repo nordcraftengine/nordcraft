@@ -117,17 +117,11 @@ export const nordcraftPage = async ({
     body = pageBody.html
   } catch (e) {
     if (e instanceof RedirectError) {
-      return new Response(null, {
-        status: e.redirect.statusCode ?? 302,
-        // Header for helping the client (user) know which API caused the redirect
-        headers: {
-          [REDIRECT_API_NAME_HEADER]: e.redirect.apiName,
-          [REDIRECT_COMPONENT_NAME_HEADER]: e.redirect.componentName,
-          location: e.redirect.url.href,
-        },
-      })
+      hono.header(REDIRECT_API_NAME_HEADER, e.redirect.apiName)
+      hono.header(REDIRECT_COMPONENT_NAME_HEADER, e.redirect.componentName)
+      return hono.redirect(e.redirect.url.href, e.redirect.statusCode ?? 302)
     } else {
-      return new Response('Internal server error', { status: 500 })
+      return hono.text('Internal server error', 500)
     }
   }
   const charset = getCharset({

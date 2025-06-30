@@ -38,24 +38,19 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     serverContext: getServerToddleObject({} as any),
   })
   if (!destination) {
-    return c.html(`Invalid destination`, {
+    return c.text(`Invalid destination`, {
       status: 500,
     })
   }
   if (route.type === 'redirect') {
     // Return a redirect to the destination with the provided status code
-    return new Response(null, {
-      headers: {
-        location: destination.href,
-        [REDIRECT_NAME_HEADER]: routeName,
-      },
-      status: route.status ?? 302,
-    })
+    c.header(REDIRECT_NAME_HEADER, routeName)
+    return c.body(null, route.status ?? 302)
   }
 
   // Rewrite handling: fetch the destination and return the response
   if (c.req.raw.headers.get(REWRITE_HEADER) !== null) {
-    return c.html(`Nordcraft rewrites are not allowed to be recursive`, {
+    return c.text(`Nordcraft rewrites are not allowed to be recursive`, {
       status: 500,
     })
   }

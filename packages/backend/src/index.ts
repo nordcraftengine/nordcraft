@@ -21,6 +21,11 @@ initIsEqual()
 
 const app = new Hono<HonoEnv>({ strict: false })
 
+app.use('*', (c, next) => {
+  c.header('X-Powered-By', 'Nordcraft') // 🌲🌲🌲
+  return next()
+})
+
 // Nordcraft specific endpoints/services on /.toddle/ subpath 👇
 app.route('/.toddle/fonts', fontRouter)
 // Proxy endpoint for Nordcraft APIs
