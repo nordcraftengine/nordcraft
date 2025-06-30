@@ -67,7 +67,6 @@ export const setCookieHandler: Handler<HonoEnv> = async (ctx) => {
     }
   }
 
-  const headers = new Headers()
   // We will always set the cookie to Secure and HttpOnly. Anything else can be configured
   const cookieParts = [
     `${name}=${value}`,
@@ -84,12 +83,8 @@ export const setCookieHandler: Handler<HonoEnv> = async (ctx) => {
     // it is only available on the current domain
     cookieParts.push(`Domain=${url.hostname}`)
   }
-  headers.append('Set-Cookie', cookieParts.join('; '))
-
-  return new Response(undefined, {
-    headers,
-    status: 200,
-  })
+  ctx.header('Set-Cookie', cookieParts.join('; '))
+  return ctx.body(null, 200)
 }
 
 export const decodeToken = (token?: string) => {

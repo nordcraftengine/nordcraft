@@ -1,12 +1,12 @@
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { validateUrl } from '@nordcraft/core/dist/utils/url'
 import type { Context } from 'hono'
-import { stream } from 'hono/streaming'
 import type { HonoEnv, HonoProject } from '../../hono'
 
 const MANIFEST_CONTENT_TYPE = 'application/manifest+json'
 
 export const manifest = async (c: Context<HonoEnv<HonoProject>>) => {
+  c.header('Content-Type', MANIFEST_CONTENT_TYPE)
   try {
     const manifestUrl = applyFormula(
       c.var.config?.meta?.manifest?.formula,
@@ -17,14 +17,13 @@ export const manifest = async (c: Context<HonoEnv<HonoProject>>) => {
       // return a (streamed) response with the body from the manifest file
       const { body, ok } = await fetch(manifestUrl)
       if (ok && body) {
-        c.header('Content-Type', MANIFEST_CONTENT_TYPE)
         c.header('Cache-Control', `public, max-age=3600`)
-        return stream(c, (s) => s.pipe(body as any))
+        return c.body(body)
       }
     }
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e)
   }
-  return new Response(null, { status: 404 })
+  return c.body(null, 404)
 }

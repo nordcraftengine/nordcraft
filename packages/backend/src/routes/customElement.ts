@@ -171,13 +171,10 @@ defineComponents(${JSON.stringify([component.name])}, ${JSON.stringify({
         .map(transformRelativePaths(url.origin)),
     })}, toddle);
 `
-    return new Response(content, {
-      headers: {
-        'Cache-Control': 'no-cache',
-        'Access-Control-Allow-Origin': '*',
-        'content-type': 'text/javascript',
-      },
-    })
+    ctx.header('Cache-Control', 'no-cache')
+    ctx.header('Access-Control-Allow-Origin', '*')
+    ctx.header('content-type', 'text/javascript')
+    return ctx.body(content)
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e)

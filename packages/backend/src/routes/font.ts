@@ -1,7 +1,6 @@
 import type { Context } from 'hono'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { stream } from 'hono/streaming'
 import type { HonoEnv } from '../../hono'
 
 export const fontRouter = new Hono<HonoEnv, any, '/.toddle/fonts/'>()
@@ -11,44 +10,38 @@ fontRouter.use(cors())
 
 // Proxy endpoint for Google Fonts stylesheet
 // Font references are replaced with ./toddle/fonts/font
-fontRouter.get(
-  '/stylesheet/:stylesheet{.*}',
-  async ({ req, ...c }: Context<HonoEnv>) => {
-    const requestUrl = new URL(req.url)
-    try {
-      const response = (await fetch(
-        `https://fonts.googleapis.com/${req.param('stylesheet')}${
-          requestUrl.search
-        }`,
-        standardFontRequestInit(req.raw),
-      )) as any as Response
-      let stylesheetContent = await response.text()
-      if (response.ok) {
-        stylesheetContent = stylesheetContent.replaceAll(
-          'https://fonts.gstatic.com',
-          // This should match the path in the font route below 👇
-          // This ensures fonts are fetched through the proxied endpoint /.toddle/fonts/font/...
-          '/.toddle/fonts/font',
-        )
-      } else {
-        return new Response(undefined, {
-          headers: { 'Content-Type': 'text/css; charset=utf-8' },
-          status: 404,
-        })
-      }
-      const headers = filterFontResponseHeaders(response.headers)
-      Array.from(headers.entries()).forEach(([name, value]) =>
-        c.header(name, value),
+fontRouter.get('/stylesheet/:stylesheet{.*}', async (c: Context<HonoEnv>) => {
+  const req = c.req
+  const requestUrl = new URL(req.url)
+  try {
+    const response = (await fetch(
+      `https://fonts.googleapis.com/${req.param('stylesheet')}${
+        requestUrl.search
+      }`,
+      standardFontRequestInit(req.raw),
+    )) as any as Response
+    let stylesheetContent = await response.text()
+    if (response.ok) {
+      stylesheetContent = stylesheetContent.replaceAll(
+        'https://fonts.gstatic.com',
+        // This should match the path in the font route below 👇
+        // This ensures fonts are fetched through the proxied endpoint /.toddle/fonts/font/...
+        '/.toddle/fonts/font',
       )
-      return c.body(stylesheetContent)
-      // eslint-disable-next-line no-empty
-    } catch {}
-    return new Response(undefined, {
-      headers: { 'Content-Type': 'text/css; charset=utf-8' },
-      status: 404,
-    })
-  },
-)
+    } else {
+      c.header('Content-Type', 'text/css; charset=utf-8')
+      return c.body('Stylesheet not found', 404)
+    }
+    const headers = filterFontResponseHeaders(response.headers)
+    Array.from(headers.entries()).forEach(([name, value]) =>
+      c.header(name, value),
+    )
+    return c.body(stylesheetContent)
+  } catch {
+    c.header('Content-Type', 'text/css; charset=utf-8')
+    return c.body('Stylesheet could not be generated', 404)
+  }
+})
 
 fontRouter.get('/font/:font{.*}', async (c: Context<HonoEnv>) => {
   try {
@@ -62,12 +55,13 @@ fontRouter.get('/font/:font{.*}', async (c: Context<HonoEnv>) => {
       c.header(name, value),
     )
     if (response.ok && response.body) {
-      return stream(c, (s) => s.pipe(response.body as any))
+      return c.body(response.body, response.status as any)
+    } else {
+      return c.text('Font not found', 404)
     }
-    // eslint-disable-next-line no-empty
-  } catch {}
-
-  return new Response(undefined, { status: 404 })
+  } catch {
+    return c.text('Unable to fetch font', 404)
+  }
 })
 
 const standardFontRequestInit = (req: Request): RequestInit => ({
