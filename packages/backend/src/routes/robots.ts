@@ -1,7 +1,6 @@
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { validateUrl } from '@nordcraft/core/dist/utils/url'
 import type { Context } from 'hono'
-import { stream } from 'hono/streaming'
 import type { HonoEnv, HonoProject } from '../../hono'
 
 const ROBOTS_CONTENT_TYPE = 'text/plain'
@@ -17,9 +16,8 @@ export const robots = async (c: Context<HonoEnv<HonoProject>>) => {
       // return a (streamed) response with the body from robots.txt
       const { body, ok } = await fetch(validatedRobotsUrl)
       if (ok && body) {
-        c.header('Content-Type', ROBOTS_CONTENT_TYPE)
         c.header('Cache-Control', 'public, max-age=3600')
-        return stream(c, (s) => s.pipe(body as any))
+        return c.body(body)
       }
     }
     // Provide a fallback robots.txt response

@@ -173,7 +173,7 @@ defineComponents(${JSON.stringify([component.name])}, ${JSON.stringify({
 `
     ctx.header('Cache-Control', 'no-cache')
     ctx.header('Access-Control-Allow-Origin', '*')
-    ctx.header('content-type', 'text/javascript')
+    ctx.header('Content-Type', 'text/javascript')
     return ctx.body(content)
   } catch (e) {
     // eslint-disable-next-line no-console
