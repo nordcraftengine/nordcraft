@@ -314,8 +314,8 @@ export const getRequestBody = ({
     return
   }
   const contentType = headers.get('content-type')
-  if (isJsonHeader(contentType)) {
-    // JSON.stringify the body if the content type is JSON
+  if (!isDefined(contentType) || isJsonHeader(contentType)) {
+    // JSON.stringify the body if the content type is JSON or has not been set
     return JSON.stringify(body)
   }
   switch (contentType) {
@@ -350,9 +350,6 @@ export const getRequestBody = ({
     }
     case 'text/plain':
       return String(body)
-    // When no content-type is specified, we assume the body is JSON
-    case null:
-      return JSON.stringify(body)
     default:
       // For other content types, we return the body as is
       return body
