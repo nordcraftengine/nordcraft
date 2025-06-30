@@ -1,22 +1,15 @@
 {
-  "name": "nordcraft-cloudflare-worker",
+  "name": "github-release-assets",
   "scripts": {
     "predev": "cd .. && bun bin/prepareReleaseAssets.ts",
     "dev": "bun --watch src/index.ts",
-    "build": "bun bin/syncStaticAssets.ts && bunx esbuild --bundle --outdir=dist --platform=node --format=esm src/index.ts",
-    "deploy": "wrangler deploy --no-bundle",
     "typecheck": "tsc --noEmit",
     "watch": "tsc --noEmit -w"
   },
   "dependencies": {
-    "@nordcraft/core": "workspace:*",
-    "@nordcraft/ssr": "workspace:*",
     "hono": "4.7.11"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20250617.0",
-    "@nordcraft/runtime": "workspace:*",
-    "@types/node": "24.0.3",
-    "wrangler": "4.20.0"
+    "@types/node": "24.0.3"
   }
 }
