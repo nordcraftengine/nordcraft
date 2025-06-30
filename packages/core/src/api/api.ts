@@ -12,6 +12,7 @@ import type {
   ToddleRequestInit,
 } from './apiTypes'
 import { ApiMethod } from './apiTypes'
+import { isJsonHeader } from './headers'
 import { LegacyToddleApi } from './LegacyToddleApi'
 import { ToddleApiV2 } from './ToddleApiV2'
 
@@ -293,7 +294,7 @@ export const isApiError = ({
   return toBoolean(errorFormulaRes)
 }
 
-const getRequestBody = ({
+export const getRequestBody = ({
   api,
   formulaContext,
   headers,
@@ -312,7 +313,12 @@ const getRequestBody = ({
   if (!body) {
     return
   }
-  switch (headers.get('content-type')) {
+  const contentType = headers.get('content-type')
+  if (!isDefined(contentType) || isJsonHeader(contentType)) {
+    // JSON.stringify the body if the content type is JSON or has not been set
+    return JSON.stringify(body)
+  }
+  switch (contentType) {
     case 'application/x-www-form-urlencoded': {
       if (typeof body === 'object' && body !== null) {
         return Object.entries(body)
@@ -345,7 +351,8 @@ const getRequestBody = ({
     case 'text/plain':
       return String(body)
     default:
-      return JSON.stringify(body)
+      // For other content types, we return the body as is
+      return body
   }
 }
 
