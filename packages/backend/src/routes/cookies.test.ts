@@ -41,6 +41,26 @@ describe('Set cookie', () => {
     expect(parts).toContain('HttpOnly')
     expect(parts.some((part) => part.startsWith('Expires='))).toBe(true)
   })
+  it('Should allow deleting a cookie by setting ttl to 0', async () => {
+    const searchParams = new URLSearchParams({
+      name: 'hello',
+      value: 'world',
+      ttl: '0',
+    })
+    const res = await app.request(
+      `/.nordcraft/cookies/set-cookie?${searchParams.toString()}`,
+      {},
+    )
+    expect(res.status).toBe(200)
+    const header = res.headers.get('set-cookie')
+    const parts = header?.split('; ') ?? []
+    expect(parts).toContain('hello=world')
+    expect(parts).toContain('SameSite=Lax')
+    expect(parts).toContain('Path=/')
+    expect(parts).toContain('Secure')
+    expect(parts).toContain('HttpOnly')
+    expect(parts).toContain('Max-Age=0')
+  })
   it('Should fail for invalid parameters', async () => {
     const searchParams = new URLSearchParams({
       name: 'hello',

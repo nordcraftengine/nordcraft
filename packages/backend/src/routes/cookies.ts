@@ -9,32 +9,26 @@ export const setCookieHandler: Handler<HonoEnv> = async (ctx) => {
   const value = searchParameters.get('value')
   const sameSite = searchParameters.get('sameSite') ?? 'Lax'
   const path = searchParameters.get('path') ?? '/'
-  const ttl = searchParameters.get('ttl')
+  const _ttl = searchParameters.get('ttl')
   const includeSubdomains =
     searchParameters.get('includeSubdomains') !== 'false' // default to true
 
   if (typeof name !== 'string' || name === '') {
     return ctx.json(
       { error: `Bad request. The name must be of type string.` },
-      {
-        status: 400,
-      },
+      400,
     )
   }
   if (typeof value !== 'string') {
     return ctx.json(
       { error: `Bad request. The value must be of type string.` },
-      {
-        status: 400,
-      },
+      400,
     )
   }
   if (['lax', 'strict', 'none'].includes(sameSite.toLowerCase()) === false) {
     return ctx.json(
       { error: `Bad request. The sameSite must be "Lax", "Strict" or "None".` },
-      {
-        status: 400,
-      },
+      400,
     )
   }
   if (typeof path !== 'string' || !path.startsWith('/')) {
@@ -42,23 +36,23 @@ export const setCookieHandler: Handler<HonoEnv> = async (ctx) => {
       {
         error: `Bad request. The path must be of type string and start with /.`,
       },
-      {
-        status: 400,
-      },
+      400,
     )
   }
-  if (typeof ttl === 'string' && isNaN(Number(ttl))) {
-    return ctx.json(
-      { error: `Bad request. The ttl must be a valid number.` },
-      {
-        status: 400,
-      },
-    )
+  let ttl: number | undefined
+  if (typeof _ttl === 'string') {
+    ttl = Number(_ttl)
+    if (isNaN(ttl)) {
+      return ctx.json(
+        { error: `Bad request. The ttl must be a valid number.` },
+        400,
+      )
+    }
   }
 
   let expirationDate: Date | undefined
-  if (typeof ttl === 'string' && Number(ttl) > 0) {
-    expirationDate = new Date(Date.now() + Number(ttl) * 1000)
+  if (typeof ttl === 'number' && ttl > 0) {
+    expirationDate = new Date(Date.now() + Number(_ttl) * 1000)
   } else {
     // If no ttl was provided, in case this is a jwt, we determine the expiry date from the payload
     const accessTokenPayload = decodeToken(value)
@@ -77,6 +71,8 @@ export const setCookieHandler: Handler<HonoEnv> = async (ctx) => {
   ]
   if (expirationDate) {
     cookieParts.push(`Expires=${expirationDate.toUTCString()}`)
+  } else if (ttl === 0) {
+    cookieParts.push('Max-Age=0') // Delete the cookie
   }
   if (includeSubdomains) {
     // When the domain is set, the cookie is also available to subdomains - otherwise
