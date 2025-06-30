@@ -1,0 +1,15 @@
+{
+  "name": "github-release-assets",
+  "scripts": {
+    "predev": "cd .. && bun bin/prepareReleaseAssets.ts",
+    "dev": "bun --watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "watch": "tsc --noEmit -w"
+  },
+  "dependencies": {
+    "hono": "4.7.11"
+  },
+  "devDependencies": {
+    "@types/node": "24.0.3"
+  }
+}
