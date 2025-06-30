@@ -26,6 +26,8 @@ export interface ToddleProject {
   emoji?: string | null
   type: 'app' | 'package'
   thumbnail?: { path: string } | null
+  // See https://github.com/nordcraftengine/nordcraft/releases
+  nordcraftVersion?: string
 }
 
 export interface ProjectFiles {
