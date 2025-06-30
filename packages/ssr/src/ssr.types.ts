@@ -37,7 +37,7 @@ export interface ProjectFiles {
   routes?: Record<string, Route>
   config?: {
     // See https://github.com/nordcraftengine/nordcraft/releases
-    nordcraftVersion?: string
+    runtimeVersion?: string
     theme: OldTheme
     meta?: {
       icon?: { formula: Formula }
