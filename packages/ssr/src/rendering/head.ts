@@ -140,9 +140,9 @@ export const getHeadItems = ({
     ],
     [
       'meta:application-name',
-      `<meta name="application-name" content="${
-        project.short_id === 'toddle' ? 'toddle' : escapeAttrValue(project.name)
-      }">`,
+      `<meta name="application-name" content="${escapeAttrValue(
+        project.name,
+      )}">`,
     ],
     [
       'script:speculationrules',
