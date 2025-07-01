@@ -201,27 +201,26 @@ const renderComponent = async ({
         node['style-variables']
           ?.filter((styleVariable) => styleVariable.version === 2)
           .forEach((styleVariable) => {
-            addStyleVariable(
-              `[data-id="${path}"].${classHash}`,
-              `--${styleVariable.name}: ${applyFormula(
-                styleVariable.formula,
-                formulaContext,
-              )}`,
-            )
+            const value = applyFormula(styleVariable.formula, formulaContext)
+            if (isDefined(value)) {
+              addStyleVariable(
+                `[data-id="${path}"].${classHash}`,
+                `--${styleVariable.name}: ${value}`,
+              )
+            }
           })
 
         node.variants?.forEach((variant) => {
           variant['style-variables']?.forEach((styleVariable) => {
             // style-variables on variants are always version 2
-
-            addStyleVariable(
-              `[data-id="${path}"].${classHash}${variantSelector(variant)}`,
-              `--${styleVariable.name}: ${applyFormula(
-                styleVariable.formula,
-                formulaContext,
-              )}`,
-              variant,
-            )
+            const value = applyFormula(styleVariable.formula, formulaContext)
+            if (isDefined(value)) {
+              addStyleVariable(
+                `[data-id="${path}"].${classHash}${variantSelector(variant)}`,
+                `--${styleVariable.name}: ${value}`,
+                variant,
+              )
+            }
           })
         })
 
@@ -445,27 +444,30 @@ const renderComponent = async ({
 
         // Add extra instance styling for each style-variable
         node['style-variables']?.forEach((styleVariable) => {
-          addStyleVariable(
-            `[data-id="${path}"].${component.name}\\:${id}`,
-            `--${styleVariable.name}: ${applyFormula(
-              styleVariable.formula,
-              formulaContext,
-            )}`,
-          )
-        })
-
-        node.variants?.forEach((variant) => {
-          variant['style-variables']?.forEach((styleVariable) => {
+          const value = applyFormula(styleVariable.formula, formulaContext)
+          if (isDefined(value)) {
             addStyleVariable(
-              `[data-id="${path}"].${component.name}\\:${id}${variantSelector(
-                variant,
-              )}`,
+              `[data-id="${path}"].${component.name}\\:${id}`,
               `--${styleVariable.name}: ${applyFormula(
                 styleVariable.formula,
                 formulaContext,
               )}`,
-              variant,
             )
+          }
+        })
+
+        node.variants?.forEach((variant) => {
+          variant['style-variables']?.forEach((styleVariable) => {
+            const value = applyFormula(styleVariable.formula, formulaContext)
+            if (isDefined(value)) {
+              addStyleVariable(
+                `[data-id="${path}"].${component.name}\\:${id}${variantSelector(
+                  variant,
+                )}`,
+                `--${styleVariable.name}: ${value}`,
+                variant,
+              )
+            }
           })
         })
 

@@ -33,6 +33,7 @@ export const getHeadItems = ({
   project,
   theme,
   url,
+  styleVariables,
 }: {
   // Optional cache buster for reset stylesheet + manifest url. Could be a commit sha for instance
   cacheBuster?: string
@@ -45,6 +46,7 @@ export const getHeadItems = ({
   project: ToddleProject
   theme: OldTheme | Theme
   url: URL
+  styleVariables: ReadonlyArray<string>
 }): Map<HeadItemType, string> => {
   const pageInfo = page.route?.info
   const title = getPageTitle({
@@ -110,6 +112,10 @@ export const getHeadItems = ({
     [
       'link:page',
       `<link rel="stylesheet" fetchpriority="high" href="${escapeAttrValue(urlWithCacheBuster(pageStylesheetPath, cacheBuster))}" />`,
+    ],
+    [
+      'style:variables',
+      `<style id="initial-style-variables">${styleVariables.join('\n')}</style>`,
     ],
     ...preloadFonts,
     // Initialize default head items (meta + links)

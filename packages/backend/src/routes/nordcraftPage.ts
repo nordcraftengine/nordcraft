@@ -83,26 +83,10 @@ export const nordcraftPage = async ({
       packages: files.packages,
     },
   })
-  const head = renderHeadItems({
-    headItems: getHeadItems({
-      url,
-      // This refers to the endpoint we created in fontRouter for our proxied stylesheet
-      cssBasePath: '/.toddle/fonts/stylesheet/css2',
-      // Just to be explicit about where to grab the reset stylesheet from
-      resetStylesheetPath: '/_static/reset.css',
-      // This refers to the generated stylesheet for each page
-      pageStylesheetPath: `/_static/${page.name}.css`,
-      page: toddleComponent,
-      files: files,
-      project,
-      context: formulaContext,
-      theme,
-    }),
-  })
 
   let apiCache: ApiCache
   let body: string
-  let styleVariables: string
+  let styleVariables: string[] = []
   try {
     const pageBody = await renderPageBody({
       component: toddleComponent,
@@ -116,7 +100,7 @@ export const nordcraftPage = async ({
     })
     apiCache = pageBody.apiCache
     body = pageBody.html
-    styleVariables = Array.from(pageBody.styleVariables).join('\n')
+    styleVariables = pageBody.styleVariables
   } catch (e) {
     if (e instanceof RedirectError) {
       return new Response(null, {
@@ -132,6 +116,25 @@ export const nordcraftPage = async ({
       return new Response('Internal server error', { status: 500 })
     }
   }
+
+  const head = renderHeadItems({
+    headItems: getHeadItems({
+      url,
+      // This refers to the endpoint we created in fontRouter for our proxied stylesheet
+      cssBasePath: '/.toddle/fonts/stylesheet/css2',
+      // Just to be explicit about where to grab the reset stylesheet from
+      resetStylesheetPath: '/_static/reset.css',
+      // This refers to the generated stylesheet for each page
+      pageStylesheetPath: `/_static/${page.name}.css`,
+      page: toddleComponent,
+      files: files,
+      project,
+      context: formulaContext,
+      theme,
+      styleVariables,
+    }),
+  })
+
   const charset = getCharset({
     pageInfo: toddleComponent.route?.info,
     formulaContext,
@@ -200,9 +203,6 @@ export const nordcraftPage = async ({
           <!--googleoff: all-->
           ${raw(codeImport)}
           <!--googleon: all-->
-          <style id="initial-style-variables">
-            ${raw(styleVariables)}
-          </style>
         </head>
         <body>
           <div id="App">${raw(body)}</div>
