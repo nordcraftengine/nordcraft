@@ -1,7 +1,12 @@
 import type { RouteDeclaration } from '@nordcraft/core/dist/component/component.types'
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
+import {
+  isToddleFormula,
+  type PluginFormula,
+} from '@nordcraft/core/dist/formula/formulaTypes'
 import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
 import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
+import { filterObject } from '@nordcraft/core/dist/utils/collections'
 import { takeIncludedComponents } from '../components/utils'
 import {
   generateCustomCodeFile,
@@ -65,6 +70,7 @@ export const splitRoutes = (json: {
         })
         stylesMap[name] = styles
         let customCode = false
+        let formulas: Record<string, PluginFormula<string>> = {}
         if (hasCustomCode(component, files)) {
           customCode = true
           const code = takeReferencedFormulasAndActions({
@@ -77,7 +83,12 @@ export const splitRoutes = (json: {
             projectId: json.project.short_id,
           })
           codeMap[name] = output
+          formulas = filterObject(code.__PROJECT__.formulas, ([_, formula]) =>
+            // custom formulas are not supported during SSR yet
+            isToddleFormula(formula),
+          )
         }
+
         filesMap[name] = {
           files: {
             customCode,
@@ -86,6 +97,9 @@ export const splitRoutes = (json: {
             components: Object.fromEntries(
               components.map((c) => [c.name, removeTestData(c)]),
             ),
+            formulas,
+            // TODO: Only include relevant components, formulas and actions from packages
+            packages: files.packages,
           },
         }
       }
