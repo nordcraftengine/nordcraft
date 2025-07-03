@@ -204,7 +204,7 @@ const renderComponent = async ({
             const value = applyFormula(styleVariable.formula, formulaContext)
             if (isDefined(value)) {
               addStyleVariable(
-                `[data-id="${path}"].${classHash}`,
+                `[data-id="${path}"]`,
                 `--${styleVariable.name}: ${value}`,
               )
             }
@@ -216,7 +216,7 @@ const renderComponent = async ({
             const value = applyFormula(styleVariable.formula, formulaContext)
             if (isDefined(value)) {
               addStyleVariable(
-                `[data-id="${path}"].${classHash}${variantSelector(variant)}`,
+                `[data-id="${path}"]${variantSelector(variant)}`,
                 `--${styleVariable.name}: ${value}`,
                 variant,
               )

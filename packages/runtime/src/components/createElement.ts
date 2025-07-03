@@ -149,7 +149,7 @@ export function createElement({
           }),
         )
 
-        const selector = `[data-id="${path}"].${classHash}`
+        const selector = `[data-id="${path}"]`
         signal.subscribe(
           STYLE_VARIABLE_STYLESHEET.registerStyleProperty(selector, name),
           {
