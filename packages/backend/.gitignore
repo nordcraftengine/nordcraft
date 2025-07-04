@@ -4,5 +4,6 @@ node_modules/
 assets/
 dist/
 .wrangler
+nordcraft-internal
 
 .DS_Store

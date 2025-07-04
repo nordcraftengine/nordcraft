@@ -1,14 +1,12 @@
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { Context } from 'hono'
 import type { HonoEnv } from '../../hono'
 
-export type PageLoader = ({
+type MaybePromise<T> = T | Promise<T>
+
+export type PageLoader<T = any> = ({
   name,
 }: {
   name: string
-  env: Context<HonoEnv>['env']
-}) => Promise<
-  | (ProjectFiles & {
-      customCode: boolean
-    })
-  | undefined
->
+  ctx: Context<HonoEnv<T>>
+}) => MaybePromise<(ProjectFiles & { customCode: boolean }) | undefined>
