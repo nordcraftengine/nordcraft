@@ -1,0 +1,13 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "toddle-worker-example"
+
+main = "src/index-preview.ts"
+compatibility_date = "2025-02-05"
+
+[observability.logs]
+enabled = true
+
+[durable_objects]
+bindings = [
+  { name = "BRANCH_STATE", class_name = "BranchController", script_name = "worker" }
+]

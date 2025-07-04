@@ -1,13 +1,13 @@
 import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import { splitRoutes } from '@nordcraft/ssr/dist/utils/routes'
 import { Hono } from 'hono'
+import { createMiddleware } from 'hono/factory'
 import { poweredBy } from 'hono/powered-by'
-import type { HonoEnv } from '../hono'
+import type { HonoRoutes, PreviewHonoEnv } from '../hono'
 import type { PageLoader } from './loaders/types'
 import { loadJsFile } from './middleware/jsLoader'
 import { notFoundLoader } from './middleware/notFoundLoader'
-import { loadProjectInfo } from './middleware/projectInfo'
-import { routesLoader } from './middleware/routesLoader'
 import { proxyRequestHandler } from './routes/apiProxy'
 import { setCookieHandler } from './routes/cookies'
 import { customElement } from './routes/customElement'
@@ -23,7 +23,7 @@ import { sitemap } from './routes/sitemap'
 // Inject isEqual on globalThis used by some builtin formulas
 initIsEqual()
 
-const app = new Hono<HonoEnv>({ strict: false })
+const app = new Hono<PreviewHonoEnv>({ strict: false })
 
 app.use(poweredBy({ serverName: 'Nordcraft' })) // 🌲🌲🌲
 
@@ -37,7 +37,24 @@ app.all(
 app.get('/.nordcraft/cookies/set-cookie', setCookieHandler)
 
 // Load project info and all routes for endpoints below to use
-app.use(routesLoader, loadProjectInfo)
+const fileLoader = createMiddleware<PreviewHonoEnv<HonoRoutes>>(
+  async (ctx, next) => {
+    console.log(ctx.env)
+    // Load files from Durable Object
+    const id = ctx.env.BRANCH_STATE.idFromName(
+      `/projects/${ctx.env.PROJECT_SHORT_ID}/branch/${ctx.env.BRANCH_NAME}`,
+    )
+    const branchState = ctx.env.BRANCH_STATE.get(id)
+    const fullProject = await branchState.getFiles(
+      ctx.env.PROJECT_SHORT_ID,
+      ctx.env.BRANCH_NAME,
+    )
+    const { project, routes, files, styles, code } = splitRoutes(fullProject)
+    // ctx.set('routes', )
+    return next()
+  },
+)
+app.use(fileLoader)
 
 app.get('/.toddle/custom-element/:filename{.+.js}', customElement)
 
