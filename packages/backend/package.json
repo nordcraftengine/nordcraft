@@ -4,6 +4,8 @@
     "predev": "bun run build",
     "dev": "wrangler dev --no-bundle --port 8989",
     "build": "bun bin/syncStaticAssets.ts && bunx esbuild --bundle --outdir=dist --platform=node --format=esm src/index.ts",
+    "preview": "wrangler dev --port 8989 -c wrangler-preview.toml --var PROJECT_SHORT_ID:awesome_blog --var BRANCH_NAME:main",
+    "previewLol": "wrangler dev --port 8989 -c wrangler-preview.toml -c ../../../toddle-internal/packages/worker/wrangler.toml --var PROJECT_SHORT_ID:awesome_blog --var BRANCH_NAME:main",
     "deploy": "wrangler deploy --no-bundle",
     "typecheck": "tsc --noEmit",
     "watch": "tsc --noEmit -w"
