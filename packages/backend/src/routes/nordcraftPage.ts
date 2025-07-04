@@ -29,11 +29,16 @@ export const nordcraftPage = async ({
   project,
   files,
   page,
+  options,
 }: {
   hono: Context<HonoEnv<any>>
   project: ToddleProject
   files: ProjectFiles & { customCode: boolean }
   page: PageComponent
+  options?: {
+    pageStylesheetUrl?: (name: string) => string
+    customCodeUrl?: (name: string) => string
+  }
 }) => {
   const url = new URL(hono.req.raw.url)
   const formulaContext = getPageFormulaContext({
@@ -91,7 +96,9 @@ export const nordcraftPage = async ({
       // Just to be explicit about where to grab the reset stylesheet from
       resetStylesheetPath: '/_static/reset.css',
       // This refers to the generated stylesheet for each page
-      pageStylesheetPath: `/_static/${page.name}.css`,
+      pageStylesheetPath: options?.pageStylesheetUrl
+        ? options.pageStylesheetUrl(page.name)
+        : `/_static/${page.name}.css`,
       page: toddleComponent,
       files: files,
       project,
@@ -156,7 +163,7 @@ export const nordcraftPage = async ({
             </script>
             <script type="module">
               import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
-              import { loadCustomCode, formulas, actions } from '/_static/cc_${toddleComponent.name}.js';
+              import { loadCustomCode, formulas, actions } from '${options?.customCodeUrl ? options.customCodeUrl(toddleComponent.name) : `/_static/cc_${toddleComponent.name}.js`}'
 
               window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
               window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
