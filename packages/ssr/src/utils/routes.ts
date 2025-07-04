@@ -21,7 +21,10 @@ interface Routes {
   routes: Record<string, Route>
 }
 
-type Files = Record<string, { files: ProjectFiles & { customCode: boolean } }>
+export type Files = Record<
+  string,
+  { files: ProjectFiles & { customCode: boolean } }
+>
 
 export const splitRoutes = (json: {
   files: ProjectFiles

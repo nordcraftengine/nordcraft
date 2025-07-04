@@ -8,7 +8,7 @@ export const notFoundLoader: (
   pageLoader: PageLoader,
 ) => NotFoundHandler<HonoEnv<HonoRoutes & HonoProject>> =
   (pageLoader) => async (ctx) => {
-    const pageContent = await pageLoader({ env: ctx.env, name: '404' })
+    const pageContent = await pageLoader({ ctx, name: '404' })
     const component = pageContent?.components?.['404']
     if (!component || !isPageComponent(component)) {
       return ctx.text('Not Found', {

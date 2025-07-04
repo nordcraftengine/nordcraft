@@ -7,18 +7,19 @@ import { nordcraftPage } from './nordcraftPage'
 
 export const pageHandler: (
   pageLoader: PageLoader,
+  options?: {
+    pageStylesheetUrl?: (name: string) => string
+    customCodeUrl?: (name: string) => string
+  },
 ) => MiddlewareHandler<HonoEnv<HonoRoutes & HonoProject>> =
-  (pageLoader) => async (ctx, next) => {
+  (pageLoader, options) => async (ctx, next) => {
     const url = new URL(ctx.req.url)
     const pageMatch = matchPageForUrl({
       url,
       pages: Object.values(ctx.var.routes.pages),
     })
     if (pageMatch) {
-      const pageContent = await pageLoader({
-        env: ctx.env,
-        name: pageMatch.name,
-      })
+      const pageContent = await pageLoader({ ctx, name: pageMatch.name })
       const component = pageContent?.components?.[pageMatch.name]
       if (!component || !isPageComponent(component)) {
         return next()
@@ -29,6 +30,7 @@ export const pageHandler: (
         files: pageContent,
         page: component,
         status: pageMatch.name === '404' ? 404 : 200,
+        options,
       })
     }
     return next()
