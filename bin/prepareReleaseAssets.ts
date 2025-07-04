@@ -79,6 +79,20 @@ const run = async () => {
     entryNames: `[name].esm`,
   })
 
+  // Build the preview backend worker
+  await build({
+    entryPoints: ['packages/backend/src/preview.index.ts'],
+    bundle: true,
+    sourcemap: true,
+    minify: true,
+    write: true,
+    outfile: 'dist/preview.backend.js',
+    platform: 'node',
+    format: 'esm',
+    allowOverwrite: true,
+    entryNames: `[name].esm`,
+  })
+
   // Build html elements for the editor
   createTempFileFromValue(
     'elements.json',
