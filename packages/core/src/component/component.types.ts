@@ -62,12 +62,7 @@ export interface StyleVariant {
   startingStyle?: boolean
   pseudoElement?: string
   style: NodeStyleModel
-  'style-variables'?: Array<{
-    version: 2
-    name: string
-    syntax: CssSyntaxNode
-    formula: Formula
-  }>
+  'style-variables'?: Array<StyleVariable>
 }
 
 export type NodeStyleModel = Record<string, string>
@@ -81,6 +76,21 @@ export interface TextNodeModel {
   repeatKey?: Formula
   value: Formula
   children?: undefined
+}
+
+export type StyleVariable = {
+  version: 2
+  name: string
+  syntax: CssSyntaxNode
+  formula: Formula
+}
+
+export type StyleVariableLegacy = {
+  version: 1 | undefined
+  category: StyleTokenCategory
+  name: string
+  formula: Formula
+  unit?: string
 }
 
 export interface ElementNodeModel {
@@ -98,21 +108,7 @@ export interface ElementNodeModel {
   children: string[]
   events: Record<string, EventModel>
   classes: Record<string, { formula?: Formula }>
-  'style-variables'?: Array<
-    | {
-        version: 1 | undefined
-        category: StyleTokenCategory
-        name: string
-        formula: Formula
-        unit?: string
-      }
-    | {
-        version: 2
-        name: string
-        syntax: CssSyntaxNode
-        formula: Formula
-      }
-  >
+  'style-variables'?: Array<StyleVariableLegacy | StyleVariable>
 }
 
 export interface ComponentNodeModel {
@@ -131,12 +127,7 @@ export interface ComponentNodeModel {
   attrs: Record<string, Formula>
   children: string[]
   events: Record<string, EventModel>
-  'style-variables'?: Array<{
-    version: 2
-    name: string
-    syntax: CssSyntaxNode
-    formula: Formula
-  }>
+  'style-variables'?: Array<StyleVariable>
 }
 
 export interface SlotNodeModel {
