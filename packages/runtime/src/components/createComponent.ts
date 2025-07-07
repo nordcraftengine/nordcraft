@@ -5,6 +5,7 @@ import type {
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { isContextApiV2 } from '../api/apiUtils'
@@ -19,6 +20,7 @@ import { signal } from '../signal/signal'
 import type { ComponentChild, ComponentContext, ContextApi } from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
 import { renderComponent } from './renderComponent'
+import { STYLE_VARIABLE_STYLESHEET } from './STYLE_VARIABLE_STYLESHEET'
 
 export type RenderComponentNodeProps = {
   path: string
@@ -67,6 +69,70 @@ export function createComponent({
           })
         : value?.value,
     ])
+  })
+  // Sync the constructed stylesheet with style variable formula signal
+  node['style-variables']?.forEach((styleVariable) => {
+    const signal = dataSignal.map((data) => {
+      return applyFormula(styleVariable.formula, {
+        data,
+        component: ctx.component,
+        formulaCache: ctx.formulaCache,
+        root: ctx.root,
+        package: ctx.package,
+        toddle: ctx.toddle,
+        env: ctx.env,
+      })
+    })
+
+    const selector = `[data-id="${path}"].${ctx.component.name}\\:${node.id}`
+    signal.subscribe(
+      STYLE_VARIABLE_STYLESHEET.registerStyleProperty(
+        selector,
+        styleVariable.name,
+      ),
+      {
+        destroy: () =>
+          STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(
+            selector,
+            styleVariable.name,
+          ),
+      },
+    )
+  })
+  node.variants?.forEach((variant) => {
+    variant['style-variables']?.forEach((styleVariable) => {
+      // style-variables on variants are always version 2
+      const signal = dataSignal.map((data) =>
+        applyFormula(styleVariable.formula, {
+          data,
+          component: ctx.component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+        }),
+      )
+
+      const selector = `[data-id="${path}"].${ctx.component.name}\\:${node.id}${variantSelector(
+        variant,
+      )}`
+
+      signal.subscribe(
+        STYLE_VARIABLE_STYLESHEET.registerStyleProperty(
+          selector,
+          styleVariable.name,
+          variant,
+        ),
+        {
+          destroy: () =>
+            STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(
+              selector,
+              styleVariable.name,
+            ),
+        },
+      )
+    })
   })
 
   const componentDataSignal = signal<ComponentData>({

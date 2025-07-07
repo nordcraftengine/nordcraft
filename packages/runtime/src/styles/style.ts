@@ -9,6 +9,10 @@ import {
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
 import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
+import {
+  syntaxNodeToPropertyAtDefinition,
+  type CssSyntaxNode,
+} from '@nordcraft/core/dist/styling/styleProperty'
 import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { omitKeys } from '@nordcraft/core/dist/utils/collections'
 
@@ -61,6 +65,7 @@ export const insertStyles = (
   root: Component,
   components: Component[],
 ) => {
+  const registeredStyleVariables = new Map<string, CssSyntaxNode>()
   const getNodeStyles = (
     node: ElementNodeModel | ComponentNodeModel,
     classHash: string,
@@ -131,6 +136,34 @@ ${
         .join('\n')
     : ''
 }
+${[
+  ...(node['style-variables'] ?? []),
+  ...(node.variants?.flatMap((variant) => variant['style-variables']) ?? []),
+]
+  .map((styleVariable) => {
+    if (!styleVariable || styleVariable.version !== 2) {
+      return ''
+    }
+    const existingVariable = registeredStyleVariables.get(styleVariable.name)
+    if (existingVariable) {
+      // Warn if the style variable is already registered with a different syntax, as registration is global.
+      // The editor should also report an Error-level issue to fix this kind of issue.
+      if (
+        existingVariable.type === 'primitive' &&
+        styleVariable.syntax.type === 'primitive' &&
+        existingVariable.name !== styleVariable.syntax.name
+      ) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Style variable ${styleVariable.name} is already registered with a different syntax node: ${existingVariable.name}. This may cause unexpected behavior as syntax from the first registered variable will be used <${existingVariable.name}>.`,
+        )
+      }
+      return ''
+    }
+    registeredStyleVariables.set(styleVariable.name, styleVariable.syntax)
+    return syntaxNodeToPropertyAtDefinition(styleVariable)
+  })
+  .join('\n')}
   `),
     )
     return styleElem

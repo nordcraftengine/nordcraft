@@ -8,6 +8,7 @@ import {
   getClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
+import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
@@ -16,6 +17,7 @@ import { getElementTagName } from '../utils/getElementTagName'
 import { setAttribute } from '../utils/setAttribute'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
+import { STYLE_VARIABLE_STYLESHEET } from './STYLE_VARIABLE_STYLESHEET'
 
 export function createElement({
   node,
@@ -130,21 +132,82 @@ export function createElement({
       setupAttribute()
     }
   })
-  node['style-variables']?.forEach(({ formula, name, unit }) => {
-    const sig = dataSignal.map((data) => {
-      const value = applyFormula(formula, {
-        data,
-        component: ctx.component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
-      })
-      return unit ? value + unit : value
-    })
-    sig.subscribe((value) => elem.style.setProperty(`--${name}`, value))
+  node['style-variables']?.forEach((styleVariable) => {
+    switch (styleVariable.version) {
+      case 2: {
+        const { name, formula } = styleVariable
+        const signal = dataSignal.map((data) =>
+          applyFormula(formula, {
+            data,
+            component: ctx.component,
+            formulaCache: ctx.formulaCache,
+            root: ctx.root,
+            package: ctx.package,
+            toddle: ctx.toddle,
+            env: ctx.env,
+          }),
+        )
+
+        const selector = `[data-id="${path}"]`
+        signal.subscribe(
+          STYLE_VARIABLE_STYLESHEET.registerStyleProperty(selector, name),
+          {
+            destroy: () => {
+              STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(selector, name)
+            },
+          },
+        )
+
+        break
+      }
+      default: {
+        const { name, formula, unit } = styleVariable
+        const signal = dataSignal.map((data) => {
+          const value = applyFormula(formula, {
+            data,
+            component: ctx.component,
+            formulaCache: ctx.formulaCache,
+            root: ctx.root,
+            package: ctx.package,
+            toddle: ctx.toddle,
+            env: ctx.env,
+          })
+          return unit ? value + unit : value
+        })
+
+        signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
+      }
+    }
   })
+
+  node.variants?.forEach((variant) => {
+    variant['style-variables']?.forEach((styleVariable) => {
+      // style-variables on variants are always version 2
+      const { name, formula } = styleVariable
+      const signal = dataSignal.map((data) =>
+        applyFormula(formula, {
+          data,
+          component: ctx.component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+        }),
+      )
+
+      const selector = `[data-id="${path}"]${variantSelector(variant)}`
+      signal.subscribe(
+        STYLE_VARIABLE_STYLESHEET.registerStyleProperty(selector, name),
+        {
+          destroy: () => {
+            STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(selector, name)
+          },
+        },
+      )
+    })
+  })
+
   Object.values(node.events).forEach((event) => {
     const handler = (e: Event) => {
       event.actions.forEach((action) => {

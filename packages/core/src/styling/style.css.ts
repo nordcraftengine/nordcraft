@@ -3,6 +3,10 @@ import type { Component } from '../component/component.types'
 import { omitKeys } from '../utils/collections'
 import { isDefined } from '../utils/util'
 import { getClassName, toValidClassName } from './className'
+import {
+  syntaxNodeToPropertyAtDefinition,
+  type CssSyntaxNode,
+} from './styleProperty'
 import type { OldTheme, Theme, ThemeOptions } from './theme'
 import { getThemeCss } from './theme'
 import type {
@@ -76,6 +80,7 @@ export const createStylesheet = (
 ) => {
   const hashes = new Set<string>()
   const animationHashes = new Set<string>()
+  const registeredStyleVariables = new Map<string, CssSyntaxNode>()
 
   // Get fonts used on the page
   const fonts = getAllFonts(components)
@@ -235,6 +240,39 @@ ${selector}::-webkit-scrollbar {
                 .join('\n')
             : ''
         }
+        ${[
+          ...(node['style-variables'] ?? []),
+          ...(node.variants?.flatMap((variant) => variant['style-variables']) ??
+            []),
+        ]
+          .map((styleVariable) => {
+            if (!styleVariable || styleVariable.version !== 2) {
+              return ''
+            }
+            const existingVariable = registeredStyleVariables.get(
+              styleVariable.name,
+            )
+            if (existingVariable) {
+              // Warn if the style variable is already registered with a different syntax
+              if (
+                existingVariable.type === 'primitive' &&
+                styleVariable.syntax.type === 'primitive' &&
+                existingVariable.name !== styleVariable.syntax.name
+              ) {
+                // eslint-disable-next-line no-console
+                console.warn(
+                  `Style variable ${styleVariable.name} is already registered with a different syntax node: ${existingVariable.name}. This may cause unexpected behavior as syntax from the first registered variable will be used <${existingVariable.name}>.`,
+                )
+              }
+              return ''
+            }
+            registeredStyleVariables.set(
+              styleVariable.name,
+              styleVariable.syntax,
+            )
+            return syntaxNodeToPropertyAtDefinition(styleVariable)
+          })
+          .join('\n')}
       `
     } catch (e) {
       // eslint-disable-next-line no-console

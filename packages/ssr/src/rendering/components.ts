@@ -5,6 +5,7 @@ import type {
 import type {
   Component,
   ComponentData,
+  MediaQuery,
   NodeModel,
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
@@ -18,6 +19,7 @@ import {
   getClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
+import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { mapValues } from '@nordcraft/core/dist/utils/collections'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { escapeAttrValue } from 'xss'
@@ -27,6 +29,7 @@ import type { ApiCache, ApiEvaluator } from './api'
 import { getNodeAttrs, toEncodedText } from './attributes'
 
 const renderComponent = async ({
+  path,
   apiCache,
   children,
   component,
@@ -41,8 +44,10 @@ const renderComponent = async ({
   projectId,
   req,
   updateApiCache,
+  addStyleVariable,
   namespace,
 }: {
+  path: string
   apiCache: ApiCache
   children?: Record<string, string>
   component: Component
@@ -56,11 +61,20 @@ const renderComponent = async ({
   packageName: string | undefined
   projectId: string
   req: Request
-  namespace?: SupportedNamespaces
   updateApiCache: (key: string, value: ApiStatus) => void
+  addStyleVariable: (
+    selector: string,
+    rule: string,
+    options?: {
+      mediaQuery?: MediaQuery
+      startingStyle?: boolean
+    },
+  ) => void
+  namespace?: SupportedNamespaces
 }): Promise<string> => {
   const renderNode = async ({
     id,
+    path,
     node,
     data,
     packageName,
@@ -68,6 +82,7 @@ const renderComponent = async ({
     namespace,
   }: {
     id: string
+    path: string
     node: NodeModel | undefined
     data: ComponentData
     packageName: string | undefined
@@ -95,6 +110,7 @@ const renderComponent = async ({
         items.map((Item, Index) =>
           renderNode({
             id,
+            path: Index ? `${path}(${Index})` : path,
             node: { ...node, repeat: undefined },
             data: {
               ...data,
@@ -135,6 +151,7 @@ const renderComponent = async ({
             node.children.map((child) =>
               renderNode({
                 id: child,
+                path: `${path}[${node.name ?? 'default'}]`,
                 node: component.nodes[child],
                 data,
                 packageName,
@@ -181,15 +198,42 @@ const renderComponent = async ({
             classList += ' ' + toValidClassName(`${key}:${value}`)
           })
         }
+        node['style-variables']
+          ?.filter((styleVariable) => styleVariable.version === 2)
+          .forEach((styleVariable) => {
+            const value = applyFormula(styleVariable.formula, formulaContext)
+            if (isDefined(value)) {
+              addStyleVariable(
+                `[data-id="${path}"]`,
+                `--${styleVariable.name}: ${value}`,
+              )
+            }
+          })
+
+        node.variants?.forEach((variant) => {
+          variant['style-variables']?.forEach((styleVariable) => {
+            // style-variables on variants are always version 2
+            const value = applyFormula(styleVariable.formula, formulaContext)
+            if (isDefined(value)) {
+              addStyleVariable(
+                `[data-id="${path}"]${variantSelector(variant)}`,
+                `--${styleVariable.name}: ${value}`,
+                variant,
+              )
+            }
+          })
+        })
+
         let innerHTML = ''
 
         if (
           ['script', 'style'].includes(node.tag.toLocaleLowerCase()) === false
         ) {
           const childNodes = await Promise.all(
-            node.children.map((child) =>
+            node.children.map((child, i) =>
               renderNode({
                 id: child,
+                path: `${path}.${i}`,
                 namespace,
                 node: component.nodes[child],
                 data,
@@ -214,11 +258,11 @@ const renderComponent = async ({
             : node.tag
         const nodeClasses = `${classHash} ${classList}`.trim()
         if (!VOID_HTML_ELEMENTS.includes(tag)) {
-          return `<${tag} ${nodeAttrs} data-node-id="${escapeAttrValue(
+          return `<${tag} ${nodeAttrs} data-id="${path}" data-node-id="${escapeAttrValue(
             id,
           )}" class="${escapeAttrValue(nodeClasses)}">${innerHTML}</${tag}>`
         } else {
-          return `<${tag} ${nodeAttrs} data-node-id="${escapeAttrValue(
+          return `<${tag} ${nodeAttrs} data-id="${path}" data-node-id="${escapeAttrValue(
             id,
           )}" class="${escapeAttrValue(nodeClasses)}" />`
         }
@@ -318,9 +362,10 @@ const renderComponent = async ({
         })
 
         const childNodes = await Promise.all(
-          node.children.map((child) =>
+          node.children.map((child, i) =>
             renderNode({
               id: child,
+              path: `${path}.${i}`,
               namespace,
               node: component.nodes[child],
               data: {
@@ -397,7 +442,37 @@ const renderComponent = async ({
           children[slotName] = `${children[slotName] ?? ''} ${childNode}`
         })
 
+        // Add extra instance styling for each style-variable
+        node['style-variables']?.forEach((styleVariable) => {
+          const value = applyFormula(styleVariable.formula, formulaContext)
+          if (isDefined(value)) {
+            addStyleVariable(
+              `[data-id="${path}"].${component.name}\\:${id}`,
+              `--${styleVariable.name}: ${applyFormula(
+                styleVariable.formula,
+                formulaContext,
+              )}`,
+            )
+          }
+        })
+
+        node.variants?.forEach((variant) => {
+          variant['style-variables']?.forEach((styleVariable) => {
+            const value = applyFormula(styleVariable.formula, formulaContext)
+            if (isDefined(value)) {
+              addStyleVariable(
+                `[data-id="${path}"].${component.name}\\:${id}${variantSelector(
+                  variant,
+                )}`,
+                `--${styleVariable.name}: ${value}`,
+                variant,
+              )
+            }
+          })
+        })
+
         return createComponent({
+          path,
           attrs,
           component: childComponent,
           contexts,
@@ -416,6 +491,7 @@ const renderComponent = async ({
           files,
           apiCache,
           updateApiCache,
+          addStyleVariable,
           projectId,
           namespace,
           evaluateComponentApis,
@@ -426,6 +502,7 @@ const renderComponent = async ({
   }
   return renderNode({
     id: 'root',
+    path,
     node: component.nodes.root,
     data,
     packageName,
@@ -435,6 +512,7 @@ const renderComponent = async ({
 }
 
 const createComponent = async ({
+  path,
   apiCache,
   apis,
   attrs,
@@ -451,8 +529,10 @@ const createComponent = async ({
   projectId,
   req,
   updateApiCache,
+  addStyleVariable,
   namespace,
 }: {
+  path: string
   apiCache: ApiCache
   apis: Record<
     string,
@@ -474,8 +554,16 @@ const createComponent = async ({
   packageName: string | undefined
   projectId: string
   req: Request
-  updateApiCache: (key: string, value: ApiStatus) => void
   namespace?: SupportedNamespaces
+  updateApiCache: (key: string, value: ApiStatus) => void
+  addStyleVariable: (
+    selector: string,
+    rule: string,
+    options?: {
+      mediaQuery?: MediaQuery
+      startingStyle?: boolean
+    },
+  ) => void
 }): Promise<string> => {
   const data: ComponentData = {
     Location: formulaContext.data.Location,
@@ -509,6 +597,7 @@ const createComponent = async ({
 
   return renderComponent({
     apiCache,
+    path,
     children,
     component,
     data,
@@ -523,6 +612,7 @@ const createComponent = async ({
     req,
     toddle: formulaContext.toddle,
     updateApiCache,
+    addStyleVariable,
   })
 }
 
@@ -551,6 +641,33 @@ export const renderPageBody = async ({
   const apiCache: ApiCache = {}
   const updateApiCache = (key: string, value: ApiStatus) =>
     (apiCache[key] = value)
+  const styleVariables: Map<string, Set<string>> = new Map()
+  const addStyleVariable = (
+    selector: string,
+    rule: string,
+    options?: {
+      mediaQuery?: MediaQuery
+      startingStyle?: boolean
+    },
+  ) => {
+    selector = options?.startingStyle
+      ? `${selector} { @starting-style { __RULES__ } }`
+      : `${selector} { __RULES__ }`
+
+    if (options?.mediaQuery) {
+      selector = `@media (${Object.entries(options.mediaQuery)
+        .map(([key, value]) => `${key}: ${value}`)
+        .filter(Boolean)
+        .join(') and (')}) { ${selector} }`
+    }
+
+    if (!styleVariables.has(selector)) {
+      styleVariables.set(selector, new Set())
+    }
+
+    styleVariables.get(selector)?.add(rule)
+  }
+
   const apis = await evaluateComponentApis({
     component,
     formulaContext,
@@ -561,6 +678,7 @@ export const renderPageBody = async ({
   formulaContext.data.Apis = apis
 
   const html = await renderComponent({
+    path: '0',
     apiCache,
     component,
     data: formulaContext.data,
@@ -574,6 +692,15 @@ export const renderPageBody = async ({
     req,
     toddle: formulaContext.toddle,
     updateApiCache,
+    addStyleVariable,
   })
-  return { html, apiCache }
+  return {
+    html,
+    apiCache,
+    styleVariables: [...styleVariables]
+      .map(([selector, vars]) =>
+        selector.replace('__RULES__', Array.from(vars).join(';\n')),
+      )
+      .toReversed(),
+  }
 }
