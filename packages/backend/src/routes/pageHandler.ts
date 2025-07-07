@@ -10,23 +10,24 @@ export const pageHandler: MiddlewareHandler<
   HonoEnv<HonoRoutes & HonoProject>
 > = async (ctx, next) => {
   const url = new URL(ctx.req.url)
-  const page = matchPageForUrl({
+  const pageMatch = matchPageForUrl({
     url,
     pages: Object.values(ctx.var.routes.pages),
   })
-  if (page) {
+  if (pageMatch) {
     const pageContent = await loadJsFile<
       ProjectFiles & { customCode: boolean }
-    >(`./components/${page.name}.js`)
-    const component = pageContent?.components?.[page.name]
-    if (!component || !isPageComponent(component)) {
+    >(`./components/${pageMatch.name}.js`)
+    const page = pageContent?.components?.[pageMatch.name]
+    if (!page || !isPageComponent(page)) {
       return next()
     }
     return nordcraftPage({
       hono: ctx,
       project: ctx.var.project,
       files: pageContent,
-      page: component,
+      page: page,
+      status: page.name === '404' ? 404 : 200,
     })
   }
   return next()
