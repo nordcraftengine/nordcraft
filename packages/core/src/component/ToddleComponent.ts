@@ -200,6 +200,35 @@ export class ToddleComponent<Handler> {
               })
             }
           }
+          for (const [styleVariableKey, styleVariable] of Object.entries(
+            node['style-variables'] ?? {},
+          )) {
+            yield* getFormulasInFormula({
+              formula: styleVariable.formula,
+              globalFormulas,
+              path: [...path, 'style-variables', styleVariableKey, 'formula'],
+            })
+          }
+          for (const [variantKey, variant] of Object.entries(
+            node.variants ?? {},
+          )) {
+            for (const [styleVariableKey, styleVariable] of Object.entries(
+              variant['style-variables'] ?? {},
+            )) {
+              yield* getFormulasInFormula({
+                formula: styleVariable.formula,
+                globalFormulas,
+                path: [
+                  ...path,
+                  'variants',
+                  variantKey,
+                  'style-variables',
+                  styleVariableKey,
+                  'formula',
+                ],
+              })
+            }
+          }
           break
         case 'element':
           yield* getFormulasInFormula({
