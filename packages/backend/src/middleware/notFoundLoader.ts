@@ -22,5 +22,6 @@ export const notFoundLoader: NotFoundHandler<
     project: ctx.var.project,
     files: pageContent,
     page: component,
+    status: 404,
   })
 }

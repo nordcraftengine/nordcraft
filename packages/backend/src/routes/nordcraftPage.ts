@@ -21,6 +21,7 @@ import {
 } from '@nordcraft/ssr/src/utils/headers'
 import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
 import { evaluateComponentApis, RedirectError } from '../utils/api'
 
@@ -29,11 +30,13 @@ export const nordcraftPage = async ({
   project,
   files,
   page,
+  status,
 }: {
   hono: Context<HonoEnv<any>>
   project: ToddleProject
   files: ProjectFiles & { customCode: boolean }
   page: PageComponent
+  status: ContentfulStatusCode
 }) => {
   const url = new URL(hono.req.raw.url)
   const formulaContext = getPageFormulaContext({
@@ -195,10 +198,9 @@ export const nordcraftPage = async ({
           ${raw(codeImport)}
         </body>
       </html>`,
+    status,
     {
-      headers: {
-        'Content-Type': `text/html; charset=${charset}`,
-      },
+      'Content-Type': `text/html; charset=${charset}`,
     },
   )
 }
