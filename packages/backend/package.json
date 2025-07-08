@@ -14,9 +14,9 @@
     "hono": "4.8.3"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20250628.0",
+    "@cloudflare/workers-types": "4.20250708.0",
     "@nordcraft/runtime": "workspace:*",
     "@types/node": "24.0.10",
-    "wrangler": "4.22.0"
+    "wrangler": "4.23.0"
   }
 }
