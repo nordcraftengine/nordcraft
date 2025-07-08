@@ -63,8 +63,8 @@ export class StylePropertyStyleSheet {
       this.ruleMap.set(fullSelector, rule)
     }
 
-    return (newValue: string) => {
-      rule.style.setProperty(`--${name}`, newValue)
+    return (value: string) => {
+      rule.style.setProperty(`--${name}`, value)
     }
   }
 
@@ -85,20 +85,8 @@ export class StylePropertyStyleSheet {
       options,
     )
 
-    const rule = this.ruleMap.get(fullSelector)
-    if (rule) {
-      rule.style.removeProperty(`--${name}`)
-      if (rule.style.length === 0) {
-        let parentRule: CSSRule = rule
-        while (parentRule.parentRule) {
-          parentRule = parentRule.parentRule
-        }
-        this.styleSheet.deleteRule(
-          Array.from(this.styleSheet.cssRules).indexOf(parentRule),
-        )
-        this.ruleMap.delete(fullSelector)
-      }
-    }
+    // We only clean up the property, as we assume that the rule will be reused.
+    this.ruleMap.get(fullSelector)?.style.removeProperty(`--${name}`)
   }
 
   public getStyleSheet(): CSSStyleSheet {
