@@ -144,10 +144,11 @@ ${[
     if (!styleVariable || styleVariable.version !== 2) {
       return ''
     }
+
     const existingVariable = registeredStyleVariables.get(styleVariable.name)
     if (existingVariable) {
       // Warn if the style variable is already registered with a different syntax, as registration is global.
-      // The editor should also report an Error-level issue to fix this kind of issue.
+      // The editor should also report an Error-level issue.
       if (
         existingVariable.type === 'primitive' &&
         styleVariable.syntax.type === 'primitive' &&
@@ -155,7 +156,7 @@ ${[
       ) {
         // eslint-disable-next-line no-console
         console.warn(
-          `Style variable ${styleVariable.name} is already registered with a different syntax node: ${existingVariable.name}. This may cause unexpected behavior as syntax from the first registered variable will be used <${existingVariable.name}>.`,
+          `Style variable ${styleVariable.name} is already registered with a different syntax: "${existingVariable.name}".`,
         )
       }
       return ''

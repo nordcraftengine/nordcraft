@@ -129,6 +129,7 @@ export function createComponent({
             STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(
               selector,
               styleVariable.name,
+              variant,
             ),
         },
       )

@@ -42,19 +42,15 @@ export class StylePropertyStyleSheet {
   ): (newValue: string) => void {
     this.ruleMap ??= this.generateRuleMap()
 
-    selector =
-      selector + (options?.startingStyle ? ' { @starting-style { }}' : ' { }')
-    if (options?.mediaQuery) {
-      selector = `@media (${Object.entries(options.mediaQuery)
-        .map(([key, value]) => `${key}: ${value}`)
-        .filter(Boolean)
-        .join(') and (')}) { ${selector}}`
-    }
+    const fullSelector = StylePropertyStyleSheet.getFullSelector(
+      selector,
+      options,
+    )
 
     // Check if the selector already exists
-    let rule = this.ruleMap.get(selector)
+    let rule = this.ruleMap.get(fullSelector)
     if (!rule) {
-      const ruleIndex = this.styleSheet.insertRule(selector)
+      const ruleIndex = this.styleSheet.insertRule(fullSelector)
       let newRule = this.styleSheet.cssRules[ruleIndex]
 
       // We are only interested in the dynamic style, so get the actual style rule, not media or other nested rules. Loop until we are at the bottom most rule.
@@ -65,7 +61,7 @@ export class StylePropertyStyleSheet {
         newRule = (newRule as CSSGroupingRule).cssRules[0]
       }
       rule = newRule as CSSStyleRule | CSSNestedDeclarations
-      this.ruleMap.set(selector, rule)
+      this.ruleMap.set(fullSelector, rule)
     }
 
     return (newValue: string) => {
@@ -85,16 +81,12 @@ export class StylePropertyStyleSheet {
       return
     }
 
-    selector =
-      selector + (options?.startingStyle ? ' { @starting-style { }}' : ' { }')
-    if (options?.mediaQuery) {
-      selector = `@media (${Object.entries(options.mediaQuery)
-        .map(([key, value]) => `${key}: ${value}`)
-        .filter(Boolean)
-        .join(') and (')}) { ${selector} }`
-    }
+    const fullSelector = StylePropertyStyleSheet.getFullSelector(
+      selector,
+      options,
+    )
 
-    const rule = this.ruleMap.get(selector)
+    const rule = this.ruleMap.get(fullSelector)
     if (rule) {
       rule.style.removeProperty(`--${name}`)
       if (rule.style.length === 0) {
@@ -105,7 +97,7 @@ export class StylePropertyStyleSheet {
         this.styleSheet.deleteRule(
           Array.from(this.styleSheet.cssRules).indexOf(parentRule),
         )
-        this.ruleMap.delete(selector)
+        this.ruleMap.delete(fullSelector)
       }
     }
   }
@@ -123,7 +115,7 @@ export class StylePropertyStyleSheet {
     const ruleIndex: Map<string, CSSStyleRule> = new Map()
     for (let i = 0; i < this.styleSheet.cssRules.length; i++) {
       let rule = this.styleSheet.cssRules[i]
-      const selector = StylePropertyStyleSheet.getFullSelector(rule)
+      const selector = StylePropertyStyleSheet.selectorFromCSSRule(rule)
       // Get last part of the selector, which is the actual selector we are interested in
       while (
         (rule as any).cssRules &&
@@ -137,26 +129,26 @@ export class StylePropertyStyleSheet {
     return ruleIndex
   }
 
-  private static getFullSelector(rule: CSSRule): string {
+  private static selectorFromCSSRule(rule: CSSRule): string {
     switch (rule.constructor.name) {
       case 'CSSStyleRule':
         // For these rules, we just return (potentially with subrules if any cssRules exist)
         return `${(rule as CSSStyleRule).selectorText} { ${Array.from(
           (rule as CSSStyleRule).cssRules,
         )
-          .map(StylePropertyStyleSheet.getFullSelector)
+          .map(StylePropertyStyleSheet.selectorFromCSSRule)
           .join(', ')}}`
       case 'CSSStartingStyleRule':
         return `@starting-style { ${Array.from(
           (rule as CSSStartingStyleRule).cssRules,
         )
-          .map(StylePropertyStyleSheet.getFullSelector)
+          .map(StylePropertyStyleSheet.selectorFromCSSRule)
           .join(', ')}}`
       case 'CSSMediaRule':
         return `@media ${(rule as CSSMediaRule).media.mediaText} { ${Array.from(
           (rule as CSSMediaRule).cssRules,
         )
-          .map(StylePropertyStyleSheet.getFullSelector)
+          .map(StylePropertyStyleSheet.selectorFromCSSRule)
           .join(', ')}}`
       case 'CSSNestedDeclarations':
         return ''
@@ -167,5 +159,24 @@ export class StylePropertyStyleSheet {
         )
         return ''
     }
+  }
+
+  private static getFullSelector(
+    selector: string,
+    options?: {
+      mediaQuery?: MediaQuery
+      startingStyle?: boolean
+    },
+  ) {
+    let result =
+      selector + (options?.startingStyle ? ' { @starting-style { }}' : ' { }')
+    if (options?.mediaQuery) {
+      result = `@media (${Object.entries(options.mediaQuery)
+        .map(([key, value]) => `${key}: ${value}`)
+        .filter(Boolean)
+        .join(') and (')}) { ${result}}`
+    }
+
+    return result
   }
 }

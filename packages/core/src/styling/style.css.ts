@@ -249,6 +249,7 @@ ${selector}::-webkit-scrollbar {
             if (!styleVariable || styleVariable.version !== 2) {
               return ''
             }
+
             const existingVariable = registeredStyleVariables.get(
               styleVariable.name,
             )
@@ -261,7 +262,7 @@ ${selector}::-webkit-scrollbar {
               ) {
                 // eslint-disable-next-line no-console
                 console.warn(
-                  `Style variable ${styleVariable.name} is already registered with a different syntax node: ${existingVariable.name}. This may cause unexpected behavior as syntax from the first registered variable will be used <${existingVariable.name}>.`,
+                  `Style variable ${styleVariable.name} is already registered with a different syntax: "${existingVariable.name}".`,
                 )
               }
               return ''

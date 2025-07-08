@@ -17,9 +17,7 @@ type CssSyntaxPrimitive =
   | 'transform-list'
   | 'url'
 
-type CssSyntaxComplex = 'background' | 'shadow' | 'shape' | 'font'
-
-export type CssSyntax = CssSyntaxPrimitive | CssSyntaxComplex
+export type CssSyntax = CssSyntaxPrimitive
 
 // The full union
 export type CssSyntaxNode =
@@ -59,20 +57,6 @@ const DEFAULT_INITIAL_VALUE_BY_SYNTAX: Record<CssSyntax, string | number> = {
   string: '',
   'length-percentage': '0px',
   'transform-list': 'none',
-  background: 'none',
-  shadow: 'none',
-  shape: 'none',
-  font: 'none',
-}
-
-export function syntaxNodeToPropertyAtDefinition(
-  property: StyleProperty,
-): string {
-  return `@property --${property.name} {
-  syntax: "${stringifySyntaxNode(property.syntax)}";
-  inherits: true;
-  initial-value: ${property.syntax.type === 'primitive' ? DEFAULT_INITIAL_VALUE_BY_SYNTAX[property.syntax.name] : '""' /* default for non-primitive types */};
-}`
 }
 
 export function stringifySyntaxNode(node: CssSyntaxNode): string {
@@ -84,4 +68,14 @@ export function stringifySyntaxNode(node: CssSyntaxNode): string {
     default:
       throw new Error(`Unknown syntax node type: ${(node as any).type}`)
   }
+}
+
+export function syntaxNodeToPropertyAtDefinition(
+  property: StyleProperty,
+): string {
+  return `@property --${property.name} {
+  syntax: "${stringifySyntaxNode(property.syntax)}";
+  inherits: true;
+  initial-value: ${property.syntax.type === 'primitive' ? DEFAULT_INITIAL_VALUE_BY_SYNTAX[property.syntax.name] : '""' /* default for non-primitive types */};
+}`
 }
