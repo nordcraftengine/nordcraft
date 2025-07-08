@@ -40,8 +40,7 @@ export class StylePropertyStyleSheet {
       startingStyle?: boolean
     },
   ): (newValue: string) => void {
-    this.ruleMap ??= this.generateRuleMap()
-
+    this.ruleMap ??= this.hydrateFromBase()
     const fullSelector = StylePropertyStyleSheet.getFullSelector(
       selector,
       options,
@@ -107,11 +106,10 @@ export class StylePropertyStyleSheet {
   }
 
   /**
-   * Maps all selectors to their rule index. This is used to map the initial SSR style variable values
-   * to their selectors.
-   * This is only called once, when the first property is registered.
+   * Maps all selectors to their rule index. This is used to map the initial
+   * SSR style variable values to their selectors.
    */
-  private generateRuleMap() {
+  private hydrateFromBase() {
     const ruleIndex: Map<string, CSSStyleRule> = new Map()
     for (let i = 0; i < this.styleSheet.cssRules.length; i++) {
       let rule = this.styleSheet.cssRules[i]
