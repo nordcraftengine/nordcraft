@@ -97,9 +97,6 @@ describe('StylePropertyStyleSheet', () => {
         mediaQuery: { 'max-width': '600px' },
       },
     )
-    expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
-      '@media (max-width: 600px) { .my-class-with-media {  } }',
-    )
     expect(instance.getStyleSheet().cssRules).toHaveLength(0)
   })
 })

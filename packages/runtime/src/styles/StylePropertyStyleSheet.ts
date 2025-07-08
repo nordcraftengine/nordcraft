@@ -91,8 +91,8 @@ export class StylePropertyStyleSheet {
       rule.style.removeProperty(`--${name}`)
       if (rule.style.length === 0) {
         let parentRule: CSSRule = rule
-        while (rule.parentRule) {
-          parentRule = rule.parentRule
+        while (parentRule.parentRule) {
+          parentRule = parentRule.parentRule
         }
         this.styleSheet.deleteRule(
           Array.from(this.styleSheet.cssRules).indexOf(parentRule),
