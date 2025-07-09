@@ -1065,18 +1065,18 @@ export const createRoot = (
               .map(([customPropertyName, customProperty]) => ({
                 name: customPropertyName,
                 value: applyFormula(customProperty.formula, {
-                    data: {
-                      Attributes: dataSignal.get().Attributes,
-                      Variables: dataSignal.get().Variables,
-                      Contexts: ctxDataSignal?.get().Contexts ?? {},
-                    },
-                    component: getCurrentComponent(),
-                    root: ctx?.root,
-                    formulaCache: {},
-                    package: ctx?.package,
-                    toddle: window.toddle,
-                    env,
-                  } as FormulaContext),
+                  data: {
+                    Attributes: dataSignal.get().Attributes,
+                    Variables: dataSignal.get().Variables,
+                    Contexts: ctxDataSignal?.get().Contexts ?? {},
+                  },
+                  component: getCurrentComponent(),
+                  root: ctx?.root,
+                  formulaCache: {},
+                  package: ctx?.package,
+                  toddle: window.toddle,
+                  env,
+                } as FormulaContext),
               }))
               .filter(({ value }) => value !== undefined)
 
