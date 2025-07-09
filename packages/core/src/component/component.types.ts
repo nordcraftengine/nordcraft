@@ -62,7 +62,7 @@ export interface StyleVariant {
   startingStyle?: boolean
   pseudoElement?: string
   style: NodeStyleModel
-  'style-variables'?: Array<StyleVariable>
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export type NodeStyleModel = Record<string, string>
@@ -78,15 +78,14 @@ export interface TextNodeModel {
   children?: undefined
 }
 
-export type StyleVariable = {
-  version: 2
-  name: string
+export type CustomPropertyName = `--${string}`
+
+export type CustomProperty = {
   syntax: CssSyntaxNode
   formula: Formula
 }
 
 export type StyleVariableLegacy = {
-  version: 1 | undefined
   category: StyleTokenCategory
   name: string
   formula: Formula
@@ -108,7 +107,8 @@ export interface ElementNodeModel {
   children: string[]
   events: Record<string, EventModel>
   classes: Record<string, { formula?: Formula }>
-  'style-variables'?: Array<StyleVariableLegacy | StyleVariable>
+  'style-variables'?: Array<StyleVariableLegacy>
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export interface ComponentNodeModel {
@@ -127,7 +127,7 @@ export interface ComponentNodeModel {
   attrs: Record<string, Formula>
   children: string[]
   events: Record<string, EventModel>
-  'style-variables'?: Array<StyleVariable>
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export interface SlotNodeModel {

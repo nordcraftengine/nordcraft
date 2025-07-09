@@ -1,5 +1,7 @@
 import type { OldTheme } from './theme'
 
+export const CUSTOM_PROPERTIES__STYLESHEET_ID = '[data-custom-properties]'
+
 export const RESET_STYLES = `
 @layer reset {
   html {

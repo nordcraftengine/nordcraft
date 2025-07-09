@@ -15,9 +15,9 @@ export function omitSubnodeStyleForComponent<T extends Component | undefined>(
       delete node.style
       delete node.animations
       node.variants = node.variants?.map(
-        (variant) =>
+        ({ customProperties }) =>
           ({
-            'style-variables': variant['style-variables'],
+            customProperties,
           }) as StyleVariant,
       )
     }

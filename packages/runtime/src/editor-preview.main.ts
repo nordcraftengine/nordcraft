@@ -1059,11 +1059,12 @@ export const createRoot = (
             ] ?? { style: {} }
             // Add a style element specific to the selected element which
             // is only applied when the preview is in design mode
-            const styleVariantStyleVariables =
-              (selectedStyleVariant as StyleVariant)['style-variables']?.map(
-                (styleVariable) => ({
-                  name: styleVariable.name,
-                  value: applyFormula(styleVariable.formula, {
+            const styleVariantCustomProperties = Object.entries(
+              (selectedStyleVariant as StyleVariant).customProperties ?? {},
+            )
+              .map(([customPropertyName, customProperty]) => ({
+                name: customPropertyName,
+                value: applyFormula(customProperty.formula, {
                     data: {
                       Attributes: dataSignal.get().Attributes,
                       Variables: dataSignal.get().Variables,
@@ -1076,8 +1077,8 @@ export const createRoot = (
                     toddle: window.toddle,
                     env,
                   } as FormulaContext),
-                }),
-              ) ?? []
+              }))
+              .filter(({ value }) => value !== undefined)
 
             const styleElem = document.createElement('style')
             styleElem.setAttribute('data-hash', selectedNodeId)
@@ -1088,8 +1089,8 @@ export const createRoot = (
                             ...nodeLookup.node.style,
                             ...selectedStyleVariant.style,
                             ...Object.fromEntries(
-                              styleVariantStyleVariables.map(
-                                ({ name, value }) => [`--${name}`, value],
+                              styleVariantCustomProperties.map(
+                                ({ name, value }) => [name, value],
                               ),
                             ),
                           })}

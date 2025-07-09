@@ -78,10 +78,6 @@ export function getNodeAttrs({
   )
   const styleVariables = Object.values(node['style-variables'] ?? {}).map(
     (styleVariable) => {
-      if (styleVariable.version !== undefined) {
-        return null
-      }
-
       return `--${styleVariable.name}: ${
         String(
           applyFormula(styleVariable.formula, {

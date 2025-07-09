@@ -4,6 +4,7 @@ import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleCompo
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
+import { CUSTOM_PROPERTIES__STYLESHEET_ID } from '@nordcraft/core/dist/styling/theme.const'
 import { easySort } from '@nordcraft/core/dist/utils/collections'
 import { validateUrl } from '@nordcraft/core/dist/utils/url'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
@@ -115,7 +116,7 @@ export const getHeadItems = ({
     ],
     [
       'style:variables',
-      `<style id="initial-style-variables">${styleVariables.join('\n')}</style>`,
+      `<style id="${CUSTOM_PROPERTIES__STYLESHEET_ID}">${styleVariables.join('\n')}</style>`,
     ],
     ...preloadFonts,
     // Initialize default head items (meta + links)

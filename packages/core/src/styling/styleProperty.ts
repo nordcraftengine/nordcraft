@@ -1,6 +1,7 @@
-import type { Formula } from '../formula/formula'
+import type { CustomProperty } from '../component/component.types'
 
-type CssSyntaxPrimitive =
+// See https://developer.mozilla.org/en-US/docs/Web/CSS/@property/syntax
+export type CssSyntax =
   | 'angle'
   | 'color'
   | 'custom-ident'
@@ -17,9 +18,6 @@ type CssSyntaxPrimitive =
   | 'transform-list'
   | 'url'
 
-export type CssSyntax = CssSyntaxPrimitive
-
-// The full union
 export type CssSyntaxNode =
   | {
       type: 'primitive'
@@ -30,18 +28,12 @@ export type CssSyntaxNode =
       keywords: string[]
     }
 
-export interface StyleProperty {
-  name: string // The CSS property name, e.g. 'my-property'. Will be `--my-property` on usage.
-  syntax: CssSyntaxNode // The syntax definition for the property
-  formula: Formula // The value of the property. The formula may be a static string value to point to another property, or a more complex dynamical value.
-}
-
 /**
  * Default initial values for CSS properties based on their syntax type.
  *
  * Note: Eventually, the initial values may be set in a theme or somewhere global.
  */
-const DEFAULT_INITIAL_VALUE_BY_SYNTAX: Record<CssSyntax, string | number> = {
+const DEFAULT_INITIAL_VALUE_BY_SYNTAX: Record<CssSyntax, string> = {
   length: '0px',
   number: '0',
   percentage: '0%',
@@ -71,9 +63,10 @@ export function stringifySyntaxNode(node: CssSyntaxNode): string {
 }
 
 export function syntaxNodeToPropertyAtDefinition(
-  property: StyleProperty,
+  name: string,
+  property: CustomProperty,
 ): string {
-  return `@property --${property.name} {
+  return `@property ${name} {
   syntax: "${stringifySyntaxNode(property.syntax)}";
   inherits: true;
   initial-value: ${property.syntax.type === 'primitive' ? DEFAULT_INITIAL_VALUE_BY_SYNTAX[property.syntax.name] : '""' /* default for non-primitive types */};

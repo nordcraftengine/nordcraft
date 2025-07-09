@@ -241,37 +241,36 @@ ${selector}::-webkit-scrollbar {
             : ''
         }
         ${[
-          ...(node['style-variables'] ?? []),
-          ...(node.variants?.flatMap((variant) => variant['style-variables']) ??
-            []),
+          ...Object.entries(node.customProperties ?? {}),
+          ...(node.variants?.flatMap((variant) =>
+            Object.entries(variant.customProperties ?? {}),
+          ) ?? []),
         ]
-          .map((styleVariable) => {
-            if (!styleVariable || styleVariable.version !== 2) {
-              return ''
-            }
-
-            const existingVariable = registeredStyleVariables.get(
-              styleVariable.name,
-            )
+          .map(([customPropertyName, customProperty]) => {
+            const existingVariable =
+              registeredStyleVariables.get(customPropertyName)
             if (existingVariable) {
-              // Warn if the style variable is already registered with a different syntax
+              // Warn if the style variable is already registered with a different syntax, as registration is global.
               if (
                 existingVariable.type === 'primitive' &&
-                styleVariable.syntax.type === 'primitive' &&
-                existingVariable.name !== styleVariable.syntax.name
+                customProperty.syntax.type === 'primitive' &&
+                existingVariable.name !== customProperty.syntax.name
               ) {
                 // eslint-disable-next-line no-console
                 console.warn(
-                  `Style variable ${styleVariable.name} is already registered with a different syntax: "${existingVariable.name}".`,
+                  `Custom property "${customPropertyName}" is already registered with a different syntax: "${existingVariable.name}".`,
                 )
               }
               return ''
             }
             registeredStyleVariables.set(
-              styleVariable.name,
-              styleVariable.syntax,
+              customPropertyName,
+              customProperty.syntax,
             )
-            return syntaxNodeToPropertyAtDefinition(styleVariable)
+            return syntaxNodeToPropertyAtDefinition(
+              customPropertyName,
+              customProperty,
+            )
           })
           .join('\n')}
       `

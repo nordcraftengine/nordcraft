@@ -71,39 +71,10 @@ export function createComponent({
     ])
   })
   // Sync the constructed stylesheet with style variable formula signal
-  node['style-variables']?.forEach((styleVariable) => {
-    const signal = dataSignal.map((data) => {
-      return applyFormula(styleVariable.formula, {
-        data,
-        component: ctx.component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
-      })
-    })
-
-    const selector = `[data-id="${path}"].${ctx.component.name}\\:${node.id}`
-    signal.subscribe(
-      STYLE_VARIABLE_STYLESHEET.registerStyleProperty(
-        selector,
-        styleVariable.name,
-      ),
-      {
-        destroy: () =>
-          STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(
-            selector,
-            styleVariable.name,
-          ),
-      },
-    )
-  })
-  node.variants?.forEach((variant) => {
-    variant['style-variables']?.forEach((styleVariable) => {
-      // style-variables on variants are always version 2
-      const signal = dataSignal.map((data) =>
-        applyFormula(styleVariable.formula, {
+  Object.entries(node.customProperties ?? {}).forEach(
+    ([customPropertyName, customProperty]) => {
+      const signal = dataSignal.map((data) => {
+        return applyFormula(customProperty.formula, {
           data,
           component: ctx.component,
           formulaCache: ctx.formulaCache,
@@ -111,29 +82,62 @@ export function createComponent({
           package: ctx.package,
           toddle: ctx.toddle,
           env: ctx.env,
-        }),
-      )
+        })
+      })
 
-      const selector = `[data-id="${path}"].${ctx.component.name}\\:${node.id}${variantSelector(
-        variant,
-      )}`
-
+      const selector = `[data-id="${path}"].${ctx.component.name}\\:${node.id}`
       signal.subscribe(
         STYLE_VARIABLE_STYLESHEET.registerStyleProperty(
           selector,
-          styleVariable.name,
-          variant,
+          customPropertyName,
         ),
         {
           destroy: () =>
             STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(
               selector,
-              styleVariable.name,
-              variant,
+              customPropertyName,
             ),
         },
       )
-    })
+    },
+  )
+  node.variants?.forEach((variant) => {
+    Object.entries(variant.customProperties ?? {}).forEach(
+      ([customPropertyName, customProperty]) => {
+        // style-variables on variants are always version 2
+        const signal = dataSignal.map((data) =>
+          applyFormula(customProperty.formula, {
+            data,
+            component: ctx.component,
+            formulaCache: ctx.formulaCache,
+            root: ctx.root,
+            package: ctx.package,
+            toddle: ctx.toddle,
+            env: ctx.env,
+          }),
+        )
+
+        const selector = `[data-id="${path}"].${ctx.component.name}\\:${node.id}${variantSelector(
+          variant,
+        )}`
+
+        signal.subscribe(
+          STYLE_VARIABLE_STYLESHEET.registerStyleProperty(
+            selector,
+            customPropertyName,
+            variant,
+          ),
+          {
+            destroy: () =>
+              STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(
+                selector,
+                customPropertyName,
+                variant,
+              ),
+          },
+        )
+      },
+    )
   })
 
   const componentDataSignal = signal<ComponentData>({

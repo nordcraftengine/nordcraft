@@ -137,32 +137,31 @@ ${
     : ''
 }
 ${[
-  ...(node['style-variables'] ?? []),
-  ...(node.variants?.flatMap((variant) => variant['style-variables']) ?? []),
+  ...Object.entries(node.customProperties ?? {}),
+  ...(node.variants?.flatMap((variant) =>
+    Object.entries(variant.customProperties ?? {}),
+  ) ?? []),
 ]
-  .map((styleVariable) => {
-    if (!styleVariable || styleVariable.version !== 2) {
-      return ''
-    }
-
-    const existingVariable = registeredStyleVariables.get(styleVariable.name)
-    if (existingVariable) {
+  .map(([customPropertyName, customProperty]) => {
+    const existingCustomProperty =
+      registeredStyleVariables.get(customPropertyName)
+    if (existingCustomProperty) {
       // Warn if the style variable is already registered with a different syntax, as registration is global.
       // The editor should also report an Error-level issue.
       if (
-        existingVariable.type === 'primitive' &&
-        styleVariable.syntax.type === 'primitive' &&
-        existingVariable.name !== styleVariable.syntax.name
+        existingCustomProperty.type === 'primitive' &&
+        customProperty.syntax.type === 'primitive' &&
+        existingCustomProperty.name !== customProperty.syntax.name
       ) {
         // eslint-disable-next-line no-console
         console.warn(
-          `Style variable ${styleVariable.name} is already registered with a different syntax: "${existingVariable.name}".`,
+          `Custom property "${customPropertyName}" is already registered with a different syntax: "${existingCustomProperty.name}".`,
         )
       }
       return ''
     }
-    registeredStyleVariables.set(styleVariable.name, styleVariable.syntax)
-    return syntaxNodeToPropertyAtDefinition(styleVariable)
+    registeredStyleVariables.set(customPropertyName, customProperty.syntax)
+    return syntaxNodeToPropertyAtDefinition(customPropertyName, customProperty)
   })
   .join('\n')}
   `),

@@ -64,7 +64,7 @@ export class StylePropertyStyleSheet {
     }
 
     return (value: string) => {
-      rule.style.setProperty(`--${name}`, value)
+      rule.style.setProperty(name, value)
     }
   }
 
@@ -86,7 +86,7 @@ export class StylePropertyStyleSheet {
     )
 
     // We only clean up the property, as we assume that the rule will be reused.
-    this.ruleMap.get(fullSelector)?.style.removeProperty(`--${name}`)
+    this.ruleMap.get(fullSelector)?.style.removeProperty(name)
   }
 
   public getStyleSheet(): CSSStyleSheet {
@@ -104,7 +104,7 @@ export class StylePropertyStyleSheet {
       const selector = StylePropertyStyleSheet.selectorFromCSSRule(rule)
       // Get last part of the selector, which is the actual selector we are interested in
       while (
-        (rule as any).cssRules &&
+        (rule as CSSGroupingRule).cssRules &&
         (rule as CSSGroupingRule).cssRules.length > 0
       ) {
         rule = (rule as CSSGroupingRule).cssRules[0]

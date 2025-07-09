@@ -28,6 +28,8 @@ import type { ProjectFiles } from '../ssr.types'
 import type { ApiCache, ApiEvaluator } from './api'
 import { getNodeAttrs, toEncodedText } from './attributes'
 
+type CustomPropertyRule = `--${string}: ${string}`
+
 const renderComponent = async ({
   path,
   apiCache,
@@ -64,7 +66,7 @@ const renderComponent = async ({
   updateApiCache: (key: string, value: ApiStatus) => void
   addStyleVariable: (
     selector: string,
-    rule: string,
+    rule: CustomPropertyRule,
     options?: {
       mediaQuery?: MediaQuery
       startingStyle?: boolean
@@ -198,30 +200,32 @@ const renderComponent = async ({
             classList += ' ' + toValidClassName(`${key}:${value}`)
           })
         }
-        node['style-variables']
-          ?.filter((styleVariable) => styleVariable.version === 2)
-          .forEach((styleVariable) => {
-            const value = applyFormula(styleVariable.formula, formulaContext)
+        Object.entries(node.customProperties ?? {}).forEach(
+          ([customPropertyName, customProperty]) => {
+            const value = applyFormula(customProperty.formula, formulaContext)
             if (isDefined(value)) {
               addStyleVariable(
                 `[data-id="${path}"]`,
-                `--${styleVariable.name}: ${value}`,
+                `${customPropertyName}: ${value}` as CustomPropertyRule,
               )
             }
-          })
+          },
+        )
 
         node.variants?.forEach((variant) => {
-          variant['style-variables']?.forEach((styleVariable) => {
-            // style-variables on variants are always version 2
-            const value = applyFormula(styleVariable.formula, formulaContext)
-            if (isDefined(value)) {
-              addStyleVariable(
-                `[data-id="${path}"]${variantSelector(variant)}`,
-                `--${styleVariable.name}: ${value}`,
-                variant,
-              )
-            }
-          })
+          Object.entries(variant.customProperties ?? {}).forEach(
+            ([customPropertyName, customProperty]) => {
+              // style-variables on variants are always version 2
+              const value = applyFormula(customProperty.formula, formulaContext)
+              if (isDefined(value)) {
+                addStyleVariable(
+                  `[data-id="${path}"]${variantSelector(variant)}`,
+                  `${customPropertyName}: ${value}` as CustomPropertyRule,
+                  variant,
+                )
+              }
+            },
+          )
         })
 
         let innerHTML = ''
@@ -443,32 +447,33 @@ const renderComponent = async ({
         })
 
         // Add extra instance styling for each style-variable
-        node['style-variables']?.forEach((styleVariable) => {
-          const value = applyFormula(styleVariable.formula, formulaContext)
-          if (isDefined(value)) {
-            addStyleVariable(
-              `[data-id="${path}"].${component.name}\\:${id}`,
-              `--${styleVariable.name}: ${applyFormula(
-                styleVariable.formula,
-                formulaContext,
-              )}`,
-            )
-          }
-        })
-
-        node.variants?.forEach((variant) => {
-          variant['style-variables']?.forEach((styleVariable) => {
-            const value = applyFormula(styleVariable.formula, formulaContext)
+        Object.entries(node.customProperties ?? {}).forEach(
+          ([customPropertyName, customProperty]) => {
+            const value = applyFormula(customProperty.formula, formulaContext)
             if (isDefined(value)) {
               addStyleVariable(
-                `[data-id="${path}"].${component.name}\\:${id}${variantSelector(
-                  variant,
-                )}`,
-                `--${styleVariable.name}: ${value}`,
-                variant,
+                `[data-id="${path}"].${component.name}\\:${id}`,
+                `${customPropertyName}: ${value}` as CustomPropertyRule,
               )
             }
-          })
+          },
+        )
+
+        node.variants?.forEach((variant) => {
+          Object.entries(variant.customProperties ?? {}).forEach(
+            ([customPropertyName, customProperty]) => {
+              const value = applyFormula(customProperty.formula, formulaContext)
+              if (isDefined(value)) {
+                addStyleVariable(
+                  `[data-id="${path}"].${component.name}\\:${id}${variantSelector(
+                    variant,
+                  )}`,
+                  `${customPropertyName}: ${value}` as CustomPropertyRule,
+                  variant,
+                )
+              }
+            },
+          )
         })
 
         return createComponent({
@@ -558,7 +563,7 @@ const createComponent = async ({
   updateApiCache: (key: string, value: ApiStatus) => void
   addStyleVariable: (
     selector: string,
-    rule: string,
+    rule: CustomPropertyRule,
     options?: {
       mediaQuery?: MediaQuery
       startingStyle?: boolean
@@ -644,7 +649,7 @@ export const renderPageBody = async ({
   const styleVariables: Map<string, Set<string>> = new Map()
   const addStyleVariable = (
     selector: string,
-    rule: string,
+    rule: CustomPropertyRule,
     options?: {
       mediaQuery?: MediaQuery
       startingStyle?: boolean

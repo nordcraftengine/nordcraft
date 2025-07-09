@@ -200,30 +200,30 @@ export class ToddleComponent<Handler> {
               })
             }
           }
-          for (const [styleVariableKey, styleVariable] of Object.entries(
-            node['style-variables'] ?? {},
+          for (const [customPropertyKey, customProperty] of Object.entries(
+            node.customProperties ?? {},
           )) {
             yield* getFormulasInFormula({
-              formula: styleVariable.formula,
+              formula: customProperty.formula,
               globalFormulas,
-              path: [...path, 'style-variables', styleVariableKey, 'formula'],
+              path: [...path, 'customProperties', customPropertyKey, 'formula'],
             })
           }
           for (const [variantKey, variant] of Object.entries(
             node.variants ?? {},
           )) {
-            for (const [styleVariableKey, styleVariable] of Object.entries(
-              variant['style-variables'] ?? {},
+            for (const [customPropertyKey, customProperty] of Object.entries(
+              variant.customProperties ?? {},
             )) {
               yield* getFormulasInFormula({
-                formula: styleVariable.formula,
+                formula: customProperty.formula,
                 globalFormulas,
                 path: [
                   ...path,
                   'variants',
                   variantKey,
-                  'style-variables',
-                  styleVariableKey,
+                  'customProperties',
+                  customPropertyKey,
                   'formula',
                 ],
               })
@@ -280,21 +280,31 @@ export class ToddleComponent<Handler> {
             })
           }
 
+          for (const [customPropertyKey, customProperty] of Object.entries(
+            node.customProperties ?? {},
+          )) {
+            yield* getFormulasInFormula({
+              formula: customProperty.formula,
+              globalFormulas,
+              path: [...path, 'customProperties', customPropertyKey, 'formula'],
+            })
+          }
+
           for (const [variantKey, variant] of Object.entries(
             node.variants ?? {},
           )) {
-            for (const [styleVariableKey, styleVariable] of Object.entries(
-              variant['style-variables'] ?? {},
+            for (const [customPropertyKey, customProperty] of Object.entries(
+              variant.customProperties ?? {},
             )) {
               yield* getFormulasInFormula({
-                formula: styleVariable.formula,
+                formula: customProperty.formula,
                 globalFormulas,
                 path: [
                   ...path,
                   'variants',
                   variantKey,
-                  'style-variables',
-                  styleVariableKey,
+                  'customProperties',
+                  customPropertyKey,
                   'formula',
                 ],
               })
