@@ -17,7 +17,7 @@ import { getElementTagName } from '../utils/getElementTagName'
 import { setAttribute } from '../utils/setAttribute'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
-import { STYLE_VARIABLE_STYLESHEET } from './STYLE_VARIABLE_STYLESHEET'
+import { CUSTOM_PROPERTIES_STYLESHEET } from './CUSTOM_PROPERTIES_STYLESHEET'
 
 export function createElement({
   node,
@@ -165,10 +165,10 @@ export function createElement({
 
     const selector = `[data-id="${path}"]`
     signal.subscribe(
-      STYLE_VARIABLE_STYLESHEET.registerStyleProperty(selector, name),
+      CUSTOM_PROPERTIES_STYLESHEET.registerStyleProperty(selector, name),
       {
         destroy: () => {
-          STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(selector, name)
+          CUSTOM_PROPERTIES_STYLESHEET.unregisterStyleProperty(selector, name)
         },
       },
     )
@@ -191,10 +191,13 @@ export function createElement({
 
         const selector = `[data-id="${path}"]${variantSelector(variant)}`
         signal.subscribe(
-          STYLE_VARIABLE_STYLESHEET.registerStyleProperty(selector, name),
+          CUSTOM_PROPERTIES_STYLESHEET.registerStyleProperty(selector, name),
           {
             destroy: () => {
-              STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(selector, name)
+              CUSTOM_PROPERTIES_STYLESHEET.unregisterStyleProperty(
+                selector,
+                name,
+              )
             },
           },
         )

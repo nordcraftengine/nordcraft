@@ -19,8 +19,8 @@ import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentChild, ComponentContext, ContextApi } from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
+import { CUSTOM_PROPERTIES_STYLESHEET } from './CUSTOM_PROPERTIES_STYLESHEET'
 import { renderComponent } from './renderComponent'
-import { STYLE_VARIABLE_STYLESHEET } from './STYLE_VARIABLE_STYLESHEET'
 
 export type RenderComponentNodeProps = {
   path: string
@@ -87,13 +87,13 @@ export function createComponent({
 
       const selector = `[data-id="${path}"].${ctx.component.name}\\:${node.id}`
       signal.subscribe(
-        STYLE_VARIABLE_STYLESHEET.registerStyleProperty(
+        CUSTOM_PROPERTIES_STYLESHEET.registerStyleProperty(
           selector,
           customPropertyName,
         ),
         {
           destroy: () =>
-            STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(
+            CUSTOM_PROPERTIES_STYLESHEET.unregisterStyleProperty(
               selector,
               customPropertyName,
             ),
@@ -122,14 +122,14 @@ export function createComponent({
         )}`
 
         signal.subscribe(
-          STYLE_VARIABLE_STYLESHEET.registerStyleProperty(
+          CUSTOM_PROPERTIES_STYLESHEET.registerStyleProperty(
             selector,
             customPropertyName,
             variant,
           ),
           {
             destroy: () =>
-              STYLE_VARIABLE_STYLESHEET.unregisterStyleProperty(
+              CUSTOM_PROPERTIES_STYLESHEET.unregisterStyleProperty(
                 selector,
                 customPropertyName,
                 variant,

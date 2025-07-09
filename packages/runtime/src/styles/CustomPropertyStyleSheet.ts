@@ -1,7 +1,7 @@
 import type { MediaQuery } from '@nordcraft/core/dist/component/component.types'
 
 /**
- * StylePropertyStyleSheet is a utility class that manages CSS custom properties
+ * CustomPropertyStyleSheet is a utility class that manages CSS custom properties
  * (variables) in a dedicated CSSStyleSheet. It allows for efficient registration,
  * updating, and removal of style properties as fast as setting style properties.
  *
@@ -9,7 +9,7 @@ import type { MediaQuery } from '@nordcraft/core/dist/component/component.types'
  * provides a simple API to register and unregister style properties for specific
  * selectors.
  */
-export class StylePropertyStyleSheet {
+export class CustomPropertyStyleSheet {
   private styleSheet: CSSStyleSheet
 
   // Selector to rule index mapping
@@ -25,11 +25,6 @@ export class StylePropertyStyleSheet {
   }
 
   /**
-   * @param selector The CSS selector to apply the property to.
-   * @param name The name of the property, without the `--` prefix.
-   * @param options Optional parameters to specify media queries or starting styles.
-   *                - `media`: A media query string to apply the property under.
-   *                - `startingStyle`: If true, the property will be applied as a starting style.
    * @returns A function to update the property value efficiently.
    */
   public registerStyleProperty(
@@ -41,7 +36,7 @@ export class StylePropertyStyleSheet {
     },
   ): (newValue: string) => void {
     this.ruleMap ??= this.hydrateFromBase()
-    const fullSelector = StylePropertyStyleSheet.getFullSelector(
+    const fullSelector = CustomPropertyStyleSheet.getFullSelector(
       selector,
       options,
     )
@@ -80,7 +75,7 @@ export class StylePropertyStyleSheet {
       return
     }
 
-    const fullSelector = StylePropertyStyleSheet.getFullSelector(
+    const fullSelector = CustomPropertyStyleSheet.getFullSelector(
       selector,
       options,
     )
@@ -101,7 +96,7 @@ export class StylePropertyStyleSheet {
     const ruleIndex: Map<string, CSSStyleRule> = new Map()
     for (let i = 0; i < this.styleSheet.cssRules.length; i++) {
       let rule = this.styleSheet.cssRules[i]
-      const selector = StylePropertyStyleSheet.selectorFromCSSRule(rule)
+      const selector = CustomPropertyStyleSheet.selectorFromCSSRule(rule)
       // Get last part of the selector, which is the actual selector we are interested in
       while (
         (rule as CSSGroupingRule).cssRules &&
@@ -122,19 +117,19 @@ export class StylePropertyStyleSheet {
         return `${(rule as CSSStyleRule).selectorText} { ${Array.from(
           (rule as CSSStyleRule).cssRules,
         )
-          .map(StylePropertyStyleSheet.selectorFromCSSRule)
+          .map(CustomPropertyStyleSheet.selectorFromCSSRule)
           .join(', ')}}`
       case 'CSSStartingStyleRule':
         return `@starting-style { ${Array.from(
           (rule as CSSStartingStyleRule).cssRules,
         )
-          .map(StylePropertyStyleSheet.selectorFromCSSRule)
+          .map(CustomPropertyStyleSheet.selectorFromCSSRule)
           .join(', ')}}`
       case 'CSSMediaRule':
         return `@media ${(rule as CSSMediaRule).media.mediaText} { ${Array.from(
           (rule as CSSMediaRule).cssRules,
         )
-          .map(StylePropertyStyleSheet.selectorFromCSSRule)
+          .map(CustomPropertyStyleSheet.selectorFromCSSRule)
           .join(', ')}}`
       case 'CSSNestedDeclarations':
         return ''

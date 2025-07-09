@@ -1,22 +1,22 @@
 import { describe, expect, test } from 'bun:test'
-import { StylePropertyStyleSheet } from './StylePropertyStyleSheet'
+import { CustomPropertyStyleSheet } from './CustomPropertyStyleSheet'
 
-describe('StylePropertyStyleSheet', () => {
+describe('CustomPropertyStyleSheet', () => {
   test('it creates a new stylesheet', () => {
-    const instance = new StylePropertyStyleSheet()
-    expect(instance).toBeInstanceOf(StylePropertyStyleSheet)
+    const instance = new CustomPropertyStyleSheet()
+    expect(instance).toBeInstanceOf(CustomPropertyStyleSheet)
     expect(instance.getStyleSheet().cssRules).toHaveLength(0)
   })
 
   test('it adds a property definition', () => {
-    const instance = new StylePropertyStyleSheet()
+    const instance = new CustomPropertyStyleSheet()
     instance.registerStyleProperty('.my-class', 'my-property')
     expect(instance.getStyleSheet().cssRules.length).toBe(1)
     expect(instance.getStyleSheet().cssRules[0].cssText).toBe('.my-class {  }')
   })
 
   test('it puts different selectors in different rules', () => {
-    const instance = new StylePropertyStyleSheet()
+    const instance = new CustomPropertyStyleSheet()
     instance.registerStyleProperty('.my-class', 'my-property')('256px')
     instance.registerStyleProperty('.my-other-class', 'my-property')('256px')
     expect(instance.getStyleSheet().cssRules.length).toBe(2)
@@ -29,7 +29,7 @@ describe('StylePropertyStyleSheet', () => {
   })
 
   test('it can update properties', () => {
-    const instance = new StylePropertyStyleSheet()
+    const instance = new CustomPropertyStyleSheet()
     const setter = instance.registerStyleProperty('.my-class', 'my-property')
     setter('256px')
     expect(instance.getStyleSheet().cssRules.length).toBe(1)
@@ -44,7 +44,7 @@ describe('StylePropertyStyleSheet', () => {
   })
 
   test('it works with media queries', () => {
-    const instance = new StylePropertyStyleSheet()
+    const instance = new CustomPropertyStyleSheet()
     instance.registerStyleProperty('.my-class', 'my-property', {
       mediaQuery: { 'max-width': '600px' },
     })('256px')
@@ -55,7 +55,7 @@ describe('StylePropertyStyleSheet', () => {
   })
 
   test('it unregisters a property', () => {
-    const instance = new StylePropertyStyleSheet()
+    const instance = new CustomPropertyStyleSheet()
     const setter = instance.registerStyleProperty('.my-class', 'my-property')
     setter('256px')
     const setter2 = instance.registerStyleProperty(
@@ -76,7 +76,7 @@ describe('StylePropertyStyleSheet', () => {
   })
 
   test('it unregisters a property with media queries', () => {
-    const instance = new StylePropertyStyleSheet()
+    const instance = new CustomPropertyStyleSheet()
     const setter = instance.registerStyleProperty(
       '.my-class-with-media',
       'my-property-with-media',

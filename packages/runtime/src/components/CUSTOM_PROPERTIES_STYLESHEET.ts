@@ -1,7 +1,7 @@
 import { CUSTOM_PROPERTIES__STYLESHEET_ID } from '@nordcraft/core/dist/styling/theme.const'
-import { StylePropertyStyleSheet } from '../styles/StylePropertyStyleSheet'
+import { CustomPropertyStyleSheet } from '../styles/CustomPropertyStyleSheet'
 
-export const STYLE_VARIABLE_STYLESHEET = new StylePropertyStyleSheet(
+export const CUSTOM_PROPERTIES_STYLESHEET = new CustomPropertyStyleSheet(
   (
     document.getElementById(CUSTOM_PROPERTIES__STYLESHEET_ID) as
       | HTMLStyleElement
