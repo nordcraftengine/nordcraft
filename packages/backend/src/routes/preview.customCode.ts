@@ -3,7 +3,7 @@ import { isDefined } from '@toddledev/core/dist/utils/util'
 import {
   generateCustomCodeFile,
   takeReferencedFormulasAndActions,
-} from '@toddledev/ssr/src/custom-code/codeRefs'
+} from '@toddledev/ssr/dist/custom-code/codeRefs'
 import type { Context } from 'hono'
 import type { HonoEnv, HonoProject } from '../../hono'
 
