@@ -1,8 +1,8 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "toddle-worker-example"
+name = "nordcraft-worker-example"
 
 main = "dist/index.js"
-compatibility_date = "2025-02-05"
+compatibility_date = "2025-07-08"
 
 rules = [
   # Include all json files in the worker (should only be the actual project)

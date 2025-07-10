@@ -1,8 +1,8 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "toddle-worker-example"
+name = "nordcraft-worker-preview"
 
 main = "src/preview.index.ts"
-compatibility_date = "2025-02-05"
+compatibility_date = "2025-07-08"
 
 [observability.logs]
 enabled = true
@@ -14,3 +14,7 @@ bindings = [
 
 [assets]
 directory = "./assets"
+
+[vars]
+PROJECT_SHORT_ID = "awesome_blog"
+BRANCH_NAME = "a"
