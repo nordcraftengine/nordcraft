@@ -1,4 +1,4 @@
-import type { CssSyntaxNode } from '@nordcraft/core/dist/styling/styleProperty'
+import type { CssSyntaxNode } from '@nordcraft/core/dist/styling/customProperty'
 import type { Rule } from '../../types'
 
 export const ambiguousStyleVariableSyntaxRule: Rule<{
@@ -18,58 +18,65 @@ export const ambiguousStyleVariableSyntaxRule: Rule<{
       return
     }
 
-    const allStyleVariablesBySyntax = memo('allStyleVariablesBySyntax', () => {
-      const styleVariablesBySyntax: Record<
-        string,
-        Array<{ syntax: CssSyntaxNode; path: string[] }>
-      > = {}
-      Object.entries(files.components).forEach(([componentKey, component]) => {
-        Object.entries(component?.nodes ?? {}).forEach(([nodeKey, node]) => {
-          if (node.type !== 'element' && node.type !== 'component') {
-            return
-          }
+    const allCustomPropertiesBySyntax = memo(
+      'allCustomPropertiesBySyntax',
+      () => {
+        const customPropertiesBySyntax: Record<
+          string,
+          Array<{ syntax: CssSyntaxNode; path: string[] }>
+        > = {}
+        Object.entries(files.components).forEach(
+          ([componentKey, component]) => {
+            Object.entries(component?.nodes ?? {}).forEach(
+              ([nodeKey, node]) => {
+                if (node.type !== 'element' && node.type !== 'component') {
+                  return
+                }
 
-          Object.entries(node.customProperties ?? {}).forEach(
-            ([customPropertyName, customProperty]) => {
-              styleVariablesBySyntax[customPropertyName] ??= []
-              styleVariablesBySyntax[customPropertyName].push({
-                syntax: customProperty.syntax,
-                path: [
-                  'components',
-                  componentKey,
-                  'nodes',
-                  nodeKey,
-                  'customProperties',
-                  customPropertyName,
-                ],
-              })
-            },
-          )
-          node.variants?.forEach((variant, variantIndex) => {
-            Object.entries(variant.customProperties ?? {}).forEach(
-              ([customPropertyName, customProperty]) => {
-                styleVariablesBySyntax[customPropertyName] ??= []
-                styleVariablesBySyntax[customPropertyName].push({
-                  syntax: customProperty.syntax,
-                  path: [
-                    'components',
-                    componentKey,
-                    'nodes',
-                    nodeKey,
-                    'variants',
-                    String(variantIndex),
-                    'customProperties',
-                    customPropertyName,
-                  ],
+                Object.entries(node.customProperties ?? {}).forEach(
+                  ([customPropertyName, customProperty]) => {
+                    customPropertiesBySyntax[customPropertyName] ??= []
+                    customPropertiesBySyntax[customPropertyName].push({
+                      syntax: customProperty.syntax,
+                      path: [
+                        'components',
+                        componentKey,
+                        'nodes',
+                        nodeKey,
+                        'customProperties',
+                        customPropertyName,
+                      ],
+                    })
+                  },
+                )
+                node.variants?.forEach((variant, variantIndex) => {
+                  Object.entries(variant.customProperties ?? {}).forEach(
+                    ([customPropertyName, customProperty]) => {
+                      customPropertiesBySyntax[customPropertyName] ??= []
+                      customPropertiesBySyntax[customPropertyName].push({
+                        syntax: customProperty.syntax,
+                        path: [
+                          'components',
+                          componentKey,
+                          'nodes',
+                          nodeKey,
+                          'variants',
+                          String(variantIndex),
+                          'customProperties',
+                          customPropertyName,
+                        ],
+                      })
+                    },
+                  )
                 })
               },
             )
-          })
-        })
-      })
+          },
+        )
 
-      return styleVariablesBySyntax
-    })
+        return customPropertiesBySyntax
+      },
+    )
 
     Object.entries(value.customProperties ?? {}).forEach(
       ([customPropertyName, customProperty]) => {
@@ -78,7 +85,9 @@ export const ambiguousStyleVariableSyntaxRule: Rule<{
           return
         }
 
-        const duplicates = allStyleVariablesBySyntax[customPropertyName].filter(
+        const duplicates = allCustomPropertiesBySyntax[
+          customPropertyName
+        ].filter(
           ({ syntax: existingSyntax }) =>
             existingSyntax.type === 'primitive' &&
             existingSyntax.name !== syntax.name,
@@ -106,7 +115,7 @@ export const ambiguousStyleVariableSyntaxRule: Rule<{
             return
           }
 
-          const duplicates = allStyleVariablesBySyntax[
+          const duplicates = allCustomPropertiesBySyntax[
             customPropertyName
           ].filter(
             ({ syntax: existingSyntax }) =>

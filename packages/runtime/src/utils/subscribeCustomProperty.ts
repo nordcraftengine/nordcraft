@@ -24,14 +24,14 @@ export function subscribeCustomProperty({
   variant?: StyleVariant
 }) {
   signal.subscribe(
-    CUSTOM_PROPERTIES_STYLESHEET.registerStyleProperty(
+    CUSTOM_PROPERTIES_STYLESHEET.registerProperty(
       selector,
       customPropertyName,
       variant,
     ),
     {
       destroy: () =>
-        CUSTOM_PROPERTIES_STYLESHEET.unregisterStyleProperty(
+        CUSTOM_PROPERTIES_STYLESHEET.unregisterProperty(
           selector,
           customPropertyName,
           variant,

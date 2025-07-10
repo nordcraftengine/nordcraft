@@ -8,11 +8,11 @@ import {
   getClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
-import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
 import {
   syntaxNodeToPropertyAtDefinition,
   type CssSyntaxNode,
-} from '@nordcraft/core/dist/styling/styleProperty'
+} from '@nordcraft/core/dist/styling/customProperty'
+import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
 import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { omitKeys } from '@nordcraft/core/dist/utils/collections'
 
@@ -65,7 +65,7 @@ export const insertStyles = (
   root: Component,
   components: Component[],
 ) => {
-  const registeredStyleVariables = new Map<string, CssSyntaxNode>()
+  const registeredCustomProperties = new Map<string, CssSyntaxNode>()
   const getNodeStyles = (
     node: ElementNodeModel | ComponentNodeModel,
     classHash: string,
@@ -144,7 +144,7 @@ ${[
 ]
   .map(([customPropertyName, customProperty]) => {
     const existingCustomProperty =
-      registeredStyleVariables.get(customPropertyName)
+      registeredCustomProperties.get(customPropertyName)
     if (existingCustomProperty) {
       // Warn if the style variable is already registered with a different syntax, as registration is global.
       // The editor should also report an Error-level issue.
@@ -160,7 +160,7 @@ ${[
       }
       return ''
     }
-    registeredStyleVariables.set(customPropertyName, customProperty.syntax)
+    registeredCustomProperties.set(customPropertyName, customProperty.syntax)
     return syntaxNodeToPropertyAtDefinition(customPropertyName, customProperty)
   })
   .join('\n')}

@@ -6,7 +6,7 @@ import { getClassName, toValidClassName } from './className'
 import {
   syntaxNodeToPropertyAtDefinition,
   type CssSyntaxNode,
-} from './styleProperty'
+} from './customProperty'
 import type { OldTheme, Theme, ThemeOptions } from './theme'
 import { getThemeCss } from './theme'
 import type {
@@ -80,7 +80,7 @@ export const createStylesheet = (
 ) => {
   const hashes = new Set<string>()
   const animationHashes = new Set<string>()
-  const registeredStyleVariables = new Map<string, CssSyntaxNode>()
+  const registeredCustomProperties = new Map<string, CssSyntaxNode>()
 
   // Get fonts used on the page
   const fonts = getAllFonts(components)
@@ -248,7 +248,7 @@ ${selector}::-webkit-scrollbar {
         ]
           .map(([customPropertyName, customProperty]) => {
             const existingVariable =
-              registeredStyleVariables.get(customPropertyName)
+              registeredCustomProperties.get(customPropertyName)
             if (existingVariable) {
               // Warn if the style variable is already registered with a different syntax, as registration is global.
               if (
@@ -263,7 +263,7 @@ ${selector}::-webkit-scrollbar {
               }
               return ''
             }
-            registeredStyleVariables.set(
+            registeredCustomProperties.set(
               customPropertyName,
               customProperty.syntax,
             )

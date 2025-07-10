@@ -46,7 +46,7 @@ const renderComponent = async ({
   projectId,
   req,
   updateApiCache,
-  addStyleVariable,
+  addCustomProperty,
   namespace,
 }: {
   path: string
@@ -64,7 +64,7 @@ const renderComponent = async ({
   projectId: string
   req: Request
   updateApiCache: (key: string, value: ApiStatus) => void
-  addStyleVariable: (
+  addCustomProperty: (
     selector: string,
     rule: CustomPropertyRule,
     options?: {
@@ -204,7 +204,7 @@ const renderComponent = async ({
           ([customPropertyName, customProperty]) => {
             const value = applyFormula(customProperty.formula, formulaContext)
             if (isDefined(value)) {
-              addStyleVariable(
+              addCustomProperty(
                 getNodeSelector(path),
                 `${customPropertyName}: ${value}` as CustomPropertyRule,
               )
@@ -218,7 +218,7 @@ const renderComponent = async ({
               // style-variables on variants are always version 2
               const value = applyFormula(customProperty.formula, formulaContext)
               if (isDefined(value)) {
-                addStyleVariable(
+                addCustomProperty(
                   getNodeSelector(path, { variant }),
                   `${customPropertyName}: ${value}` as CustomPropertyRule,
                   variant,
@@ -451,7 +451,7 @@ const renderComponent = async ({
           ([customPropertyName, customProperty]) => {
             const value = applyFormula(customProperty.formula, formulaContext)
             if (isDefined(value)) {
-              addStyleVariable(
+              addCustomProperty(
                 getNodeSelector(path, {
                   componentName: component.name,
                   nodeId: id,
@@ -467,7 +467,7 @@ const renderComponent = async ({
             ([customPropertyName, customProperty]) => {
               const value = applyFormula(customProperty.formula, formulaContext)
               if (isDefined(value)) {
-                addStyleVariable(
+                addCustomProperty(
                   getNodeSelector(path, {
                     componentName: component.name,
                     nodeId: id,
@@ -501,7 +501,7 @@ const renderComponent = async ({
           files,
           apiCache,
           updateApiCache,
-          addStyleVariable,
+          addCustomProperty,
           projectId,
           namespace,
           evaluateComponentApis,
@@ -539,7 +539,7 @@ const createComponent = async ({
   projectId,
   req,
   updateApiCache,
-  addStyleVariable,
+  addCustomProperty,
   namespace,
 }: {
   path: string
@@ -566,7 +566,7 @@ const createComponent = async ({
   req: Request
   namespace?: SupportedNamespaces
   updateApiCache: (key: string, value: ApiStatus) => void
-  addStyleVariable: (
+  addCustomProperty: (
     selector: string,
     rule: CustomPropertyRule,
     options?: {
@@ -622,7 +622,7 @@ const createComponent = async ({
     req,
     toddle: formulaContext.toddle,
     updateApiCache,
-    addStyleVariable,
+    addCustomProperty,
   })
 }
 
@@ -651,8 +651,8 @@ export const renderPageBody = async ({
   const apiCache: ApiCache = {}
   const updateApiCache = (key: string, value: ApiStatus) =>
     (apiCache[key] = value)
-  const styleVariables: Map<string, Set<string>> = new Map()
-  const addStyleVariable = (
+  const customProperties: Map<string, Set<string>> = new Map()
+  const addCustomProperty = (
     selector: string,
     rule: CustomPropertyRule,
     options?: {
@@ -671,11 +671,11 @@ export const renderPageBody = async ({
         .join(') and (')}) { ${selector} }`
     }
 
-    if (!styleVariables.has(selector)) {
-      styleVariables.set(selector, new Set())
+    if (!customProperties.has(selector)) {
+      customProperties.set(selector, new Set())
     }
 
-    styleVariables.get(selector)?.add(rule)
+    customProperties.get(selector)?.add(rule)
   }
 
   const apis = await evaluateComponentApis({
@@ -702,12 +702,12 @@ export const renderPageBody = async ({
     req,
     toddle: formulaContext.toddle,
     updateApiCache,
-    addStyleVariable,
+    addCustomProperty,
   })
   return {
     html,
     apiCache,
-    styleVariables: [...styleVariables]
+    customProperties: [...customProperties]
       .map(([selector, vars]) =>
         selector.replace('__RULES__', Array.from(vars).join(';\n')),
       )

@@ -27,7 +27,7 @@ export class CustomPropertyStyleSheet {
   /**
    * @returns A function to update the property value efficiently.
    */
-  public registerStyleProperty(
+  public registerProperty(
     selector: string,
     name: string,
     options?: {
@@ -63,7 +63,7 @@ export class CustomPropertyStyleSheet {
     }
   }
 
-  public unregisterStyleProperty(
+  public unregisterProperty(
     selector: string,
     name: string,
     options?: {

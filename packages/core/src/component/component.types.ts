@@ -1,6 +1,6 @@
 import type { ApiStatus, ComponentAPI, LegacyApiStatus } from '../api/apiTypes'
 import type { Formula } from '../formula/formula'
-import type { CssSyntaxNode } from '../styling/styleProperty'
+import type { CssSyntaxNode } from '../styling/customProperty'
 import type { StyleTokenCategory } from '../styling/theme'
 import type { NordcraftMetadata, RequireFields } from '../types'
 
@@ -85,7 +85,10 @@ export type CustomProperty = {
   formula: Formula
 }
 
-export type StyleVariableLegacy = {
+/**
+ * @deprecated - use CustomProperties instead
+ */
+export type StyleVariable = {
   category: StyleTokenCategory
   name: string
   formula: Formula
@@ -107,7 +110,7 @@ export interface ElementNodeModel {
   children: string[]
   events: Record<string, EventModel>
   classes: Record<string, { formula?: Formula }>
-  'style-variables'?: Array<StyleVariableLegacy>
+  'style-variables'?: Array<StyleVariable>
   customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 

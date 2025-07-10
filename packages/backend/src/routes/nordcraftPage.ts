@@ -86,7 +86,7 @@ export const nordcraftPage = async ({
 
   let apiCache: ApiCache
   let body: string
-  let styleVariables: string[] = []
+  let customProperties: string[] = []
   try {
     const pageBody = await renderPageBody({
       component: toddleComponent,
@@ -100,7 +100,7 @@ export const nordcraftPage = async ({
     })
     apiCache = pageBody.apiCache
     body = pageBody.html
-    styleVariables = pageBody.styleVariables
+    customProperties = pageBody.customProperties
   } catch (e) {
     if (e instanceof RedirectError) {
       hono.header(REDIRECT_API_NAME_HEADER, e.redirect.apiName)
@@ -125,7 +125,7 @@ export const nordcraftPage = async ({
       project,
       context: formulaContext,
       theme,
-      styleVariables,
+      customProperties,
     }),
   })
   const charset = getCharset({

@@ -4,7 +4,7 @@ import type {
   CustomProperty,
   CustomPropertyName,
   EventModel,
-  StyleVariableLegacy,
+  StyleVariable,
 } from '../component/component.types'
 import type { Formula } from '../formula/formula'
 
@@ -109,7 +109,7 @@ export type ElementNodeModel = {
   animations?: Record<string, Record<string, AnimationKeyframe>>
   children: NodeModel[]
   events: EventModel[]
-  'style-variables'?: Array<StyleVariableLegacy>
+  'style-variables'?: Array<StyleVariable>
   customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
@@ -127,7 +127,7 @@ export type ComponentNodeModel = {
   attrs: Record<string, Formula>
   children: NodeModel[]
   events: EventModel[]
-  'style-variables'?: Array<StyleVariableLegacy>
+  'style-variables'?: Array<StyleVariable>
   customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 

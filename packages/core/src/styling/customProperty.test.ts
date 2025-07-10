@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test'
 import type { CustomProperty } from '../component/component.types'
-import type { CssSyntax, CssSyntaxNode } from './styleProperty'
+import type { CssSyntax, CssSyntaxNode } from './customProperty'
 import {
   stringifySyntaxNode,
   syntaxNodeToPropertyAtDefinition,
-} from './styleProperty'
+} from './customProperty'
 
 describe('stringifySyntaxNode()', () => {
   ;['length', 'number', 'percentage', 'length-percentage', 'color'].forEach(
