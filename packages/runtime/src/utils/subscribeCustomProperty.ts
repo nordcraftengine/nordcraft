@@ -1,12 +1,12 @@
 import type { StyleVariant } from '@nordcraft/core/dist/component/component.types'
 import type { Signal } from '../signal/signal'
 
-import { CUSTOM_PROPERTIES__STYLESHEET_ID } from '@nordcraft/core/dist/styling/theme.const'
+import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core/dist/styling/theme.const'
 import { CustomPropertyStyleSheet } from '../styles/CustomPropertyStyleSheet'
 
 const CUSTOM_PROPERTIES_STYLESHEET = new CustomPropertyStyleSheet(
   (
-    document.getElementById(CUSTOM_PROPERTIES__STYLESHEET_ID) as
+    document.getElementById(CUSTOM_PROPERTIES_STYLESHEET_ID) as
       | HTMLStyleElement
       | undefined
   )?.sheet,
