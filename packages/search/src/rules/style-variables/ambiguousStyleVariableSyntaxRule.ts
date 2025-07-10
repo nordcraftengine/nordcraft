@@ -21,10 +21,10 @@ export const ambiguousStyleVariableSyntaxRule: Rule<{
     const allCustomPropertiesBySyntax = memo(
       'allCustomPropertiesBySyntax',
       () => {
-        const customPropertiesBySyntax: Record<
+        const customPropertiesBySyntax: Map<
           string,
           Array<{ syntax: CssSyntaxNode; path: string[] }>
-        > = {}
+        > = new Map()
         Object.entries(files.components).forEach(
           ([componentKey, component]) => {
             Object.entries(component?.nodes ?? {}).forEach(
@@ -35,8 +35,10 @@ export const ambiguousStyleVariableSyntaxRule: Rule<{
 
                 Object.entries(node.customProperties ?? {}).forEach(
                   ([customPropertyName, customProperty]) => {
-                    customPropertiesBySyntax[customPropertyName] ??= []
-                    customPropertiesBySyntax[customPropertyName].push({
+                    if (!customPropertiesBySyntax.has(customPropertyName)) {
+                      customPropertiesBySyntax.set(customPropertyName, [])
+                    }
+                    customPropertiesBySyntax.get(customPropertyName)?.push({
                       syntax: customProperty.syntax,
                       path: [
                         'components',
@@ -52,8 +54,10 @@ export const ambiguousStyleVariableSyntaxRule: Rule<{
                 node.variants?.forEach((variant, variantIndex) => {
                   Object.entries(variant.customProperties ?? {}).forEach(
                     ([customPropertyName, customProperty]) => {
-                      customPropertiesBySyntax[customPropertyName] ??= []
-                      customPropertiesBySyntax[customPropertyName].push({
+                      if (!customPropertiesBySyntax.has(customPropertyName)) {
+                        customPropertiesBySyntax.set(customPropertyName, [])
+                      }
+                      customPropertiesBySyntax.get(customPropertyName)?.push({
                         syntax: customProperty.syntax,
                         path: [
                           'components',
@@ -85,15 +89,15 @@ export const ambiguousStyleVariableSyntaxRule: Rule<{
           return
         }
 
-        const duplicates = allCustomPropertiesBySyntax[
-          customPropertyName
-        ].filter(
-          ({ syntax: existingSyntax }) =>
-            existingSyntax.type === 'primitive' &&
-            existingSyntax.name !== syntax.name,
-        )
+        const duplicates = allCustomPropertiesBySyntax
+          .get(customPropertyName)
+          ?.filter(
+            ({ syntax: existingSyntax }) =>
+              existingSyntax.type === 'primitive' &&
+              existingSyntax.name !== syntax.name,
+          )
 
-        if (duplicates.length === 0) {
+        if (!duplicates || duplicates.length === 0) {
           return
         }
 
@@ -115,15 +119,15 @@ export const ambiguousStyleVariableSyntaxRule: Rule<{
             return
           }
 
-          const duplicates = allCustomPropertiesBySyntax[
-            customPropertyName
-          ].filter(
-            ({ syntax: existingSyntax }) =>
-              existingSyntax.type === 'primitive' &&
-              existingSyntax.name !== syntax.name,
-          )
+          const duplicates = allCustomPropertiesBySyntax
+            .get(customPropertyName)
+            ?.filter(
+              ({ syntax: existingSyntax }) =>
+                existingSyntax.type === 'primitive' &&
+                existingSyntax.name !== syntax.name,
+            )
 
-          if (duplicates.length === 0) {
+          if (!duplicates || duplicates.length === 0) {
             return
           }
 
