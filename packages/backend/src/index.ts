@@ -1,5 +1,5 @@
 import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
-import type { Files } from '@nordcraft/ssr/dist/utils/routes'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
 import { Hono } from 'hono'
 import { poweredBy } from 'hono/powered-by'
 import type { HonoEnv } from '../hono'
@@ -52,7 +52,7 @@ app.get('/favicon.ico', favicon)
 app.get('/serviceWorker.js', serviceWorker)
 
 const pageLoader: PageLoader = ({ name }) =>
-  loadJsFile<Files>(`./components/${name}.js`)
+  loadJsFile<ProjectFilesWithCustomCode>(`./components/${name}.js`)
 
 // Load a page if it matches the URL
 app.get('/*', pageHandler(pageLoader))

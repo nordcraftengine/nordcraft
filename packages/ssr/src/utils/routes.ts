@@ -21,10 +21,11 @@ interface Routes {
   routes: Record<string, Route>
 }
 
-export type Files = Record<
-  string,
-  { files: ProjectFiles & { customCode: boolean } }
->
+export type ProjectFilesWithCustomCode = ProjectFiles & {
+  customCode: boolean
+}
+
+export type Files = Record<string, ProjectFilesWithCustomCode>
 
 export const splitRoutes = (json: {
   files: ProjectFiles
@@ -93,17 +94,15 @@ export const splitRoutes = (json: {
         }
 
         filesMap[name] = {
-          files: {
-            customCode,
-            config: files.config,
-            themes: files.themes,
-            components: Object.fromEntries(
-              components.map((c) => [c.name, removeTestData(c)]),
-            ),
-            formulas,
-            // TODO: Only include relevant components, formulas and actions from packages
-            packages: files.packages,
-          },
+          customCode,
+          config: files.config,
+          themes: files.themes,
+          components: Object.fromEntries(
+            components.map((c) => [c.name, removeTestData(c)]),
+          ),
+          formulas,
+          // TODO: Only include relevant components, formulas and actions from packages
+          packages: files.packages,
         }
       }
     }
