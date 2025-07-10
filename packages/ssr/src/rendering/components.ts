@@ -19,8 +19,8 @@ import {
   getClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
-import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { mapValues } from '@nordcraft/core/dist/utils/collections'
+import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { escapeAttrValue } from 'xss'
 import { VOID_HTML_ELEMENTS } from '../const'
@@ -205,7 +205,7 @@ const renderComponent = async ({
             const value = applyFormula(customProperty.formula, formulaContext)
             if (isDefined(value)) {
               addStyleVariable(
-                `[data-id="${path}"]`,
+                getNodeSelector(path),
                 `${customPropertyName}: ${value}` as CustomPropertyRule,
               )
             }
@@ -219,7 +219,7 @@ const renderComponent = async ({
               const value = applyFormula(customProperty.formula, formulaContext)
               if (isDefined(value)) {
                 addStyleVariable(
-                  `[data-id="${path}"]${variantSelector(variant)}`,
+                  getNodeSelector(path, { variant }),
                   `${customPropertyName}: ${value}` as CustomPropertyRule,
                   variant,
                 )
@@ -452,7 +452,10 @@ const renderComponent = async ({
             const value = applyFormula(customProperty.formula, formulaContext)
             if (isDefined(value)) {
               addStyleVariable(
-                `[data-id="${path}"].${component.name}\\:${id}`,
+                getNodeSelector(path, {
+                  componentName: component.name,
+                  nodeId: id,
+                }),
                 `${customPropertyName}: ${value}` as CustomPropertyRule,
               )
             }
@@ -465,9 +468,11 @@ const renderComponent = async ({
               const value = applyFormula(customProperty.formula, formulaContext)
               if (isDefined(value)) {
                 addStyleVariable(
-                  `[data-id="${path}"].${component.name}\\:${id}${variantSelector(
+                  getNodeSelector(path, {
+                    componentName: component.name,
+                    nodeId: id,
                     variant,
-                  )}`,
+                  }),
                   `${customPropertyName}: ${value}` as CustomPropertyRule,
                   variant,
                 )
