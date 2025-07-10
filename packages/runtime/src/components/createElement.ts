@@ -8,16 +8,16 @@ import {
   getClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
-import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
+import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import { getDragData } from '../utils/getDragData'
 import { getElementTagName } from '../utils/getElementTagName'
 import { setAttribute } from '../utils/setAttribute'
+import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
-import { CUSTOM_PROPERTIES_STYLESHEET } from './CUSTOM_PROPERTIES_STYLESHEET'
 
 export function createElement({
   node,
@@ -150,34 +150,12 @@ export function createElement({
     signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
   })
 
-  Object.entries(node.customProperties ?? {}).forEach(([name, { formula }]) => {
-    const signal = dataSignal.map((data) =>
-      applyFormula(formula, {
-        data,
-        component: ctx.component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
-      }),
-    )
-
-    const selector = `[data-id="${path}"]`
-    signal.subscribe(
-      CUSTOM_PROPERTIES_STYLESHEET.registerStyleProperty(selector, name),
-      {
-        destroy: () => {
-          CUSTOM_PROPERTIES_STYLESHEET.unregisterStyleProperty(selector, name)
-        },
-      },
-    )
-  })
-
-  node.variants?.forEach((variant) => {
-    Object.entries(variant.customProperties ?? {}).forEach(
-      ([name, { formula }]) => {
-        const signal = dataSignal.map((data) =>
+  Object.entries(node.customProperties ?? {}).forEach(
+    ([customPropertyName, { formula }]) =>
+      subscribeCustomProperty({
+        customPropertyName,
+        selector: getNodeSelector(path),
+        signal: dataSignal.map((data) =>
           applyFormula(formula, {
             data,
             component: ctx.component,
@@ -187,20 +165,31 @@ export function createElement({
             toddle: ctx.toddle,
             env: ctx.env,
           }),
-        )
+        ),
+      }),
+  )
 
-        const selector = `[data-id="${path}"]${variantSelector(variant)}`
-        signal.subscribe(
-          CUSTOM_PROPERTIES_STYLESHEET.registerStyleProperty(selector, name),
-          {
-            destroy: () => {
-              CUSTOM_PROPERTIES_STYLESHEET.unregisterStyleProperty(
-                selector,
-                name,
-              )
-            },
-          },
-        )
+  node.variants?.forEach((variant) => {
+    Object.entries(variant.customProperties ?? {}).forEach(
+      ([customPropertyName, { formula }]) => {
+        subscribeCustomProperty({
+          customPropertyName,
+          selector: getNodeSelector(path, {
+            variant,
+          }),
+          variant,
+          signal: dataSignal.map((data) =>
+            applyFormula(formula, {
+              data,
+              component: ctx.component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+            }),
+          ),
+        })
       },
     )
   })

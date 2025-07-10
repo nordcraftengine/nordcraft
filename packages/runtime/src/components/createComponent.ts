@@ -5,8 +5,8 @@ import type {
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
@@ -19,7 +19,7 @@ import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentChild, ComponentContext, ContextApi } from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
-import { CUSTOM_PROPERTIES_STYLESHEET } from './CUSTOM_PROPERTIES_STYLESHEET'
+import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
 import { renderComponent } from './renderComponent'
 
 export type RenderComponentNodeProps = {
@@ -70,43 +70,15 @@ export function createComponent({
         : value?.value,
     ])
   })
-  // Sync the constructed stylesheet with style variable formula signal
   Object.entries(node.customProperties ?? {}).forEach(
-    ([customPropertyName, customProperty]) => {
-      const signal = dataSignal.map((data) => {
-        return applyFormula(customProperty.formula, {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        })
-      })
-
-      const selector = `[data-id="${path}"].${ctx.component.name}\\:${node.id}`
-      signal.subscribe(
-        CUSTOM_PROPERTIES_STYLESHEET.registerStyleProperty(
-          selector,
-          customPropertyName,
-        ),
-        {
-          destroy: () =>
-            CUSTOM_PROPERTIES_STYLESHEET.unregisterStyleProperty(
-              selector,
-              customPropertyName,
-            ),
-        },
-      )
-    },
-  )
-  node.variants?.forEach((variant) => {
-    Object.entries(variant.customProperties ?? {}).forEach(
-      ([customPropertyName, customProperty]) => {
-        // style-variables on variants are always version 2
-        const signal = dataSignal.map((data) =>
-          applyFormula(customProperty.formula, {
+    ([customPropertyName, customProperty]) =>
+      subscribeCustomProperty({
+        selector: getNodeSelector(path, {
+          componentName: ctx.component.name,
+          nodeId: node.id,
+        }),
+        signal: dataSignal.map((data) => {
+          return applyFormula(customProperty.formula, {
             data,
             component: ctx.component,
             formulaCache: ctx.formulaCache,
@@ -114,29 +86,34 @@ export function createComponent({
             package: ctx.package,
             toddle: ctx.toddle,
             env: ctx.env,
-          }),
-        )
-
-        const selector = `[data-id="${path}"].${ctx.component.name}\\:${node.id}${variantSelector(
-          variant,
-        )}`
-
-        signal.subscribe(
-          CUSTOM_PROPERTIES_STYLESHEET.registerStyleProperty(
-            selector,
-            customPropertyName,
+          })
+        }),
+        customPropertyName,
+      }),
+  )
+  node.variants?.forEach((variant) => {
+    Object.entries(variant.customProperties ?? {}).forEach(
+      ([customPropertyName, customProperty]) =>
+        subscribeCustomProperty({
+          selector: getNodeSelector(path, {
+            componentName: ctx.component.name,
+            nodeId: node.id,
             variant,
+          }),
+          signal: dataSignal.map((data) =>
+            applyFormula(customProperty.formula, {
+              data,
+              component: ctx.component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+            }),
           ),
-          {
-            destroy: () =>
-              CUSTOM_PROPERTIES_STYLESHEET.unregisterStyleProperty(
-                selector,
-                customPropertyName,
-                variant,
-              ),
-          },
-        )
-      },
+          customPropertyName,
+          variant,
+        }),
     )
   })
 
