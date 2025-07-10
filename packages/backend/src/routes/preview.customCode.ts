@@ -7,6 +7,9 @@ import {
 import type { Context } from 'hono'
 import type { HonoEnv, HonoProject } from '../../hono'
 
+/**
+ * Generates custom code for a specific page component.
+ */
 export const customCode = async (
   ctx: Context<
     HonoEnv<{ files: ProjectFiles } & HonoProject>,
