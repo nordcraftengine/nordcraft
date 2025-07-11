@@ -60,6 +60,6 @@ fs.mkdirSync(resolvePath(`${distPath}/components`), { recursive: true })
 Object.entries(files).forEach(([name, file]) => {
   fs.writeFileSync(
     resolvePath(`${distPath}/components/`, `${name.toLowerCase()}.js`),
-    jsiFy(file.files),
+    jsiFy(file),
   )
 })

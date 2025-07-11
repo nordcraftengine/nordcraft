@@ -61,7 +61,9 @@ export function takeReferencedFormulasAndActions({
         : files.components[name]
       if (!component) {
         // eslint-disable-next-line no-console
-        console.warn(`Unable to find component "${nodeLookupKey}" in files`)
+        console.warn(
+          `Unable to find component "${nodeLookupKey}" for package "${packageName}"`,
+        )
         return undefined
       }
       return component

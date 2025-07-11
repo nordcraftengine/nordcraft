@@ -1,6 +1,6 @@
-## Backend for the Nordcraft Engine
+# Backend for the Nordcraft Engine
 
-### Install
+## Install
 
 In the root of the project:
 
@@ -8,7 +8,7 @@ In the root of the project:
 bun install
 ```
 
-### Run
+## Run
 
 The `dev` command has a `predev` command that copies static files into the `assets/_static` directory (see [syncStaticAssets.js](/bin/syncStaticAssets.js)). This is necessary for the example application to work. Please make sure you build the static assets before running the application (see above).
 
@@ -17,6 +17,14 @@ bun run dev
 ```
 
 To use a different project, replace the json file in the `__project__` folder.
+
+## Preview
+
+The `preview` command will run a preview server that fetches a project's files from a Durable Object (running on the internal Nordcraft services). To run this, first run `bun run preview-link <path-to-nordcraft-internal>` to create a symlink to the internal Nordcraft repository. This will allow the preview server to start the relevant service that powers the Durable Object.
+
+```sh
+bun run preview
+```
 
 ### Status
 

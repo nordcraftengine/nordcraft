@@ -1,7 +1,10 @@
 import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
 import { Hono } from 'hono'
 import { poweredBy } from 'hono/powered-by'
 import type { HonoEnv } from '../hono'
+import type { PageLoader } from './loaders/types'
+import { loadJsFile } from './middleware/jsLoader'
 import { notFoundLoader } from './middleware/notFoundLoader'
 import { loadProjectInfo } from './middleware/projectInfo'
 import { routesLoader } from './middleware/routesLoader'
@@ -31,29 +34,29 @@ app.all(
   '/.toddle/omvej/components/:componentName/apis/:apiName',
   proxyRequestHandler,
 )
-app.get(
-  '/.toddle/custom-element/:filename{.+.js}',
-  loadProjectInfo,
-  customElement,
-)
 app.get('/.nordcraft/cookies/set-cookie', setCookieHandler)
 
 // Load project info and all routes for endpoints below to use
 app.use(routesLoader, loadProjectInfo)
 
+app.get('/.toddle/custom-element/:filename{.+.js}', customElement)
+
 // Load a route if it matches the URL
 app.get('/*', routeHandler)
 
 // Load default resource endpoints
-app.get('/sitemap.xml', loadProjectInfo, routesLoader, sitemap)
-app.get('/robots.txt', loadProjectInfo, robots)
-app.get('/manifest.json', loadProjectInfo, manifest)
-app.get('/favicon.ico', loadProjectInfo, favicon)
-app.get('/serviceWorker.js', loadProjectInfo, serviceWorker)
+app.get('/sitemap.xml', sitemap)
+app.get('/robots.txt', robots)
+app.get('/manifest.json', manifest)
+app.get('/favicon.ico', favicon)
+app.get('/serviceWorker.js', serviceWorker)
+
+const pageLoader: PageLoader = ({ name }) =>
+  loadJsFile<ProjectFilesWithCustomCode>(`./components/${name}.js`)
 
 // Load a page if it matches the URL
-app.get('/*', pageHandler)
+app.get('/*', pageHandler(pageLoader))
 
-app.notFound(notFoundLoader as any)
+app.notFound(notFoundLoader(pageLoader) as any)
 
 export default app

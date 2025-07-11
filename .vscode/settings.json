@@ -51,14 +51,16 @@
     "**/node_modules": true,
     "**/dist": true,
     "**/*.js.map": true,
-    ".vscode/*": true
+    ".vscode/*": true,
+    "packages/backend/nordcraft-internal": true
   },
   "prettier.configPath": "./.prettierrc",
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
     "**/.hg/store/**": true,
-    "**/node_modules/**": true
+    "**/node_modules/**": true,
+    "packages/backend/nordcraft-internal": true
   },
   "eslint.validate": [
     "javascript",
