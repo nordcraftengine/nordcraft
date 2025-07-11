@@ -1,4 +1,7 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type {
+  Component,
+  StyleVariant,
+} from '@nordcraft/core/dist/component/component.types'
 
 export function omitSubnodeStyleForComponent<T extends Component | undefined>(
   component: T,
@@ -10,8 +13,13 @@ export function omitSubnodeStyleForComponent<T extends Component | undefined>(
       nodeId !== 'root'
     ) {
       delete node.style
-      delete node.variants
       delete node.animations
+      node.variants = node.variants?.map(
+        ({ customProperties }) =>
+          ({
+            customProperties,
+          }) as StyleVariant,
+      )
     }
   })
 

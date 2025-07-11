@@ -1,7 +1,10 @@
 import type { CSSProperties } from 'react'
 import type {
   AnimationKeyframe,
+  CustomProperty,
+  CustomPropertyName,
   EventModel,
+  StyleVariable,
 } from '../component/component.types'
 import type { Formula } from '../formula/formula'
 
@@ -68,6 +71,7 @@ export interface StyleVariant {
   startingStyle?: boolean
   style: StyleDeclarationBlock
   visited?: boolean
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export interface NodeStyleModel extends StyleDeclarationBlock {
@@ -105,6 +109,8 @@ export type ElementNodeModel = {
   animations?: Record<string, Record<string, AnimationKeyframe>>
   children: NodeModel[]
   events: EventModel[]
+  'style-variables'?: Array<StyleVariable>
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export type ComponentNodeModel = {
@@ -121,6 +127,8 @@ export type ComponentNodeModel = {
   attrs: Record<string, Formula>
   children: NodeModel[]
   events: EventModel[]
+  'style-variables'?: Array<StyleVariable>
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export type TextNodeModel = {

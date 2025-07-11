@@ -4,6 +4,7 @@ import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleCompo
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
+import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core/dist/styling/theme.const'
 import { easySort } from '@nordcraft/core/dist/utils/collections'
 import { validateUrl } from '@nordcraft/core/dist/utils/url'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
@@ -33,6 +34,7 @@ export const getHeadItems = ({
   project,
   theme,
   url,
+  customProperties,
 }: {
   // Optional cache buster for reset stylesheet + manifest url. Could be a commit sha for instance
   cacheBuster?: string
@@ -45,6 +47,7 @@ export const getHeadItems = ({
   project: ToddleProject
   theme: OldTheme | Theme
   url: URL
+  customProperties: ReadonlyArray<string>
 }): Map<HeadItemType, string> => {
   const pageInfo = page.route?.info
   const title = getPageTitle({
@@ -110,6 +113,10 @@ export const getHeadItems = ({
     [
       'link:page',
       `<link rel="stylesheet" fetchpriority="high" href="${escapeAttrValue(urlWithCacheBuster(pageStylesheetPath, cacheBuster))}" />`,
+    ],
+    [
+      'style:variables',
+      `<style id="${CUSTOM_PROPERTIES_STYLESHEET_ID}">${customProperties.join('\n')}</style>`,
     ],
     ...preloadFonts,
     // Initialize default head items (meta + links)

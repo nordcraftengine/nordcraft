@@ -23,6 +23,7 @@ import type {
 } from '@nordcraft/ssr/dist/ssr.types'
 
 type Code =
+  | 'ambiguous style variable syntax'
   | 'duplicate event trigger'
   | 'duplicate url parameter'
   | 'duplicate workflow parameter'
