@@ -1,4 +1,5 @@
 import type { CssSyntaxNode } from '@nordcraft/core/dist/styling/customProperty'
+import { getAllCustomPropertiesBySyntax } from '../../memos/getAllCustomPropertiesBySyntax'
 import type { Rule } from '../../types'
 
 export const ambiguousStyleVariableSyntaxRule: Rule<{
@@ -10,146 +11,55 @@ export const ambiguousStyleVariableSyntaxRule: Rule<{
   category: 'Other',
   visit: (report, args) => {
     const { nodeType, value, files, memo, path } = args
-    if (nodeType !== 'component-node') {
-      return
-    }
+    if (nodeType !== 'component-node') return
+    if (value.type !== 'element' && value.type !== 'component') return
 
-    if (value.type !== 'element' && value.type !== 'component') {
-      return
-    }
+    const check = (
+      propName: string,
+      syntax: CssSyntaxNode,
+      basePath: Array<string | number>,
+    ) => {
+      if (syntax.type !== 'primitive') return
+      const allCustomPropertiesBySyntax = getAllCustomPropertiesBySyntax(memo, {
+        files,
+      })[propName]
 
-    const allCustomPropertiesBySyntax = memo(
-      'allCustomPropertiesBySyntax',
-      () => {
-        const customPropertiesBySyntax: Map<
-          string,
-          Array<{ syntax: CssSyntaxNode; path: string[] }>
-        > = new Map()
-        Object.entries(files.components).forEach(
-          ([componentKey, component]) => {
-            Object.entries(component?.nodes ?? {}).forEach(
-              ([nodeKey, node]) => {
-                if (node.type !== 'element' && node.type !== 'component') {
-                  return
-                }
+      const conflicts = Object.entries(allCustomPropertiesBySyntax)
+        .filter(([name]) => name !== syntax.name)
+        .flatMap(([, entries]) => entries)
 
-                Object.entries(node.customProperties ?? {}).forEach(
-                  ([customPropertyName, customProperty]) => {
-                    if (!customPropertiesBySyntax.has(customPropertyName)) {
-                      customPropertiesBySyntax.set(customPropertyName, [])
-                    }
-                    customPropertiesBySyntax.get(customPropertyName)?.push({
-                      syntax: customProperty.syntax,
-                      path: [
-                        'components',
-                        componentKey,
-                        'nodes',
-                        nodeKey,
-                        'customProperties',
-                        customPropertyName,
-                      ],
-                    })
-                  },
-                )
-                node.variants?.forEach((variant, variantIndex) => {
-                  Object.entries(variant.customProperties ?? {}).forEach(
-                    ([customPropertyName, customProperty]) => {
-                      if (!customPropertiesBySyntax.has(customPropertyName)) {
-                        customPropertiesBySyntax.set(customPropertyName, [])
-                      }
-                      customPropertiesBySyntax.get(customPropertyName)?.push({
-                        syntax: customProperty.syntax,
-                        path: [
-                          'components',
-                          componentKey,
-                          'nodes',
-                          nodeKey,
-                          'variants',
-                          String(variantIndex),
-                          'customProperties',
-                          customPropertyName,
-                        ],
-                      })
-                    },
-                  )
-                })
-              },
-            )
-          },
-        )
-
-        return customPropertiesBySyntax
-      },
-    )
-
-    Object.entries(value.customProperties ?? {}).forEach(
-      ([customPropertyName, customProperty]) => {
-        const syntax = customProperty.syntax
-        if (syntax.type !== 'primitive') {
-          return
-        }
-
-        const duplicates = allCustomPropertiesBySyntax
-          .get(customPropertyName)
-          ?.filter(
-            ({ syntax: existingSyntax }) =>
-              existingSyntax.type === 'primitive' &&
-              existingSyntax.name !== syntax.name,
-          )
-
-        if (!duplicates || duplicates.length === 0) {
-          return
-        }
-
-        report([...path, 'customProperties', customPropertyName, 'name'], {
-          name: customPropertyName,
-          duplicates: duplicates.map(({ path, syntax }) => ({
-            path,
-            syntax,
-          })),
+      if (conflicts.length) {
+        report(basePath, {
+          name: propName,
+          duplicates: conflicts,
         })
-      },
-    )
+      }
+    }
+
+    for (const [propName, prop] of Object.entries(
+      value.customProperties ?? {},
+    )) {
+      check(propName, prop.syntax, [
+        ...path,
+        'customProperties',
+        propName,
+        'name',
+      ])
+    }
 
     value.variants?.forEach((variant, variantIndex) => {
-      Object.entries(variant.customProperties ?? {}).forEach(
-        ([customPropertyName, customProperty]) => {
-          const syntax = customProperty.syntax
-          if (syntax.type !== 'primitive') {
-            return
-          }
-
-          const duplicates = allCustomPropertiesBySyntax
-            .get(customPropertyName)
-            ?.filter(
-              ({ syntax: existingSyntax }) =>
-                existingSyntax.type === 'primitive' &&
-                existingSyntax.name !== syntax.name,
-            )
-
-          if (!duplicates || duplicates.length === 0) {
-            return
-          }
-
-          report(
-            [
-              ...path,
-              'variants',
-              String(variantIndex),
-              'customProperties',
-              customPropertyName,
-              'name',
-            ],
-            {
-              name: customPropertyName,
-              duplicates: duplicates.map(({ path, syntax }) => ({
-                path,
-                syntax,
-              })),
-            },
-          )
-        },
-      )
+      for (const [propName, prop] of Object.entries(
+        variant.customProperties ?? {},
+      )) {
+        check(propName, prop.syntax, [
+          ...path,
+          'variants',
+          String(variantIndex),
+          'customProperties',
+          propName,
+          'name',
+        ])
+      }
     })
   },
 }
