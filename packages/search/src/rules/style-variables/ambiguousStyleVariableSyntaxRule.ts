@@ -28,7 +28,7 @@ export const ambiguousStyleVariableSyntaxRule: Rule<{
         .filter(([name]) => name !== syntax.name)
         .flatMap(([, entries]) => entries)
 
-      if (conflicts.length) {
+      if (conflicts.length > 0) {
         report(basePath, {
           name: propName,
           duplicates: conflicts,
