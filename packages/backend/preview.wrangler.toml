@@ -14,7 +14,3 @@ bindings = [
 
 [assets]
 directory = "./assets"
-
-[vars]
-PROJECT_SHORT_ID = "awesome_blog"
-BRANCH_NAME = "a"

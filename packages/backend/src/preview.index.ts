@@ -42,18 +42,22 @@ app.use(
   createMiddleware<
     PreviewHonoEnv<HonoRoutes & HonoProject & { files: ProjectFiles }>
   >(async (ctx, next) => {
+    const projectShortId = ctx.env.PROJECT_SHORT_ID
+    const branchName = ctx.env.BRANCH_NAME
+    if (!projectShortId || !branchName) {
+      return ctx.text('Project short ID and branch name are required', {
+        status: 400,
+      })
+    }
     // Load files from Durable Object
     const id = ctx.env.BRANCH_STATE.idFromName(
-      `/projects/${ctx.env.PROJECT_SHORT_ID}/branch/${ctx.env.BRANCH_NAME}`,
+      `/projects/${projectShortId}/branch/${branchName}`,
     )
     const branchState = ctx.env.BRANCH_STATE.get(id)
     const fullProject: {
       project: ToddleProject
       files: ProjectFiles
-    } = await branchState.getFiles(
-      ctx.env.PROJECT_SHORT_ID,
-      ctx.env.BRANCH_NAME,
-    )
+    } = await branchState.getFiles(projectShortId, branchName)
     const { project, routes } = splitRoutes(fullProject)
     ctx.set('routes', routes)
     ctx.set('project', project.project)
