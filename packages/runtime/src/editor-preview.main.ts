@@ -8,6 +8,7 @@ import type {
   Component,
   ComponentData,
   MetaEntry,
+  StyleVariant,
 } from '@nordcraft/core/dist/component/component.types'
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
 import type {
@@ -1058,6 +1059,27 @@ export const createRoot = (
             ] ?? { style: {} }
             // Add a style element specific to the selected element which
             // is only applied when the preview is in design mode
+            const styleVariantCustomProperties = Object.entries(
+              (selectedStyleVariant as StyleVariant).customProperties ?? {},
+            )
+              .map(([customPropertyName, customProperty]) => ({
+                name: customPropertyName,
+                value: applyFormula(customProperty.formula, {
+                  data: {
+                    Attributes: dataSignal.get().Attributes,
+                    Variables: dataSignal.get().Variables,
+                    Contexts: ctxDataSignal?.get().Contexts ?? {},
+                  },
+                  component: getCurrentComponent(),
+                  root: ctx?.root,
+                  formulaCache: {},
+                  package: ctx?.package,
+                  toddle: window.toddle,
+                  env,
+                } as FormulaContext),
+              }))
+              .filter(({ value }) => value !== undefined)
+
             const styleElem = document.createElement('style')
             styleElem.setAttribute('data-hash', selectedNodeId)
             styleElem.appendChild(
@@ -1066,6 +1088,11 @@ export const createRoot = (
                           ${styleToCss({
                             ...nodeLookup.node.style,
                             ...selectedStyleVariant.style,
+                            ...Object.fromEntries(
+                              styleVariantCustomProperties.map(
+                                ({ name, value }) => [name, value],
+                              ),
+                            ),
                           })}
                         }
                       `),

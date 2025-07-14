@@ -3,6 +3,10 @@ import type { Component } from '../component/component.types'
 import { omitKeys } from '../utils/collections'
 import { isDefined } from '../utils/util'
 import { getClassName, toValidClassName } from './className'
+import {
+  syntaxNodeToPropertyAtDefinition,
+  type CssSyntaxNode,
+} from './customProperty'
 import type { OldTheme, Theme, ThemeOptions } from './theme'
 import { getThemeCss } from './theme'
 import type {
@@ -76,6 +80,7 @@ export const createStylesheet = (
 ) => {
   const hashes = new Set<string>()
   const animationHashes = new Set<string>()
+  const registeredCustomProperties = new Map<string, CssSyntaxNode>()
 
   // Get fonts used on the page
   const fonts = getAllFonts(components)
@@ -235,6 +240,39 @@ ${selector}::-webkit-scrollbar {
                 .join('\n')
             : ''
         }
+        ${[
+          ...Object.entries(node.customProperties ?? {}),
+          ...(node.variants?.flatMap((variant) =>
+            Object.entries(variant.customProperties ?? {}),
+          ) ?? []),
+        ]
+          .map(([customPropertyName, customProperty]) => {
+            const existingVariable =
+              registeredCustomProperties.get(customPropertyName)
+            if (existingVariable) {
+              // Warn if the style variable is already registered with a different syntax, as registration is global.
+              if (
+                existingVariable.type === 'primitive' &&
+                customProperty.syntax.type === 'primitive' &&
+                existingVariable.name !== customProperty.syntax.name
+              ) {
+                // eslint-disable-next-line no-console
+                console.warn(
+                  `Custom property "${customPropertyName}" is already registered with a different syntax: "${existingVariable.name}".`,
+                )
+              }
+              return ''
+            }
+            registeredCustomProperties.set(
+              customPropertyName,
+              customProperty.syntax,
+            )
+            return syntaxNodeToPropertyAtDefinition(
+              customPropertyName,
+              customProperty,
+            )
+          })
+          .join('\n')}
       `
     } catch (e) {
       // eslint-disable-next-line no-console

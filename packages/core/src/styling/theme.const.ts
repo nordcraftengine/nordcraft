@@ -1,5 +1,7 @@
 import type { OldTheme } from './theme'
 
+export const CUSTOM_PROPERTIES_STYLESHEET_ID = 'nc-custom-properties'
+
 export const RESET_STYLES = `
 @layer reset {
   html {

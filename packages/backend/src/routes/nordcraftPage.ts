@@ -91,6 +91,34 @@ export const nordcraftPage = async ({
       packages: files.packages,
     },
   })
+
+  let apiCache: ApiCache
+  let body: string
+  let customProperties: string[] = []
+  try {
+    const pageBody = await renderPageBody({
+      component: toddleComponent,
+      formulaContext,
+      env: formulaContext.env as ToddleServerEnv,
+      req: hono.req.raw,
+      files: files,
+      includedComponents,
+      evaluateComponentApis,
+      projectId: 'my_project',
+    })
+    apiCache = pageBody.apiCache
+    body = pageBody.html
+    customProperties = pageBody.customProperties
+  } catch (e) {
+    if (e instanceof RedirectError) {
+      hono.header(REDIRECT_API_NAME_HEADER, e.redirect.apiName)
+      hono.header(REDIRECT_COMPONENT_NAME_HEADER, e.redirect.componentName)
+      return hono.redirect(e.redirect.url.href, e.redirect.statusCode ?? 302)
+    } else {
+      return hono.text('Internal server error', 500)
+    }
+  }
+
   const head = renderHeadItems({
     headItems: getHeadItems({
       url,
@@ -107,33 +135,9 @@ export const nordcraftPage = async ({
       project,
       context: formulaContext,
       theme,
+      customProperties,
     }),
   })
-
-  let apiCache: ApiCache
-  let body: string
-  try {
-    const pageBody = await renderPageBody({
-      component: toddleComponent,
-      formulaContext,
-      env: formulaContext.env as ToddleServerEnv,
-      req: hono.req.raw,
-      files: files,
-      includedComponents,
-      evaluateComponentApis,
-      projectId: 'my_project',
-    })
-    apiCache = pageBody.apiCache
-    body = pageBody.html
-  } catch (e) {
-    if (e instanceof RedirectError) {
-      hono.header(REDIRECT_API_NAME_HEADER, e.redirect.apiName)
-      hono.header(REDIRECT_COMPONENT_NAME_HEADER, e.redirect.componentName)
-      return hono.redirect(e.redirect.url.href, e.redirect.statusCode ?? 302)
-    } else {
-      return hono.text('Internal server error', 500)
-    }
-  }
   const charset = getCharset({
     pageInfo: toddleComponent.route?.info,
     formulaContext,

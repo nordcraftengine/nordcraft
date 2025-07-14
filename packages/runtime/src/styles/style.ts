@@ -8,6 +8,10 @@ import {
   getClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
+import {
+  syntaxNodeToPropertyAtDefinition,
+  type CssSyntaxNode,
+} from '@nordcraft/core/dist/styling/customProperty'
 import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
 import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { omitKeys } from '@nordcraft/core/dist/utils/collections'
@@ -61,6 +65,7 @@ export const insertStyles = (
   root: Component,
   components: Component[],
 ) => {
+  const registeredCustomProperties = new Map<string, CssSyntaxNode>()
   const getNodeStyles = (
     node: ElementNodeModel | ComponentNodeModel,
     classHash: string,
@@ -131,6 +136,34 @@ ${
         .join('\n')
     : ''
 }
+${[
+  ...Object.entries(node.customProperties ?? {}),
+  ...(node.variants?.flatMap((variant) =>
+    Object.entries(variant.customProperties ?? {}),
+  ) ?? []),
+]
+  .map(([customPropertyName, customProperty]) => {
+    const existingCustomProperty =
+      registeredCustomProperties.get(customPropertyName)
+    if (existingCustomProperty) {
+      // Warn if the style variable is already registered with a different syntax, as registration is global.
+      // The editor should also report an Error-level issue.
+      if (
+        existingCustomProperty.type === 'primitive' &&
+        customProperty.syntax.type === 'primitive' &&
+        existingCustomProperty.name !== customProperty.syntax.name
+      ) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Custom property "${customPropertyName}" is already registered with a different syntax: "${existingCustomProperty.name}".`,
+        )
+      }
+      return ''
+    }
+    registeredCustomProperties.set(customPropertyName, customProperty.syntax)
+    return syntaxNodeToPropertyAtDefinition(customPropertyName, customProperty)
+  })
+  .join('\n')}
   `),
     )
     return styleElem

@@ -6,6 +6,7 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
@@ -18,6 +19,7 @@ import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentChild, ComponentContext, ContextApi } from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
+import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
 import { renderComponent } from './renderComponent'
 
 export type RenderComponentNodeProps = {
@@ -67,6 +69,52 @@ export function createComponent({
           })
         : value?.value,
     ])
+  })
+  Object.entries(node.customProperties ?? {}).forEach(
+    ([customPropertyName, customProperty]) =>
+      subscribeCustomProperty({
+        selector: getNodeSelector(path, {
+          componentName: ctx.component.name,
+          nodeId: node.id,
+        }),
+        signal: dataSignal.map((data) => {
+          return applyFormula(customProperty.formula, {
+            data,
+            component: ctx.component,
+            formulaCache: ctx.formulaCache,
+            root: ctx.root,
+            package: ctx.package,
+            toddle: ctx.toddle,
+            env: ctx.env,
+          })
+        }),
+        customPropertyName,
+      }),
+  )
+  node.variants?.forEach((variant) => {
+    Object.entries(variant.customProperties ?? {}).forEach(
+      ([customPropertyName, customProperty]) =>
+        subscribeCustomProperty({
+          selector: getNodeSelector(path, {
+            componentName: ctx.component.name,
+            nodeId: node.id,
+            variant,
+          }),
+          signal: dataSignal.map((data) =>
+            applyFormula(customProperty.formula, {
+              data,
+              component: ctx.component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+            }),
+          ),
+          customPropertyName,
+          variant,
+        }),
+    )
   })
 
   const componentDataSignal = signal<ComponentData>({

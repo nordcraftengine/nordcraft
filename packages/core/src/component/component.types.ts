@@ -1,5 +1,6 @@
 import type { ApiStatus, ComponentAPI, LegacyApiStatus } from '../api/apiTypes'
 import type { Formula } from '../formula/formula'
+import type { CssSyntaxNode } from '../styling/customProperty'
 import type { StyleTokenCategory } from '../styling/theme'
 import type { NordcraftMetadata, RequireFields } from '../types'
 
@@ -59,7 +60,9 @@ export interface StyleVariant {
   mediaQuery?: MediaQuery
   breakpoint: 'small' | 'medium' | 'large'
   startingStyle?: boolean
+  pseudoElement?: string
   style: NodeStyleModel
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export type NodeStyleModel = Record<string, string>
@@ -73,6 +76,23 @@ export interface TextNodeModel {
   repeatKey?: Formula
   value: Formula
   children?: undefined
+}
+
+export type CustomPropertyName = `--${string}`
+
+export type CustomProperty = {
+  syntax: CssSyntaxNode
+  formula: Formula
+}
+
+/**
+ * @deprecated - use CustomProperties instead
+ */
+export type StyleVariable = {
+  category: StyleTokenCategory
+  name: string
+  formula: Formula
+  unit?: string
 }
 
 export interface ElementNodeModel {
@@ -90,12 +110,8 @@ export interface ElementNodeModel {
   children: string[]
   events: Record<string, EventModel>
   classes: Record<string, { formula?: Formula }>
-  'style-variables'?: Array<{
-    category: StyleTokenCategory
-    name: string
-    formula: Formula
-    unit?: string
-  }>
+  'style-variables'?: Array<StyleVariable>
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export interface ComponentNodeModel {
@@ -114,6 +130,7 @@ export interface ComponentNodeModel {
   attrs: Record<string, Formula>
   children: string[]
   events: Record<string, EventModel>
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export interface SlotNodeModel {
@@ -151,7 +168,7 @@ export interface DynamicPathSegment {
   name: string
 }
 
-type MediaQuery = {
+export type MediaQuery = {
   'min-width'?: string
   'max-width'?: string
   'min-height'?: string
