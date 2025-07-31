@@ -38,6 +38,7 @@ import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
 import { createNode } from './components/createNode'
 import { isContextProvider } from './context/isContextProvider'
+import { sendEditorToast } from './debug/sendEditorToast'
 import { dragEnded } from './editor/drag-drop/dragEnded'
 import { dragMove } from './editor/drag-drop/dragMove'
 import { dragReorder } from './editor/drag-drop/dragReorder'
@@ -1406,19 +1407,39 @@ export const createRoot = (
         // Clear old root signal and create a new one to not keep old signals with previous root around
         ctxDataSignal?.destroy()
         ctxDataSignal = dataSignal.map((data) => data)
-        const rootElem = createNode({
-          id: 'root',
-          path: '0',
-          dataSignal: ctxDataSignal,
-          ctx: newCtx,
-          parentElement: domNode,
-          instance: { [newCtx.component.name]: 'root' },
-        })
-        newCtx.component.onLoad?.actions.forEach((action) => {
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          handleAction(action, dataSignal.get(), newCtx)
-        })
-        rootElem.forEach((elem) => domNode.appendChild(elem))
+        try {
+          const rootElem = createNode({
+            id: 'root',
+            path: '0',
+            dataSignal: ctxDataSignal,
+            ctx: newCtx,
+            parentElement: domNode,
+            instance: { [newCtx.component.name]: 'root' },
+          })
+          newCtx.component.onLoad?.actions.forEach((action) => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            handleAction(action, dataSignal.get(), newCtx)
+          })
+          rootElem.forEach((elem) => domNode.appendChild(elem))
+        } catch (error: unknown) {
+          let title = 'Unexpected error while rendering component'
+          let message = error instanceof Error ? error.message : String(error)
+          if (error instanceof RangeError) {
+            title = 'Maximum call stack size exceeded'
+            message =
+              'Check your component for circular dependencies or recursive calls without a base case.'
+          }
+
+          // Send a toast to the editor with the error
+          sendEditorToast(title, message, {
+            type: 'critical',
+          })
+          console.error(
+            'Error while rendering component',
+            newCtx.component.name,
+            error,
+          )
+        }
         window.parent?.postMessage(
           {
             type: 'style',
