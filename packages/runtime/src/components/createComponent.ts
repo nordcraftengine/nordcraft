@@ -89,6 +89,7 @@ export function createComponent({
           })
         }),
         customPropertyName,
+        root: ctx.root,
       }),
   )
   node.variants?.forEach((variant) => {
@@ -113,6 +114,7 @@ export function createComponent({
           ),
           customPropertyName,
           variant,
+          root: ctx.root,
         }),
     )
   })

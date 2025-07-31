@@ -15,12 +15,12 @@ export class CustomPropertyStyleSheet {
   // Selector to rule index mapping
   private ruleMap: Map<string, CSSStyleRule | CSSNestedDeclarations> | undefined
 
-  constructor(styleSheet?: CSSStyleSheet | null) {
+  constructor(root: Document | ShadowRoot, styleSheet?: CSSStyleSheet | null) {
     if (styleSheet) {
       this.styleSheet = styleSheet
     } else {
       this.styleSheet = new CSSStyleSheet()
-      document.adoptedStyleSheets.push(this.getStyleSheet())
+      root.adoptedStyleSheets.push(this.getStyleSheet())
     }
   }
 
