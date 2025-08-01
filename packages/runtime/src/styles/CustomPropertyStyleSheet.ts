@@ -44,7 +44,10 @@ export class CustomPropertyStyleSheet {
     // Check if the selector already exists
     let rule = this.ruleMap.get(fullSelector)
     if (!rule) {
-      const ruleIndex = this.styleSheet.insertRule(fullSelector)
+      const ruleIndex = this.styleSheet.insertRule(
+        fullSelector,
+        this.styleSheet.cssRules.length,
+      )
       let newRule = this.styleSheet.cssRules[ruleIndex]
 
       // We are only interested in the dynamic style, so get the actual style rule, not media or other nested rules. Loop until we are at the bottom most rule.
@@ -69,6 +72,7 @@ export class CustomPropertyStyleSheet {
     options?: {
       mediaQuery?: MediaQuery
       startingStyle?: boolean
+      deepClean?: boolean
     },
   ): void {
     if (!this.ruleMap) {
@@ -80,8 +84,21 @@ export class CustomPropertyStyleSheet {
       options,
     )
 
-    // We only clean up the property, as we assume that the rule will be reused.
-    this.ruleMap.get(fullSelector)?.style.removeProperty(name)
+    const rule = this.ruleMap.get(fullSelector)
+    if (!rule) {
+      return
+    }
+
+    rule.style.removeProperty(name)
+
+    // Cleaning up empty selectors is probably not necessary in production and may have performance implications.
+    // However, it is required for the editor-preview as it is a dynamic environment and things may get reordered and canvas reused.
+    if (options?.deepClean && rule.style.length === 0) {
+      this.styleSheet.deleteRule(
+        Array.from(this.ruleMap.keys()).indexOf(fullSelector),
+      )
+      this.ruleMap.delete(fullSelector)
+    }
   }
 
   public getStyleSheet(): CSSStyleSheet {

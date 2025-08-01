@@ -12,12 +12,14 @@ export function subscribeCustomProperty({
   signal,
   variant,
   root,
+  runtime,
 }: {
   selector: string
   customPropertyName: string
   signal: Signal<string>
   variant?: StyleVariant
   root: Document | ShadowRoot
+  runtime: 'page' | 'custom-element' | 'preview'
 }) {
   customPropertiesStylesheet =
     customPropertiesStylesheet ??
@@ -37,12 +39,17 @@ export function subscribeCustomProperty({
       variant,
     ),
     {
-      destroy: () =>
+      destroy: () => {
         customPropertiesStylesheet?.unregisterProperty(
           selector,
           customPropertyName,
-          variant,
-        ),
+          {
+            deepClean: runtime === 'preview',
+            mediaQuery: variant?.mediaQuery,
+            startingStyle: variant?.startingStyle,
+          },
+        )
+      },
     },
   )
 }

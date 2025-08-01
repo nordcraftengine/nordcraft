@@ -83,6 +83,7 @@ export type CustomPropertyName = `--${string}`
 export type CustomProperty = {
   syntax: CssSyntaxNode
   formula: Formula
+  description?: string
 }
 
 /**
