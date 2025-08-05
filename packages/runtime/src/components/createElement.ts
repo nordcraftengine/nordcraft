@@ -154,7 +154,12 @@ export function createElement({
     ([customPropertyName, { formula }]) =>
       subscribeCustomProperty({
         customPropertyName,
-        selector: getNodeSelector(path),
+        selector:
+          ctx.env.runtime === 'custom-element' &&
+          ctx.isRootComponent &&
+          path === '0'
+            ? `${getNodeSelector(path)}, :host`
+            : getNodeSelector(path),
         signal: dataSignal.map((data) =>
           applyFormula(formula, {
             data,
@@ -166,6 +171,8 @@ export function createElement({
             env: ctx.env,
           }),
         ),
+        root: ctx.root,
+        runtime: ctx.env.runtime,
       }),
   )
 
@@ -189,6 +196,8 @@ export function createElement({
               env: ctx.env,
             }),
           ),
+          root: ctx.root,
+          runtime: ctx.env.runtime,
         })
       },
     )

@@ -5,6 +5,7 @@ import type {
   FormulaHandler,
   FormulaLookup,
   NordcraftMetadata,
+  Runtime,
   Toddle,
 } from '../types'
 import { isDefined, toBoolean } from '../utils/util'
@@ -137,7 +138,7 @@ export type ToddleEnv =
       // isServer will be false for client-side
       isServer: false
       request: undefined
-      runtime: 'page' | 'custom-element' | 'preview'
+      runtime: Runtime
       logErrors: boolean
     }
 

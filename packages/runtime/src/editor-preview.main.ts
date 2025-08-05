@@ -566,7 +566,7 @@ export const createRoot = (
           }
           const { x, y, type } = message.data
           const elementsAtPoint = document.elementsFromPoint(x, y)
-          let element = elementsAtPoint.find((elem) => {
+          const element = elementsAtPoint.find((elem) => {
             const id = elem.getAttribute('data-id')
             if (
               typeof id !== 'string' ||
@@ -583,30 +583,11 @@ export const createRoot = (
             if (elem.getAttribute('data-node-type') === 'text') {
               return (
                 // Select text nodes if the meta key is pressed or the text node is double-clicked
-                metaKey ||
-                type === 'dblclick' ||
-                // Select text nodes if the selected node is a text node. This is useful as the user is likely in a text editing mode
-                getDOMNodeFromNodeId(selectedNodeId)?.getAttribute(
-                  'data-node-type',
-                ) === 'text'
+                metaKey || type === 'dblclick'
               )
             }
             return true
           })
-
-          // Bubble selection to the topmost parent that has the exact same size as the element.
-          // This is important for drag and drop as you are often left with childless parents after dragging.
-          while (
-            element?.parentElement &&
-            element.getAttribute('data-node-id') !== 'root' &&
-            fastDeepEqual(
-              element.getBoundingClientRect().toJSON(),
-              element.parentElement.getBoundingClientRect().toJSON(),
-            ) &&
-            element.getAttribute('data-node-type') !== 'text'
-          ) {
-            element = element.parentElement
-          }
 
           const id = element?.getAttribute('data-id') ?? null
           if (type === 'click' && id !== selectedNodeId) {
@@ -986,10 +967,30 @@ export const createRoot = (
               document.head.appendChild(styleTag)
             }
 
+            // If style variant targets a pseudo-element, apply styles to it instead
+            let pseudoElement = ''
+            if (component && styleVariantSelection) {
+              const nodeLookup = getNodeAndAncestors(
+                component,
+                component.nodes.root,
+                styleVariantSelection.nodeId,
+              )
+
+              if (
+                nodeLookup?.node.type === 'element' ||
+                (nodeLookup?.node.type === 'component' &&
+                  nodeLookup.node.variants?.[
+                    styleVariantSelection.styleVariantIndex
+                  ].pseudoElement)
+              ) {
+                pseudoElement = `::${nodeLookup.node.variants?.[styleVariantSelection.styleVariantIndex].pseudoElement}`
+              }
+            }
+
             const previewStyles = Object.entries(previewStyleStyles)
               .map(([key, value]) => `${key}: ${value} !important;`)
               .join('\n')
-            styleTag.innerHTML = `[data-id="${selectedNodeId}"], [data-id="${selectedNodeId}"] ~ [data-id^="${selectedNodeId}("] {
+            styleTag.innerHTML = `[data-id="${selectedNodeId}"]${pseudoElement}, [data-id="${selectedNodeId}"] ~ [data-id^="${selectedNodeId}("]${pseudoElement} {
     ${previewStyles}
     transition: none !important;
   }`
@@ -1054,9 +1055,10 @@ export const createRoot = (
             (nodeLookup.node.type === 'element' ||
               nodeLookup.node.type === 'component')
           ) {
-            const selectedStyleVariant = nodeLookup.node.variants?.[
-              styleVariantSelection.styleVariantIndex
-            ] ?? { style: {} }
+            const selectedStyleVariant =
+              nodeLookup.node.variants?.[
+                styleVariantSelection.styleVariantIndex
+              ] ?? ({ style: {} } as StyleVariant)
             // Add a style element specific to the selected element which
             // is only applied when the preview is in design mode
             const styleVariantCustomProperties = Object.entries(
@@ -1081,12 +1083,15 @@ export const createRoot = (
               .filter(({ value }) => value !== undefined)
 
             const styleElem = document.createElement('style')
+            const pseudoElement = selectedStyleVariant.pseudoElement
+              ? `::${selectedStyleVariant.pseudoElement}`
+              : ''
             styleElem.setAttribute('data-hash', selectedNodeId)
             styleElem.appendChild(
               document.createTextNode(`
-                        body[data-mode="design"] [data-id="${selectedNodeId}"] {
+                        body[data-mode="design"] [data-id="${selectedNodeId}"]${pseudoElement} {
                           ${styleToCss({
-                            ...nodeLookup.node.style,
+                            ...(!pseudoElement && nodeLookup.node.style),
                             ...selectedStyleVariant.style,
                             ...Object.fromEntries(
                               styleVariantCustomProperties.map(
