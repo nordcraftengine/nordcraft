@@ -22,16 +22,14 @@ export function subscribeCustomProperty({
   root: Document | ShadowRoot
   runtime: Runtime
 }) {
-  customPropertiesStylesheet =
-    customPropertiesStylesheet ??
-    new CustomPropertyStyleSheet(
-      root,
-      (
-        root.getElementById(CUSTOM_PROPERTIES_STYLESHEET_ID) as
-          | HTMLStyleElement
-          | undefined
-      )?.sheet,
-    )
+  customPropertiesStylesheet ??= new CustomPropertyStyleSheet(
+    root,
+    (
+      root.getElementById(CUSTOM_PROPERTIES_STYLESHEET_ID) as
+        | HTMLStyleElement
+        | undefined
+    )?.sheet,
+  )
 
   signal.subscribe(
     customPropertiesStylesheet.registerProperty(
