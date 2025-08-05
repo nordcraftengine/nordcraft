@@ -157,3 +157,5 @@ export type NestedOmit<
       }
     : Schema
   : Omit<Schema, Path>
+
+export type Runtime = 'page' | 'custom-element' | 'preview'

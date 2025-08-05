@@ -2,6 +2,7 @@ import type { StyleVariant } from '@nordcraft/core/dist/component/component.type
 import type { Signal } from '../signal/signal'
 
 import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core/dist/styling/theme.const'
+import type { Runtime } from '@nordcraft/core/dist/types'
 import { CustomPropertyStyleSheet } from '../styles/CustomPropertyStyleSheet'
 
 let customPropertiesStylesheet: CustomPropertyStyleSheet | undefined
@@ -19,7 +20,7 @@ export function subscribeCustomProperty({
   signal: Signal<string>
   variant?: StyleVariant
   root: Document | ShadowRoot
-  runtime: 'page' | 'custom-element' | 'preview'
+  runtime: Runtime
 }) {
   customPropertiesStylesheet =
     customPropertiesStylesheet ??
