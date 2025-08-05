@@ -38,6 +38,7 @@ import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
 import { createNode } from './components/createNode'
 import { isContextProvider } from './context/isContextProvider'
+import { renderPanicScreen } from './debug/panicScreen'
 import { sendEditorToast } from './debug/sendEditorToast'
 import { dragEnded } from './editor/drag-drop/dragEnded'
 import { dragMove } from './editor/drag-drop/dragMove'
@@ -1422,23 +1423,28 @@ export const createRoot = (
           })
           rootElem.forEach((elem) => domNode.appendChild(elem))
         } catch (error: unknown) {
-          let title = 'Unexpected error while rendering component'
+          const isPage = isPageComponent(newCtx.component)
+          let title = `Unexpected error while rendering ${isPage ? 'page' : 'component'}`
           let message = error instanceof Error ? error.message : String(error)
+          // Panic if cannot recover from this error and shouldn't try to render at all.
+          let panic = false
           if (error instanceof RangeError) {
+            panic = true
             title = 'Maximum call stack size exceeded'
             message =
-              'Check your component for circular dependencies or recursive calls without a base case.'
+              'Remove for any circular dependencies or recursive calls in components, formulas or actions without an exit case.'
           }
 
           // Send a toast to the editor with the error
           sendEditorToast(title, message, {
             type: 'critical',
           })
-          console.error(
-            'Error while rendering component',
-            newCtx.component.name,
-            error,
-          )
+
+          if (panic) {
+            // Show error overlay in the editor until next update
+            domNode.innerHTML = renderPanicScreen(title, message, isPage)
+          }
+          console.error(title, message, error)
         }
         window.parent?.postMessage(
           {
