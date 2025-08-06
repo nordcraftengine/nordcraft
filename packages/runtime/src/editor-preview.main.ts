@@ -1430,9 +1430,9 @@ export const createRoot = (
           if (error instanceof RangeError) {
             // RangeError is unrecoverable
             panic = true
-            name = 'Maximum call stack size exceeded'
+            name = 'Infinite loop detected'
             message =
-              'RangeError: Remove any circular dependencies or recursive calls in components, formulas or actions without an exit case.'
+              'RangeError (Maximum call stack size exceeded): Remove any circular dependencies or recursive calls. This is most likely caused by components, formulas or actions using themselves without an exit case.'
           }
 
           // Send a toast to the editor with the error
