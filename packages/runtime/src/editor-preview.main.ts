@@ -38,7 +38,7 @@ import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
 import { createNode } from './components/createNode'
 import { isContextProvider } from './context/isContextProvider'
-import { renderPanicScreen } from './debug/panicScreen'
+import { createPanicScreen } from './debug/panicScreen'
 import { sendEditorToast } from './debug/sendEditorToast'
 import { dragEnded } from './editor/drag-drop/dragEnded'
 import { dragMove } from './editor/drag-drop/dragMove'
@@ -1424,27 +1424,36 @@ export const createRoot = (
           rootElem.forEach((elem) => domNode.appendChild(elem))
         } catch (error: unknown) {
           const isPage = isPageComponent(newCtx.component)
-          let title = `Unexpected error while rendering ${isPage ? 'page' : 'component'}`
+          let name = `Unexpected error while rendering ${isPage ? 'page' : 'component'}`
           let message = error instanceof Error ? error.message : String(error)
-          // Panic if cannot recover from this error and shouldn't try to render at all.
           let panic = false
           if (error instanceof RangeError) {
+            // RangeError is unrecoverable
             panic = true
-            title = 'Maximum call stack size exceeded'
+            name = 'Maximum call stack size exceeded'
             message =
-              'Remove for any circular dependencies or recursive calls in components, formulas or actions without an exit case.'
+              'RangeError: Remove any circular dependencies or recursive calls in components, formulas or actions without an exit case.'
           }
 
           // Send a toast to the editor with the error
-          sendEditorToast(title, message, {
+          sendEditorToast(name, message, {
             type: 'critical',
           })
 
           if (panic) {
             // Show error overlay in the editor until next update
-            domNode.innerHTML = renderPanicScreen(title, message, isPage)
+            const panicScreen = createPanicScreen({
+              name: name,
+              message,
+              isPage,
+              cause: error,
+            })
+
+            // Replace the inner HTML of the editor preview with the panic screen
+            domNode.innerHTML = ''
+            domNode.appendChild(panicScreen)
           }
-          console.error(title, message, error)
+          console.error(name, message, error)
         }
         window.parent?.postMessage(
           {
