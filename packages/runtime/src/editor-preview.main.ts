@@ -38,6 +38,8 @@ import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
 import { createNode } from './components/createNode'
 import { isContextProvider } from './context/isContextProvider'
+import { createPanicScreen } from './debug/panicScreen'
+import { sendEditorToast } from './debug/sendEditorToast'
 import { dragEnded } from './editor/drag-drop/dragEnded'
 import { dragMove } from './editor/drag-drop/dragMove'
 import { dragReorder } from './editor/drag-drop/dragReorder'
@@ -1411,19 +1413,53 @@ export const createRoot = (
         // Clear old root signal and create a new one to not keep old signals with previous root around
         ctxDataSignal?.destroy()
         ctxDataSignal = dataSignal.map((data) => data)
-        const rootElem = createNode({
-          id: 'root',
-          path: '0',
-          dataSignal: ctxDataSignal,
-          ctx: newCtx,
-          parentElement: domNode,
-          instance: { [newCtx.component.name]: 'root' },
-        })
-        newCtx.component.onLoad?.actions.forEach((action) => {
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          handleAction(action, dataSignal.get(), newCtx)
-        })
-        rootElem.forEach((elem) => domNode.appendChild(elem))
+        try {
+          const rootElem = createNode({
+            id: 'root',
+            path: '0',
+            dataSignal: ctxDataSignal,
+            ctx: newCtx,
+            parentElement: domNode,
+            instance: { [newCtx.component.name]: 'root' },
+          })
+          newCtx.component.onLoad?.actions.forEach((action) => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            handleAction(action, dataSignal.get(), newCtx)
+          })
+          rootElem.forEach((elem) => domNode.appendChild(elem))
+        } catch (error: unknown) {
+          const isPage = isPageComponent(newCtx.component)
+          let name = `Unexpected error while rendering ${isPage ? 'page' : 'component'}`
+          let message = error instanceof Error ? error.message : String(error)
+          let panic = false
+          if (error instanceof RangeError) {
+            // RangeError is unrecoverable
+            panic = true
+            name = 'Infinite loop detected'
+            message =
+              'RangeError (Maximum call stack size exceeded): Remove any circular dependencies or recursive calls. This is most likely caused by components, formulas or actions using themselves without an exit case.'
+          }
+
+          // Send a toast to the editor with the error
+          sendEditorToast(name, message, {
+            type: 'critical',
+          })
+
+          if (panic) {
+            // Show error overlay in the editor until next update
+            const panicScreen = createPanicScreen({
+              name: name,
+              message,
+              isPage,
+              cause: error,
+            })
+
+            // Replace the inner HTML of the editor preview with the panic screen
+            domNode.innerHTML = ''
+            domNode.appendChild(panicScreen)
+          }
+          console.error(name, message, error)
+        }
         window.parent?.postMessage(
           {
             type: 'style',
