@@ -1,4 +1,8 @@
-import type { ActionModel } from '@nordcraft/core/dist/component/component.types'
+import type {
+  ActionModel,
+  ElementNodeModel,
+} from '@nordcraft/core/dist/component/component.types'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 export function shouldSearchPath(
   path: (string | number)[],
@@ -43,3 +47,61 @@ const LEGACY_CUSTOM_ACTIONS = new Set([
   'TriggerEvent',
   'Set session cookies',
 ])
+
+interface BaseInteractiveContent {
+  tag: string
+}
+
+interface InteractiveContentWithAttributeRequirement
+  extends BaseInteractiveContent {
+  whenAttributeIsPresent: string
+}
+
+interface InteractiveContentWithNegativeAttributeRequirement
+  extends BaseInteractiveContent {
+  whenAttributeIsNot: { attribute: string; value: string }
+}
+
+export type InteractiveContent =
+  | BaseInteractiveContent
+  | InteractiveContentWithAttributeRequirement
+  | InteractiveContentWithNegativeAttributeRequirement
+
+const INTERACTIVE_CONTENT: InteractiveContent[] = [
+  { tag: 'button' },
+  { tag: 'details' },
+  { tag: 'embed' },
+  { tag: 'iframe' },
+  { tag: 'label' },
+  { tag: 'select' },
+  { tag: 'textarea' },
+  { tag: 'a', whenAttributeIsPresent: 'href' },
+  { tag: 'audio', whenAttributeIsPresent: 'controls' },
+  { tag: 'img', whenAttributeIsPresent: 'usemap' },
+  { tag: 'input', whenAttributeIsNot: { attribute: 'type', value: 'hidden' } },
+  { tag: 'object', whenAttributeIsPresent: 'usemap' },
+  { tag: 'video', whenAttributeIsPresent: 'controls' },
+]
+
+export const interactiveContentElementDefinition = (
+  element: ElementNodeModel,
+) =>
+  INTERACTIVE_CONTENT.find((ic) => {
+    if (element.tag !== ic.tag) {
+      return false
+    }
+    if ('whenAttributeIsPresent' in ic) {
+      return isDefined(element.attrs[ic.whenAttributeIsPresent])
+    }
+    if ('whenAttributeIsNot' in ic) {
+      const attributeFormula = element.attrs[ic.whenAttributeIsNot.attribute]
+      if (
+        !attributeFormula ||
+        attributeFormula.type !== 'value' ||
+        attributeFormula.value !== ic.whenAttributeIsNot.value
+      ) {
+        return false
+      }
+    }
+    return true
+  })

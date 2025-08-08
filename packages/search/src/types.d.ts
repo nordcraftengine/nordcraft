@@ -30,6 +30,7 @@ type Code =
   | 'duplicate route'
   | 'invalid api parser mode'
   | 'invalid api proxy body setting'
+  | 'invalid element child'
   | 'legacy action'
   | 'legacy api'
   | 'legacy formula'

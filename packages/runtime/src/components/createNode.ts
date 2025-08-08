@@ -121,14 +121,14 @@ export function createNode({
 
         if (!parentElement || ctx.root.contains(parentElement) === false) {
           console.error(
-            `Conditional: Parent element does not exist for "${path}" This is likely due to the DOM being modified outside of toddle.`,
+            `Conditional: Parent element does not exist for "${path}" This is likely due to the DOM being modified outside of Nordcraft.`,
           )
           return
         }
 
         if (parentElement.querySelector(`[data-id="${path}"]`)) {
           console.warn(
-            `Conditional: Element with data-id="${path}" already exists. This is likely due to the DOM being modified outside of toddle`,
+            `Conditional: Element with data-id="${path}" already exists. This is likely due to the DOM being modified outside of Nordcraft`,
           )
           return
         }
@@ -315,7 +315,7 @@ export function createNode({
 
         if (!parentElement || ctx.root.contains(parentElement) === false) {
           console.error(
-            `Repeat: Parent element does not exist for ${path}. This is likely due to the DOM being modified outside of toddle.`,
+            `Repeat: Parent element does not exist for ${path}. This is likely due to the DOM being modified outside of Nordcraft.`,
           )
           return
         }
