@@ -95,13 +95,10 @@ export const interactiveContentElementDefinition = (
     }
     if ('whenAttributeIsNot' in ic) {
       const attributeFormula = element.attrs[ic.whenAttributeIsNot.attribute]
-      if (
-        !attributeFormula ||
-        attributeFormula.type !== 'value' ||
-        attributeFormula.value !== ic.whenAttributeIsNot.value
-      ) {
-        return false
-      }
+      return (
+        attributeFormula?.type === 'value' &&
+        attributeFormula.value === ic.whenAttributeIsNot.value
+      )
     }
     return true
   })
