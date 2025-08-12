@@ -160,6 +160,7 @@ function* visitNode(
   } & NodeType,
   state: ApplicationState | undefined,
 ): Generator<Result> {
+  performance.mark(`visitNode-${args.path.join('/')}`)
   const { rules, pathsToVisit, ...data } = args
   const { files, value, path, memo, nodeType } = data
   if (!shouldSearchPath(data.path, pathsToVisit)) {
@@ -168,6 +169,7 @@ function* visitNode(
 
   const results: Result[] = []
   for (const rule of rules) {
+    performance.mark(`rule-${rule.code}`)
     rule.visit(
       (path, details) => {
         results.push({
