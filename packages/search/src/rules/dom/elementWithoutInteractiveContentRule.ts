@@ -14,7 +14,7 @@ export const elementWithoutInteractiveContentRule: Rule<{
   invalidChild: InteractiveContent
 }> = {
   code: 'invalid element child',
-  level: 'error',
+  level: 'warning',
   category: 'Accessibility',
   visit: (report, args) => {
     if (args.nodeType !== 'component-node') {
