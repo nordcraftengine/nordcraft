@@ -48,7 +48,7 @@ describe('elementWithoutInteractiveContentRule', () => {
             },
           },
         },
-        rules: [elementWithoutInteractiveContentRule({})],
+        rules: [elementWithoutInteractiveContentRule],
       }),
     )
     expect(problems).toHaveLength(1)
@@ -103,7 +103,7 @@ describe('elementWithoutInteractiveContentRule', () => {
             },
           },
         },
-        rules: [elementWithoutInteractiveContentRule({})],
+        rules: [elementWithoutInteractiveContentRule],
       }),
     )
     expect(problems).toHaveLength(1)
@@ -158,7 +158,7 @@ describe('elementWithoutInteractiveContentRule', () => {
             },
           },
         },
-        rules: [elementWithoutInteractiveContentRule({})],
+        rules: [elementWithoutInteractiveContentRule],
       }),
     )
     expect(problems).toHaveLength(1)
@@ -213,7 +213,7 @@ describe('elementWithoutInteractiveContentRule', () => {
             },
           },
         },
-        rules: [elementWithoutInteractiveContentRule({})],
+        rules: [elementWithoutInteractiveContentRule],
       }),
     )
     expect(problems).toHaveLength(0)
@@ -262,7 +262,7 @@ describe('elementWithoutInteractiveContentRule', () => {
             },
           },
         },
-        rules: [elementWithoutInteractiveContentRule({})],
+        rules: [elementWithoutInteractiveContentRule],
       }),
     )
     expect(problems).toHaveLength(0)
@@ -337,7 +337,7 @@ describe('elementWithoutInteractiveContentRule', () => {
             },
           },
         },
-        rules: [elementWithoutInteractiveContentRule({})],
+        rules: [elementWithoutInteractiveContentRule],
       }),
     )
     expect(problems).toHaveLength(1)
@@ -392,7 +392,7 @@ describe('elementWithoutInteractiveContentRule', () => {
             },
           },
         },
-        rules: [elementWithoutInteractiveContentRule({})],
+        rules: [elementWithoutInteractiveContentRule],
       }),
     )
 

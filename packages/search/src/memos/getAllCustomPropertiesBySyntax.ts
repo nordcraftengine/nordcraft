@@ -1,8 +1,9 @@
 import type { CssSyntaxNode } from '@nordcraft/core/dist/styling/customProperty'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { MemoFn } from '../types'
 
 export const getAllCustomPropertiesBySyntax = (
-  memo: <T>(key: string, fn: () => T) => T,
+  memo: MemoFn,
   {
     files,
   }: {

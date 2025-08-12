@@ -126,7 +126,7 @@ const RULES = [
   duplicateRouteRule,
   duplicateUrlParameterRule,
   duplicateWorkflowParameterRule,
-  elementWithoutInteractiveContentRule({}),
+  elementWithoutInteractiveContentRule,
   imageWithoutDimensionRule,
   legacyActionRule,
   legacyApiRule,
