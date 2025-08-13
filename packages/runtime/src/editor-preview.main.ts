@@ -717,7 +717,6 @@ export const createRoot = (
         }
         case 'introspect_qraphql_api': {
           const { apiKey } = message.data
-          console.log('Introspection requested in iframe ...', apiKey)
           const api = component?.apis[apiKey]
           if (api && !isLegacyApi(api) && component) {
             const Attributes = mapObject(
