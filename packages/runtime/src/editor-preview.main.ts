@@ -3,6 +3,7 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-fallthrough */
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import { type ApiRequest } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   AnimationKeyframe,
   Component,
@@ -44,6 +45,7 @@ import { dragEnded } from './editor/drag-drop/dragEnded'
 import { dragMove } from './editor/drag-drop/dragMove'
 import { dragReorder } from './editor/drag-drop/dragReorder'
 import { dragStarted } from './editor/drag-drop/dragStarted'
+import { introspectApiRequest } from './editor/graphql'
 import type { DragState } from './editor/types'
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
@@ -99,6 +101,7 @@ type ToddlePreviewEvent =
   | { type: 'update_inner_text'; innerText: string }
   | { type: 'reload' }
   | { type: 'fetch_api'; apiKey: string }
+  | { type: 'introspect_qraphql_api'; apiKey: string }
   | { type: 'drag-started'; x: number; y: number }
   | { type: 'drag-ended'; canceled?: true }
   | { type: 'keydown'; key: string; altKey: boolean; metaKey: boolean }
@@ -338,7 +341,7 @@ export const createRoot = (
 
   window.addEventListener(
     'message',
-    (message: MessageEvent<ToddlePreviewEvent>) => {
+    async (message: MessageEvent<ToddlePreviewEvent>) => {
       if (!message.isTrusted) {
         console.error('UNTRUSTED MESSAGE')
       }
@@ -696,7 +699,7 @@ export const createRoot = (
         case 'reload':
           window.location.reload()
           break
-        case 'fetch_api':
+        case 'fetch_api': {
           const { apiKey } = message.data
           dataSignal.update((data) => ({
             ...data,
@@ -711,6 +714,40 @@ export const createRoot = (
           }))
           void ctx?.apis[apiKey]?.fetch({} as any)
           break
+        }
+        case 'introspect_qraphql_api': {
+          const { apiKey } = message.data
+          console.log('Introspection requested in iframe ...', apiKey)
+          const api = component?.apis[apiKey]
+          if (api && !isLegacyApi(api) && component) {
+            const Attributes = mapObject(
+              component.attributes,
+              ([name, { testValue }]) => [name, testValue],
+            )
+            const formulaContext: FormulaContext = {
+              component,
+              data: { Attributes },
+              root: document,
+              package: ctx?.package,
+              toddle: window.toddle,
+              env,
+            }
+            const introspectionResult = await introspectApiRequest({
+              api: api as ApiRequest,
+              componentName: component.name,
+              formulaContext,
+            })
+            window.parent?.postMessage(
+              {
+                type: 'introspectionResult',
+                data: introspectionResult,
+                apiKey,
+              },
+              '*',
+            )
+          }
+          break
+        }
         case 'drag-started':
           const draggedElement = getDOMNodeFromNodeId(selectedNodeId)
           if (!draggedElement || !draggedElement.parentElement) {
