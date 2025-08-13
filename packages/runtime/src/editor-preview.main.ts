@@ -3,6 +3,7 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-fallthrough */
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import { type ApiRequest } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   AnimationKeyframe,
   Component,
@@ -44,6 +45,7 @@ import { dragEnded } from './editor/drag-drop/dragEnded'
 import { dragMove } from './editor/drag-drop/dragMove'
 import { dragReorder } from './editor/drag-drop/dragReorder'
 import { dragStarted } from './editor/drag-drop/dragStarted'
+import { introspectApiRequest } from './editor/graphql'
 import type { DragState } from './editor/types'
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
@@ -99,6 +101,7 @@ type ToddlePreviewEvent =
   | { type: 'update_inner_text'; innerText: string }
   | { type: 'reload' }
   | { type: 'fetch_api'; apiKey: string }
+  | { type: 'introspect_qraphql_api'; apiKey: string }
   | { type: 'drag-started'; x: number; y: number }
   | { type: 'drag-ended'; canceled?: true }
   | { type: 'keydown'; key: string; altKey: boolean; metaKey: boolean }
@@ -338,7 +341,7 @@ export const createRoot = (
 
   window.addEventListener(
     'message',
-    (message: MessageEvent<ToddlePreviewEvent>) => {
+    async (message: MessageEvent<ToddlePreviewEvent>) => {
       if (!message.isTrusted) {
         console.error('UNTRUSTED MESSAGE')
       }
@@ -489,27 +492,21 @@ export const createRoot = (
               element.value.type === 'value'
             ) {
               const computedStyle = window.getComputedStyle(node)
-              window.parent?.postMessage(
-                {
-                  type: 'textComputedStyle',
-                  computedStyle: Object.fromEntries(
-                    Object.values(TextNodeComputedStyles).map((style) => [
-                      style,
-                      computedStyle.getPropertyValue(style),
-                    ]),
-                  ),
-                },
-                '*',
-              )
+              postMessageToEditor({
+                type: 'textComputedStyle',
+                computedStyle: Object.fromEntries(
+                  Object.values(TextNodeComputedStyles).map((style) => [
+                    style,
+                    computedStyle.getPropertyValue(style),
+                  ]),
+                ),
+              })
             } else if (node && node.getAttribute('data-node-type') !== 'text') {
               // Reset computed style on blur
-              window.parent?.postMessage(
-                {
-                  type: 'textComputedStyle',
-                  computedStyle: {},
-                },
-                '*',
-              )
+              postMessageToEditor({
+                type: 'textComputedStyle',
+                computedStyle: {},
+              })
             }
           }
           return
@@ -600,13 +597,10 @@ export const createRoot = (
               if (root && id) {
                 const nodeLookup = getNodeAndAncestors(component, root, id)
                 if (nodeLookup?.node.type === 'text') {
-                  window.parent?.postMessage(
-                    {
-                      type: 'selection',
-                      selectedNodeId: id,
-                    },
-                    '*',
-                  )
+                  postMessageToEditor({
+                    type: 'selection',
+                    selectedNodeId: id,
+                  })
                 } else {
                   const firstTextChild =
                     nodeLookup?.node.type === 'element'
@@ -615,33 +609,24 @@ export const createRoot = (
                         )
                       : undefined
                   if (firstTextChild) {
-                    window.parent?.postMessage(
-                      {
-                        type: 'selection',
-                        selectedNodeId: `${id}.0`,
-                      },
-                      '*',
-                    )
+                    postMessageToEditor({
+                      type: 'selection',
+                      selectedNodeId: `${id}.0`,
+                    })
                   }
                 }
               }
             } else {
-              window.parent?.postMessage(
-                {
-                  type: 'selection',
-                  selectedNodeId: id,
-                },
-                '*',
-              )
+              postMessageToEditor({
+                type: 'selection',
+                selectedNodeId: id,
+              })
             }
           } else if (type === 'mousemove' && id !== highlightedNodeId) {
-            window.parent?.postMessage(
-              {
-                type: 'highlight',
-                highlightedNodeId: id,
-              },
-              '*',
-            )
+            postMessageToEditor({
+              type: 'highlight',
+              highlightedNodeId: id,
+            })
           } else if (
             type === 'dblclick' &&
             id &&
@@ -656,23 +641,17 @@ export const createRoot = (
                 nodeLookup?.node.type === 'component' &&
                 nodeLookup.node.name
               ) {
-                window.parent?.postMessage(
-                  {
-                    type: 'navigate',
-                    name: nodeLookup.node.name,
-                  },
-                  '*',
-                )
+                postMessageToEditor({
+                  type: 'navigate',
+                  name: nodeLookup.node.name,
+                })
               }
               // Double click on text node should select the text node for editing
               else if (nodeLookup?.node.type === 'text') {
-                window.parent?.postMessage(
-                  {
-                    type: 'selection',
-                    selectedNodeId: id,
-                  },
-                  '*',
-                )
+                postMessageToEditor({
+                  type: 'selection',
+                  selectedNodeId: id,
+                })
               }
             }
           }
@@ -684,19 +663,16 @@ export const createRoot = (
         // We request manually instead of automatic to avoid mutation observer spam.
         // Also, reporting automatically proved unreliable when elements' height was in %
         case 'report_document_scroll_size':
-          window.parent?.postMessage(
-            {
-              type: 'documentScrollSize',
-              scrollHeight: domNode.scrollHeight,
-              scrollWidth: domNode.scrollWidth,
-            },
-            '*',
-          )
+          postMessageToEditor({
+            type: 'documentScrollSize',
+            scrollHeight: domNode.scrollHeight,
+            scrollWidth: domNode.scrollWidth,
+          })
           break
         case 'reload':
           window.location.reload()
           break
-        case 'fetch_api':
+        case 'fetch_api': {
           const { apiKey } = message.data
           dataSignal.update((data) => ({
             ...data,
@@ -711,6 +687,36 @@ export const createRoot = (
           }))
           void ctx?.apis[apiKey]?.fetch({} as any)
           break
+        }
+        case 'introspect_qraphql_api': {
+          const { apiKey } = message.data
+          const api = component?.apis[apiKey]
+          if (api && !isLegacyApi(api) && component) {
+            const Attributes = mapObject(
+              component.attributes,
+              ([name, { testValue }]) => [name, testValue],
+            )
+            const formulaContext: FormulaContext = {
+              component,
+              data: { Attributes },
+              root: document,
+              package: ctx?.package,
+              toddle: window.toddle,
+              env,
+            }
+            const introspectionResult = await introspectApiRequest({
+              api: api as ApiRequest,
+              componentName: component.name,
+              formulaContext,
+            })
+            postMessageToEditor({
+              type: 'introspectionResult',
+              data: introspectionResult,
+              apiKey,
+            })
+          }
+          break
+        }
         case 'drag-started':
           const draggedElement = getDOMNodeFromNodeId(selectedNodeId)
           if (!draggedElement || !draggedElement.parentElement) {
@@ -760,17 +766,14 @@ export const createRoot = (
                   dragState?.copy)
               ) {
                 void dragEnded(dragState, false).then(() => {
-                  window.parent?.postMessage(
-                    {
-                      type: 'nodeMoved',
-                      copy: Boolean(dragState?.copy),
-                      parent: parentDataId,
-                      index: !isNaN(nextSiblingId)
-                        ? nextSiblingId
-                        : component?.nodes[parentNodeId]?.children?.length,
-                    },
-                    '*',
-                  )
+                  postMessageToEditor({
+                    type: 'nodeMoved',
+                    copy: Boolean(dragState?.copy),
+                    parent: parentDataId,
+                    index: !isNaN(nextSiblingId)
+                      ? nextSiblingId
+                      : component?.nodes[parentNodeId]?.children?.length,
+                  })
                   dragState = null
                 })
               } else {
@@ -786,16 +789,12 @@ export const createRoot = (
                 ]
               if (selectedPermutation && !message.data.canceled) {
                 void dragEnded(dragState, false).then(() => {
-                  window.parent?.postMessage(
-                    {
-                      type: 'nodeMoved',
-                      copy: Boolean(dragState?.copy),
-                      parent:
-                        selectedPermutation?.parent.getAttribute('data-id'),
-                      index: selectedPermutation?.index,
-                    },
-                    '*',
-                  )
+                  postMessageToEditor({
+                    type: 'nodeMoved',
+                    copy: Boolean(dragState?.copy),
+                    parent: selectedPermutation?.parent.getAttribute('data-id'),
+                    index: selectedPermutation?.index,
+                  })
                   dragState = null
                 })
               } else {
@@ -843,18 +842,15 @@ export const createRoot = (
 
           const { styles } = message.data
           const computedStyle = window.getComputedStyle(selectedNode)
-          window.parent?.postMessage(
-            {
-              type: 'computedStyle',
-              computedStyle: Object.fromEntries(
-                (styles ?? []).map((style) => [
-                  style,
-                  computedStyle.getPropertyValue(style),
-                ]),
-              ),
-            },
-            '*',
-          )
+          postMessageToEditor({
+            type: 'computedStyle',
+            computedStyle: Object.fromEntries(
+              (styles ?? []).map((style) => [
+                style,
+                computedStyle.getPropertyValue(style),
+              ]),
+            ),
+          })
           break
 
         case 'set_timeline_keyframes':
@@ -1460,15 +1456,12 @@ export const createRoot = (
           }
           console.error(name, message, error)
         }
-        window.parent?.postMessage(
-          {
-            type: 'style',
-            time: new Intl.DateTimeFormat('en-GB', {
-              timeStyle: 'long',
-            }).format(new Date()),
-          },
-          '*',
-        )
+        postMessageToEditor({
+          type: 'style',
+          time: new Intl.DateTimeFormat('en-GB', {
+            timeStyle: 'long',
+          }).format(new Date()),
+        })
       }
     }
 
@@ -1483,17 +1476,14 @@ export const createRoot = (
       component,
       components,
       triggerEvent: (event, data) => {
-        window.parent?.postMessage(
-          {
-            type: 'component event',
-            event,
-            time: new Intl.DateTimeFormat('en-GB', {
-              timeStyle: 'long',
-            }).format(new Date()),
-            data,
-          },
-          '*',
-        )
+        postMessageToEditor({
+          type: 'component event',
+          event,
+          time: new Intl.DateTimeFormat('en-GB', {
+            timeStyle: 'long',
+          }).format(new Date()),
+          data,
+        })
       },
       dataSignal,
       root: document,
@@ -1552,64 +1542,55 @@ export const createRoot = (
           event.preventDefault()
         }
     }
-    window.parent?.postMessage(
-      {
-        type: 'keydown',
-        event: {
-          key: event.key,
-          metaKey: event.metaKey,
-          shiftKey: event.shiftKey,
-          altKey: event.altKey,
-        },
+    postMessageToEditor({
+      type: 'keydown',
+      event: {
+        key: event.key,
+        metaKey: event.metaKey,
+        shiftKey: event.shiftKey,
+        altKey: event.altKey,
       },
-      '*',
-    )
+    })
   })
   document.addEventListener('keyup', (event) => {
     if (isInputTarget(event)) {
       return
     }
-    window.parent?.postMessage(
-      {
-        type: 'keyup',
-        event: {
-          key: event.key,
-          metaKey: event.metaKey,
-          shiftKey: event.shiftKey,
-          altKey: event.altKey,
-        },
+    postMessageToEditor({
+      type: 'keyup',
+      event: {
+        key: event.key,
+        metaKey: event.metaKey,
+        shiftKey: event.shiftKey,
+        altKey: event.altKey,
       },
-      '*',
-    )
+    })
   })
   document.addEventListener('keypress', (event) => {
     if (isInputTarget(event)) {
       return
     }
-    window.parent?.postMessage(
-      {
-        type: 'keypress',
-        event: {
-          key: event.key,
-          metaKey: event.metaKey,
-          shiftKey: event.shiftKey,
-          altKey: event.altKey,
-        },
+    postMessageToEditor({
+      type: 'keypress',
+      event: {
+        key: event.key,
+        metaKey: event.metaKey,
+        shiftKey: event.shiftKey,
+        altKey: event.altKey,
       },
-      '*',
-    )
+    })
   })
 
   dataSignal.subscribe((data) => {
     if (component && components && packageComponents && data) {
       try {
-        window.parent?.postMessage({ type: 'data', data }, '*')
+        postMessageToEditor({ type: 'data', data })
       } catch {
         // If we're unable to send the data, let's try to JSON serialize it
-        window.parent?.postMessage(
-          { type: 'data', data: JSON.parse(JSON.stringify(data)) },
-          '*',
-        )
+        postMessageToEditor({
+          type: 'data',
+          data: JSON.parse(JSON.stringify(data)),
+        })
       }
     }
   })
@@ -1655,24 +1636,18 @@ export const createRoot = (
   ) {
     const selectionRect = getRectData(getDOMNodeFromNodeId(selectedNodeId))
     if (!fastDeepEqual(prevSelectionRect, selectionRect)) {
-      window.parent?.postMessage(
-        {
-          type: 'selectionRect',
-          rect: selectionRect,
-        },
-        '*',
-      )
+      postMessageToEditor({
+        type: 'selectionRect',
+        rect: selectionRect,
+      })
     }
 
     const highlightRect = getRectData(getDOMNodeFromNodeId(highlightedNodeId))
     if (!fastDeepEqual(prevHighlightedRect, highlightRect)) {
-      window.parent?.postMessage(
-        {
-          type: 'highlightRect',
-          rect: highlightRect,
-        },
-        '*',
-      )
+      postMessageToEditor({
+        type: 'highlightRect',
+        rect: highlightRect,
+      })
     }
 
     requestAnimationFrame(() => syncOverlayRects(selectionRect, highlightRect))
@@ -1795,4 +1770,92 @@ const insertTheme = (parent: HTMLElement, theme: Theme | OldTheme) => {
     createFontFaces: true,
   })
   parent.appendChild(styleElem)
+}
+
+type PostMessageType =
+  | {
+      type: 'textComputedStyle'
+      computedStyle: Record<string, string>
+    }
+  | {
+      type: 'selection'
+      selectedNodeId: string | null
+    }
+  | {
+      type: 'highlight'
+      highlightedNodeId: string | null
+    }
+  | {
+      type: 'navigate'
+      name: string
+    }
+  | {
+      type: 'documentScrollSize'
+      scrollHeight: number
+      scrollWidth: number
+    }
+  | {
+      type: 'nodeMoved'
+      copy: boolean
+      parent?: string | null
+      index?: number
+    }
+  | {
+      type: 'computedStyle'
+      computedStyle: Record<string, string>
+    }
+  | {
+      type: 'style'
+      time: string
+    }
+  | {
+      type: 'component event'
+      event: any
+      time: string
+      data: any
+    }
+  | {
+      type: 'keydown'
+      event: {
+        key: string
+        metaKey: boolean
+        shiftKey: boolean
+        altKey: boolean
+      }
+    }
+  | {
+      type: 'keyup'
+      event: {
+        key: string
+        metaKey: boolean
+        shiftKey: boolean
+        altKey: boolean
+      }
+    }
+  | {
+      type: 'keypress'
+      event: {
+        key: string
+        metaKey: boolean
+        shiftKey: boolean
+        altKey: boolean
+      }
+    }
+  | { type: 'data'; data: ComponentData }
+  | {
+      type: 'selectionRect'
+      rect: ReturnType<typeof getRectData>
+    }
+  | {
+      type: 'highlightRect'
+      rect: ReturnType<typeof getRectData>
+    }
+  | {
+      type: 'introspectionResult'
+      data: any
+      apiKey: string
+    }
+
+const postMessageToEditor = (message: PostMessageType) => {
+  window.parent?.postMessage(message, '*')
 }
