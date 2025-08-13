@@ -142,7 +142,23 @@ export type ToddleEnv =
     }
 
 export function isFormula(f: any): f is Formula {
-  return f && typeof f === 'object' && typeof f.type === 'string'
+  return (
+    f &&
+    typeof f === 'object' &&
+    typeof f.type === 'string' &&
+    [
+      'path',
+      'function',
+      'record',
+      'object',
+      'array',
+      'or',
+      'and',
+      'apply',
+      'value',
+      'switch',
+    ].includes(f.type)
+  )
 }
 export function isFormulaApplyOperation(
   formula: Formula,
