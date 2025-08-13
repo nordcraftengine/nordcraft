@@ -30,6 +30,7 @@ type Code =
   | 'duplicate route'
   | 'invalid api parser mode'
   | 'invalid api proxy body setting'
+  | 'invalid element child'
   | 'legacy action'
   | 'legacy api'
   | 'legacy formula'
@@ -135,6 +136,8 @@ export interface ApplicationState {
   projectDetails?: ToddleProject
 }
 
+type MemoFn = <T>(key: string, fn: () => T) => T
+
 type Base = {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   /**
@@ -149,7 +152,7 @@ type Base = {
    * @param fn A function that returns the value to be memoized. This function is only called if the value is not already in the cache already.
    * @returns The value of the memoized function.
    */
-  memo: <T>(key: string, fn: () => T) => T
+  memo: MemoFn
 }
 
 type ProjectFormulaNode = {

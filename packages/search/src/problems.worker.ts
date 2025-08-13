@@ -19,6 +19,7 @@ import { createRequiredDirectChildRule } from './rules/dom/createRequiredDirectC
 import { createRequiredDirectParentRule } from './rules/dom/createRequiredDirectParentRule'
 import { createRequiredElementAttributeRule } from './rules/dom/createRequiredElementAttributeRule'
 import { createRequiredMetaTagRule } from './rules/dom/createRequiredMetaTagRule'
+import { elementWithoutInteractiveContentRule } from './rules/dom/elementWithoutInteractiveContentRule'
 import { imageWithoutDimensionRule } from './rules/dom/imageWithoutDimensionRule'
 import { nonEmptyVoidElementRule } from './rules/dom/nonEmptyVoidElementRule'
 import { duplicateRouteRule } from './rules/duplicateRouteRule'
@@ -125,6 +126,7 @@ const RULES = [
   duplicateRouteRule,
   duplicateUrlParameterRule,
   duplicateWorkflowParameterRule,
+  elementWithoutInteractiveContentRule,
   imageWithoutDimensionRule,
   legacyActionRule,
   legacyApiRule,
