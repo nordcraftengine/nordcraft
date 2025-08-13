@@ -146,18 +146,20 @@ export function isFormula(f: any): f is Formula {
     f &&
     typeof f === 'object' &&
     typeof f.type === 'string' &&
-    [
-      'path',
-      'function',
-      'record',
-      'object',
-      'array',
-      'or',
-      'and',
-      'apply',
-      'value',
-      'switch',
-    ].includes(f.type)
+    (
+      [
+        'path',
+        'function',
+        'record',
+        'object',
+        'array',
+        'or',
+        'and',
+        'apply',
+        'value',
+        'switch',
+      ] as Formula['type'][]
+    ).includes(f.type)
   )
 }
 export function isFormulaApplyOperation(
