@@ -74,7 +74,7 @@ app.get('/.toddle/stylesheet/:pageName{.+.css}', stylesheetHandler)
 app.get('/.toddle/custom-code/:pageName{.+.js}', customCode)
 
 // Load a route if it matches the URL
-app.get('/*', routeHandler)
+app.all('/*', routeHandler)
 
 // Load default resource endpoints
 app.get('/sitemap.xml', sitemap)
