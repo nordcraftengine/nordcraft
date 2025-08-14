@@ -1,4 +1,8 @@
-import { NON_BODY_RESPONSE_CODES } from '@nordcraft/core/dist/api/api'
+import {
+  HttpMethodsWithAllowedBody,
+  NON_BODY_RESPONSE_CODES,
+} from '@nordcraft/core/dist/api/api'
+import type { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
 import { REWRITE_HEADER } from '@nordcraft/core/dist/utils/url'
 import {
   getServerToddleObject,
@@ -43,6 +47,9 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     })
   }
   if (route.type === 'redirect') {
+    if (c.req.raw.method !== 'GET') {
+      return c.text(`Method Not Allowed`, { status: 405 })
+    }
     // Return a redirect to the destination with the provided status code
     c.header(REDIRECT_NAME_HEADER, routeName)
     return c.body(null, route.status ?? 302)
@@ -55,18 +62,16 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     })
   }
   try {
-    const requestHeaders = new Headers()
-    // Ensure this server can read the response by overriding potentially
-    // unsupported accept headers from the client (brotli etc.)
-    requestHeaders.set('accept-encoding', 'gzip')
-    requestHeaders.set('accept', '*/*')
+    const headers = new Headers()
     // Add header to identify that this is a rewrite
     // This allows us to avoid recursive fetch calls across Nordcraft routes
-    requestHeaders.set(REWRITE_HEADER, 'true')
+    headers.set(REWRITE_HEADER, 'true')
     const response = await fetch(destination, {
-      headers: requestHeaders,
-      // Routes can only be GET requests
-      method: 'GET',
+      headers,
+      method: c.req.raw.method,
+      body: HttpMethodsWithAllowedBody.includes(c.req.raw.method as ApiMethod)
+        ? c.req.raw.body
+        : undefined,
     })
     // Pass the stream into a new response so we can write the headers
     const body = NON_BODY_RESPONSE_CODES.includes(response.status)
@@ -75,19 +80,13 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
 
     const returnResponse = new Response(body, {
       status: response.status,
-      headers: {
-        ...Object.fromEntries(
-          response.headers
-            .entries()
-            // Filter out content-encoding as it breaks decoding on the client 🤷‍♂️
-            .filter(([key]) => key !== 'content-encoding'),
-        ),
-      },
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers),
     })
     return returnResponse
   } catch {
     return c.html(
-      `Internal server error when fetching url: ${destination.href}`,
+      `Unable to fetch resource defined in proxy destination: ${destination.href}`,
       { status: 500 },
     )
   }
