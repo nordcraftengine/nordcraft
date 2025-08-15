@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/group.schema.json",
   "name": "Interval",
   "description": "Run an action every \"delay\" milliseconds.",
   "group": "timers",
@@ -11,6 +12,6 @@
     }
   ],
   "events": {
-    "tick": {"actions": []}
+    "tick": { "actions": [] }
   }
 }

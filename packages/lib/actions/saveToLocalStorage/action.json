@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/group.schema.json",
   "name": "Save to Local Storage",
   "description": "Save a provided key/value to local storage by JSON encoding the value.",
   "group": "local_storage",

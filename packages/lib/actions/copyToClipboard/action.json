@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/group.schema.json",
   "name": "Copy to clipboard",
   "description": "Copy contents to the clipboard.",
   "group": "events",

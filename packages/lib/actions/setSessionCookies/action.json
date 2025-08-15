@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/group.schema.json",
   "name": "Set session cookies",
   "description": "Save authentication tokens as session cookies.",
   "group": "cookies",

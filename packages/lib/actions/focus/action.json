@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/group.schema.json",
   "name": "Focus",
   "description": "Move focus to a DOM element.",
   "group": "events",

@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/group.schema.json",
   "name": "Save to Session Storage",
   "description": "Save a provided key/value to session storage by JSON encoding the value.",
   "group": "session_storage",
