@@ -2,5 +2,6 @@
   "name": "Stop propagation",
   "docs-link": "https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation",
   "description": "Stop the event from bubbling up the DOM to parent elements.",
+  "group": "events",
   "arguments": []
 }

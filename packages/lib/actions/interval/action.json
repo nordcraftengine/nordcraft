@@ -1,6 +1,7 @@
 {
   "name": "Interval",
   "description": "Run an action every \"delay\" milliseconds.",
+  "group": "timers",
   "arguments": [
     {
       "name": "Interval in milliseconds",

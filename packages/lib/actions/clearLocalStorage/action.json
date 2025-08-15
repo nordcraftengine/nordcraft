@@ -1,5 +1,6 @@
 {
   "name": "Clear Local Storage",
   "description": "Delete all values in local storage.",
+  "group": "local_storage",
   "arguments": []
 }

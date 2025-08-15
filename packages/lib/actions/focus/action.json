@@ -1,6 +1,7 @@
 {
   "name": "Focus",
   "description": "Move focus to a DOM element.",
+  "group": "events",
   "arguments": [
     {
       "name": "Element",

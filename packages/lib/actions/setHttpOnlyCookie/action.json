@@ -1,6 +1,7 @@
 {
   "name": "Set Http-Only Cookie",
   "description": "Save a key/value pair as an Http-Only cookie. Useful for storing JWTs or other tokens.",
+  "group": "cookies",
   "arguments": [
     {
       "name": "Name",

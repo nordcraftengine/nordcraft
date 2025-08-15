@@ -1,6 +1,7 @@
 {
   "name": "Delete from Session Storage",
   "description": "Delete a value from session storage (if found) based on the provided key.",
+  "group": "session_storage",
   "arguments": [
     {
       "name": "Key",

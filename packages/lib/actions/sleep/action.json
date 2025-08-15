@@ -1,6 +1,7 @@
 {
   "name": "Sleep",
   "description": "Run an action after a delay.",
+  "group": "timers",
   "arguments": [
     {
       "name": "Delay in milliseconds",
