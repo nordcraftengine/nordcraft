@@ -1,0 +1,23 @@
+{
+  "$id": "group.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Group Property",
+  "description": "The group to which an action belongs. This is used to categorize actions in the front end UI.",
+  "type": "object",
+  "properties": {
+    "group": {
+      "type": "string",
+      "enum": [
+        "cookies",
+        "debugging",
+        "events",
+        "local_storage",
+        "navigation",
+        "session_storage",
+        "timers"
+      ]
+    }
+  },
+  "required": ["group"],
+  "additionalProperties": true
+}

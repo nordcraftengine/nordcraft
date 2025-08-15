@@ -1,6 +1,8 @@
 {
+  "$schema": "../../schemas/group.schema.json",
   "name": "Sleep",
   "description": "Run an action after a delay.",
+  "group": "timers",
   "arguments": [
     {
       "name": "Delay in milliseconds",
@@ -10,6 +12,6 @@
     }
   ],
   "events": {
-    "tick": {"actions": []}
+    "tick": { "actions": [] }
   }
 }
