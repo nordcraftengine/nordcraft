@@ -1,6 +1,6 @@
 {
   "$schema": "../../schemas/libAction.schema.json",
-  "name": "Save to Local Storage",
+  "name": "Save to local storage",
   "description": "Save a provided key/value to local storage by JSON encoding the value.",
   "group": "local_storage",
   "arguments": [

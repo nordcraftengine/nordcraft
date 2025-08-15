@@ -1,6 +1,6 @@
 {
   "$schema": "../../schemas/libAction.schema.json",
-  "name": "Save to Session Storage",
+  "name": "Save to session storage",
   "description": "Save a provided key/value to session storage by JSON encoding the value.",
   "group": "session_storage",
   "arguments": [
