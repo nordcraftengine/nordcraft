@@ -1,5 +1,5 @@
 {
-  "$schema": "../../schemas/group.schema.json",
+  "$schema": "../../schemas/libAction.schema.json",
   "name": "Clear Session Storage",
   "description": "Delete all values in session storage.",
   "group": "session_storage",

@@ -1,5 +1,5 @@
 {
-  "$schema": "../../schemas/group.schema.json",
+  "$schema": "../../schemas/libAction.schema.json",
   "name": "Log to console",
   "description": "Log a message to the browser console.",
   "group": "debugging",

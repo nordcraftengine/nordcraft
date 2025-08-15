@@ -1,5 +1,5 @@
 {
-  "$schema": "../../schemas/group.schema.json",
+  "$schema": "../../schemas/libAction.schema.json",
   "name": "Go to URL",
   "description": "Navigate to a specified URL.",
   "group": "navigation",

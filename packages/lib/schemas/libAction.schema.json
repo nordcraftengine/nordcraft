@@ -1,10 +1,18 @@
 {
-  "$id": "group.schema.json",
+  "$id": "libAction.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Group Property",
-  "description": "The group to which an action belongs. This is used to categorize actions in the front end UI.",
+  "title": "Lib action",
+  "description": "A builtin action in the Nordcraft runtime",
   "type": "object",
   "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
     "group": {
       "type": "string",
       "enum": [
