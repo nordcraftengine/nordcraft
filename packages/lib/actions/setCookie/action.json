@@ -1,6 +1,6 @@
 {
   "$schema": "../../schemas/libAction.schema.json",
-  "name": "Set Cookie",
+  "name": "Set cookie",
   "description": "Save a key/value pair as a non-http-only cookie (readable on the client). Useful for storing user preferences.",
   "group": "cookies",
   "arguments": [
