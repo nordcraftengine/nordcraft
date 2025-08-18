@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Entries",
   "description": "Get an Array of entries from a given Object.",
   "arguments": [

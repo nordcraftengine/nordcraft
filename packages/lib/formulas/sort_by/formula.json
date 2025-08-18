@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Sort by",
   "description": "Sort an Array using a formula.",
   "arguments": [

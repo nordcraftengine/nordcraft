@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Filter",
   "description": "Return a new Array containing only the elements for which the provided formula evaluates to True.",
   "arguments": [

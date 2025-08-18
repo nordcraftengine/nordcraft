@@ -11,7 +11,7 @@
         "type": "Element"
       },
       "formula": {
-        "type": "Element",
+        "type": "value",
         "value": null
       }
     }

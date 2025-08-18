@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Round up",
   "description": "Round a Number up to the nearest decimal point.",
   "arguments": [

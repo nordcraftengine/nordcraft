@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Reduce",
   "description": "Reduce a group of items to a single value by applying each item to a reducer formula.",
   "arguments": [
@@ -6,7 +7,7 @@
       "name": "Array",
       "formula": { "type": "value", "value": null },
       "description": "The Array or Object of items to be reduced.",
-      "type": {"type": "Array \\| Object"}
+      "type": { "type": "Array \\| Object" }
     },
     {
       "name": "Formula",

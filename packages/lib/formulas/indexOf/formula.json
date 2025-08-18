@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Index of",
   "description": "Find the index of a specific item in an Array or String.",
   "arguments": [

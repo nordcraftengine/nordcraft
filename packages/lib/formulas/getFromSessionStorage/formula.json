@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get from Session Storage",
   "description": "Read a value from session storage with the provided key.",
   "cache": false,

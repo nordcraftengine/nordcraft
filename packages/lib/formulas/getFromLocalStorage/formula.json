@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get from Local Storage",
   "description": "Read a value from local storage with the provided key.",
   "cache": false,

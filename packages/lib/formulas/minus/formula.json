@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Minus",
   "description": "Subtract a Number from a Number.",
   "arguments": [

@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Map",
   "description": "Run a formula on each item of an Array to return a new Array.",
   "arguments": [

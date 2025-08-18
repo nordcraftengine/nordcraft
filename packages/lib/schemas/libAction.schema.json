@@ -24,8 +24,23 @@
         "session_storage",
         "timers"
       ]
+    },
+    "arguments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "type": {
+            "type": "any"
+          },
+          "formula": { "$ref": "Formula" },
+          "required": ["name", "description", "type"]
+        }
+      }
     }
   },
-  "required": ["group"],
+  "required": ["name", "description", "group"],
   "additionalProperties": true
 }

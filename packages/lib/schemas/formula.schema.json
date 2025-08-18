@@ -1,0 +1,20 @@
+{
+  "$id": "Formula",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Formula",
+  "description": "Definition of a formula",
+  "type": "object",
+  "anyOf": [
+    {
+      "$ref": "ValueFormula"
+    },
+    {
+      "$ref": "PathFormula"
+    },
+    {
+      "$ref": "ArrayFormula"
+    }
+  ],
+  "required": ["type"],
+  "additionalProperties": true
+}

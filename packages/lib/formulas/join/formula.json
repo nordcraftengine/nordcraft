@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Join",
   "description": "Combine an Array of Strings in to a single String.",
   "arguments": [

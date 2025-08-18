@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Is Server",
   "description": "Get information about whether formulas are currently evaluated server-side or client-side.",
   "arguments": [],
