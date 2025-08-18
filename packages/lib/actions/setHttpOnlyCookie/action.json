@@ -1,6 +1,6 @@
 {
   "$schema": "../../schemas/libAction.schema.json",
-  "name": "Set Http-Only Cookie",
+  "name": "Set HttpOnly cookie",
   "description": "Save a key/value pair as an Http-Only cookie. Useful for storing JWTs or other tokens.",
   "group": "cookies",
   "arguments": [

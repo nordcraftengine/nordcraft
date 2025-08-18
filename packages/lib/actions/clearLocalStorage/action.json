@@ -1,6 +1,6 @@
 {
   "$schema": "../../schemas/libAction.schema.json",
-  "name": "Clear Local Storage",
+  "name": "Clear local storage",
   "description": "Delete all values in local storage.",
   "group": "local_storage",
   "arguments": []

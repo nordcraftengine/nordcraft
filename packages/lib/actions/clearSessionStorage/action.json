@@ -1,6 +1,6 @@
 {
   "$schema": "../../schemas/libAction.schema.json",
-  "name": "Clear Session Storage",
+  "name": "Clear session storage",
   "description": "Delete all values in session storage.",
   "group": "session_storage",
   "arguments": []
