@@ -56,7 +56,7 @@ export const isNodeOrAncestorConditional = (
   nodeLookup?.ancestors.some((a) => a.condition !== undefined) === true
 
 /**
- * @returns The next toddle sibling element or null if this is the last element. A toddle sibling is a sibling with a higher index or a the index, but a higher repeat index.
+ * @returns The next sibling element or null if this is the last element. A nc sibling is a sibling with a higher index or the same index but a higher repeat index.
  */
 export const getNextSiblingElement = (
   path: string,
