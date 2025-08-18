@@ -13,7 +13,7 @@
     "@html-eslint/eslint-plugin": "0.43.0",
     "@html-eslint/parser": "0.43.0",
     "@octokit/core": "7.0.3",
-    "@types/bun": "1.2.17",
+    "@types/bun": "1.2.20",
     "@typescript-eslint/eslint-plugin": "8.37.0",
     "@typescript-eslint/parser": "8.37.0",
     "esbuild": "0.25.5",
@@ -21,7 +21,7 @@
     "eslint": "9.31.0",
     "prettier-plugin-organize-imports": "4.1.0",
     "prettier": "3.6.2",
-    "typescript": "5.8.3"
+    "typescript": "5.9.2"
   },
   "scripts": {
     "build": "cd packages/core && bun run build && cd ../lib && bun run build && cd ../ssr && bun run build && cd ../search && bun run build && cd ../runtime && bun run build",
