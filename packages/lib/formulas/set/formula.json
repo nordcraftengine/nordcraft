@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Set",
   "description": "Set a value in an Object or Array based on a specified path.",
   "arguments": [

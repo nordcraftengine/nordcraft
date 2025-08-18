@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Max",
   "description": "Find the largest Number from a list of inputs.",
   "arguments": [

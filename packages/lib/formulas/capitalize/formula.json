@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Capitalize",
   "description": "Capitalize a string: make the first letter uppercase whilst keeping the rest lowercase.",
   "arguments": [

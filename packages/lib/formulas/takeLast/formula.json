@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Take last",
   "description": "Take items from the end of an Array or String.",
   "arguments": [

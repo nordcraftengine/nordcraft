@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Branch Name",
   "description": "Get the name of the current branch. For production, the branch name is 'main'.",
   "arguments": [],

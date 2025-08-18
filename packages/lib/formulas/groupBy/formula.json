@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Group by",
   "description": "Group an Array of items into an Object based on a grouping formula.",
   "arguments": [

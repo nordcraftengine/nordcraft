@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "String",
   "description": "Convert a value of any type to a String.",
   "arguments": [

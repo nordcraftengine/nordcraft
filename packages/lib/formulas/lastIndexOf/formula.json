@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Last Index of",
   "description": "Search an Array or String to find the index of the last occurrence of a specified item or substring.",
   "arguments": [

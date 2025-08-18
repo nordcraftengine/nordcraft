@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Matches",
   "description": "Finds the (global) matches in a String based on a regular expression.",
   "arguments": [

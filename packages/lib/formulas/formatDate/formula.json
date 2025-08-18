@@ -1,11 +1,12 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Format Date",
   "arguments": [
     {
       "name": "Date",
       "description": "Date to format",
       "type": { "type": "Date" },
-      "formula": { "type": "Date", "value": null }
+      "formula": { "type": "value", "value": null }
     },
     {
       "name": "Locale(s)",

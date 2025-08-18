@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Replace all",
   "description": "Replace all occurrences of a substring in a String.",
   "arguments": [
