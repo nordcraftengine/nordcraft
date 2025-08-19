@@ -1433,13 +1433,25 @@ export const createRoot = (
             panic = true
             name = 'Infinite loop detected'
             message =
-              'RangeError (Maximum call stack size exceeded): Remove any circular dependencies or recursive calls. This is most likely caused by components, formulas or actions using themselves without an exit case.'
+              'RangeError (Maximum call stack size exceeded): Remove any circular dependencies or recursive calls (Try undoing your last change). This is most likely caused by a component, formula or action using itself.'
           }
 
-          // Send a toast to the editor with the error
-          sendEditorToast(name, message, {
-            type: 'critical',
-          })
+          // This can be triggered by setting "type" on a select etc.
+          if (error instanceof TypeError) {
+            panic = true
+            name = 'TypeError'
+            message = `Type errors are often caused by:
+
+• Trying to set a read-only property (like "type" on a select element).
+
+• Trying to set a property on an undefined or null value.
+
+• Trying to access a property on an undefined or null value.
+
+• Trying to call a method on an undefined or null value.`
+          }
+
+          console.error(name, message, error)
 
           if (panic) {
             // Show error overlay in the editor until next update
@@ -1453,8 +1465,12 @@ export const createRoot = (
             // Replace the inner HTML of the editor preview with the panic screen
             domNode.innerHTML = ''
             domNode.appendChild(panicScreen)
+          } else {
+            // Otherwise send a toast to the editor with the error (unknown errors may be recoverable), if not please add the error-type to the above
+            sendEditorToast(name, message, {
+              type: 'critical',
+            })
           }
-          console.error(name, message, error)
         }
         postMessageToEditor({
           type: 'style',
