@@ -975,13 +975,13 @@ export const createRoot = (
               )
 
               if (
-                nodeLookup?.node.type === 'element' ||
-                (nodeLookup?.node.type === 'component' &&
-                  nodeLookup.node.variants?.[
-                    styleVariantSelection.styleVariantIndex
-                  ].pseudoElement)
+                (nodeLookup?.node.type === 'element' ||
+                  nodeLookup?.node.type === 'component') &&
+                nodeLookup.node.variants?.[
+                  styleVariantSelection.styleVariantIndex
+                ].pseudoElement
               ) {
-                pseudoElement = `::${nodeLookup.node.variants?.[styleVariantSelection.styleVariantIndex].pseudoElement}`
+                pseudoElement = `::${nodeLookup.node.variants[styleVariantSelection.styleVariantIndex].pseudoElement}`
               }
             }
 
@@ -1675,7 +1675,9 @@ function getRectData(selectedNode: Element | null | undefined) {
     return null
   }
 
-  const rect = selectedNode.getBoundingClientRect()
+  const { borderRadius, rotate } = window.getComputedStyle(selectedNode)
+  const rect: DOMRect = selectedNode.getBoundingClientRect()
+
   return {
     left: rect.left,
     right: rect.right,
@@ -1685,10 +1687,8 @@ function getRectData(selectedNode: Element | null | undefined) {
     height: rect.height,
     x: rect.x,
     y: rect.y,
-    borderRadius: window
-      .getComputedStyle(selectedNode)
-      .borderRadius.split(' ')
-      .map(parseFloat),
+    borderRadius: borderRadius.split(' '),
+    rotate,
   }
 }
 
