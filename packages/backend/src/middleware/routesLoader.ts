@@ -14,7 +14,7 @@ let routes: Routes | undefined
 export const routesLoader = createMiddleware<HonoEnv<HonoRoutes>>(
   async (ctx, next) => {
     if (!routes) {
-      routes = await loadJsFile<Routes>('routes.js')
+      routes = await loadJsFile<Routes>('./routes.js')
       if (!routes) {
         return ctx.text('Route declarations for project not found', {
           status: 404,
