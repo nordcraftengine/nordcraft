@@ -13,4 +13,4 @@ rules = [
 enabled = true
 
 [assets]
-directory = "./assets"
+directory = "./dist/assets"
