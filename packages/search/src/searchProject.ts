@@ -180,27 +180,6 @@ export function* searchProject({
   })
 }
 
-// function* visitProxy({
-//   args,
-//   state,
-//   mode
-// }: {
-//   args: {
-//     path: (string | number)[]
-//     rules: Rule[]
-//     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-//     pathsToVisit: string[][]
-//   } & NodeType
-//   state: ApplicationState | undefined
-//   mode: 'VISIT' | 'FIX'
-// }): Generator<typeof mode extends 'VISIT' ? Result : ProjectFiles | void> {
-//   if (mode === 'VISIT') {
-//     yield* visitNode({ args, state, mode }) as any as Generator<Result>
-//   } else {
-//     yield* visitNode({ args, state, mode })
-//   }
-// }
-
 function visitNode(args: {
   args: {
     path: (string | number)[]
