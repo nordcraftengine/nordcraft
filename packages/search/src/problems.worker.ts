@@ -1,4 +1,6 @@
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import { compare } from 'fast-json-patch'
+import { fixProject } from './fixProject'
 import { createActionNameRule } from './rules/actions/createActionNameRule'
 import { legacyActionRule } from './rules/actions/legacyActionRule'
 import { noReferenceProjectActionRule } from './rules/actions/noReferenceProjectActionRule'
@@ -56,7 +58,15 @@ import { unknownTriggerWorkflowParameterRule } from './rules/workflows/unknownTr
 import { unknownTriggerWorkflowRule } from './rules/workflows/unknownTriggerWorkflowRule'
 import { unknownWorkflowParameterRule } from './rules/workflows/unknownWorkflowParameterRule'
 import { searchProject } from './searchProject'
-import type { ApplicationState, Category, Code, Level, Result } from './types'
+import type {
+  ApplicationState,
+  Category,
+  Code,
+  FixType,
+  Level,
+  Result,
+  Rule,
+} from './types'
 
 export type Options = {
   /**
@@ -177,13 +187,23 @@ const RULES = [
   ambiguousStyleVariableSyntaxRule,
 ]
 
-/**
- * This function is a web worker that checks for problems in the files.
- */
-onmessage = (
-  event: MessageEvent<{ files: ProjectFiles; options?: Options }>,
-) => {
-  const { files, options = {} } = event.data
+interface FindProblemsArgs {
+  files: ProjectFiles
+  options?: Options
+}
+
+interface FixProblemsArgs {
+  files: ProjectFiles
+  options?: Options
+  fixRule: Rule
+  fixType: FixType
+  id: string
+}
+
+type Message = FindProblemsArgs | FixProblemsArgs
+
+const findProblems = (data: FindProblemsArgs) => {
+  const { files, options = {} } = data
   const rules = RULES.filter(
     (rule) =>
       (!options.categories || options.categories.includes(rule.category)) &&
@@ -232,4 +252,36 @@ onmessage = (
 
   // Send the remaining results
   postMessage(batch)
+}
+
+const fixProblems = (data: FixProblemsArgs) => {
+  const { files, options = {} } = data
+
+  const updatedFiles = fixProject({
+    files,
+    rule: data.fixRule,
+    fixType: data.fixType,
+    pathsToVisit: options.pathsToVisit,
+    state: options.state,
+  })
+  // Calculate diff
+  const diff = compare(files, updatedFiles)
+  // Send diff + metadata to main thread
+  postMessage({
+    id: data.id,
+    patch: diff,
+    rule: data.fixRule,
+    fixType: data.fixType,
+  })
+}
+
+/**
+ * This function is a web worker that checks for problems in the files.
+ */
+onmessage = (event: MessageEvent<Message>) => {
+  if ('fixRule' in event.data) {
+    fixProblems(event.data)
+  } else {
+    findProblems(event.data)
+  }
 }
