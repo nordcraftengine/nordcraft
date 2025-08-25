@@ -24,7 +24,7 @@ export interface PathOperation extends BaseOperation {
   path: string[]
 }
 
-type FunctionArgument = {
+export interface FunctionArgument {
   name?: string
   isFunction?: boolean
   formula: Formula

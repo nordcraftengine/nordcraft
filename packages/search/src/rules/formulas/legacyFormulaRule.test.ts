@@ -1,8 +1,11 @@
+import type { ToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
+import { fixProject } from '../../fixProject'
 import { searchProject } from '../../searchProject'
 import { legacyFormulaRule } from './legacyFormulaRule'
 
-describe('legacyFormula', () => {
+describe('detect legacyFormula', () => {
   test('should detect legacy formulas used in global formula', () => {
     const problems = Array.from(
       searchProject({
@@ -326,5 +329,80 @@ describe('legacyFormula', () => {
     )
 
     expect(problems).toEqual([])
+  })
+})
+describe('fix legacyFormula', () => {
+  test('should fix the legacy AND formula', () => {
+    const files: ProjectFiles = {
+      formulas: {
+        AND: {
+          name: 'AND',
+          arguments: [],
+          handler: '',
+        },
+        'my-formula-1': {
+          name: 'my-formula-1',
+          arguments: [],
+          formula: {
+            type: 'function',
+            name: '@toddle/concatenate',
+            arguments: [
+              {
+                name: '0',
+                formula: {
+                  type: 'function',
+                  name: 'AND',
+                  arguments: [
+                    {
+                      name: 'Condition',
+                      formula: { type: 'value', value: true },
+                    },
+                    {
+                      name: 'Condition',
+                      formula: { type: 'value', value: true },
+                    },
+                  ],
+                  variableArguments: true,
+                },
+              },
+            ],
+            variableArguments: true,
+            display_name: 'Concatenate',
+          },
+        },
+      },
+      components: {},
+    }
+    const fixedProject = fixProject({
+      files,
+      rule: legacyFormulaRule,
+      fixType: 'replace-formula',
+    })
+
+    expect(
+      (fixedProject.formulas?.['my-formula-1'] as ToddleFormula).formula,
+    ).toEqual({
+      type: 'function',
+      name: '@toddle/concatenate',
+      arguments: [
+        {
+          name: '0',
+          formula: {
+            type: 'and',
+            arguments: [
+              {
+                formula: { type: 'value', value: true },
+              },
+              {
+                formula: { type: 'value', value: true },
+              },
+            ],
+            variableArguments: true,
+          },
+        },
+      ],
+      variableArguments: true,
+      display_name: 'Concatenate',
+    } as any)
   })
 })
