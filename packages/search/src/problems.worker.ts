@@ -1,5 +1,5 @@
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-import { compare } from 'fast-json-patch'
+import { compare, type Operation } from 'fast-json-patch'
 import { fixProject } from './fixProject'
 import { createActionNameRule } from './rules/actions/createActionNameRule'
 import { legacyActionRule } from './rules/actions/legacyActionRule'
@@ -202,6 +202,19 @@ interface FixProblemsArgs {
 
 type Message = FindProblemsArgs | FixProblemsArgs
 
+type FindProblemsResponse = Result[]
+
+interface FixProblemsResponse {
+  id: string
+  patch: Operation[]
+  fixRule: Rule
+  fixType: FixType
+}
+
+type Response = FindProblemsResponse | FixProblemsResponse
+
+const respond = (data: Response) => postMessage(data)
+
 const findProblems = (data: FindProblemsArgs) => {
   const { files, options = {} } = data
   const rules = RULES.filter(
@@ -228,7 +241,7 @@ const findProblems = (data: FindProblemsArgs) => {
       case 'per-file': {
         if (fileType !== problem.path[0] || fileName !== problem.path[1]) {
           if (batch.length > 0) {
-            postMessage(batch)
+            respond(batch)
           }
           batch = []
           fileType = problem.path[0]
@@ -242,7 +255,7 @@ const findProblems = (data: FindProblemsArgs) => {
       default: {
         batch.push(problem)
         if (batch.length >= (options.batchSize ?? 1)) {
-          postMessage(batch)
+          respond(batch)
           batch = []
         }
         break
@@ -251,7 +264,7 @@ const findProblems = (data: FindProblemsArgs) => {
   }
 
   // Send the remaining results
-  postMessage(batch)
+  respond(batch)
 }
 
 const fixProblems = (data: FixProblemsArgs) => {
@@ -267,10 +280,10 @@ const fixProblems = (data: FixProblemsArgs) => {
   // Calculate diff
   const diff = compare(files, updatedFiles)
   // Send diff + metadata to main thread
-  postMessage({
+  respond({
     id: data.id,
     patch: diff,
-    rule: data.fixRule,
+    fixRule: data.fixRule,
     fixType: data.fixType,
   })
 }
