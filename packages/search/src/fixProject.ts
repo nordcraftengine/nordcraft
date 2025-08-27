@@ -12,12 +12,14 @@ export const fixProject = ({
   rule,
   fixType,
   pathsToVisit = [],
+  useExactPaths = false,
   state,
 }: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   rule: Rule
   fixType: FixType
   pathsToVisit?: string[][]
+  useExactPaths?: boolean
   state?: ApplicationState
 }) => {
   let updatedFiles = files
@@ -32,6 +34,7 @@ export const fixProject = ({
       rules: [rule],
       options: { mode: 'FIX', fixType },
       pathsToVisit,
+      useExactPaths,
       state,
     }).next()
     if (suggestedFiles.value) {

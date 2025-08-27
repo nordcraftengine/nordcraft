@@ -1,5 +1,6 @@
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-import { compare, type Operation } from 'fast-json-patch'
+import type { Delta } from 'jsondiffpatch'
+import { create } from 'jsondiffpatch'
 import { fixProject } from './fixProject'
 import { createActionNameRule } from './rules/actions/createActionNameRule'
 import { legacyActionRule } from './rules/actions/legacyActionRule'
@@ -65,7 +66,6 @@ import type {
   FixType,
   Level,
   Result,
-  Rule,
 } from './types'
 
 export type Options = {
@@ -73,6 +73,10 @@ export type Options = {
    * Useful for running search on a subset or a single file.
    */
   pathsToVisit?: string[][]
+  /**
+   * Whether to match the paths exactly (including length) or just the beginning.
+   */
+  useExactPaths?: boolean
   /**
    * Search only rules with these specific categories. If empty, all categories are shown.
    */
@@ -90,7 +94,9 @@ export type Options = {
    * Dynamic data that is used by some rules.
    */
   state?: ApplicationState
-
+  /**
+   * Do not run rules with these codes. Useful for feature flagged rules
+   */
   rulesToExclude?: Code[]
 }
 
@@ -195,7 +201,7 @@ interface FindProblemsArgs {
 interface FixProblemsArgs {
   files: ProjectFiles
   options?: Options
-  fixRule: Rule
+  fixRule: Code
   fixType: FixType
   id: string
 }
@@ -206,8 +212,8 @@ type FindProblemsResponse = Result[]
 
 interface FixProblemsResponse {
   id: string
-  patch: Operation[]
-  fixRule: Rule
+  patch: Delta
+  fixRule: Code
   fixType: FixType
 }
 
@@ -231,6 +237,7 @@ const findProblems = (data: FindProblemsArgs) => {
     files,
     rules,
     pathsToVisit: options.pathsToVisit,
+    useExactPaths: options.useExactPaths,
     state: options.state,
   })) {
     switch (options.batchSize) {
@@ -269,16 +276,24 @@ const findProblems = (data: FindProblemsArgs) => {
 
 const fixProblems = (data: FixProblemsArgs) => {
   const { files, options = {} } = data
+  const rule = RULES.find((r) => r.code === data.fixRule)
+  if (!rule) {
+    // eslint-disable-next-line no-console
+    console.error(`Unknown fix rule: ${data.fixRule}`)
+    return
+  }
 
   const updatedFiles = fixProject({
     files,
-    rule: data.fixRule,
+    rule,
     fixType: data.fixType,
     pathsToVisit: options.pathsToVisit,
+    useExactPaths: options.useExactPaths,
     state: options.state,
   })
   // Calculate diff
-  const diff = compare(files, updatedFiles)
+  const jsonDiffPatch = create({ omitRemovedValues: true })
+  const diff = jsonDiffPatch.diff(files, updatedFiles)
   // Send diff + metadata to main thread
   respond({
     id: data.id,

@@ -6,7 +6,7 @@ import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
 import type { ApplicationState, FixType, NodeType, Result, Rule } from './types'
-import { shouldSearchPath } from './util/helpers'
+import { shouldSearchExactPath, shouldSearchPath } from './util/helpers'
 
 interface FixOptions {
   mode: 'FIX'
@@ -27,12 +27,14 @@ export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   rules: Rule[]
   pathsToVisit?: string[][]
+  useExactPaths?: boolean
   state?: ApplicationState
 }): Generator<Result>
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   rules: Rule[]
   pathsToVisit?: string[][]
+  useExactPaths?: boolean
   state?: ApplicationState
   options: FixOptions
 }): Generator<ProjectFiles | void>
@@ -40,12 +42,14 @@ export function* searchProject({
   files,
   rules,
   pathsToVisit = [],
+  useExactPaths = false,
   state,
   options,
 }: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   rules: Rule[]
   pathsToVisit?: string[][]
+  useExactPaths?: boolean
   state?: ApplicationState
   options?: FixOptions
 }): Generator<Result | ProjectFiles | void> {
@@ -72,6 +76,7 @@ export function* searchProject({
           rules,
           files,
           pathsToVisit,
+          useExactPaths,
           memo,
         },
         state,
@@ -89,6 +94,7 @@ export function* searchProject({
         rules,
         files,
         pathsToVisit,
+        useExactPaths,
         memo,
       },
       state,
@@ -105,6 +111,7 @@ export function* searchProject({
         rules,
         files,
         pathsToVisit,
+        useExactPaths,
         memo,
       },
       state,
@@ -121,6 +128,7 @@ export function* searchProject({
         rules,
         files,
         pathsToVisit,
+        useExactPaths,
         memo,
       },
       state,
@@ -138,6 +146,7 @@ export function* searchProject({
           rules,
           files,
           pathsToVisit,
+          useExactPaths,
           memo,
         },
         state,
@@ -157,6 +166,7 @@ export function* searchProject({
           rules,
           files,
           pathsToVisit,
+          useExactPaths,
           memo,
         },
         state,
@@ -173,6 +183,7 @@ export function* searchProject({
       rules,
       files,
       pathsToVisit,
+      useExactPaths,
       memo,
     },
     state,
@@ -186,6 +197,7 @@ function visitNode(args: {
     rules: Rule[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
+    useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
 }): Generator<Result>
@@ -195,6 +207,7 @@ function visitNode(args: {
     rules: Rule[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
+    useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
   options: { mode: 'FIX'; fixType: FixType }
@@ -209,46 +222,58 @@ function* visitNode({
     rules: Rule[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
+    useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
   options?: { mode: 'FIX'; fixType: FixType }
 }): Generator<Result | ProjectFiles | void> {
   performance.mark(`visitNode-${args.path.join('/')}`)
-  const { rules, pathsToVisit, ...data } = args
+  const { rules, pathsToVisit, useExactPaths, ...data } = args
   const { files, value, path, memo, nodeType } = data
-  if (!shouldSearchPath(data.path, pathsToVisit)) {
+  if (
+    !shouldSearchPath({
+      path: data.path,
+      pathsToVisit,
+    })
+  ) {
+    // We don't need to search this path or any of its subpaths
     return
   }
 
-  if (options) {
-    for (const rule of rules) {
-      const fixedFiles = rule.fix?.(data, options.fixType, state)
-      if (fixedFiles) {
-        yield fixedFiles
+  if (
+    !useExactPaths ||
+    shouldSearchExactPath({ path: data.path, pathsToVisit })
+  ) {
+    if (options) {
+      for (const rule of rules) {
+        const fixedFiles = rule.fix?.(data, options.fixType, state)
+        if (fixedFiles) {
+          yield fixedFiles
+        }
       }
-    }
-  } else {
-    const results: Result[] = []
-    for (const rule of rules) {
-      performance.mark(`rule-${rule.code}`)
-      rule.visit(
-        (path, details, fixes) => {
-          results.push({
-            code: rule.code,
-            category: rule.category,
-            level: rule.level,
-            path,
-            details,
-            fixes,
-          })
-        },
-        data,
-        state,
-      )
-    }
+    } else {
+      const results: Result[] = []
+      for (const rule of rules) {
+        performance.mark(`rule-${rule.code}`)
+        rule.visit(
+          (path, details, fixes) => {
+            results.push({
+              code: rule.code,
+              category: rule.category,
+              level: rule.level,
+              path,
+              details,
+              fixes,
+            })
+          },
+          data,
+          state,
+        )
+      }
 
-    for (const result of results) {
-      yield result
+      for (const result of results) {
+        yield result
+      }
     }
   }
 
@@ -273,6 +298,7 @@ function* visitNode({
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
@@ -290,6 +316,7 @@ function* visitNode({
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
@@ -309,6 +336,7 @@ function* visitNode({
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
           },
           state,
@@ -326,6 +354,7 @@ function* visitNode({
                 rules,
                 files,
                 pathsToVisit,
+                useExactPaths,
                 memo,
               },
               state,
@@ -344,6 +373,7 @@ function* visitNode({
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
@@ -361,6 +391,7 @@ function* visitNode({
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
@@ -379,6 +410,7 @@ function* visitNode({
               rules,
               files,
               pathsToVisit,
+              useExactPaths,
               memo,
               value: { component, event },
             },
@@ -397,6 +429,7 @@ function* visitNode({
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
           },
           state,
@@ -413,6 +446,7 @@ function* visitNode({
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
@@ -433,6 +467,7 @@ function* visitNode({
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
@@ -450,6 +485,7 @@ function* visitNode({
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
@@ -481,6 +517,7 @@ function* visitNode({
               rules,
               files,
               pathsToVisit,
+              useExactPaths,
               memo,
             },
             state,
@@ -504,6 +541,7 @@ function* visitNode({
                 rules,
                 files,
                 pathsToVisit,
+                useExactPaths,
                 memo,
               },
               state,
@@ -534,6 +572,7 @@ function* visitNode({
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
           },
           state,
@@ -563,6 +602,7 @@ function* visitNode({
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
           },
           state,
