@@ -3,7 +3,6 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-fallthrough */
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import { type ApiRequest } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   AnimationKeyframe,
   Component,
@@ -692,20 +691,16 @@ export const createRoot = (
           const { apiKey } = message.data
           const api = component?.apis[apiKey]
           if (api && !isLegacyApi(api) && component) {
-            const Attributes = mapObject(
-              component.attributes,
-              ([name, { testValue }]) => [name, testValue],
-            )
             const formulaContext: FormulaContext = {
               component,
-              data: { Attributes },
+              data: dataSignal.get(),
               root: document,
               package: ctx?.package,
               toddle: window.toddle,
               env,
             }
             const introspectionResult = await introspectApiRequest({
-              api: api as ApiRequest,
+              api,
               componentName: component.name,
               formulaContext,
             })
