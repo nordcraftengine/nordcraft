@@ -67,6 +67,11 @@ type ToddlePreviewEvent =
       variantIndex: number | null
     }
   | {
+      type: 'global_formulas'
+      formulas: Record<string, PluginFormula<FormulaHandlerV2>>
+      packageName: string
+    }
+  | {
       type: 'component'
       component: Component
     }
@@ -345,6 +350,11 @@ export const createRoot = (
         console.error('UNTRUSTED MESSAGE')
       }
       switch (message.data?.type) {
+        case 'global_formulas': {
+          window.toddle.formulas[message.data.packageName] =
+            message.data.formulas
+          break
+        }
         case 'component': {
           if (!message.data.component) {
             return
