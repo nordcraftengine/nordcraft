@@ -253,6 +253,8 @@ function* visitNode({
     } else {
       const results: Result[] = []
       for (const rule of rules) {
+        // eslint-disable-next-line no-console
+        console.timeStamp(`Visiting rule ${rule.code}`)
         rule.visit(
           (path, details, fixes) => {
             results.push({
