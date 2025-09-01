@@ -9,7 +9,7 @@ import { isDefined } from '@nordcraft/core/dist/utils/util'
  * This allows searching only certain sub-trees in the files
  * If pathsToVisit is empty, all paths are searched
  */
-export function shouldSearchPath({
+export function shouldVisitTree({
   path,
   pathsToVisit = [],
 }: {

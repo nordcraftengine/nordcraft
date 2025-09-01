@@ -322,9 +322,10 @@ export interface Rule<T = unknown, V = NodeType> {
     data: V,
     state?: ApplicationState | undefined,
   ) => void
-  fix?: (
-    data: V,
-    fixType: FixType,
-    state?: ApplicationState | undefined,
-  ) => ProjectFiles | void
+  fixes?: Partial<
+    Record<
+      FixType,
+      (data: V, state?: ApplicationState | undefined) => ProjectFiles | void
+    >
+  >
 }

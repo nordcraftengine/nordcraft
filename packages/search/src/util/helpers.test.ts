@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { shouldSearchExactPath, shouldSearchPath } from './helpers'
+import { shouldSearchExactPath, shouldVisitTree } from './helpers'
 
 describe('shouldSearchPath', () => {
   test('should return true for paths in pathsToVisit', () => {
@@ -8,22 +8,22 @@ describe('shouldSearchPath', () => {
       ['components', 'Input'],
     ]
     expect(
-      shouldSearchPath({
+      shouldVisitTree({
         path: ['components', 'Button', 'attrs', 'attr1', 'testValue'],
         pathsToVisit,
       }),
     ).toBe(true)
     expect(
-      shouldSearchPath({ path: ['components', 'Input'], pathsToVisit }),
+      shouldVisitTree({ path: ['components', 'Input'], pathsToVisit }),
     ).toBe(true)
     expect(
-      shouldSearchPath({
+      shouldVisitTree({
         path: ['components', 'Button', 'formulas'],
         pathsToVisit,
       }),
     ).toBe(true)
     expect(
-      shouldSearchPath({
+      shouldVisitTree({
         path: ['components', 'project-sidebar-item'],
         pathsToVisit: [
           [
@@ -44,10 +44,10 @@ describe('shouldSearchPath', () => {
       ['components', 'Input'],
     ]
     expect(
-      shouldSearchPath({ path: ['components', 'Card'], pathsToVisit }),
+      shouldVisitTree({ path: ['components', 'Card'], pathsToVisit }),
     ).toBe(false)
     expect(
-      shouldSearchPath({ path: ['components', 'Form'], pathsToVisit }),
+      shouldVisitTree({ path: ['components', 'Form'], pathsToVisit }),
     ).toBe(false)
   })
 })

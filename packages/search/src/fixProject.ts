@@ -27,18 +27,17 @@ export const fixProject = ({
   const maxIterations = 100
   // Apply 1 fix per iteration for ${maxIterations} iterations
   // After every fix, the updated files are used for the next iteration
-  while (iterations < maxIterations) {
-    iterations++
-    const suggestedFiles = searchProject({
+  while (iterations++ < maxIterations) {
+    const { value: suggestedFiles } = searchProject({
       files: updatedFiles,
       rules: [rule],
-      options: { mode: 'FIX', fixType },
+      fixOptions: { mode: 'FIX', fixType },
       pathsToVisit,
       useExactPaths,
       state,
     }).next()
-    if (suggestedFiles.value) {
-      updatedFiles = suggestedFiles.value
+    if (suggestedFiles) {
+      updatedFiles = suggestedFiles
     } else {
       // No more fixes could be applied
       break

@@ -6,7 +6,7 @@ import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
 import type { ApplicationState, FixType, NodeType, Result, Rule } from './types'
-import { shouldSearchExactPath, shouldSearchPath } from './util/helpers'
+import { shouldSearchExactPath, shouldVisitTree } from './util/helpers'
 
 interface FixOptions {
   mode: 'FIX'
@@ -36,7 +36,7 @@ export function searchProject(args: {
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
-  options: FixOptions
+  fixOptions: FixOptions
 }): Generator<ProjectFiles | void>
 export function* searchProject({
   files,
@@ -44,14 +44,14 @@ export function* searchProject({
   pathsToVisit = [],
   useExactPaths = false,
   state,
-  options,
+  fixOptions,
 }: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   rules: Rule[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
-  options?: FixOptions
+  fixOptions?: FixOptions
 }): Generator<Result | ProjectFiles | void> {
   const memos = new Map<string, any>()
   const memo = (key: string | string[], fn: () => any) => {
@@ -80,7 +80,7 @@ export function* searchProject({
           memo,
         },
         state,
-        options: options as any,
+        fixOptions: fixOptions as any,
       })
     }
   }
@@ -98,7 +98,7 @@ export function* searchProject({
         memo,
       },
       state,
-      options: options as any,
+      fixOptions: fixOptions as any,
     })
   }
 
@@ -115,7 +115,7 @@ export function* searchProject({
         memo,
       },
       state,
-      options: options as any,
+      fixOptions: fixOptions as any,
     })
   }
 
@@ -132,7 +132,7 @@ export function* searchProject({
         memo,
       },
       state,
-      options: options as any,
+      fixOptions: fixOptions as any,
     })
   }
 
@@ -150,7 +150,7 @@ export function* searchProject({
           memo,
         },
         state,
-        options: options as any,
+        fixOptions: fixOptions as any,
       })
     }
   }
@@ -170,7 +170,7 @@ export function* searchProject({
           memo,
         },
         state,
-        options: options as any,
+        fixOptions: fixOptions as any,
       })
     }
   }
@@ -187,7 +187,7 @@ export function* searchProject({
       memo,
     },
     state,
-    options: options as any,
+    fixOptions: fixOptions as any,
   })
 }
 
@@ -210,12 +210,12 @@ function visitNode(args: {
     useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
-  options: { mode: 'FIX'; fixType: FixType }
+  fixOptions: { mode: 'FIX'; fixType: FixType }
 }): Generator<ProjectFiles | void>
 function* visitNode({
   args,
   state,
-  options,
+  fixOptions,
 }: {
   args: {
     path: (string | number)[]
@@ -225,12 +225,12 @@ function* visitNode({
     useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
-  options?: { mode: 'FIX'; fixType: FixType }
+  fixOptions?: { mode: 'FIX'; fixType: FixType }
 }): Generator<Result | ProjectFiles | void> {
   const { rules, pathsToVisit, useExactPaths, ...data } = args
   const { files, value, path, memo, nodeType } = data
   if (
-    !shouldSearchPath({
+    !shouldVisitTree({
       path: data.path,
       pathsToVisit,
     })
@@ -243,14 +243,16 @@ function* visitNode({
     !useExactPaths ||
     shouldSearchExactPath({ path: data.path, pathsToVisit })
   ) {
-    if (options) {
+    if (fixOptions) {
+      // We're fixing issues
       for (const rule of rules) {
-        const fixedFiles = rule.fix?.(data, options.fixType, state)
+        const fixedFiles = rule.fixes?.[fixOptions.fixType]?.(data, state)
         if (fixedFiles) {
           yield fixedFiles
         }
       }
     } else {
+      // We're looking for issues
       const results: Result[] = []
       for (const rule of rules) {
         // eslint-disable-next-line no-console
@@ -303,7 +305,7 @@ function* visitNode({
             component,
           },
           state,
-          options: options as any,
+          fixOptions: fixOptions as any,
         })
       }
 
@@ -321,7 +323,7 @@ function* visitNode({
             component,
           },
           state,
-          options: options as any,
+          fixOptions: fixOptions as any,
         })
       }
 
@@ -340,7 +342,7 @@ function* visitNode({
             memo,
           },
           state,
-          options: options as any,
+          fixOptions: fixOptions as any,
         })
         if (!isLegacyApi(api)) {
           for (const [inputKey, input] of Object.entries(api.inputs)) {
@@ -358,7 +360,7 @@ function* visitNode({
                 memo,
               },
               state,
-              options: options as any,
+              fixOptions: fixOptions as any,
             })
           }
         }
@@ -378,7 +380,7 @@ function* visitNode({
             component,
           },
           state,
-          options: options as any,
+          fixOptions: fixOptions as any,
         })
       }
 
@@ -396,7 +398,7 @@ function* visitNode({
             component,
           },
           state,
-          options: options as any,
+          fixOptions: fixOptions as any,
         })
       }
 
@@ -415,7 +417,7 @@ function* visitNode({
               value: { component, event },
             },
             state,
-            options: options as any,
+            fixOptions: fixOptions as any,
           })
         }
       }
@@ -433,7 +435,7 @@ function* visitNode({
             memo,
           },
           state,
-          options: options as any,
+          fixOptions: fixOptions as any,
         })
       }
 
@@ -451,7 +453,7 @@ function* visitNode({
             component,
           },
           state,
-          options: options as any,
+          fixOptions: fixOptions as any,
         })
       }
 
@@ -472,7 +474,7 @@ function* visitNode({
             component,
           },
           state,
-          options: options as any,
+          fixOptions: fixOptions as any,
         })
       }
 
@@ -490,7 +492,7 @@ function* visitNode({
             component,
           },
           state,
-          options: options as any,
+          fixOptions: fixOptions as any,
         })
       }
       break
@@ -521,7 +523,7 @@ function* visitNode({
               memo,
             },
             state,
-            options: options as any,
+            fixOptions: fixOptions as any,
           })
         }
       }
@@ -545,7 +547,7 @@ function* visitNode({
                 memo,
               },
               state,
-              options: options as any,
+              fixOptions: fixOptions as any,
             })
           }
         }
@@ -576,7 +578,7 @@ function* visitNode({
             memo,
           },
           state,
-          options: options as any,
+          fixOptions: fixOptions as any,
         })
       }
       break
@@ -606,7 +608,7 @@ function* visitNode({
             memo,
           },
           state,
-          options: options as any,
+          fixOptions: fixOptions as any,
         })
       }
       break

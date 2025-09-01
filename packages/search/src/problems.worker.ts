@@ -275,12 +275,10 @@ const findProblems = (data: FindProblemsArgs) => {
 }
 
 const fixProblems = (data: FixProblemsArgs) => {
-  const { files, options = {} } = data
-  const rule = RULES.find((r) => r.code === data.fixRule)
+  const { files, options = {}, fixRule } = data
+  const rule = RULES.find((r) => r.code === fixRule)
   if (!rule) {
-    // eslint-disable-next-line no-console
-    console.error(`Unknown fix rule: ${data.fixRule}`)
-    return
+    throw new Error(`Unknown fix rule: ${data.fixRule}`)
   }
 
   const updatedFiles = fixProject({

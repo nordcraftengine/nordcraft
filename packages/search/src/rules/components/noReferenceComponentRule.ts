@@ -8,23 +8,22 @@ export const noReferenceComponentRule: Rule<void> = {
   level: 'warning',
   category: 'No References',
   visit: (report, data, state) => {
-    if (isValid(data, state)) {
+    if (hasReferences(data, state)) {
       return
     }
     report(data.path, undefined, ['delete-component'])
   },
-  fix: (data, fixType, state) => {
-    if (fixType !== 'delete-component') {
-      return
-    }
-    if (isValid(data, state)) {
-      return
-    }
-    return omit(data.files, data.path)
+  fixes: {
+    'delete-component': (data, state) => {
+      if (hasReferences(data, state)) {
+        return
+      }
+      return omit(data.files, data.path)
+    },
   },
 }
 
-const isValid = (data: NodeType, state?: ApplicationState) => {
+const hasReferences = (data: NodeType, state?: ApplicationState) => {
   if (
     data.nodeType !== 'component' ||
     isPage(data.value) ||
