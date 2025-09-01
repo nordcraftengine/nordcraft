@@ -227,7 +227,6 @@ function* visitNode({
   state: ApplicationState | undefined
   options?: { mode: 'FIX'; fixType: FixType }
 }): Generator<Result | ProjectFiles | void> {
-  performance.mark(`visitNode-${args.path.join('/')}`)
   const { rules, pathsToVisit, useExactPaths, ...data } = args
   const { files, value, path, memo, nodeType } = data
   if (
@@ -254,7 +253,6 @@ function* visitNode({
     } else {
       const results: Result[] = []
       for (const rule of rules) {
-        performance.mark(`rule-${rule.code}`)
         rule.visit(
           (path, details, fixes) => {
             results.push({
