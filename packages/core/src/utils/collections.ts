@@ -19,7 +19,10 @@ export const mapValues = <T, T2>(
  * @param path Path to the key to delete. For instance ['foo', 0, 'bar']
  * @returns The updated object/array
  */
-export const omit = <T = unknown>(collection: T, path: string[]): T => {
+export const omit = <T = unknown>(
+  collection: T,
+  path: Array<string | number>,
+): T => {
   const [head, ...rest] = path
 
   const clone: any = Array.isArray(collection)
@@ -69,7 +72,7 @@ export function get<T = any>(collection: T, [head, ...rest]: string[]): any {
 
 export const set = <T = unknown>(
   collection: T,
-  key: string[],
+  key: Array<string | number>,
   value: any,
 ): T => {
   const [head, ...rest] = key

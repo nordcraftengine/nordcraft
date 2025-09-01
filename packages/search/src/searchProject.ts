@@ -5,8 +5,13 @@ import { ToddleFormula } from '@nordcraft/core/dist/formula/ToddleFormula'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
-import type { ApplicationState, NodeType, Result, Rule } from './types'
-import { shouldSearchPath } from './util/helpers'
+import type { ApplicationState, FixType, NodeType, Result, Rule } from './types'
+import { shouldSearchExactPath, shouldVisitTree } from './util/helpers'
+
+interface FixOptions {
+  mode: 'FIX'
+  fixType: FixType
+}
 
 /**
  * Search a project by applying rules to all nodes in the project and returning reported results.
@@ -14,19 +19,40 @@ import { shouldSearchPath } from './util/helpers'
  * @param files All files to check against
  * @param rules All rules to check against
  * @param pathsToVisit Only visit specific paths. All subpaths are visited as well. For example, ['components', 'test'] would visit everything under the test component. Defaults is `[]` which means all paths are visited.
+ * @param state Optional parameter describing the current state of the application/editor
+ * @param options Optional parameter for fixing issues
  * @returns A generator that yields results as they are found
  */
+export function searchProject(args: {
+  files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
+  rules: Rule[]
+  pathsToVisit?: string[][]
+  useExactPaths?: boolean
+  state?: ApplicationState
+}): Generator<Result>
+export function searchProject(args: {
+  files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
+  rules: Rule[]
+  pathsToVisit?: string[][]
+  useExactPaths?: boolean
+  state?: ApplicationState
+  fixOptions: FixOptions
+}): Generator<ProjectFiles | void>
 export function* searchProject({
   files,
   rules,
   pathsToVisit = [],
+  useExactPaths = false,
   state,
+  fixOptions,
 }: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   rules: Rule[]
   pathsToVisit?: string[][]
+  useExactPaths?: boolean
   state?: ApplicationState
-}): Generator<Result> {
+  fixOptions?: FixOptions
+}): Generator<Result | ProjectFiles | void> {
   const memos = new Map<string, any>()
   const memo = (key: string | string[], fn: () => any) => {
     const stringKey = Array.isArray(key) ? key.join('/') : key
@@ -42,87 +68,97 @@ export function* searchProject({
   for (const key in files.components) {
     const component = files.components[key]
     if (component) {
-      yield* visitNode(
-        {
+      yield* visitNode({
+        args: {
           nodeType: 'component',
           value: component,
           path: ['components', key],
           rules,
           files,
           pathsToVisit,
+          useExactPaths,
           memo,
         },
         state,
-      )
+        fixOptions: fixOptions as any,
+      })
     }
   }
 
   for (const key in files.formulas) {
-    yield* visitNode(
-      {
+    yield* visitNode({
+      args: {
         nodeType: 'project-formula',
         value: files.formulas[key],
         path: ['formulas', key],
         rules,
         files,
         pathsToVisit,
+        useExactPaths,
         memo,
       },
       state,
-    )
+      fixOptions: fixOptions as any,
+    })
   }
 
   for (const key in files.actions) {
-    yield* visitNode(
-      {
+    yield* visitNode({
+      args: {
         nodeType: 'project-action',
         value: files.actions[key],
         path: ['actions', key],
         rules,
         files,
         pathsToVisit,
+        useExactPaths,
         memo,
       },
       state,
-    )
+      fixOptions: fixOptions as any,
+    })
   }
 
   for (const key in files.themes) {
-    yield* visitNode(
-      {
+    yield* visitNode({
+      args: {
         nodeType: 'project-theme',
         value: files.themes[key],
         path: ['themes', key],
         rules,
         files,
         pathsToVisit,
+        useExactPaths,
         memo,
       },
       state,
-    )
+      fixOptions: fixOptions as any,
+    })
   }
 
   if (files.services) {
     for (const key in files.services) {
-      yield* visitNode(
-        {
+      yield* visitNode({
+        args: {
           nodeType: 'api-service',
           value: files.services[key],
           path: ['services', key],
           rules,
           files,
           pathsToVisit,
+          useExactPaths,
           memo,
         },
         state,
-      )
+        fixOptions: fixOptions as any,
+      })
     }
   }
 
   if (files.routes) {
     for (const key in files.routes) {
-      yield* visitNode(
-        {
+      yield* visitNode({
+        args: {
           nodeType: 'project-route',
           value: files.routes[key],
           routeName: key,
@@ -130,63 +166,117 @@ export function* searchProject({
           rules,
           files,
           pathsToVisit,
+          useExactPaths,
           memo,
         },
         state,
-      )
+        fixOptions: fixOptions as any,
+      })
     }
   }
 
-  yield* visitNode(
-    {
+  yield* visitNode({
+    args: {
       nodeType: 'project-config',
       value: files.config,
       path: ['config'],
       rules,
       files,
       pathsToVisit,
+      useExactPaths,
       memo,
     },
     state,
-  )
+    fixOptions: fixOptions as any,
+  })
 }
 
-function* visitNode(
+function visitNode(args: {
   args: {
     path: (string | number)[]
     rules: Rule[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
-  } & NodeType,
-  state: ApplicationState | undefined,
-): Generator<Result> {
-  performance.mark(`visitNode-${args.path.join('/')}`)
-  const { rules, pathsToVisit, ...data } = args
+    useExactPaths: boolean
+  } & NodeType
+  state: ApplicationState | undefined
+}): Generator<Result>
+function visitNode(args: {
+  args: {
+    path: (string | number)[]
+    rules: Rule[]
+    files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
+    pathsToVisit: string[][]
+    useExactPaths: boolean
+  } & NodeType
+  state: ApplicationState | undefined
+  fixOptions: { mode: 'FIX'; fixType: FixType }
+}): Generator<ProjectFiles | void>
+function* visitNode({
+  args,
+  state,
+  fixOptions,
+}: {
+  args: {
+    path: (string | number)[]
+    rules: Rule[]
+    files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
+    pathsToVisit: string[][]
+    useExactPaths: boolean
+  } & NodeType
+  state: ApplicationState | undefined
+  fixOptions?: { mode: 'FIX'; fixType: FixType }
+}): Generator<Result | ProjectFiles | void> {
+  const { rules, pathsToVisit, useExactPaths, ...data } = args
   const { files, value, path, memo, nodeType } = data
-  if (!shouldSearchPath(data.path, pathsToVisit)) {
+  if (
+    !shouldVisitTree({
+      path: data.path,
+      pathsToVisit,
+    })
+  ) {
+    // We don't need to search this path or any of its subpaths
     return
   }
 
-  const results: Result[] = []
-  for (const rule of rules) {
-    performance.mark(`rule-${rule.code}`)
-    rule.visit(
-      (path, details) => {
-        results.push({
-          code: rule.code,
-          category: rule.category,
-          level: rule.level,
-          path,
-          details,
-        })
-      },
-      data,
-      state,
-    )
-  }
+  if (
+    !useExactPaths ||
+    shouldSearchExactPath({ path: data.path, pathsToVisit })
+  ) {
+    if (fixOptions) {
+      // We're fixing issues
+      for (const rule of rules) {
+        const fixedFiles = rule.fixes?.[fixOptions.fixType]?.(data, state)
+        if (fixedFiles) {
+          yield fixedFiles
+        }
+      }
+    } else {
+      // We're looking for issues
+      const results: Result[] = []
+      for (const rule of rules) {
+        // eslint-disable-next-line no-console
+        console.timeStamp(`Visiting rule ${rule.code}`)
+        rule.visit(
+          (path, details, fixes) => {
+            results.push({
+              code: rule.code,
+              category: rule.category,
+              level: rule.level,
+              path,
+              details,
+              fixes,
+            })
+          },
+          data,
+          state,
+        )
+      }
 
-  for (const result of results) {
-    yield result
+      for (const result of results) {
+        yield result
+      }
+    }
   }
 
   switch (nodeType) {
@@ -202,41 +292,45 @@ function* visitNode(
       })
 
       for (const key in value.attributes) {
-        yield* visitNode(
-          {
+        yield* visitNode({
+          args: {
             nodeType: 'component-attribute',
             value: value.attributes[key],
             path: [...path, 'attributes', key],
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
           state,
-        )
+          fixOptions: fixOptions as any,
+        })
       }
 
       for (const key in value.variables) {
-        yield* visitNode(
-          {
+        yield* visitNode({
+          args: {
             nodeType: 'component-variable',
             value: value.variables[key],
             path: [...path, 'variables', key],
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
           state,
-        )
+          fixOptions: fixOptions as any,
+        })
       }
 
       for (const key in value.apis) {
         const api = value.apis[key]
-        yield* visitNode(
-          {
+        yield* visitNode({
+          args: {
             nodeType: 'component-api',
             value: api,
             component,
@@ -244,14 +338,16 @@ function* visitNode(
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
           },
           state,
-        )
+          fixOptions: fixOptions as any,
+        })
         if (!isLegacyApi(api)) {
           for (const [inputKey, input] of Object.entries(api.inputs)) {
-            yield* visitNode(
-              {
+            yield* visitNode({
+              args: {
                 nodeType: 'component-api-input',
                 value: input,
                 api,
@@ -260,128 +356,144 @@ function* visitNode(
                 rules,
                 files,
                 pathsToVisit,
+                useExactPaths,
                 memo,
               },
               state,
-            )
+              fixOptions: fixOptions as any,
+            })
           }
         }
       }
 
       for (const key in value.formulas) {
-        yield* visitNode(
-          {
+        yield* visitNode({
+          args: {
             nodeType: 'component-formula',
             value: value.formulas[key],
             path: [...path, 'formulas', key],
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
           state,
-        )
+          fixOptions: fixOptions as any,
+        })
       }
 
       for (const key in value.workflows) {
-        yield* visitNode(
-          {
+        yield* visitNode({
+          args: {
             nodeType: 'component-workflow',
             value: value.workflows[key],
             path: [...path, 'workflows', key],
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
           state,
-        )
+          fixOptions: fixOptions as any,
+        })
       }
 
       for (let i = 0; i < (value.events ?? []).length; i++) {
         const event = value.events?.[i]
         if (event) {
-          yield* visitNode(
-            {
+          yield* visitNode({
+            args: {
               nodeType: 'component-event',
               path: [...path, 'events', i],
               rules,
               files,
               pathsToVisit,
+              useExactPaths,
               memo,
               value: { component, event },
             },
             state,
-          )
+            fixOptions: fixOptions as any,
+          })
         }
       }
 
       for (const key in value.contexts) {
-        yield* visitNode(
-          {
+        yield* visitNode({
+          args: {
             nodeType: 'component-context',
             value: value.contexts[key],
             path: [...path, 'contexts', key],
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
           },
           state,
-        )
+          fixOptions: fixOptions as any,
+        })
       }
 
       for (const key in value.nodes) {
-        yield* visitNode(
-          {
+        yield* visitNode({
+          args: {
             nodeType: 'component-node',
             value: value.nodes[key],
             path: [...path, 'nodes', key],
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
           state,
-        )
+          fixOptions: fixOptions as any,
+        })
       }
 
       for (const {
         path: formulaPath,
         formula,
       } of component.formulasInComponent()) {
-        yield* visitNode(
-          {
+        yield* visitNode({
+          args: {
             nodeType: 'formula',
             value: formula,
             path: [...path, ...formulaPath],
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
           state,
-        )
+          fixOptions: fixOptions as any,
+        })
       }
 
       for (const [actionPath, action] of component.actionModelsInComponent()) {
-        yield* visitNode(
-          {
+        yield* visitNode({
+          args: {
             nodeType: 'action-model',
             value: action,
             path: [...path, ...actionPath],
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
             component,
           },
           state,
-        )
+          fixOptions: fixOptions as any,
+        })
       }
       break
     }
@@ -395,23 +507,24 @@ function* visitNode(
             packages: files.packages,
           },
         })
-        formula.formulasInFormula()
         for (const {
           path: formulaPath,
           formula: f,
         } of formula.formulasInFormula()) {
-          yield* visitNode(
-            {
+          yield* visitNode({
+            args: {
               nodeType: 'formula',
               value: f,
-              path: [...path, ...formulaPath],
+              path: [...path, 'formula', ...formulaPath],
               rules,
               files,
               pathsToVisit,
+              useExactPaths,
               memo,
             },
             state,
-          )
+            fixOptions: fixOptions as any,
+          })
         }
       }
       break
@@ -422,18 +535,20 @@ function* visitNode(
         if (variants) {
           for (let i = 0; i < variants.length; i++) {
             const variant = variants[i]
-            yield* visitNode(
-              {
+            yield* visitNode({
+              args: {
                 nodeType: 'style-variant',
                 value: { variant, element: value },
                 path: [...path, 'variants', i],
                 rules,
                 files,
                 pathsToVisit,
+                useExactPaths,
                 memo,
               },
               state,
-            )
+              fixOptions: fixOptions as any,
+            })
           }
         }
       }
@@ -451,18 +566,20 @@ function* visitNode(
         path: formulaPath,
         formula,
       } of apiService.formulasInService()) {
-        yield* visitNode(
-          {
+        yield* visitNode({
+          args: {
             nodeType: 'formula',
             value: formula,
             path: [...path, ...formulaPath],
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
           },
           state,
-        )
+          fixOptions: fixOptions as any,
+        })
       }
       break
     }
@@ -479,18 +596,20 @@ function* visitNode(
         path: formulaPath,
         formula,
       } of projectRoute.formulasInRoute()) {
-        yield* visitNode(
-          {
+        yield* visitNode({
+          args: {
             nodeType: 'formula',
             value: formula,
-            path: [...path, ...formulaPath],
+            path: [...path, 'formula', ...formulaPath],
             rules,
             files,
             pathsToVisit,
+            useExactPaths,
             memo,
           },
           state,
-        )
+          fixOptions: fixOptions as any,
+        })
       }
       break
     }
