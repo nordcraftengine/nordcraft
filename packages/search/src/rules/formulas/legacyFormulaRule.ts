@@ -26,11 +26,11 @@ export const legacyFormulaRule: Rule<{
       data.path,
       { name: data.value.name },
       // The TYPE formula cannot be autofixed since the types have changed between the 2 implementations
-      data.value.name !== 'TYPE' ? ['replace-formula'] : undefined,
+      data.value.name !== 'TYPE' ? ['replace-legacy-formula'] : undefined,
     )
   },
   fix: (data, fixType) => {
-    if (fixType !== 'replace-formula') {
+    if (fixType !== 'replace-legacy-formula') {
       return
     }
     // Determine if the issue is still there
@@ -695,7 +695,7 @@ const isIssue = (data: NodeType): data is FormulaNode<FunctionOperation> =>
   data.value.type === 'function' &&
   isLegacyFormula(data.value, data.files)
 
-export type LegacyFormulaRuleFix = 'replace-formula'
+export type LegacyFormulaRuleFix = 'replace-legacy-formula'
 
 const isLegacyFormula = (
   formula: FunctionOperation,

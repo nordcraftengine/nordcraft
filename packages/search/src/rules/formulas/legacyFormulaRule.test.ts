@@ -376,7 +376,7 @@ describe('fix legacyFormula', () => {
     const fixedProject = fixProject({
       files,
       rule: legacyFormulaRule,
-      fixType: 'replace-formula',
+      fixType: 'replace-legacy-formula',
     })
 
     expect(
@@ -548,7 +548,7 @@ describe('fix legacyFormula', () => {
     const fixedProject = fixProject({
       files,
       rule: legacyFormulaRule,
-      fixType: 'replace-formula',
+      fixType: 'replace-legacy-formula',
       pathsToVisit: [
         [
           'components',
