@@ -19,10 +19,7 @@ RUN bun install --production --verbose --frozen-lockfile
 # Copy source and compile
 COPY . .
 
-RUN echo | ls -la
-RUN echo | ls -la ./packages/backend/dist
-
-# RUN bun build
+# RUN bun build to generate a standalone executable
 RUN bun build --compile --minify --sourcemap ./packages/backend/src/bun.index.ts --outfile nordcraft-backend
 
 # Our application runner. Use gcr.io/distroless/base-debian12:debug to allow debugging
