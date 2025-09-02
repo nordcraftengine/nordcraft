@@ -21,6 +21,7 @@ import type {
   Route,
   ToddleProject,
 } from '@nordcraft/ssr/dist/ssr.types'
+import type { LegacyActionRuleFix } from './rules/actions/legacyActionRule'
 import type { NoReferenceComponentRuleFix } from './rules/components/noReferenceComponentRule'
 import type { LegacyFormulaRuleFix } from './rules/formulas/legacyFormulaRule'
 
@@ -311,7 +312,11 @@ export type NodeType =
   | ProjectRoute
   | StyleVariantNode
 
-type FixType = LegacyFormulaRuleFix | NoReferenceComponentRuleFix
+type FixType =
+  | LegacyFormulaRuleFix
+  | LegacyActionRuleFix
+  | NoReferenceComponentRuleFix
+  | NoReferenceProjectFormulaRuleFix
 
 export interface Rule<T = unknown, V = NodeType> {
   category: Category
