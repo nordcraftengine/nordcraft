@@ -316,7 +316,6 @@ type FixType =
   | LegacyFormulaRuleFix
   | LegacyActionRuleFix
   | NoReferenceComponentRuleFix
-  | NoReferenceProjectFormulaRuleFix
 
 export interface Rule<T = unknown, V = NodeType> {
   category: Category
