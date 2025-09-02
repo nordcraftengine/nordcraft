@@ -2,6 +2,7 @@ import type {
   ActionModel,
   CustomActionArgument,
 } from '@nordcraft/core/dist/component/component.types'
+import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { set } from '@nordcraft/core/dist/utils/collections'
 import type { Rule } from '../../types'
 import { isLegacyAction, renameArguments } from '../../util/helpers'
@@ -163,6 +164,28 @@ export const legacyActionRule: Rule<{
           }
           break
         }
+        case 'FocusElement': {
+          newAction = {
+            name: '@toddle/focus',
+            arguments: [
+              {
+                name: 'Element',
+                formula: {
+                  type: 'function',
+                  name: '@toddle/getElementById',
+                  arguments: [
+                    {
+                      name: 'Id',
+                      formula:
+                        value.arguments?.[0]?.formula ?? valueFormula(null),
+                    },
+                  ],
+                },
+              },
+            ],
+            label: 'Focus',
+          }
+        }
       }
       if (newAction) {
         return set(files, path, newAction)
@@ -184,7 +207,6 @@ const unfixableLegacyActions = new Set([
   'CopyToClipboard', // Previously, this action would JSON stringify non-string inputs
   'Update URL parameter', // The user will need to pick a history mode (push/replace)
   'Fetch', // This was mainly used for APIs v1
-  'FocusElement', // The new 'Focus' action takes an element as input - not a selector
   '@toddle/setSessionCookies', // The new 'Set cookie' action takes more arguments
 ])
 
