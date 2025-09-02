@@ -65,6 +65,7 @@ const LEGACY_CUSTOM_ACTIONS = new Set([
   'StopPropagation',
   'CopyToClipboard',
   'UpdateVariable',
+  'Update Variable',
   'Update URL parameter',
   'updateUrlParameters',
   'UpdateQueryParam',

@@ -81,7 +81,8 @@ export const legacyActionRule: Rule<{
           }
           break
         }
-        case 'UpdateVariable': {
+        case 'UpdateVariable':
+        case 'Update Variable': {
           const variableName =
             value.arguments?.[0]?.formula.type === 'value'
               ? value.arguments[0].formula.value
@@ -173,7 +174,11 @@ export const legacyActionRule: Rule<{
 // These actions take a first argument which is a formula as the name
 // of the thing to update/trigger. We can only safely autofix these if
 // the argument is a value operation and a string
-const formulaNamedActions = ['UpdateVariable', 'TriggerEvent']
+const formulaNamedActions = [
+  'UpdateVariable',
+  'Update Variable',
+  'TriggerEvent',
+]
 
 const unfixableLegacyActions = new Set([
   'CopyToClipboard', // Previously, this action would JSON stringify non-string inputs
