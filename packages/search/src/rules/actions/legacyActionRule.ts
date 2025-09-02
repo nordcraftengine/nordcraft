@@ -185,8 +185,6 @@ const unfixableLegacyActions = new Set([
   'Update URL parameter', // The user will need to pick a history mode (push/replace)
   'Fetch', // This was mainly used for APIs v1
   'FocusElement', // The new 'Focus' action takes an element as input - not a selector
-  'UpdateVariable', // The variable name could be a formula in the legacy version
-  'TriggerEvent', // The name of the event could be a formula in the legacy version
   '@toddle/setSessionCookies', // The new 'Set cookie' action takes more arguments
 ])
 
