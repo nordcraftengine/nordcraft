@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'bun:test'
+import { fixProject } from '../../fixProject'
 import { searchProject } from '../../searchProject'
 import { noReferenceComponentRule } from './noReferenceComponentRule'
 
-describe('noReferenceComponentRule', () => {
+describe('detect noReferenceComponentRule', () => {
   test('should detect components with no references', () => {
     const problems = Array.from(
       searchProject({
@@ -211,5 +212,90 @@ describe('noReferenceComponentRule', () => {
     expect(problems).toHaveLength(1)
     expect(problems[0].code).toBe('no-reference component')
     expect(problems[0].path).toEqual(['components', 'exportedOrphan'])
+  })
+})
+
+describe('fix noReferenceComponentRule', () => {
+  test('should remove components with no references', () => {
+    const fixedProject = fixProject({
+      files: {
+        formulas: {},
+        components: {
+          orphan: {
+            name: 'test',
+            nodes: {},
+            formulas: {},
+            apis: {},
+            attributes: {},
+            variables: {},
+          },
+          anotherOrphan: {
+            name: 'test 2',
+            nodes: {},
+            formulas: {},
+            apis: {},
+            attributes: {},
+            variables: {},
+          },
+          exportedOrphan: {
+            name: 'test',
+            nodes: {},
+            formulas: {},
+            apis: {},
+            attributes: {},
+            variables: {},
+            exported: true,
+          },
+          page: {
+            name: 'my-page',
+            nodes: {},
+            formulas: {},
+            apis: {},
+            attributes: {},
+            variables: {},
+            route: {
+              info: {},
+              path: [],
+              query: {},
+            },
+          },
+        },
+      },
+      rule: noReferenceComponentRule,
+      fixType: 'delete-component',
+      state: {
+        projectDetails: {
+          type: 'package',
+          id: 'test-project-id',
+          name: 'test-project',
+          short_id: 'test-project-id',
+        },
+      },
+    })
+    // The orphan component should no longer exist
+    expect(fixedProject.components).toEqual({
+      exportedOrphan: {
+        name: 'test',
+        nodes: {},
+        formulas: {},
+        apis: {},
+        attributes: {},
+        variables: {},
+        exported: true,
+      },
+      page: {
+        name: 'my-page',
+        nodes: {},
+        formulas: {},
+        apis: {},
+        attributes: {},
+        variables: {},
+        route: {
+          info: {},
+          path: [],
+          query: {},
+        },
+      },
+    })
   })
 })

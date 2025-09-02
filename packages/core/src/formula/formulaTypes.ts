@@ -1,3 +1,4 @@
+import { isDefined } from '../utils/util'
 import type { Formula } from './formula'
 
 export interface BaseFormula {
@@ -31,7 +32,9 @@ export type PluginFormula<Handler = string | Function> =
 
 export const isToddleFormula = <Handler>(
   formula: PluginFormula<Handler>,
-): formula is ToddleFormula => Object.hasOwn(formula, 'formula')
+): formula is ToddleFormula =>
+  Object.hasOwn(formula, 'formula') &&
+  isDefined((formula as ToddleFormula).formula)
 
 export interface GlobalFormulas<Handler = string | Function> {
   formulas?: Record<string, PluginFormula<Handler>>

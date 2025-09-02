@@ -1,4 +1,4 @@
-// Copy files from the static-assets directory to the dist directory using fs
+// Copies and modifies relevant assets and JSON files to the dist/ folder
 // This script is executed by the build process
 import { RESET_STYLES } from '@nordcraft/core/dist/styling/theme.const'
 import { splitRoutes } from '@nordcraft/ssr/dist/utils/routes'
@@ -12,8 +12,17 @@ const __dirname = path.dirname(__filename)
 const resolvePath = (...segments: string[]) =>
   path.resolve(__dirname, ...segments)
 
-// assets/_static/ folder for static assets
-const staticDir = resolvePath('../assets/_static')
+// dist/ folder for the build output
+const distPath = '../dist'
+const distDir = resolvePath(distPath)
+if (fs.existsSync(distDir)) {
+  // Remove the dist folder
+  fs.rmdirSync(distDir, { recursive: true })
+}
+fs.mkdirSync(distDir, { recursive: true })
+
+// dist/assets/_static/ folder for static assets
+const staticDir = resolvePath('../dist/assets/_static')
 if (fs.existsSync(staticDir)) {
   fs.rmdirSync(staticDir, { recursive: true })
 }
@@ -24,19 +33,10 @@ fs.mkdirSync(staticDir, { recursive: true })
   'custom-element.main.esm.js',
 ].forEach((f) => {
   const source = resolvePath('../../../node_modules/@nordcraft/runtime/dist', f)
-  const destination = resolvePath('../assets/_static', f)
+  const destination = resolvePath('../dist/assets/_static', f)
   fs.copyFileSync(source, destination)
 })
-fs.writeFileSync(resolvePath('../assets/_static/reset.css'), RESET_STYLES)
-
-// dist/ folder for the build output
-const distPath = '../dist'
-const distDir = resolvePath(distPath)
-if (fs.existsSync(distDir)) {
-  // Remove the dist folder
-  fs.rmdirSync(distDir, { recursive: true })
-}
-fs.mkdirSync(distDir, { recursive: true })
+fs.writeFileSync(resolvePath('../dist/assets/_static/reset.css'), RESET_STYLES)
 
 // Read the project.json file and split it into routes and files
 const projectFile = fs.readFileSync(resolvePath('../__project__/project.json'))
@@ -44,12 +44,12 @@ const json = JSON.parse(projectFile.toString())
 const { project, routes, files, styles, code } = splitRoutes(json)
 // Create a stylesheet for each component
 Object.entries(styles).forEach(([name, style]) => {
-  const styleDestination = resolvePath('../assets/_static', `${name}.css`)
+  const styleDestination = resolvePath('../dist/assets/_static', `${name}.css`)
   fs.writeFileSync(styleDestination, style)
 })
 // Create a js file with custom code for each component
 Object.entries(code).forEach(([name, c]) => {
-  const ccDestination = resolvePath('../assets/_static', `cc_${name}.js`)
+  const ccDestination = resolvePath('../dist/assets/_static', `cc_${name}.js`)
   fs.writeFileSync(ccDestination, c)
 })
 // Serving dynamic assets as ESModule is slightly faster than JSON

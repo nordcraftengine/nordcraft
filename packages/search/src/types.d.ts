@@ -21,6 +21,10 @@ import type {
   Route,
   ToddleProject,
 } from '@nordcraft/ssr/dist/ssr.types'
+import type { LegacyActionRuleFix } from './rules/actions/legacyActionRule'
+import type { NoReferenceComponentRuleFix } from './rules/components/noReferenceComponentRule'
+import type { LegacyFormulaRuleFix } from './rules/formulas/legacyFormulaRule'
+import type { NoReferenceProjectFormulaRuleFix } from './rules/formulas/noReferenceProjectFormulaRule'
 
 type Code =
   | 'ambiguous style variable syntax'
@@ -106,6 +110,7 @@ export type Result = {
   category: Category
   level: Level
   details?: any
+  fixes?: FixType[]
 }
 
 interface ApplicationCookie {
@@ -239,9 +244,9 @@ type ComponentAttributeNode = {
   component: ToddleComponent<Function>
 } & Base
 
-type FormulaNode = {
+type FormulaNode<F = Formula> = {
   nodeType: 'formula'
-  value: Formula
+  value: F
   component?: ToddleComponent<Function>
 } & Base
 
@@ -308,13 +313,25 @@ export type NodeType =
   | ProjectRoute
   | StyleVariantNode
 
+type FixType =
+  | LegacyFormulaRuleFix
+  | LegacyActionRuleFix
+  | NoReferenceComponentRuleFix
+  | NoReferenceProjectFormulaRuleFix
+
 export interface Rule<T = unknown, V = NodeType> {
   category: Category
   code: Code
   level: Level
   visit: (
-    report: (path: (string | number)[], details?: T) => void,
+    report: (path: (string | number)[], details?: T, fixes?: FixType[]) => void,
     data: V,
     state?: ApplicationState | undefined,
   ) => void
+  fixes?: Partial<
+    Record<
+      FixType,
+      (data: V, state?: ApplicationState | undefined) => ProjectFiles | void
+    >
+  >
 }

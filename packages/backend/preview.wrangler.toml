@@ -13,4 +13,4 @@ bindings = [
 ]
 
 [assets]
-directory = "./assets"
+directory = "./dist/assets"

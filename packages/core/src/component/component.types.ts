@@ -289,14 +289,22 @@ export interface EventModel {
   actions: ActionModel[]
 }
 
+export interface CustomActionArgument {
+  name: string
+  formula: Formula
+  type?: any
+  description?: string
+}
+
 export interface CustomActionModel {
   // Some legacy custom actions use an undefined type
   type?: 'Custom'
   package?: string
   name: string
   description?: string
+  group?: string
   data?: string | number | boolean | Formula
-  arguments?: { name: string; formula: Formula }[]
+  arguments?: CustomActionArgument[]
   events?: Record<string, { actions: ActionModel[] }>
   version?: 2 | never
   label?: string
@@ -306,7 +314,7 @@ export interface SwitchActionModel {
   type: 'Switch'
   data?: string | number | boolean | Formula
   cases: Array<{
-    condition: Formula
+    condition: Formula | null
     actions: ActionModel[]
   }>
   default: { actions: ActionModel[] }
