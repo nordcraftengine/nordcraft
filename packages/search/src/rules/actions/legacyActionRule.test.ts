@@ -333,4 +333,75 @@ describe('fix legacyActions', () => {
       }
     `)
   })
+  test('should replace the TriggerEvent action with the builtin action', () => {
+    const legacyAction: ActionModel = {
+      name: 'FocusElement',
+      arguments: [
+        {
+          name: 'elementId',
+          formula: { type: 'value', value: 'my-id' },
+        },
+      ],
+    }
+    const projectFiles: ProjectFiles = {
+      formulas: {},
+      components: {
+        apiComponent: {
+          name: 'test',
+          nodes: {
+            root: {
+              tag: 'p',
+              type: 'element',
+              attrs: {},
+              style: {},
+              events: {
+                click: {
+                  trigger: 'click',
+                  actions: [legacyAction],
+                },
+              },
+              classes: {},
+              children: [],
+            },
+          },
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
+        },
+      },
+    }
+    const fixedProject = fixProject({
+      files: projectFiles,
+      rule: legacyActionRule,
+      fixType: 'replace-legacy-action',
+    })
+    const fixedAction = (
+      fixedProject.components['apiComponent']?.nodes['root'] as ElementNodeModel
+    ).events['click'].actions[0]
+    expect(fixedAction).toMatchInlineSnapshot(`
+      {
+        "arguments": [
+          {
+            "formula": {
+              "arguments": [
+                {
+                  "formula": {
+                    "type": "value",
+                    "value": "my-id",
+                  },
+                  "name": "Id",
+                },
+              ],
+              "name": "@toddle/getElementById",
+              "type": "function",
+            },
+            "name": "Element",
+          },
+        ],
+        "label": "Focus",
+        "name": "@toddle/focus",
+      }
+    `)
+  })
 })
