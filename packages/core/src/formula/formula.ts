@@ -28,6 +28,7 @@ export interface FunctionArgument {
   name?: string
   isFunction?: boolean
   formula: Formula
+  type?: any
 }
 
 export interface FunctionOperation extends BaseOperation {

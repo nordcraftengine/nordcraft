@@ -1,7 +1,10 @@
 import type {
   ActionModel,
+  CustomActionArgument,
+  CustomActionModel,
   ElementNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
+import type { FunctionArgument } from '@nordcraft/core/dist/formula/formula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 /**
@@ -44,7 +47,9 @@ export function shouldSearchExactPath({
   )
 }
 
-export const isLegacyAction = (model: ActionModel) => {
+export const isLegacyAction = (
+  model: ActionModel,
+): model is CustomActionModel => {
   switch (model.type) {
     case 'Custom':
     case undefined:
@@ -58,14 +63,11 @@ const LEGACY_CUSTOM_ACTIONS = new Set([
   'If',
   'PreventDefault',
   'StopPropagation',
-  'Copy To Clipboard',
   'CopyToClipboard',
   'UpdateVariable',
-  'Update Variable',
   'Update URL parameter',
   'updateUrlParameters',
   'UpdateQueryParam',
-  'Update Query',
   'Fetch',
   'SetTimeout',
   'SetInterval',
@@ -74,6 +76,7 @@ const LEGACY_CUSTOM_ACTIONS = new Set([
   'GoToURL',
   'TriggerEvent',
   'Set session cookies',
+  '@toddle/setSessionCookies',
 ])
 
 interface BaseInteractiveContent {
@@ -130,3 +133,24 @@ export const interactiveContentElementDefinition = (
     }
     return true
   })
+
+export const ARRAY_ARGUMENT_MAPPINGS = { List: 'Array' }
+export const PREDICATE_ARGUMENT_MAPPINGS = {
+  ...ARRAY_ARGUMENT_MAPPINGS,
+  'Predicate fx': 'Formula',
+}
+
+export const renameArguments = <
+  T extends FunctionArgument | CustomActionArgument,
+>(
+  mappings: Record<string, string>,
+  args: T[] | undefined,
+): T[] =>
+  args?.map((arg) => ({
+    ...arg,
+    // Let's adjust the names
+    name:
+      typeof arg.name === 'string'
+        ? (mappings[arg.name] ?? arg.name)
+        : arg.name,
+  })) ?? []

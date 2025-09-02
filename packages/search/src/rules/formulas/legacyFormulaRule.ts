@@ -1,7 +1,6 @@
 import type {
   AndOperation,
   ArrayOperation,
-  FunctionArgument,
   FunctionOperation,
   OrOperation,
   SwitchOperation,
@@ -11,6 +10,11 @@ import { omitKeys, set } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { FormulaNode, NodeType, Rule } from '../../types'
+import {
+  ARRAY_ARGUMENT_MAPPINGS,
+  PREDICATE_ARGUMENT_MAPPINGS,
+  renameArguments,
+} from '../../util/helpers'
 
 export const legacyFormulaRule: Rule<{
   name: string
@@ -839,23 +843,3 @@ const builtInFormulas = new Set([
   'uppercase',
 ])
 // cSpell: enable
-
-const ARRAY_ARGUMENT_MAPPINGS = { List: 'Array' }
-const PREDICATE_ARGUMENT_MAPPINGS = {
-  ...ARRAY_ARGUMENT_MAPPINGS,
-  'Predicate fx': 'Formula',
-}
-
-const renameArguments = (
-  mappings: Record<string, string>,
-  args: FunctionArgument[] | undefined,
-): FunctionArgument[] =>
-  args?.map((arg) => ({
-    ...arg,
-    // Let's adjust the names
-    name:
-      typeof arg.name === 'string'
-        ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          (mappings[arg.name] ?? arg.name)
-        : arg.name,
-  })) ?? []
