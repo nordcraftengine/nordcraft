@@ -16,7 +16,10 @@ import type {
   ToddleEnv,
 } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
+import {
+  isToddleFormula,
+  type PluginFormula,
+} from '@nordcraft/core/dist/formula/formulaTypes'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { getClassName } from '@nordcraft/core/dist/styling/className'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
@@ -31,6 +34,7 @@ import type {
   Toddle,
 } from '@nordcraft/core/dist/types'
 import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
+import type { PluginAction } from '@nordcraft/ssr/dist/ssr.types'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import fastDeepEqual from 'fast-deep-equal'
@@ -67,11 +71,6 @@ type ToddlePreviewEvent =
       variantIndex: number | null
     }
   | {
-      type: 'global_formulas'
-      formulas: Record<string, PluginFormula<FormulaHandlerV2>>
-      packageName: string
-    }
-  | {
       type: 'component'
       component: Component
     }
@@ -89,6 +88,17 @@ type ToddlePreviewEvent =
           }
         }
       >
+    }
+  | {
+      type: 'global_formulas'
+      formulas: Record<
+        string,
+        PluginFormula<FormulaHandlerV2> | PluginFormula<string>
+      >
+    }
+  | {
+      type: 'global_actions'
+      actions: Record<string, PluginActionV2 | PluginAction>
     }
   | { type: 'theme'; theme: Theme | OldTheme }
   | { type: 'mode'; mode: 'design' | 'test' }
@@ -165,13 +175,7 @@ enum TextNodeComputedStyles {
 
 let env: ToddleEnv
 
-export const initGlobalObject = ({
-  formulas,
-  actions,
-}: {
-  formulas: Record<string, Record<string, PluginFormula<FormulaHandlerV2>>>
-  actions: Record<string, Record<string, PluginActionV2>>
-}) => {
+export const initGlobalObject = () => {
   env = {
     isServer: false,
     branchName: window.__toddle.branch,
@@ -180,20 +184,27 @@ export const initGlobalObject = ({
     logErrors: true,
   }
   window.toddle = (() => {
-    const legacyActions: Record<string, ActionHandler> = {}
-    const legacyFormulas: Record<string, FormulaHandler> = {}
+    const legacyActions: Record<string, ActionHandler | undefined> = {}
+    const legacyFormulas: Record<string, FormulaHandler | undefined> = {}
     const argumentInputDataList: Record<string, ArgumentInputDataFunction> = {}
     const toddle: Toddle<LocationSignal, PreviewShowSignal> = {
       isEqual: fastDeepEqual,
       errors: [],
-      formulas,
-      actions,
+      formulas: {},
+      actions: {},
       registerAction: (name, handler) => {
         if (legacyActions[name]) {
           console.error('There already exists an action with the name ', name)
           return
         }
         legacyActions[name] = handler
+      },
+      wipeLegacyActions: () => {
+        Object.keys(legacyActions)
+          .filter((key) => !key.startsWith('@toddle/'))
+          .forEach((key) => {
+            delete legacyActions[key]
+          })
       },
       getAction: (name) => legacyActions[name],
       registerFormula: (name, handler, getArgumentInputData) => {
@@ -205,6 +216,13 @@ export const initGlobalObject = ({
         if (getArgumentInputData) {
           argumentInputDataList[name] = getArgumentInputData
         }
+      },
+      wipeLegacyFormulas: () => {
+        Object.keys(legacyFormulas)
+          .filter((key) => !key.startsWith('@toddle/'))
+          .forEach((key) => {
+            delete legacyFormulas[key]
+          })
       },
       getFormula: (name) => legacyFormulas[name],
       getCustomAction: (name, packageName) => {
@@ -350,11 +368,6 @@ export const createRoot = (
         console.error('UNTRUSTED MESSAGE')
       }
       switch (message.data?.type) {
-        case 'global_formulas': {
-          window.toddle.formulas[message.data.packageName] =
-            message.data.formulas
-          break
-        }
         case 'component': {
           if (!message.data.component) {
             return
@@ -423,6 +436,43 @@ export const createRoot = (
             update()
           }
 
+          break
+        }
+        case 'global_formulas': {
+          const formulas: Record<string, PluginFormula<FormulaHandlerV2>> = {}
+          window.toddle.wipeLegacyFormulas?.()
+          Object.entries(message.data.formulas ?? {}).forEach(
+            ([name, formula]) => {
+              if (
+                !isToddleFormula<FormulaHandlerV2 | string>(formula) &&
+                typeof formula.name === 'string' &&
+                formula.version === undefined
+              ) {
+                Function(formula.handler as unknown as string)()
+                return
+              }
+              formulas[name] = formula as PluginFormula<FormulaHandlerV2>
+            },
+          )
+          window.toddle.formulas[window.__toddle.project] = formulas
+          break
+        }
+        case 'global_actions': {
+          const actions: Record<string, PluginActionV2> = {}
+          window.toddle.wipeLegacyActions?.()
+          Object.entries(message.data.actions ?? {}).forEach(
+            ([name, action]) => {
+              if (
+                typeof action.name === 'string' &&
+                action.version === undefined
+              ) {
+                Function(action.handler)()
+                return
+              }
+              actions[name] = action as PluginActionV2
+            },
+          )
+          window.toddle.actions[window.__toddle.project] = actions
           break
         }
         case 'packages': {
