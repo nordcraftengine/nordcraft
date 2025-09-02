@@ -85,8 +85,8 @@ export interface Toddle<LocationSignal, ShowSignal> {
     handler: FormulaHandler,
     getArgumentInputData?: ArgumentInputDataFunction,
   ) => void
-  wipeLegacyActions?: () => void
-  wipeLegacyFormulas?: () => void
+  clearLegacyActions?: () => void
+  clearLegacyFormulas?: () => void
   getAction: (name: string) => ActionHandler | undefined
   getFormula: FormulaLookup
   getCustomFormula: CustomFormulaHandler

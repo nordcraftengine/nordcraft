@@ -199,7 +199,7 @@ export const initGlobalObject = () => {
         }
         legacyActions[name] = handler
       },
-      wipeLegacyActions: () => {
+      clearLegacyActions: () => {
         Object.keys(legacyActions)
           .filter((key) => !key.startsWith('@toddle/'))
           .forEach((key) => {
@@ -217,7 +217,7 @@ export const initGlobalObject = () => {
           argumentInputDataList[name] = getArgumentInputData
         }
       },
-      wipeLegacyFormulas: () => {
+      clearLegacyFormulas: () => {
         Object.keys(legacyFormulas)
           .filter((key) => !key.startsWith('@toddle/'))
           .forEach((key) => {
@@ -440,7 +440,7 @@ export const createRoot = (
         }
         case 'global_formulas': {
           const formulas: Record<string, PluginFormula<FormulaHandlerV2>> = {}
-          window.toddle.wipeLegacyFormulas?.()
+          window.toddle.clearLegacyFormulas?.()
           Object.entries(message.data.formulas ?? {}).forEach(
             ([name, formula]) => {
               if (
@@ -448,6 +448,7 @@ export const createRoot = (
                 typeof formula.name === 'string' &&
                 formula.version === undefined
               ) {
+                // Legacy formulas are self-registering. We need to execute them to register them
                 Function(formula.handler as unknown as string)()
                 return
               }
@@ -459,13 +460,14 @@ export const createRoot = (
         }
         case 'global_actions': {
           const actions: Record<string, PluginActionV2> = {}
-          window.toddle.wipeLegacyActions?.()
+          window.toddle.clearLegacyActions?.()
           Object.entries(message.data.actions ?? {}).forEach(
             ([name, action]) => {
               if (
                 typeof action.name === 'string' &&
                 action.version === undefined
               ) {
+                // Legacy actions are self-registering. We need to execute them to register them
                 Function(action.handler)()
                 return
               }
