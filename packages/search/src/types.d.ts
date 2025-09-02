@@ -24,6 +24,7 @@ import type {
 import type { LegacyActionRuleFix } from './rules/actions/legacyActionRule'
 import type { NoReferenceComponentRuleFix } from './rules/components/noReferenceComponentRule'
 import type { LegacyFormulaRuleFix } from './rules/formulas/legacyFormulaRule'
+import type { NoReferenceProjectFormulaRuleFix } from './rules/formulas/noReferenceProjectFormulaRule'
 
 type Code =
   | 'ambiguous style variable syntax'
@@ -316,6 +317,7 @@ type FixType =
   | LegacyFormulaRuleFix
   | LegacyActionRuleFix
   | NoReferenceComponentRuleFix
+  | NoReferenceProjectFormulaRuleFix
 
 export interface Rule<T = unknown, V = NodeType> {
   category: Category
