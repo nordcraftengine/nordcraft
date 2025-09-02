@@ -25,8 +25,10 @@ export const legacyFormulaRule: Rule<{
     report(
       data.path,
       { name: data.value.name },
-      // The TYPE formula cannot be autofixed since the types have changed between the 2 implementations
-      data.value.name !== 'TYPE' ? ['replace-legacy-formula'] : undefined,
+      // The TYPE and BOOLEAN formulas cannot be autofixed since the logic has changed between the 2 implementations
+      data.value.name !== 'TYPE' && data.value.name !== 'BOOLEAN'
+        ? ['replace-legacy-formula']
+        : undefined,
     )
   },
   fixes: {
@@ -371,14 +373,6 @@ export const legacyFormulaRule: Rule<{
             display_name: 'Append',
           }
           return set(data.files, data.path, newAppendFormula)
-        }
-        case 'BOOLEAN': {
-          const newBooleanFormula: FunctionOperation = {
-            ...data.value,
-            name: '@toddle/boolean',
-            display_name: 'Boolean',
-          }
-          return set(data.files, data.path, newBooleanFormula)
         }
         case 'CLAMP': {
           const newClampFormula: FunctionOperation = {
