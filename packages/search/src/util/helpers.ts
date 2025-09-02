@@ -75,6 +75,7 @@ const LEGACY_CUSTOM_ACTIONS = new Set([
   'Debug',
   'GoToURL',
   'TriggerEvent',
+  'Set session cookies',
   '@toddle/setSessionCookies',
 ])
 

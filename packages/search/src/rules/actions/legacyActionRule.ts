@@ -1,4 +1,7 @@
-import type { ActionModel } from '@nordcraft/core/dist/component/component.types'
+import type {
+  ActionModel,
+  CustomActionArgument,
+} from '@nordcraft/core/dist/component/component.types'
 import { set } from '@nordcraft/core/dist/utils/collections'
 import type { Rule } from '../../types'
 import { isLegacyAction, renameArguments } from '../../util/helpers'
@@ -48,9 +51,8 @@ export const legacyActionRule: Rule<{
         case 'If': {
           const trueActions = value.events?.['true']?.actions ?? []
           const falseActions = value.events?.['false']?.actions ?? []
-          const trueCondition = (value.arguments ?? []).find(
-            (a) => a.name === 'Condition',
-          )
+          const trueCondition: CustomActionArgument | undefined =
+            (value.arguments ?? [])[0]
           newAction = {
             type: 'Switch',
             cases: [

@@ -99,6 +99,69 @@ describe('find legacyActions', () => {
 
 describe('fix legacyActions', () => {
   test('should replace the If action with a Switch action', () => {
+    const legacyIfAction: ActionModel = {
+      name: 'If',
+      events: {
+        true: {
+          actions: [
+            {
+              name: '@toddle/logToConsole',
+              arguments: [
+                {
+                  name: 'Label',
+                  description: 'A label for the message.',
+                  formula: { type: 'value', value: '' },
+                },
+                {
+                  name: 'Data',
+                  type: { type: 'Any' },
+                  description: 'The data you want to log to the console.',
+                  formula: {
+                    type: 'value',
+                    value: '<Data>',
+                  },
+                },
+              ],
+              label: 'Log to console',
+              group: 'debugging',
+              description: 'Log a message to the browser console.',
+            },
+          ],
+        },
+        false: {
+          actions: [
+            {
+              name: '@toddle/logToConsole',
+              arguments: [
+                {
+                  name: 'Label',
+                  description: 'A label for the message.',
+                  formula: { type: 'value', value: '' },
+                },
+                {
+                  name: 'Data',
+                  type: { type: 'Any' },
+                  description: 'The data you want to log to the console.',
+                  formula: {
+                    type: 'value',
+                    value: '<Data>',
+                  },
+                },
+              ],
+              label: 'Log to console',
+              group: 'debugging',
+              description: 'Log a message to the browser console.',
+            },
+          ],
+        },
+      },
+      arguments: [
+        {
+          name: 'Condition',
+          formula: { type: 'value', value: true },
+        },
+      ],
+    }
     const projectFiles: ProjectFiles = {
       formulas: {},
       components: {
@@ -113,75 +176,7 @@ describe('fix legacyActions', () => {
               events: {
                 click: {
                   trigger: 'click',
-                  actions: [
-                    {
-                      name: 'If',
-                      events: {
-                        true: {
-                          actions: [
-                            {
-                              name: '@toddle/logToConsole',
-                              arguments: [
-                                {
-                                  name: 'Label',
-                                  description: 'A label for the message.',
-                                  formula: { type: 'value', value: '' },
-                                },
-                                {
-                                  name: 'Data',
-                                  type: { type: 'Any' },
-                                  description:
-                                    'The data you want to log to the console.',
-                                  formula: {
-                                    type: 'value',
-                                    value: '<Data>',
-                                  },
-                                },
-                              ],
-                              label: 'Log to console',
-                              group: 'debugging',
-                              description:
-                                'Log a message to the browser console.',
-                            },
-                          ],
-                        },
-                        false: {
-                          actions: [
-                            {
-                              name: '@toddle/logToConsole',
-                              arguments: [
-                                {
-                                  name: 'Label',
-                                  description: 'A label for the message.',
-                                  formula: { type: 'value', value: '' },
-                                },
-                                {
-                                  name: 'Data',
-                                  type: { type: 'Any' },
-                                  description:
-                                    'The data you want to log to the console.',
-                                  formula: {
-                                    type: 'value',
-                                    value: '<Data>',
-                                  },
-                                },
-                              ],
-                              label: 'Log to console',
-                              group: 'debugging',
-                              description:
-                                'Log a message to the browser console.',
-                            },
-                          ],
-                        },
-                      },
-                      arguments: [
-                        {
-                          name: 'Condition',
-                          formula: { type: 'value', value: true },
-                        },
-                      ],
-                    },
-                  ],
+                  actions: [legacyIfAction],
                 },
               },
               classes: {},
@@ -203,11 +198,79 @@ describe('fix legacyActions', () => {
     const fixedAction = (
       fixedProject.components['apiComponent']?.nodes['root'] as ElementNodeModel
     ).events['click'].actions[0]
-    expect(fixedAction).toBeDefined()
-    expect((fixedAction as any).type).toBe('Switch')
-    expect((fixedAction as any).cases).toHaveLength(1)
-    expect((fixedAction as any).cases[0].actions).toHaveLength(1)
-    expect((fixedAction as any).default.actions).toHaveLength(1)
+    expect(fixedAction).toMatchInlineSnapshot(`
+      {
+        "cases": [
+          {
+            "actions": [
+              {
+                "arguments": [
+                  {
+                    "description": "A label for the message.",
+                    "formula": {
+                      "type": "value",
+                      "value": "",
+                    },
+                    "name": "Label",
+                  },
+                  {
+                    "description": "The data you want to log to the console.",
+                    "formula": {
+                      "type": "value",
+                      "value": "<Data>",
+                    },
+                    "name": "Data",
+                    "type": {
+                      "type": "Any",
+                    },
+                  },
+                ],
+                "description": "Log a message to the browser console.",
+                "group": "debugging",
+                "label": "Log to console",
+                "name": "@toddle/logToConsole",
+              },
+            ],
+            "condition": {
+              "type": "value",
+              "value": true,
+            },
+          },
+        ],
+        "default": {
+          "actions": [
+            {
+              "arguments": [
+                {
+                  "description": "A label for the message.",
+                  "formula": {
+                    "type": "value",
+                    "value": "",
+                  },
+                  "name": "Label",
+                },
+                {
+                  "description": "The data you want to log to the console.",
+                  "formula": {
+                    "type": "value",
+                    "value": "<Data>",
+                  },
+                  "name": "Data",
+                  "type": {
+                    "type": "Any",
+                  },
+                },
+              ],
+              "description": "Log a message to the browser console.",
+              "group": "debugging",
+              "label": "Log to console",
+              "name": "@toddle/logToConsole",
+            },
+          ],
+        },
+        "type": "Switch",
+      }
+    `)
   })
   test('should replace the TriggerEvent action with the builtin action', () => {
     const legacyAction: ActionModel = {
@@ -259,15 +322,15 @@ describe('fix legacyActions', () => {
     const fixedAction = (
       fixedProject.components['apiComponent']?.nodes['root'] as ElementNodeModel
     ).events['click'].actions[0]
-    expect(fixedAction).toBeDefined()
-    expect((fixedAction as any).type).toBe('TriggerEvent')
-    // the name of the event should be copied over from the arguments
-    expect((fixedAction as any).event).toEqual(
-      (legacyAction.arguments?.[0].formula as any).value,
-    )
-    // the data of the event should be copied over from the arguments
-    expect((fixedAction as any).data).toEqual(
-      legacyAction.arguments?.[1].formula,
-    )
+    expect(fixedAction).toMatchInlineSnapshot(`
+      {
+        "data": {
+          "type": "value",
+          "value": "test",
+        },
+        "event": "sdfsdf",
+        "type": "TriggerEvent",
+      }
+    `)
   })
 })
