@@ -513,7 +513,6 @@ export const createRoot = (
         }
         case 'global_formulas': {
           window.toddle.clearLegacyFormulas?.()
-          console.log(message.data.formulas)
           registerFormulas(message.data.formulas ?? {})
           break
         }
