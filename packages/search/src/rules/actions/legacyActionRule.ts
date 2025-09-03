@@ -173,6 +173,7 @@ export const legacyActionRule: Rule<{
                 formula: {
                   type: 'function',
                   name: '@toddle/getElementById',
+                  display_name: 'Get element by id',
                   arguments: [
                     {
                       name: 'Id',

@@ -393,6 +393,7 @@ describe('fix legacyActions', () => {
                   "name": "Id",
                 },
               ],
+              "display_name": "Get element by id",
               "name": "@toddle/getElementById",
               "type": "function",
             },
