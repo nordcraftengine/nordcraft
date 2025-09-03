@@ -11,17 +11,15 @@ export const noReferenceProjectFormulaRule: Rule<void> = {
   level: 'warning',
   category: 'No References',
   visit: (report, details) => {
-    if (hasReferences(details)) {
-      return
+    if (!hasReferences(details)) {
+      report(details.path, undefined, ['delete-project-formula'])
     }
-    report(details.path, undefined, ['delete-project-formula'])
   },
   fixes: {
     'delete-project-formula': (data) => {
-      if (hasReferences(data)) {
-        return
+      if (!hasReferences(data)) {
+        return omit(data.files, data.path)
       }
-      return omit(data.files, data.path)
     },
   },
 }
