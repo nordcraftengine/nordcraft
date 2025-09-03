@@ -1,5 +1,4 @@
 import { safeFunctionName } from './handlerUtils'
-// cSpell:ignore mycustomelement, myelement
 
 describe('safeFunctionName', () => {
   test('should remove any non-alphanumeric characters', () => {
