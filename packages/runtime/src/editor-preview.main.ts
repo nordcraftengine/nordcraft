@@ -18,7 +18,9 @@ import type {
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
   isToddleFormula,
+  type CodeFormula,
   type PluginFormula,
+  type ToddleFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { getClassName } from '@nordcraft/core/dist/styling/className'
@@ -83,6 +85,11 @@ type ToddlePreviewEvent =
         string,
         {
           components: Record<string, Component>
+          formulas: Record<
+            string,
+            PluginFormula<FormulaHandlerV2> | PluginFormula<string>
+          >
+          actions: Record<string, PluginActionV2 | PluginAction>
           manifest: {
             name: string
             // commit represents the commit hash (version) of the package
@@ -363,6 +370,70 @@ export const createRoot = (
     return component
   }
 
+  const registerActions = (
+    allActions: Record<string, PluginActionV2 | PluginAction>,
+    packageName?: string,
+  ) => {
+    const actions: Record<string, PluginActionV2> = {}
+    Object.entries(allActions ?? {}).forEach(([name, action]) => {
+      if (typeof action.name === 'string' && action.version === undefined) {
+        // Legacy actions are self-registering. We need to execute them to register them
+        Function(action.handler)()
+        return
+      }
+      // We need to convert the handler string into a real function
+      actions[name] = {
+        ...(action as PluginActionV2),
+        handler:
+          typeof action.handler === 'string'
+            ? (new Function(
+                'args, ctx',
+                `${action.handler}
+          return ${safeFunctionName(action.name)}(args, ctx)`,
+              ) as ActionHandlerV2)
+            : action.handler,
+      }
+    })
+    window.toddle.actions[packageName ?? window.__toddle.project] = actions
+  }
+
+  const registerFormulas = (
+    allFormulas: Record<
+      string,
+      ToddleFormula | CodeFormula<FormulaHandlerV2> | CodeFormula<string>
+    >,
+    packageName?: string,
+  ) => {
+    const formulas: Record<string, PluginFormula<FormulaHandlerV2>> = {}
+    Object.entries(allFormulas ?? {}).forEach(([name, formula]) => {
+      if (
+        !isToddleFormula<FormulaHandlerV2 | string>(formula) &&
+        typeof formula.name === 'string' &&
+        formula.version === undefined
+      ) {
+        // Legacy formulas are self-registering. We need to execute them to register them
+        Function(formula.handler as unknown as string)()
+        return
+      } else if (!isToddleFormula<FormulaHandlerV2 | string>(formula)) {
+        // For code formulas we need to convert the handler string into a real function
+        formulas[name] = {
+          ...formula,
+          handler:
+            typeof formula.handler === 'string'
+              ? (new Function(
+                  'args, ctx',
+                  `${formula.handler}
+                return ${safeFunctionName(formula.name)}(args, ctx)`,
+                ) as FormulaHandlerV2)
+              : formula.handler,
+        }
+        return
+      }
+      formulas[name] = formula as PluginFormula<FormulaHandlerV2>
+    })
+    window.toddle.formulas[packageName ?? window.__toddle.project] = formulas
+  }
+
   window.addEventListener(
     'message',
     async (message: MessageEvent<ToddlePreviewEvent>) => {
@@ -441,67 +512,13 @@ export const createRoot = (
           break
         }
         case 'global_formulas': {
-          const formulas: Record<string, PluginFormula<FormulaHandlerV2>> = {}
           window.toddle.clearLegacyFormulas?.()
-          Object.entries(message.data.formulas ?? {}).forEach(
-            ([name, formula]) => {
-              if (
-                !isToddleFormula<FormulaHandlerV2 | string>(formula) &&
-                typeof formula.name === 'string' &&
-                formula.version === undefined
-              ) {
-                // Legacy formulas are self-registering. We need to execute them to register them
-                Function(formula.handler as unknown as string)()
-                return
-              } else if (!isToddleFormula<FormulaHandlerV2 | string>(formula)) {
-                // For code formulas we need to convert the handler string into a real function
-                formulas[name] = {
-                  ...formula,
-                  handler:
-                    typeof formula.handler === 'string'
-                      ? (new Function(
-                          'args, ctx',
-                          `${formula.handler}
-                return ${safeFunctionName(formula.name)}(args, ctx)`,
-                        ) as FormulaHandlerV2)
-                      : formula.handler,
-                }
-                return
-              }
-              formulas[name] = formula as PluginFormula<FormulaHandlerV2>
-            },
-          )
-          window.toddle.formulas[window.__toddle.project] = formulas
+          registerFormulas(message.data.formulas ?? {})
           break
         }
         case 'global_actions': {
-          const actions: Record<string, PluginActionV2> = {}
           window.toddle.clearLegacyActions?.()
-          Object.entries(message.data.actions ?? {}).forEach(
-            ([name, action]) => {
-              if (
-                typeof action.name === 'string' &&
-                action.version === undefined
-              ) {
-                // Legacy actions are self-registering. We need to execute them to register them
-                Function(action.handler)()
-                return
-              }
-              // We need to convert the handler string into a real function
-              actions[name] = {
-                ...(action as PluginActionV2),
-                handler:
-                  typeof action.handler === 'string'
-                    ? (new Function(
-                        'args, ctx',
-                        `${action.handler}
-          return ${safeFunctionName(action.name)}(args, ctx)`,
-                      ) as ActionHandlerV2)
-                    : action.handler,
-              }
-            },
-          )
-          window.toddle.actions[window.__toddle.project] = actions
+          registerActions(message.data.actions ?? {})
           break
         }
         case 'packages': {
@@ -523,6 +540,11 @@ export const createRoot = (
             updateStyle()
             update()
           }
+
+          Object.values(message.data.packages ?? {}).forEach((pkg) => {
+            registerActions(pkg.actions, pkg.manifest.name)
+            registerFormulas(pkg.formulas, pkg.manifest.name)
+          })
 
           break
         }
