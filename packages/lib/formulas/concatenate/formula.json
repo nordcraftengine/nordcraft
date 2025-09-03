@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Concatenate",
-  "description": "Concatenate two or more values.",
+  "description": "Concatenate two or more values. See [Array.prototype.concat on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat) for more information.",
   "arguments": [
     {
       "name": "0",

@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Encode URI Component",
-  "description": "Encode a URI component, escaping certain characters to their UTF-8 representation.",
+  "description": "Encode a URI component, escaping certain characters to their UTF-8 representation. See [encodeURIComponent on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent) for more information.",
   "arguments": [
     {
       "name": "URIComponent",

@@ -9,7 +9,7 @@
       "description": "The input data encoded as base64."
     }
   ],
-  "description": "Deocde a base64 string to utf-8.",
+  "description": "Deocde a base64 string to utf-8. See [atob on MDN](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/atob) for more information.",
   "output": {
     "description": "The decoded string.",
     "type": { "type": "String" }

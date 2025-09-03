@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Max",
-  "description": "Find the largest Number from a list of inputs.",
+  "description": "Find the largest Number from a list of inputs. See [Math.max on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/max) for more information.",
   "arguments": [
     {
       "name": "0",

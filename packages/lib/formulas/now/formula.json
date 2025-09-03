@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Now",
-  "description": "Get a Date representing \"Now\"",
+  "description": "Get a Date representing \"Now\". See [Date.now on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now) for more information.",
   "arguments": [],
   "cache": false,
   "output": {

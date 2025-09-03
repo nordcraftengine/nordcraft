@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get from Local Storage",
-  "description": "Read a value from local storage with the provided key.",
+  "description": "Read a value from local storage with the provided key. See [Window.localStorage on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) for more information.",
   "cache": false,
   "arguments": [
     {

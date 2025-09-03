@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Decode URI Component",
-  "description": "Decode a URI component that was previously encoded with the Encode URI Component formula.",
+  "description": "Decode a URI component that was previously encoded with the Encode URI Component formula. See [decodeURIComponent on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent) for more information.",
   "arguments": [
     {
       "name": "EncodedURI",

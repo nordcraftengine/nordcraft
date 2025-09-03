@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Find Last",
-  "description": "Search through an Array of items and apply a formula to each item, to return the last item where the formula returns True.",
+  "description": "Search through an Array of items and apply a formula to each item, to return the last item where the formula returns True. ",
   "arguments": [
     {
       "name": "Array",

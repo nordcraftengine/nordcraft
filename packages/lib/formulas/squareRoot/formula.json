@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Square root",
-  "description": "Get the square root of a Number.",
+  "description": "Get the square root of a Number. See [Math.sqrt on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sqrt) for more information.",
   "arguments": [
     {
       "name": "Number",

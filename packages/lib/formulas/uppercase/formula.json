@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Uppercase",
-  "description": "Convert a String to uppercase.",
+  "description": "Convert a String to uppercase. See [String.prototype.toUpperCase on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toUpperCase) for more information.",
   "arguments": [
     {
       "name": "String",

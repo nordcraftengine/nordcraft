@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "User Agent",
-  "description": "Get the user agent for the browser or from the User-Agent header on the server",
+  "description": "Get the user agent for the browser or from the User-Agent header on the server. See [User-Agent on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) for more information.",
   "arguments": [],
   "output": {
     "description": "The user agent string.",

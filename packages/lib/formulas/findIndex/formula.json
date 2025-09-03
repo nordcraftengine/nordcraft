@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Find index",
-  "description": "Search through an Array of items and apply a formula to each item, to return the index of the first item where the formula returns True.",
+  "description": "Search through an Array of items and apply a formula to each item, to return the index of the first item where the formula returns True. See [Array.prototype.findIndex on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex) for more information.",
   "arguments": [
     {
       "name": "Array",

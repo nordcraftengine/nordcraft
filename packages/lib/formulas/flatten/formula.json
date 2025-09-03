@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Flatten",
-  "description": "Flatten a nested Array.",
+  "description": "Flatten a nested Array. See [Array.prototype.flat on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) for more information.",
   "arguments": [
     {
       "name": "Array",
