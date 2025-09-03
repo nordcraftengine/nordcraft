@@ -27,6 +27,7 @@ import { getThemeCss } from '@nordcraft/core/dist/styling/theme'
 import { theme } from '@nordcraft/core/dist/styling/theme.const'
 import type {
   ActionHandler,
+  ActionHandlerV2,
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
@@ -34,6 +35,7 @@ import type {
   Toddle,
 } from '@nordcraft/core/dist/types'
 import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
+import { safeFunctionName } from '@nordcraft/ssr/dist/custom-code/codeRefs'
 import type { PluginAction } from '@nordcraft/ssr/dist/ssr.types'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
@@ -451,6 +453,20 @@ export const createRoot = (
                 // Legacy formulas are self-registering. We need to execute them to register them
                 Function(formula.handler as unknown as string)()
                 return
+              } else if (!isToddleFormula<FormulaHandlerV2 | string>(formula)) {
+                // For code formulas we need to convert the handler string into a real function
+                formulas[name] = {
+                  ...formula,
+                  handler:
+                    typeof formula.handler === 'string'
+                      ? (new Function(
+                          'args, ctx',
+                          `${formula.handler}
+                return ${safeFunctionName(formula.name)}(args, ctx)`,
+                        ) as FormulaHandlerV2)
+                      : formula.handler,
+                }
+                return
               }
               formulas[name] = formula as PluginFormula<FormulaHandlerV2>
             },
@@ -471,7 +487,18 @@ export const createRoot = (
                 Function(action.handler)()
                 return
               }
-              actions[name] = action as PluginActionV2
+              // We need to convert the handler string into a real function
+              actions[name] = {
+                ...(action as PluginActionV2),
+                handler:
+                  typeof action.handler === 'string'
+                    ? (new Function(
+                        'args, ctx',
+                        `${action.handler}
+          return ${safeFunctionName(action.name)}(args, ctx)`,
+                      ) as ActionHandlerV2)
+                    : action.handler,
+              }
             },
           )
           window.toddle.actions[window.__toddle.project] = actions

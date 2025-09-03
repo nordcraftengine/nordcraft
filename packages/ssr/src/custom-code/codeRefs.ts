@@ -262,7 +262,7 @@ export const formulas = {
  * @param name
  * @returns "safe" function name only containing alphanumeric characters and _, e.g. "myFunction" or "my_function"
  */
-const safeFunctionName = (name: string) => {
+export const safeFunctionName = (name: string) => {
   return (
     name
       // Remove any non-alphanumeric characters
