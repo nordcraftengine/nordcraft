@@ -9,6 +9,7 @@ import type {
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
+import type { PluginAction } from '@nordcraft/core/dist/types'
 
 export type FileGetter = (args: {
   package?: string
@@ -86,20 +87,6 @@ export type InstalledPackage = Pick<
     // commit represents the commit hash (version) of the package
     commit: string
   }
-}
-
-export interface PluginAction {
-  name: string
-  description?: string
-  version?: 2 | never
-  arguments: Array<{
-    name: string
-    formula: Formula
-  }>
-  variableArguments: boolean | null
-  handler: string
-  // exported indicates that an action is exported in a package
-  exported?: boolean
 }
 
 interface BaseRoute {
