@@ -58,6 +58,20 @@ export interface PluginActionV2 extends PluginActionBase {
   version: 2
 }
 
+export interface PluginAction {
+  name: string
+  description?: string
+  version?: 2 | never
+  arguments: Array<{
+    name: string
+    formula: Formula
+  }>
+  variableArguments: boolean | null
+  handler: string
+  // exported indicates that an action is exported in a package
+  exported?: boolean
+}
+
 export type ArgumentInputDataFunction = (
   items: unknown[],
   index: number,

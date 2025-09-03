@@ -31,12 +31,12 @@ import type {
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
+  PluginAction,
   PluginActionV2,
   Toddle,
 } from '@nordcraft/core/dist/types'
 import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
-import { safeFunctionName } from '@nordcraft/ssr/dist/custom-code/codeRefs'
-import type { PluginAction } from '@nordcraft/ssr/dist/ssr.types'
+import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import fastDeepEqual from 'fast-deep-equal'
