@@ -253,7 +253,6 @@ function* visitNode({
         // Report callback used to report issues
         (path, details, fixes) => {
           if (fixOptions) {
-            console.log('In fix mode', fixOptions.fixType, path, details, fixes)
             // We're in "fix mode"
             if (
               // We only overwrite fixedFiles once to avoid conflicting fixes
@@ -263,7 +262,6 @@ function* visitNode({
               // The rule must have an implementation for the fix
               rule.fixes?.[fixOptions.fixType]
             ) {
-              console.log('Fixing', rule.code, fixOptions.fixType, path)
               const ruleFixes = rule.fixes[fixOptions.fixType]?.(data, state)
               if (ruleFixes) {
                 fixedFiles = ruleFixes
