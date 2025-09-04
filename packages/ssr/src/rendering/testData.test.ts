@@ -1,4 +1,5 @@
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { describe, expect, test } from 'bun:test'
 import { removeTestData } from './testData'
 
 describe('removeTestData', () => {
@@ -20,7 +21,7 @@ describe('removeTestData', () => {
       '1': {
         name: 'foo',
       },
-    })
+    } as any)
   })
   test('it removes testValue from route parameters', () => {
     expect(
@@ -66,7 +67,7 @@ describe('removeTestData', () => {
           name: 'q',
         },
       },
-    })
+    } as any)
   })
   test('it removes testValue from formula arguments', () => {
     expect(
@@ -93,7 +94,7 @@ describe('removeTestData', () => {
       {
         name: 'bar',
       },
-    ])
+    ] as any)
   })
   test('it removes testValue from workflow parameters', () => {
     expect(
@@ -120,7 +121,7 @@ describe('removeTestData', () => {
       {
         name: 'bar',
       },
-    ])
+    ] as any)
   })
   test('it removes description from workflow actions', () => {
     expect(
@@ -182,5 +183,159 @@ describe('removeTestData', () => {
       type: 'http',
       inputs: {},
     })
+  })
+  test('it removes test data from actions', () => {
+    const updatedData = removeTestData({
+      name: 'test',
+      variables: {},
+      nodes: {
+        root: {
+          tag: 'div',
+          type: 'element',
+          attrs: {},
+          style: {},
+          events: {
+            onClick: {
+              trigger: 'click',
+              actions: [
+                {
+                  type: 'Custom',
+                  name: 'My Action',
+                  description: 'A long description',
+                  group: 'Group 1',
+                  label: 'Label 1',
+                  arguments: [
+                    {
+                      name: 'arg1',
+                      formula: valueFormula('value1'),
+                      type: 'Array',
+                      description: 'Argument 1',
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          classes: {},
+          children: [],
+        },
+      },
+      attributes: {},
+      apis: {},
+      onLoad: {
+        trigger: 'onLoad',
+        actions: [
+          {
+            type: 'Custom',
+            name: 'My Action',
+            description: 'A long description',
+            group: 'Group 1',
+            label: 'Label 1',
+            arguments: [
+              {
+                name: 'arg1',
+                formula: valueFormula('value1'),
+                type: 'Array',
+                description: 'Argument 1',
+              },
+            ],
+          },
+        ],
+      },
+      onAttributeChange: {
+        trigger: 'onAttributeChange',
+        actions: [
+          {
+            type: 'Custom',
+            name: 'My Action',
+            description: 'A long description',
+            group: 'Group 1',
+            label: 'Label 1',
+            arguments: [
+              {
+                name: 'arg1',
+                formula: valueFormula('value1'),
+                type: 'Array',
+                description: 'Argument 1',
+              },
+            ],
+          },
+        ],
+      },
+    })
+    expect(updatedData).toMatchInlineSnapshot(`
+      {
+        "apis": {},
+        "attributes": {},
+        "name": "test",
+        "nodes": {
+          "root": {
+            "attrs": {},
+            "children": [],
+            "classes": {},
+            "events": {
+              "onClick": {
+                "actions": [
+                  {
+                    "arguments": [
+                      {
+                        "formula": {
+                          "type": "value",
+                          "value": "value1",
+                        },
+                        "name": "arg1",
+                      },
+                    ],
+                    "name": "My Action",
+                    "type": "Custom",
+                  },
+                ],
+                "trigger": "click",
+              },
+            },
+            "style": {},
+            "tag": "div",
+            "type": "element",
+          },
+        },
+        "onAttributeChange": {
+          "actions": [
+            {
+              "arguments": [
+                {
+                  "formula": {
+                    "type": "value",
+                    "value": "value1",
+                  },
+                  "name": "arg1",
+                },
+              ],
+              "name": "My Action",
+              "type": "Custom",
+            },
+          ],
+          "trigger": "onAttributeChange",
+        },
+        "onLoad": {
+          "actions": [
+            {
+              "arguments": [
+                {
+                  "formula": {
+                    "type": "value",
+                    "value": "value1",
+                  },
+                  "name": "arg1",
+                },
+              ],
+              "name": "My Action",
+              "type": "Custom",
+            },
+          ],
+          "trigger": "onLoad",
+        },
+        "variables": {},
+      }
+    `)
   })
 })
