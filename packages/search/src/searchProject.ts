@@ -243,22 +243,27 @@ function* visitNode({
     !useExactPaths ||
     shouldSearchExactPath({ path: data.path, pathsToVisit })
   ) {
-    if (fixOptions) {
-      // We're fixing issues
-      for (const rule of rules) {
-        const fixedFiles = rule.fixes?.[fixOptions.fixType]?.(data, state)
-        if (fixedFiles) {
-          yield fixedFiles
-        }
-      }
-    } else {
-      // We're looking for issues
-      const results: Result[] = []
-      for (const rule of rules) {
-        // eslint-disable-next-line no-console
-        console.timeStamp(`Visiting rule ${rule.code}`)
-        rule.visit(
-          (path, details, fixes) => {
+    // We're looking for issues
+    const results: Result[] = []
+    let fixedFiles: ProjectFiles | undefined
+    for (const rule of rules) {
+      // eslint-disable-next-line no-console
+      console.timeStamp(`Visiting rule ${rule.code}`)
+      rule.visit(
+        // Report callback used to report issues
+        (path, details, fixes) => {
+          if (fixOptions) {
+            if (
+              !fixedFiles &&
+              fixes?.some((fix) => fix === fixOptions.fixType) &&
+              rule.fixes?.[fixOptions.fixType]
+            ) {
+              const ruleFixes = rule.fixes[fixOptions.fixType]?.(data, state)
+              if (ruleFixes) {
+                fixedFiles = ruleFixes
+              }
+            }
+          } else {
             results.push({
               code: rule.code,
               category: rule.category,
@@ -267,12 +272,18 @@ function* visitNode({
               details,
               fixes,
             })
-          },
-          data,
-          state,
-        )
-      }
+          }
+        },
+        data,
+        state,
+      )
+    }
 
+    if (fixOptions) {
+      if (fixedFiles) {
+        yield fixedFiles
+      }
+    } else {
       for (const result of results) {
         yield result
       }

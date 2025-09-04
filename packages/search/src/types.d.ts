@@ -255,9 +255,9 @@ type FormulaNode<F = Formula> = {
   component?: ToddleComponent<Function>
 } & Base
 
-type ActionModelNode = {
+type ActionModelNode<A = ActionModel> = {
   nodeType: 'action-model'
-  value: ActionModel
+  value: A
   component: ToddleComponent<Function>
 } & Base
 
@@ -338,10 +338,10 @@ export interface Rule<T = unknown, V = NodeType> {
     data: V,
     state?: ApplicationState | undefined,
   ) => void
-  fixes?: Partial<
-    Record<
-      FixType,
-      (data: V, state?: ApplicationState | undefined) => ProjectFiles | void
-    >
-  >
+  fixes?: Partial<Record<FixType, FixFunction>>
 }
+
+export type FixFunction<T extends NodeType> = (
+  data: T,
+  state?: ApplicationState,
+) => ProjectFiles | void
