@@ -71,15 +71,7 @@ export const proxyRequestHandler = async (
 
         if (contentType?.includes('application/x-www-form-urlencoded')) {
           // Handle form-urlencoded data
-          const params = new URLSearchParams(bodyText)
-          const templatedParams = new URLSearchParams()
-
-          for (const [key, value] of params) {
-            const templatedValue = applyTemplateValues(value, requestCookies)
-            templatedParams.append(key, templatedValue)
-          }
-
-          templateBody = templatedParams.toString()
+          templateBody = encodeURIComponent(applyTemplateValues(decodeURIComponent(bodyText), requestCookies))
         } else {
           // Handle other content types (JSON, text, etc.)
           templateBody = applyTemplateValues(bodyText, requestCookies)
