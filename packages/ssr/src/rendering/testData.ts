@@ -4,18 +4,14 @@ import type {
   Component,
   CustomActionArgument,
 } from '@nordcraft/core/dist/component/component.types'
-import {
-  mapObject,
-  omit,
-  omitKeys,
-} from '@nordcraft/core/dist/utils/collections'
+import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
 
 export function removeTestData(component: Component): Component {
   return {
     ...component,
     attributes: mapObject(component.attributes, ([key, value]) => [
       key,
-      omit(value, ['testValue']),
+      omitKeys(value, ['testValue']),
     ]),
     nodes: mapObject(component.nodes, ([key, value]) => {
       let events = {}
@@ -34,10 +30,10 @@ export function removeTestData(component: Component): Component {
       ? {
           route: {
             ...component.route,
-            path: component.route.path.map((p) => omit(p, ['testValue'])),
+            path: component.route.path.map((p) => omitKeys(p, ['testValue'])),
             query: mapObject(component.route.query, ([key, value]) => [
               key,
-              omit(value, ['testValue']),
+              omitKeys(value, ['testValue']),
             ]),
           },
         }
@@ -48,9 +44,8 @@ export function removeTestData(component: Component): Component {
             key,
             {
               ...value,
-              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
               arguments: (value.arguments ?? []).map((a) =>
-                omit(a, ['testValue']),
+                omitKeys(a, ['testValue']),
               ),
             },
           ]),
@@ -67,7 +62,7 @@ export function removeTestData(component: Component): Component {
               actions: value.actions.map(removeActionTestData),
               // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
               parameters: (value.parameters || []).map((p) =>
-                omit(p, ['testValue']),
+                omitKeys(p, ['testValue']),
               ),
             },
           ]),
