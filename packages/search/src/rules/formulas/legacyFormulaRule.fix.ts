@@ -13,8 +13,6 @@ import {
   renameArguments,
 } from '../../util/helpers'
 
-export type LegacyFormulaRuleFix = 'replace-legacy-formula'
-
 export const replaceLegacyFormula: FixFunction<
   FormulaNode<FunctionOperation>
 > = (data) => {

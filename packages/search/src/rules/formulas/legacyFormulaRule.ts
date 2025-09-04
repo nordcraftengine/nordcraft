@@ -33,6 +33,8 @@ export const legacyFormulaRule: Rule<{
   },
 }
 
+export type LegacyFormulaRuleFix = 'replace-legacy-formula'
+
 const isLegacyFormula = (
   formula: FunctionOperation,
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>,
