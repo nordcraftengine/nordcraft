@@ -24,8 +24,11 @@ import type {
 import type { LegacyActionRuleFix } from './rules/actions/legacyActionRule'
 import type { NoReferenceProjectActionRuleFix } from './rules/actions/noReferenceProjectActionRule'
 import type { NoReferenceApiRuleFix } from './rules/apis/noReferenceApiRule'
+import type { NoReferenceAttributeRuleFix } from './rules/attributes/noReferenceAttributeRule'
 import type { NoReferenceComponentRuleFix } from './rules/components/noReferenceComponentRule'
+import type { NoReferenceEventRuleFix } from './rules/events/noReferenceEventRule'
 import type { LegacyFormulaRuleFix } from './rules/formulas/legacyFormulaRule'
+import type { NoReferenceComponentFormulaRuleFix } from './rules/formulas/noReferenceComponentFormulaRule'
 import type { NoReferenceProjectFormulaRuleFix } from './rules/formulas/noReferenceProjectFormulaRule'
 
 type Code =
@@ -322,6 +325,9 @@ type FixType =
   | NoReferenceProjectFormulaRuleFix
   | NoReferenceProjectActionRuleFix
   | NoReferenceApiRuleFix
+  | NoReferenceAttributeRuleFix
+  | NoReferenceEventRuleFix
+  | NoReferenceComponentFormulaRuleFix
 
 export interface Rule<T = unknown, V = NodeType> {
   category: Category
