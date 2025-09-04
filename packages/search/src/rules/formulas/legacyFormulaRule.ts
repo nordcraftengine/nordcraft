@@ -2,15 +2,12 @@ import type { FunctionOperation } from '@nordcraft/core/dist/formula/formula'
 import { isToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-import type { NodeType, Rule } from '../../types'
+import type { Rule } from '../../types'
 import { replaceLegacyFormula } from './legacyFormulaRule.fix'
 
-export const legacyFormulaRule: Rule<
-  {
-    name: string
-  },
-  NodeType
-> = {
+export const legacyFormulaRule: Rule<{
+  name: string
+}> = {
   code: 'legacy formula',
   level: 'warning',
   category: 'Deprecation',
