@@ -67,7 +67,23 @@ export const proxyRequestHandler = async (
       // we must apply the template values to the body as well
       try {
         const bodyText = await req.text()
-        templateBody = applyTemplateValues(bodyText, requestCookies)
+        const contentType = req.headers.get('content-type')?.toLowerCase()
+
+        if (contentType?.includes('application/x-www-form-urlencoded')) {
+          // Handle form-urlencoded data
+          const params = new URLSearchParams(bodyText)
+          const templatedParams = new URLSearchParams()
+
+          for (const [key, value] of params) {
+            const templatedValue = applyTemplateValues(value, requestCookies)
+            templatedParams.append(key, templatedValue)
+          }
+
+          templateBody = templatedParams.toString()
+        } else {
+          // Handle other content types (JSON, text, etc.)
+          templateBody = applyTemplateValues(bodyText, requestCookies)
+        }
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Error applying template values to request body', e)
