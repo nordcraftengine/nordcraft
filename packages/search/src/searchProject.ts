@@ -243,7 +243,6 @@ function* visitNode({
     !useExactPaths ||
     shouldSearchExactPath({ path: data.path, pathsToVisit })
   ) {
-    // We're looking for issues
     const results: Result[] = []
     let fixedFiles: ProjectFiles | undefined
     for (const rule of rules) {
@@ -253,9 +252,13 @@ function* visitNode({
         // Report callback used to report issues
         (path, details, fixes) => {
           if (fixOptions) {
+            // We're in "fix mode"
             if (
+              // We only overwrite fixedFiles once to avoid conflicting fixes
               !fixedFiles &&
-              fixes?.some((fix) => fix === fixOptions.fixType) &&
+              // The current fix must be one of the fixes reported
+              fixes?.includes(fixOptions.fixType) &&
+              // The rule must have an implementation for the fix
               rule.fixes?.[fixOptions.fixType]
             ) {
               const ruleFixes = rule.fixes[fixOptions.fixType]?.(data, state)
@@ -264,6 +267,7 @@ function* visitNode({
               }
             }
           } else {
+            // We're in "report mode"
             results.push({
               code: rule.code,
               category: rule.category,
@@ -277,6 +281,10 @@ function* visitNode({
         data,
         state,
       )
+      if (fixedFiles) {
+        // We have applied a fix, stop processing more rules
+        break
+      }
     }
 
     if (fixOptions) {

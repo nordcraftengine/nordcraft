@@ -75,10 +75,14 @@ export const noReferenceComponentFormulaRule: Rule<{
         }
       }
     }
-    report(args.path, {
-      contextSubscribers,
-      name: value.name,
-    })
+    report(
+      args.path,
+      {
+        contextSubscribers,
+        name: value.name,
+      },
+      ['delete-component-formula'],
+    )
   },
   fixes: {
     'delete-component-formula': removeFromPathFix,

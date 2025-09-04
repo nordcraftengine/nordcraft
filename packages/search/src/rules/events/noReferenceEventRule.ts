@@ -41,7 +41,7 @@ export const noReferenceEventRule: Rule<{ name: string }> = {
     if (events.has(event.name)) {
       return
     }
-    report(args.path, { name: args.value.event.name })
+    report(args.path, { name: args.value.event.name }, ['delete-event'])
   },
   fixes: {
     'delete-event': removeFromPathFix,
