@@ -14,9 +14,9 @@ import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleCompo
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Theme } from '@nordcraft/core/dist/styling/theme'
+import type { PluginAction } from '@nordcraft/core/dist/types'
 import type {
   ApiService,
-  PluginAction,
   ProjectFiles,
   Route,
   ToddleProject,
@@ -30,7 +30,7 @@ import type { NoReferenceEventRuleFix } from './rules/events/noReferenceEventRul
 import type { LegacyFormulaRuleFix } from './rules/formulas/legacyFormulaRule'
 import type { NoReferenceComponentFormulaRuleFix } from './rules/formulas/noReferenceComponentFormulaRule'
 import type { NoReferenceProjectFormulaRuleFix } from './rules/formulas/noReferenceProjectFormulaRule'
-import { NoReferenceNodeRuleFix } from './rules/noReferenceNodeRule'
+import type { NoReferenceNodeRuleFix } from './rules/noReferenceNodeRule'
 
 type Code =
   | 'ambiguous style variable syntax'
