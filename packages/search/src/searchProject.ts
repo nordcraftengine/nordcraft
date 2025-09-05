@@ -263,6 +263,8 @@ function* visitNode({
               rule.fixes?.[fixOptions.fixType]
             ) {
               const ruleFixes = rule.fixes[fixOptions.fixType]?.(
+                // We must use the path from the report, not the original path
+                // because the report might be for a subpath
                 { ...data, path },
                 state,
               )
@@ -574,6 +576,20 @@ function* visitNode({
             })
           }
         }
+        yield* visitNode({
+          args: {
+            nodeType: 'style',
+            value: { style: value.style, element: value },
+            path: [...path, 'style'],
+            rules,
+            files,
+            pathsToVisit,
+            useExactPaths,
+            memo,
+          },
+          state,
+          fixOptions: fixOptions as any,
+        })
       }
       break
 
