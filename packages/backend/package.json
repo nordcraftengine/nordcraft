@@ -11,6 +11,9 @@
     "preview": "wrangler dev --port 8989 -c preview.wrangler.toml -c ./nordcraft-internal/packages/worker/wrangler.toml -c ./nordcraft-internal/packages/worker-tail/wrangler.toml",
     "deploy-preview": "wrangler deploy -c preview.wrangler.toml",
     "deploy": "wrangler deploy --no-bundle",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "test:watch:only": "bun test --watch --only",
     "typecheck": "tsc --noEmit",
     "watch": "tsc --noEmit -w"
   },
