@@ -1,5 +1,6 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { Rule } from '../../types'
+import { removeFromPathFix } from '../../util/removeUnused.fix'
 
 export const noReferenceComponentFormulaRule: Rule<{
   name: string
@@ -38,7 +39,7 @@ export const noReferenceComponentFormulaRule: Rule<{
     }
 
     // It is possible that a formula is never used, but still has subscribers
-    const contextSubscribers = []
+    const contextSubscribers: string[] = []
     if (value.exposeInContext) {
       for (const _component of Object.values(files.components)) {
         // Enforce that the component is not undefined since we're iterating
@@ -74,7 +75,18 @@ export const noReferenceComponentFormulaRule: Rule<{
         }
       }
     }
-
-    report(path, { contextSubscribers, name: value.name })
+    report(
+      args.path,
+      {
+        contextSubscribers,
+        name: value.name,
+      },
+      ['delete-component-formula'],
+    )
+  },
+  fixes: {
+    'delete-component-formula': removeFromPathFix,
   },
 }
+
+export type NoReferenceComponentFormulaRuleFix = 'delete-component-formula'

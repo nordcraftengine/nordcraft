@@ -1,4 +1,5 @@
 import type { Rule } from '../../types'
+import { removeFromPathFix } from '../../util/removeUnused.fix'
 
 export const noReferenceApiRule: Rule<void> = {
   code: 'no-reference api',
@@ -8,7 +9,8 @@ export const noReferenceApiRule: Rule<void> = {
     if (args.nodeType !== 'component-api') {
       return
     }
-    const { path, value, memo, component } = args
+    const { value, memo, component } = args
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!component) {
       return
     }
@@ -37,6 +39,11 @@ export const noReferenceApiRule: Rule<void> = {
     if (componentApiReferences.has(value.name)) {
       return
     }
-    report(path)
+    report(args.path, undefined, ['delete-api'])
+  },
+  fixes: {
+    'delete-api': removeFromPathFix,
   },
 }
+
+export type NoReferenceApiRuleFix = 'delete-api'

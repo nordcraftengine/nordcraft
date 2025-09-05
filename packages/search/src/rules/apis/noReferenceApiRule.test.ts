@@ -2,11 +2,13 @@ import {
   pathFormula,
   valueFormula,
 } from '@nordcraft/core/dist/formula/formulaUtils'
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
+import { fixProject } from '../../fixProject'
 import { searchProject } from '../../searchProject'
 import { noReferenceApiRule } from './noReferenceApiRule'
 
-describe('noReferenceApiRule', () => {
+describe('find noReferenceApiRule', () => {
   test('should detect APIs with no references', () => {
     const problems = Array.from(
       searchProject({
@@ -161,5 +163,69 @@ describe('noReferenceApiRule', () => {
     )
 
     expect(problems).toEqual([])
+  })
+})
+
+describe('fix noReferenceApiRule', () => {
+  test('should remove unused APIs', () => {
+    const project: ProjectFiles = {
+      formulas: {},
+      components: {
+        apiComponent: {
+          name: 'test',
+          nodes: {},
+          formulas: {},
+          apis: {
+            'my-legacy-api': {
+              name: 'my-legacy-api',
+              type: 'REST',
+              autoFetch: valueFormula(true),
+              onCompleted: null,
+              onFailed: null,
+            },
+            'my-api': {
+              name: 'my-api',
+              type: 'http',
+              version: 2,
+              autoFetch: valueFormula(true),
+              inputs: {},
+              '@nordcraft/metadata': {
+                comments: null,
+              },
+            },
+            'used-api': {
+              name: 'used-api',
+              type: 'http',
+              version: 2,
+              autoFetch: valueFormula(true),
+              inputs: {},
+            },
+          },
+          onLoad: {
+            trigger: 'onLoad',
+            actions: [
+              {
+                type: 'Fetch',
+                api: 'used-api',
+                inputs: {},
+                onSuccess: { actions: [] },
+                onError: { actions: [] },
+              },
+            ],
+          },
+          attributes: {},
+          variables: {},
+        },
+      },
+    }
+    const fixedProject = fixProject({
+      files: project,
+      rule: noReferenceApiRule,
+      fixType: 'delete-api',
+    })
+    // 2/3 APIs should be removed
+    expect(Object.keys(fixedProject.components['apiComponent']!.apis)).toEqual([
+      'used-api',
+    ])
   })
 })

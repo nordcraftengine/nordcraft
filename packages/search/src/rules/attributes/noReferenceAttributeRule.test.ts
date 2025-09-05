@@ -1,8 +1,10 @@
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
+import { fixProject } from '../../fixProject'
 import { searchProject } from '../../searchProject'
 import { noReferenceAttributeRule } from './noReferenceAttributeRule'
 
-describe('noReferenceAttributeRule', () => {
+describe('find noReferenceAttributeRule', () => {
   test('should detect attributes with no references', () => {
     const problems = Array.from(
       searchProject({
@@ -135,5 +137,37 @@ describe('noReferenceAttributeRule', () => {
     )
 
     expect(problems).toEqual([])
+  })
+})
+
+describe('fix noReferenceAttributeRule', () => {
+  test('should remove attributes with no references', () => {
+    const files: ProjectFiles = {
+      formulas: {},
+      components: {
+        test: {
+          name: 'test',
+          nodes: {},
+          formulas: {},
+          apis: {},
+          attributes: {
+            'my-attribute': {
+              name: 'my-attribute-name',
+              testValue: { type: 'value', value: null },
+              '@nordcraft/metadata': {
+                comments: null,
+              },
+            },
+          },
+          variables: {},
+        },
+      },
+    }
+    const fixedFiles = fixProject({
+      files,
+      rule: noReferenceAttributeRule,
+      fixType: 'delete-attribute',
+    })
+    expect(fixedFiles.components['test']?.attributes).toEqual({})
   })
 })

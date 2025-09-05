@@ -200,6 +200,7 @@ function visitNode(args: {
     useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
+  fixOptions: never
 }): Generator<Result>
 function visitNode(args: {
   args: {
@@ -210,7 +211,7 @@ function visitNode(args: {
     useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
-  fixOptions: { mode: 'FIX'; fixType: FixType }
+  fixOptions: FixOptions
 }): Generator<ProjectFiles | void>
 function* visitNode({
   args,
@@ -225,7 +226,7 @@ function* visitNode({
     useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
-  fixOptions?: { mode: 'FIX'; fixType: FixType }
+  fixOptions?: FixOptions
 }): Generator<Result | ProjectFiles | void> {
   const { rules, pathsToVisit, useExactPaths, ...data } = args
   const { files, value, path, memo, nodeType } = data
@@ -243,22 +244,31 @@ function* visitNode({
     !useExactPaths ||
     shouldSearchExactPath({ path: data.path, pathsToVisit })
   ) {
-    if (fixOptions) {
-      // We're fixing issues
-      for (const rule of rules) {
-        const fixedFiles = rule.fixes?.[fixOptions.fixType]?.(data, state)
-        if (fixedFiles) {
-          yield fixedFiles
-        }
-      }
-    } else {
-      // We're looking for issues
-      const results: Result[] = []
-      for (const rule of rules) {
-        // eslint-disable-next-line no-console
-        console.timeStamp(`Visiting rule ${rule.code}`)
-        rule.visit(
-          (path, details, fixes) => {
+    const results: Result[] = []
+    let fixedFiles: ProjectFiles | undefined
+    for (const rule of rules) {
+      // eslint-disable-next-line no-console
+      console.timeStamp(`Visiting rule ${rule.code}`)
+      rule.visit(
+        // Report callback used to report issues
+        (path, details, fixes) => {
+          if (fixOptions) {
+            // We're in "fix mode"
+            if (
+              // We only overwrite fixedFiles once to avoid conflicting fixes
+              !fixedFiles &&
+              // The current fix must be one of the fixes reported
+              fixes?.includes(fixOptions.fixType) &&
+              // The rule must have an implementation for the fix
+              rule.fixes?.[fixOptions.fixType]
+            ) {
+              const ruleFixes = rule.fixes[fixOptions.fixType]?.(data, state)
+              if (ruleFixes) {
+                fixedFiles = ruleFixes
+              }
+            }
+          } else {
+            // We're in "report mode"
             results.push({
               code: rule.code,
               category: rule.category,
@@ -267,12 +277,22 @@ function* visitNode({
               details,
               fixes,
             })
-          },
-          data,
-          state,
-        )
+          }
+        },
+        data,
+        state,
+      )
+      if (fixedFiles) {
+        // We have applied a fix, stop processing more rules
+        break
       }
+    }
 
+    if (fixOptions) {
+      if (fixedFiles) {
+        yield fixedFiles
+      }
+    } else {
       for (const result of results) {
         yield result
       }

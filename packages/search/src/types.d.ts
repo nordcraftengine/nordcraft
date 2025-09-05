@@ -23,8 +23,12 @@ import type {
 } from '@nordcraft/ssr/dist/ssr.types'
 import type { LegacyActionRuleFix } from './rules/actions/legacyActionRule'
 import type { NoReferenceProjectActionRuleFix } from './rules/actions/noReferenceProjectActionRule'
+import type { NoReferenceApiRuleFix } from './rules/apis/noReferenceApiRule'
+import type { NoReferenceAttributeRuleFix } from './rules/attributes/noReferenceAttributeRule'
 import type { NoReferenceComponentRuleFix } from './rules/components/noReferenceComponentRule'
+import type { NoReferenceEventRuleFix } from './rules/events/noReferenceEventRule'
 import type { LegacyFormulaRuleFix } from './rules/formulas/legacyFormulaRule'
+import type { NoReferenceComponentFormulaRuleFix } from './rules/formulas/noReferenceComponentFormulaRule'
 import type { NoReferenceProjectFormulaRuleFix } from './rules/formulas/noReferenceProjectFormulaRule'
 
 type Code =
@@ -251,9 +255,9 @@ type FormulaNode<F = Formula> = {
   component?: ToddleComponent<Function>
 } & Base
 
-type ActionModelNode = {
+type ActionModelNode<A = ActionModel> = {
   nodeType: 'action-model'
-  value: ActionModel
+  value: A
   component: ToddleComponent<Function>
 } & Base
 
@@ -320,6 +324,10 @@ type FixType =
   | NoReferenceComponentRuleFix
   | NoReferenceProjectFormulaRuleFix
   | NoReferenceProjectActionRuleFix
+  | NoReferenceApiRuleFix
+  | NoReferenceAttributeRuleFix
+  | NoReferenceEventRuleFix
+  | NoReferenceComponentFormulaRuleFix
 
 export interface Rule<T = unknown, V = NodeType> {
   category: Category
@@ -330,10 +338,10 @@ export interface Rule<T = unknown, V = NodeType> {
     data: V,
     state?: ApplicationState | undefined,
   ) => void
-  fixes?: Partial<
-    Record<
-      FixType,
-      (data: V, state?: ApplicationState | undefined) => ProjectFiles | void
-    >
-  >
+  fixes?: Partial<Record<FixType, FixFunction>>
 }
+
+export type FixFunction<T extends NodeType> = (
+  data: T,
+  state?: ApplicationState,
+) => ProjectFiles | void
