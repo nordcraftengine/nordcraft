@@ -92,7 +92,7 @@ describe('find noReferenceNodeRule', () => {
 })
 
 describe('fix noReferenceNodeRule', () => {
-  test.only('should delete nodes with no references', () => {
+  test('should delete nodes with no references', () => {
     const files: ProjectFiles = {
       formulas: {},
       components: {
