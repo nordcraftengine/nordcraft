@@ -32,7 +32,6 @@ import type { NoReferenceComponentFormulaRuleFix } from './rules/formulas/noRefe
 import type { NoReferenceProjectFormulaRuleFix } from './rules/formulas/noReferenceProjectFormulaRule'
 
 type Code =
-  | 'ambiguous style variable syntax'
   | 'duplicate event trigger'
   | 'duplicate url parameter'
   | 'duplicate workflow parameter'

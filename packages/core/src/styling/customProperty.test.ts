@@ -1,10 +1,7 @@
 import { describe, expect, test } from 'bun:test'
-import type { CustomProperty } from '../component/component.types'
 import type { CssSyntax, CssSyntaxNode } from './customProperty'
-import {
-  stringifySyntaxNode,
-  syntaxNodeToPropertyAtDefinition,
-} from './customProperty'
+import { renderSyntaxDefinition, stringifySyntaxNode } from './customProperty'
+import type { CustomPropertyDefinition } from './theme'
 
 describe('stringifySyntaxNode()', () => {
   ;['length', 'number', 'percentage', 'length-percentage', 'color'].forEach(
@@ -31,16 +28,18 @@ describe('stringifySyntaxNode()', () => {
   })
 })
 
-describe('syntaxNodeToPropertyAtDefinition()', () => {
+describe('renderSyntaxDefinition()', () => {
   test('it generates a valid property definition', () => {
-    const property: CustomProperty = {
+    const property: CustomPropertyDefinition = {
       syntax: {
         type: 'primitive',
         name: 'length',
       },
-      formula: { type: 'value', value: '10px' },
+      description: 'My custom property',
+      inherits: true,
+      initialValue: '0px',
     }
-    expect(syntaxNodeToPropertyAtDefinition('--my-property', property)).toBe(
+    expect(renderSyntaxDefinition('--my-property', property)).toBe(
       '@property --my-property {\n  syntax: "<length>";\n  inherits: true;\n  initial-value: 0px;\n}',
     )
   })
