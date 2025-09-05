@@ -332,7 +332,7 @@ type FixType =
   | NoReferenceComponentFormulaRuleFix
   | NoReferenceNodeRuleFix
 
-export interface Rule<T = unknown, V = NodeType, F = NodeType> {
+export interface Rule<T = unknown, V = NodeType> {
   category: Category
   code: Code
   level: Level
@@ -341,7 +341,7 @@ export interface Rule<T = unknown, V = NodeType, F = NodeType> {
     data: V,
     state?: ApplicationState | undefined,
   ) => void
-  fixes?: Partial<Record<FixType, FixFunction<F>>>
+  fixes?: Partial<Record<FixType, FixFunction>>
 }
 
 export type FixFunction<T extends NodeType> = (
