@@ -25,6 +25,7 @@ describe('find invalidStyleSyntaxRule', () => {
                     'max-width': 'calc(NOT VALID',
                     height: '/* 100px */ 22px',
                     '{': '100px',
+                    'border-width': '--my-var',
                   },
                   events: {},
                   classes: {},
