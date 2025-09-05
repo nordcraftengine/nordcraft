@@ -9,7 +9,7 @@
       "description": "The input string to be encoded."
     }
   ],
-  "description": "Encode a string to base64.",
+  "description": "Encode a string to base64. See [btoa on MDN](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa) for more information.",
   "output": {
     "description": "The base 64 encoded string.",
     "type": { "type": "String" }

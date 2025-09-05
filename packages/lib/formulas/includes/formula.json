@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Includes",
-  "description": "Test if an Array or String includes a specific item or value.",
+  "description": "Test if an Array or String includes a specific item or value. See [Array.prototype.includes on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes) and [String.prototype.includes on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes) for more information.",
   "arguments": [
     {
       "name": "Array",

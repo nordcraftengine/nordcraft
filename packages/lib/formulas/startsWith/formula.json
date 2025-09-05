@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Starts with",
-  "description": "Check if a String has a given prefix.",
+  "description": "Check if a String has a given prefix. See [String.prototype.startsWith on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith) for more information.",
   "arguments": [
     {
       "name": "String",

@@ -9,7 +9,7 @@
       "formula": { "type": "value", "value": "January 1, 1970" }
     }
   ],
-  "description": "Convert a string to a Date.",
+  "description": "Convert a string to a Date. See [Date constructor on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date) for more information.",
   "output": {
     "description": "The input value converted to a Date.",
     "type": { "type": "Date" }

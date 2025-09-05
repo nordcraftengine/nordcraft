@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Min",
-  "description": "Find the smallest Number from a list of inputs.",
+  "description": "Find the smallest Number from a list of inputs. See [Math.min on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min) for more information.",
   "arguments": [
     {
       "name": "0",

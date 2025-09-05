@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Entries",
-  "description": "Get an Array of entries from a given Object.",
+  "description": "Get an Array of entries from a given Object. See [Object.entries on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) for more information.",
   "arguments": [
     {
       "name": "Object",

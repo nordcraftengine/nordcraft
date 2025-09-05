@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Filter",
-  "description": "Return a new Array containing only the elements for which the provided formula evaluates to True.",
+  "description": "Return a new Array containing only the elements for which the provided formula evaluates to True. See [Array.prototype.filter on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) for more information.",
   "arguments": [
     {
       "name": "Array",

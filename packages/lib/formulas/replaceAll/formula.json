@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Replace all",
-  "description": "Replace all occurrences of a substring in a String.",
+  "description": "Replace all occurrences of a substring in a String. See [String.prototype.replaceAll on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll) for more information.",
   "arguments": [
     {
       "name": "Input",

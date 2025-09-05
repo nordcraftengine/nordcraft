@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Index of",
-  "description": "Find the index of a specific item in an Array or String.",
+  "description": "Find the index of a specific item in an Array or String. See [Array.prototype.indexOf on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf) and [String.prototype.indexOf on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf) for more information.",
   "arguments": [
     {
       "name": "Array",

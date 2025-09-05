@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Reduce",
-  "description": "Reduce a group of items to a single value by applying each item to a reducer formula.",
+  "description": "Reduce a group of items to a single value by applying each item to a reducer formula. See [Array.prototype.reduce on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce) for more information.",
   "arguments": [
     {
       "name": "Array",

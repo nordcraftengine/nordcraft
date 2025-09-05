@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Trim",
-  "description": "Remove any leading and trailing white spaces from a String.",
+  "description": "Remove any leading and trailing white spaces from a String. See [String.prototype.trim on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trim) for more information.",
   "arguments": [
     {
       "name": "String",

@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Matches",
-  "description": "Finds the (global) matches in a String based on a regular expression.",
+  "description": "Finds the (global) matches in a String based on a regular expression. See [String.prototype.match on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match) for more information.",
   "arguments": [
     {
       "name": "Input",

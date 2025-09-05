@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get from Session Storage",
-  "description": "Read a value from session storage with the provided key.",
+  "description": "Read a value from session storage with the provided key. See [Window.sessionStorage on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage) for more information.",
   "cache": false,
   "arguments": [
     {

@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Sort by",
-  "description": "Sort an Array using a formula.",
+  "description": "Sort an Array using a formula. See [Array.prototype.sort on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) for more information.",
   "arguments": [
     {
       "name": "Array",
