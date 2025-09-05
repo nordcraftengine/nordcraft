@@ -30,6 +30,7 @@ import type { NoReferenceEventRuleFix } from './rules/events/noReferenceEventRul
 import type { LegacyFormulaRuleFix } from './rules/formulas/legacyFormulaRule'
 import type { NoReferenceComponentFormulaRuleFix } from './rules/formulas/noReferenceComponentFormulaRule'
 import type { NoReferenceProjectFormulaRuleFix } from './rules/formulas/noReferenceProjectFormulaRule'
+import { NoReferenceNodeRuleFix } from './rules/noReferenceNodeRule'
 
 type Code =
   | 'ambiguous style variable syntax'
@@ -329,8 +330,9 @@ type FixType =
   | NoReferenceAttributeRuleFix
   | NoReferenceEventRuleFix
   | NoReferenceComponentFormulaRuleFix
+  | NoReferenceNodeRuleFix
 
-export interface Rule<T = unknown, V = NodeType> {
+export interface Rule<T = unknown, V = NodeType, F = NodeType> {
   category: Category
   code: Code
   level: Level
@@ -339,7 +341,7 @@ export interface Rule<T = unknown, V = NodeType> {
     data: V,
     state?: ApplicationState | undefined,
   ) => void
-  fixes?: Partial<Record<FixType, FixFunction>>
+  fixes?: Partial<Record<FixType, FixFunction<F>>>
 }
 
 export type FixFunction<T extends NodeType> = (
