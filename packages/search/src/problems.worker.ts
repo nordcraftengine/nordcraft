@@ -42,7 +42,6 @@ import { noUnnecessaryConditionTruthy } from './rules/logic/noUnnecessaryConditi
 import { requireExtensionRule } from './rules/requireExtensionRule'
 import { unknownClassnameRule } from './rules/slots/unknownClassnameRule'
 import { unknownComponentSlotRule } from './rules/slots/unknownComponentSlotRule'
-import { ambiguousStyleVariableSyntaxRule } from './rules/style-variables/ambiguousStyleVariableSyntaxRule'
 import { unknownCookieRule } from './rules/unknownCookieRule'
 import { duplicateUrlParameterRule } from './rules/urlParameters/duplicateUrlParameterRule'
 import { unknownSetUrlParameterRule } from './rules/urlParameters/unknownSetUrlParameterRule'
@@ -190,7 +189,6 @@ const RULES = [
   unknownVariableRule,
   unknownVariableSetterRule,
   unknownWorkflowParameterRule,
-  ambiguousStyleVariableSyntaxRule,
 ]
 
 interface FindProblemsArgs {
