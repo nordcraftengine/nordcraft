@@ -166,6 +166,64 @@ describe('API proxy', () => {
     )
     expect(res.status).toBe(200)
   })
+  it('Should replace form-urlencoded request body with template values', async () => {
+    // Create the test client from the app instance
+    const client = testClient(
+      new Hono().post(
+        '.toddle/omvej/components/:componentName/apis/:apiName',
+        proxyRequestHandler,
+      ),
+    )
+    const targetUrl = new URL('https://example.com/api')
+
+    // The mockPostExample represents the target server's response
+    const mockPostExample = async (req: Request) => {
+      const url = new URL(req.url)
+      expect(url.pathname).toBe(targetUrl.pathname)
+      expect(req.method).toBe('POST')
+      const body = await req.text()
+      // The form data should have been updated with template values
+      const params = new URLSearchParams(body)
+      expect(params.get('username')).toBe('test_user')
+      expect(params.get('token')).toBe('my_refresh_token') // Template value applied
+      expect(params.get('action')).toBe('login')
+      // The PROXY_URL_HEADER should be removed from the request headers
+      expect(req.headers.get(PROXY_URL_HEADER)).toBeNull()
+      expect(req.headers.get(PROXY_TEMPLATES_IN_BODY)).toBeNull()
+      return new Response(`{"success":true}`, { status: 200 })
+    }
+
+    spyFetch.mockImplementation(mockPostExample as any)
+    const formData = new URLSearchParams()
+    formData.append('username', 'test_user')
+    formData.append('token', STRING_TEMPLATE('cookies', 'refresh_token'))
+    formData.append('action', 'login')
+
+    const res = await client['.toddle']['omvej']['components'][
+      ':componentName'
+    ]['apis'][':apiName'].$post(
+      {
+        param: {
+          componentName: 'MyComponent',
+          apiName: 'MyApi',
+        },
+      },
+      {
+        headers: {
+          // The destination url
+          [PROXY_URL_HEADER]: targetUrl.href,
+          // Indicates that the body should be read and template values applied
+          [PROXY_TEMPLATES_IN_BODY]: 'true',
+          Cookie: 'refresh_token=my_refresh_token; Path=/; HttpOnly',
+          ['Content-Type']: 'application/x-www-form-urlencoded',
+        },
+        init: {
+          body: formData.toString(),
+        },
+      },
+    )
+    expect(res.status).toBe(200)
+  })
   afterAll(() => {
     spyFetch.mockRestore()
   })
