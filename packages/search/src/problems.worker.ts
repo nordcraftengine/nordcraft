@@ -39,6 +39,7 @@ import { unknownRepeatIndexFormulaRule } from './rules/formulas/unknownRepeatInd
 import { unknownRepeatItemFormulaRule } from './rules/formulas/unknownRepeatItemFormulaRule'
 import { noUnnecessaryConditionFalsy } from './rules/logic/noUnnecessaryConditionFalsy'
 import { noUnnecessaryConditionTruthy } from './rules/logic/noUnnecessaryConditionTruthy'
+import { noReferenceNodeRule } from './rules/noReferenceNodeRule'
 import { requireExtensionRule } from './rules/requireExtensionRule'
 import { unknownClassnameRule } from './rules/slots/unknownClassnameRule'
 import { unknownComponentSlotRule } from './rules/slots/unknownComponentSlotRule'
@@ -156,6 +157,7 @@ const RULES = [
   noReferenceComponentRule,
   noReferenceComponentWorkflowRule,
   noReferenceEventRule,
+  noReferenceNodeRule,
   noReferenceProjectActionRule,
   noReferenceProjectFormulaRule,
   noReferenceVariableRule,
