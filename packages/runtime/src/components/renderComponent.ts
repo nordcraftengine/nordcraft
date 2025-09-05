@@ -5,6 +5,7 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import type { Toddle } from '@nordcraft/core/dist/types'
+import { measure } from '@nordcraft/core/dist/utils/measure'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
@@ -86,15 +87,26 @@ export function renderComponent({
     env,
   }
 
-  const rootElem = createNode({
-    id: 'root',
-    path,
-    dataSignal,
-    ctx,
-    parentElement,
-    namespace,
-    instance,
-  })
+  let rootElem: ReadonlyArray<Element | Text> = []
+  measure(
+    `renderComponent(${component.name})`,
+    {
+      component: component.name,
+      path,
+    },
+    () => {
+      rootElem = createNode({
+        id: 'root',
+        path,
+        dataSignal,
+        ctx,
+        parentElement,
+        namespace,
+        instance,
+      })
+    },
+  )
+
   BATCH_QUEUE.add(() => {
     let prev: Record<string, any> | undefined
     if (
@@ -137,10 +149,20 @@ export function renderComponent({
           prev = props
         })
     }
-    component.onLoad?.actions.forEach((action) => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      handleAction(action, dataSignal.get(), ctx)
-    })
+
+    measure(
+      `onLoad(${component.name})`,
+      {
+        component: component.name,
+        path,
+      },
+      () => {
+        component.onLoad?.actions.forEach((action) => {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          handleAction(action, dataSignal.get(), ctx)
+        })
+      },
+    )
   })
   return rootElem
 }

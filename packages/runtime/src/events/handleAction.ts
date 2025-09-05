@@ -7,6 +7,7 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { mapValues, omitKeys } from '@nordcraft/core/dist/utils/collections'
+import { measure } from '@nordcraft/core/dist/utils/measure'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
@@ -53,24 +54,31 @@ export function handleAction(
         break
       }
       case 'SetVariable': {
-        const value = applyFormula(action.data, {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        })
-        ctx.dataSignal.update((data) => {
-          return {
-            ...data,
-            Variables: {
-              ...data.Variables,
-              [action.variable]: value,
-            },
-          }
-        })
+        // SetVariable itself is not expensive, but subsequent deep equal checks is often a major cause of performance issues
+        measure(
+          `SetVariable(${action.variable})`,
+          { component: ctx.component.name },
+          () => {
+            const value = applyFormula(action.data, {
+              data,
+              component: ctx.component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+            })
+            ctx.dataSignal.update((data) => {
+              return {
+                ...data,
+                Variables: {
+                  ...data.Variables,
+                  [action.variable]: value,
+                },
+              }
+            })
+          },
+        )
         break
       }
       case 'TriggerEvent': {
@@ -313,18 +321,26 @@ export function handleAction(
             }
             return
           }
-
-          workflow.actions.forEach((action) =>
-            handleAction(
-              action,
-              {
-                ...data,
-                ...provider.ctx.dataSignal.get(),
-                Parameters: parameters,
-              },
-              provider.ctx,
-              event,
-            ),
+          measure(
+            `TriggerWorkflow(${workflow.name})`,
+            {
+              component: ctx.component.name,
+              provider: provider.component.name,
+            },
+            () => {
+              workflow.actions.forEach((action) =>
+                handleAction(
+                  action,
+                  {
+                    ...data,
+                    ...provider.ctx.dataSignal.get(),
+                    Parameters: parameters,
+                  },
+                  provider.ctx,
+                  event,
+                ),
+              )
+            },
           )
           return
         }
@@ -336,18 +352,23 @@ export function handleAction(
           )
           return
         }
-
-        workflow.actions.forEach((action) =>
-          handleAction(
-            action,
-            {
-              ...data,
-              ...ctx.dataSignal.get(),
-              Parameters: parameters,
-            },
-            ctx,
-            event,
-          ),
+        measure(
+          `TriggerWorkflow(${workflow.name})`,
+          { component: ctx.component.name },
+          () => {
+            workflow.actions.forEach((action) =>
+              handleAction(
+                action,
+                {
+                  ...data,
+                  ...ctx.dataSignal.get(),
+                  Parameters: parameters,
+                },
+                ctx,
+                event,
+              ),
+            )
+          },
         )
         break
       }
