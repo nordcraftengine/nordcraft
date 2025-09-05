@@ -73,10 +73,12 @@ export const proxyRequestHandler = async (
           // Parse form data, apply templates to values, then re-encode
           templateBody = new URLSearchParams(
             Object.fromEntries(
-              new URLSearchParams(bodyText).entries().map(([key, value]) => [
-                key,
-                applyTemplateValues(value, requestCookies),
-              ]),
+              new URLSearchParams(bodyText)
+                .entries()
+                .map(([key, value]) => [
+                  key,
+                  applyTemplateValues(value, requestCookies),
+                ]),
             ),
           ).toString()
         } else {
