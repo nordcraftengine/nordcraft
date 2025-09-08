@@ -24,12 +24,12 @@ export const invalidStyleSyntaxRule: Rule<{
       },
     )
     if (!valid) {
-      report(path, { property: value.styleProperty }, ['delete style property'])
+      report(path, { property: value.styleProperty }, ['delete-style-property'])
     }
   },
   fixes: {
-    'delete style property': removeFromPathFix,
+    'delete-style-property': removeFromPathFix,
   },
 }
 
-export type InvalidStyleSyntaxRuleFix = 'delete style property'
+export type InvalidStyleSyntaxRuleFix = 'delete-style-property'

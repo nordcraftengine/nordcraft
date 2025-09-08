@@ -6,22 +6,29 @@ export const noReferenceNodeRule: Rule<{ node: string }> = {
   level: 'warning',
   category: 'No References',
   visit: (report, args) => {
-    if (args.nodeType !== 'component') {
+    if (args.nodeType !== 'component-node') {
       return
     }
-    const { path, value: component } = args
-    const referencedNodes = new Set(
-      Object.values(component.nodes).flatMap((node) => node.children ?? []),
+    const { path, component } = args
+    const nodeId = path.at(-1)
+    if (typeof nodeId !== 'string') {
+      return
+    }
+    const referencedNodesInComponent = args.memo(
+      `node-references-${component.name}`,
+      () =>
+        new Set(
+          Object.values(component.nodes).flatMap((node) => node.children ?? []),
+        ),
     )
-    for (const key of Object.keys(component.nodes)) {
-      if (key !== 'root' && !referencedNodes.has(key)) {
-        report([...path, 'nodes', key], { node: key }, ['delete orphan node'])
-      }
+
+    if (nodeId !== 'root' && !referencedNodesInComponent.has(nodeId)) {
+      report(path, { node: nodeId }, ['delete-orphan-node'])
     }
   },
   fixes: {
-    'delete orphan node': removeFromPathFix,
+    'delete-orphan-node': removeFromPathFix,
   },
 }
 
-export type NoReferenceNodeRuleFix = 'delete orphan node'
+export type NoReferenceNodeRuleFix = 'delete-orphan-node'

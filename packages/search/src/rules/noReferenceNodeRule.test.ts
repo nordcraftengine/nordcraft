@@ -130,7 +130,7 @@ describe('fix noReferenceNodeRule', () => {
     const fixedFiles = fixProject({
       files,
       rule: noReferenceNodeRule,
-      fixType: 'delete orphan node',
+      fixType: 'delete-orphan-node',
     })
     expect(Object.keys(fixedFiles.components.test!.nodes)).toEqual([
       'root',
