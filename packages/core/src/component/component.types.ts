@@ -1,6 +1,5 @@
 import type { ApiStatus, ComponentAPI, LegacyApiStatus } from '../api/apiTypes'
 import type { Formula } from '../formula/formula'
-import type { CssSyntaxNode } from '../styling/customProperty'
 import type { StyleTokenCategory } from '../styling/theme'
 import type { NordcraftMetadata, RequireFields } from '../types'
 
@@ -81,9 +80,7 @@ export interface TextNodeModel {
 export type CustomPropertyName = `--${string}`
 
 export type CustomProperty = {
-  syntax: CssSyntaxNode
   formula: Formula
-  description?: string
 }
 
 /**

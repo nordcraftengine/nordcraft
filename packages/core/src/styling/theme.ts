@@ -1,3 +1,5 @@
+import type { CustomPropertyName } from '../component/component.types'
+import { renderSyntaxDefinition, type CssSyntaxNode } from './customProperty'
 import { RESET_STYLES } from './theme.const'
 
 export interface ThemeOptions {
@@ -79,13 +81,35 @@ export type Theme = {
   'border-radius': StyleTokenGroup[]
   shadow: StyleTokenGroup[]
   'z-index': StyleTokenGroup[]
+  categories?: Record<string, CustomCategory>
+}
+
+export type CustomCategory = {
+  propertyDefinitions: Record<CustomPropertyName, CustomPropertyDefinition>
+}
+
+export type CustomPropertyDefinition = {
+  syntax: CssSyntaxNode
+  inherits: boolean
+  initialValue: string
+  description: string
 }
 
 export const getThemeCss = (theme: Theme | OldTheme, options: ThemeOptions) => {
   if ('breakpoints' in theme) {
     return getOldThemeCss(theme)
   }
-  return `${options.includeResetStyle ? RESET_STYLES : ''}
+
+  return `${Object.values(theme.categories ?? {})
+    .map((category) =>
+      Object.entries(category.propertyDefinitions)
+        .map(([propertyName, property]) =>
+          renderSyntaxDefinition(propertyName as CustomPropertyName, property),
+        )
+        .join('\n'),
+    )
+    .join('\n')}
+${options.includeResetStyle ? RESET_STYLES : ''}
 @layer base {
   ${
     options.createFontFaces
@@ -117,12 +141,12 @@ export const getThemeCss = (theme: Theme | OldTheme, options: ThemeOptions) => {
   }
   body, :host {
     /* Color */
-      ${theme.color
-        .flatMap((group) =>
-          group.tokens.map((color) => `--${color.name}: ${color.value};`),
-        )
-        .join('\n')}
-  /* Fonts */
+    ${theme.color
+      .flatMap((group) =>
+        group.tokens.map((color) => `--${color.name}: ${color.value};`),
+      )
+      .join('\n')}
+    /* Fonts */
     ${theme.fonts
       .map((font) => `--font-${font.name}: '${font.family}',${font.type};`)
       .join('\n')}
@@ -244,10 +268,6 @@ export const getOldThemeCss = (theme: OldTheme) => {
       ),
   )
   return `
-
-
-
-
 body, :host {
   ${Object.entries(theme.fontFamily)
     .map(
@@ -270,7 +290,6 @@ body, :host {
 
   --spacing:${theme.spacing}rem;
     ${colorVars.join(';\n')};
-
 
   --text-xxs:0.625rem;
   --line-height-xxs:0.9rem;
@@ -317,7 +336,6 @@ ${RESET_STYLES}
     transform: rotate(360deg);
   }
 }
-
 @keyframes animation-fade-in {
   from {
     opacity:0;
@@ -326,8 +344,6 @@ ${RESET_STYLES}
     opacity:1;
   }
 }
-
-
 @keyframes animation-fade-out {
   from {
     opacity:1;

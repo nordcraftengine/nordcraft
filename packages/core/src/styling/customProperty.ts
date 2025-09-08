@@ -1,4 +1,5 @@
-import type { CustomProperty } from '../component/component.types'
+import type { CustomPropertyName } from '../component/component.types'
+import type { CustomPropertyDefinition } from './theme'
 
 // See https://developer.mozilla.org/en-US/docs/Web/CSS/@property/syntax
 export type CssSyntax =
@@ -17,6 +18,7 @@ export type CssSyntax =
   | 'transform-function'
   | 'transform-list'
   | 'url'
+  | '*'
 
 export type CssSyntaxNode =
   | {
@@ -27,29 +29,6 @@ export type CssSyntaxNode =
       type: 'keyword'
       keywords: string[]
     }
-
-/**
- * Default initial values for CSS properties based on their syntax type.
- *
- * Note: Eventually, the initial values may be set in a theme or somewhere global.
- */
-const DEFAULT_INITIAL_VALUE_BY_SYNTAX: Record<CssSyntax, string> = {
-  length: '0px',
-  number: '0',
-  percentage: '0%',
-  color: 'transparent',
-  image: 'none',
-  url: 'none',
-  integer: '0',
-  angle: '0deg',
-  time: '0s',
-  resolution: '1dppx',
-  'transform-function': 'none',
-  'custom-ident': '',
-  string: '',
-  'length-percentage': '0px',
-  'transform-list': 'none',
-}
 
 export function stringifySyntaxNode(node: CssSyntaxNode): string {
   switch (node.type) {
@@ -62,13 +41,18 @@ export function stringifySyntaxNode(node: CssSyntaxNode): string {
   }
 }
 
-export function syntaxNodeToPropertyAtDefinition(
-  name: string,
-  property: CustomProperty,
+/*
+TODO: `initialValue` does not support referencing other properties (e.g. var(--some-other-property))
+To Fix this, we could either statically solve by accessing theme at SSR, but to handle theme-switching at runtime,
+we would instead need to do `:root { --my-property: var(--some-other-property); }` for properties that need to reference other properties.
+*/
+export function renderSyntaxDefinition(
+  key: CustomPropertyName,
+  { syntax, inherits, initialValue }: CustomPropertyDefinition,
 ): string {
-  return `@property ${name} {
-  syntax: "${stringifySyntaxNode(property.syntax)}";
-  inherits: true;
-  initial-value: ${property.syntax.type === 'primitive' ? DEFAULT_INITIAL_VALUE_BY_SYNTAX[property.syntax.name] : '""' /* default for non-primitive types */};
+  return `@property ${key} {
+  syntax: "${stringifySyntaxNode(syntax)}";
+  inherits: ${String(inherits)};
+  initial-value: ${initialValue};
 }`
 }
