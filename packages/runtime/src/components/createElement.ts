@@ -205,7 +205,7 @@ export function createElement({
 
   Object.values(node.events).forEach((event) => {
     const handler = (e: Event) => {
-      event.actions.forEach((action) => {
+      event?.actions.forEach((action) => {
         if (e instanceof DragEvent) {
           ;(e as any).data = getDragData(e)
         }
@@ -232,7 +232,9 @@ export function createElement({
       })
       return false
     }
-    elem.addEventListener(event.trigger, handler)
+    if (event) {
+      elem.addEventListener(event.trigger, handler)
+    }
   })
 
   // for script, style & SVG<text> tags we only render text child.

@@ -6,7 +6,6 @@ import type {
   NodeModel,
 } from '@nordcraft/core/dist/component/component.types'
 import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 export const removeTestData = (component: Component): Component => ({
   ...component,
@@ -15,15 +14,17 @@ export const removeTestData = (component: Component): Component => ({
     omitKeys(value, ['testValue']),
   ]),
   nodes: mapObject(component.nodes, ([key, value]) => {
-    if ('events' in value && isDefined(value.events)) {
+    if (value.type === 'element') {
       const updatedNode: NodeModel = {
         ...value,
         events: mapObject(value.events, ([eventKey, eventValue]) => [
           eventKey,
-          {
-            ...eventValue,
-            actions: eventValue.actions.map(removeActionTestData),
-          },
+          eventValue
+            ? {
+                ...eventValue,
+                actions: eventValue.actions.map(removeActionTestData),
+              }
+            : null,
         ]),
       }
       return [key, updatedNode as NodeModel]

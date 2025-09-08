@@ -197,7 +197,7 @@ describe('fix legacyActions', () => {
     })
     const fixedAction = (
       fixedProject.components['apiComponent']?.nodes['root'] as ElementNodeModel
-    ).events['click'].actions[0]
+    ).events['click']?.actions[0]
     expect(fixedAction).toMatchInlineSnapshot(`
       {
         "cases": [
@@ -321,7 +321,7 @@ describe('fix legacyActions', () => {
     })
     const fixedAction = (
       fixedProject.components['apiComponent']?.nodes['root'] as ElementNodeModel
-    ).events['click'].actions[0]
+    ).events['click']?.actions[0]
     expect(fixedAction).toMatchInlineSnapshot(`
       {
         "data": {
@@ -378,7 +378,7 @@ describe('fix legacyActions', () => {
     })
     const fixedAction = (
       fixedProject.components['apiComponent']?.nodes['root'] as ElementNodeModel
-    ).events['click'].actions[0]
+    ).events['click']?.actions[0]
     expect(fixedAction).toMatchInlineSnapshot(`
       {
         "arguments": [
