@@ -6,7 +6,8 @@
   "homepage": "https://github.com/nordcraftengine/nordcraft",
   "dependencies": {
     "@nordcraft/ssr": "workspace:*",
-    "jsondiffpatch": "0.7.3"
+    "jsondiffpatch": "0.7.3",
+    "postcss": "8.5.6"
   },
   "scripts": {
     "build": "tsc",

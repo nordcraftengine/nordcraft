@@ -43,6 +43,7 @@ import { noReferenceNodeRule } from './rules/noReferenceNodeRule'
 import { requireExtensionRule } from './rules/requireExtensionRule'
 import { unknownClassnameRule } from './rules/slots/unknownClassnameRule'
 import { unknownComponentSlotRule } from './rules/slots/unknownComponentSlotRule'
+import { invalidStyleSyntaxRule } from './rules/style/invalidStyleSyntaxRule'
 import { unknownCookieRule } from './rules/unknownCookieRule'
 import { duplicateUrlParameterRule } from './rules/urlParameters/duplicateUrlParameterRule'
 import { unknownSetUrlParameterRule } from './rules/urlParameters/unknownSetUrlParameterRule'
@@ -144,6 +145,7 @@ const RULES = [
   duplicateWorkflowParameterRule,
   elementWithoutInteractiveContentRule,
   imageWithoutDimensionRule,
+  invalidStyleSyntaxRule,
   legacyActionRule,
   legacyApiRule,
   legacyFormulaRule,

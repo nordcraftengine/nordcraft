@@ -263,6 +263,8 @@ function* visitNode({
               rule.fixes?.[fixOptions.fixType]
             ) {
               const ruleFixes = rule.fixes[fixOptions.fixType]?.(
+                // We must use the path from the report, not the original path
+                // because the report might be for a subpath
                 { ...data, path },
                 state,
               )
@@ -573,6 +575,25 @@ function* visitNode({
               fixOptions: fixOptions as any,
             })
           }
+        }
+        for (const [styleKey, styleValue] of Object.entries(
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          value.style ?? {},
+        )) {
+          yield* visitNode({
+            args: {
+              nodeType: 'style-declaration',
+              value: { styleProperty: styleKey, styleValue, element: value },
+              path: [...path, 'style', styleKey],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
         }
       }
       break
