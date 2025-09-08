@@ -8,16 +8,23 @@ export const invalidStyleSyntaxRule: Rule<{
   code: 'invalid style syntax',
   level: 'error',
   category: 'Quality',
-  visit: (report, { nodeType, value, path }) => {
-    if (nodeType !== 'style') {
+  visit: (report, { nodeType, value, path, memo }) => {
+    if (nodeType !== 'style-declaration') {
       return
     }
-    for (const [prop, val] of Object.entries(value.style)) {
-      try {
-        parse(`${prop}: ${val}`)
-      } catch {
-        report([...path, prop], { property: prop }, ['delete style property'])
-      }
+    const valid = memo(
+      `valid-style-${value.styleProperty}:${value.styleValue}`,
+      () => {
+        try {
+          parse(`${value.styleProperty}: ${value.styleValue}`)
+          return true
+        } catch {
+          return false
+        }
+      },
+    )
+    if (!valid) {
+      report(path, { property: value.styleProperty }, ['delete style property'])
     }
   },
   fixes: {

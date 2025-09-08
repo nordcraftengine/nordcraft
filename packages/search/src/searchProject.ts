@@ -576,20 +576,25 @@ function* visitNode({
             })
           }
         }
-        yield* visitNode({
-          args: {
-            nodeType: 'style',
-            value: { style: value.style, element: value },
-            path: [...path, 'style'],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
+        for (const [styleKey, styleValue] of Object.entries(
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          value.style ?? {},
+        )) {
+          yield* visitNode({
+            args: {
+              nodeType: 'style-declaration',
+              value: { styleProperty: styleKey, styleValue, element: value },
+              path: [...path, 'style', styleKey],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
       }
       break
 

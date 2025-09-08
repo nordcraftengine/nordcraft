@@ -8,7 +8,6 @@ import type {
   Component,
   ElementNodeModel,
   NodeModel,
-  NodeStyleModel,
   StyleVariant,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
@@ -302,8 +301,12 @@ type StyleVariantNode = {
 } & Base
 
 type StyleNode = {
-  nodeType: 'style'
-  value: { style: NodeStyleModel; element: ElementNodeModel }
+  nodeType: 'style-declaration'
+  value: {
+    styleProperty: string
+    styleValue: string
+    element: ElementNodeModel
+  }
 } & Base
 
 export type NodeType =
