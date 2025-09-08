@@ -1,4 +1,5 @@
 import type { Rule } from '../../types'
+import { contextlessEvaluateFormula } from '../../util/contextlessEvaluateFormula'
 
 export const noUnnecessaryConditionTruthy: Rule = {
   code: 'no-unnecessary-condition-truthy',
@@ -10,14 +11,15 @@ export const noUnnecessaryConditionTruthy: Rule = {
     }
 
     if (
-      value.arguments.some(
-        (arg) =>
-          (arg.formula.type === 'value' &&
-            Boolean(arg.formula.value) === true) ||
-          // Objects and arrays, even empty ones, are always truthy
-          arg.formula.type === 'object' ||
-          arg.formula.type === 'array',
-      )
+      value.arguments.some((arg) => {
+        // Objects and arrays, even empty ones, are always truthy
+        if (arg.formula.type === 'object' || arg.formula.type === 'array') {
+          return true
+        }
+
+        const { result, isStatic } = contextlessEvaluateFormula(arg.formula)
+        return isStatic && Boolean(result) === true
+      })
     ) {
       report(path)
     }
