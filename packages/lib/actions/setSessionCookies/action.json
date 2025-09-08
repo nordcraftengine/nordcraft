@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libAction.schema.json",
   "name": "Set session cookies",
-  "description": "Save authentication tokens as session cookies.",
+  "description": "DEPRECATED: Use the [\"Set HttpOnly cookie\" action](https://docs.nordcraft.com/references/actions#set-http-only-cookie) instead. Save authentication tokens as session cookies.",
   "group": "cookies",
   "arguments": [
     {
