@@ -262,7 +262,10 @@ function* visitNode({
               // The rule must have an implementation for the fix
               rule.fixes?.[fixOptions.fixType]
             ) {
-              const ruleFixes = rule.fixes[fixOptions.fixType]?.(data, state)
+              const ruleFixes = rule.fixes[fixOptions.fixType]?.(
+                { ...data, path },
+                state,
+              )
               if (ruleFixes) {
                 fixedFiles = ruleFixes
               }

@@ -14,9 +14,9 @@ import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleCompo
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Theme } from '@nordcraft/core/dist/styling/theme'
+import type { PluginAction } from '@nordcraft/core/dist/types'
 import type {
   ApiService,
-  PluginAction,
   ProjectFiles,
   Route,
   ToddleProject,
@@ -30,6 +30,7 @@ import type { NoReferenceEventRuleFix } from './rules/events/noReferenceEventRul
 import type { LegacyFormulaRuleFix } from './rules/formulas/legacyFormulaRule'
 import type { NoReferenceComponentFormulaRuleFix } from './rules/formulas/noReferenceComponentFormulaRule'
 import type { NoReferenceProjectFormulaRuleFix } from './rules/formulas/noReferenceProjectFormulaRule'
+import type { NoReferenceNodeRuleFix } from './rules/noReferenceNodeRule'
 
 type Code =
   | 'duplicate event trigger'
@@ -52,6 +53,7 @@ type Code =
   | 'no-reference component workflow'
   | 'no-reference component'
   | 'no-reference event'
+  | 'no-reference node'
   | 'no-reference project action'
   | 'no-reference project formula'
   | 'no-reference variable'
@@ -327,6 +329,7 @@ type FixType =
   | NoReferenceAttributeRuleFix
   | NoReferenceEventRuleFix
   | NoReferenceComponentFormulaRuleFix
+  | NoReferenceNodeRuleFix
 
 export interface Rule<T = unknown, V = NodeType> {
   category: Category
