@@ -92,7 +92,7 @@ describe('fix invalidStyleSyntaxRule', () => {
     const fixedFiles = fixProject({
       files,
       rule: invalidStyleSyntaxRule,
-      fixType: 'delete style property',
+      fixType: 'delete-style-property',
     })
     expect((fixedFiles.components.test!.nodes.root as ElementNodeModel).style)
       .toMatchInlineSnapshot(`
