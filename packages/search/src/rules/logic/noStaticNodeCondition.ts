@@ -9,7 +9,7 @@ export const noStaticNodeCondition: Rule<{
   result: ReturnType<typeof contextlessEvaluateFormula>['result']
 }> = {
   code: 'no-static-node-condition',
-  level: 'info',
+  level: 'warning',
   category: 'Quality',
   visit: (report, { path: nodePath, value, nodeType }) => {
     if (nodeType !== 'component-node' || !value.condition) {
