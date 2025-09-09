@@ -12,10 +12,9 @@ import { type Formula } from '@nordcraft/core/dist/formula/formula'
  * }
  *
  * TODO: Make this function more capable of evaluating pure core formulas.
- * TODO: Memorize the results (using path or a fast hash) to avoid re-evaluating any similar sub-graphs multiple times.
+ * TODO: Memoize the results (using path or a fast hash) to avoid re-evaluating any similar sub-graphs multiple times.
  * TODO: Add a complex test-suite to ensure it works and develops as expected.
  */
-
 export const contextlessEvaluateFormula = (
   formula: Formula,
 ): {
