@@ -214,6 +214,7 @@ export interface ComponentFormula extends NordcraftMetadata {
 export interface ComponentWorkflow extends NordcraftMetadata {
   name: string
   parameters: Array<{ name: string; testValue: any }>
+  callbacks?: Array<{ name: string; testValue: any }>
   actions: ActionModel[]
   exposeInContext?: boolean
 }
@@ -354,7 +355,14 @@ export interface WorkflowActionModel {
   type: 'TriggerWorkflow'
   workflow: string
   parameters: Record<string, { formula: Formula }>
+  callbacks?: Record<string, { actions: ActionModel[] }>
   contextProvider?: string
+}
+
+export interface WorkflowCallbackActionModel {
+  type: 'TriggerWorkflowCallback'
+  event: string
+  data: Formula
 }
 
 export type ActionModel =
@@ -366,6 +374,7 @@ export type ActionModel =
   | SetURLParameterAction
   | SetMultiUrlParameterAction
   | WorkflowActionModel
+  | WorkflowCallbackActionModel
 
 export interface ComponentEvent extends NordcraftMetadata {
   name: string

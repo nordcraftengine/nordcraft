@@ -19,6 +19,7 @@ export function handleAction(
   data: ComponentData,
   ctx: ComponentContext,
   event?: Event,
+  workflowCallback?: (event: string, data: unknown) => void,
 ) {
   try {
     if (!action) {
@@ -48,7 +49,13 @@ export function handleAction(
         // handle all actions for the case
         for (const action of actionList.actions) {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          handleAction(action, { ...data, ...ctx.dataSignal.get() }, ctx, event)
+          handleAction(
+            action,
+            { ...data, ...ctx.dataSignal.get() },
+            ctx,
+            event,
+            workflowCallback,
+          )
         }
         break
       }
@@ -84,6 +91,19 @@ export function handleAction(
           env: ctx.env,
         })
         ctx.triggerEvent(action.event, payload)
+        break
+      }
+      case 'TriggerWorkflowCallback': {
+        const payload = applyFormula(action.data, {
+          data,
+          component: ctx.component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+        })
+        workflowCallback?.(action.event, payload)
         break
       }
       case 'SetURLParameter': {
@@ -271,6 +291,7 @@ export function handleAction(
                 { ...data, ...ctx.dataSignal.get() },
                 ctx,
                 event,
+                workflowCallback,
               )
             }
           }
@@ -298,7 +319,7 @@ export function handleAction(
             env: ctx.env,
           }),
         )
-
+        const callbacks = action.callbacks
         if (action.contextProvider) {
           const provider =
             ctx.providers[
@@ -324,6 +345,23 @@ export function handleAction(
               },
               provider.ctx,
               event,
+              (callbackName, callbackData) => {
+                const callback = callbacks?.[callbackName]
+                callback?.actions.forEach((action) =>
+                  handleAction(
+                    action,
+                    {
+                      ...data,
+                      ...ctx.dataSignal.get(),
+                      Parameters: parameters,
+                      Event: callbackData,
+                    },
+                    ctx,
+                    event,
+                    workflowCallback,
+                  ),
+                )
+              },
             ),
           )
           return
@@ -347,6 +385,23 @@ export function handleAction(
             },
             ctx,
             event,
+            (callbackName, callbackData) => {
+              const callback = callbacks?.[callbackName]
+              callback?.actions.forEach((action) =>
+                handleAction(
+                  action,
+                  {
+                    ...data,
+                    ...ctx.dataSignal.get(),
+                    Parameters: parameters,
+                    Event: callbackData,
+                  },
+                  ctx,
+                  event,
+                  workflowCallback,
+                ),
+              )
+            },
           ),
         )
         break
@@ -365,6 +420,7 @@ export function handleAction(
                     : { ...data, ...ctx.dataSignal.get() },
                   ctx,
                   eventData ?? event,
+                  workflowCallback,
                 ),
               )
             }
