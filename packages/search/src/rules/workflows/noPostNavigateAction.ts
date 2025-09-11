@@ -1,5 +1,5 @@
-import { get } from '@nordcraft/core/dist/utils/collections'
-import type { Rule } from '../../types'
+import { get, set } from '@nordcraft/core/dist/utils/collections'
+import type { ActionModelNode, Rule } from '../../types'
 
 export const noPostNavigateAction: Rule<{ parameter: string }> = {
   code: 'no post navigate action',
@@ -25,7 +25,24 @@ export const noPostNavigateAction: Rule<{ parameter: string }> = {
     const actionIndex = Number(_actionIndex)
     if (actionIndex < actions.length - 1) {
       // If the action is not the last one in the array, report it
-      report(path)
+      report(path, undefined, ['delete-following-actions'])
     }
   },
+  fixes: {
+    'delete-following-actions': ({ path, files }: ActionModelNode) => {
+      const actionsArrayPath = path.slice(0, -1).map((p) => String(p))
+      const actions = get(files, actionsArrayPath)
+      const actionIndex = path.at(-1)
+      if (actionIndex === undefined || !Array.isArray(actions)) {
+        return
+      }
+      return set(
+        files,
+        actionsArrayPath,
+        actions.slice(0, Number(actionIndex) + 1),
+      )
+    },
+  },
 }
+
+export type NoPostNavigateActionRuleFix = 'delete-following-actions'

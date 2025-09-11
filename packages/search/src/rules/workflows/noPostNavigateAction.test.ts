@@ -1,8 +1,11 @@
+import type { ElementNodeModel } from '@nordcraft/core/dist/component/component.types'
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
+import { fixProject } from '../../fixProject'
 import { searchProject } from '../../searchProject'
 import { noPostNavigateAction } from './noPostNavigateAction'
 
-describe('noPostNavigateAction', () => {
+describe('find noPostNavigateAction', () => {
   test('should detect actions after a url navigate action', () => {
     const problems = Array.from(
       searchProject({
@@ -455,5 +458,112 @@ describe('noPostNavigateAction', () => {
     )
 
     expect(problems).toHaveLength(0)
+  })
+})
+
+describe('fix noPostNavigateAction', () => {
+  test('should remove actions after a url navigate action', () => {
+    const files: ProjectFiles = {
+      formulas: {},
+      components: {
+        nav: {
+          attributes: {},
+          events: [],
+          formulas: {},
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'div',
+              attrs: {},
+              classes: {},
+              events: {},
+              children: ['wkPXF99C3qdRgZmUcnHO_'],
+              style: {},
+            },
+            wkPXF99C3qdRgZmUcnHO_: {
+              tag: 'button',
+              type: 'element',
+              attrs: {},
+              style: {
+                color: 'var(--grey-200, #E5E5E5)',
+                'border-radius': '6px',
+                'background-color': 'var(--blue-600, #2563EB)',
+                'padding-left': '8px',
+                'padding-right': '8px',
+                'padding-top': '8px',
+                'padding-bottom': '8px',
+                width: 'fit-content',
+                cursor: 'pointer',
+              },
+              events: {
+                click: {
+                  trigger: 'click',
+                  actions: [
+                    {
+                      name: '@toddle/gotToURL',
+                      arguments: [
+                        {
+                          name: 'URL',
+                          formula: {
+                            type: 'value',
+                            value: 'https://example.com',
+                          },
+                        },
+                      ],
+                      label: 'Go to URL',
+                    },
+                    {
+                      name: '@toddle/logToConsole',
+                      arguments: [
+                        {
+                          name: 'Label',
+                          formula: {
+                            type: 'value',
+                            value: '',
+                          },
+                        },
+                        {
+                          name: 'Data',
+                          formula: {
+                            type: 'value',
+                            value: '<Data>',
+                          },
+                        },
+                      ],
+                      label: 'Log to console',
+                    },
+                  ],
+                },
+              },
+              classes: {},
+              children: ['zFhmZR6YnLy089HmlK-Yn'],
+              variants: [],
+            },
+            'zFhmZR6YnLy089HmlK-Yn': {
+              type: 'text',
+              value: {
+                type: 'value',
+                value: 'Button',
+              },
+            },
+          },
+          variables: {},
+          apis: {},
+          name: 'nav',
+        },
+      },
+    }
+    const fixedProject = fixProject({
+      files,
+      rule: noPostNavigateAction,
+      fixType: 'delete-following-actions',
+    })
+    expect(
+      (
+        fixedProject.components.nav?.nodes[
+          'wkPXF99C3qdRgZmUcnHO_'
+        ] as ElementNodeModel
+      )?.events?.click?.actions,
+    ).toHaveLength(1)
   })
 })
