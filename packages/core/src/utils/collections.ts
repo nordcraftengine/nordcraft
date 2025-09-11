@@ -23,7 +23,7 @@ export const omit = <T = object>(
   collection: T,
   [key, ...rest]: Array<string | number>,
 ): T => {
-  if (rest.length) {
+  if (rest.length > 0) {
     const clone: any = Array.isArray(collection)
       ? [...collection]
       : { ...collection }
