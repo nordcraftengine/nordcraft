@@ -1,4 +1,5 @@
 import type { Rule } from '../../types'
+import { removeFromPathFix } from '../../util/removeUnused.fix'
 
 export const unknownAttributeRule: Rule<{
   name: string
@@ -19,7 +20,10 @@ export const unknownAttributeRule: Rule<{
     const [, attributeKey] = value.path
     const component = files.components[componentName]
     if (!component?.attributes?.[attributeKey]) {
-      report(path, { name: attributeKey })
+      report(path, { name: attributeKey }, ['delete-attribute'])
     }
+  },
+  fixes: {
+    'delete-attribute': removeFromPathFix,
   },
 }
