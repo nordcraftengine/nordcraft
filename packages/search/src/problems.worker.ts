@@ -198,21 +198,25 @@ const RULES = [
 ]
 
 interface FindProblemsArgs {
+  id: string
   files: ProjectFiles
   options?: Options
 }
 
 interface FixProblemsArgs {
+  id: string
   files: ProjectFiles
   options?: Options
   fixRule: Code
   fixType: FixType
-  id: string
 }
 
 type Message = FindProblemsArgs | FixProblemsArgs
 
-type FindProblemsResponse = Result[]
+interface FindProblemsResponse {
+  id: string
+  results: Result[]
+}
 
 interface FixProblemsResponse {
   id: string
@@ -227,6 +231,11 @@ const respond = (data: Response) => postMessage(data)
 
 const findProblems = (data: FindProblemsArgs) => {
   const { files, options = {} } = data
+  const idRespond = (results: Result[]) =>
+    respond({
+      id: data.id,
+      results,
+    })
   const rules = RULES.filter(
     (rule) =>
       (!options.categories || options.categories.includes(rule.category)) &&
@@ -252,7 +261,7 @@ const findProblems = (data: FindProblemsArgs) => {
       case 'per-file': {
         if (fileType !== problem.path[0] || fileName !== problem.path[1]) {
           if (batch.length > 0) {
-            respond(batch)
+            idRespond(batch)
           }
           batch = []
           fileType = problem.path[0]
@@ -266,7 +275,7 @@ const findProblems = (data: FindProblemsArgs) => {
       default: {
         batch.push(problem)
         if (batch.length >= (options.batchSize ?? 1)) {
-          respond(batch)
+          idRespond(batch)
           batch = []
         }
         break
@@ -275,7 +284,7 @@ const findProblems = (data: FindProblemsArgs) => {
   }
 
   // Send the remaining results
-  respond(batch)
+  idRespond(batch)
 }
 
 const fixProblems = (data: FixProblemsArgs) => {
