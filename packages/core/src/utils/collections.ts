@@ -25,7 +25,7 @@ export const omit = <T = object>(
 ): T => {
   if (rest.length) {
     const clone: any = Array.isArray(collection)
-      ? collection.slice()
+      ? [...collection]
       : { ...collection }
     clone[key] = omit(clone[key], rest)
     return clone
