@@ -19,24 +19,25 @@ export const mapValues = <T, T2>(
  * @param path Path to the key to delete. For instance ['foo', 0, 'bar']
  * @returns The updated object/array
  */
-export const omit = <T = unknown>(
+export const omit = <T = object>(
   collection: T,
-  path: Array<string | number>,
+  [key, ...rest]: Array<string | number>,
 ): T => {
-  const [head, ...rest] = path
-
-  const clone: any = Array.isArray(collection)
-    ? [...collection]
-    : isObject(collection)
-      ? { ...collection }
-      : {}
-
-  if (rest.length === 0) {
-    delete clone[head]
-  } else {
-    clone[head] = omit(clone[head], rest)
+  if (rest.length) {
+    const clone: any = Array.isArray(collection)
+      ? collection.slice()
+      : { ...collection }
+    clone[key] = omit(clone[key], rest)
+    return clone
   }
-  return clone as T
+
+  if (Array.isArray(collection)) {
+    return collection.toSpliced(key as number, 1) as T
+  }
+
+  const clone: any = { ...collection }
+  delete clone[key]
+  return clone
 }
 
 export const omitKeys = <T extends Record<string, any>>(
