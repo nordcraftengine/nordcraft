@@ -32,7 +32,7 @@ export const omit = <T = object>(
   }
 
   if (Array.isArray(collection)) {
-    return collection.toSpliced(key as number, 1) as T
+    return collection.toSpliced(Number(key), 1) as T
   }
 
   const clone: any = { ...collection }
