@@ -69,6 +69,7 @@ export const removeTestData = (component: Component): Component => ({
             parameters: (value.parameters || []).map((p) =>
               omitKeys(p, ['testValue']),
             ),
+            callbacks: value.callbacks?.map((c) => omitKeys(c, ['testValue'])),
           },
         ]),
       }

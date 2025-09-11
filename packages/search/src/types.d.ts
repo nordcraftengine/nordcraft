@@ -219,6 +219,10 @@ type ComponentWorkflowNode = {
           testValue: any
         }[]
       | null
+    callbacks?: {
+      name: string
+      testValue: any
+    }[]
     actions: ActionModel[]
     exposeInContext?: boolean | undefined
   }

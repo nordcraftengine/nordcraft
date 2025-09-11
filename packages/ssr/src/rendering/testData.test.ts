@@ -338,4 +338,72 @@ describe('removeTestData', () => {
       }
     `)
   })
+  test('it removes testData from workflow callbacks', () => {
+    const updatedData = removeTestData({
+      name: 'test',
+      variables: {},
+      nodes: {},
+      attributes: {},
+      apis: {},
+      onLoad: {
+        trigger: 'onLoad',
+        actions: [],
+      },
+      onAttributeChange: {
+        trigger: 'onAttributeChange',
+        actions: [],
+      },
+      workflows: {
+        'My Workflow': {
+          name: 'My Workflow',
+          parameters: [
+            {
+              name: 'param1',
+              testValue: 'value1',
+            },
+          ],
+          callbacks: [
+            {
+              name: 'callback1',
+              testValue: 'value1',
+            },
+          ],
+          actions: [],
+        },
+      },
+    })
+    expect(updatedData).toMatchInlineSnapshot(`
+      {
+        "apis": {},
+        "attributes": {},
+        "name": "test",
+        "nodes": {},
+        "onAttributeChange": {
+          "actions": [],
+          "trigger": "onAttributeChange",
+        },
+        "onLoad": {
+          "actions": [],
+          "trigger": "onLoad",
+        },
+        "variables": {},
+        "workflows": {
+          "My Workflow": {
+            "actions": [],
+            "callbacks": [
+              {
+                "name": "callback1",
+              },
+            ],
+            "name": "My Workflow",
+            "parameters": [
+              {
+                "name": "param1",
+              },
+            ],
+          },
+        },
+      }
+    `)
+  })
 })
