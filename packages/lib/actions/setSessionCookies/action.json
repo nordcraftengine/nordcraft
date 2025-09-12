@@ -2,6 +2,8 @@
   "$schema": "../../schemas/libAction.schema.json",
   "name": "Set session cookies",
   "description": "Save authentication tokens as session cookies.",
+  "deprecated": true,
+  "supercededBy": "Set HttpOnly cookie",
   "group": "cookies",
   "arguments": [
     {
