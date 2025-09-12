@@ -25,6 +25,7 @@ import type { LegacyActionRuleFix } from './rules/actions/legacyActionRule'
 import type { NoReferenceProjectActionRuleFix } from './rules/actions/noReferenceProjectActionRule'
 import type { NoReferenceApiRuleFix } from './rules/apis/noReferenceApiRule'
 import type { NoReferenceAttributeRuleFix } from './rules/attributes/noReferenceAttributeRule'
+import type { UnknownComponentAttributeRuleFix } from './rules/attributes/unknownComponentAttributeRule'
 import type { NoReferenceComponentRuleFix } from './rules/components/noReferenceComponentRule'
 import type { NoReferenceEventRuleFix } from './rules/events/noReferenceEventRule'
 import type { LegacyFormulaRuleFix } from './rules/formulas/legacyFormulaRule'
@@ -76,6 +77,7 @@ type Code =
   | 'unknown api'
   | 'unknown attribute'
   | 'unknown classname'
+  | 'unknown component attribute'
   | 'unknown component formula input'
   | 'unknown component slot'
   | 'unknown context formula'
@@ -352,6 +354,7 @@ type FixType =
   | InvalidStyleSyntaxRuleFix
   | NoStaticNodeConditionRuleFix
   | NoPostNavigateActionRuleFix
+  | UnknownComponentAttributeRuleFix
 
 export interface Rule<T = unknown, V = NodeType> {
   category: Category

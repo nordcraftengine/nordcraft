@@ -12,6 +12,7 @@ import { unknownApiInputRule } from './rules/apis/unknownApiInputRule'
 import { unknownApiRule } from './rules/apis/unknownApiRule'
 import { noReferenceAttributeRule } from './rules/attributes/noReferenceAttributeRule'
 import { unknownAttributeRule } from './rules/attributes/unknownAttributeRule'
+import { unknownComponentAttributeRule } from './rules/attributes/unknownComponentAttributeRule'
 import { noReferenceComponentRule } from './rules/components/noReferenceComponentRule'
 import { unknownComponentRule } from './rules/components/unknownComponentRule'
 import { noContextConsumersRule } from './rules/context/noContextConsumersRule'
@@ -180,6 +181,7 @@ const RULES = [
   unknownContextProviderWorkflowRule,
   unknownContextWorkflowRule,
   unknownCookieRule,
+  unknownComponentAttributeRule,
   unknownEventRule,
   unknownFormulaRule,
   unknownProjectActionRule,

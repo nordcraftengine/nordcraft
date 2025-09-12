@@ -53,7 +53,7 @@ describe('shouldSearchPath', () => {
 })
 
 describe('shouldSearchExactPath', () => {
-  test.only('should only return true for exact matches', () => {
+  test('should only return true for exact matches', () => {
     const pathsToVisit = [
       ['components', 'Button'],
       ['components', 'Input'],
