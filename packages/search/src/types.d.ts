@@ -30,9 +30,10 @@ import type { NoReferenceEventRuleFix } from './rules/events/noReferenceEventRul
 import type { LegacyFormulaRuleFix } from './rules/formulas/legacyFormulaRule'
 import type { NoReferenceComponentFormulaRuleFix } from './rules/formulas/noReferenceComponentFormulaRule'
 import type { NoReferenceProjectFormulaRuleFix } from './rules/formulas/noReferenceProjectFormulaRule'
-import type { NoStaticNodeConditionRuleFix } from './rules/logic/noStaticNodeConditionRule'
+import type { NoStaticNodeConditionRuleFix } from './rules/logic/noStaticNodeCondition'
 import type { NoReferenceNodeRuleFix } from './rules/noReferenceNodeRule'
 import type { InvalidStyleSyntaxRuleFix } from './rules/style/invalidStyleSyntaxRule'
+import type { NoPostNavigateActionRuleFix } from './rules/workflows/noPostNavigateAction'
 
 type Code =
   | 'duplicate event trigger'
@@ -350,6 +351,7 @@ type FixType =
   | NoReferenceNodeRuleFix
   | InvalidStyleSyntaxRuleFix
   | NoStaticNodeConditionRuleFix
+  | NoPostNavigateActionRuleFix
 
 export interface Rule<T = unknown, V = NodeType> {
   category: Category
