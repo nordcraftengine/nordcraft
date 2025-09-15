@@ -6,6 +6,7 @@ import type {
   ComponentEvent as _ComponentEvent,
   ActionModel,
   Component,
+  ComponentNodeModel,
   ElementNodeModel,
   NodeModel,
   StyleVariant,
@@ -255,6 +256,12 @@ type ComponentVariableNode = {
   component: ToddleComponent<Function>
 } & Base
 
+type ComponentNodeAttributeNode = {
+  nodeType: 'component-node-attribute'
+  value: { key: string; value?: Formula }
+  node: ComponentNodeModel | ElementNodeModel
+} & Base
+
 type ComponentAttributeNode = {
   nodeType: 'component-attribute'
   value: Component['attributes'][0]
@@ -327,6 +334,7 @@ export type NodeType =
   | ComponentEvent
   | ComponentFormulaNode
   | ComponentNode
+  | ComponentNodeAttributeNode
   | ComponentNodeNode
   | ComponentVariableNode
   | ComponentWorkflowNode
@@ -335,8 +343,8 @@ export type NodeType =
   | ProjectApiService
   | ProjectConfigNode
   | ProjectFormulaNode
-  | ProjectThemeNode
   | ProjectRoute
+  | ProjectThemeNode
   | StyleNode
   | StyleVariantNode
 
