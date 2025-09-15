@@ -57,7 +57,10 @@ describe('find unknownComponentAttribute', () => {
 
     expect(problems).toHaveLength(1)
     expect(problems[0].code).toBe('unknown component attribute')
-    expect(problems[0].details).toEqual({ name: 'third' })
+    expect(problems[0].details).toEqual({
+      name: 'third',
+      componentName: 'referenced',
+    })
   })
 
   test('should not report component attributes that exist', () => {

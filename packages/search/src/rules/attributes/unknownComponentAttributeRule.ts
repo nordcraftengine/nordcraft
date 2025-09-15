@@ -4,32 +4,29 @@ import { removeFromPathFix } from '../../util/removeUnused.fix'
 
 export const unknownComponentAttributeRule: Rule<{
   name: string
+  componentName: string
 }> = {
   code: 'unknown component attribute',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
+  visit: (report, args) => {
     if (
-      nodeType !== 'component-node' ||
-      value.type !== 'component' ||
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      Object.keys(value.attrs ?? {}).length === 0
+      args.nodeType !== 'component-node-attribute' ||
+      args.node.type !== 'component'
     ) {
       return
     }
-    const component = value.package
-      ? files.packages?.[value.package].components?.[value.name]
-      : files.components[value.name]
+    const { files, value, node, path } = args
+    const component = node.package
+      ? files.packages?.[node.package].components?.[node.name]
+      : files.components[node.name]
     if (!component) {
       return
     }
-    for (const attrKey of Object.keys(value.attrs)) {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!isDefined(component.attributes?.[attrKey])) {
-        report([...path, 'attrs', attrKey], { name: attrKey }, [
-          'delete-component-attribute',
-        ])
-      }
+    if (!isDefined(component.attributes?.[value.key])) {
+      report(path, { name: value.key, componentName: node.name }, [
+        'delete-component-attribute',
+      ])
     }
   },
   fixes: {

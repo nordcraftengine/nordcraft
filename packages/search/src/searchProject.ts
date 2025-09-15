@@ -480,6 +480,30 @@ function* visitNode({
           state,
           fixOptions: fixOptions as any,
         })
+        if (
+          value.nodes[key].type === 'component' ||
+          value.nodes[key].type === 'element'
+        ) {
+          // Visit attributes on component and element nodes
+          for (const attrKey in value.nodes[key].attrs) {
+            const attr = value.nodes[key].attrs[attrKey]
+            yield* visitNode({
+              args: {
+                nodeType: 'component-node-attribute',
+                value: { key: attrKey, value: attr },
+                path: [...path, 'nodes', key, 'attrs', attrKey],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+                node: value.nodes[key],
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
+          }
+        }
       }
 
       for (const {
