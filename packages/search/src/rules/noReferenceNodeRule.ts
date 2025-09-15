@@ -1,5 +1,5 @@
 import type { Rule } from '../types'
-import { removeFromPathFix } from '../util/removeUnused.fix'
+import { removeNodeFromPathFix } from '../util/removeUnused.fix'
 
 export const noReferenceNodeRule: Rule<{ node: string }> = {
   code: 'no-reference node',
@@ -27,7 +27,7 @@ export const noReferenceNodeRule: Rule<{ node: string }> = {
     }
   },
   fixes: {
-    'delete-orphan-node': removeFromPathFix,
+    'delete-orphan-node': removeNodeFromPathFix,
   },
 }
 
