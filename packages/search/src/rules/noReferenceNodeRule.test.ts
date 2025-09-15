@@ -137,4 +137,91 @@ describe('fix noReferenceNodeRule', () => {
       'used',
     ])
   })
+  test('should remove children of orphan node', () => {
+    const files: ProjectFiles = {
+      formulas: {},
+      components: {
+        test: {
+          name: 'test',
+          nodes: {
+            root: {
+              id: 'root',
+              type: 'element',
+              tag: 'div',
+              children: ['used'],
+              attrs: {},
+              style: {},
+              events: {},
+              classes: {},
+            },
+            orphan: {
+              type: 'element',
+              tag: 'div',
+              children: ['child-of-orphan'],
+              attrs: {},
+              style: {},
+              events: {},
+              classes: {},
+            },
+            'child-of-orphan': {
+              id: 'child-of-orphan',
+              type: 'text',
+              value: { type: 'value', value: 'I am child of orphan' },
+            },
+            used: {
+              id: 'used',
+              type: 'text',
+              value: { type: 'value', value: 'I am used' },
+            },
+          },
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
+        },
+      },
+    }
+    const fixedFiles = fixProject({
+      files,
+      rule: noReferenceNodeRule,
+      fixType: 'delete-orphan-node',
+      pathsToVisit: [['components', 'test', 'nodes', 'orphan']],
+    })
+    expect(fixedFiles).toMatchInlineSnapshot(`
+      {
+        "components": {
+          "test": {
+            "apis": {},
+            "attributes": {},
+            "formulas": {},
+            "name": "test",
+            "nodes": {
+              "root": {
+                "attrs": {},
+                "children": [
+                  "used",
+                ],
+                "classes": {},
+                "events": {},
+                "id": "root",
+                "style": {},
+                "tag": "div",
+                "type": "element",
+              },
+              "used": {
+                "id": "used",
+                "type": "text",
+                "value": {
+                  "type": "value",
+                  "value": "I am used",
+                },
+              },
+            },
+            "variables": {},
+          },
+        },
+        "formulas": {},
+      }
+    `)
+  })
 })

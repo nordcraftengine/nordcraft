@@ -188,7 +188,7 @@ describe('noStaticNodeCondition', () => {
     `)
   })
 
-  test("should fix static falsy condition by removing the node and any parents' references to it", () => {
+  test('should fix static falsy condition by removing the node and any references to it', () => {
     const files: ProjectFiles = {
       components: {
         test: {
@@ -209,7 +209,7 @@ describe('noStaticNodeCondition', () => {
               classes: {},
               events: {},
               tag: 'div',
-              children: [],
+              children: ['child'],
               style: {},
               condition: {
                 type: 'value',
@@ -228,6 +228,24 @@ describe('noStaticNodeCondition', () => {
                 type: 'path',
                 path: ['Variables', 'maybe'],
               },
+            },
+            child: {
+              type: 'element',
+              attrs: {},
+              classes: {},
+              events: {},
+              tag: 'div',
+              children: ['childsChild'],
+              style: {},
+            },
+            childsChild: {
+              type: 'element',
+              attrs: {},
+              classes: {},
+              events: {},
+              tag: 'div',
+              children: [],
+              style: {},
             },
           },
           formulas: {},
