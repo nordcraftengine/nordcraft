@@ -15,8 +15,14 @@ const app = getApp({
     path: '/.toddle/custom-code/:pageName{.+.js}',
     handler: customCode,
   },
-  pageLoader: ({ ctx }) => {
-    return { customCode: true, ...ctx.get('files') }
+  pageLoader: {
+    loader: ({ ctx }) => {
+      return { customCode: true, ...ctx.get('files') }
+    },
+    urls: {
+      pageStylesheetUrl: (name: string) => `/.toddle/stylesheet/${name}.css`,
+      customCodeUrl: (name: string) => `/.toddle/custom-code/${name}.js`,
+    },
   },
   fileLoaders: [
     createMiddleware<

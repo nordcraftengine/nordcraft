@@ -2,7 +2,7 @@ import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
 import { Hono, type Handler, type MiddlewareHandler } from 'hono'
 import { poweredBy } from 'hono/powered-by'
 import type { HonoEnv } from '../hono'
-import type { PageLoader } from './loaders/types'
+import type { PageLoader, PageLoaderUrls } from './loaders/types'
 import { notFoundLoader } from './middleware/notFoundLoader'
 import { proxyRequestHandler } from './routes/apiProxy'
 import { setCookieHandler } from './routes/cookies'
@@ -20,7 +20,10 @@ export const getApp = <T extends Record<string, any>>(options: {
   staticRouter?: { path: string; handler: Handler }
   stylesheetRouter?: { path: string; handler: Handler }
   customCodeRouter?: { path: string; handler: Handler }
-  pageLoader: PageLoader
+  pageLoader: {
+    loader: PageLoader
+    urls: PageLoaderUrls
+  }
   fileLoaders: MiddlewareHandler[]
 }) => {
   // Inject isEqual on globalThis used by some builtin formulas
@@ -66,9 +69,11 @@ export const getApp = <T extends Record<string, any>>(options: {
   app.get('/serviceWorker.js', serviceWorker)
 
   // Load a page if it matches the URL
-  app.get('/*', pageHandler(options.pageLoader))
+  app.get('/*', pageHandler(options.pageLoader.loader, options.pageLoader.urls))
 
-  app.notFound(notFoundLoader(options.pageLoader) as any)
+  app.notFound(
+    notFoundLoader(options.pageLoader.loader, options.pageLoader.urls) as any,
+  )
 
   return app
 }

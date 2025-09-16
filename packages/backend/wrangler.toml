@@ -2,7 +2,7 @@
 name = "nordcraft-worker-example"
 
 main = "dist/index.js"
-compatibility_date = "2025-07-08"
+compatibility_date = "2025-09-02"
 
 rules = [
   # Include all json files in the worker (should only be the actual project)

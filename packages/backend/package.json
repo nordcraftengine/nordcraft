@@ -15,6 +15,7 @@
     "test:watch": "bun test --watch",
     "test:watch:only": "bun test --watch --only",
     "typecheck": "tsc --noEmit",
+    "typecheck:watch": "tsc --noEmit --watch",
     "watch": "tsc --noEmit -w"
   },
   "dependencies": {
@@ -26,6 +27,6 @@
     "@cloudflare/workers-types": "4.20250628.0",
     "@nordcraft/runtime": "workspace:*",
     "@types/node": "24.3.1",
-    "wrangler": "4.24.1"
+    "wrangler": "4.37.0"
   }
 }

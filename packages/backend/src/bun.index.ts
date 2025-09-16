@@ -11,8 +11,14 @@ const app = getApp({
     path: '/_static/*',
     handler: serveStatic({ root: './assets' }),
   },
-  pageLoader: ({ name }) =>
-    loadJsFile<ProjectFilesWithCustomCode>(`./components/${name}.js`),
+  pageLoader: {
+    loader: ({ name }) =>
+      loadJsFile<ProjectFilesWithCustomCode>(`./components/${name}.js`),
+    urls: {
+      pageStylesheetUrl: (name) => `/_static/${name}}.css`,
+      customCodeUrl: (name) => `/_static/cc_${name}.js`,
+    },
+  },
 })
 
 export default app

@@ -23,6 +23,7 @@ import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
+import type { PageLoaderUrls } from '../loaders/types'
 import { evaluateComponentApis, RedirectError } from '../utils/api'
 
 export const nordcraftPage = async ({
@@ -38,10 +39,7 @@ export const nordcraftPage = async ({
   files: ProjectFiles & { customCode: boolean }
   page: PageComponent
   status: ContentfulStatusCode
-  options?: {
-    pageStylesheetUrl?: (name: string) => string
-    customCodeUrl?: (name: string) => string
-  }
+  options: PageLoaderUrls
 }) => {
   const url = new URL(hono.req.raw.url)
   const formulaContext = getPageFormulaContext({
@@ -127,9 +125,7 @@ export const nordcraftPage = async ({
       // Just to be explicit about where to grab the reset stylesheet from
       resetStylesheetPath: '/_static/reset.css',
       // This refers to the generated stylesheet for each page
-      pageStylesheetPath: options?.pageStylesheetUrl
-        ? options.pageStylesheetUrl(page.name)
-        : `/_static/${page.name}.css`,
+      pageStylesheetPath: options.pageStylesheetUrl(page.name),
       page: toddleComponent,
       files: files,
       project,
@@ -170,8 +166,7 @@ export const nordcraftPage = async ({
             </script>
             <script type="module">
               import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
-              import { loadCustomCode, formulas, actions } from '${options?.customCodeUrl ? options.customCodeUrl(toddleComponent.name) : `/_static/cc_${toddleComponent.name}.js`}'
-
+              import { loadCustomCode, formulas, actions } from '${options.customCodeUrl(toddleComponent.name)}'
               window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
               window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
               initGlobalObject({formulas, actions});
