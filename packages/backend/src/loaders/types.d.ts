@@ -10,3 +10,8 @@ export type PageLoader<T = any> = ({
   name: string
   ctx: Context<HonoEnv<T>>
 }) => MaybePromise<(ProjectFiles & { customCode: boolean }) | undefined>
+
+export interface PageLoaderUrls {
+  pageStylesheetUrl: (name: string) => string
+  customCodeUrl: (name: string) => string
+}

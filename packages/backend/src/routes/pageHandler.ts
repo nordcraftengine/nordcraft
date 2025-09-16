@@ -2,15 +2,12 @@ import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
 import { matchPageForUrl } from '@nordcraft/ssr/dist/routing/routing'
 import type { MiddlewareHandler } from 'hono'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
-import type { PageLoader } from '../loaders/types'
+import type { PageLoader, PageLoaderUrls } from '../loaders/types'
 import { nordcraftPage } from './nordcraftPage'
 
 export const pageHandler: (
   pageLoader: PageLoader,
-  options?: {
-    pageStylesheetUrl?: (name: string) => string
-    customCodeUrl?: (name: string) => string
-  },
+  options: PageLoaderUrls,
 ) => MiddlewareHandler<HonoEnv<HonoRoutes & HonoProject>> =
   (pageLoader, options) => async (ctx, next) => {
     const url = new URL(ctx.req.url)
