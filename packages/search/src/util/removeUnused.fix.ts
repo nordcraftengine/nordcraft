@@ -15,7 +15,10 @@ export const removeNodeFromPathFix: FixFunction<NodeType> = (data) => {
 
   const componentNodesPath = data.path.map(String)
   const nodeId = componentNodesPath.pop()!
-  const nodes = get(data.files, componentNodesPath) as Record<string, NodeModel>
+  const nodes = { ...get(data.files, componentNodesPath) } as Record<
+    string,
+    NodeModel
+  >
 
   // Clean parent reference
   for (const key in nodes) {
