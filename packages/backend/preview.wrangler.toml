@@ -2,7 +2,7 @@
 name = "nordcraft-worker-preview"
 
 main = "src/preview.index.ts"
-compatibility_date = "2025-09-02"
+compatibility_date = "2025-09-13"
 
 [observability.logs]
 enabled = true
