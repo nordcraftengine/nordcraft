@@ -29,7 +29,13 @@ export const omit = <T = unknown>(collection: T, path: string[]): T => {
       : {}
 
   if (rest.length === 0) {
-    delete clone[head]
+    if (Array.isArray(clone) && !isNaN(Number(head))) {
+      const index = Number(head)
+
+      return [...clone.slice(0, index), ...clone.slice(index + 1)] as T
+    } else {
+      delete clone[head]
+    }
   } else {
     clone[head] = omit(clone[head], rest)
   }

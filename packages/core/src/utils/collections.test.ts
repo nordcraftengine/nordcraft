@@ -1,4 +1,4 @@
-import { omitPaths, sortObjectEntries } from './collections'
+import { omit, omitPaths, sortObjectEntries } from './collections'
 
 describe('sortObjectEntries()', () => {
   test('it sorts entries in an object based on the callback function', () => {
@@ -52,6 +52,34 @@ describe('omitPaths()', () => {
         f: {},
         h: 'bar',
       },
+    })
+  })
+})
+
+describe('omit', () => {
+  describe('objects', () => {
+    test('removes property from object', () => {
+      expect(
+        omit(
+          { object: { object: { firstKey: 'value', secondKey: 'value' } } },
+          ['object', 'object', 'firstKey'],
+        ),
+      ).toEqual({ object: { object: { secondKey: 'value' } } })
+    })
+  })
+
+  describe('arrays', () => {
+    test('removes index from array', () => {
+      expect(
+        omit(
+          { object: { array: ['first', 'second', 'third', 'four', 'five'] } },
+          ['object', 'array', '2'],
+        ),
+      ).toEqual({
+        object: {
+          array: ['first', 'second', 'four', 'five'],
+        },
+      })
     })
   })
 })
