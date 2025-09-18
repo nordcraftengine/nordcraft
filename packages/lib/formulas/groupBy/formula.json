@@ -5,20 +5,32 @@
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "Array of items to be grouped.",
-      "type": { "type": "Array" }
+      "type": {
+        "type": "Array"
+      }
     },
     {
       "name": "Formula",
       "isFunction": true,
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The grouping formula used to group the items. The String returned from the formula will match the key in the output Oject.",
-      "type": { "type": "Formula" }
+      "type": {
+        "type": "Formula"
+      }
     }
   ],
   "output": {
     "description": "An Object where each key matches a value returned by the grouping formula, and each value is the list of items that share the return value.",
-    "type": { "type": "Object" }
+    "type": {
+      "type": "Object"
+    }
   }
 }

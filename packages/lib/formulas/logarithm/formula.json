@@ -5,13 +5,21 @@
   "arguments": [
     {
       "name": "Number",
-      "formula": { "type": "value", "value": 1 },
+      "formula": {
+        "type": "value",
+        "value": 1
+      },
       "description": "A Number greater than or equal to 0.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     }
   ],
   "output": {
-    "type": { "type": "Number" },
+    "type": {
+      "type": "Number"
+    },
     "description": "The natural logarithm of the Number."
-  }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log"
 }

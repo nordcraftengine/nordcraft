@@ -5,13 +5,21 @@
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The value to search.",
-      "type": { "type": "Array \\| String" }
+      "type": {
+        "type": "Array \\| String"
+      }
     },
     {
       "name": "Item",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The item or substring to search for.",
       "type": {
         "type": "Any"

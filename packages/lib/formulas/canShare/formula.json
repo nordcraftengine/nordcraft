@@ -6,20 +6,35 @@
     {
       "name": "URL",
       "description": "The URL you want to check.",
-      "type": { "type": "String" },
-      "formula": { "type": "value", "value": null }
+      "type": {
+        "type": "String"
+      },
+      "formula": {
+        "type": "value",
+        "value": null
+      }
     },
     {
       "name": "Title",
       "description": "The title you want to check.",
-      "type": { "type": "String" },
-      "formula": { "type": "value", "value": null }
+      "type": {
+        "type": "String"
+      },
+      "formula": {
+        "type": "value",
+        "value": null
+      }
     },
     {
       "name": "Text",
       "description": "The text you want to check.",
-      "type": { "type": "String" },
-      "formula": { "type": "value", "value": null }
+      "type": {
+        "type": "String"
+      },
+      "formula": {
+        "type": "value",
+        "value": null
+      }
     }
   ]
 }

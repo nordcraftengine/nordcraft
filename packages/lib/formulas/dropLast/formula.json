@@ -5,13 +5,21 @@
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The input value.",
-      "type": { "type": "Array \\| String" }
+      "type": {
+        "type": "Array \\| String"
+      }
     },
     {
       "name": "Count",
-      "formula": { "type": "value", "value": 1 },
+      "formula": {
+        "type": "value",
+        "value": 1
+      },
       "type": {
         "type": "Number"
       },
@@ -20,6 +28,8 @@
   ],
   "output": {
     "description": "A copy of the list without the last item(s).",
-    "type": { "type": "Array \\| String" }
+    "type": {
+      "type": "Array \\| String"
+    }
   }
 }

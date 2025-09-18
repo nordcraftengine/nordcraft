@@ -5,13 +5,21 @@
   "arguments": [
     {
       "name": "0",
-      "formula": { "type": "value", "value": "" },
-      "type": { "type": "Array \\| String" }
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
+      "type": {
+        "type": "Array \\| String"
+      }
     }
   ],
   "variableArguments": true,
   "output": {
-    "type": { "type": "Array \\| String" },
+    "type": {
+      "type": "Array \\| String"
+    },
     "description": "Returns a String or Array containing all the specified input values."
-  }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat"
 }

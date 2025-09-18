@@ -6,25 +6,34 @@
     {
       "name": "Input",
       "description": "The input String to search in.",
-      "type": { "type": "String" },
+      "type": {
+        "type": "String"
+      },
       "required": true
     },
     {
       "name": "Search",
       "description": "The substring to search for.",
-      "type": { "type": "String" },
+      "type": {
+        "type": "String"
+      },
       "required": true
     },
     {
       "name": "Replace with",
       "description": "The replacement value.",
-      "type": { "type": "String" },
+      "type": {
+        "type": "String"
+      },
       "required": true
     }
   ],
   "output": {
-    "type": { "type": "String" },
+    "type": {
+      "type": "String"
+    },
     "name": "Output",
     "description": "The resulting String."
-  }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll"
 }

@@ -1,11 +1,14 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Random number",
-  "description": "return a random Number between 0 and 1.",
+  "description": "Return a random Number between 0 and 1.",
   "arguments": [],
   "cache": false,
   "output": {
     "description": "A random Number between 0 and 1.",
-    "type": { "type": "Number" }
-  }
+    "type": {
+      "type": "Number"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random"
 }

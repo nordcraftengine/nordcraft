@@ -2,6 +2,7 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Append",
   "description": "Add an element to the end of an Array.",
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push",
   "arguments": [
     {
       "name": "Array",
@@ -9,7 +10,10 @@
         "type": "Array"
       },
       "description": "The Array to append to.",
-      "formula": { "type": "array", "arguments": [] }
+      "formula": {
+        "type": "array",
+        "arguments": []
+      }
     },
     {
       "name": "Item",

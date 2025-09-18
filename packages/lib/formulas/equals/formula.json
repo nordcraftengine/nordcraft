@@ -5,19 +5,31 @@
   "arguments": [
     {
       "name": "First",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "First Value",
-      "type": { "type": "Any" }
+      "type": {
+        "type": "Any"
+      }
     },
     {
       "name": "Second",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "Second Value",
-      "type": { "type": "Any" }
+      "type": {
+        "type": "Any"
+      }
     }
   ],
   "output": {
     "description": "Returns True if the input values are identical, otherwise False.",
-    "type": { "type": "Boolean" }
+    "type": {
+      "type": "Boolean"
+    }
   }
 }

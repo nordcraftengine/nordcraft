@@ -5,13 +5,21 @@
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The Array to be reversed.",
-      "type": { "type": "Array" }
+      "type": {
+        "type": "Array"
+      }
     }
   ],
   "output": {
-    "type": { "type": "Array" },
+    "type": {
+      "type": "Array"
+    },
     "description": "The reversed Array."
-  }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reverse"
 }

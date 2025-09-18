@@ -5,37 +5,65 @@
   "arguments": [
     {
       "name": "Input",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The string to search for matches in.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     },
     {
       "name": "Regular expression",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The regular expression to use for matching.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     },
     {
       "name": "Global search",
-      "formula": { "type": "value", "value": true },
+      "formula": {
+        "type": "value",
+        "value": true
+      },
       "description": "Test the regular expression against all possible matches in a string.",
-      "type": { "type": "Boolean" }
+      "type": {
+        "type": "Boolean"
+      }
     },
     {
       "name": "Case insensitive",
-      "formula": { "type": "value", "value": false },
+      "formula": {
+        "type": "value",
+        "value": false
+      },
       "description": "Ignore case while attempting a match in a string.",
-      "type": { "type": "Boolean" }
+      "type": {
+        "type": "Boolean"
+      }
     },
     {
       "name": "Multi line",
-      "formula": { "type": "value", "value": false },
+      "formula": {
+        "type": "value",
+        "value": false
+      },
       "description": "Treat multiline strings as multiple lines.",
-      "type": { "type": "Boolean" }
+      "type": {
+        "type": "Boolean"
+      }
     }
   ],
   "output": {
     "description": "An Array of Strings",
-    "type": { "type": "Array" }
-  }
+    "type": {
+      "type": "Array"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match"
 }

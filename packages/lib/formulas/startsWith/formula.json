@@ -5,19 +5,32 @@
   "arguments": [
     {
       "name": "String",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The String to check.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     },
     {
       "name": "Prefix",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The prefix to check for.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     }
   ],
   "output": {
     "description": "Returns True if the input String starts with the prefix, otherwise False",
-    "type": { "type": "Boolean" }
-  }
+    "type": {
+      "type": "Boolean"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith"
 }

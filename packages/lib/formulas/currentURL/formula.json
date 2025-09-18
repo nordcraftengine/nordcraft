@@ -6,6 +6,8 @@
   "cache": false,
   "output": {
     "description": "The browser's current URL.",
-    "type": { "type": "String" }
+    "type": {
+      "type": "String"
+    }
   }
 }

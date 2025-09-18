@@ -1,17 +1,25 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Index of",
-  "description": "Find the index of a specific item in an Array or String.",
+  "description": "Find the index of a specific item in an Array or String.and [String.prototype.indexOf on MDN]() for more information.",
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The value to search.",
-      "type": { "type": "Array \\| String" }
+      "type": {
+        "type": "Array \\| String"
+      }
     },
     {
       "name": "Item",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The items to search for.",
       "type": {
         "type": "Any"
@@ -23,5 +31,6 @@
     "type": {
       "type": "Number"
     }
-  }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf"
 }

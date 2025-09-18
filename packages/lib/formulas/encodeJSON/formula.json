@@ -5,19 +5,31 @@
   "arguments": [
     {
       "name": "Data",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The data to convert.",
-      "type": { "type": "Any" }
+      "type": {
+        "type": "Any"
+      }
     },
     {
       "name": "Indent",
-      "formula": { "type": "value", "value": 2 },
+      "formula": {
+        "type": "value",
+        "value": 2
+      },
       "description": "How many characters the encoded value will be indented.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     }
   ],
   "output": {
     "description": "The encoded JSON value.",
-    "type": { "type": "String" }
+    "type": {
+      "type": "String"
+    }
   }
 }

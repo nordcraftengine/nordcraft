@@ -6,7 +6,10 @@
   "arguments": [
     {
       "name": "Key",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The key to read from session storage.",
       "type": {
         "type": "String"
@@ -15,6 +18,9 @@
   ],
   "output": {
     "description": "The value found in session storage.",
-    "type": { "type": "Any" }
-  }
+    "type": {
+      "type": "Any"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage"
 }

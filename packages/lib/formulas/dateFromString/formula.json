@@ -5,13 +5,21 @@
     {
       "name": "Date string",
       "description": "A String representing a date, for example \"January 1, 1970\".",
-      "type": { "type": "String" },
-      "formula": { "type": "value", "value": "January 1, 1970" }
+      "type": {
+        "type": "String"
+      },
+      "formula": {
+        "type": "value",
+        "value": "January 1, 1970"
+      }
     }
   ],
   "description": "Convert a string to a Date.",
   "output": {
     "description": "The input value converted to a Date.",
-    "type": { "type": "Date" }
-  }
+    "type": {
+      "type": "Date"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date"
 }

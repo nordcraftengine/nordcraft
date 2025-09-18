@@ -6,18 +6,30 @@
     {
       "name": "Input",
       "description": "Number to round down.",
-      "type": { "type": "Number" },
-      "formula": { "type": "value", "value": 1 }
+      "type": {
+        "type": "Number"
+      },
+      "formula": {
+        "type": "value",
+        "value": 1
+      }
     },
     {
       "name": "Decimals",
       "description": "Number of decimals to round to.",
-      "type": { "type": "Number" },
-      "formula": { "type": "value", "value": 0 }
+      "type": {
+        "type": "Number"
+      },
+      "formula": {
+        "type": "value",
+        "value": 0
+      }
     }
   ],
   "output": {
-    "type": { "type": "Number" },
+    "type": {
+      "type": "Number"
+    },
     "description": "The rounded Number."
   }
 }

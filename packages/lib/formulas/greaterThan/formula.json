@@ -5,19 +5,31 @@
   "arguments": [
     {
       "name": "First",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "First value to be compared.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     },
     {
       "name": "Second",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "Second value to be compared.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     }
   ],
   "output": {
     "description": "Returns True if the first Number is larger than the second Number.",
-    "type": { "type": "Boolean" }
+    "type": {
+      "type": "Boolean"
+    }
   }
 }

@@ -1,23 +1,36 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Join",
-  "description": "Combine an Array of Strings in to a single String.",
+  "description": "Combine an Array of Strings into a single String.",
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "An array of Strings.",
-      "type": { "type": "Array" }
+      "type": {
+        "type": "Array"
+      }
     },
     {
       "name": "Separator",
-      "formula": { "type": "value", "value": ", " },
+      "formula": {
+        "type": "value",
+        "value": ", "
+      },
       "description": "A separator String that is inserted in between each item in the Array to join.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     }
   ],
   "output": {
     "description": "A String combining each item in the input Array separated by the separator String, e.g. joining [\"a\", \"b\", \"c\"] with a \",\" separator will return \"a,b,c\".",
-    "type": { "type": "String" }
-  }
+    "type": {
+      "type": "String"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join"
 }

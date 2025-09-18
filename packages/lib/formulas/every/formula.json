@@ -5,20 +5,32 @@
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The array of items to evaluate.",
-      "type": { "type": "Array" }
+      "type": {
+        "type": "Array"
+      }
     },
     {
       "name": "Formula",
       "isFunction": true,
-      "formula": { "type": "path", "path": ["Args", "item"] },
+      "formula": {
+        "type": "path",
+        "path": ["Args", "item"]
+      },
       "description": "Predicate formula for evaluating each item.",
-      "type": { "type": "Formula" }
+      "type": {
+        "type": "Formula"
+      }
     }
   ],
   "output": {
     "description": "Returns True if the predicate formula returns true for all items in the Array, otherwise False.",
-    "type": { "type": "Array" }
+    "type": {
+      "type": "Array"
+    }
   }
 }

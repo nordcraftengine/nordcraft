@@ -5,13 +5,20 @@
   "arguments": [
     {
       "name": "String",
-      "formula": { "type": "value", "value": "string" },
+      "formula": {
+        "type": "value",
+        "value": "string"
+      },
       "description": "An input String.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     }
   ],
   "output": {
     "description": "The capitalized String.",
-    "type": { "type": "String" }
+    "type": {
+      "type": "String"
+    }
   }
 }

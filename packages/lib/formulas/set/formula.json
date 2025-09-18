@@ -5,19 +5,32 @@
   "arguments": [
     {
       "name": "Object",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The input Object.",
-      "type": { "type": "Object" }
+      "type": {
+        "type": "Object"
+      }
     },
     {
       "name": "Path",
-      "formula": { "type": "value", "value": "Key" },
+      "formula": {
+        "type": "value",
+        "value": "Key"
+      },
       "description": "The Path can be either a Number, a String or an Array of Strings.",
-      "type": { "type": "Array \\| Number \\| String" }
+      "type": {
+        "type": "Array \\| Number \\| String"
+      }
     },
     {
       "name": "Value",
-      "formula": { "type": "value", "value": "Item" },
+      "formula": {
+        "type": "value",
+        "value": "Item"
+      },
       "description": "The value to set.",
       "type": {
         "type": "Any"
@@ -26,6 +39,8 @@
   ],
   "output": {
     "description": "The input Object with the new field.",
-    "type": { "type": "Object" }
+    "type": {
+      "type": "Object"
+    }
   }
 }

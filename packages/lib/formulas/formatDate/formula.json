@@ -5,25 +5,43 @@
     {
       "name": "Date",
       "description": "Date to format",
-      "type": { "type": "Date" },
-      "formula": { "type": "value", "value": null }
+      "type": {
+        "type": "Date"
+      },
+      "formula": {
+        "type": "value",
+        "value": null
+      }
     },
     {
       "name": "Locale(s)",
       "description": "Optional locale to use for formatting the Date, e.g. \"en\" or \"fr\". Multiple locales can be provided (as an Array of Strings) to provide a fallback locale. The default value is the runtime's locale.",
-      "type": { "type": "Array \\| String" },
-      "formula": { "type": "value", "value": null }
+      "type": {
+        "type": "Array \\| String"
+      },
+      "formula": {
+        "type": "value",
+        "value": null
+      }
     },
     {
       "name": "Options",
       "description": "Optional Object for configuring the formatting of the output. See the [DateTimeFormat syntax on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#syntax).",
-      "type": { "type": "Object" },
-      "formula": { "type": "value", "value": null }
+      "type": {
+        "type": "Object"
+      },
+      "formula": {
+        "type": "value",
+        "value": null
+      }
     }
   ],
-  "description": "Format a date using the Intl.DateTimeFormat API. See the [DateTimeFormat docs on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat).",
+  "description": "Format a date using the Intl.DateTimeFormat API. See the [DateTimeFormat docs on MDN]().",
   "output": {
     "description": "The Date input formatted as a String.",
-    "type": { "type": "String" }
-  }
+    "type": {
+      "type": "String"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat"
 }

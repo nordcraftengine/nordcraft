@@ -5,19 +5,31 @@
   "arguments": [
     {
       "name": "Object",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The input record.",
-      "type": { "type": "Array \\| Object" }
+      "type": {
+        "type": "Array \\| Object"
+      }
     },
     {
       "name": "Path",
-      "formula": { "type": "value", "value": "Item" },
+      "formula": {
+        "type": "value",
+        "value": "Item"
+      },
       "description": "The path can be either a Number (if the first argument is an array), a String, or an Array of strings. If an Array is given, the property at that path will be removed.",
-      "type": { "type": "Array<Number \\| String> \\| Number \\| String" }
+      "type": {
+        "type": "Array<Number \\| String> \\| Number \\| String"
+      }
     }
   ],
   "output": {
     "description": "A copy of the record without the property specified in the Path.",
-    "type": { "type": "Object" }
+    "type": {
+      "type": "Object"
+    }
   }
 }

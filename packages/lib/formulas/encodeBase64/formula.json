@@ -4,14 +4,22 @@
   "arguments": [
     {
       "name": "Value",
-      "formula": { "type": "value", "value": "Input value" },
-      "type": { "type": "String" },
+      "formula": {
+        "type": "value",
+        "value": "Input value"
+      },
+      "type": {
+        "type": "String"
+      },
       "description": "The input string to be encoded."
     }
   ],
   "description": "Encode a string to base64.",
   "output": {
     "description": "The base 64 encoded string.",
-    "type": { "type": "String" }
-  }
+    "type": {
+      "type": "String"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa"
 }

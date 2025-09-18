@@ -6,12 +6,19 @@
     {
       "name": "Input",
       "description": "Value of any type.",
-      "type": { "type": "Any" },
-      "formula": { "type": "value", "value": "1" }
+      "type": {
+        "type": "Any"
+      },
+      "formula": {
+        "type": "value",
+        "value": "1"
+      }
     }
   ],
   "output": {
     "description": "The input value converted to a String",
-    "type": { "type": "String" }
+    "type": {
+      "type": "String"
+    }
   }
 }
