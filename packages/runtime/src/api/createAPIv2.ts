@@ -17,6 +17,7 @@ import {
   isJsonHeader,
   isJsonStreamHeader,
   isTextHeader,
+  isVideoHeader,
   mapHeadersToObject,
 } from '@nordcraft/core/dist/api/headers'
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
@@ -495,7 +496,7 @@ export function createAPI({
         parserMode = 'text'
       } else if (isJsonStreamHeader(contentType)) {
         parserMode = 'json-stream'
-      } else if (isImageHeader(contentType)) {
+      } else if (isImageHeader(contentType) || isVideoHeader(contentType)) {
         parserMode = 'blob'
       } else {
         parserMode = 'text'
