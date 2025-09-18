@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Equals",
   "description": "Compute if values are identical.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "First",
@@ -32,6 +31,5 @@
     "type": {
       "type": "Boolean"
     }
-  },
-  "mdnUrl": ""
+  }
 }

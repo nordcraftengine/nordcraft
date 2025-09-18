@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Range",
   "description": "Create an Array of numbers between a Min and Max value.",
-  "mdnUrl": "",
   "arguments": [
     {
       "formula": {
@@ -32,6 +31,5 @@
     "type": {
       "type": "Array"
     }
-  },
-  "mdnUrl": ""
+  }
 }

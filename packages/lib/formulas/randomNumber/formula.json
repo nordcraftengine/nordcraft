@@ -2,10 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Random number",
   "description": "Return a random Number between 0 and 1.",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [],
   "cache": false,
   "output": {

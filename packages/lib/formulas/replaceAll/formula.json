@@ -2,10 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Replace all",
   "description": "Replace all occurrences of a substring in a String.",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Input",

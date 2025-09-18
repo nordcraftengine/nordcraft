@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Type of",
   "description": "Get the type of a given input.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Input",
@@ -21,6 +20,5 @@
     "type": {
       "type": "Any"
     }
-  },
-  "mdnUrl": ""
+  }
 }

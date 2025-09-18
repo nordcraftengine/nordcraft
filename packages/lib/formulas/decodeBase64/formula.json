@@ -15,10 +15,6 @@
     }
   ],
   "description": "Deocde a base64 string to utf-8.",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/atob",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "output": {
     "description": "The decoded string.",
     "type": {

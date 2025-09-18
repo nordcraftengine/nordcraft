@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Encode JSON",
   "description": "Encode data as JSON.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Data",
@@ -32,6 +31,5 @@
     "type": {
       "type": "String"
     }
-  },
-  "mdnUrl": ""
+  }
 }

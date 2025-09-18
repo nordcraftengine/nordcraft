@@ -2,10 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Find",
   "description": "Search through an Array of items and apply a formula to each item, to return the first item where the provided formula returns True.",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Array",

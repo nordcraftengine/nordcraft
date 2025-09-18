@@ -2,10 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Matches",
   "description": "Finds the (global) matches in a String based on a regular expression.",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Input",

@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Every",
   "description": "Run a formula returns for all items in an Array.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Array",
@@ -36,6 +35,5 @@
     "type": {
       "type": "Array"
     }
-  },
-  "mdnUrl": ""
+  }
 }

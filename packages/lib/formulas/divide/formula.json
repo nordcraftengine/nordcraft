@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Divide",
   "description": "Perform a division calculation.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Dividend",
@@ -32,6 +31,5 @@
     "type": {
       "type": "Number"
     }
-  },
-  "mdnUrl": ""
+  }
 }

@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Can Share",
   "description": "Return a Boolean indicating whether the provided data can be shared (with the \"Share\" action).",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "URL",
@@ -37,6 +36,5 @@
         "value": null
       }
     }
-  ],
-  "mdnUrl": ""
+  ]
 }

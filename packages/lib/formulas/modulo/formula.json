@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Modulo",
   "description": "Get the remainder when dividing two Numbers.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Dividend",
@@ -32,6 +31,5 @@
     "type": {
       "type": "Number"
     }
-  },
-  "mdnUrl": ""
+  }
 }

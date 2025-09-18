@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "JSON",
   "description": "Convert a value into a JSON String.",
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify",
   "arguments": [
     {
       "name": "Input",
@@ -32,6 +31,5 @@
     "type": {
       "type": "String"
     }
-  },
-  "mdnUrl": ""
+  }
 }

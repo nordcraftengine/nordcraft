@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Current URL",
   "description": "Return the current URL of the browser. Use the \"Parse URL\" formula for working with the URL.",
-  "mdnUrl": "",
   "arguments": [],
   "cache": false,
   "output": {
@@ -10,6 +9,5 @@
     "type": {
       "type": "String"
     }
-  },
-  "mdnUrl": ""
+  }
 }

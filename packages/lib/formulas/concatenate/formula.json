@@ -2,10 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Concatenate",
   "description": "Concatenate two or more values.",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "0",

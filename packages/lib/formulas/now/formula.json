@@ -2,10 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Now",
   "description": "Get a Date representing \"Now\".",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [],
   "cache": false,
   "output": {

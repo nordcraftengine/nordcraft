@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Drop last",
   "description": "Remove item(s) from the end of an Array or String.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Array",
@@ -32,6 +31,5 @@
     "type": {
       "type": "Array \\| String"
     }
-  },
-  "mdnUrl": ""
+  }
 }

@@ -1,12 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Parse URL",
-<<<<<<< HEAD
   "description": "Parse a URL.",
-=======
-  "description": "Parse a URL",
-  "mdnUrl": "",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "URL",
@@ -36,6 +31,5 @@
     "type": {
       "type": "Object"
     }
-  },
-  "mdnUrl": ""
+  }
 }

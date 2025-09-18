@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Minus",
   "description": "Subtract a Number from a Number.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Minuend",
@@ -32,6 +31,5 @@
     "type": {
       "type": "Number"
     }
-  },
-  "mdnUrl": ""
+  }
 }

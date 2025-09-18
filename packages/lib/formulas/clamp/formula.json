@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Clamp",
   "description": "Limit a value to a specified Min and Max value.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Value",
@@ -43,6 +42,5 @@
       "type": "Number"
     },
     "description": "Returns the input value if between the specified Min and Max. Otherwise, it returns the Min or Max value."
-  },
-  "mdnUrl": ""
+  }
 }

@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Prepend",
   "description": "Add an element to the start of an Array.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Array",
@@ -32,6 +31,5 @@
     "type": {
       "type": "Array"
     }
-  },
-  "mdnUrl": ""
+  }
 }

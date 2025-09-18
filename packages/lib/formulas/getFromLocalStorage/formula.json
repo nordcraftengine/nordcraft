@@ -2,10 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get from Local Storage",
   "description": "Read a value from local storage with the provided key.",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "cache": false,
   "arguments": [
     {

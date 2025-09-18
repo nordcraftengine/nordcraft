@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Multiply",
   "description": "Multiply two or more Numbers.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "0",
@@ -33,6 +32,5 @@
     "type": {
       "type": "Number"
     }
-  },
-  "mdnUrl": ""
+  }
 }

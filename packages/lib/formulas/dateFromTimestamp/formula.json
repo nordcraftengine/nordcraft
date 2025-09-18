@@ -15,12 +15,10 @@
     }
   ],
   "description": "Convert a timestamp (milliseconds) to a Date.",
-  "mdnUrl": "",
   "output": {
     "description": "The input value converted to a Date.",
     "type": {
       "type": "Date"
     }
-  },
-  "mdnUrl": ""
+  }
 }

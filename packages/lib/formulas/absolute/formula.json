@@ -6,13 +6,20 @@
   "arguments": [
     {
       "name": "Value",
-      "formula": { "type": "value", "value": -1 },
-      "type": { "type": "Number" },
+      "formula": {
+        "type": "value",
+        "value": -1
+      },
+      "type": {
+        "type": "Number"
+      },
       "description": "The input Number."
     }
   ],
   "output": {
     "description": "The absolute value of the input.",
-    "type": { "type": "Number" }
+    "type": {
+      "type": "Number"
+    }
   }
 }

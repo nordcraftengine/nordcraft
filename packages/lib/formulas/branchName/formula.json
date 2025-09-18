@@ -2,13 +2,11 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Branch Name",
   "description": "Get the name of the current branch. For production, the branch name is 'main'.",
-  "mdnUrl": "",
   "arguments": [],
   "output": {
     "description": "Returns the name of the current branch.",
     "type": {
       "type": "String"
     }
-  },
-  "mdnUrl": ""
+  }
 }

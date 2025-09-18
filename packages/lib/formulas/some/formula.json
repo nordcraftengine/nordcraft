@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Some",
   "description": "Run a formula on all items of an Array to determine if any item matches a set of conditions.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Array",
@@ -36,6 +35,5 @@
     "type": {
       "type": "Boolean"
     }
-  },
-  "mdnUrl": ""
+  }
 }

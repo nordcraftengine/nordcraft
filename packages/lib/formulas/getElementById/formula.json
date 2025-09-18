@@ -2,10 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get element by id",
   "description": "Return a DOM element with a given id.",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "cache": false,
   "arguments": [
     {

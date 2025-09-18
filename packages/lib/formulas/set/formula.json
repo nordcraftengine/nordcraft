@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Set",
   "description": "Set a value in an Object or Array based on a specified path.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Object",
@@ -43,6 +42,5 @@
     "type": {
       "type": "Object"
     }
-  },
-  "mdnUrl": ""
+  }
 }

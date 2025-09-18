@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Not",
   "description": "Get the Boolean opposite of an input value.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Input",
@@ -21,6 +20,5 @@
     "type": {
       "type": "Boolean"
     }
-  },
-  "mdnUrl": ""
+  }
 }

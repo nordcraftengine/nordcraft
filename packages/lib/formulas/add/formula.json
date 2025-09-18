@@ -5,14 +5,24 @@
     {
       "name": "0",
       "description": "Number to be added.",
-      "type": { "type": "Number" },
-      "formula": { "type": "value", "value": 1 }
+      "type": {
+        "type": "Number"
+      },
+      "formula": {
+        "type": "value",
+        "value": 1
+      }
     },
     {
       "name": "1",
-      "type": { "type": "Number" },
+      "type": {
+        "type": "Number"
+      },
       "description": "Number to be added.",
-      "formula": { "type": "value", "value": 1 }
+      "formula": {
+        "type": "value",
+        "value": 1
+      }
     }
   ],
   "variableArguments": true,
@@ -20,6 +30,8 @@
   "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Add",
   "output": {
     "description": "The sum of all the input numbers.",
-    "type": { "type": "Number" }
+    "type": {
+      "type": "Number"
+    }
   }
 }

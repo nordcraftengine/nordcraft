@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Greater or equal",
   "description": "Compute whether a value is larger than or equal to another value.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "First",
@@ -32,6 +31,5 @@
     "type": {
       "type": "Boolean"
     }
-  },
-  "mdnUrl": ""
+  }
 }

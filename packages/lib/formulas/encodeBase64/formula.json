@@ -15,10 +15,6 @@
     }
   ],
   "description": "Encode a string to base64.",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "output": {
     "description": "The base 64 encoded string.",
     "type": {

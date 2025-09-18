@@ -1,12 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Index of",
-<<<<<<< HEAD
   "description": "Find the index of a specific item in an Array or String.and [String.prototype.indexOf on MDN]() for more information.",
-=======
-  "description": "Find the index of a specific item in an Array or String.",
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Array",

@@ -1,12 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Includes",
-<<<<<<< HEAD
   "description": "Test if an Array or String includes a specific item or value.and [String.prototype.includes on MDN]() for more information.",
-=======
-  "description": "Test if an Array or String includes a specific item or value.",
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Array",

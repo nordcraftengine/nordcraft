@@ -1,12 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Find Last",
-<<<<<<< HEAD
   "description": "Search through an Array of items and apply a formula to each item, to return the last item where the formula returns True.",
-=======
-  "description": "Search through an Array of items and apply a formula to each item, to return the last item where the formula returns True. ",
-  "mdnUrl": "",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Array",
@@ -40,6 +35,5 @@
     "type": {
       "type": "Any"
     }
-  },
-  "mdnUrl": ""
+  }
 }

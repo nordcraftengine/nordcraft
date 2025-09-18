@@ -2,10 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get Http-Only Cookie",
   "description": "Get the value of an Http-Only cookie by name. This formula is only intended to be used server-side for SSR/proxied API requests to read Http-Only cookies.",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Cookie name",

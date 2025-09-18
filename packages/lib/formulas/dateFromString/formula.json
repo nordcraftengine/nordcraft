@@ -15,10 +15,6 @@
     }
   ],
   "description": "Convert a string to a Date.",
-<<<<<<< HEAD
-=======
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date",
->>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "output": {
     "description": "The input value converted to a Date.",
     "type": {

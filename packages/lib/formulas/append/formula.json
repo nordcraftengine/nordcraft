@@ -10,7 +10,10 @@
         "type": "Array"
       },
       "description": "The Array to append to.",
-      "formula": { "type": "array", "arguments": [] }
+      "formula": {
+        "type": "array",
+        "arguments": []
+      }
     },
     {
       "name": "Item",

@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Shuffle",
   "description": "Shuffle items in an Array or String.",
-  "mdnUrl": "",
   "cache": false,
   "arguments": [
     {
@@ -22,6 +21,5 @@
     "type": {
       "type": "Array \\| String"
     }
-  },
-  "mdnUrl": ""
+  }
 }

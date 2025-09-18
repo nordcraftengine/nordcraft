@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Boolean",
   "description": "Convert a value of any type to a Boolean.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Input",

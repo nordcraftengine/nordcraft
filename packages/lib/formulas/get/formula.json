@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get",
   "description": "Extract a value from an Object, Array or String at the specified path.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Object",
@@ -32,6 +31,5 @@
     "type": {
       "type": "Any"
     }
-  },
-  "mdnUrl": ""
+  }
 }

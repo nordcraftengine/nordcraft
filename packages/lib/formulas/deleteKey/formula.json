@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Delete",
   "description": "Return a copy of the input Object or Array without the specified key.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Object",
@@ -32,6 +31,5 @@
     "type": {
       "type": "Object"
     }
-  },
-  "mdnUrl": ""
+  }
 }

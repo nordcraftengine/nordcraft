@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Timestamp",
   "description": "Get the timestamp from a Date, e.g. 1633462980000.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Date",
@@ -21,6 +20,5 @@
     "type": {
       "type": "Number"
     }
-  },
-  "mdnUrl": ""
+  }
 }

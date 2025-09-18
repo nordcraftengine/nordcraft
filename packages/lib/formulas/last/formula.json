@@ -2,7 +2,6 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Last",
   "description": "Get the last item in an Array.",
-  "mdnUrl": "",
   "arguments": [
     {
       "name": "Array",
@@ -21,6 +20,5 @@
     "type": {
       "type": "Any"
     }
-  },
-  "mdnUrl": ""
+  }
 }
