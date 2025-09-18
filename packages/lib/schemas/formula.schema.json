@@ -3,7 +3,6 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Formula",
   "description": "Definition of a formula",
-  "mdnUrl": "Url to the MDN documentation.",
   "type": "object",
   "anyOf": [
     {

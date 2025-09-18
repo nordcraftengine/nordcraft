@@ -18,10 +18,7 @@
       "name": "Formula",
       "formula": {
         "type": "path",
-        "path": [
-          "Args",
-          "item"
-        ]
+        "path": ["Args", "item"]
       },
       "type": {
         "type": "Formula"

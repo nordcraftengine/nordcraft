@@ -19,10 +19,7 @@
       "isFunction": true,
       "formula": {
         "type": "path",
-        "path": [
-          "Args",
-          "item"
-        ]
+        "path": ["Args", "item"]
       },
       "description": "Predicate formula for filtering items.",
       "type": {
