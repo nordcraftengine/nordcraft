@@ -31,6 +31,10 @@
       "properties": {
         "description": { "type": "string", "minLength": 1 }
       }
+    },
+    "mdnUrl": {
+      "type": "string",
+      "description": "Url to the MDN documentation."
     }
   },
   "required": ["name", "description"],

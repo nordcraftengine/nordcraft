@@ -19,10 +19,7 @@
       "isFunction": true,
       "formula": {
         "type": "path",
-        "path": [
-          "Args",
-          "item"
-        ]
+        "path": ["Args", "item"]
       },
       "description": "The predicate formula that each item in the Array is passed to.",
       "type": {
