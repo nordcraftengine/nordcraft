@@ -1,24 +1,41 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Min",
-  "description": "Find the smallest Number from a list of inputs. See [Math.min on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min) for more information.",
+  "description": "Find the smallest Number from a list of inputs.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "0",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "Input number",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     },
     {
       "name": "1",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "Input number",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     }
   ],
   "variableArguments": true,
   "output": {
     "description": "The smallest of the input Numbers.",
-    "type": { "type": "Number" }
-  }
+    "type": {
+      "type": "Number"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min"
 }

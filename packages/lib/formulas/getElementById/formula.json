@@ -1,19 +1,30 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get element by id",
-  "description": "Return a DOM element with a given id. See [Document.getElementById on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById) for more information.",
+  "description": "Return a DOM element with a given id.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "cache": false,
   "arguments": [
     {
       "name": "Id",
-      "formula": { "type": "value", "value": "element-id" },
-      "type": { "type": "String" },
+      "formula": {
+        "type": "value",
+        "value": "element-id"
+      },
+      "type": {
+        "type": "String"
+      },
       "description": "The id of the DOM element to return."
     }
   ],
-
   "output": {
     "description": "The DOM element with the given id. If no DOM element is found, this will return Null.",
-    "type": { "type": "Element" }
-  }
+    "type": {
+      "type": "Element"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById"
 }

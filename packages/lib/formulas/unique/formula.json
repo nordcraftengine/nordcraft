@@ -2,16 +2,25 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Unique",
   "description": "Remove duplicate values from an Array.",
+  "mdnUrl": "",
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": [] },
-      "type": { "type": "Array" },
+      "formula": {
+        "type": "value",
+        "value": []
+      },
+      "type": {
+        "type": "Array"
+      },
       "description": "The input Array."
     }
   ],
   "output": {
     "description": "The input Array with all duplicate values removed.",
-    "type": { "type": "Array" }
-  }
+    "type": {
+      "type": "Array"
+    }
+  },
+  "mdnUrl": ""
 }

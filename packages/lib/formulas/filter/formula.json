@@ -1,24 +1,44 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Filter",
-  "description": "Return a new Array containing only the elements for which the provided formula evaluates to True. See [Array.prototype.filter on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) for more information.",
+  "description": "Return a new Array containing only the elements for which the provided formula evaluates to True.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The array of items to be filtered.",
-      "type": { "type": "Array" }
+      "type": {
+        "type": "Array"
+      }
     },
     {
       "name": "Formula",
       "isFunction": true,
-      "formula": { "type": "path", "path": ["Args", "item"] },
+      "formula": {
+        "type": "path",
+        "path": [
+          "Args",
+          "item"
+        ]
+      },
       "description": "Predicate formula for filtering items.",
-      "type": { "type": "Formula" }
+      "type": {
+        "type": "Formula"
+      }
     }
   ],
   "output": {
     "description": "New Array containing only the items for which the Formula evaluated to True.",
-    "type": { "type": "Array" }
-  }
+    "type": {
+      "type": "Array"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter"
 }

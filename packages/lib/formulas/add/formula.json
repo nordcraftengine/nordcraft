@@ -17,6 +17,7 @@
   ],
   "variableArguments": true,
   "description": "Get the sum of multiple numbers.",
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Add",
   "output": {
     "description": "The sum of all the input numbers.",
     "type": { "type": "Number" }

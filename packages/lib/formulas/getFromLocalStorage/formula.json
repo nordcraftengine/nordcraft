@@ -1,12 +1,19 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get from Local Storage",
-  "description": "Read a value from local storage with the provided key. See [Window.localStorage on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) for more information.",
+  "description": "Read a value from local storage with the provided key.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "cache": false,
   "arguments": [
     {
       "name": "Key",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The key to read from local storage.",
       "type": {
         "type": "String"
@@ -15,6 +22,9 @@
   ],
   "output": {
     "description": "The value found in local storage. If no value is found, this will return Null.",
-    "type": { "type": "Any" }
-  }
+    "type": {
+      "type": "Any"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
 }

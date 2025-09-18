@@ -1,11 +1,18 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Now",
-  "description": "Get a Date representing \"Now\". See [Date.now on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now) for more information.",
+  "description": "Get a Date representing \"Now\".",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [],
   "cache": false,
   "output": {
     "description": "A Date object initialized at the current date/time.",
-    "type": { "type": "Date" }
-  }
+    "type": {
+      "type": "Date"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now"
 }

@@ -1,24 +1,44 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Find",
-  "description": "Search through an Array of items and apply a formula to each item, to return the first item where the provided formula returns True. See [Array.prototype.find on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) for more information.",
+  "description": "Search through an Array of items and apply a formula to each item, to return the first item where the provided formula returns True.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The array to search through",
-      "type": { "type": "Array" }
+      "type": {
+        "type": "Array"
+      }
     },
     {
       "name": "Formula",
       "isFunction": true,
-      "formula": { "type": "path", "path": ["Args", "item"] },
+      "formula": {
+        "type": "path",
+        "path": [
+          "Args",
+          "item"
+        ]
+      },
       "description": "The predicate formula that each item in the array is passed to.",
-      "type": { "type": "Formula" }
+      "type": {
+        "type": "Formula"
+      }
     }
   ],
   "output": {
     "description": "The first item in the Array where the formula returns True. Returns Null if the predicate formula did not return True for any item.",
-    "type": { "type": "Any" }
-  }
+    "type": {
+      "type": "Any"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find"
 }

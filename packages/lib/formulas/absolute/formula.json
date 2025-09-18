@@ -1,7 +1,8 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Absolute",
-  "description": "Get the absolute value of a Number. See [Math.abs on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/abs) for more information.",
+  "description": "Get the absolute value of a Number.",
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/abs",
   "arguments": [
     {
       "name": "Value",

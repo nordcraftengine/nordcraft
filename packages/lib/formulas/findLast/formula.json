@@ -1,24 +1,45 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Find Last",
+<<<<<<< HEAD
+  "description": "Search through an Array of items and apply a formula to each item, to return the last item where the formula returns True.",
+=======
   "description": "Search through an Array of items and apply a formula to each item, to return the last item where the formula returns True. ",
+  "mdnUrl": "",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The array to search.",
-      "type": { "type": "Array" }
+      "type": {
+        "type": "Array"
+      }
     },
     {
       "name": "Formula",
       "isFunction": true,
-      "formula": { "type": "path", "path": ["Args", "item"] },
+      "formula": {
+        "type": "path",
+        "path": [
+          "Args",
+          "item"
+        ]
+      },
       "description": "The predicate formula that each item in the Array is passed to.",
-      "type": { "type": "Formula" }
+      "type": {
+        "type": "Formula"
+      }
     }
   ],
   "output": {
     "description": "The last item in the Array where the formula returns True. Returns Null if the predicate formula did not return True for any item.",
-    "type": { "type": "Any" }
-  }
+    "type": {
+      "type": "Any"
+    }
+  },
+  "mdnUrl": ""
 }

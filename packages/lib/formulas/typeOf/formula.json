@@ -2,16 +2,25 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Type of",
   "description": "Get the type of a given input.",
+  "mdnUrl": "",
   "arguments": [
     {
       "name": "Input",
-      "formula": { "type": "value", "value": 1 },
+      "formula": {
+        "type": "value",
+        "value": 1
+      },
       "description": "The input value.",
-      "type": { "type": "Any" }
+      "type": {
+        "type": "Any"
+      }
     }
   ],
   "output": {
     "description": "The type of the input value. Types can be one of: String, Boolean, Number, Array, Object, or Null.",
-    "type": { "type": "Any" }
-  }
+    "type": {
+      "type": "Any"
+    }
+  },
+  "mdnUrl": ""
 }

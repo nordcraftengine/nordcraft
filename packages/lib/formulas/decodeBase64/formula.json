@@ -4,14 +4,26 @@
   "arguments": [
     {
       "name": "Base64 value",
-      "formula": { "type": "value", "value": "Input value" },
-      "type": { "type": "String" },
+      "formula": {
+        "type": "value",
+        "value": "Input value"
+      },
+      "type": {
+        "type": "String"
+      },
       "description": "The input data encoded as base64."
     }
   ],
-  "description": "Deocde a base64 string to utf-8. See [atob on MDN](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/atob) for more information.",
+  "description": "Deocde a base64 string to utf-8.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/atob",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "output": {
     "description": "The decoded string.",
-    "type": { "type": "String" }
-  }
+    "type": {
+      "type": "String"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/atob"
 }

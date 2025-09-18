@@ -1,11 +1,18 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get Cookie",
-  "description": "Get the value of a cookie by name. This formula is available both server-side and client-side. Http-Only cookies will only be available server-side. See [Document.cookie on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie) for more information.",
+  "description": "Get the value of a cookie by name. This formula is available both server-side and client-side. Http-Only cookies will only be available server-side.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Cookie name",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The name of the cookie you want to get the value of.",
       "type": {
         "type": "String"
@@ -14,6 +21,9 @@
   ],
   "output": {
     "description": "The value of the cookie. If a value is not found, this return value will be Null.",
-    "type": { "type": "String" }
-  }
+    "type": {
+      "type": "String"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie"
 }

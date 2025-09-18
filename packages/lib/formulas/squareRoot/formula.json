@@ -1,17 +1,29 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Square root",
-  "description": "Get the square root of a Number. See [Math.sqrt on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sqrt) for more information.",
+  "description": "Get the square root of a Number.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sqrt",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Number",
-      "formula": { "type": "value", "value": 1 },
+      "formula": {
+        "type": "value",
+        "value": 1
+      },
       "description": "The input Number.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     }
   ],
   "output": {
     "description": "The square root of the input Number.",
-    "type": { "type": "Number" }
-  }
+    "type": {
+      "type": "Number"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sqrt"
 }

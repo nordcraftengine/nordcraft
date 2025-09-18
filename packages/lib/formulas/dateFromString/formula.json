@@ -5,13 +5,25 @@
     {
       "name": "Date string",
       "description": "A String representing a date, for example \"January 1, 1970\".",
-      "type": { "type": "String" },
-      "formula": { "type": "value", "value": "January 1, 1970" }
+      "type": {
+        "type": "String"
+      },
+      "formula": {
+        "type": "value",
+        "value": "January 1, 1970"
+      }
     }
   ],
-  "description": "Convert a string to a Date. See [Date constructor on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date) for more information.",
+  "description": "Convert a string to a Date.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "output": {
     "description": "The input value converted to a Date.",
-    "type": { "type": "Date" }
-  }
+    "type": {
+      "type": "Date"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date"
 }

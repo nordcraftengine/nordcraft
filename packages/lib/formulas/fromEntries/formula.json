@@ -1,17 +1,29 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "From entries",
-  "description": "Transform an Array of key-value pairs into an Object. This formula is the reverse of Entries. See [Object.fromEntries on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries) for more information.",
+  "description": "Transform an Array of key-value pairs into an Object. This formula is the reverse of Entries.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "An Array of Objects. Each Object should have a `key` and `value` property named `key` and `value` respectively e.g. `[{ key: 'yourKey', value: 'yourValue' }]`.",
-      "type": { "type": "Array" }
+      "type": {
+        "type": "Array"
+      }
     }
   ],
   "output": {
     "description": "An Object containing all entries from the input Array in the format `{yourKey: yourValue}`.",
-    "type": { "type": "Object" }
-  }
+    "type": {
+      "type": "Object"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries"
 }

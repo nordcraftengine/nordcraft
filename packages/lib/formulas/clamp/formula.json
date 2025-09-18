@@ -2,28 +2,47 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Clamp",
   "description": "Limit a value to a specified Min and Max value.",
+  "mdnUrl": "",
   "arguments": [
     {
       "name": "Value",
-      "type": { "type": "Number" },
-      "formula": { "type": "value", "value": null },
+      "type": {
+        "type": "Number"
+      },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "Number to round."
     },
     {
       "name": "Min",
-      "type": { "type": "Number" },
+      "type": {
+        "type": "Number"
+      },
       "description": "The smallest allowed Number.",
-      "formula": { "type": "value", "value": 0 }
+      "formula": {
+        "type": "value",
+        "value": 0
+      }
     },
     {
       "name": "Max",
-      "type": { "type": "Number" },
+      "type": {
+        "type": "Number"
+      },
       "description": "The largest allowed Number.",
-      "formula": { "type": "value", "value": 100 }
+      "formula": {
+        "type": "value",
+        "value": 100
+      }
     }
   ],
   "output": {
-    "type": { "type": "Number" },
+    "type": {
+      "type": "Number"
+    },
     "description": "Returns the input value if between the specified Min and Max. Otherwise, it returns the Min or Max value."
-  }
+  },
+  "mdnUrl": ""
 }

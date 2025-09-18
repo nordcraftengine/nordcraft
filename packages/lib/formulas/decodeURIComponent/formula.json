@@ -1,7 +1,11 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Decode URI Component",
-  "description": "Decode a URI component that was previously encoded with the Encode URI Component formula. See [decodeURIComponent on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent) for more information.",
+  "description": "Decode a URI component that was previously encoded with the Encode URI Component formula.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "EncodedURI",
@@ -20,5 +24,6 @@
     "type": {
       "type": "String"
     }
-  }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent"
 }

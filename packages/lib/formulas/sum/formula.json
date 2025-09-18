@@ -1,17 +1,30 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Sum",
+<<<<<<< HEAD
+  "description": "Return the sum of an Array of numbers.",
+=======
   "description": "Return the sum of an Array of numbers",
+  "mdnUrl": "",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Array",
-      "type": { "type": "Array" },
+      "type": {
+        "type": "Array"
+      },
       "description": "The array of numbers to sum.",
-      "formula": { "type": "array", "arguments": [] }
+      "formula": {
+        "type": "array",
+        "arguments": []
+      }
     }
   ],
   "output": {
     "description": "The total sum from adding all the numbers in the Array.",
-    "type": { "type": "Number" }
-  }
+    "type": {
+      "type": "Number"
+    }
+  },
+  "mdnUrl": ""
 }

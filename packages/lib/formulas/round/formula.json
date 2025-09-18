@@ -1,23 +1,40 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Round",
-  "description": "Round a Number to the nearest decimal point. See [Math.round on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round) for more information.",
+  "description": "Round a Number to the nearest decimal point.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Input",
       "description": "Number to round.",
-      "type": { "type": "Number" },
-      "formula": { "type": "value", "value": 1 }
+      "type": {
+        "type": "Number"
+      },
+      "formula": {
+        "type": "value",
+        "value": 1
+      }
     },
     {
       "name": "Decimals",
       "description": "Number of decimals to round to.",
-      "type": { "type": "Number" },
-      "formula": { "type": "value", "value": 0 }
+      "type": {
+        "type": "Number"
+      },
+      "formula": {
+        "type": "value",
+        "value": 0
+      }
     }
   ],
   "output": {
-    "type": { "type": "Number" },
+    "type": {
+      "type": "Number"
+    },
     "description": "The rounded Number."
-  }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round"
 }

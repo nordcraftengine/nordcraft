@@ -1,17 +1,29 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Concatenate",
-  "description": "Concatenate two or more values. See [Array.prototype.concat on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat) for more information.",
+  "description": "Concatenate two or more values.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "0",
-      "formula": { "type": "value", "value": "" },
-      "type": { "type": "Array \\| String" }
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
+      "type": {
+        "type": "Array \\| String"
+      }
     }
   ],
   "variableArguments": true,
   "output": {
-    "type": { "type": "Array \\| String" },
+    "type": {
+      "type": "Array \\| String"
+    },
     "description": "Returns a String or Array containing all the specified input values."
-  }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat"
 }

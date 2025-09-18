@@ -2,16 +2,25 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Not",
   "description": "Get the Boolean opposite of an input value.",
+  "mdnUrl": "",
   "arguments": [
     {
       "name": "Input",
-      "formula": { "type": "value", "value": true },
+      "formula": {
+        "type": "value",
+        "value": true
+      },
       "description": "The input value.",
-      "type": { "type": "Boolean" }
+      "type": {
+        "type": "Boolean"
+      }
     }
   ],
   "output": {
     "description": "Returns True if the input value is False, and False if the input value is True.",
-    "type": { "type": "Boolean" }
-  }
+    "type": {
+      "type": "Boolean"
+    }
+  },
+  "mdnUrl": ""
 }

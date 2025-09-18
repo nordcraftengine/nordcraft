@@ -1,12 +1,19 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get from Session Storage",
-  "description": "Read a value from session storage with the provided key. See [Window.sessionStorage on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage) for more information.",
+  "description": "Read a value from session storage with the provided key.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "cache": false,
   "arguments": [
     {
       "name": "Key",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The key to read from session storage.",
       "type": {
         "type": "String"
@@ -15,6 +22,9 @@
   ],
   "output": {
     "description": "The value found in session storage.",
-    "type": { "type": "Any" }
-  }
+    "type": {
+      "type": "Any"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage"
 }

@@ -1,17 +1,30 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Index of",
-  "description": "Find the index of a specific item in an Array or String. See [Array.prototype.indexOf on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf) and [String.prototype.indexOf on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf) for more information.",
+<<<<<<< HEAD
+  "description": "Find the index of a specific item in an Array or String.and [String.prototype.indexOf on MDN]() for more information.",
+=======
+  "description": "Find the index of a specific item in an Array or String.",
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The value to search.",
-      "type": { "type": "Array \\| String" }
+      "type": {
+        "type": "Array \\| String"
+      }
     },
     {
       "name": "Item",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The items to search for.",
       "type": {
         "type": "Any"
@@ -23,5 +36,6 @@
     "type": {
       "type": "Number"
     }
-  }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf"
 }

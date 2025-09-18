@@ -5,6 +5,9 @@
   "arguments": [],
   "output": {
     "description": "The user agent string.",
-    "type": { "type": "String" }
-  }
+    "type": {
+      "type": "String"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent"
 }

@@ -1,17 +1,29 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Entries",
-  "description": "Get an Array of entries from a given Object. See [Object.entries on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) for more information.",
+  "description": "Get an Array of entries from a given Object.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Object",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "Input record",
-      "type": { "type": "Object" }
+      "type": {
+        "type": "Object"
+      }
     }
   ],
   "output": {
     "description": "Returns an Array of entries for the given input record. The entries are Objects with a “Key” and “Value” property.",
-    "type": { "type": "Array" }
-  }
+    "type": {
+      "type": "Array"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries"
 }

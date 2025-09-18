@@ -2,11 +2,13 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Is Server",
   "description": "Get information about whether formulas are currently evaluated server-side or client-side.",
+  "mdnUrl": "",
   "arguments": [],
   "output": {
     "description": "Returns True if formulas are evaluated server-side, and False if formulas are evaluated client-side.",
     "type": {
       "type": "Boolean"
     }
-  }
+  },
+  "mdnUrl": ""
 }

@@ -1,17 +1,29 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Trim",
-  "description": "Remove any leading and trailing white spaces from a String. See [String.prototype.trim on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trim) for more information.",
+  "description": "Remove any leading and trailing white spaces from a String.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trim",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "String",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The String to trim.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     }
   ],
   "output": {
     "description": "The trimmed String.",
-    "type": { "type": "String" }
-  }
+    "type": {
+      "type": "String"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trim"
 }

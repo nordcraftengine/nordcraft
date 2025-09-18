@@ -1,17 +1,29 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Flatten",
-  "description": "Flatten a nested Array. See [Array.prototype.flat on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) for more information.",
+  "description": "Flatten a nested Array.",
+<<<<<<< HEAD
+=======
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat",
+>>>>>>> 4f8a8e2 (Update formulas: mdnUrl property added including most of the urls)
   "arguments": [
     {
       "name": "Array",
       "description": "An Array containing one or more Arrays.",
-      "type": { "type": "Array" },
-      "formula": { "type": "array", "arguments": [] }
+      "type": {
+        "type": "Array"
+      },
+      "formula": {
+        "type": "array",
+        "arguments": []
+      }
     }
   ],
   "output": {
     "description": "A flattened Array where all items in the original array are concatenated.",
-    "type": { "type": "Array" }
-  }
+    "type": {
+      "type": "Array"
+    }
+  },
+  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat"
 }

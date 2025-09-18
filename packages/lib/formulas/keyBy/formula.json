@@ -2,23 +2,37 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Key by",
   "description": "Organize an Array of items into an Object based on a Key formula.",
+  "mdnUrl": "",
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "Array of items.",
-      "type": { "type": "Array" }
+      "type": {
+        "type": "Array"
+      }
     },
     {
       "name": "Formula",
       "isFunction": true,
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The key formula used to index the items. The String returned from the formula will match the key in the output Object.",
-      "type": { "type": "Formula" }
+      "type": {
+        "type": "Formula"
+      }
     }
   ],
   "output": {
     "description": "An Object where each key matches a value returned by the key formula, and each value is the item that String was returned for.",
-    "type": { "type": "Object" }
-  }
+    "type": {
+      "type": "Object"
+    }
+  },
+  "mdnUrl": ""
 }

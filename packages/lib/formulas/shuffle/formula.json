@@ -2,17 +2,26 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Shuffle",
   "description": "Shuffle items in an Array or String.",
+  "mdnUrl": "",
   "cache": false,
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The input value.",
-      "type": { "type": "Array \\| String" }
+      "type": {
+        "type": "Array \\| String"
+      }
     }
   ],
   "output": {
     "description": "The shuffled Array or String.",
-    "type": { "type": "Array \\| String" }
-  }
+    "type": {
+      "type": "Array \\| String"
+    }
+  },
+  "mdnUrl": ""
 }

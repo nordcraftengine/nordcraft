@@ -2,22 +2,36 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Modulo",
   "description": "Get the remainder when dividing two Numbers.",
+  "mdnUrl": "",
   "arguments": [
     {
       "name": "Dividend",
-      "formula": { "type": "value", "value": 1 },
+      "formula": {
+        "type": "value",
+        "value": 1
+      },
       "description": "The number to be divided.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     },
     {
       "name": "Divider",
-      "formula": { "type": "value", "value": 1 },
+      "formula": {
+        "type": "value",
+        "value": 1
+      },
       "description": "The number to divide by.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     }
   ],
   "output": {
     "description": "The remainder when the Dividend is divided by the Divider.",
-    "type": { "type": "Number" }
-  }
+    "type": {
+      "type": "Number"
+    }
+  },
+  "mdnUrl": ""
 }

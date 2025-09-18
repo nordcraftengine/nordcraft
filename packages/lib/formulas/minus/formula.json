@@ -2,22 +2,36 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Minus",
   "description": "Subtract a Number from a Number.",
+  "mdnUrl": "",
   "arguments": [
     {
       "name": "Minuend",
-      "formula": { "type": "value", "value": 1 },
+      "formula": {
+        "type": "value",
+        "value": 1
+      },
       "description": "The number to subtract from.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     },
     {
       "name": "Substrahend",
-      "formula": { "type": "value", "value": 1 },
+      "formula": {
+        "type": "value",
+        "value": 1
+      },
       "description": "The number to subtract.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     }
   ],
   "output": {
     "description": "The result of subtracting the Substrahend from the Minuend.",
-    "type": { "type": "Number" }
-  }
+    "type": {
+      "type": "Number"
+    }
+  },
+  "mdnUrl": ""
 }

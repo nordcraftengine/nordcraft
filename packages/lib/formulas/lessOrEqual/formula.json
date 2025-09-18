@@ -2,22 +2,36 @@
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Less or equal",
   "description": "Compute if a value is smaller than or equal to another value.",
+  "mdnUrl": "",
   "arguments": [
     {
       "name": "First",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "First Number to be compared.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     },
     {
       "name": "Second",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "Second Number to be compared.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     }
   ],
   "output": {
     "description": "Returns True if the First Number is smaller than or equal to the second Number, otherwise it returns False.",
-    "type": { "type": "Boolean" }
-  }
+    "type": {
+      "type": "Boolean"
+    }
+  },
+  "mdnUrl": ""
 }
