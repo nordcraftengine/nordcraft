@@ -8,6 +8,7 @@ import { noReferenceProjectActionRule } from './rules/actions/noReferenceProject
 import { unknownProjectActionRule } from './rules/actions/unknownProjectActionRule'
 import { legacyApiRule } from './rules/apis/legacyApiRule'
 import { noReferenceApiRule } from './rules/apis/noReferenceApiRule'
+import { noReferenceApiServiceRule } from './rules/apis/noReferenceApiServiceRule'
 import { unknownApiInputRule } from './rules/apis/unknownApiInputRule'
 import { unknownApiRule } from './rules/apis/unknownApiRule'
 import { noReferenceAttributeRule } from './rules/attributes/noReferenceAttributeRule'
@@ -155,6 +156,7 @@ const RULES = [
   nonEmptyVoidElementRule,
   noPostNavigateAction,
   noReferenceApiRule,
+  noReferenceApiServiceRule,
   noReferenceAttributeRule,
   noReferenceComponentFormulaRule,
   noReferenceComponentRule,
