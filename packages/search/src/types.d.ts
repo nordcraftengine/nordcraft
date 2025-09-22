@@ -25,6 +25,7 @@ import type {
 import type { LegacyActionRuleFix } from './rules/actions/legacyActionRule'
 import type { NoReferenceProjectActionRuleFix } from './rules/actions/noReferenceProjectActionRule'
 import type { NoReferenceApiRuleFix } from './rules/apis/noReferenceApiRule'
+import type { NoReferenceApiServiceRuleFix } from './rules/apis/noReferenceApiServiceRule'
 import type { NoReferenceAttributeRuleFix } from './rules/attributes/noReferenceAttributeRule'
 import type { UnknownComponentAttributeRuleFix } from './rules/attributes/unknownComponentAttributeRule'
 import type { NoReferenceComponentRuleFix } from './rules/components/noReferenceComponentRule'
@@ -54,6 +55,7 @@ type Code =
   | 'no-console'
   | 'no-reference api input'
   | 'no-reference api'
+  | 'no-reference api service'
   | 'no-reference attribute'
   | 'no-reference component formula'
   | 'no-reference component workflow'
@@ -355,6 +357,7 @@ type FixType =
   | NoReferenceProjectFormulaRuleFix
   | NoReferenceProjectActionRuleFix
   | NoReferenceApiRuleFix
+  | NoReferenceApiServiceRuleFix
   | NoReferenceAttributeRuleFix
   | NoReferenceEventRuleFix
   | NoReferenceComponentFormulaRuleFix
