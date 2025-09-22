@@ -16,7 +16,7 @@
     "@types/bun": "1.2.21",
     "@typescript-eslint/eslint-plugin": "8.43.0",
     "@typescript-eslint/parser": "8.43.0",
-    "esbuild": "0.25.5",
+    "esbuild": "0.25.10",
     "eslint-plugin-inclusive-language": "2.2.1",
     "eslint": "9.35.0",
     "prettier-plugin-organize-imports": "4.2.0",
