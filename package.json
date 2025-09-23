@@ -9,16 +9,16 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@eslint/js": "9.35.0",
+    "@eslint/js": "9.36.0",
     "@html-eslint/eslint-plugin": "0.46.2",
     "@html-eslint/parser": "0.46.2",
     "@octokit/core": "7.0.3",
     "@types/bun": "1.2.21",
-    "@typescript-eslint/eslint-plugin": "8.43.0",
-    "@typescript-eslint/parser": "8.43.0",
+    "@typescript-eslint/eslint-plugin": "8.44.0",
+    "@typescript-eslint/parser": "8.44.0",
     "esbuild": "0.25.5",
     "eslint-plugin-inclusive-language": "2.2.1",
-    "eslint": "9.35.0",
+    "eslint": "9.36.0",
     "prettier-plugin-organize-imports": "4.2.0",
     "prettier": "3.6.2",
     "typescript": "5.9.2"
