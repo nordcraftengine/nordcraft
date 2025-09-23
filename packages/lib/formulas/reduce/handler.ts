@@ -2,7 +2,7 @@ import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
 /**
  * Similar to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
- * but also works with objects.
+ * but also works with objects
  */
 const handler: FormulaHandler<unknown> = ([items, fx, init]) => {
   if (typeof fx !== 'function') {
