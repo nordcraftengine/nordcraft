@@ -10,7 +10,6 @@ const handler: FormulaHandler<number> = ([collection, item]) => {
       (globalThis as any).toddle.isEqual(i, item),
     )
   }
-  // throw new Error("Argument 'Array' must be of type array or string")
   return null
 }
 

@@ -20,6 +20,5 @@
       "type": "Number"
     },
     "description": "The natural logarithm of the Number."
-  },
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log"
+  }
 }

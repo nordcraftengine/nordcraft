@@ -1,8 +1,11 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
+/**
+ * Similar to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
+ * but this implementation also supports objects
+ */
 export const handler: FormulaHandler<number> = ([items, fx]: unknown[]) => {
   if (typeof fx !== 'function') {
-    // throw new Error("Argument 'Formula' must be of type formula")
     return null
   }
   if (Array.isArray(items)) {
@@ -11,7 +14,6 @@ export const handler: FormulaHandler<number> = ([items, fx]: unknown[]) => {
   if (items && typeof items === 'object') {
     return Object.entries(items).findIndex(([key, value]) => fx({ key, value }))
   }
-  // throw new Error("Argument 'Array' must be of type object or array")
   return null
 }
 

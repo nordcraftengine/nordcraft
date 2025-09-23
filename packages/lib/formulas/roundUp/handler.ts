@@ -2,15 +2,14 @@ import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
 const handler: FormulaHandler<number> = ([input, decimals]) => {
   if (typeof input !== 'number') {
-    // throw new Error("Argument 'Input' must be of type number")
     return null
   }
   if (typeof decimals !== 'number') {
-    // throw new Error("Argument 'Decimals' must be of type number")
     return null
   }
 
   const multiplier = Math.max(1, Math.pow(10, decimals))
+  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/ceil
   return Math.ceil(input * multiplier) / multiplier
 }
 

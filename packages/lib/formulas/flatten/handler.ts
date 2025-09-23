@@ -2,9 +2,9 @@ import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
 const handler: FormulaHandler<Array<unknown>> = ([items]) => {
   if (Array.isArray(items)) {
+    // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
     return items.flat()
   }
-  // throw new Error("Argument 'Array' must be of type array")
   return null
 }
 

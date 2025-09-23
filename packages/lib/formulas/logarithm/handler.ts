@@ -9,7 +9,7 @@ const handler: FormulaHandler<number> = ([a]) => {
   if (a < 0) {
     return null
   }
-
+  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log
   return Math.log(a)
 }
 

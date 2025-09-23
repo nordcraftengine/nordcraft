@@ -1,8 +1,11 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
+/**
+ * Similar to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
+ * but this implementation also supports objects
+ */
 export const handler: FormulaHandler<unknown> = ([items, fx]) => {
   if (typeof fx !== 'function') {
-    // throw new Error("Argument 'Formula' must be of type formula")
     return null
   }
   if (Array.isArray(items)) {
@@ -11,7 +14,6 @@ export const handler: FormulaHandler<unknown> = ([items, fx]) => {
   if (items && typeof items === 'object') {
     return Object.entries(items).find(([key, value]) => fx({ key, value }))?.[1]
   }
-  // throw new Error("Argument 'Array' must be of type object or array")
   return null
 }
 

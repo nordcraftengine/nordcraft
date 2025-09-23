@@ -5,12 +5,9 @@ export const handler: FormulaHandler<Record<string, Array<unknown>>> = ([
   func,
 ]) => {
   if (typeof func !== 'function') {
-    // throw new Error("Argument 'Formula' must be of type formula")
     return null
   }
-
   if (!items || typeof items !== 'object') {
-    // throw new Error("Argument 'Array' must be of type array")
     return null
   }
 

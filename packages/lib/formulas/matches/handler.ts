@@ -18,6 +18,7 @@ const handler: FormulaHandler<Array<string>> = ([
   ].join('')
 
   const re = new RegExp(regex, flags)
+  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match
   return inputString.match(re) ?? []
 }
 export default handler

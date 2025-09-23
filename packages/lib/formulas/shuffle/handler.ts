@@ -7,7 +7,6 @@ const handler: FormulaHandler<Array<unknown> | string> = ([list]) => {
   if (typeof list === 'string') {
     return shuffle(list.split('')).join('')
   }
-  // throw new Error("Argument 'Array' must be of type array or string")
   return null
 }
 

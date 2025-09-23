@@ -5,6 +5,13 @@
   "description": "A builtin formula in the Nordcraft runtime",
   "type": "object",
   "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "../../schemas/libFormula.schema.json"
+    },
+    "cache": {
+      "type": "boolean"
+    },
     "name": {
       "type": "string",
       "minLength": 1
@@ -32,11 +39,8 @@
         "description": { "type": "string", "minLength": 1 }
       }
     },
-    "mdnUrl": {
-      "type": "string",
-      "description": "Url to the MDN documentation."
-    }
+    "variableArguments": { "type": "boolean" }
   },
   "required": ["name", "description"],
-  "additionalProperties": true
+  "additionalProperties": false
 }

@@ -9,6 +9,5 @@
     "type": {
       "type": "Date"
     }
-  },
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now"
+  }
 }

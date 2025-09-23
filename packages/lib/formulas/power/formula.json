@@ -31,6 +31,5 @@
       "type": "Number"
     },
     "description": "The result of raising the base to the exponent."
-  },
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/pow"
+  }
 }
