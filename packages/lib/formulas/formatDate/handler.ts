@@ -1,8 +1,10 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
+/**
+ * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
+ */
 const handler: FormulaHandler<string> = ([date, loc, opt]) => {
   if (!date || !(date instanceof Date)) {
-    // throw new Error('Invalid input for Date')
     return null
   }
   const locales =
@@ -11,7 +13,6 @@ const handler: FormulaHandler<string> = ([date, loc, opt]) => {
       : Array.isArray(loc) && loc.every((l) => typeof l === 'string')
         ? (loc as string[])
         : undefined
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (!opt || typeof opt !== 'object') {
     return Intl.DateTimeFormat(locales).format(date)
   }

@@ -1,11 +1,14 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
+/**
+ * Similar to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+ * but also works for objects
+ */
 const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = ([
   items,
   fx,
 ]) => {
   if (typeof fx !== 'function') {
-    // throw new Error("Argument 'Formula' must be of type formula")
     return null
   }
   if (Array.isArray(items)) {
@@ -22,7 +25,6 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = ([
       }),
     )
   }
-  // throw new Error("Argument 'Array' must be of type array or object")
   return null
 }
 

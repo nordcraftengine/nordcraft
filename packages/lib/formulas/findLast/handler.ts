@@ -2,7 +2,6 @@ import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
 export const handler: FormulaHandler<unknown> = ([items, fx]) => {
   if (typeof fx !== 'function') {
-    // throw new Error("Argument 'Formula' must be of type formula")
     return null
   }
   if (Array.isArray(items)) {
@@ -13,7 +12,6 @@ export const handler: FormulaHandler<unknown> = ([items, fx]) => {
       fx({ key, value }),
     )?.[1]
   }
-  // throw new Error("Argument 'Array' must be of type object or array")
   return null
 }
 

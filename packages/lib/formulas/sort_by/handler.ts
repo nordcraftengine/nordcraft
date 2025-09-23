@@ -6,19 +6,16 @@ const handler: FormulaHandler<Array<unknown>> = ([
   ascending,
 ]) => {
   if (!Array.isArray(array)) {
-    // throw new Error("Argument 'Array' must be an array")
     return null
   }
   if (typeof formula !== 'function') {
-    // throw new Error("Argument 'Formula' must be a formula")
     return null
   }
   if (typeof ascending !== 'boolean') {
-    // throw new Error("Argument 'Ascending?' must be a boolean")
     return null
   }
-
   const ascendingModifier = ascending ? 1 : -1
+  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
   return [...array].sort((a: any, b: any) => {
     const keyA = formula({ item: a })
     const keyB = formula({ item: b })

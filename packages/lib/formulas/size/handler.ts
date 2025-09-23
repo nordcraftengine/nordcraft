@@ -11,7 +11,6 @@ const handler: FormulaHandler<number> = ([collection]) => {
   if (typeof collection === 'string') {
     return collection.length
   }
-  // throw new Error("Argument 'Array' must be of type array or string")
   return null
 }
 

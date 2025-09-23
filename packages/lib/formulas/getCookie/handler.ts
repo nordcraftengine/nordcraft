@@ -9,6 +9,7 @@ const handler: FormulaHandler<string> = ([name], { env, root }) => {
       return null
     }
     return (
+      // See https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie
       root.cookie
         .split('; ')
         ?.find((row) => row.startsWith(`${name}=`))

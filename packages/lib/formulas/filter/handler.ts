@@ -1,13 +1,15 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
+/**
+ * Similar to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+ * but this implementation also supports objects
+ */
 export const handler: FormulaHandler<
   Array<unknown> | Record<string, unknown>
 > = ([items, func]) => {
   if (typeof func !== 'function') {
-    // throw new Error("Argument 'Formula' must be of type Formula")
     return null
   }
-
   if (Array.isArray(items)) {
     return items.filter((item, index) => func({ item, index }))
   }
@@ -19,7 +21,6 @@ export const handler: FormulaHandler<
   if (Array.isArray(items)) {
     return items.filter((item, index) => func({ item, index }))
   }
-  // throw new Error("Argument 'Array' must be of type array or object")
   return null
 }
 

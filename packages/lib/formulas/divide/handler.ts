@@ -2,9 +2,9 @@ import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
 const handler: FormulaHandler<number> = ([a, b]) => {
   if (isNaN(Number(a)) || isNaN(Number(b))) {
-    // throw new Error('Both arguments must be of type number')
     return null
   }
+  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Division
   return Number(a) / Number(b)
 }
 

@@ -7,6 +7,7 @@ const handler: FormulaHandler<
   if (items.every(Array.isArray)) {
     const result = []
     for (const item of items) {
+      // Similar to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
       result.push(...item)
     }
     return result

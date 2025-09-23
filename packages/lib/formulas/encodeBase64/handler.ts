@@ -2,9 +2,9 @@ import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
 const handler: FormulaHandler<string> = ([input]) => {
   if (typeof input !== 'string') {
-    // throw new Error("Argument 'Input' must be a string")
     return null
   }
+  // See https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa
   return btoa(input)
 }
 

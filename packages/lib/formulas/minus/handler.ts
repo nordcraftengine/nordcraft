@@ -4,9 +4,9 @@ const handler: FormulaHandler<number> = ([a, b]) => {
   const first = Number(a)
   const second = Number(b)
   if (isNaN(first) || isNaN(second)) {
-    // throw new Error('Both Arguments must be of type number')
     return null
   }
+  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Subtraction
   return first - second
 }
 

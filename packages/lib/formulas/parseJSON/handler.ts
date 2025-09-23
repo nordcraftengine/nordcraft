@@ -3,10 +3,10 @@ import { parseJSONWithDate } from '@nordcraft/core/dist/utils/json'
 
 const handler: FormulaHandler<unknown> = ([data]) => {
   if (typeof data !== 'string') {
-    // throw new Error("Argument 'JSON string' must be of type string")
     return null
   }
   try {
+    // Similar to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse
     return parseJSONWithDate(data)
   } catch {
     return null

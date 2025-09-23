@@ -42,6 +42,5 @@
     "type": {
       "type": "String"
     }
-  },
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat"
+  }
 }

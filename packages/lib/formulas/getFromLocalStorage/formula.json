@@ -21,6 +21,5 @@
     "type": {
       "type": "Any"
     }
-  },
-  "mdnUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
+  }
 }
