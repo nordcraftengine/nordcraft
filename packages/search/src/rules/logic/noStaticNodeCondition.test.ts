@@ -161,6 +161,7 @@ describe('noStaticNodeCondition', () => {
       files,
       rule: noStaticNodeCondition,
       fixType: 'remove-condition',
+      pathsToVisit: [['components', 'test', 'nodes', 'root', 'condition']],
     })
     expect(fixedFiles).toMatchInlineSnapshot(`
       {
@@ -260,6 +261,9 @@ describe('noStaticNodeCondition', () => {
       files,
       rule: noStaticNodeCondition,
       fixType: 'remove-node',
+      pathsToVisit: [
+        ['components', 'test', 'nodes', 'alwaysHiddenElement', 'condition'],
+      ],
     })
 
     expect(fixedFiles).toMatchInlineSnapshot(`

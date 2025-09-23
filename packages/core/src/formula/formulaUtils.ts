@@ -262,6 +262,7 @@ export function* getFormulasInAction<Handler>({
       break
     case 'SetVariable':
     case 'TriggerEvent':
+    case 'TriggerWorkflowCallback':
       yield* getFormulasInFormula({
         formula: action.data,
         globalFormulas,

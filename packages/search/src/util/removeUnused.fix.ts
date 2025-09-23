@@ -9,12 +9,8 @@ export const removeFromPathFix: FixFunction<NodeType> = ({ path, files }) =>
  * Same as removeFromPathFix, but also cleans up any references to the removed node.
  */
 export const removeNodeFromPathFix: FixFunction<NodeType> = (data) => {
-  if (data.nodeType !== 'component-node') {
-    throw new Error('removeNodeFromPathFix can only be used on component nodes')
-  }
-
-  const componentNodesPath = data.path.map(String)
-  const nodeId = componentNodesPath.pop()!
+  const nodeId = String(data.path[data.path.length - 1])
+  const componentNodesPath = data.path.slice(0, -1).map(String)
   const nodes = { ...get(data.files, componentNodesPath) } as Record<
     string,
     NodeModel
