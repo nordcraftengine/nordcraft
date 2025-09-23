@@ -10,7 +10,7 @@ const app = getApp({
     loader: ({ name }) =>
       loadJsFile<ProjectFilesWithCustomCode>(`./components/${name}.js`),
     urls: {
-      pageStylesheetUrl: (name) => `/_static/${name}}.css`,
+      pageStylesheetUrl: (name) => `/_static/${name}.css`,
       customCodeUrl: (name) => `/_static/cc_${name}.js`,
     },
   },
