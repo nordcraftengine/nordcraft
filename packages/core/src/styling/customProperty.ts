@@ -74,6 +74,12 @@ function solveVarRecursively(initialValue: string, theme: Theme, depth = 0) {
   let match
   while ((match = VAR_REGEX.exec(initialValue))) {
     const varName = match[1]
+    if (
+      !isDefined(theme.propertyDefinitions?.[varName as CustomPropertyName])
+    ) {
+      return null
+    }
+
     const value =
       theme.propertyDefinitions?.[varName as CustomPropertyName].initialValue
     const returnValue = initialValue.replace(match[0], String(value))
