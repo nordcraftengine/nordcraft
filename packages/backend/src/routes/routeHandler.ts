@@ -12,7 +12,10 @@ import {
   getRouteDestination,
   matchRouteForUrl,
 } from '@nordcraft/ssr/dist/routing/routing'
-import { REDIRECT_NAME_HEADER } from '@nordcraft/ssr/src/utils/headers'
+import {
+  REDIRECT_NAME_HEADER,
+  skipCookieHeader,
+} from '@nordcraft/ssr/src/utils/headers'
 import type { Handler } from 'hono'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 
@@ -62,7 +65,7 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     })
   }
   try {
-    const headers = new Headers()
+    const headers = skipCookieHeader(c.req.raw.headers)
     // Add header to identify that this is a rewrite
     // This allows us to avoid recursive fetch calls across Nordcraft routes
     headers.set(REWRITE_HEADER, 'true')
