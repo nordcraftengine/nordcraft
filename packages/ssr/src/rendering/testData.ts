@@ -14,7 +14,13 @@ export const removeTestData = (component: Component): Component => ({
     key,
     omitKeys(value, ['testValue']),
   ]),
-  events: component.events?.map((event) => omitKeys(event, ['dummyEvent'])),
+  ...(component.events
+    ? {
+        events: component.events.map((event) =>
+          omitKeys(event, ['dummyEvent']),
+        ),
+      }
+    : undefined),
   nodes: mapObject(component.nodes, ([key, value]) => {
     if (value.type === 'element') {
       const updatedNode: NodeModel = {
@@ -83,18 +89,23 @@ export const removeTestData = (component: Component): Component => ({
     // request is available on the api object itself
     isLegacyApi(api) ? api : omitKeys(api, ['service', 'servicePath']),
   ]),
-  onLoad: component.onLoad
+  ...(component.onLoad
     ? {
-        ...component.onLoad,
-        actions: component.onLoad.actions.map(removeActionTestData),
+        onLoad: {
+          ...component.onLoad,
+          actions: component.onLoad.actions.map(removeActionTestData),
+        },
       }
-    : undefined,
-  onAttributeChange: component.onAttributeChange
+    : undefined),
+  ...(component.onAttributeChange
     ? {
-        ...component.onAttributeChange,
-        actions: component.onAttributeChange.actions.map(removeActionTestData),
+        onAttributeChange: {
+          ...component.onAttributeChange,
+          actions:
+            component.onAttributeChange.actions.map(removeActionTestData),
+        },
       }
-    : undefined,
+    : undefined),
 })
 
 const removeActionTestData = (action: ActionModel): ActionModel => {
@@ -102,21 +113,27 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
     case 'SetVariable':
       return {
         ...action,
-        data: action.data ? removeFormulaTestData(action.data) : action.data,
+        ...(action.data
+          ? { data: removeFormulaTestData(action.data) }
+          : undefined),
       }
     case 'TriggerEvent':
     case 'SetURLParameter':
     case 'TriggerWorkflowCallback':
       return {
         ...action,
-        data: action.data ? removeFormulaTestData(action.data) : action.data,
+        ...(action.data
+          ? { data: removeFormulaTestData(action.data) }
+          : undefined),
       }
     case 'Switch':
       return {
         ...action,
         cases: action.cases.map((c) => ({
           ...c,
-          condition: c.condition ? removeFormulaTestData(c.condition) : null,
+          ...(c.condition
+            ? { condition: removeFormulaTestData(c.condition) }
+            : undefined),
           actions: c.actions.map(removeActionTestData),
         })),
         default: {
@@ -132,9 +149,9 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
               key,
               {
                 ...value,
-                formula: value.formula
-                  ? removeFormulaTestData(value.formula)
-                  : value.formula,
+                ...(value.formula
+                  ? { formula: removeFormulaTestData(value.formula) }
+                  : undefined),
               },
             ])
           : action.inputs,
@@ -160,23 +177,30 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
         // not have been persisted in projects. But since it's there (for some actions)
         // we should remove it
         ...omitKeys(action, ['description', 'group', 'label']),
-        arguments: action.arguments
-          ? action.arguments.map((a) =>
-              a ? removeActionArgumentTestData(a) : a,
-            )
-          : action.arguments,
-        events: action.events
-          ? mapObject(action.events ?? {}, ([eventKey, eventValue]) => [
-              eventKey,
-              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-              eventValue
-                ? {
-                    ...eventValue,
-                    actions: eventValue.actions.map(removeActionTestData),
-                  }
-                : eventValue,
-            ])
-          : action.events,
+        ...(action.arguments
+          ? {
+              arguments: action.arguments.map((a) =>
+                a ? removeActionArgumentTestData(a) : a,
+              ),
+            }
+          : undefined),
+        ...(action.events
+          ? {
+              events: mapObject(
+                action.events ?? {},
+                ([eventKey, eventValue]) => [
+                  eventKey,
+                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                  eventValue
+                    ? {
+                        ...eventValue,
+                        actions: eventValue.actions.map(removeActionTestData),
+                      }
+                    : eventValue,
+                ],
+              ),
+            }
+          : undefined),
       }
     case 'SetURLParameters':
       return {
@@ -189,25 +213,29 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
     case 'TriggerWorkflow':
       return {
         ...action,
-        parameters: action.parameters
-          ? mapObject(action.parameters, ([key, value]) => [
-              key,
-              {
-                ...value,
-                formula: isFormula(value)
-                  ? removeFormulaTestData(value)
-                  : isFormula(value.formula)
-                    ? removeFormulaTestData(value.formula)
-                    : value.formula,
-              },
-            ])
-          : action.parameters,
-        callbacks: action.callbacks
-          ? mapObject(action.callbacks, ([key, value]) => [
-              key,
-              { ...value, actions: value.actions.map(removeActionTestData) },
-            ])
-          : action.callbacks,
+        ...(action.parameters
+          ? {
+              parameters: mapObject(action.parameters, ([key, value]) => [
+                key,
+                {
+                  ...value,
+                  formula: isFormula(value)
+                    ? removeFormulaTestData(value)
+                    : isFormula(value.formula)
+                      ? removeFormulaTestData(value.formula)
+                      : value.formula,
+                },
+              ]),
+            }
+          : undefined),
+        ...(action.callbacks
+          ? {
+              callbacks: mapObject(action.callbacks, ([key, value]) => [
+                key,
+                { ...value, actions: value.actions.map(removeActionTestData) },
+              ]),
+            }
+          : undefined),
       }
   }
 }
