@@ -250,6 +250,9 @@ const removeActionArgumentTestData = (action: CustomActionArgument) => {
 }
 
 const removeFormulaTestData = (formula: Formula): Formula => {
+  if (!isFormula(formula)) {
+    return formula
+  }
   switch (formula.type) {
     case 'path':
     case 'value':
