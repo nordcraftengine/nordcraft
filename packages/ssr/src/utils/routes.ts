@@ -107,15 +107,18 @@ export const splitRoutes = (json: {
                   key,
                   {
                     ...pkg,
-                    components: filterObject(
-                      pkg.components,
-                      ([_, pkgComponent]) =>
+                    components: mapObject(
+                      // Only include package components that are used by the page
+                      filterObject(pkg.components, ([_, pkgComponent]) =>
                         components.some(
                           (c) =>
                             pkgComponent &&
                             c.name ===
                               `${pkg.manifest.name}/${pkgComponent.name}`,
                         ),
+                      ),
+                      // Remove test data from package components
+                      ([cKey, c]) => [cKey, c ? removeTestData(c) : c],
                     ),
                     // Actions are not available during SSR
                     actions: {},

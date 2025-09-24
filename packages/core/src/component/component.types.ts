@@ -217,6 +217,7 @@ export interface ComponentWorkflow extends NordcraftMetadata {
   callbacks?: Array<{ name: string; testValue: any }>
   actions: ActionModel[]
   exposeInContext?: boolean
+  testValue?: any
 }
 
 export interface ComponentContext {
@@ -289,7 +290,7 @@ export interface EventModel {
 
 export interface CustomActionArgument {
   name: string
-  formula: Formula
+  formula?: Formula
   type?: any
   description?: string
 }
@@ -302,7 +303,7 @@ export interface CustomActionModel {
   description?: string
   group?: string
   data?: string | number | boolean | Formula
-  arguments?: CustomActionArgument[]
+  arguments?: Partial<CustomActionArgument[]>
   events?: Record<string, { actions: ActionModel[] }>
   version?: 2 | never
   label?: string
@@ -321,7 +322,7 @@ export interface SwitchActionModel {
 export interface VariableActionModel {
   type: 'SetVariable'
   variable: string
-  data: Formula
+  data: Formula | null
 }
 export interface FetchActionModel {
   type: 'Fetch'
@@ -335,7 +336,7 @@ export interface FetchActionModel {
 export interface SetURLParameterAction {
   type: 'SetURLParameter'
   parameter: string
-  data: Formula
+  data: Formula | null
   historyMode?: 'replace' | 'push' | null
 }
 
@@ -348,13 +349,13 @@ export interface SetMultiUrlParameterAction {
 export interface EventActionModel {
   type: 'TriggerEvent'
   event: string
-  data: Formula
+  data: Formula | null
 }
 
 export interface WorkflowActionModel {
   type: 'TriggerWorkflow'
   workflow: string
-  parameters: Record<string, { formula: Formula }>
+  parameters: Record<string, { formula?: Formula }> | null
   callbacks?: Record<string, { actions: ActionModel[] }>
   contextProvider?: string
 }
@@ -362,7 +363,7 @@ export interface WorkflowActionModel {
 export interface WorkflowCallbackActionModel {
   type: 'TriggerWorkflowCallback'
   event: string
-  data: Formula
+  data: Formula | null
 }
 
 export type ActionModel =

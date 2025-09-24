@@ -437,18 +437,21 @@ export function handleAction(
             const args = (action.arguments ?? []).reduce<
               Record<string, unknown>
             >(
-              (args, arg) => ({
-                ...args,
-                [arg.name]: applyFormula(arg.formula, {
-                  data,
-                  component: ctx.component,
-                  formulaCache: ctx.formulaCache,
-                  root: ctx.root,
-                  package: ctx.package,
-                  toddle: ctx.toddle,
-                  env: ctx.env,
-                }),
-              }),
+              (args, arg) =>
+                arg
+                  ? {
+                      ...args,
+                      [arg.name]: applyFormula(arg.formula, {
+                        data,
+                        component: ctx.component,
+                        formulaCache: ctx.formulaCache,
+                        root: ctx.root,
+                        package: ctx.package,
+                        toddle: ctx.toddle,
+                        env: ctx.env,
+                      }),
+                    }
+                  : args,
               {},
             )
             const result = newAction.handler?.(
@@ -491,7 +494,7 @@ export function handleAction(
             }
             // First evaluate any arguments (input) to the action
             const args = action.arguments?.map((arg) =>
-              applyFormula(arg.formula, {
+              applyFormula(arg?.formula, {
                 data,
                 component: ctx.component,
                 formulaCache: ctx.formulaCache,
