@@ -62,11 +62,11 @@ export const splitRoutes = (json: {
           packages: files.packages,
           includeRoot: true,
         })
-        const theme =
-          (files.themes
-            ? Object.values(files.themes)[0]
-            : files.config?.theme) ?? defaultTheme
-        const styles = createStylesheet(component, components, theme, {
+        const themes = files.themes ?? {
+          defaultTheme: files.config?.theme ?? defaultTheme,
+        }
+
+        const styles = createStylesheet(component, components, themes, {
           // The reset stylesheet is loaded separately
           includeResetStyle: false,
           // Font faces are created from a stylesheet referenced in the head

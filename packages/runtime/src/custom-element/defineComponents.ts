@@ -27,7 +27,7 @@ export const defineComponents = (
   componentNames: string[],
   options: {
     components: Component[]
-    themes: Theme[]
+    themes: Record<string, Theme>
   },
   toddle: Toddle<LocationSignal, never>,
 ) => {
