@@ -23,7 +23,7 @@ export const noReferenceEventRule: Rule<{ name: string }> = {
             action.version === undefined
           ) {
             const formula = action.arguments?.find(
-              (a) => a.name === 'name',
+              (a) => a?.name === 'name',
             )?.formula
             if (
               formula?.type === 'value' &&

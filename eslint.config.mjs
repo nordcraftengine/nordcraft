@@ -72,7 +72,10 @@ export default defineConfig([
       '@typescript-eslint/prefer-optional-chain': 'error',
       '@typescript-eslint/restrict-template-expressions': 'warn',
       '@typescript-eslint/return-await': 'warn',
-      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      '@typescript-eslint/switch-exhaustiveness-check': [
+        'error',
+        { considerDefaultExhaustiveForUnions: true },
+      ],
       'max-params': ['error', 3],
       'no-return-await': 'off',
       'no-unused-vars': 'off',
