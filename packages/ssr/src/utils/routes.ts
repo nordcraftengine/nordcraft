@@ -6,7 +6,7 @@ import {
 } from '@nordcraft/core/dist/formula/formulaTypes'
 import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
 import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
-import { filterObject } from '@nordcraft/core/dist/utils/collections'
+import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { takeIncludedComponents } from '../components/utils'
 import {
   generateCustomCodeFile,
@@ -101,8 +101,35 @@ export const splitRoutes = (json: {
             components.map((c) => [c.name, removeTestData(c)]),
           ),
           formulas,
-          // TODO: Only include relevant components, formulas and actions from packages
-          packages: files.packages,
+          ...(files.packages
+            ? {
+                packages: mapObject(files.packages, ([key, pkg]) => [
+                  key,
+                  {
+                    ...pkg,
+                    components: filterObject(
+                      pkg.components,
+                      ([_, pkgComponent]) =>
+                        components.some(
+                          (c) =>
+                            pkgComponent &&
+                            c.name ===
+                              `${pkg.manifest.name}/${pkgComponent.name}`,
+                        ),
+                    ),
+                    // Actions are not available during SSR
+                    actions: {},
+                    // TODO: Only include relevant formulas from packages
+                    formulas: filterObject(
+                      pkg.formulas ?? {},
+                      ([_, pkgFormula]) =>
+                        // custom formulas are not supported during SSR yet
+                        isToddleFormula(pkgFormula),
+                    ),
+                  },
+                ]),
+              }
+            : undefined),
         }
       }
     }
