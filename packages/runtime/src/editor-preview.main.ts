@@ -1104,10 +1104,13 @@ export const createRoot = (
                   .filter(([key]) => previewStyleStyles[key])
                   .map(([key, val]) => [
                     key,
-                    { ...val, initialValue: previewStyleStyles[key] },
+                    { ...val, value: previewStyleStyles[key] },
                   ]),
               )
               const cssBlocks: string[] = []
+              if (theme.value.default) {
+                cssBlocks.push(renderTheme(`:host, :root`, theme.value))
+              }
               if (theme.value.defaultDark) {
                 cssBlocks.push(
                   renderTheme(
