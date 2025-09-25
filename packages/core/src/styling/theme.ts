@@ -77,7 +77,6 @@ export type Theme = {
   defaultDark?: true
   defaultLight?: true
   propertyDefinitions?: Record<CustomPropertyName, CustomPropertyDefinition>
-
   scheme?: 'dark' | 'light'
   color?: StyleTokenGroup[]
   fonts: FontFamily[]
@@ -93,6 +92,7 @@ export type CustomPropertyDefinition = {
   syntax: CssSyntaxNode
   inherits: boolean
   initialValue: string | null // Required by CSS specs for default-theme, but we can do a fallback so null is allowed
+  value: string | null
   description: string
 }
 
@@ -132,16 +132,12 @@ export const getThemeCss = (
     )
     .join('\n')}
 
-  /* Render default theme */
   ${renderTheme(':host, :root', defaultTheme)}
-
   ${renderTheme(':host, :root', defaultDarkTheme, '@media (prefers-color-scheme: dark)')}
   ${renderTheme(':host, :root', defaultLightTheme, '@media (prefers-color-scheme: light)')}
-
   ${Object.entries(themesV2)
-    .map(([key, t]) => renderTheme(`[data-theme="${key}"]`, t))
+    .map(([key, t]) => renderTheme(`[data-theme~="${key}"]`, t))
     .join('\n')}
-
 
 ${options.includeResetStyle ? RESET_STYLES : ''}
 @layer base {
@@ -411,21 +407,22 @@ export function renderTheme(
   theme: Theme | undefined,
   mediaQuery?: string,
 ) {
-  const properties = Object.entries(theme?.propertyDefinitions ?? {}).filter(
-    ([, property]) => property.initialValue,
+  if (!theme?.propertyDefinitions) {
+    return ''
+  }
+
+  const properties = Object.entries(theme.propertyDefinitions).filter(
+    ([, property]) => property.value,
   )
-  if (!theme || properties.length === 0) {
+  if (properties.length === 0) {
     return ''
   }
 
   const css = `${selector} {
-    ${properties
-      .map(
-        ([propertyName, property]) =>
-          `${propertyName}: ${property.initialValue};`,
-      )
-      .join('\n')}
-  }`
+  ${properties
+    .map(([propertyName, property]) => `${propertyName}: ${property.value};`)
+    .join('\n  ')}
+}`
 
   if (mediaQuery) {
     return `${mediaQuery} {

@@ -38,8 +38,13 @@ describe('renderSyntaxDefinition()', () => {
       description: 'My custom property',
       inherits: true,
       initialValue: '0px',
+      value: 'var(--some-other-property)',
     }
-    expect(renderSyntaxDefinition('--my-property', property, {})).toBe(
+    expect(
+      renderSyntaxDefinition('--my-property', property, {
+        fonts: [],
+      }),
+    ).toBe(
       '@property --my-property {\n  syntax: "<length>";\n  inherits: true;\n  initial-value: 0px;\n}',
     )
   })
@@ -54,18 +59,21 @@ describe('renderSyntaxDefinition()', () => {
             description: '',
             inherits: true,
             initialValue: 'var(--primary-color)',
+            value: 'rebeccapurple',
           },
           '--primary-color': {
             syntax: { type: 'primitive', name: 'color' },
             description: '',
             inherits: true,
             initialValue: 'var(--red-500)',
+            value: 'rebeccapurple',
           },
           '--red-500': {
             syntax: { type: 'primitive', name: 'color' },
             description: '',
             inherits: true,
             initialValue: '#f00',
+            value: 'rebeccapurple',
           },
         },
       },
@@ -96,6 +104,7 @@ describe('renderSyntaxDefinition()', () => {
             description: '',
             inherits: true,
             initialValue: 'var(--unknown-color)',
+            value: 'rebeccapurple',
           },
         },
       },

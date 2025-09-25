@@ -1127,7 +1127,7 @@ export const createRoot = (
                 )
               }
               cssBlocks.push(
-                renderTheme(`[data-theme="${theme.key}"]`, theme.value),
+                renderTheme(`[data-theme~="${theme.key}"]`, theme.value),
               )
               styleTag.innerHTML = cssBlocks.join('\n')
             } else {

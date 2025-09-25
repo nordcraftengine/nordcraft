@@ -61,7 +61,7 @@ export const getHeadItems = ({
     defaultDescription: project.description,
   })
 
-  const preloadFonts: [HeadItemType, string][] = []
+  const preloadFonts = new Set<string>()
   Object.values(themes).forEach((theme) => {
     if ('breakpoints' in theme === false && theme.fonts.length > 0) {
       // We include all fonts even though it's not necessary.
@@ -80,12 +80,9 @@ export const getHeadItems = ({
         basePath: cssBasePath,
       })
       if (fontStylesheetUrl) {
-        preloadFonts.push([
-          // Later we'll support multiple font loading strategies aside from swap
-          'link:font:swap',
-          // See https://fonts.google.com/selection/embed
+        preloadFonts.add(
           `<link href="${escapeAttrValue(fontStylesheetUrl.swap.toString())}" rel="stylesheet" />`,
-        ])
+        )
       }
     }
   })
@@ -118,7 +115,10 @@ export const getHeadItems = ({
       'style:variables',
       `<style id="${CUSTOM_PROPERTIES_STYLESHEET_ID}">${customProperties.join('\n')}</style>`,
     ],
-    ...preloadFonts,
+    ...Array.from(preloadFonts).map<[HeadItemType, string]>((fontLink) => [
+      'link:font:swap',
+      fontLink,
+    ]),
     // Initialize default head items (meta + links)
     // these might be overwritten by custom tags later
     ['meta:charset', `<meta charset="${escapeAttrValue(charset)}" />`],

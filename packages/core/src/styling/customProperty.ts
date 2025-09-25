@@ -10,6 +10,7 @@ export type CssSyntax =
   | 'image'
   | 'integer'
   | 'length'
+  | 'length-percentage'
   | 'number'
   | 'percentage'
   | 'resolution'
@@ -74,14 +75,12 @@ function solveVarRecursively(initialValue: string, theme: Theme, depth = 0) {
   let match
   while ((match = VAR_REGEX.exec(initialValue))) {
     const varName = match[1]
-    if (
-      !isDefined(theme.propertyDefinitions?.[varName as CustomPropertyName])
-    ) {
+    const def = theme.propertyDefinitions?.[varName as CustomPropertyName]
+    if (!isDefined(def)) {
       return null
     }
 
-    const value =
-      theme.propertyDefinitions?.[varName as CustomPropertyName].initialValue
+    const value = def.initialValue
     const returnValue = initialValue.replace(match[0], String(value))
     if (returnValue.includes('var(--')) {
       return solveVarRecursively(returnValue, theme, depth + 1)
@@ -96,8 +95,9 @@ function solveVarRecursively(initialValue: string, theme: Theme, depth = 0) {
 const FALLBACK_VALUES: Record<CssSyntax, string> = {
   color: 'transparent',
   length: '0px',
-  number: '0',
+  'length-percentage': '0px',
   percentage: '0%',
+  number: '0',
   angle: '0deg',
   time: '0s',
   resolution: '0dpi',
