@@ -11,6 +11,7 @@ import { noReferenceApiRule } from './rules/apis/noReferenceApiRule'
 import { noReferenceApiServiceRule } from './rules/apis/noReferenceApiServiceRule'
 import { unknownApiInputRule } from './rules/apis/unknownApiInputRule'
 import { unknownApiRule } from './rules/apis/unknownApiRule'
+import { unknownApiServiceRule } from './rules/apis/unknownApiServiceRule'
 import { noReferenceAttributeRule } from './rules/attributes/noReferenceAttributeRule'
 import { unknownAttributeRule } from './rules/attributes/unknownAttributeRule'
 import { unknownComponentAttributeRule } from './rules/attributes/unknownComponentAttributeRule'
@@ -170,8 +171,9 @@ const RULES = [
   noUnnecessaryConditionFalsy,
   noUnnecessaryConditionTruthy,
   requireExtensionRule,
-  unknownApiRule,
   unknownApiInputRule,
+  unknownApiRule,
+  unknownApiServiceRule,
   unknownAttributeRule,
   unknownClassnameRule,
   // unknownComponentFormulaInputRule,
