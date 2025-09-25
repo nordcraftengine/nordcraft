@@ -26,6 +26,7 @@ import type { LegacyActionRuleFix } from './rules/actions/legacyActionRule'
 import type { NoReferenceProjectActionRuleFix } from './rules/actions/noReferenceProjectActionRule'
 import type { NoReferenceApiRuleFix } from './rules/apis/noReferenceApiRule'
 import type { NoReferenceApiServiceRuleFix } from './rules/apis/noReferenceApiServiceRule'
+import type { UnknownApiServiceRuleFix } from './rules/apis/unknownApiServiceRule'
 import type { NoReferenceAttributeRuleFix } from './rules/attributes/noReferenceAttributeRule'
 import type { UnknownComponentAttributeRuleFix } from './rules/attributes/unknownComponentAttributeRule'
 import type { NoReferenceComponentRuleFix } from './rules/components/noReferenceComponentRule'
@@ -78,6 +79,7 @@ type Code =
   | 'image without dimension'
   | 'unknown api input'
   | 'unknown api'
+  | 'unknown api service'
   | 'unknown attribute'
   | 'unknown classname'
   | 'unknown component attribute'
@@ -366,6 +368,7 @@ type FixType =
   | NoStaticNodeConditionRuleFix
   | NoPostNavigateActionRuleFix
   | UnknownComponentAttributeRuleFix
+  | UnknownApiServiceRuleFix
 
 export interface Rule<T = unknown, V = NodeType> {
   category: Category
