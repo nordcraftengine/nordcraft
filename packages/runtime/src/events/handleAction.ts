@@ -281,7 +281,12 @@ export function handleAction(
             onFailed: action.onError?.actions ?? [],
             onMessage: action.onMessage?.actions ?? [],
           }
-          void api.fetch({ actionInputs, actionModels, componentData: data })
+          void api.fetch({
+            actionInputs,
+            actionModels,
+            componentData: data,
+            workflowCallback,
+          })
         } else {
           const triggerActions = (actions: ActionModel[]) => {
             for (const subAction of actions) {
