@@ -217,7 +217,7 @@ export interface ComponentWorkflow extends NordcraftMetadata {
   callbacks?: Array<{ name: string; testValue: any }>
   actions: ActionModel[]
   exposeInContext?: boolean
-  testValue?: any
+  testValue?: unknown
 }
 
 export interface ComponentContext {
