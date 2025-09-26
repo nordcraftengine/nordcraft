@@ -21,6 +21,7 @@ import {
 } from '@nordcraft/ssr/src/utils/headers'
 import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
+import { endTime, startTime } from 'hono/timing'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
 import type { PageLoaderUrls } from '../loaders/types'
@@ -41,6 +42,8 @@ export const nordcraftPage = async ({
   status: ContentfulStatusCode
   options: PageLoaderUrls
 }) => {
+  const nordcraftPageTimingKey = 'nordcraftPage'
+  startTime(hono, nordcraftPageTimingKey, 'The total render time for a page')
   const url = new URL(hono.req.raw.url)
   const formulaContext = getPageFormulaContext({
     component: page,
@@ -94,6 +97,11 @@ export const nordcraftPage = async ({
   let body: string
   let customProperties: string[] = []
   try {
+    startTime(
+      hono,
+      'renderPageBody',
+      'The time taken to render the page body - including API calls',
+    )
     const pageBody = await renderPageBody({
       component: toddleComponent,
       formulaContext,
@@ -104,6 +112,7 @@ export const nordcraftPage = async ({
       evaluateComponentApis,
       projectId: 'my_project',
     })
+    endTime(hono, 'renderPageBody')
     apiCache = pageBody.apiCache
     body = pageBody.html
     customProperties = pageBody.customProperties
@@ -192,6 +201,7 @@ export const nordcraftPage = async ({
         </script>
     `
   }
+  endTime(hono, nordcraftPageTimingKey)
 
   return hono.html(
     html`<!doctype html>

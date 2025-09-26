@@ -1,6 +1,7 @@
 import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
 import { Hono, type Handler, type MiddlewareHandler } from 'hono'
 import { poweredBy } from 'hono/powered-by'
+import { timing } from 'hono/timing'
 import type { HonoEnv } from '../hono'
 import type { PageLoader, PageLoaderUrls } from './loaders/types'
 import { notFoundLoader } from './middleware/notFoundLoader'
@@ -30,6 +31,15 @@ export const getApp = <T extends Record<string, any>>(options: {
   initIsEqual()
 
   const app = new Hono<HonoEnv<T>>({ strict: false })
+
+  app.use(
+    timing({
+      // Potentially only enable detailed timing in development mode
+      // to avoid potential timing attacks in production
+      // See https://developers.cloudflare.com/workers/reference/security-model/#step-1-disallow-timers-and-multi-threading
+      enabled: true,
+    }),
+  )
 
   app.use(poweredBy({ serverName: 'Nordcraft' })) // 🌲🌲🌲
 

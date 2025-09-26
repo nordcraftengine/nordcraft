@@ -14,6 +14,8 @@ import {
   sanitizeProxyHeaders,
 } from '@nordcraft/ssr/dist/rendering/template'
 import type { Context } from 'hono'
+import { endTime, startTime } from 'hono/timing'
+import type { StatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
 
 export const proxyRequestHandler = async (
@@ -113,12 +115,15 @@ export const proxyRequestHandler = async (
       if ((request.headers.get('host') ?? '').startsWith('localhost')) {
         request.headers.delete('cf-connecting-ip')
       }
+      const timingKey = 'apiProxyFetch'
+      startTime(c, timingKey)
       response = await fetch(request)
+      endTime(c, timingKey)
     } catch (e: any) {
       // eslint-disable-next-line no-console
       console.error('API request error', e.message)
       const status = e instanceof Error && e.name === 'TimeoutError' ? 504 : 500
-      response = Response.json(e.message, { status })
+      response = c.json(e.message, { status })
     }
 
     // Pass the stream into a new response so we can write the headers
@@ -126,11 +131,14 @@ export const proxyRequestHandler = async (
       ? undefined
       : ((response.body ?? new ReadableStream()) as ReadableStream)
 
-    const returnResponse = new Response(body, {
-      status: response.status,
-      headers: new Headers(response.headers),
+    response.headers.entries().forEach(([name, value]) => {
+      c.header(name, value)
     })
-    return returnResponse
+    c.status(response.status as StatusCode)
+    if (body) {
+      c.body(body)
+    }
+    return c.res
   } catch (e) {
     const error =
       e instanceof Error
