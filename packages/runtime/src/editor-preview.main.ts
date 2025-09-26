@@ -25,8 +25,7 @@ import {
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { getClassName } from '@nordcraft/core/dist/styling/className'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
-import { getThemeCss } from '@nordcraft/core/dist/styling/theme'
-import { theme } from '@nordcraft/core/dist/styling/theme.const'
+import { getThemeCss, renderTheme } from '@nordcraft/core/dist/styling/theme'
 import type {
   ActionHandler,
   ActionHandlerV2,
@@ -109,7 +108,7 @@ type ToddlePreviewEvent =
       type: 'global_actions'
       actions: Record<string, PluginActionV2 | PluginAction>
     }
-  | { type: 'theme'; theme: Theme | OldTheme }
+  | { type: 'theme'; theme: Record<string, OldTheme | Theme> }
   | { type: 'mode'; mode: 'design' | 'test' }
   | { type: 'attrs'; attrs: Record<string, unknown> }
   | { type: 'selection'; selectedNodeId: string | null }
@@ -152,7 +151,14 @@ type ToddlePreviewEvent =
         | undefined
       fillMode: 'none' | 'forwards' | 'backwards' | 'both' | undefined
     }
-  | { type: 'preview_style'; styles: Record<string, string> | null }
+  | {
+      type: 'preview_style'
+      styles: Record<string, string> | null
+      theme?: {
+        key: string
+        value: Theme
+      }
+    }
 
 /**
  * Styles required for rendering the same exact text again somewhere else (on a overlay rect in the editor)
@@ -305,7 +311,6 @@ export const createRoot = (
     return false
   }
 
-  insertTheme(document.head, theme)
   const dataSignal = signal<ComponentData>({
     Location: {
       query: {},
@@ -1051,7 +1056,7 @@ export const createRoot = (
           })
           break
         case 'preview_style':
-          const { styles: previewStyleStyles } = message.data
+          const { styles: previewStyleStyles, theme } = message.data
           cancelAnimationFrame(previewStyleAnimationFrame)
           previewStyleAnimationFrame = requestAnimationFrame(() => {
             // Update or create a new style tag and set the given styles with important priority
@@ -1091,13 +1096,52 @@ export const createRoot = (
               }
             }
 
-            const previewStyles = Object.entries(previewStyleStyles)
-              .map(([key, value]) => `${key}: ${value} !important;`)
-              .join('\n')
-            styleTag.innerHTML = `[data-id="${selectedNodeId}"]${pseudoElement}, [data-id="${selectedNodeId}"] ~ [data-id^="${selectedNodeId}("]${pseudoElement} {
+            // If theme property preview, then override happens at root level and with reasonable specificity.
+            // Otherwise, force (!important) the style directly on the element.
+            if (theme) {
+              theme.value.propertyDefinitions = Object.fromEntries(
+                Object.entries(theme.value.propertyDefinitions ?? {})
+                  .filter(([key]) => previewStyleStyles[key])
+                  .map(([key, val]) => [
+                    key,
+                    { ...val, value: previewStyleStyles[key] },
+                  ]),
+              )
+              const cssBlocks: string[] = []
+              if (theme.value.default) {
+                cssBlocks.push(renderTheme(`:host, :root`, theme.value))
+              }
+              if (theme.value.defaultDark) {
+                cssBlocks.push(
+                  renderTheme(
+                    `:host, :root`,
+                    theme.value,
+                    '@media (prefers-color-scheme: dark)',
+                  ),
+                )
+              }
+              if (theme.value.defaultLight) {
+                cssBlocks.push(
+                  renderTheme(
+                    `:host, :root`,
+                    theme.value,
+                    '@media (prefers-color-scheme: light)',
+                  ),
+                )
+              }
+              cssBlocks.push(
+                renderTheme(`[data-theme~="${theme.key}"]`, theme.value),
+              )
+              styleTag.innerHTML = cssBlocks.join('\n')
+            } else {
+              const previewStyles = Object.entries(previewStyleStyles)
+                .map(([key, value]) => `${key}: ${value} !important;`)
+                .join('\n')
+              styleTag.innerHTML = `[data-id="${selectedNodeId}"]${pseudoElement}, [data-id="${selectedNodeId}"] ~ [data-id^="${selectedNodeId}("]${pseudoElement} {
     ${previewStyles}
     transition: none !important;
   }`
+            }
           })
           break
       }
@@ -1882,12 +1926,15 @@ function getNodeId(component: Component, path: string[]) {
   return getId(path, 'root')
 }
 
-const insertTheme = (parent: HTMLElement, theme: Theme | OldTheme) => {
+const insertTheme = (
+  parent: HTMLElement,
+  themes: Record<string, OldTheme | Theme>,
+) => {
   document.getElementById('theme-style')?.remove()
   const styleElem = document.createElement('style')
   styleElem.setAttribute('type', 'text/css')
   styleElem.setAttribute('id', 'theme-style')
-  styleElem.innerHTML = getThemeCss(theme, {
+  styleElem.innerHTML = getThemeCss(themes, {
     includeResetStyle: false,
     createFontFaces: true,
   })

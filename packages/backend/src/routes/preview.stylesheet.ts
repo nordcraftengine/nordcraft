@@ -24,9 +24,9 @@ export const stylesheetHandler = async (
     })
   }
   // Find the theme to use for the page
-  const theme =
-    (files.themes ? Object.values(files.themes)[0] : files.config?.theme) ??
-    defaultTheme
+  const themes = files.themes ?? {
+    defaultTheme: files.config?.theme ?? defaultTheme,
+  }
 
   // Get all included components on the page
   const includedComponents = takeIncludedComponents({
@@ -36,7 +36,7 @@ export const stylesheetHandler = async (
     includeRoot: true,
   })
 
-  const styles = createStylesheet(page, includedComponents, theme, {
+  const styles = createStylesheet(page, includedComponents, themes, {
     // The reset stylesheet is loaded separately
     includeResetStyle: false,
     // Font faces are created from a stylesheet referenced in the head

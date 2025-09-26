@@ -59,9 +59,9 @@ export const nordcraftPage = async ({
   })
 
   // Find the theme to use for the page
-  const theme =
-    (files.themes ? Object.values(files.themes)[0] : files.config?.theme) ??
-    defaultTheme
+  const themes = files.themes ?? {
+    defaultTheme: files.config?.theme ?? defaultTheme,
+  }
 
   // Get all included components on the page
   const includedComponents = takeIncludedComponents({
@@ -139,7 +139,7 @@ export const nordcraftPage = async ({
       files: files,
       project,
       context: formulaContext,
-      theme,
+      themes,
       customProperties,
     }),
   })
