@@ -7,7 +7,7 @@
     "@nordcraft/core": "workspace:*",
     "@nordcraft/std-lib": "workspace:*",
     "fast-deep-equal": "3.1.3",
-    "path-to-regexp": "6.3.0"
+    "path-to-regexp": "8.3.0"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "18.0.1"
