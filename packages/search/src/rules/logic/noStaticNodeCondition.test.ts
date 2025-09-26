@@ -157,35 +157,38 @@ describe('noStaticNodeCondition', () => {
         },
       },
     }
+    const filesClone = structuredClone(files)
     const fixedFiles = fixProject({
       files,
       rule: noStaticNodeCondition,
       fixType: 'remove-condition',
+      pathsToVisit: [['components', 'test', 'nodes', 'root', 'condition']],
     })
-    expect(fixedFiles).toMatchInlineSnapshot(`
-      {
-        "components": {
-          "test": {
-            "apis": {},
-            "attributes": {},
-            "formulas": {},
-            "name": "test",
-            "nodes": {
-              "root": {
-                "attrs": {},
-                "children": [],
-                "classes": {},
-                "events": {},
-                "style": {},
-                "tag": "div",
-                "type": "element",
-              },
+    expect(fixedFiles).toEqual({
+      components: {
+        test: {
+          apis: {},
+          attributes: {},
+          formulas: {},
+          name: 'test',
+          nodes: {
+            root: {
+              attrs: {},
+              children: [],
+              classes: {},
+              events: {},
+              style: {},
+              tag: 'div',
+              type: 'element',
             },
-            "variables": {},
           },
+          variables: {},
         },
-      }
-    `)
+      },
+    })
+
+    // Also ensure that the original files are not mutated
+    expect(files).toEqual(filesClone)
   })
 
   test('should fix static falsy condition by removing the node and any references to it', () => {
@@ -255,54 +258,53 @@ describe('noStaticNodeCondition', () => {
         },
       },
     }
-
+    const filesClone = structuredClone(files)
     const fixedFiles = fixProject({
       files,
       rule: noStaticNodeCondition,
       fixType: 'remove-node',
+      pathsToVisit: [
+        ['components', 'test', 'nodes', 'alwaysHiddenElement', 'condition'],
+      ],
     })
 
-    expect(fixedFiles).toMatchInlineSnapshot(`
-      {
-        "components": {
-          "test": {
-            "apis": {},
-            "attributes": {},
-            "formulas": {},
-            "name": "test",
-            "nodes": {
-              "root": {
-                "attrs": {},
-                "children": [
-                  "sometimesVisibleElement",
-                ],
-                "classes": {},
-                "events": {},
-                "style": {},
-                "tag": "div",
-                "type": "element",
-              },
-              "sometimesVisibleElement": {
-                "attrs": {},
-                "children": [],
-                "classes": {},
-                "condition": {
-                  "path": [
-                    "Variables",
-                    "maybe",
-                  ],
-                  "type": "path",
-                },
-                "events": {},
-                "style": {},
-                "tag": "div",
-                "type": "element",
-              },
+    expect(fixedFiles).toEqual({
+      components: {
+        test: {
+          apis: {},
+          attributes: {},
+          formulas: {},
+          name: 'test',
+          nodes: {
+            root: {
+              attrs: {},
+              children: ['sometimesVisibleElement'],
+              classes: {},
+              events: {},
+              style: {},
+              tag: 'div',
+              type: 'element',
             },
-            "variables": {},
+            sometimesVisibleElement: {
+              attrs: {},
+              children: [],
+              classes: {},
+              condition: {
+                path: ['Variables', 'maybe'],
+                type: 'path',
+              },
+              events: {},
+              style: {},
+              tag: 'div',
+              type: 'element',
+            },
           },
+          variables: {},
         },
-      }
-    `)
+      },
+    })
+
+    // Also ensure that the original files are not mutated
+    expect(files).toEqual(filesClone)
   })
 })
