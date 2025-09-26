@@ -1,6 +1,7 @@
 import type { Context } from 'hono'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { endTime, startTime } from 'hono/timing'
 import type { HonoEnv } from '../../hono'
 
 export const fontRouter = new Hono<HonoEnv, any, '/.toddle/fonts/'>()
@@ -14,12 +15,15 @@ fontRouter.get('/stylesheet/:stylesheet{.*}', async (c: Context<HonoEnv>) => {
   const req = c.req
   const requestUrl = new URL(req.url)
   try {
+    const timingKey = 'stylesheetFetch'
+    startTime(c, timingKey)
     const response = (await fetch(
       `https://fonts.googleapis.com/${req.param('stylesheet')}${
         requestUrl.search
       }`,
       standardFontRequestInit(req.raw),
     )) as any as Response
+    endTime(c, timingKey)
     let stylesheetContent = await response.text()
     if (response.ok) {
       stylesheetContent = stylesheetContent.replaceAll(

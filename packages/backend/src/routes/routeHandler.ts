@@ -17,6 +17,8 @@ import {
   skipCookieHeader,
 } from '@nordcraft/ssr/src/utils/headers'
 import type { Handler } from 'hono'
+import { endTime, startTime } from 'hono/timing'
+import type { StatusCode } from 'hono/utils/http-status'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 
 export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
@@ -55,7 +57,7 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     }
     // Return a redirect to the destination with the provided status code
     c.header(REDIRECT_NAME_HEADER, routeName)
-    return c.body(null, route.status ?? 302)
+    return c.redirect(destination, route.status ?? 302)
   }
 
   // Rewrite handling: fetch the destination and return the response
@@ -69,6 +71,8 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     // Add header to identify that this is a rewrite
     // This allows us to avoid recursive fetch calls across Nordcraft routes
     headers.set(REWRITE_HEADER, 'true')
+    const timingKey = 'proxyRequest'
+    startTime(c, timingKey)
     const response = await fetch(destination, {
       headers,
       method: c.req.raw.method,
@@ -76,17 +80,19 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
         ? c.req.raw.body
         : undefined,
     })
+    endTime(c, timingKey)
     // Pass the stream into a new response so we can write the headers
     const body = NON_BODY_RESPONSE_CODES.includes(response.status)
       ? undefined
       : ((response.body ?? new ReadableStream()) as ReadableStream)
-
-    const returnResponse = new Response(body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: Object.fromEntries(response.headers),
+    response.headers.entries().forEach(([name, value]) => {
+      c.header(name, value)
     })
-    return returnResponse
+    c.status(response.status as StatusCode)
+    if (body) {
+      c.body(body)
+    }
+    return c.res
   } catch {
     return c.html(
       `Unable to fetch resource defined in proxy destination: ${destination.href}`,
