@@ -61,10 +61,9 @@ export const replaceLegacyFormula: FixFunction<
         ...data.value,
         name: '@toddle/dropLast',
         display_name: 'Drop Last',
-        arguments: renameArguments(
-          ARRAY_ARGUMENT_MAPPINGS,
-          data.value.arguments,
-        ),
+        arguments: data.value.arguments
+          ? renameArguments(ARRAY_ARGUMENT_MAPPINGS, data.value.arguments)
+          : data.value.arguments,
       }
       return set(data.files, data.path, newDropLastFormula)
     }

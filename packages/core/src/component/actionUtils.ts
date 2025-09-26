@@ -13,8 +13,10 @@ export function* getActionsInAction(
   switch (action.type) {
     case 'SetVariable':
     case 'SetURLParameter':
+    case 'SetURLParameters':
     case 'TriggerEvent':
     case 'TriggerWorkflow':
+    case 'TriggerWorkflowCallback':
       break
     case 'Fetch':
       for (const [key, a] of Object.entries(action.onSuccess?.actions ?? {})) {

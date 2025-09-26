@@ -43,7 +43,7 @@ export const unknownTriggerWorkflowParameterRule: Rule<{ parameter: string }> =
       const workflowParameters = new Set(
         Object.values(workflow.parameters).map((p) => p.name),
       )
-      Object.keys(value.parameters).forEach((parameterKey) => {
+      Object.keys(value.parameters ?? {}).forEach((parameterKey) => {
         if (!workflowParameters.has(parameterKey)) {
           report([...path, 'parameters', parameterKey], {
             parameter: parameterKey,

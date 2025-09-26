@@ -49,7 +49,7 @@ export const replaceLegacyAction: FixFunction<
     case 'UpdateVariable':
     case 'Update Variable': {
       const variableName =
-        value.arguments?.[0]?.formula.type === 'value'
+        value.arguments?.[0]?.formula?.type === 'value'
           ? value.arguments[0].formula.value
           : undefined
       if (typeof variableName !== 'string') {
@@ -70,10 +70,12 @@ export const replaceLegacyAction: FixFunction<
       newAction = {
         ...value,
         name: '@toddle/sleep',
-        arguments: renameArguments(
-          { 'Delay in ms': 'Delay in milliseconds' },
-          value.arguments,
-        ),
+        arguments: value.arguments
+          ? renameArguments(
+              { 'Delay in ms': 'Delay in milliseconds' },
+              value.arguments,
+            )
+          : value.arguments,
         events: value.events?.['timeout']
           ? { tick: value.events.timeout }
           : undefined,
@@ -111,7 +113,7 @@ export const replaceLegacyAction: FixFunction<
     }
     case 'TriggerEvent': {
       const eventName =
-        value.arguments?.[0]?.formula.type === 'value'
+        value.arguments?.[0]?.formula?.type === 'value'
           ? value.arguments[0].formula.value
           : undefined
       if (typeof eventName !== 'string') {

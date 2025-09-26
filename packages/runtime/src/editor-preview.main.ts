@@ -3,12 +3,13 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-fallthrough */
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type {
-  AnimationKeyframe,
-  Component,
-  ComponentData,
-  MetaEntry,
-  StyleVariant,
+import {
+  HeadTagTypes,
+  type AnimationKeyframe,
+  type Component,
+  type ComponentData,
+  type MetaEntry,
+  type StyleVariant,
 } from '@nordcraft/core/dist/component/component.types'
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
 import type {
@@ -908,6 +909,9 @@ export const createRoot = (
                   dragState = null
                 })
               }
+              break
+            case undefined:
+              // TODO: Handle the case where the drag state is undefined
               break
           }
           break
@@ -1819,7 +1823,7 @@ const insertHeadTags = (
   // Skip anything that is not <link> or <script> tags, as they don't have any influence on the preview
   Object.entries(entries).forEach(([id, entry]) => {
     switch (entry.tag) {
-      case 'link':
+      case HeadTagTypes.Link:
         return insertOrReplaceHeadNode(
           id,
           document.createRange().createContextualFragment(`
@@ -1831,7 +1835,7 @@ const insertHeadTags = (
           />
         `),
         )
-      case 'script':
+      case HeadTagTypes.Script:
         return insertOrReplaceHeadNode(
           id,
           document.createRange().createContextualFragment(`
@@ -1843,6 +1847,9 @@ const insertHeadTags = (
           ></script>
         `),
         )
+      default:
+        // TODO: handle style meta tags?
+        break
     }
   })
 }

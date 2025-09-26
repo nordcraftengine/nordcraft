@@ -55,8 +55,9 @@ export const isLegacyAction = (
     case undefined:
       // Legacy action has no version, while newer ones have a version 2+
       return !model.version && LEGACY_CUSTOM_ACTIONS.has(model.name)
+    default:
+      return false
   }
-  return false
 }
 
 const LEGACY_CUSTOM_ACTIONS = new Set([
@@ -145,13 +146,15 @@ export const renameArguments = <
   T extends FunctionArgument | CustomActionArgument,
 >(
   mappings: Record<string, string>,
-  args: T[] | undefined,
+  args: Partial<T[]> | undefined,
 ): T[] =>
-  args?.map((arg) => ({
-    ...arg,
-    // Let's adjust the names
-    name:
-      typeof arg.name === 'string'
-        ? (mappings[arg.name] ?? arg.name)
-        : arg.name,
-  })) ?? []
+  args
+    ?.filter((arg) => isDefined(arg))
+    .map((arg) => ({
+      ...arg,
+      // Let's adjust the names
+      name:
+        typeof arg.name === 'string'
+          ? (mappings[arg.name] ?? arg.name)
+          : arg.name,
+    })) ?? []

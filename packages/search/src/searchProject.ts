@@ -305,6 +305,24 @@ function* visitNode({
   }
 
   switch (nodeType) {
+    // The node types below currently don't require any further traversal
+    case 'action-model':
+    case 'component-api-input':
+    case 'component-api':
+    case 'component-attribute':
+    case 'component-context':
+    case 'component-event':
+    case 'component-formula':
+    case 'component-node-attribute':
+    case 'component-variable':
+    case 'component-workflow':
+    case 'formula':
+    case 'project-action':
+    case 'project-config':
+    case 'project-theme':
+    case 'style-declaration':
+    case 'style-variant':
+      break
     case 'component': {
       const component = new ToddleComponent<string>({
         component: value,
