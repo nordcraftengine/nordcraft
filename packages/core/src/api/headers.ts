@@ -40,6 +40,13 @@ export const isImageHeader = (header?: string | null) => {
   return /^image\//.test(header)
 }
 
+export const isVideoHeader = (header?: string | null) => {
+  if (typeof header !== 'string') {
+    return false
+  }
+  return /^video\//.test(header)
+}
+
 /**
  * Returns an object with headers from a Headers object
  * Duplicate header values (set-cookie for instance) are encoded as a comma-separated string
