@@ -31,11 +31,11 @@ export class ToddleComponent extends HTMLElement {
   #ctx: ComponentContext
   #shadowRoot: ShadowRoot
   #signal: Signal<ComponentData>
-  #files: { themes: Theme[] }
+  #files: { themes: Record<string, Theme> }
 
   constructor(
     component: Component,
-    options: { components: Component[]; themes: Theme[] },
+    options: { components: Component[]; themes: Record<string, Theme> },
     toddle: Toddle<LocationSignal, never>,
   ) {
     super()
@@ -175,7 +175,9 @@ export class ToddleComponent extends HTMLElement {
     const styles = createStylesheet(
       this.#ctx.component,
       this.#ctx.components,
-      this.#files.themes ? Object.values(this.#files.themes)[0] : defaultTheme,
+      Object.entries(this.#files.themes ?? {}).length > 0
+        ? this.#files.themes
+        : { defaultTheme },
       { includeResetStyle: true, createFontFaces: false },
     )
     const stylesElem = document.createElement('style')

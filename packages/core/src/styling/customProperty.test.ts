@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test'
 import type { CssSyntax, CssSyntaxNode } from './customProperty'
 import { renderSyntaxDefinition, stringifySyntaxNode } from './customProperty'
-import type { CustomPropertyDefinition } from './theme'
+import type { CustomPropertyDefinition, Theme } from './theme'
 
 describe('stringifySyntaxNode()', () => {
-  ;['length', 'number', 'percentage', 'length-percentage', 'color'].forEach(
+  ;['length', 'number', 'percentage', 'length', 'color'].forEach(
     (primitive) => {
       test(
         'it handles a comprehensive list of primitives: ' + primitive,
@@ -38,9 +38,90 @@ describe('renderSyntaxDefinition()', () => {
       description: 'My custom property',
       inherits: true,
       initialValue: '0px',
+      value: 'var(--some-other-property)',
     }
-    expect(renderSyntaxDefinition('--my-property', property)).toBe(
+    expect(
+      renderSyntaxDefinition('--my-property', property, {
+        fonts: [],
+      }),
+    ).toBe(
       '@property --my-property {\n  syntax: "<length>";\n  inherits: true;\n  initial-value: 0px;\n}',
     )
+  })
+
+  test('it solves var(--...) references', () => {
+    const themes: Record<string, Theme> = {
+      default: {
+        fonts: [],
+        propertyDefinitions: {
+          '--my-property': {
+            syntax: { type: 'primitive', name: 'color' },
+            description: '',
+            inherits: true,
+            initialValue: 'var(--primary-color)',
+            value: 'rebeccapurple',
+          },
+          '--primary-color': {
+            syntax: { type: 'primitive', name: 'color' },
+            description: '',
+            inherits: true,
+            initialValue: 'var(--red-500)',
+            value: 'rebeccapurple',
+          },
+          '--red-500': {
+            syntax: { type: 'primitive', name: 'color' },
+            description: '',
+            inherits: true,
+            initialValue: '#f00',
+            value: 'rebeccapurple',
+          },
+        },
+      },
+    }
+
+    expect(
+      renderSyntaxDefinition(
+        '--my-property',
+        themes.default.propertyDefinitions!['--my-property'],
+        themes.default,
+      ),
+    ).toMatchInlineSnapshot(`
+      "@property --my-property {
+        syntax: "<color>";
+        inherits: true;
+        initial-value: #f00;
+      }"
+    `)
+  })
+
+  test('it renders a fallback initial-value on broken references', () => {
+    const themes: Record<string, Theme> = {
+      default: {
+        fonts: [],
+        propertyDefinitions: {
+          '--my-property': {
+            syntax: { type: 'primitive', name: 'color' },
+            description: '',
+            inherits: true,
+            initialValue: 'var(--unknown-color)',
+            value: 'rebeccapurple',
+          },
+        },
+      },
+    }
+
+    expect(
+      renderSyntaxDefinition(
+        '--my-property',
+        themes.default.propertyDefinitions!['--my-property'],
+        themes.default,
+      ),
+    ).toMatchInlineSnapshot(`
+      "@property --my-property {
+        syntax: "<color>";
+        inherits: true;
+        initial-value: transparent;
+      }"
+    `)
   })
 })

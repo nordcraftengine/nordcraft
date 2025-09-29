@@ -71,49 +71,81 @@ export type OldTheme = {
   shadow: Record<string, { value: string; order: number }>
   breakpoints: Record<string, { value: number; order: number }>
 }
-export type Theme = {
-  scheme?: 'dark' | 'light'
-  color: StyleTokenGroup[]
-  fonts: FontFamily[]
-  'font-size': StyleTokenGroup[]
-  'font-weight': StyleTokenGroup[]
-  spacing: StyleTokenGroup[]
-  'border-radius': StyleTokenGroup[]
-  shadow: StyleTokenGroup[]
-  'z-index': StyleTokenGroup[]
-  categories?: Record<string, CustomCategory>
-}
 
-export type CustomCategory = {
-  propertyDefinitions: Record<CustomPropertyName, CustomPropertyDefinition>
+export type Theme = {
+  default?: true
+  defaultDark?: true
+  defaultLight?: true
+  propertyDefinitions?: Record<CustomPropertyName, CustomPropertyDefinition>
+  scheme?: 'dark' | 'light'
+  color?: StyleTokenGroup[]
+  fonts: FontFamily[]
+  'font-size'?: StyleTokenGroup[]
+  'font-weight'?: StyleTokenGroup[]
+  spacing?: StyleTokenGroup[]
+  'border-radius'?: StyleTokenGroup[]
+  shadow?: StyleTokenGroup[]
+  'z-index'?: StyleTokenGroup[]
 }
 
 export type CustomPropertyDefinition = {
   syntax: CssSyntaxNode
   inherits: boolean
-  initialValue: string
+  initialValue: string | null // Required by CSS specs for default-theme, but we can do a fallback so null is allowed
+  value: string | null
   description: string
 }
 
-export const getThemeCss = (theme: Theme | OldTheme, options: ThemeOptions) => {
-  if ('breakpoints' in theme) {
-    return getOldThemeCss(theme)
-  }
+export const getThemeCss = (
+  theme: Record<string, OldTheme | Theme>,
+  options: ThemeOptions,
+) => {
+  const [themesV1, themesV2] = Object.entries(theme).reduce(
+    ([legacy, modern], [key, value]) => {
+      if ('breakpoints' in value) {
+        legacy[key] = value
+      } else {
+        modern[key] = value
+      }
+      return [legacy, modern]
+    },
+    [{}, {}] as [Record<string, OldTheme>, Record<string, Theme>],
+  )
 
-  return `${Object.values(theme.categories ?? {})
-    .map((category) =>
-      Object.entries(category.propertyDefinitions)
-        .map(([propertyName, property]) =>
-          renderSyntaxDefinition(propertyName as CustomPropertyName, property),
-        )
-        .join('\n'),
+  const defaultTheme =
+    Object.values(themesV2).find((t) => t.default) ?? Object.values(themesV2)[0]
+  const defaultDarkTheme = Object.values(themesV2).find((t) => t.defaultDark)
+  const defaultLightTheme = Object.values(themesV2).find((t) => t.defaultLight)
+
+  return `
+  ${Object.values(themesV1)
+    .map((t) => getOldThemeCss(t))
+    .join('\n')}
+
+  ${Object.entries(defaultTheme.propertyDefinitions ?? {})
+    .map(([propertyName, property]) =>
+      renderSyntaxDefinition(
+        propertyName as CustomPropertyName,
+        property,
+        defaultTheme,
+      ),
     )
     .join('\n')}
+
+  ${renderTheme(':host, :root', defaultTheme)}
+  ${renderTheme(':host, :root', defaultDarkTheme, '@media (prefers-color-scheme: dark)')}
+  ${renderTheme(':host, :root', defaultLightTheme, '@media (prefers-color-scheme: light)')}
+  ${Object.entries(themesV2)
+    .map(([key, t]) => renderTheme(`[data-theme~="${key}"]`, t))
+    .join('\n')}
+
 ${options.includeResetStyle ? RESET_STYLES : ''}
 @layer base {
   ${
     options.createFontFaces
-      ? theme.fonts
+      ? Object.values(themesV2)
+          .map(({ fonts }) => fonts)
+          .flat()
           .map(
             (font) => `
     ${font.variants
@@ -141,18 +173,24 @@ ${options.includeResetStyle ? RESET_STYLES : ''}
   }
   body, :host {
     /* Color */
-    ${theme.color
+    ${Object.values(themesV2)
+      .map(({ color }) => color ?? [])
+      .flat()
       .flatMap((group) =>
         group.tokens.map((color) => `--${color.name}: ${color.value};`),
       )
       .join('\n')}
     /* Fonts */
-    ${theme.fonts
+    ${Object.values(themesV2)
+      .map(({ fonts }) => fonts)
+      .flat()
       .map((font) => `--font-${font.name}: '${font.family}',${font.type};`)
       .join('\n')}
 
     /* Font size */
-    ${theme['font-size']
+    ${Object.values(themesV2)
+      .map(({ 'font-size': fontSize }) => fontSize ?? [])
+      .flat()
       .flatMap((group) =>
         group.tokens.map(
           (variable) =>
@@ -165,7 +203,9 @@ ${options.includeResetStyle ? RESET_STYLES : ''}
       )
       .join('\n')}
     /* Font weight */
-    ${theme['font-weight']
+    ${Object.values(themesV2)
+      .map(({ 'font-weight': fontWeight }) => fontWeight ?? [])
+      .flat()
       .flatMap((group) => {
         return group.tokens.map(
           (variable) =>
@@ -178,7 +218,9 @@ ${options.includeResetStyle ? RESET_STYLES : ''}
       })
       .join('\n')}
     /* Shadows */
-    ${theme.shadow
+    ${Object.values(themesV2)
+      .map(({ shadow }) => shadow ?? [])
+      .flat()
       .flatMap((group) => {
         return group.tokens.map(
           (variable) =>
@@ -191,7 +233,9 @@ ${options.includeResetStyle ? RESET_STYLES : ''}
       })
       .join('\n')}
     /* Border radius */
-    ${theme['border-radius']
+    ${Object.values(themesV2)
+      .map(({ 'border-radius': borderRadius }) => borderRadius ?? [])
+      .flat()
       .flatMap((group) => {
         return group.tokens.map(
           (token) =>
@@ -202,7 +246,9 @@ ${options.includeResetStyle ? RESET_STYLES : ''}
       })
       .join('\n')}
     /* Spacing */
-    ${theme.spacing
+    ${Object.values(themesV2)
+      .map(({ spacing }) => spacing ?? [])
+      .flat()
       .map((group) => {
         return group.tokens
           .map(
@@ -217,7 +263,9 @@ ${options.includeResetStyle ? RESET_STYLES : ''}
       })
       .join('\n')}
     /* Z-index */
-    ${theme['z-index']
+    ${Object.values(themesV2)
+      .map(({ 'z-index': zIndex }) => zIndex ?? [])
+      .flat()
       .map((group) => {
         return group.tokens
           .map(
@@ -352,4 +400,35 @@ ${RESET_STYLES}
     opacity:0;
   }
 }`
+}
+
+export function renderTheme(
+  selector: string,
+  theme: Theme | undefined,
+  mediaQuery?: string,
+) {
+  if (!theme?.propertyDefinitions) {
+    return ''
+  }
+
+  const properties = Object.entries(theme.propertyDefinitions).filter(
+    ([, property]) => property.value,
+  )
+  if (properties.length === 0) {
+    return ''
+  }
+
+  const css = `${selector} {
+  ${properties
+    .map(([propertyName, property]) => `${propertyName}: ${property.value};`)
+    .join('\n  ')}
+}`
+
+  if (mediaQuery) {
+    return `${mediaQuery} {
+      ${css}
+    }`
+  }
+
+  return css
 }

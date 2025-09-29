@@ -70,7 +70,7 @@ const SIZE_PROPERTIES = new Set([
 export const createStylesheet = (
   root: Component,
   components: Component[],
-  theme: Theme | OldTheme,
+  themes: Record<string, OldTheme | Theme>,
   options: ThemeOptions,
   // eslint-disable-next-line max-params
 ) => {
@@ -82,19 +82,30 @@ export const createStylesheet = (
 
   //Exclude fonts that are not used on this page.
   let stylesheet = getThemeCss(
-    'breakpoints' in theme
-      ? {
-          ...theme,
-          fontFamily: Object.fromEntries(
-            Object.entries(theme.fontFamily).filter(
-              ([key, value]) => value.default ?? fonts.has('--font-' + key),
-            ),
-          ),
-        }
-      : {
-          ...theme,
-          fonts: theme.fonts,
-        },
+    Object.fromEntries(
+      Object.entries(themes).map(([key, theme]) =>
+        'breakpoints' in theme
+          ? [
+              key,
+              {
+                ...theme,
+                fontFamily: Object.fromEntries(
+                  Object.entries(theme.fontFamily).filter(
+                    ([key, value]) =>
+                      value.default ?? fonts.has('--font-' + key),
+                  ),
+                ),
+              },
+            ]
+          : [
+              key,
+              {
+                ...theme,
+                fonts: theme.fonts,
+              },
+            ],
+      ),
+    ),
     options,
   )
   const styleToCss = (style: StyleDeclarationBlock) => {
