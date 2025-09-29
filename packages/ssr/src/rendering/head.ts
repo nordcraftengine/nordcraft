@@ -273,7 +273,11 @@ export const getHeadItems = ({
   }
   // Handle custom meta tags last to allow overriding defaults
   if (pageInfo?.meta) {
-    Object.entries(pageInfo.meta).forEach(([id, metaEntry]) => {
+    easySort(
+      Object.entries(pageInfo.meta),
+      // Sort by index if it exists
+      ([_, meta]) => meta.index ?? Infinity,
+    ).forEach(([id, metaEntry]) => {
       if (Object.values(HeadTagTypes).includes(metaEntry.tag)) {
         // If the tag has a name or property attribute, we use that as the key
         // to avoid duplicates and to ensure sorting of tags later
