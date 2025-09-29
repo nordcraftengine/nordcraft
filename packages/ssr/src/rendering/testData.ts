@@ -5,6 +5,7 @@ import type {
   CustomActionArgument,
   NodeModel,
 } from '@nordcraft/core/dist/component/component.types'
+import type { Theme } from '@nordcraft/core/dist/styling/theme'
 import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
 
 export const removeTestData = (component: Component): Component => ({
@@ -110,3 +111,11 @@ const removeActionTestData = (action: ActionModel) => {
 
 const removeActionArgumentTestData = (action: CustomActionArgument) =>
   omitKeys(action, ['description', 'type'])
+
+export const removeThemeTestData = (theme: Theme): Theme => ({
+  ...theme,
+  propertyDefinitions: mapObject(
+    theme.propertyDefinitions ?? {},
+    ([key, value]) => [key, omitKeys(value, ['description', 'initialValue'])],
+  ),
+})

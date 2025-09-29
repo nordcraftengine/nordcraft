@@ -48,6 +48,7 @@ import { requireExtensionRule } from './rules/requireExtensionRule'
 import { unknownClassnameRule } from './rules/slots/unknownClassnameRule'
 import { unknownComponentSlotRule } from './rules/slots/unknownComponentSlotRule'
 import { invalidStyleSyntaxRule } from './rules/style/invalidStyleSyntaxRule'
+import { noReferenceStyleVarRule } from './rules/style/noReferenceStyleVarRule'
 import { unknownCookieRule } from './rules/unknownCookieRule'
 import { duplicateUrlParameterRule } from './rules/urlParameters/duplicateUrlParameterRule'
 import { unknownSetUrlParameterRule } from './rules/urlParameters/unknownSetUrlParameterRule'
@@ -167,6 +168,7 @@ const RULES = [
   noReferenceProjectActionRule,
   noReferenceProjectFormulaRule,
   noReferenceVariableRule,
+  noReferenceStyleVarRule,
   noStaticNodeCondition,
   noUnnecessaryConditionFalsy,
   noUnnecessaryConditionTruthy,

@@ -96,6 +96,8 @@ export const splitRoutes = (json: {
         filesMap[name] = {
           customCode,
           config: files.config,
+          // TODO: Clean up theme descriptions and test data
+          // Also, do we even need to include the theme at all? Isn't it statically rendered already?
           themes: files.themes,
           components: Object.fromEntries(
             components.map((c) => [c.name, removeTestData(c)]),

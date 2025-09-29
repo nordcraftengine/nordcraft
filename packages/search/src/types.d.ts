@@ -66,6 +66,7 @@ type Code =
   | 'no-reference project action'
   | 'no-reference project formula'
   | 'no-reference variable'
+  | 'no-reference style-var'
   | 'no-static-node-condition'
   | 'no-unnecessary-condition-falsy'
   | 'no-unnecessary-condition-truthy'
