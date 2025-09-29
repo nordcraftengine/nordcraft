@@ -150,6 +150,7 @@ export interface MetaEntry {
   tag: HeadTagTypes
   attrs: Record<string, Formula>
   content: Formula
+  index?: number
 }
 
 export interface StaticPathSegment {
