@@ -18,7 +18,7 @@ export const unknownComponentAttributeRule: Rule<{
     }
     const { files, value, node, path } = args
     const component = node.package
-      ? files.packages?.[node.package].components?.[node.name]
+      ? files.packages?.[node.package]?.components?.[node.name]
       : files.components[node.name]
     if (!component) {
       return
