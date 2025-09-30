@@ -26,7 +26,7 @@ export const legacyActionRule: Rule<{
           ? undefined
           : !formulaNamedActions.includes(value.name) ||
               // Check if the first argument is a value formula with a string value
-              (value.arguments?.[0].formula.type === 'value' &&
+              (value.arguments?.[0]?.formula?.type === 'value' &&
                 typeof value.arguments[0].formula.value === 'string')
             ? ['replace-legacy-action']
             : undefined,
