@@ -1,15 +1,14 @@
+type ScrollPosition = {
+  x: number
+  y: number
+}
+
 export const storeScrollState = (
   key: string = '',
   querySelector = '[data-id]',
   comparerFn = (node: Element) => node.getAttribute('data-id'),
 ) => {
-  const scrollPositions: Record<
-    string,
-    {
-      x: number
-      y: number
-    }
-  > = {}
+  const scrollPositions: Record<string, ScrollPosition> = {}
   Array.from(document.querySelectorAll<HTMLElement>(querySelector)).forEach(
     (node) => {
       const nodeId = comparerFn(node)
@@ -40,8 +39,8 @@ export const getScrollStateRestorer =
   (key: string) => (selectorFn: (id: string) => HTMLElement | null) => {
     const { __window, ...rest } = JSON.parse(
       sessionStorage.getItem(`scroll-position(${key})`) ?? '{}',
-    ) as Record<string, { x: number; y: number }> & {
-      __window?: { x: number; y: number }
+    ) as Record<string, ScrollPosition> & {
+      __window?: ScrollPosition
     }
     if (!__window) {
       return
