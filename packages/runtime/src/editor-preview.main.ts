@@ -71,7 +71,7 @@ import { rectHasPoint } from './utils/rectHasPoint'
 import {
   getScrollStateRestorer,
   storeScrollState,
-} from './utils/storeScrollPositions'
+} from './utils/storeScrollState'
 
 type ToddlePreviewEvent =
   | {
@@ -163,6 +163,10 @@ type ToddlePreviewEvent =
         key: string
         value: Theme
       }
+    }
+  | {
+      type: 'preview_theme'
+      theme: string | null
     }
 
 /**
@@ -1166,6 +1170,14 @@ export const createRoot = (
             }
           })
           break
+        case 'preview_theme': {
+          const { theme } = message.data
+          if (theme) {
+            document.body.setAttribute('data-theme', theme)
+          } else {
+            document.body.removeAttribute('data-theme')
+          }
+        }
       }
     },
   )
