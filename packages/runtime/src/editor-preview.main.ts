@@ -68,6 +68,10 @@ import { createFormulaCache } from './utils/createFormulaCache'
 import { getNodeAndAncestors, isNodeOrAncestorConditional } from './utils/nodes'
 import { omitSubnodeStyleForComponent } from './utils/omitStyle'
 import { rectHasPoint } from './utils/rectHasPoint'
+import {
+  getScrollStateRestorer,
+  storeScrollState,
+} from './utils/storeScrollPositions'
 
 type ToddlePreviewEvent =
   | {
@@ -451,8 +455,16 @@ export const createRoot = (
           if (!message.data.component) {
             return
           }
-          if (message.data.component.name != component?.name) {
+          let scrollStateRestorer:
+            | ReturnType<typeof getScrollStateRestorer>
+            | undefined
+
+          if (message.data.component.name !== component?.name) {
+            storeScrollState(component?.name)
             showSignal.cleanSubscribers()
+            scrollStateRestorer = getScrollStateRestorer(
+              message.data.component.name,
+            )
           }
 
           component = updateComponentLinks(message.data.component)
@@ -498,6 +510,12 @@ export const createRoot = (
               )
             }
           }
+
+          requestAnimationFrame(() => {
+            scrollStateRestorer?.((nodeId) =>
+              document.querySelector(`[data-id="${nodeId}"]`),
+            )
+          })
 
           break
         }
@@ -1152,6 +1170,10 @@ export const createRoot = (
     },
   )
 
+  window.addEventListener('beforeunload', () => {
+    storeScrollState(component?.name)
+  })
+
   const updateStyle = () => {
     if (component) {
       insertStyles(document.head, component, getAllComponents())
@@ -1273,6 +1295,7 @@ export const createRoot = (
       return
     }
 
+    const scrollStateRestorer = storeScrollState()
     let { Attributes, Variables, Contexts } = dataSignal.get()
     if (
       fastDeepEqual(ctx?.component.attributes, _component.attributes) === false
@@ -1636,6 +1659,9 @@ export const createRoot = (
     }
 
     ctx = newCtx
+    scrollStateRestorer((nodeId) =>
+      document.querySelector(`[data-id="${nodeId}"]`),
+    )
   }
 
   const createContext = (
