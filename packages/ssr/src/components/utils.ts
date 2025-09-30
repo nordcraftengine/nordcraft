@@ -21,10 +21,12 @@ export function takeIncludedComponents({
     // Join the project components with all package components
     ...Object.fromEntries(
       Object.values(packages).flatMap((installedPackage) =>
-        Object.values(installedPackage.components).map((component) => [
-          `${installedPackage.manifest.name}/${component!.name}`,
-          component,
-        ]),
+        installedPackage
+          ? Object.values(installedPackage.components).map((component) => [
+              `${installedPackage.manifest.name}/${component!.name}`,
+              component,
+            ])
+          : [],
       ),
     ),
   }
