@@ -72,7 +72,7 @@ export const getPageFormulaContext = ({
 
 export const getServerToddleObject = (
   files: Pick<ProjectFiles, 'formulas' | 'packages'> & {
-    packages?: Record<string, Pick<InstalledPackage, 'formulas'>>
+    packages?: Partial<Record<string, Pick<InstalledPackage, 'formulas'>>>
   },
 ): FormulaContext['toddle'] => {
   const coreFormulas = Object.fromEntries(

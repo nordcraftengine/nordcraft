@@ -105,31 +105,33 @@ export const splitRoutes = (json: {
             ? {
                 packages: mapObject(files.packages, ([key, pkg]) => [
                   key,
-                  {
-                    ...pkg,
-                    components: mapObject(
-                      // Only include package components that are used by the page
-                      filterObject(pkg.components, ([_, pkgComponent]) =>
-                        components.some(
-                          (c) =>
-                            pkgComponent &&
-                            c.name ===
-                              `${pkg.manifest.name}/${pkgComponent.name}`,
+                  pkg
+                    ? {
+                        ...pkg,
+                        components: mapObject(
+                          // Only include package components that are used by the page
+                          filterObject(pkg.components, ([_, pkgComponent]) =>
+                            components.some(
+                              (c) =>
+                                pkgComponent &&
+                                c.name ===
+                                  `${pkg.manifest.name}/${pkgComponent.name}`,
+                            ),
+                          ),
+                          // Remove test data from package components
+                          ([cKey, c]) => [cKey, c ? removeTestData(c) : c],
                         ),
-                      ),
-                      // Remove test data from package components
-                      ([cKey, c]) => [cKey, c ? removeTestData(c) : c],
-                    ),
-                    // Actions are not available during SSR
-                    actions: {},
-                    // TODO: Only include relevant formulas from packages
-                    formulas: filterObject(
-                      pkg.formulas ?? {},
-                      ([_, pkgFormula]) =>
-                        // custom formulas are not supported during SSR yet
-                        isToddleFormula(pkgFormula),
-                    ),
-                  },
+                        // Actions are not available during SSR
+                        actions: {},
+                        // TODO: Only include relevant formulas from packages
+                        formulas: filterObject(
+                          pkg.formulas ?? {},
+                          ([_, pkgFormula]) =>
+                            // custom formulas are not supported during SSR yet
+                            isToddleFormula(pkgFormula),
+                        ),
+                      }
+                    : undefined,
                 ]),
               }
             : undefined),

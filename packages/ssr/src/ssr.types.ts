@@ -32,7 +32,7 @@ export interface ToddleProject {
 export interface ProjectFiles {
   // Partial to make sure we check for the existence of a Component
   components: Partial<Record<string, Component>>
-  packages?: Record<string, InstalledPackage>
+  packages?: Partial<Record<string, InstalledPackage>>
   actions?: Record<string, PluginAction>
   formulas?: Record<string, PluginFormula<string>>
   routes?: Record<string, Route>
