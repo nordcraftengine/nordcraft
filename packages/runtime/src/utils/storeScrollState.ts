@@ -1,7 +1,11 @@
-type ScrollPosition = {
+interface ScrollPosition {
   x: number
   y: number
 }
+
+type ScrollPositionKey = '__window' | string
+
+type ScrollPositions = Partial<Record<ScrollPositionKey, ScrollPosition>>
 
 export const storeScrollState = (
   key: string = '',
