@@ -7,6 +7,7 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import { isFormula, type Formula } from '@nordcraft/core/dist/formula/formula'
 import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 export const removeTestData = (component: Component): Component => ({
   ...component,
@@ -109,6 +110,9 @@ export const removeTestData = (component: Component): Component => ({
 })
 
 const removeActionTestData = (action: ActionModel): ActionModel => {
+  if (!isDefined(action)) {
+    return action
+  }
   switch (action.type) {
     case 'SetVariable':
       return {
@@ -241,6 +245,9 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
 }
 
 const removeActionArgumentTestData = (action: CustomActionArgument) => {
+  if (!isDefined(action)) {
+    return action
+  }
   return {
     ...omitKeys(action, ['description', 'type']),
     formula: action.formula
