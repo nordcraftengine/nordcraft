@@ -217,21 +217,22 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
     case 'TriggerWorkflow':
       return {
         ...action,
-        ...(action.parameters
-          ? {
-              parameters: mapObject(action.parameters, ([key, value]) => [
-                key,
-                {
-                  ...value,
-                  formula: isFormula(value)
-                    ? removeFormulaTestData(value)
-                    : isFormula(value.formula)
-                      ? removeFormulaTestData(value.formula)
-                      : value.formula,
-                },
-              ]),
-            }
-          : undefined),
+        // TODO: Below was breaking the build - investigate. Test by adding an animation etc. and see if it is being set to null by mistake
+        // ...(action.parameters
+        //   ? {
+        //       parameters: mapObject(action.parameters, ([key, value]) => [
+        //         key,
+        //         {
+        //           ...value,
+        //           formula: isFormula(value)
+        //             ? removeFormulaTestData(value)
+        //             : isFormula(value.formula)
+        //               ? removeFormulaTestData(value.formula)
+        //               : value.formula,
+        //         },
+        //       ]),
+        //     }
+        //   : undefined),
         ...(action.callbacks
           ? {
               callbacks: mapObject(action.callbacks, ([key, value]) => [
