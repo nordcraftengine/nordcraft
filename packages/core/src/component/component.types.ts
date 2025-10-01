@@ -198,8 +198,8 @@ export interface Component {
   apis: Record<string, ComponentAPI>
   nodes: Record<string, NodeModel>
   events?: ComponentEvent[]
-  onLoad?: EventModel
-  onAttributeChange?: EventModel
+  onLoad?: EventModel | null
+  onAttributeChange?: EventModel | null
   // exported indicates that a component is exported in a package
   exported?: boolean
 }
