@@ -143,7 +143,7 @@ export const createStylesheet = (
         options?: { startingStyle?: boolean },
       ) => {
         const scrollbarStyles = Object.entries(style).filter(
-          ([key]) => key == 'scrollbar-width',
+          ([key]) => key === 'scrollbar-width',
         )
         // If selectorCss is empty, we don't need to render the selector
         let styles = styleToCss(style)
