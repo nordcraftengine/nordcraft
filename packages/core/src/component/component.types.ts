@@ -106,7 +106,7 @@ export interface ElementNodeModel {
   variants?: StyleVariant[]
   animations?: Record<string, Record<string, AnimationKeyframe>>
   children: string[]
-  events: Record<string, EventModel | null>
+  events: Partial<Record<string, EventModel | null>>
   classes: Record<string, { formula?: Formula }>
   'style-variables'?: Array<StyleVariable>
   customProperties?: Record<CustomPropertyName, CustomProperty>
