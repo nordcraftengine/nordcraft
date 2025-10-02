@@ -10,15 +10,15 @@
         "value": ""
       },
       "type": {
-        "type": "Array \\| String"
+        "type": "Array \\| String \\| Object"
       }
     }
   ],
   "variableArguments": true,
   "output": {
     "type": {
-      "type": "Array \\| String"
+      "type": "Array \\| String \\| Object"
     },
-    "description": "Returns a String or Array containing all the specified input values."
+    "description": "Returns a String, Array or Object containing all the specified input values."
   }
 }
