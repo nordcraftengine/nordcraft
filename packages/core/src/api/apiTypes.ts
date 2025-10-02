@@ -53,13 +53,13 @@ export type ApiParserMode =
   | 'blob'
 
 export interface ApiBase extends NordcraftMetadata {
-  url?: Formula
-  path?: Record<string, { formula: Formula; index: number }>
+  url?: Formula | null
+  path?: Record<string, { formula: Formula; index: number }> | null
   queryParams?: Record<
     string,
     // The enabled formula is used to determine if the query parameter should be included in the request or not
     { formula: Formula; enabled?: Formula | null }
-  >
+  > | null
   // hash is relevant for redirects and rewrites, but not for API calls
   hash?: { formula: Formula } | null
 }
@@ -69,9 +69,12 @@ export interface ApiRequest extends ApiBase {
   name: string
   type: 'http' | 'ws' // The structure for web sockets might look different
   autoFetch?: Formula | null
-  headers?: Record<string, { formula: Formula; enabled?: Formula | null }>
-  method?: ApiMethod
-  body?: Formula
+  headers?: Record<
+    string,
+    { formula: Formula; enabled?: Formula | null }
+  > | null
+  method?: ApiMethod | null
+  body?: Formula | null
   // inputs for an API request
   inputs: Record<string, { formula: Formula | null }>
   service?: string | null
@@ -89,8 +92,8 @@ export interface ApiRequest extends ApiBase {
       // it should probably be true by default for autofetch APIs
       // During SSR we will only fetch autoFetch requests
       enabled?: { formula: Formula } | null
-    }
-  }
+    } | null
+  } | null
   client?: {
     debounce?: { formula: Formula } | null
     onCompleted?: EventModel | null
@@ -101,8 +104,8 @@ export interface ApiRequest extends ApiBase {
     // stream: The response will be handled as a stream
     parserMode: ApiParserMode
     // Whether to include credentials (cookies) in the request or not. Default is 'same-origin'
-    credentials?: 'include' | 'same-origin' | 'omit'
-  }
+    credentials?: 'include' | 'same-origin' | 'omit' | null
+  } | null
   // Shared logic for client/server 👇
   // The user could distinguish using an environment
   // variable e.g. IS_SERVER when they declare the formula
