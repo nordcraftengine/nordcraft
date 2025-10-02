@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test'
 
 /**
  * Read environment variables from file.
@@ -13,7 +13,8 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   /* Run your local dev server before starting the tests */
   // webServer: {
-  //   command: 'cd /Users/jacobkofoed/Repositories/toddle-internal/packages/worker && bun run dev --var PROJECT_OVERRIDE:toddle_e2e --var BRANCH_OVERRIDE:demo',
+  //   command:
+  //     'cd ../backend/nordcraft-internal/packages/worker && bun run dev --var PROJECT_OVERRIDE:toddle_e2e --var BRANCH_OVERRIDE:demo',
   //   url: 'http://localhost:54404/',
   //   reuseExistingServer: !process.env.CI,
   // },
@@ -31,10 +32,11 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'https://editor.nordcraft.com',
+    baseURL: 'https://test-id-toddle.toddle.site',
+    // baseURL: 'https://editor.nordcraft.com',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    testIdAttribute: 'data-id',
+    // testIdAttribute: 'data-test-id',
   },
   /* Configure projects for major browsers */
   projects: [
@@ -69,5 +71,5 @@ export default defineConfig({
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     // },
   ],
-  updateSnapshots: "missing",
-});
+  updateSnapshots: 'missing',
+})

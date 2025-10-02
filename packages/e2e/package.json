@@ -1,17 +1,15 @@
 {
-  "name": "toddle-testing",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "e2e",
+  "version": "0.0.1",
   "scripts": {
     "start": "playwright test --headed && playwright show-report",
-    "test": "playwright test"
+    "test": "playwright test",
+    "typecheck": "tsc --noEmit",
+    "watch": "tsc --noEmit -w"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "devDependencies": {
-    "@playwright/test": "^1.53.1",
-    "@types/node": "^24.0.4"
+    "@playwright/test": "1.55.1",
+    "@types/node": "24.6.2"
   }
 }
