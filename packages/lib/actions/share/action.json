@@ -1,6 +1,8 @@
 {
+  "$schema": "../../schemas/libAction.schema.json",
   "name": "Share",
   "description": "Share data with title, text, and/or URL using the Navigator.share API.",
+  "group": "sharing",
   "arguments": [
     {
       "name": "URL",

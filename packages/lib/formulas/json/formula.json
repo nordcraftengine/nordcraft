@@ -1,22 +1,35 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "JSON",
   "description": "Convert a value into a JSON String.",
   "arguments": [
     {
       "name": "Input",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The input value.",
-      "type": { "type": "Any" }
+      "type": {
+        "type": "Any"
+      }
     },
     {
       "name": "Indentation",
-      "formula": { "type": "value", "value": 0 },
+      "formula": {
+        "type": "value",
+        "value": 0
+      },
       "description": "The number of spaces used for indentation in the JSON String.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     }
   ],
   "output": {
     "description": "The JSON String.",
-    "type": { "type": "String" }
+    "type": {
+      "type": "String"
+    }
   }
 }

@@ -1,10 +1,13 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Now",
-  "description": "Get a Date representing \"Now\"",
+  "description": "Get a Date representing \"Now\".",
   "arguments": [],
   "cache": false,
   "output": {
     "description": "A Date object initialized at the current date/time.",
-    "type": { "type": "Date" }
+    "type": {
+      "type": "Date"
+    }
   }
 }

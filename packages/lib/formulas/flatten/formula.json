@@ -1,16 +1,24 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Flatten",
   "description": "Flatten a nested Array.",
   "arguments": [
     {
       "name": "Array",
       "description": "An Array containing one or more Arrays.",
-      "type": { "type": "Array" },
-      "formula": { "type": "array", "arguments": [] }
+      "type": {
+        "type": "Array"
+      },
+      "formula": {
+        "type": "array",
+        "arguments": []
+      }
     }
   ],
   "output": {
     "description": "A flattened Array where all items in the original array are concatenated.",
-    "type": { "type": "Array" }
+    "type": {
+      "type": "Array"
+    }
   }
 }

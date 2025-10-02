@@ -1,6 +1,8 @@
 {
+  "$schema": "../../schemas/libAction.schema.json",
   "name": "Focus",
   "description": "Move focus to a DOM element.",
+  "group": "events",
   "arguments": [
     {
       "name": "Element",
@@ -9,7 +11,7 @@
         "type": "Element"
       },
       "formula": {
-        "type": "Element",
+        "type": "value",
         "value": null
       }
     }

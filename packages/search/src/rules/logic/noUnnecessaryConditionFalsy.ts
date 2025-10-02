@@ -1,4 +1,5 @@
 import type { Rule } from '../../types'
+import { contextlessEvaluateFormula } from '../../util/contextlessEvaluateFormula'
 
 export const noUnnecessaryConditionFalsy: Rule = {
   code: 'no-unnecessary-condition-falsy',
@@ -10,10 +11,10 @@ export const noUnnecessaryConditionFalsy: Rule = {
     }
 
     if (
-      value.arguments.some(
-        (arg) =>
-          arg.formula.type === 'value' && Boolean(arg.formula.value) === false,
-      )
+      value.arguments.some((arg) => {
+        const { result, isStatic } = contextlessEvaluateFormula(arg.formula)
+        return isStatic && Boolean(result) === false
+      })
     ) {
       report(path)
     }

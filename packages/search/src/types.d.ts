@@ -6,6 +6,7 @@ import type {
   ComponentEvent as _ComponentEvent,
   ActionModel,
   Component,
+  ComponentNodeModel,
   ElementNodeModel,
   NodeModel,
   StyleVariant,
@@ -14,13 +15,29 @@ import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleCompo
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Theme } from '@nordcraft/core/dist/styling/theme'
+import type { PluginAction } from '@nordcraft/core/dist/types'
 import type {
   ApiService,
-  PluginAction,
   ProjectFiles,
   Route,
   ToddleProject,
 } from '@nordcraft/ssr/dist/ssr.types'
+import type { LegacyActionRuleFix } from './rules/actions/legacyActionRule'
+import type { NoReferenceProjectActionRuleFix } from './rules/actions/noReferenceProjectActionRule'
+import type { NoReferenceApiRuleFix } from './rules/apis/noReferenceApiRule'
+import type { NoReferenceApiServiceRuleFix } from './rules/apis/noReferenceApiServiceRule'
+import type { UnknownApiServiceRuleFix } from './rules/apis/unknownApiServiceRule'
+import type { NoReferenceAttributeRuleFix } from './rules/attributes/noReferenceAttributeRule'
+import type { UnknownComponentAttributeRuleFix } from './rules/attributes/unknownComponentAttributeRule'
+import type { NoReferenceComponentRuleFix } from './rules/components/noReferenceComponentRule'
+import type { NoReferenceEventRuleFix } from './rules/events/noReferenceEventRule'
+import type { LegacyFormulaRuleFix } from './rules/formulas/legacyFormulaRule'
+import type { NoReferenceComponentFormulaRuleFix } from './rules/formulas/noReferenceComponentFormulaRule'
+import type { NoReferenceProjectFormulaRuleFix } from './rules/formulas/noReferenceProjectFormulaRule'
+import type { NoStaticNodeConditionRuleFix } from './rules/logic/noStaticNodeCondition'
+import type { NoReferenceNodeRuleFix } from './rules/noReferenceNodeRule'
+import type { InvalidStyleSyntaxRuleFix } from './rules/style/invalidStyleSyntaxRule'
+import type { NoPostNavigateActionRuleFix } from './rules/workflows/noPostNavigateAction'
 
 type Code =
   | 'duplicate event trigger'
@@ -29,6 +46,8 @@ type Code =
   | 'duplicate route'
   | 'invalid api parser mode'
   | 'invalid api proxy body setting'
+  | 'invalid element child'
+  | 'invalid style syntax'
   | 'legacy action'
   | 'legacy api'
   | 'legacy formula'
@@ -37,14 +56,17 @@ type Code =
   | 'no-console'
   | 'no-reference api input'
   | 'no-reference api'
+  | 'no-reference api service'
   | 'no-reference attribute'
   | 'no-reference component formula'
   | 'no-reference component workflow'
   | 'no-reference component'
   | 'no-reference event'
+  | 'no-reference node'
   | 'no-reference project action'
   | 'no-reference project formula'
   | 'no-reference variable'
+  | 'no-static-node-condition'
   | 'no-unnecessary-condition-falsy'
   | 'no-unnecessary-condition-truthy'
   | 'non-empty void element'
@@ -57,8 +79,10 @@ type Code =
   | 'image without dimension'
   | 'unknown api input'
   | 'unknown api'
+  | 'unknown api service'
   | 'unknown attribute'
   | 'unknown classname'
+  | 'unknown component attribute'
   | 'unknown component formula input'
   | 'unknown component slot'
   | 'unknown context formula'
@@ -104,6 +128,7 @@ export type Result = {
   category: Category
   level: Level
   details?: any
+  fixes?: FixType[]
 }
 
 interface ApplicationCookie {
@@ -134,6 +159,8 @@ export interface ApplicationState {
   projectDetails?: ToddleProject
 }
 
+type MemoFn = <T>(key: string, fn: () => T) => T
+
 type Base = {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   /**
@@ -148,7 +175,7 @@ type Base = {
    * @param fn A function that returns the value to be memoized. This function is only called if the value is not already in the cache already.
    * @returns The value of the memoized function.
    */
-  memo: <T>(key: string, fn: () => T) => T
+  memo: MemoFn
 }
 
 type ProjectFormulaNode = {
@@ -200,6 +227,10 @@ type ComponentWorkflowNode = {
           testValue: any
         }[]
       | null
+    callbacks?: {
+      name: string
+      testValue: any
+    }[]
     actions: ActionModel[]
     exposeInContext?: boolean | undefined
   }
@@ -229,21 +260,27 @@ type ComponentVariableNode = {
   component: ToddleComponent<Function>
 } & Base
 
+type ComponentNodeAttributeNode = {
+  nodeType: 'component-node-attribute'
+  value: { key: string; value?: Formula }
+  node: ComponentNodeModel | ElementNodeModel
+} & Base
+
 type ComponentAttributeNode = {
   nodeType: 'component-attribute'
   value: Component['attributes'][0]
   component: ToddleComponent<Function>
 } & Base
 
-type FormulaNode = {
+type FormulaNode<F = Formula> = {
   nodeType: 'formula'
-  value: Formula
+  value: F
   component?: ToddleComponent<Function>
 } & Base
 
-type ActionModelNode = {
+type ActionModelNode<A = ActionModel> = {
   nodeType: 'action-model'
-  value: ActionModel
+  value: A
   component: ToddleComponent<Function>
 } & Base
 
@@ -283,6 +320,15 @@ type StyleVariantNode = {
   value: { variant: StyleVariant; element: ElementNodeModel }
 } & Base
 
+type StyleNode = {
+  nodeType: 'style-declaration'
+  value: {
+    styleProperty: string
+    styleValue: string
+    element: ElementNodeModel
+  }
+} & Base
+
 export type NodeType =
   | ActionModelNode
   | ComponentAPIInputNode
@@ -292,6 +338,7 @@ export type NodeType =
   | ComponentEvent
   | ComponentFormulaNode
   | ComponentNode
+  | ComponentNodeAttributeNode
   | ComponentNodeNode
   | ComponentVariableNode
   | ComponentWorkflowNode
@@ -300,17 +347,42 @@ export type NodeType =
   | ProjectApiService
   | ProjectConfigNode
   | ProjectFormulaNode
-  | ProjectThemeNode
   | ProjectRoute
+  | ProjectThemeNode
+  | StyleNode
   | StyleVariantNode
+
+type FixType =
+  | LegacyFormulaRuleFix
+  | LegacyActionRuleFix
+  | NoReferenceComponentRuleFix
+  | NoReferenceProjectFormulaRuleFix
+  | NoReferenceProjectActionRuleFix
+  | NoReferenceApiRuleFix
+  | NoReferenceApiServiceRuleFix
+  | NoReferenceAttributeRuleFix
+  | NoReferenceEventRuleFix
+  | NoReferenceComponentFormulaRuleFix
+  | NoReferenceNodeRuleFix
+  | InvalidStyleSyntaxRuleFix
+  | NoStaticNodeConditionRuleFix
+  | NoPostNavigateActionRuleFix
+  | UnknownComponentAttributeRuleFix
+  | UnknownApiServiceRuleFix
 
 export interface Rule<T = unknown, V = NodeType> {
   category: Category
   code: Code
   level: Level
   visit: (
-    report: (path: (string | number)[], details?: T) => void,
+    report: (path: (string | number)[], details?: T, fixes?: FixType[]) => void,
     data: V,
     state?: ApplicationState | undefined,
   ) => void
+  fixes?: Partial<Record<FixType, FixFunction>>
 }
+
+export type FixFunction<T extends NodeType> = (
+  data: T,
+  state?: ApplicationState,
+) => ProjectFiles | void

@@ -1,5 +1,8 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
+/**
+ * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
+ */
 const handler: FormulaHandler<string> = ([value]) => {
   switch (typeof value) {
     case 'number':
@@ -13,11 +16,9 @@ const handler: FormulaHandler<string> = ([value]) => {
       return 'Boolean'
     case 'object':
       return Array.isArray(value) ? 'Array' : value === null ? 'Null' : 'Object'
-
     case 'undefined':
       return 'Null'
     default:
-      // throw new Error("Could not determine the type of the argument 'Input'")
       return null
   }
 }

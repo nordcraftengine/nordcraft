@@ -1,8 +1,10 @@
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
+import { fixProject } from '../../fixProject'
 import { searchProject } from '../../searchProject'
 import { noReferenceProjectFormulaRule } from './noReferenceProjectFormulaRule'
 
-describe('noReferenceFormulaRule', () => {
+describe('find noReferenceFormulaRule', () => {
   test('should detect unused global formulas', () => {
     const problems = Array.from(
       searchProject({
@@ -287,5 +289,38 @@ describe('noReferenceFormulaRule', () => {
     )
 
     expect(problems).toHaveLength(0)
+  })
+})
+
+describe('fix noReferenceFormulaRule', () => {
+  test('should remove unused global formulas', () => {
+    const projectFiles: ProjectFiles = {
+      formulas: {
+        'my-formula': {
+          name: 'my-formula',
+          arguments: [],
+          formula: {
+            type: 'value',
+            value: 'value',
+          },
+        },
+      },
+      components: {
+        test: {
+          name: 'test',
+          nodes: {},
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
+        },
+      },
+    }
+    const fixedProject = fixProject({
+      files: projectFiles,
+      rule: noReferenceProjectFormulaRule,
+      fixType: 'delete-project-formula',
+    })
+    expect(fixedProject.formulas).toEqual({})
   })
 })

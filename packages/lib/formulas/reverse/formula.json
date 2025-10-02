@@ -1,16 +1,24 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Reverse",
   "description": "Reverse the order of an Array.",
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The Array to be reversed.",
-      "type": { "type": "Array" }
+      "type": {
+        "type": "Array"
+      }
     }
   ],
   "output": {
-    "type": { "type": "Array" },
+    "type": {
+      "type": "Array"
+    },
     "description": "The reversed Array."
   }
 }

@@ -1,9 +1,12 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Languages",
   "description": "An array of the preferred languages for the user, based on the Navigator.languages property (on the client) or the Accept-Language header (on the server).",
   "arguments": [],
   "output": {
     "description": "An array with the preferred languages for the user.",
-    "type": { "type": "Array" }
+    "type": {
+      "type": "Array"
+    }
   }
 }

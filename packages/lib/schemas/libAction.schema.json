@@ -1,0 +1,57 @@
+{
+  "$id": "libAction.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lib action",
+  "description": "A builtin action in the Nordcraft runtime",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "group": {
+      "type": "string",
+      "enum": [
+        "cookies",
+        "debugging",
+        "events",
+        "local_storage",
+        "navigation",
+        "session_storage",
+        "sharing",
+        "timers"
+      ]
+    },
+    "deprecated": {
+      "type": "boolean",
+      "description": "Whether this action is deprecated",
+      "optional": true
+    },
+    "supercededBy": {
+      "type": "string",
+      "description": "The name of the action that supersedes this action",
+      "optional": true
+    },
+    "arguments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "type": {
+            "type": "any"
+          },
+          "formula": { "$ref": "Formula" },
+          "required": ["name", "description", "type"]
+        }
+      }
+    }
+  },
+  "required": ["name", "description", "group"],
+  "additionalProperties": true
+}

@@ -1,14 +1,13 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
+
 const handler: FormulaHandler<boolean> = ([collection, prefix]) => {
   if (typeof collection !== 'string') {
-    // throw new Error("Argument 'String' must be of type string")
     return null
   }
   if (typeof prefix !== 'string') {
-    // throw new Error("Argument 'Prefix' must be of type string")
     return null
   }
-
+  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
   return collection.startsWith(prefix)
 }
 

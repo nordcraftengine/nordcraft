@@ -1,16 +1,24 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Timestamp",
   "description": "Get the timestamp from a Date, e.g. 1633462980000.",
   "arguments": [
     {
       "name": "Date",
       "description": "The date to get the timestamp from.",
-      "type": { "type": "Date" },
-      "formula": { "type": "value", "value": null }
+      "type": {
+        "type": "Date"
+      },
+      "formula": {
+        "type": "value",
+        "value": null
+      }
     }
   ],
   "output": {
     "description": "The timestamp from the date input.",
-    "type": { "type": "Number" }
+    "type": {
+      "type": "Number"
+    }
   }
 }

@@ -1,16 +1,24 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Capitalize",
   "description": "Capitalize a string: make the first letter uppercase whilst keeping the rest lowercase.",
   "arguments": [
     {
       "name": "String",
-      "formula": { "type": "value", "value": "string" },
+      "formula": {
+        "type": "value",
+        "value": "string"
+      },
       "description": "An input String.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     }
   ],
   "output": {
     "description": "The capitalized String.",
-    "type": { "type": "String" }
+    "type": {
+      "type": "String"
+    }
   }
 }

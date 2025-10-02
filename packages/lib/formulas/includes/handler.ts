@@ -1,4 +1,9 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
+
+/**
+ * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
+ * and https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes
+ */
 const handler: FormulaHandler<boolean> = ([collection, item]) => {
   if (typeof collection === 'string' && typeof item === 'string') {
     return collection.includes(item)
@@ -8,7 +13,6 @@ const handler: FormulaHandler<boolean> = ([collection, item]) => {
       (globalThis as any).toddle.isEqual(collectionItem, item),
     )
   }
-  // throw new Error("Argument 'Array' must be of type array or string")
   return null
 }
 

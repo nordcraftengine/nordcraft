@@ -1,6 +1,8 @@
 {
+  "$schema": "../../schemas/libAction.schema.json",
   "name": "Copy to clipboard",
   "description": "Copy contents to the clipboard.",
+  "group": "sharing",
   "arguments": [
     {
       "name": "Value",

@@ -8,13 +8,14 @@
     "@nordcraft/core": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "24.0.3",
-    "@happy-dom/global-registrator": "18.0.1"
+    "@types/node": "24.3.1",
+    "@happy-dom/global-registrator": "18.0.1",
+    "jsonschema": "1.5.0"
   },
   "scripts": {
     "build": "bun ./bin/generate.js && tsc --project tsconfig.build.json",
     "npm-publish": "bun run build && bun publish --access public",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && bun bin/validate.ts",
     "watch": "tsc --noEmit -w"
   },
   "files": [

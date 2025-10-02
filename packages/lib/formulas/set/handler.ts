@@ -10,7 +10,6 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = (
     typeof key !== 'number' &&
     !Array.isArray(key)
   ) {
-    // throw new Error("Argument 'Path' must be of type array, string or number")
     return null
   }
   const [head, ...rest] = Array.isArray(key) ? key : [key]
@@ -22,7 +21,6 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = (
       rest.length === 0 ? value : handler([clone[head], rest, value], ctx)
     return clone
   }
-  // throw new Error("Argument 'Object' must be of type object or array")
   return null
 }
 export default handler

@@ -53,7 +53,7 @@ function getFormulaCacheConfig(formula: Formula, component: Component) {
     if (!op) {
       return
     }
-    if (op.type == 'path' && op.path[0] !== 'Args') {
+    if (op.type === 'path' && op.path[0] !== 'Args') {
       paths.push(op.path)
     }
     if (Array.isArray((op as any)?.arguments)) {

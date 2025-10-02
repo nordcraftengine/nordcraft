@@ -6,19 +6,12 @@ const handler: FormulaHandler<string> = ([
   replaceValue,
 ]) => {
   if (typeof input !== 'string') {
-    // throw new Error(
-    //   `Argument 'Input' must be a string, received ${typeof input}`,
-    // )
     return null
   }
-
   if (typeof searchValue !== 'string') {
-    // throw new Error(
-    //   `Argument 'Search value' must be a string, received ${typeof searchValue}`,
-    // )
     return null
   }
-
+  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll
   return input.replaceAll(searchValue, String(replaceValue))
 }
 

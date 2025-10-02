@@ -1,16 +1,24 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Date From Timestamp",
   "arguments": [
     {
       "name": "Timestamp",
       "description": "A Number in milliseconds since 1st January, 1970 (EPOCH).",
-      "type": { "type": "Number" },
-      "formula": { "type": "value", "value": 1687787245933 }
+      "type": {
+        "type": "Number"
+      },
+      "formula": {
+        "type": "value",
+        "value": 1687787245933
+      }
     }
   ],
   "description": "Convert a timestamp (milliseconds) to a Date.",
   "output": {
     "description": "The input value converted to a Date.",
-    "type": { "type": "Date" }
+    "type": {
+      "type": "Date"
+    }
   }
 }

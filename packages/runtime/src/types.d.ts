@@ -107,6 +107,7 @@ export interface ContextApiV2 {
       onMessage: ActionModel[]
     }
     componentData: ComponentData
+    workflowCallback?: (event: string, data: unknown) => void
   }) => Promise<unknown>
   destroy: Function
   update: (newApi: CoreApiRequest, componentData: ComponentData) => void // for updating the dataSignal

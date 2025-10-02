@@ -1,16 +1,25 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Last Index of",
   "description": "Search an Array or String to find the index of the last occurrence of a specified item or substring.",
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The value to search.",
-      "type": { "type": "Array \\| String" }
+      "type": {
+        "type": "Array \\| String"
+      }
     },
     {
       "name": "Item",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The item or substring to search for.",
       "type": {
         "type": "Any"

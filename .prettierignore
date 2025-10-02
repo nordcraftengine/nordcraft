@@ -3,3 +3,6 @@ bun.lock
 packages/lib/actions.ts
 packages/lib/formulas.ts
 examples/hono/assets/
+examples/projects/*
+**/.wrangler/**/*
+packages/backend/__project__/

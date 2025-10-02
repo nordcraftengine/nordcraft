@@ -1,16 +1,24 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Parse JSON",
   "description": "Parse a String to JSON.",
   "arguments": [
     {
       "name": "JSON string",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The String to be parsed.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     }
   ],
   "output": {
     "description": "The parsed JSON value. If the input is not a valid String, this returns Null.",
-    "type": { "type": "Any" }
+    "type": {
+      "type": "Any"
+    }
   }
 }

@@ -1,22 +1,35 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Starts with",
   "description": "Check if a String has a given prefix.",
   "arguments": [
     {
       "name": "String",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The String to check.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     },
     {
       "name": "Prefix",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The prefix to check for.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     }
   ],
   "output": {
     "description": "Returns True if the input String starts with the prefix, otherwise False",
-    "type": { "type": "Boolean" }
+    "type": {
+      "type": "Boolean"
+    }
   }
 }

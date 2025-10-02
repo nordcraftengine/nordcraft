@@ -21,6 +21,7 @@ const handler: FormulaHandler<boolean> = ([url, title, text]) => {
     data.url = url
   }
   // Later we can add support for data.files as well
+  // See https://developer.mozilla.org/en-US/docs/Web/API/Navigator/canShare
   return navigator.canShare(data)
 }
 

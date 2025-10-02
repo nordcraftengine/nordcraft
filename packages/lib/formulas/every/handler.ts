@@ -1,8 +1,11 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
+/**
+ * Similar to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every
+ * but also works with objects
+ */
 export const handler: FormulaHandler<boolean> = ([items, fx]: unknown[]) => {
   if (typeof fx !== 'function') {
-    // throw new Error('Argument Formula must be of type formula')
     return null
   }
   if (Array.isArray(items)) {
@@ -11,7 +14,6 @@ export const handler: FormulaHandler<boolean> = ([items, fx]: unknown[]) => {
   if (items && typeof items === 'object') {
     return Object.entries(items).every(([key, value]) => fx({ key, value }))
   }
-  // throw new Error("Argument 'Array' must be of type array or object")
   return null
 }
 

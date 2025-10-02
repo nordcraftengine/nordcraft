@@ -1,16 +1,24 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Entries",
   "description": "Get an Array of entries from a given Object.",
   "arguments": [
     {
       "name": "Object",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "Input record",
-      "type": { "type": "Object" }
+      "type": {
+        "type": "Object"
+      }
     }
   ],
   "output": {
     "description": "Returns an Array of entries for the given input record. The entries are Objects with a “Key” and “Value” property.",
-    "type": { "type": "Array" }
+    "type": {
+      "type": "Array"
+    }
   }
 }

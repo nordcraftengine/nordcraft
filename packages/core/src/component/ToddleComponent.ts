@@ -200,6 +200,35 @@ export class ToddleComponent<Handler> {
               })
             }
           }
+          for (const [customPropertyKey, customProperty] of Object.entries(
+            node.customProperties ?? {},
+          )) {
+            yield* getFormulasInFormula({
+              formula: customProperty.formula,
+              globalFormulas,
+              path: [...path, 'customProperties', customPropertyKey, 'formula'],
+            })
+          }
+          for (const [variantKey, variant] of Object.entries(
+            node.variants ?? {},
+          )) {
+            for (const [customPropertyKey, customProperty] of Object.entries(
+              variant.customProperties ?? {},
+            )) {
+              yield* getFormulasInFormula({
+                formula: customProperty.formula,
+                globalFormulas,
+                path: [
+                  ...path,
+                  'variants',
+                  variantKey,
+                  'customProperties',
+                  customPropertyKey,
+                  'formula',
+                ],
+              })
+            }
+          }
           break
         case 'element':
           yield* getFormulasInFormula({
@@ -249,6 +278,37 @@ export class ToddleComponent<Handler> {
               globalFormulas,
               path: [...path, 'style-variables', styleVariableKey, 'formula'],
             })
+          }
+
+          for (const [customPropertyKey, customProperty] of Object.entries(
+            node.customProperties ?? {},
+          )) {
+            yield* getFormulasInFormula({
+              formula: customProperty.formula,
+              globalFormulas,
+              path: [...path, 'customProperties', customPropertyKey, 'formula'],
+            })
+          }
+
+          for (const [variantKey, variant] of Object.entries(
+            node.variants ?? {},
+          )) {
+            for (const [customPropertyKey, customProperty] of Object.entries(
+              variant.customProperties ?? {},
+            )) {
+              yield* getFormulasInFormula({
+                formula: customProperty.formula,
+                globalFormulas,
+                path: [
+                  ...path,
+                  'variants',
+                  variantKey,
+                  'customProperties',
+                  customPropertyKey,
+                  'formula',
+                ],
+              })
+            }
           }
           break
       }

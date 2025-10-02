@@ -59,7 +59,9 @@ export interface StyleVariant {
   mediaQuery?: MediaQuery
   breakpoint: 'small' | 'medium' | 'large'
   startingStyle?: boolean
+  pseudoElement?: string
   style: NodeStyleModel
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export type NodeStyleModel = Record<string, string>
@@ -75,6 +77,22 @@ export interface TextNodeModel {
   children?: undefined
 }
 
+export type CustomPropertyName = `--${string}`
+
+export type CustomProperty = {
+  formula: Formula
+}
+
+/**
+ * @deprecated - use CustomProperties instead
+ */
+export type StyleVariable = {
+  category: StyleTokenCategory
+  name: string
+  formula: Formula
+  unit?: string
+}
+
 export interface ElementNodeModel {
   id?: string
   type: 'element'
@@ -88,14 +106,10 @@ export interface ElementNodeModel {
   variants?: StyleVariant[]
   animations?: Record<string, Record<string, AnimationKeyframe>>
   children: string[]
-  events: Record<string, EventModel>
+  events: Partial<Record<string, EventModel | null>>
   classes: Record<string, { formula?: Formula }>
-  'style-variables'?: Array<{
-    category: StyleTokenCategory
-    name: string
-    formula: Formula
-    unit?: string
-  }>
+  'style-variables'?: Array<StyleVariable>
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export interface ComponentNodeModel {
@@ -114,6 +128,7 @@ export interface ComponentNodeModel {
   attrs: Record<string, Formula>
   children: string[]
   events: Record<string, EventModel>
+  customProperties?: Record<CustomPropertyName, CustomProperty>
 }
 
 export interface SlotNodeModel {
@@ -135,6 +150,7 @@ export interface MetaEntry {
   tag: HeadTagTypes
   attrs: Record<string, Formula>
   content: Formula
+  index?: number
 }
 
 export interface StaticPathSegment {
@@ -151,7 +167,7 @@ export interface DynamicPathSegment {
   name: string
 }
 
-type MediaQuery = {
+export type MediaQuery = {
   'min-width'?: string
   'max-width'?: string
   'min-height'?: string
@@ -199,8 +215,10 @@ export interface ComponentFormula extends NordcraftMetadata {
 export interface ComponentWorkflow extends NordcraftMetadata {
   name: string
   parameters: Array<{ name: string; testValue: any }>
+  callbacks?: Array<{ name: string; testValue: any }>
   actions: ActionModel[]
   exposeInContext?: boolean
+  testValue?: unknown
 }
 
 export interface ComponentContext {
@@ -271,14 +289,22 @@ export interface EventModel {
   actions: ActionModel[]
 }
 
+export interface CustomActionArgument {
+  name: string
+  formula?: Formula
+  type?: any
+  description?: string
+}
+
 export interface CustomActionModel {
   // Some legacy custom actions use an undefined type
   type?: 'Custom'
   package?: string
   name: string
   description?: string
+  group?: string
   data?: string | number | boolean | Formula
-  arguments?: { name: string; formula: Formula }[]
+  arguments?: Partial<CustomActionArgument[]>
   events?: Record<string, { actions: ActionModel[] }>
   version?: 2 | never
   label?: string
@@ -288,7 +314,7 @@ export interface SwitchActionModel {
   type: 'Switch'
   data?: string | number | boolean | Formula
   cases: Array<{
-    condition: Formula
+    condition: Formula | null
     actions: ActionModel[]
   }>
   default: { actions: ActionModel[] }
@@ -297,7 +323,7 @@ export interface SwitchActionModel {
 export interface VariableActionModel {
   type: 'SetVariable'
   variable: string
-  data: Formula
+  data: Formula | null
 }
 export interface FetchActionModel {
   type: 'Fetch'
@@ -311,7 +337,7 @@ export interface FetchActionModel {
 export interface SetURLParameterAction {
   type: 'SetURLParameter'
   parameter: string
-  data: Formula
+  data: Formula | null
   historyMode?: 'replace' | 'push' | null
 }
 
@@ -324,14 +350,21 @@ export interface SetMultiUrlParameterAction {
 export interface EventActionModel {
   type: 'TriggerEvent'
   event: string
-  data: Formula
+  data: Formula | null
 }
 
 export interface WorkflowActionModel {
   type: 'TriggerWorkflow'
   workflow: string
-  parameters: Record<string, { formula: Formula }>
+  parameters: Record<string, { formula?: Formula }> | null
+  callbacks?: Record<string, { actions: ActionModel[] }>
   contextProvider?: string
+}
+
+export interface WorkflowCallbackActionModel {
+  type: 'TriggerWorkflowCallback'
+  event: string
+  data: Formula | null
 }
 
 export type ActionModel =
@@ -343,6 +376,7 @@ export type ActionModel =
   | SetURLParameterAction
   | SetMultiUrlParameterAction
   | WorkflowActionModel
+  | WorkflowCallbackActionModel
 
 export interface ComponentEvent extends NordcraftMetadata {
   name: string

@@ -1,4 +1,8 @@
-import { NON_BODY_RESPONSE_CODES } from '@nordcraft/core/dist/api/api'
+import {
+  HttpMethodsWithAllowedBody,
+  NON_BODY_RESPONSE_CODES,
+} from '@nordcraft/core/dist/api/api'
+import type { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
 import { REWRITE_HEADER } from '@nordcraft/core/dist/utils/url'
 import {
   getServerToddleObject,
@@ -8,8 +12,13 @@ import {
   getRouteDestination,
   matchRouteForUrl,
 } from '@nordcraft/ssr/dist/routing/routing'
-import { REDIRECT_NAME_HEADER } from '@nordcraft/ssr/src/utils/headers'
+import {
+  REDIRECT_NAME_HEADER,
+  skipCookieHeader,
+} from '@nordcraft/ssr/src/utils/headers'
 import type { Handler } from 'hono'
+import { endTime, startTime } from 'hono/timing'
+import type { StatusCode } from 'hono/utils/http-status'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 
 export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
@@ -38,61 +47,55 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     serverContext: getServerToddleObject({} as any),
   })
   if (!destination) {
-    return c.html(`Invalid destination`, {
+    return c.text(`Invalid destination`, {
       status: 500,
     })
   }
   if (route.type === 'redirect') {
+    if (c.req.raw.method !== 'GET') {
+      return c.text(`Method Not Allowed`, { status: 405 })
+    }
     // Return a redirect to the destination with the provided status code
-    return new Response(null, {
-      headers: {
-        location: destination.href,
-        [REDIRECT_NAME_HEADER]: routeName,
-      },
-      status: route.status ?? 302,
-    })
+    c.header(REDIRECT_NAME_HEADER, routeName)
+    return c.redirect(destination, route.status ?? 302)
   }
 
   // Rewrite handling: fetch the destination and return the response
   if (c.req.raw.headers.get(REWRITE_HEADER) !== null) {
-    return c.html(`Nordcraft rewrites are not allowed to be recursive`, {
+    return c.text(`Nordcraft rewrites are not allowed to be recursive`, {
       status: 500,
     })
   }
   try {
-    const requestHeaders = new Headers()
-    // Ensure this server can read the response by overriding potentially
-    // unsupported accept headers from the client (brotli etc.)
-    requestHeaders.set('accept-encoding', 'gzip')
-    requestHeaders.set('accept', '*/*')
+    const headers = skipCookieHeader(c.req.raw.headers)
     // Add header to identify that this is a rewrite
     // This allows us to avoid recursive fetch calls across Nordcraft routes
-    requestHeaders.set(REWRITE_HEADER, 'true')
+    headers.set(REWRITE_HEADER, 'true')
+    const timingKey = 'proxyRequest'
+    startTime(c, timingKey)
     const response = await fetch(destination, {
-      headers: requestHeaders,
-      // Routes can only be GET requests
-      method: 'GET',
+      headers,
+      method: c.req.raw.method,
+      body: HttpMethodsWithAllowedBody.includes(c.req.raw.method as ApiMethod)
+        ? c.req.raw.body
+        : undefined,
     })
+    endTime(c, timingKey)
     // Pass the stream into a new response so we can write the headers
     const body = NON_BODY_RESPONSE_CODES.includes(response.status)
       ? undefined
       : ((response.body ?? new ReadableStream()) as ReadableStream)
-
-    const returnResponse = new Response(body, {
-      status: response.status,
-      headers: {
-        ...Object.fromEntries(
-          response.headers
-            .entries()
-            // Filter out content-encoding as it breaks decoding on the client 🤷‍♂️
-            .filter(([key]) => key !== 'content-encoding'),
-        ),
-      },
+    response.headers.entries().forEach(([name, value]) => {
+      c.header(name, value)
     })
-    return returnResponse
+    c.status(response.status as StatusCode)
+    if (body) {
+      c.body(body)
+    }
+    return c.res
   } catch {
     return c.html(
-      `Internal server error when fetching url: ${destination.href}`,
+      `Unable to fetch resource defined in proxy destination: ${destination.href}`,
       { status: 500 },
     )
   }

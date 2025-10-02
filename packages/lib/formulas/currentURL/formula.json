@@ -1,10 +1,13 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Current URL",
   "description": "Return the current URL of the browser. Use the \"Parse URL\" formula for working with the URL.",
   "arguments": [],
   "cache": false,
   "output": {
     "description": "The browser's current URL.",
-    "type": { "type": "String" }
+    "type": {
+      "type": "String"
+    }
   }
 }

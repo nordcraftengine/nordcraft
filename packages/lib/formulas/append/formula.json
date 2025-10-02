@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Append",
   "description": "Add an element to the end of an Array.",
   "arguments": [
@@ -8,7 +9,10 @@
         "type": "Array"
       },
       "description": "The Array to append to.",
-      "formula": { "type": "array", "arguments": [] }
+      "formula": {
+        "type": "array",
+        "arguments": []
+      }
     },
     {
       "name": "Item",

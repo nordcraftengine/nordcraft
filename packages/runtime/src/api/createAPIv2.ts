@@ -174,6 +174,7 @@ export function createAPI({
     api,
     data,
     componentData,
+    workflowCallback,
   }: {
     eventName: 'message' | 'success' | 'failed'
     api: ApiRequest
@@ -183,6 +184,7 @@ export function createAPI({
       headers?: Record<string, string>
     }
     componentData: ComponentData
+    workflowCallback?: (event: string, data: unknown) => void
   }) {
     switch (eventName) {
       case 'message': {
@@ -196,6 +198,7 @@ export function createAPI({
             },
             ctx,
             event,
+            workflowCallback,
           )
         })
         break
@@ -211,6 +214,7 @@ export function createAPI({
             },
             ctx,
             event,
+            workflowCallback,
           )
         })
         break
@@ -229,6 +233,7 @@ export function createAPI({
             },
             ctx,
             event,
+            workflowCallback,
           )
         })
         break
@@ -369,11 +374,13 @@ export function createAPI({
     url,
     requestSettings,
     componentData,
+    workflowCallback,
   }: {
     api: ApiRequest
     url: URL
     requestSettings: ToddleRequestInit
     componentData: ComponentData
+    workflowCallback?: (event: string, data: unknown) => void
   }) {
     const run = async () => {
       const performance: ApiPerformance = {
@@ -429,7 +436,13 @@ export function createAPI({
         }
 
         performance.responseStart = Date.now()
-        await handleResponse({ api, componentData, res: response, performance })
+        await handleResponse({
+          api,
+          componentData,
+          res: response,
+          performance,
+          workflowCallback,
+        })
         return
       } catch (error: any) {
         const body = error.cause
@@ -446,6 +459,7 @@ export function createAPI({
           api,
           data: { body },
           componentData,
+          workflowCallback,
         })
         return Promise.reject(error)
       }
@@ -477,11 +491,13 @@ export function createAPI({
     componentData,
     res,
     performance,
+    workflowCallback,
   }: {
     api: ApiRequest
     componentData: ComponentData
     res: Response
     performance: ApiPerformance
+    workflowCallback?: (event: string, data: unknown) => void
   }) {
     let parserMode = api.client?.parserMode ?? 'auto'
 
@@ -504,17 +520,53 @@ export function createAPI({
 
     switch (parserMode) {
       case 'text':
-        return textStreamResponse({ api, componentData, res, performance })
+        return textStreamResponse({
+          api,
+          componentData,
+          res,
+          performance,
+          workflowCallback,
+        })
       case 'json':
-        return jsonResponse({ api, componentData, res, performance })
+        return jsonResponse({
+          api,
+          componentData,
+          res,
+          performance,
+          workflowCallback,
+        })
       case 'event-stream':
-        return eventStreamingResponse({ api, componentData, res, performance })
+        return eventStreamingResponse({
+          api,
+          componentData,
+          res,
+          performance,
+          workflowCallback,
+        })
       case 'json-stream':
-        return jsonStreamResponse({ api, componentData, res, performance })
+        return jsonStreamResponse({
+          api,
+          componentData,
+          res,
+          performance,
+          workflowCallback,
+        })
       case 'blob':
-        return blobResponse({ api, componentData, res, performance })
+        return blobResponse({
+          api,
+          componentData,
+          res,
+          performance,
+          workflowCallback,
+        })
       default:
-        return textStreamResponse({ api, componentData, res, performance })
+        return textStreamResponse({
+          api,
+          componentData,
+          res,
+          performance,
+          workflowCallback,
+        })
     }
   }
 
@@ -523,11 +575,13 @@ export function createAPI({
     res,
     performance,
     componentData,
+    workflowCallback,
   }: {
     api: ApiRequest
     res: Response
     performance: ApiPerformance
     componentData: ComponentData
+    workflowCallback?: (event: string, data: unknown) => void
   }) {
     return handleStreaming({
       api,
@@ -538,6 +592,7 @@ export function createAPI({
       parseChunk: (chunk) => chunk,
       parseChunksForData: (chunks) => chunks.join(''),
       componentData,
+      workflowCallback,
     })
   }
 
@@ -546,11 +601,13 @@ export function createAPI({
     res,
     performance,
     componentData,
+    workflowCallback,
   }: {
     api: ApiRequest
     res: Response
     performance: ApiPerformance
     componentData: ComponentData
+    workflowCallback?: (event: string, data: unknown) => void
   }) {
     const parseChunk = (chunk: any) => {
       let parsedData = chunk
@@ -574,6 +631,7 @@ export function createAPI({
       parseChunksForData: (chunks) => [...chunks],
       delimiters: ['\r\n', '\n'],
       componentData,
+      workflowCallback,
     })
   }
 
@@ -582,11 +640,13 @@ export function createAPI({
     componentData,
     res,
     performance,
+    workflowCallback,
   }: {
     api: ApiRequest
     componentData: ComponentData
     res: Response
     performance: ApiPerformance
+    workflowCallback?: (event: string, data: unknown) => void
   }) {
     const body = await res.json()
 
@@ -599,7 +659,13 @@ export function createAPI({
         headers: mapHeadersToObject(res.headers),
       },
     }
-    return endResponse({ api, apiStatus: status, componentData, performance })
+    return endResponse({
+      api,
+      apiStatus: status,
+      componentData,
+      performance,
+      workflowCallback,
+    })
   }
 
   async function blobResponse({
@@ -607,11 +673,13 @@ export function createAPI({
     componentData,
     res,
     performance,
+    workflowCallback,
   }: {
     api: ApiRequest
     componentData: ComponentData
     res: Response
     performance: ApiPerformance
+    workflowCallback?: (event: string, data: unknown) => void
   }) {
     const blob = await res.blob()
 
@@ -624,7 +692,13 @@ export function createAPI({
         headers: mapHeadersToObject(res.headers),
       },
     }
-    return endResponse({ api, apiStatus: status, componentData, performance })
+    return endResponse({
+      api,
+      apiStatus: status,
+      componentData,
+      performance,
+      workflowCallback,
+    })
   }
 
   function eventStreamingResponse({
@@ -632,11 +706,13 @@ export function createAPI({
     res,
     performance,
     componentData,
+    workflowCallback,
   }: {
     api: ApiRequest
     res: Response
     performance: ApiPerformance
     componentData: ComponentData
+    workflowCallback?: (event: string, data: unknown) => void
   }) {
     const parseChunk = (chunk: string) => {
       const event = chunk.match(/event: (.*)/)?.[1] ?? 'message'
@@ -667,6 +743,7 @@ export function createAPI({
       parseChunksForData: (chunks) => [...chunks],
       delimiters: ['\n\n', '\r\n\r\n'],
       componentData,
+      workflowCallback,
     })
   }
 
@@ -680,6 +757,7 @@ export function createAPI({
     parseChunksForData,
     delimiters, // There can be various delimiters for the same stream. SSE might use both \n\n and \r\n\r\n,
     componentData,
+    workflowCallback,
   }: {
     api: ApiRequest
     res: Response
@@ -690,6 +768,7 @@ export function createAPI({
     parseChunksForData: (chunks: any[]) => any
     delimiters?: string[]
     componentData: ComponentData
+    workflowCallback?: (event: string, data: unknown) => void
   }) {
     const chunks: {
       chunks: any[]
@@ -725,6 +804,7 @@ export function createAPI({
               api,
               data: { body: parsedChunk },
               componentData,
+              workflowCallback,
             })
           }
         }
@@ -784,7 +864,13 @@ export function createAPI({
         cause: chunks.chunks.join(''),
       })
     }
-    return endResponse({ api, apiStatus: status, componentData, performance })
+    return endResponse({
+      api,
+      apiStatus: status,
+      componentData,
+      performance,
+      workflowCallback,
+    })
   }
 
   function endResponse({
@@ -792,11 +878,13 @@ export function createAPI({
     apiStatus,
     componentData,
     performance,
+    workflowCallback,
   }: {
     api: ApiRequest
     apiStatus: ApiStatus
     componentData: ComponentData
     performance: ApiPerformance
+    workflowCallback?: (event: string, data: unknown) => void
   }) {
     performance.responseEnd = Date.now()
 
@@ -829,10 +917,22 @@ export function createAPI({
       }
 
       apiError({ api, componentData, data, performance })
-      triggerActions({ eventName: 'failed', api, componentData, data })
+      triggerActions({
+        eventName: 'failed',
+        api,
+        componentData,
+        data,
+        workflowCallback,
+      })
     } else {
       apiSuccess({ api, componentData, data, performance })
-      triggerActions({ eventName: 'success', api, componentData, data })
+      triggerActions({
+        eventName: 'success',
+        api,
+        componentData,
+        data,
+        workflowCallback,
+      })
     }
   }
 
@@ -962,7 +1062,12 @@ export function createAPI({
   })
 
   return {
-    fetch: ({ actionInputs, actionModels, componentData }) => {
+    fetch: ({
+      actionInputs,
+      actionModels,
+      componentData,
+      workflowCallback,
+    }) => {
       // Inputs might already be evaluated. If they are we add them as a value formula to be evaluated later.
       const inputs = Object.entries(actionInputs ?? {}).reduce<
         Record<
@@ -1024,6 +1129,7 @@ export function createAPI({
         url,
         requestSettings,
         componentData,
+        workflowCallback,
       })
     },
     update: (newApi, componentData) => {

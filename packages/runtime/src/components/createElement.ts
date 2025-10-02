@@ -8,12 +8,14 @@ import {
   getClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
+import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import { getDragData } from '../utils/getDragData'
 import { getElementTagName } from '../utils/getElementTagName'
 import { setAttribute } from '../utils/setAttribute'
+import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
 
@@ -130,8 +132,9 @@ export function createElement({
       setupAttribute()
     }
   })
-  node['style-variables']?.forEach(({ formula, name, unit }) => {
-    const sig = dataSignal.map((data) => {
+  node['style-variables']?.forEach((styleVariable) => {
+    const { name, formula, unit } = styleVariable
+    const signal = dataSignal.map((data) => {
       const value = applyFormula(formula, {
         data,
         component: ctx.component,
@@ -143,11 +146,66 @@ export function createElement({
       })
       return unit ? value + unit : value
     })
-    sig.subscribe((value) => elem.style.setProperty(`--${name}`, value))
+
+    signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
   })
+
+  Object.entries(node.customProperties ?? {}).forEach(
+    ([customPropertyName, { formula }]) =>
+      subscribeCustomProperty({
+        customPropertyName,
+        selector:
+          ctx.env.runtime === 'custom-element' &&
+          ctx.isRootComponent &&
+          path === '0'
+            ? `${getNodeSelector(path)}, :host`
+            : getNodeSelector(path),
+        signal: dataSignal.map((data) =>
+          applyFormula(formula, {
+            data,
+            component: ctx.component,
+            formulaCache: ctx.formulaCache,
+            root: ctx.root,
+            package: ctx.package,
+            toddle: ctx.toddle,
+            env: ctx.env,
+          }),
+        ),
+        root: ctx.root,
+        runtime: ctx.env.runtime,
+      }),
+  )
+
+  node.variants?.forEach((variant) => {
+    Object.entries(variant.customProperties ?? {}).forEach(
+      ([customPropertyName, { formula }]) => {
+        subscribeCustomProperty({
+          customPropertyName,
+          selector: getNodeSelector(path, {
+            variant,
+          }),
+          variant,
+          signal: dataSignal.map((data) =>
+            applyFormula(formula, {
+              data,
+              component: ctx.component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+            }),
+          ),
+          root: ctx.root,
+          runtime: ctx.env.runtime,
+        })
+      },
+    )
+  })
+
   Object.values(node.events).forEach((event) => {
     const handler = (e: Event) => {
-      event.actions.forEach((action) => {
+      event?.actions.forEach((action) => {
         if (e instanceof DragEvent) {
           ;(e as any).data = getDragData(e)
         }
@@ -174,7 +232,9 @@ export function createElement({
       })
       return false
     }
-    elem.addEventListener(event.trigger, handler)
+    if (event) {
+      elem.addEventListener(event.trigger, handler)
+    }
   })
 
   // for script, style & SVG<text> tags we only render text child.

@@ -1,21 +1,20 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
+/**
+ * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/groupBy
+ */
 export const handler: FormulaHandler<Record<string, Array<unknown>>> = ([
   items,
   func,
 ]) => {
   if (typeof func !== 'function') {
-    // throw new Error("Argument 'Formula' must be of type formula")
     return null
   }
-
   if (!items || typeof items !== 'object' || !Array.isArray(items)) {
-    // throw new Error("Argument 'Array' must be of type array")
     return null
   }
 
   const res: Record<string, any> = {}
-
   for (const index in items) {
     const item = items[index]
     const key = String(func({ item, index }))

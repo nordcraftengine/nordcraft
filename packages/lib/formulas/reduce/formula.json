@@ -1,29 +1,47 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Reduce",
   "description": "Reduce a group of items to a single value by applying each item to a reducer formula.",
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The Array or Object of items to be reduced.",
-      "type": {"type": "Array \\| Object"}
+      "type": {
+        "type": "Array \\| Object"
+      }
     },
     {
       "name": "Formula",
       "isFunction": true,
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The reducer formula. Each item in the Array is applied to the formula along with the accumulator. The result of this formula will be a new accumulator used for the next item.",
-      "type": { "type": "Formula" }
+      "type": {
+        "type": "Formula"
+      }
     },
     {
       "name": "Accumulator",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The initial value of the accumulator. This value is passed to the reducer formula along with the first item in the Array, and the result is used as the accumulator for the next item.",
-      "type": { "type": "Any" }
+      "type": {
+        "type": "Any"
+      }
     }
   ],
   "output": {
     "description": "The value returned from applying the last item to the reducer formula.",
-    "type": { "type": "Any" }
+    "type": {
+      "type": "Any"
+    }
   }
 }

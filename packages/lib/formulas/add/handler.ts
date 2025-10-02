@@ -5,9 +5,9 @@ const handler: FormulaHandler<number> = (numbers) => {
     !Array.isArray(numbers) ||
     numbers.some((n) => n === null || typeof n !== 'number')
   ) {
-    // throw new Error('All inputs must be of type number')
     return null
   }
+  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Addition
   return numbers.reduce((result: number, n: any) => {
     return result + Number(n)
   }, 0)

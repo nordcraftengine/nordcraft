@@ -1,5 +1,9 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
+/**
+ * Similar to https://developer.mozilla.org/en-US/docs/Web/API/URL/URL
+ * but returns searchParams as an object and path as an array without leading empty string
+ */
 const handler: FormulaHandler<{
   hostname: string
   searchParams: Record<string, string>
@@ -11,7 +15,6 @@ const handler: FormulaHandler<{
   origin: string
 }> = ([url, base]) => {
   if (typeof url !== 'string') {
-    // throw new Error(`Invalid parameter type "${typeof url}" for URL`)
     return null
   }
   try {

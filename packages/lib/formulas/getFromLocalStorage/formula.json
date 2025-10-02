@@ -1,11 +1,15 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get from Local Storage",
   "description": "Read a value from local storage with the provided key.",
   "cache": false,
   "arguments": [
     {
       "name": "Key",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The key to read from local storage.",
       "type": {
         "type": "String"
@@ -14,6 +18,8 @@
   ],
   "output": {
     "description": "The value found in local storage. If no value is found, this will return Null.",
-    "type": { "type": "Any" }
+    "type": {
+      "type": "Any"
+    }
   }
 }

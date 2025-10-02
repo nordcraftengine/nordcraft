@@ -1,28 +1,46 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Format Number",
   "arguments": [
     {
       "name": "Input",
       "description": "Number to format.",
-      "type": { "type": "Number" },
-      "formula": { "type": "Number", "value": 100 }
+      "type": {
+        "type": "Number"
+      },
+      "formula": {
+        "type": "value",
+        "value": 100
+      }
     },
     {
       "name": "Locale(s)",
       "description": "Optional locale to use for formatting the Number, e.g. \"en\" or \"fr\". Multiple locales can be provided (as an Array of Strings) to provide a fallback locale. The default value is the runtime's locale.",
-      "type": { "type": "Array \\| String" },
-      "formula": { "type": "value", "value": null }
+      "type": {
+        "type": "Array \\| String"
+      },
+      "formula": {
+        "type": "value",
+        "value": null
+      }
     },
     {
       "name": "Options",
       "description": "Optional Object for configuring the formatting of the output. See the [NumberFormat locale options on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#locale_options).",
-      "type": { "type": "Object" },
-      "formula": { "type": "value", "value": null }
+      "type": {
+        "type": "Object"
+      },
+      "formula": {
+        "type": "value",
+        "value": null
+      }
     }
   ],
-  "description": "Format a Number using the Intl.NumberFormat API. See the [NumberFormat docs on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat).",
+  "description": "Format a Number using the Intl.NumberFormat API. See the [NumberFormat docs on MDN]().",
   "output": {
     "description": "The Number input formatted as a String.",
-    "type": { "type": "String" }
+    "type": {
+      "type": "String"
+    }
   }
 }

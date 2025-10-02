@@ -1,16 +1,25 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Includes",
-  "description": "Test if an Array or String includes a specific item or value.",
+  "description": "Test if an Array or String includes a specific item or value.and [String.prototype.includes on MDN]() for more information.",
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The value to search.",
-      "type": { "type": "Array \\| String" }
+      "type": {
+        "type": "Array \\| String"
+      }
     },
     {
       "name": "Item",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The item or value to search for.",
       "type": {
         "type": "Any"

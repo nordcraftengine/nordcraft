@@ -1,3 +1,5 @@
+import type { CustomPropertyName } from '../component/component.types'
+import { renderSyntaxDefinition, type CssSyntaxNode } from './customProperty'
 import { RESET_STYLES } from './theme.const'
 
 export interface ThemeOptions {
@@ -69,27 +71,81 @@ export type OldTheme = {
   shadow: Record<string, { value: string; order: number }>
   breakpoints: Record<string, { value: number; order: number }>
 }
+
 export type Theme = {
+  default?: true
+  defaultDark?: true
+  defaultLight?: true
+  propertyDefinitions?: Record<CustomPropertyName, CustomPropertyDefinition>
   scheme?: 'dark' | 'light'
-  color: StyleTokenGroup[]
+  color?: StyleTokenGroup[]
   fonts: FontFamily[]
-  'font-size': StyleTokenGroup[]
-  'font-weight': StyleTokenGroup[]
-  spacing: StyleTokenGroup[]
-  'border-radius': StyleTokenGroup[]
-  shadow: StyleTokenGroup[]
-  'z-index': StyleTokenGroup[]
+  'font-size'?: StyleTokenGroup[]
+  'font-weight'?: StyleTokenGroup[]
+  spacing?: StyleTokenGroup[]
+  'border-radius'?: StyleTokenGroup[]
+  shadow?: StyleTokenGroup[]
+  'z-index'?: StyleTokenGroup[]
 }
 
-export const getThemeCss = (theme: Theme | OldTheme, options: ThemeOptions) => {
-  if ('breakpoints' in theme) {
-    return getOldThemeCss(theme)
-  }
-  return `${options.includeResetStyle ? RESET_STYLES : ''}
+export type CustomPropertyDefinition = {
+  syntax: CssSyntaxNode
+  inherits: boolean
+  initialValue: string | null // Required by CSS specs for default-theme, but we can do a fallback so null is allowed
+  value: string | null
+  description: string
+}
+
+export const getThemeCss = (
+  theme: Record<string, OldTheme | Theme>,
+  options: ThemeOptions,
+) => {
+  const [themesV1, themesV2] = Object.entries(theme).reduce(
+    ([legacy, modern], [key, value]) => {
+      if ('breakpoints' in value) {
+        legacy[key] = value
+      } else {
+        modern[key] = value
+      }
+      return [legacy, modern]
+    },
+    [{}, {}] as [Record<string, OldTheme>, Record<string, Theme>],
+  )
+
+  const defaultTheme =
+    Object.values(themesV2).find((t) => t.default) ?? Object.values(themesV2)[0]
+  const defaultDarkTheme = Object.values(themesV2).find((t) => t.defaultDark)
+  const defaultLightTheme = Object.values(themesV2).find((t) => t.defaultLight)
+
+  return `
+  ${Object.values(themesV1)
+    .map((t) => getOldThemeCss(t))
+    .join('\n')}
+
+  ${Object.entries(defaultTheme.propertyDefinitions ?? {})
+    .map(([propertyName, property]) =>
+      renderSyntaxDefinition(
+        propertyName as CustomPropertyName,
+        property,
+        defaultTheme,
+      ),
+    )
+    .join('\n')}
+
+  ${renderTheme(':host, :root', defaultTheme)}
+  ${renderTheme(':host, :root', defaultDarkTheme, '@media (prefers-color-scheme: dark)')}
+  ${renderTheme(':host, :root', defaultLightTheme, '@media (prefers-color-scheme: light)')}
+  ${Object.entries(themesV2)
+    .map(([key, t]) => renderTheme(`[data-theme~="${key}"]`, t))
+    .join('\n')}
+
+${options.includeResetStyle ? RESET_STYLES : ''}
 @layer base {
   ${
     options.createFontFaces
-      ? theme.fonts
+      ? Object.values(themesV2)
+          .map(({ fonts }) => fonts)
+          .flat()
           .map(
             (font) => `
     ${font.variants
@@ -117,18 +173,24 @@ export const getThemeCss = (theme: Theme | OldTheme, options: ThemeOptions) => {
   }
   body, :host {
     /* Color */
-      ${theme.color
-        .flatMap((group) =>
-          group.tokens.map((color) => `--${color.name}: ${color.value};`),
-        )
-        .join('\n')}
-  /* Fonts */
-    ${theme.fonts
+    ${Object.values(themesV2)
+      .map(({ color }) => color ?? [])
+      .flat()
+      .flatMap((group) =>
+        group.tokens.map((color) => `--${color.name}: ${color.value};`),
+      )
+      .join('\n')}
+    /* Fonts */
+    ${Object.values(themesV2)
+      .map(({ fonts }) => fonts)
+      .flat()
       .map((font) => `--font-${font.name}: '${font.family}',${font.type};`)
       .join('\n')}
 
     /* Font size */
-    ${theme['font-size']
+    ${Object.values(themesV2)
+      .map(({ 'font-size': fontSize }) => fontSize ?? [])
+      .flat()
       .flatMap((group) =>
         group.tokens.map(
           (variable) =>
@@ -141,7 +203,9 @@ export const getThemeCss = (theme: Theme | OldTheme, options: ThemeOptions) => {
       )
       .join('\n')}
     /* Font weight */
-    ${theme['font-weight']
+    ${Object.values(themesV2)
+      .map(({ 'font-weight': fontWeight }) => fontWeight ?? [])
+      .flat()
       .flatMap((group) => {
         return group.tokens.map(
           (variable) =>
@@ -154,7 +218,9 @@ export const getThemeCss = (theme: Theme | OldTheme, options: ThemeOptions) => {
       })
       .join('\n')}
     /* Shadows */
-    ${theme.shadow
+    ${Object.values(themesV2)
+      .map(({ shadow }) => shadow ?? [])
+      .flat()
       .flatMap((group) => {
         return group.tokens.map(
           (variable) =>
@@ -167,7 +233,9 @@ export const getThemeCss = (theme: Theme | OldTheme, options: ThemeOptions) => {
       })
       .join('\n')}
     /* Border radius */
-    ${theme['border-radius']
+    ${Object.values(themesV2)
+      .map(({ 'border-radius': borderRadius }) => borderRadius ?? [])
+      .flat()
       .flatMap((group) => {
         return group.tokens.map(
           (token) =>
@@ -178,7 +246,9 @@ export const getThemeCss = (theme: Theme | OldTheme, options: ThemeOptions) => {
       })
       .join('\n')}
     /* Spacing */
-    ${theme.spacing
+    ${Object.values(themesV2)
+      .map(({ spacing }) => spacing ?? [])
+      .flat()
       .map((group) => {
         return group.tokens
           .map(
@@ -193,7 +263,9 @@ export const getThemeCss = (theme: Theme | OldTheme, options: ThemeOptions) => {
       })
       .join('\n')}
     /* Z-index */
-    ${theme['z-index']
+    ${Object.values(themesV2)
+      .map(({ 'z-index': zIndex }) => zIndex ?? [])
+      .flat()
       .map((group) => {
         return group.tokens
           .map(
@@ -244,10 +316,6 @@ export const getOldThemeCss = (theme: OldTheme) => {
       ),
   )
   return `
-
-
-
-
 body, :host {
   ${Object.entries(theme.fontFamily)
     .map(
@@ -270,7 +338,6 @@ body, :host {
 
   --spacing:${theme.spacing}rem;
     ${colorVars.join(';\n')};
-
 
   --text-xxs:0.625rem;
   --line-height-xxs:0.9rem;
@@ -317,7 +384,6 @@ ${RESET_STYLES}
     transform: rotate(360deg);
   }
 }
-
 @keyframes animation-fade-in {
   from {
     opacity:0;
@@ -326,8 +392,6 @@ ${RESET_STYLES}
     opacity:1;
   }
 }
-
-
 @keyframes animation-fade-out {
   from {
     opacity:1;
@@ -336,4 +400,35 @@ ${RESET_STYLES}
     opacity:0;
   }
 }`
+}
+
+export function renderTheme(
+  selector: string,
+  theme: Theme | undefined,
+  mediaQuery?: string,
+) {
+  if (!theme?.propertyDefinitions) {
+    return ''
+  }
+
+  const properties = Object.entries(theme.propertyDefinitions).filter(
+    ([, property]) => property.value,
+  )
+  if (properties.length === 0) {
+    return ''
+  }
+
+  const css = `${selector} {
+  ${properties
+    .map(([propertyName, property]) => `${propertyName}: ${property.value};`)
+    .join('\n  ')}
+}`
+
+  if (mediaQuery) {
+    return `${mediaQuery} {
+      ${css}
+    }`
+  }
+
+  return css
 }

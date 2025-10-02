@@ -1,29 +1,47 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Sort by",
   "description": "Sort an Array using a formula.",
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": [] },
-      "type": { "type": "Array" },
+      "formula": {
+        "type": "value",
+        "value": []
+      },
+      "type": {
+        "type": "Array"
+      },
       "description": "The input Array."
     },
     {
       "name": "Formula",
-      "formula": { "type": "path", "path": ["Args", "item"] },
-      "type": { "type": "Formula" },
+      "formula": {
+        "type": "path",
+        "path": ["Args", "item"]
+      },
+      "type": {
+        "type": "Formula"
+      },
       "isFunction": true,
       "description": "The sorting formula. The output of this formula will determine the sort order of the items. If the formula returns an Array, the items will first be sorted by the first item, then the second, etc."
     },
     {
       "name": "Ascending?",
-      "formula": { "type": "value", "value": true },
-      "type": { "type": "Boolean" },
+      "formula": {
+        "type": "value",
+        "value": true
+      },
+      "type": {
+        "type": "Boolean"
+      },
       "description": "Should the list be sorted in ascending order?"
     }
   ],
   "output": {
     "description": "The input Array sorted by the value returned by the sorting formula.",
-    "type": { "type": "Number" }
+    "type": {
+      "type": "Number"
+    }
   }
 }

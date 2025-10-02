@@ -1,6 +1,8 @@
 {
-  "name": "Delete from Local Storage",
+  "$schema": "../../schemas/libAction.schema.json",
+  "name": "Delete from local storage",
   "description": "Delete a value from local storage (if found) based on the provided key.",
+  "group": "local_storage",
   "arguments": [
     {
       "name": "Key",

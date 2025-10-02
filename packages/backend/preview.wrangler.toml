@@ -1,0 +1,16 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "nordcraft-worker-preview"
+
+main = "src/preview.index.ts"
+compatibility_date = "2025-09-13"
+
+[observability.logs]
+enabled = true
+
+[durable_objects]
+bindings = [
+  { name = "BRANCH_STATE", class_name = "BranchController", script_name = "worker" }
+]
+
+[assets]
+directory = "./dist/assets"

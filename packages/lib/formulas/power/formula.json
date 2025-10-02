@@ -1,22 +1,35 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Power",
   "description": "Raise a number to a power.",
   "arguments": [
     {
       "name": "Base",
-      "formula": { "type": "value", "value": 3 },
+      "formula": {
+        "type": "value",
+        "value": 3
+      },
       "description": "The number to be raised to the exponent.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     },
     {
       "name": "Exponent",
-      "formula": { "type": "value", "value": 2 },
+      "formula": {
+        "type": "value",
+        "value": 2
+      },
       "description": "The exponent to raise the base to.",
-      "type": { "type": "Number" }
+      "type": {
+        "type": "Number"
+      }
     }
   ],
   "output": {
-    "type": { "type": "Number" },
+    "type": {
+      "type": "Number"
+    },
     "description": "The result of raising the base to the exponent."
   }
 }

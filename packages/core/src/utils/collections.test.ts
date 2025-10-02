@@ -1,4 +1,26 @@
-import { omitPaths, sortObjectEntries } from './collections'
+import { omit, omitPaths, sortObjectEntries } from './collections'
+
+describe('omit()', () => {
+  test('it should omit paths from an array and resize the array to the new size', () => {
+    expect(omit(['a', 'b', 'c'], [0])).toEqual(['b', 'c'])
+  })
+  test('it should omit deep paths from a matrix and resize the lowest path', () => {
+    expect(
+      omit(
+        [
+          ['a', 'b'],
+          ['c', 'd'],
+          ['e', 'f', 'g'],
+        ],
+        [2, 1],
+      ),
+    ).toEqual([
+      ['a', 'b'],
+      ['c', 'd'],
+      ['e', 'g'],
+    ])
+  })
+})
 
 describe('sortObjectEntries()', () => {
   test('it sorts entries in an object based on the callback function', () => {

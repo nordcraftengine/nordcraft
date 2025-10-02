@@ -1,0 +1,15 @@
+{
+  "$id": "ValueFormula",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Value formula",
+  "description": "Definition of a value formula",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "value"
+    },
+    "value": { "type": "any" }
+  },
+  "required": ["type", "value"],
+  "additionalProperties": true
+}

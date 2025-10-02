@@ -1,0 +1,21 @@
+{
+  "lockfileVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "github-release-assets",
+      "dependencies": {
+        "hono": "4.7.11",
+      },
+      "devDependencies": {
+        "@types/node": "24.0.3",
+      },
+    },
+  },
+  "packages": {
+    "@types/node": ["@types/node@24.0.3", "", { "dependencies": { "undici-types": "~7.8.0" } }, "sha512-R4I/kzCYAdRLzfiCabn9hxWfbuHS573x+r0dJMkkzThEa7pbrcDWK+9zu3e7aBOouf+rQAciqPFMnxwr0aWgKg=="],
+
+    "hono": ["hono@4.7.11", "", {}, "sha512-rv0JMwC0KALbbmwJDEnxvQCeJh+xbS3KEWW5PC9cMJ08Ur9xgatI0HmtgYZfOdOSOeYsp5LO2cOhdI8cLEbDEQ=="],
+
+    "undici-types": ["undici-types@7.8.0", "", {}, "sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw=="],
+  }
+}

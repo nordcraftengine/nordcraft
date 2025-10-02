@@ -1,7 +1,12 @@
 import type { RouteDeclaration } from '@nordcraft/core/dist/component/component.types'
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
+import {
+  isToddleFormula,
+  type PluginFormula,
+} from '@nordcraft/core/dist/formula/formulaTypes'
 import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
 import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
+import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { takeIncludedComponents } from '../components/utils'
 import {
   generateCustomCodeFile,
@@ -16,7 +21,11 @@ interface Routes {
   routes: Record<string, Route>
 }
 
-type Files = Record<string, { files: ProjectFiles & { customCode: boolean } }>
+export type ProjectFilesWithCustomCode = ProjectFiles & {
+  customCode: boolean
+}
+
+export type Files = Record<string, ProjectFilesWithCustomCode>
 
 export const splitRoutes = (json: {
   files: ProjectFiles
@@ -53,11 +62,11 @@ export const splitRoutes = (json: {
           packages: files.packages,
           includeRoot: true,
         })
-        const theme =
-          (files.themes
-            ? Object.values(files.themes)[0]
-            : files.config?.theme) ?? defaultTheme
-        const styles = createStylesheet(component, components, theme, {
+        const themes = files.themes ?? {
+          defaultTheme: files.config?.theme ?? defaultTheme,
+        }
+
+        const styles = createStylesheet(component, components, themes, {
           // The reset stylesheet is loaded separately
           includeResetStyle: false,
           // Font faces are created from a stylesheet referenced in the head
@@ -65,6 +74,7 @@ export const splitRoutes = (json: {
         })
         stylesMap[name] = styles
         let customCode = false
+        let formulas: Record<string, PluginFormula<string>> = {}
         if (hasCustomCode(component, files)) {
           customCode = true
           const code = takeReferencedFormulasAndActions({
@@ -77,16 +87,52 @@ export const splitRoutes = (json: {
             projectId: json.project.short_id,
           })
           codeMap[name] = output
+          formulas = filterObject(code.__PROJECT__.formulas, ([_, formula]) =>
+            // custom formulas are not supported during SSR yet
+            isToddleFormula(formula),
+          )
         }
+
         filesMap[name] = {
-          files: {
-            customCode,
-            config: files.config,
-            themes: files.themes,
-            components: Object.fromEntries(
-              components.map((c) => [c.name, removeTestData(c)]),
-            ),
-          },
+          customCode,
+          config: files.config,
+          themes: files.themes,
+          components: Object.fromEntries(
+            components.map((c) => [c.name, removeTestData(c)]),
+          ),
+          formulas,
+          ...(files.packages
+            ? {
+                packages: mapObject(files.packages, ([key, pkg]) => [
+                  key,
+                  {
+                    ...pkg,
+                    components: mapObject(
+                      // Only include package components that are used by the page
+                      filterObject(pkg.components, ([_, pkgComponent]) =>
+                        components.some(
+                          (c) =>
+                            pkgComponent &&
+                            c.name ===
+                              `${pkg.manifest.name}/${pkgComponent.name}`,
+                        ),
+                      ),
+                      // Remove test data from package components
+                      ([cKey, c]) => [cKey, c ? removeTestData(c) : c],
+                    ),
+                    // Actions are not available during SSR
+                    actions: {},
+                    // TODO: Only include relevant formulas from packages
+                    formulas: filterObject(
+                      pkg.formulas ?? {},
+                      ([_, pkgFormula]) =>
+                        // custom formulas are not supported during SSR yet
+                        isToddleFormula(pkgFormula),
+                    ),
+                  },
+                ]),
+              }
+            : undefined),
         }
       }
     }

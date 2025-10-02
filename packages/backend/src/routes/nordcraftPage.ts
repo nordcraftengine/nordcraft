@@ -21,7 +21,10 @@ import {
 } from '@nordcraft/ssr/src/utils/headers'
 import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
+import { endTime, startTime } from 'hono/timing'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
+import type { PageLoaderUrls } from '../loaders/types'
 import { evaluateComponentApis, RedirectError } from '../utils/api'
 
 export const nordcraftPage = async ({
@@ -29,12 +32,18 @@ export const nordcraftPage = async ({
   project,
   files,
   page,
+  status,
+  options,
 }: {
   hono: Context<HonoEnv<any>>
   project: ToddleProject
   files: ProjectFiles & { customCode: boolean }
   page: PageComponent
+  status: ContentfulStatusCode
+  options: PageLoaderUrls
 }) => {
+  const nordcraftPageTimingKey = 'nordcraftPage'
+  startTime(hono, nordcraftPageTimingKey, 'The total render time for a page')
   const url = new URL(hono.req.raw.url)
   const formulaContext = getPageFormulaContext({
     component: page,
@@ -50,9 +59,9 @@ export const nordcraftPage = async ({
   })
 
   // Find the theme to use for the page
-  const theme =
-    (files.themes ? Object.values(files.themes)[0] : files.config?.theme) ??
-    defaultTheme
+  const themes = files.themes ?? {
+    defaultTheme: files.config?.theme ?? defaultTheme,
+  }
 
   // Get all included components on the page
   const includedComponents = takeIncludedComponents({
@@ -83,26 +92,16 @@ export const nordcraftPage = async ({
       packages: files.packages,
     },
   })
-  const head = renderHeadItems({
-    headItems: getHeadItems({
-      url,
-      // This refers to the endpoint we created in fontRouter for our proxied stylesheet
-      cssBasePath: '/.toddle/fonts/stylesheet/css2',
-      // Just to be explicit about where to grab the reset stylesheet from
-      resetStylesheetPath: '/_static/reset.css',
-      // This refers to the generated stylesheet for each page
-      pageStylesheetPath: `/_static/${page.name}.css`,
-      page: toddleComponent,
-      files: files,
-      project,
-      context: formulaContext,
-      theme,
-    }),
-  })
 
   let apiCache: ApiCache
   let body: string
+  let customProperties: string[] = []
   try {
+    startTime(
+      hono,
+      'renderPageBody',
+      'The time taken to render the page body - including API calls',
+    )
     const pageBody = await renderPageBody({
       component: toddleComponent,
       formulaContext,
@@ -113,23 +112,37 @@ export const nordcraftPage = async ({
       evaluateComponentApis,
       projectId: 'my_project',
     })
+    endTime(hono, 'renderPageBody')
     apiCache = pageBody.apiCache
     body = pageBody.html
+    customProperties = pageBody.customProperties
   } catch (e) {
     if (e instanceof RedirectError) {
-      return new Response(null, {
-        status: e.redirect.statusCode ?? 302,
-        // Header for helping the client (user) know which API caused the redirect
-        headers: {
-          [REDIRECT_API_NAME_HEADER]: e.redirect.apiName,
-          [REDIRECT_COMPONENT_NAME_HEADER]: e.redirect.componentName,
-          location: e.redirect.url.href,
-        },
-      })
+      hono.header(REDIRECT_API_NAME_HEADER, e.redirect.apiName)
+      hono.header(REDIRECT_COMPONENT_NAME_HEADER, e.redirect.componentName)
+      return hono.redirect(e.redirect.url.href, e.redirect.statusCode ?? 302)
     } else {
-      return new Response('Internal server error', { status: 500 })
+      return hono.text('Internal server error', 500)
     }
   }
+
+  const head = renderHeadItems({
+    headItems: getHeadItems({
+      url,
+      // This refers to the endpoint we created in fontRouter for our proxied stylesheet
+      cssBasePath: '/.toddle/fonts/stylesheet/css2',
+      // Just to be explicit about where to grab the reset stylesheet from
+      resetStylesheetPath: '/_static/reset.css',
+      // This refers to the generated stylesheet for each page
+      pageStylesheetPath: options.pageStylesheetUrl(page.name),
+      page: toddleComponent,
+      files: files,
+      project,
+      context: formulaContext,
+      themes,
+      customProperties,
+    }),
+  })
   const charset = getCharset({
     pageInfo: toddleComponent.route?.info,
     formulaContext,
@@ -162,8 +175,7 @@ export const nordcraftPage = async ({
             </script>
             <script type="module">
               import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
-              import { loadCustomCode, formulas, actions } from '/_static/cc_${toddleComponent.name}.js';
-
+              import { loadCustomCode, formulas, actions } from '${options.customCodeUrl(toddleComponent.name)}'
               window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
               window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
               initGlobalObject({formulas, actions});
@@ -189,6 +201,7 @@ export const nordcraftPage = async ({
         </script>
     `
   }
+  endTime(hono, nordcraftPageTimingKey)
 
   return hono.html(
     html`<!doctype html>
@@ -201,10 +214,9 @@ export const nordcraftPage = async ({
           ${raw(codeImport)}
         </body>
       </html>`,
+    status,
     {
-      headers: {
-        'Content-Type': `text/html; charset=${charset}`,
-      },
+      'Content-Type': `text/html; charset=${charset}`,
     },
   )
 }

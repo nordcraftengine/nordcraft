@@ -1,5 +1,6 @@
 import type { Rule } from '../../types'
 import { isLegacyAction } from '../../util/helpers'
+import { removeFromPathFix } from '../../util/removeUnused.fix'
 
 export const noReferenceEventRule: Rule<{ name: string }> = {
   code: 'no-reference event',
@@ -9,7 +10,7 @@ export const noReferenceEventRule: Rule<{ name: string }> = {
     if (args.nodeType !== 'component-event') {
       return
     }
-    const { path, memo, value } = args
+    const { memo, value } = args
     const { component, event } = value
     const events = memo(`${component.name}-events`, () => {
       const events = new Set<string>()
@@ -22,7 +23,7 @@ export const noReferenceEventRule: Rule<{ name: string }> = {
             action.version === undefined
           ) {
             const formula = action.arguments?.find(
-              (a) => a.name === 'name',
+              (a) => a?.name === 'name',
             )?.formula
             if (
               formula?.type === 'value' &&
@@ -40,7 +41,11 @@ export const noReferenceEventRule: Rule<{ name: string }> = {
     if (events.has(event.name)) {
       return
     }
-
-    report(path, { name: event.name })
+    report(args.path, { name: args.value.event.name }, ['delete-event'])
+  },
+  fixes: {
+    'delete-event': removeFromPathFix,
   },
 }
+
+export type NoReferenceEventRuleFix = 'delete-event'

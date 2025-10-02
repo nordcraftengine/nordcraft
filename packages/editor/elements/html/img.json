@@ -22,7 +22,7 @@
           },
           "alt": {
             "type": "value",
-            "value": ""
+            "value": null
           }
         },
         "style": {},

@@ -1,16 +1,24 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "First",
   "description": "Return the first item in an Array.",
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": [] },
-      "type": { "type": "Array" },
+      "formula": {
+        "type": "value",
+        "value": []
+      },
+      "type": {
+        "type": "Array"
+      },
       "description": "An Array of items."
     }
   ],
   "output": {
     "description": "The first item in the Array.",
-    "type": { "type": "Any" }
+    "type": {
+      "type": "Any"
+    }
   }
 }

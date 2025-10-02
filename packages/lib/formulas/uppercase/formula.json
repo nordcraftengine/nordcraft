@@ -1,16 +1,24 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Uppercase",
   "description": "Convert a String to uppercase.",
   "arguments": [
     {
       "name": "String",
-      "formula": { "type": "value", "value": "string" },
+      "formula": {
+        "type": "value",
+        "value": "string"
+      },
       "description": "Input String.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     }
   ],
   "output": {
     "description": "The input String with all characters converted to uppercase.",
-    "type": { "type": "String" }
+    "type": {
+      "type": "String"
+    }
   }
 }

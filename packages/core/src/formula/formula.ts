@@ -5,6 +5,7 @@ import type {
   FormulaHandler,
   FormulaLookup,
   NordcraftMetadata,
+  Runtime,
   Toddle,
 } from '../types'
 import { isDefined, toBoolean } from '../utils/util'
@@ -23,10 +24,12 @@ export interface PathOperation extends BaseOperation {
   path: string[]
 }
 
-type FunctionArgument = {
+export interface FunctionArgument {
   name?: string
   isFunction?: boolean
   formula: Formula
+  type?: any
+  testValue?: any
 }
 
 export interface FunctionOperation extends BaseOperation {
@@ -137,12 +140,30 @@ export type ToddleEnv =
       // isServer will be false for client-side
       isServer: false
       request: undefined
-      runtime: 'page' | 'custom-element' | 'preview'
+      runtime: Runtime
       logErrors: boolean
     }
 
 export function isFormula(f: any): f is Formula {
-  return f && typeof f === 'object' && typeof f.type === 'string'
+  return (
+    f &&
+    typeof f === 'object' &&
+    typeof f.type === 'string' &&
+    (
+      [
+        'path',
+        'function',
+        'record',
+        'object',
+        'array',
+        'or',
+        'and',
+        'apply',
+        'value',
+        'switch',
+      ] as Formula['type'][]
+    ).includes(f.type)
+  )
 }
 export function isFormulaApplyOperation(
   formula: Formula,

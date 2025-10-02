@@ -1,6 +1,7 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Parse URL",
-  "description": "Parse a URL",
+  "description": "Parse a URL.",
   "arguments": [
     {
       "name": "URL",

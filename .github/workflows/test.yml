@@ -136,3 +136,17 @@ jobs:
         run: bun bin/prepareReleaseAssets.ts
       - name: List files
         run: ls -la ./dist
+  test-assets-server:
+    defaults:
+      run:
+        working-directory: ./_assets_dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Typecheck
+        run: bun run typecheck

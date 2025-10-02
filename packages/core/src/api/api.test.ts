@@ -1,7 +1,8 @@
 import { describe, expect, it, test } from 'bun:test'
-import { valueFormula } from '../formula/formulaUtils'
+import { pathFormula, valueFormula } from '../formula/formulaUtils'
 import {
   createApiRequest,
+  getRequestBody,
   getRequestHeaders,
   getRequestPath,
   getRequestQueryParams,
@@ -337,6 +338,83 @@ describe('createApiRequest', () => {
     )
     expect(request.headers.get('Content-Type')).toBe('application/json')
   })
-
-  // TODO: Add tests for the http body
+})
+describe('getRequestBody', () => {
+  it('defaults to a JSON encoded body', () => {
+    const apiRequest: ApiRequest = {
+      name: 'Test API',
+      type: 'http',
+      version: 2,
+      inputs: {},
+      body: {
+        type: 'object',
+        arguments: [{ name: 'key', formula: valueFormula('value') }],
+      },
+    }
+    const body = getRequestBody({
+      api: apiRequest,
+      formulaContext: undefined as any,
+      headers: new Headers(),
+      method: ApiMethod.POST,
+    })
+    expect(body).toBe('{"key":"value"}')
+  })
+  it('supports url encoded bodies', () => {
+    const apiRequest: ApiRequest = {
+      name: 'Test API',
+      type: 'http',
+      version: 2,
+      inputs: {},
+      body: {
+        type: 'object',
+        arguments: [{ name: 'key', formula: valueFormula('value') }],
+      },
+    }
+    const body = getRequestBody({
+      api: apiRequest,
+      formulaContext: undefined as any,
+      headers: new Headers([
+        ['Content-Type', 'application/x-www-form-urlencoded'],
+      ]),
+      method: ApiMethod.POST,
+    })
+    expect(body).toBe('key=value')
+  })
+  it('supports form data', () => {
+    const apiRequest: ApiRequest = {
+      name: 'Test API',
+      type: 'http',
+      version: 2,
+      inputs: {},
+      body: {
+        type: 'object',
+        arguments: [{ name: 'key', formula: valueFormula('value') }],
+      },
+    }
+    const body = getRequestBody({
+      api: apiRequest,
+      formulaContext: undefined as any,
+      headers: new Headers([['Content-Type', 'multipart/form-data']]),
+      method: ApiMethod.POST,
+    })
+    expect(body).toBeInstanceOf(FormData)
+  })
+  it('respects other content-types', () => {
+    const apiRequest: ApiRequest = {
+      name: 'Test API',
+      type: 'http',
+      version: 2,
+      inputs: {},
+      body: pathFormula(['Variables', 'file']),
+    }
+    const body = getRequestBody({
+      api: apiRequest,
+      formulaContext: {
+        data: { Variables: { file: new File([], 'test.jpg') } },
+      } as any,
+      headers: new Headers([['Content-Type', 'image/jpeg']]),
+      method: ApiMethod.POST,
+    })
+    expect(body).toBeInstanceOf(File)
+  })
 })

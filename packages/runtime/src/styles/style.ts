@@ -130,8 +130,7 @@ ${
         })
         .join('\n')
     : ''
-}
-  `),
+}`),
     )
     return styleElem
   }

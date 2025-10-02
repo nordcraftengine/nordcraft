@@ -6,16 +6,13 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = ([
   key,
 ]) => {
   if (typeof collection !== 'object' || collection === null) {
-    // throw new Error("Argument 'Object' must be of type object or array")
     return null
   }
-
   if (
     !Array.isArray(key) &&
     typeof key !== 'string' &&
     typeof key !== 'number'
   ) {
-    // throw new Error("Argument 'Path' must be of type string, number or array")
     return null
   }
 

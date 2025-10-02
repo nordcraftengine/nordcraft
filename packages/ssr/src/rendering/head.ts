@@ -4,6 +4,7 @@ import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleCompo
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
+import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core/dist/styling/theme.const'
 import { easySort } from '@nordcraft/core/dist/utils/collections'
 import { validateUrl } from '@nordcraft/core/dist/utils/url'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
@@ -31,8 +32,9 @@ export const getHeadItems = ({
   pageStylesheetPath = `/.toddle/stylesheet/${page.name}.css`,
   files,
   project,
-  theme,
+  themes,
   url,
+  customProperties,
 }: {
   // Optional cache buster for reset stylesheet + manifest url. Could be a commit sha for instance
   cacheBuster?: string
@@ -43,8 +45,9 @@ export const getHeadItems = ({
   resetStylesheetPath?: string
   pageStylesheetPath?: string
   project: ToddleProject
-  theme: OldTheme | Theme
+  themes: Record<string, OldTheme | Theme>
   url: URL
+  customProperties: ReadonlyArray<string>
 }): Map<HeadItemType, string> => {
   const pageInfo = page.route?.info
   const title = getPageTitle({
@@ -58,34 +61,31 @@ export const getHeadItems = ({
     defaultDescription: project.description,
   })
 
-  const preloadFonts: [HeadItemType, string][] = []
-  if ('breakpoints' in theme === false) {
-    // We include all fonts even though it's not necessary.
-    // While this is not the ideal long-term solution, it does have a few benefits:
-    // - It's easier to cache the font stylesheet across pages
-    // - It simplifies style variable setup in theme.ts
-    // - It ensures the same behaviour as in our editor
-    // - It increases the chance that there's a font to be used by our
-    //   reset stylesheet (font-family: var(--font-sans))
-    // For most apps, the overhead of including all fonts is negligible and
-    // it doesn't add a lot of bytes to our stylesheet.
+  const preloadFonts = new Set<string>()
+  Object.values(themes).forEach((theme) => {
+    if ('breakpoints' in theme === false && theme.fonts.length > 0) {
+      // We include all fonts even though it's not necessary.
+      // While this is not the ideal long-term solution, it does have a few benefits:
+      // - It's easier to cache the font stylesheet across pages
+      // - It simplifies style variable setup in theme.ts
+      // - It ensures the same behaviour as in our editor
+      // - It increases the chance that there's a font to be used by our
+      //   reset stylesheet (font-family: var(--font-sans))
+      // For most apps, the overhead of including all fonts is negligible and
+      // it doesn't add a lot of bytes to our stylesheet.
 
-    // Add link to stylesheet that includes the different font-faces
-    if (theme.fonts.length > 0) {
+      // Add link to stylesheet that includes the different font-faces
       const fontStylesheetUrl = getFontCssUrl({
         fonts: theme.fonts,
         basePath: cssBasePath,
       })
       if (fontStylesheetUrl) {
-        preloadFonts.push([
-          // Later we'll support multiple font loading strategies aside from swap
-          'link:font:swap',
-          // See https://fonts.google.com/selection/embed
+        preloadFonts.add(
           `<link href="${escapeAttrValue(fontStylesheetUrl.swap.toString())}" rel="stylesheet" />`,
-        ])
+        )
       }
     }
-  }
+  })
 
   const charset = getCharset({ pageInfo, formulaContext: context })
   const descriptionItems: [HeadItemType, string][] = []
@@ -111,7 +111,14 @@ export const getHeadItems = ({
       'link:page',
       `<link rel="stylesheet" fetchpriority="high" href="${escapeAttrValue(urlWithCacheBuster(pageStylesheetPath, cacheBuster))}" />`,
     ],
-    ...preloadFonts,
+    [
+      'style:variables',
+      `<style id="${CUSTOM_PROPERTIES_STYLESHEET_ID}">${customProperties.join('\n')}</style>`,
+    ],
+    ...Array.from(preloadFonts).map<[HeadItemType, string]>((fontLink) => [
+      'link:font:swap',
+      fontLink,
+    ]),
     // Initialize default head items (meta + links)
     // these might be overwritten by custom tags later
     ['meta:charset', `<meta charset="${escapeAttrValue(charset)}" />`],
@@ -140,9 +147,9 @@ export const getHeadItems = ({
     ],
     [
       'meta:application-name',
-      `<meta name="application-name" content="${
-        project.short_id === 'toddle' ? 'toddle' : escapeAttrValue(project.name)
-      }">`,
+      `<meta name="application-name" content="${escapeAttrValue(
+        project.name,
+      )}">`,
     ],
     [
       'script:speculationrules',
@@ -266,7 +273,11 @@ export const getHeadItems = ({
   }
   // Handle custom meta tags last to allow overriding defaults
   if (pageInfo?.meta) {
-    Object.entries(pageInfo.meta).forEach(([id, metaEntry]) => {
+    easySort(
+      Object.entries(pageInfo.meta),
+      // Sort by index if it exists
+      ([_, meta]) => meta.index ?? Infinity,
+    ).forEach(([id, metaEntry]) => {
       if (Object.values(HeadTagTypes).includes(metaEntry.tag)) {
         // If the tag has a name or property attribute, we use that as the key
         // to avoid duplicates and to ensure sorting of tags later

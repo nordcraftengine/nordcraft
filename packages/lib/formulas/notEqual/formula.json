@@ -1,22 +1,35 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Not equal",
   "description": "Compute if values are not identical.",
   "arguments": [
     {
       "name": "First",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "First value.",
-      "type": { "type": "Any" }
+      "type": {
+        "type": "Any"
+      }
     },
     {
       "name": "Second",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "Second value.",
-      "type": { "type": "Any" }
+      "type": {
+        "type": "Any"
+      }
     }
   ],
   "output": {
     "description": "Returns True if the values are not identical, otherwise False.",
-    "type": { "type": "Any" }
+    "type": {
+      "type": "Any"
+    }
   }
 }

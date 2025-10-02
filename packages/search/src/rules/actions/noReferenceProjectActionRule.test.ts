@@ -1,8 +1,10 @@
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
+import { fixProject } from '../../fixProject'
 import { searchProject } from '../../searchProject'
 import { noReferenceProjectActionRule } from './noReferenceProjectActionRule'
 
-describe('noReferenceProjectAction', () => {
+describe('find noReferenceProjectAction', () => {
   test('should detect unused global actions', () => {
     const problems = Array.from(
       searchProject({
@@ -127,5 +129,36 @@ describe('noReferenceProjectAction', () => {
 
       expect(problems).toHaveLength(0)
     })
+  })
+})
+
+describe('fix noReferenceProjectAction', () => {
+  test('should remove unused global actions', () => {
+    const files: ProjectFiles = {
+      actions: {
+        'my-action': {
+          name: 'my-action',
+          arguments: [],
+          handler: '() => console.log("test")',
+          variableArguments: false,
+        },
+      },
+      components: {
+        test: {
+          name: 'test',
+          nodes: {},
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
+        },
+      },
+    }
+    const fixedProject = fixProject({
+      files,
+      rule: noReferenceProjectActionRule,
+      fixType: 'delete-project-action',
+    })
+    expect(fixedProject.actions).toEqual({})
   })
 })

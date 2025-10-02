@@ -1,56 +1,27 @@
-import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
-import { Hono } from 'hono'
-import type { HonoEnv } from '../hono'
-import { notFoundLoader } from './middleware/notFoundLoader'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
+import { endTime, startTime } from 'hono/timing'
+import { getApp } from './app'
+import { loadJsFile } from './middleware/jsLoader'
 import { loadProjectInfo } from './middleware/projectInfo'
 import { routesLoader } from './middleware/routesLoader'
-import { proxyRequestHandler } from './routes/apiProxy'
-import { setCookieHandler } from './routes/cookies'
-import { customElement } from './routes/customElement'
-import { favicon } from './routes/favicon'
-import { fontRouter } from './routes/font'
-import { manifest } from './routes/manifest'
-import { pageHandler } from './routes/pageHandler'
-import { robots } from './routes/robots'
-import { routeHandler } from './routes/routeHandler'
-import { serviceWorker } from './routes/serviceWorker'
-import { sitemap } from './routes/sitemap'
 
-// Inject isEqual on globalThis used by some builtin formulas
-initIsEqual()
-
-const app = new Hono<HonoEnv>({ strict: false })
-
-// Nordcraft specific endpoints/services on /.toddle/ subpath 👇
-app.route('/.toddle/fonts', fontRouter)
-// Proxy endpoint for Nordcraft APIs
-app.all(
-  '/.toddle/omvej/components/:componentName/apis/:apiName',
-  proxyRequestHandler,
-)
-app.get(
-  '/.toddle/custom-element/:filename{.+.js}',
-  loadProjectInfo,
-  customElement,
-)
-app.get('/.nordcraft/cookies/set-cookie', setCookieHandler)
-
-// Load project info and all routes for endpoints below to use
-app.use(routesLoader, loadProjectInfo)
-
-// Load a route if it matches the URL
-app.get('/*', routeHandler)
-
-// Load default resource endpoints
-app.get('/sitemap.xml', loadProjectInfo, routesLoader, sitemap)
-app.get('/robots.txt', loadProjectInfo, robots)
-app.get('/manifest.json', loadProjectInfo, manifest)
-app.get('/favicon.ico', loadProjectInfo, favicon)
-app.get('/serviceWorker.js', loadProjectInfo, serviceWorker)
-
-// Load a page if it matches the URL
-app.get('/*', pageHandler)
-
-app.notFound(notFoundLoader as any)
+const app = getApp({
+  fileLoaders: [routesLoader, loadProjectInfo],
+  pageLoader: {
+    loader: async ({ name, ctx }) => {
+      const timingKey = `pageLoader:${name}`
+      startTime(ctx, timingKey)
+      const file = await loadJsFile<ProjectFilesWithCustomCode>(
+        `./components/${name}.js`,
+      )
+      endTime(ctx, timingKey)
+      return file
+    },
+    urls: {
+      pageStylesheetUrl: (name) => `/_static/${name}.css`,
+      customCodeUrl: (name) => `/_static/cc_${name}.js`,
+    },
+  },
+})
 
 export default app

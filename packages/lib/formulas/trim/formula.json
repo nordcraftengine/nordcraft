@@ -1,16 +1,24 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Trim",
   "description": "Remove any leading and trailing white spaces from a String.",
   "arguments": [
     {
       "name": "String",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The String to trim.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     }
   ],
   "output": {
     "description": "The trimmed String.",
-    "type": { "type": "String" }
+    "type": {
+      "type": "String"
+    }
   }
 }

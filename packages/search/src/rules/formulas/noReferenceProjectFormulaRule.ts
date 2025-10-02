@@ -4,12 +4,13 @@ import { isToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
 import type { Rule } from '../../types'
+import { removeFromPathFix } from '../../util/removeUnused.fix'
 
 export const noReferenceProjectFormulaRule: Rule<void> = {
   code: 'no-reference project formula',
   level: 'warning',
   category: 'No References',
-  visit: (report, { path, files, value, nodeType, memo }) => {
+  visit: (report, { value, path, files, nodeType, memo }) => {
     if (nodeType !== 'project-formula' || value.exported === true) {
       return
     }
@@ -84,10 +85,14 @@ export const noReferenceProjectFormulaRule: Rule<void> = {
         return
       }
     }
-
-    report(path)
+    report(path, undefined, ['delete-project-formula'])
+  },
+  fixes: {
+    'delete-project-formula': removeFromPathFix,
   },
 }
+
+export type NoReferenceProjectFormulaRuleFix = 'delete-project-formula'
 
 const checkArguments = (
   args: {

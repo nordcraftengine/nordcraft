@@ -1,23 +1,36 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Default to",
   "description": "Return the first value that is not False or Null.",
   "arguments": [
     {
       "name": "0",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The inital value.",
-      "type": { "type": "Any" }
+      "type": {
+        "type": "Any"
+      }
     },
     {
       "name": "1",
       "description": "The first fallback value to be used if the primary value is Null or False.",
-      "type": { "type": "Any" },
-      "formula": { "type": "value", "value": "default" }
+      "type": {
+        "type": "Any"
+      },
+      "formula": {
+        "type": "value",
+        "value": "default"
+      }
     }
   ],
   "variableArguments": true,
   "output": {
     "description": "Returns the first value that is not False or Null. Returns Null if no valid values is given.",
-    "type": { "type": "Any" }
+    "type": {
+      "type": "Any"
+    }
   }
 }

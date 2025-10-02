@@ -1,12 +1,13 @@
 import type { CustomActionModel } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { Rule } from '../../types'
+import { removeFromPathFix } from '../../util/removeUnused.fix'
 
 export const noReferenceProjectActionRule: Rule<void> = {
   code: 'no-reference project action',
   level: 'warning',
   category: 'No References',
-  visit: (report, { path, files, value, nodeType, memo }) => {
+  visit: (report, { value, path, files, nodeType, memo }) => {
     if (nodeType !== 'project-action' || value.exported === true) {
       return
     }
@@ -41,7 +42,12 @@ export const noReferenceProjectActionRule: Rule<void> = {
     })
 
     if (!projectActionReferences.has(value.name)) {
-      report(path)
+      report(path, undefined, ['delete-project-action'])
     }
   },
+  fixes: {
+    'delete-project-action': removeFromPathFix,
+  },
 }
+
+export type NoReferenceProjectActionRuleFix = 'delete-project-action'

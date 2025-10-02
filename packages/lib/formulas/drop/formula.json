@@ -1,22 +1,35 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Drop",
   "description": "Remove items from the beginning of an Array or String.",
   "arguments": [
     {
       "name": "Array",
-      "formula": { "type": "value", "value": null },
+      "formula": {
+        "type": "value",
+        "value": null
+      },
       "description": "The input value.",
-      "type": { "type": "Array \\| String" }
+      "type": {
+        "type": "Array \\| String"
+      }
     },
     {
       "name": "Count",
       "description": "Number of items to remove.",
-      "type": { "type": "Number" },
-      "formula": { "type": "value", "value": 1 }
+      "type": {
+        "type": "Number"
+      },
+      "formula": {
+        "type": "value",
+        "value": 1
+      }
     }
   ],
   "output": {
     "description": "A copy of the list without the first items.",
-    "type": { "type": "Array \\| String" }
+    "type": {
+      "type": "Array \\| String"
+    }
   }
 }

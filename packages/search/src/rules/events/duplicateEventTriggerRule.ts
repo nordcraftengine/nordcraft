@@ -10,8 +10,9 @@ export const duplicateEventTriggerRule: Rule<{ trigger: string }> = {
     }
     const eventTriggers = new Set<string>()
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     Object.entries(value.events ?? {}).forEach(([key, event]) => {
-      if (typeof event.trigger !== 'string') {
+      if (typeof event?.trigger !== 'string') {
         return
       }
       if (eventTriggers.has(event.trigger)) {

@@ -1,22 +1,38 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Split",
-  "description": "Split a String into an Array of smaller strings each time a delimiter occurs. The delimiter will not be part of the output",
+  "description": "Split a String into an Array of smaller strings each time a delimiter occurs. The delimiter will not be part of the output.",
   "arguments": [
     {
       "name": "Input",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The String to split.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     },
     {
       "name": "Delimiter",
-      "formula": { "type": "value", "value": "" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      },
       "description": "The string to split by.",
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     }
   ],
   "output": {
     "description": "An array of Strings.",
-    "type": { "type": "Array", "ofType": { "type": "String" } }
+    "type": {
+      "type": "Array",
+      "ofType": {
+        "type": "String"
+      }
+    }
   }
 }

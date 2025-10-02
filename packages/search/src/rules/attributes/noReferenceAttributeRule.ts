@@ -1,4 +1,5 @@
 import type { Rule } from '../../types'
+import { removeFromPathFix } from '../../util/removeUnused.fix'
 
 export const noReferenceAttributeRule: Rule<void> = {
   code: 'no-reference attribute',
@@ -26,7 +27,11 @@ export const noReferenceAttributeRule: Rule<void> = {
     if (attrs.has(attributeKey)) {
       return
     }
-
-    report(path)
+    report(args.path, undefined, ['delete-attribute'])
+  },
+  fixes: {
+    'delete-attribute': removeFromPathFix,
   },
 }
+
+export type NoReferenceAttributeRuleFix = 'delete-attribute'

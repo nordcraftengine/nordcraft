@@ -1,23 +1,36 @@
 {
+  "$schema": "../../schemas/libFormula.schema.json",
   "name": "Multiply",
   "description": "Multiply two or more Numbers.",
   "arguments": [
     {
       "name": "0",
-      "formula": { "type": "value", "value": 1 },
-      "type": { "type": "Number" },
+      "formula": {
+        "type": "value",
+        "value": 1
+      },
+      "type": {
+        "type": "Number"
+      },
       "description": "Number to be multiplied."
     },
     {
       "name": "1",
-      "formula": { "type": "value", "value": 1 },
-      "type": { "type": "Number" },
+      "formula": {
+        "type": "value",
+        "value": 1
+      },
+      "type": {
+        "type": "Number"
+      },
       "description": "Number to be multiplied."
     }
   ],
   "variableArguments": true,
   "output": {
     "description": "The product of multiplying the input Numbers.",
-    "type": { "type": "Number" }
+    "type": {
+      "type": "Number"
+    }
   }
 }

@@ -16,12 +16,9 @@ const resolvePath = (...segments: string[]) =>
 const distPath = '../dist'
 const distDir = resolvePath(distPath)
 
-const bundleFiles = (
-  files: BuildOptions['entryPoints'],
-  settings?: BuildOptions,
-) =>
+const bundleFiles = (files: string[], settings?: BuildOptions) =>
   build({
-    entryPoints: files,
+    entryPoints: files.map((file) => resolvePath('../', file)),
     bundle: true,
     sourcemap: true,
     minify: true,
@@ -76,6 +73,20 @@ const run = async () => {
     minify: true,
     write: true,
     outfile: 'dist/backend.js',
+    platform: 'node',
+    format: 'esm',
+    allowOverwrite: true,
+    entryNames: `[name].esm`,
+  })
+
+  // Build the preview backend worker
+  await build({
+    entryPoints: ['packages/backend/src/preview.index.ts'],
+    bundle: true,
+    sourcemap: true,
+    minify: true,
+    write: true,
+    outfile: 'dist/preview.backend.js',
     platform: 'node',
     format: 'esm',
     allowOverwrite: true,

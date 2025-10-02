@@ -2,7 +2,6 @@ import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { validateUrl } from '@nordcraft/core/dist/utils/url'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Context } from 'hono'
-import { stream } from 'hono/streaming'
 import type { HonoEnv, HonoProject } from '../../hono'
 
 export const favicon = async (c: Context<HonoEnv<HonoProject>>) => {
@@ -17,7 +16,7 @@ export const favicon = async (c: Context<HonoEnv<HonoProject>>) => {
       origin: requestUrl.origin,
     })
     if (validIconUrl) {
-      // return a (streamed) response with the icon
+      // return a response with the icon
       const { body, ok, headers: iconHeaders } = await fetch(validIconUrl)
       if (ok && body) {
         c.header('Cache-Control', 'public, max-age=3600')
@@ -25,12 +24,14 @@ export const favicon = async (c: Context<HonoEnv<HonoProject>>) => {
         if (isDefined(contentType)) {
           c.header('Content-Type', contentType)
         }
-        return stream(c, (s) => s.pipe(body as any))
+        return c.body(body)
       }
     }
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e)
   }
-  return new Response(null, { status: 404 })
+  // If no icon is found or an error occurs, return a 404 with the default favicon content-type
+  c.header('Content-Type', 'image/x-icon')
+  return c.body(null, 404)
 }

@@ -1,27 +1,27 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Rule } from '../../types'
+import { removeFromPathFix } from '../../util/removeUnused.fix'
 
 export const noReferenceComponentRule: Rule<void> = {
   code: 'no-reference component',
   level: 'warning',
   category: 'No References',
-  visit: (report, { path, nodeType, files, value }, state) => {
-    // We need a way to flag if a component is exported as a web component, as it would be a valid orphan
+  visit: (report, data, state) => {
     if (
-      nodeType !== 'component' ||
-      isPage(value) ||
-      (state?.projectDetails?.type === 'package' && value.exported === true)
+      data.nodeType !== 'component' ||
+      isPage(data.value) ||
+      (state?.projectDetails?.type === 'package' &&
+        data.value.exported === true)
     ) {
       return
     }
-
-    for (const component of Object.values(files.components)) {
+    for (const component of Object.values(data.files.components)) {
       // Enforce that the component is not undefined since we're iterating
       for (const node of Object.values(component!.nodes ?? {})) {
         if (
           node.type === 'component' &&
-          node.name === value.name &&
+          node.name === data.value.name &&
           // Circular references from a component to itself should
           // not count as a reference
           node.name !== component!.name
@@ -30,10 +30,14 @@ export const noReferenceComponentRule: Rule<void> = {
         }
       }
     }
-
-    report(path)
+    report(data.path, undefined, ['delete-component'])
+  },
+  fixes: {
+    'delete-component': removeFromPathFix,
   },
 }
+
+export type NoReferenceComponentRuleFix = 'delete-component'
 
 const isPage = (
   value: Component,

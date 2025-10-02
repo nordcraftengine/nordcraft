@@ -1,6 +1,8 @@
 {
-  "name": "Set Http-Only Cookie",
+  "$schema": "../../schemas/libAction.schema.json",
+  "name": "Set HttpOnly cookie",
   "description": "Save a key/value pair as an Http-Only cookie. Useful for storing JWTs or other tokens.",
+  "group": "cookies",
   "arguments": [
     {
       "name": "Name",
@@ -22,7 +24,7 @@
     },
     {
       "name": "Expires in",
-      "description": "(Optional) Time in seconds until the cookie expires. This should be null for JWTs to use the JWT's expiration. If not provided, the cookie will be a session cookie.",
+      "description": "(Optional) Time in seconds until the cookie expires. This should be null for JWTs to use the JWT's expiration. If not provided, the cookie will be a session cookie. If set to 0, the cookie will be deleted.",
       "type": { "type": "Number" },
       "formula": {
         "type": "value",

@@ -1,6 +1,8 @@
 {
+  "$schema": "../../schemas/libAction.schema.json",
   "name": "Prevent default",
   "docs-link": "https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault",
   "description": "Prevent default browser behavior for this event.",
+  "group": "events",
   "arguments": []
 }

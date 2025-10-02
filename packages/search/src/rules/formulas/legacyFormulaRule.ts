@@ -3,6 +3,7 @@ import { isToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { Rule } from '../../types'
+import { replaceLegacyFormula } from './legacyFormulaRule.fix'
 
 export const legacyFormulaRule: Rule<{
   name: string
@@ -10,17 +11,29 @@ export const legacyFormulaRule: Rule<{
   code: 'legacy formula',
   level: 'warning',
   category: 'Deprecation',
-  visit: (report, { path, files, value, nodeType }) => {
+  visit: (report, data) => {
     if (
-      nodeType !== 'formula' ||
-      value.type !== 'function' ||
-      !isLegacyFormula(value, files)
+      data.nodeType !== 'formula' ||
+      data.value.type !== 'function' ||
+      !isLegacyFormula(data.value, data.files)
     ) {
       return
     }
-    report(path, { name: value.name })
+    report(
+      data.path,
+      { name: data.value.name },
+      // The TYPE and BOOLEAN formulas cannot be autofixed since the logic has changed between the 2 implementations
+      data.value.name !== 'TYPE' && data.value.name !== 'BOOLEAN'
+        ? ['replace-legacy-formula']
+        : undefined,
+    )
+  },
+  fixes: {
+    'replace-legacy-formula': replaceLegacyFormula,
   },
 }
+
+export type LegacyFormulaRuleFix = 'replace-legacy-formula'
 
 const isLegacyFormula = (
   formula: FunctionOperation,
@@ -47,21 +60,34 @@ const isUpperCase = (str: string) => str === str.toUpperCase()
 const legacyFormulas = new Set([
   'and',
   'concat',
-  'count',
   'default',
   'delete',
+  'drop_last',
   'eq',
+  'find index',
   'flat',
   'gt',
   'gte',
+  'group_by',
   'if',
+  'index of',
+  'json_parse',
+  'key_by',
   'list',
+  'lower',
   'lt',
   'lte',
   'mod',
   'neq',
   'or',
+  'random',
+  'size',
+  'sqrt',
+  'starts_with',
+  'take_last',
   'type',
+  'upper',
+  'uri_encode',
 ])
 
 // cSpell: disable

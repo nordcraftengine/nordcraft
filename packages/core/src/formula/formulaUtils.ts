@@ -239,13 +239,15 @@ export function* getFormulasInAction<Handler>({
         })
       }
       for (const [key, a] of Object.entries(action.arguments ?? {})) {
-        yield* getFormulasInFormula({
-          formula: a.formula,
-          globalFormulas,
-          path: [...path, 'arguments', key, 'formula'],
-          visitedFormulas,
-          packageName,
-        })
+        if (a) {
+          yield* getFormulasInFormula({
+            formula: a.formula,
+            globalFormulas,
+            path: [...path, 'arguments', key, 'formula'],
+            visitedFormulas,
+            packageName,
+          })
+        }
       }
 
       for (const [eventKey, event] of Object.entries(action.events ?? {})) {
@@ -262,6 +264,7 @@ export function* getFormulasInAction<Handler>({
       break
     case 'SetVariable':
     case 'TriggerEvent':
+    case 'TriggerWorkflowCallback':
       yield* getFormulasInFormula({
         formula: action.data,
         globalFormulas,
@@ -292,13 +295,15 @@ export function* getFormulasInAction<Handler>({
     case 'TriggerWorkflow':
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       for (const [key, a] of Object.entries(action.parameters ?? {})) {
-        yield* getFormulasInFormula({
-          formula: a.formula,
-          globalFormulas,
-          path: [...path, 'parameters', key, 'formula'],
-          visitedFormulas,
-          packageName,
-        })
+        if (isDefined(a.formula)) {
+          yield* getFormulasInFormula({
+            formula: a.formula,
+            globalFormulas,
+            path: [...path, 'parameters', key, 'formula'],
+            visitedFormulas,
+            packageName,
+          })
+        }
       }
       break
     case 'Switch':

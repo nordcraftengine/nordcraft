@@ -4,9 +4,9 @@ const handler: FormulaHandler<Array<{ key: string; value: unknown }>> = ([
   object,
 ]) => {
   if (typeof object === 'object' && object !== null) {
+    // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries
     return Object.entries(object).map(([key, value]) => ({ key, value }))
   }
-  // throw new Error('Argument Object must be of type object')
   return null
 }
 
