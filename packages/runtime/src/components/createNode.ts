@@ -116,6 +116,7 @@ export function createNode({
 
         // No reason to continue if we are on first run, as the render phase has not yet been reached
         if (firstRun) {
+          console.log('Skipping conditional DOM insertion on first run', path)
           return
         }
 
@@ -125,7 +126,11 @@ export function createNode({
           )
           return
         }
-
+        console.log('Inserting conditional elements for', `"${path}"`)
+        if (path === '0.0.1[default].1[default]') {
+          // eslint-disable-next-line no-debugger
+          debugger
+        }
         if (parentElement.querySelector(`[data-id="${path}"]`)) {
           console.warn(
             `Conditional: Element with data-id="${path}" already exists. This is likely due to the DOM being modified outside of Nordcraft`,
@@ -347,6 +352,7 @@ export function createNode({
     return repeat()
   }
   if (node.condition) {
+    console.log('createNode has condition for', `"${path}"`, node)
     return conditional({
       node,
       dataSignal,
