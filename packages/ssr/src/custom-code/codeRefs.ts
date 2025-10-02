@@ -38,16 +38,13 @@ export function takeReferencedFormulasAndActions({
           ...(files.formulas ?? {}),
         },
       },
-      ...mapObject(
-        files.packages ?? {},
-        ([packageName, { actions, formulas }]) => [
-          packageName,
-          {
-            actions: actions ?? {},
-            formulas: formulas ?? {},
-          },
-        ],
-      ),
+      ...mapObject(files.packages ?? {}, ([packageName, p]) => [
+        packageName,
+        {
+          actions: p?.actions ?? {},
+          formulas: p?.formulas ?? {},
+        },
+      ]),
     }
   }
 
@@ -91,26 +88,26 @@ export function takeReferencedFormulasAndActions({
       // Only include packages that have referenced actions or formulas
       filterObject(
         files.packages ?? {},
-        ([packageName, { actions, formulas }]) =>
-          Object.values(actions ?? {}).some((a) =>
+        ([packageName, p]) =>
+          Object.values(p?.actions ?? {}).some((a) =>
             actionRefs.has(`${packageName}/${a.name}`),
           ) ||
-          Object.values(formulas ?? {}).some((f) =>
+          Object.values(p?.formulas ?? {}).some((f) =>
             formulaRefs.has(`${packageName}/${f.name}`),
           ),
       ),
       // Only include the actions and formulas that are referenced
-      ([packageName, { actions, formulas }]) => [
+      ([packageName, p]) => [
         packageName,
         {
           actions: filterObject(
-            actions ?? {},
+            p?.actions ?? {},
             ([_, a]) =>
               typeof a.name === 'string' &&
               actionRefs.has(`${packageName}/${a.name}`),
           ),
           formulas: filterObject(
-            formulas ?? {},
+            p?.formulas ?? {},
             ([_, f]) =>
               typeof f.name === 'string' &&
               formulaRefs.has(`${packageName}/${f.name}`),
