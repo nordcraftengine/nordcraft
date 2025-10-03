@@ -23,7 +23,8 @@ test('can create, name, and delete an API', async ({ page }) => {
   expect(page.getByText('My Renamed API')).toBeDefined()
 
   // Delete the API
-  await apiElement.click({ button: 'right' })
+  const apiElementNew = page.getByTestId('api-item')
+  await apiElementNew.click({ button: 'right' })
   await page.getByText('Delete').click()
   await expect(page.getByTestId('api-item')).toHaveCount(0)
 })
