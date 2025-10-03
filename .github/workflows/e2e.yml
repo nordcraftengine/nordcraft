@@ -35,9 +35,9 @@ jobs:
         with:
           path: |
             ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+          key: ${{ runner.os }}-playwright-deps-${{ env.PLAYWRIGHT_VERSION }}
       - name: Install Playwright Browsers
-        run: bunx playwright install chrome --with-deps
+        run: bunx playwright install chromium-headless-shell --with-deps
         if: steps.playwright-cache.outputs.cache-hit != 'true'
       - name: Run Playwright tests
         run: bunx playwright test
