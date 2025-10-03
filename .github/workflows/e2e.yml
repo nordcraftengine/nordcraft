@@ -2,15 +2,17 @@ name: Playwright Tests
 # on: workflow_dispatch
 on:
   push:
-    branches:
-      - playwright
+    paths:
+      # Only run when files in the e2e package change
+      - 'e2e/**'
+
 jobs:
   test:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./packages/e2e
+        working-directory: ./e2e
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
