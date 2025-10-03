@@ -2,67 +2,7 @@ import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { Delta } from 'jsondiffpatch'
 import { create } from 'jsondiffpatch'
 import { fixProject } from './fixProject'
-import { createActionNameRule } from './rules/actions/createActionNameRule'
-import { legacyActionRule } from './rules/actions/legacyActionRule'
-import { noReferenceProjectActionRule } from './rules/actions/noReferenceProjectActionRule'
-import { unknownProjectActionRule } from './rules/actions/unknownProjectActionRule'
-import { legacyApiRule } from './rules/apis/legacyApiRule'
-import { noReferenceApiRule } from './rules/apis/noReferenceApiRule'
-import { noReferenceApiServiceRule } from './rules/apis/noReferenceApiServiceRule'
-import { unknownApiInputRule } from './rules/apis/unknownApiInputRule'
-import { unknownApiRule } from './rules/apis/unknownApiRule'
-import { unknownApiServiceRule } from './rules/apis/unknownApiServiceRule'
-import { noReferenceAttributeRule } from './rules/attributes/noReferenceAttributeRule'
-import { unknownAttributeRule } from './rules/attributes/unknownAttributeRule'
-import { unknownComponentAttributeRule } from './rules/attributes/unknownComponentAttributeRule'
-import { noReferenceComponentRule } from './rules/components/noReferenceComponentRule'
-import { unknownComponentRule } from './rules/components/unknownComponentRule'
-import { noContextConsumersRule } from './rules/context/noContextConsumersRule'
-import { unknownContextFormulaRule } from './rules/context/unknownContextFormulaRule'
-import { unknownContextProviderFormulaRule } from './rules/context/unknownContextProviderFormulaRule'
-import { unknownContextProviderRule } from './rules/context/unknownContextProviderRule'
-import { createRequiredDirectChildRule } from './rules/dom/createRequiredDirectChildRule'
-import { createRequiredDirectParentRule } from './rules/dom/createRequiredDirectParentRule'
-import { createRequiredElementAttributeRule } from './rules/dom/createRequiredElementAttributeRule'
-import { createRequiredMetaTagRule } from './rules/dom/createRequiredMetaTagRule'
-import { elementWithoutInteractiveContentRule } from './rules/dom/elementWithoutInteractiveContentRule'
-import { imageWithoutDimensionRule } from './rules/dom/imageWithoutDimensionRule'
-import { nonEmptyVoidElementRule } from './rules/dom/nonEmptyVoidElementRule'
-import { duplicateRouteRule } from './rules/duplicateRouteRule'
-import { duplicateEventTriggerRule } from './rules/events/duplicateEventTriggerRule'
-import { noReferenceEventRule } from './rules/events/noReferenceEventRule'
-import { unknownEventRule } from './rules/events/unknownEventRule'
-import { unknownTriggerEventRule } from './rules/events/unknownTriggerEventRule'
-import { legacyFormulaRule } from './rules/formulas/legacyFormulaRule'
-import { noReferenceComponentFormulaRule } from './rules/formulas/noReferenceComponentFormulaRule'
-import { noReferenceProjectFormulaRule } from './rules/formulas/noReferenceProjectFormulaRule'
-import { unknownFormulaRule } from './rules/formulas/unknownFormulaRule'
-import { unknownProjectFormulaRule } from './rules/formulas/unknownProjectFormulaRule'
-import { unknownRepeatIndexFormulaRule } from './rules/formulas/unknownRepeatIndexFormulaRule'
-import { unknownRepeatItemFormulaRule } from './rules/formulas/unknownRepeatItemFormulaRule'
-import { noStaticNodeCondition } from './rules/logic/noStaticNodeCondition'
-import { noUnnecessaryConditionFalsy } from './rules/logic/noUnnecessaryConditionFalsy'
-import { noUnnecessaryConditionTruthy } from './rules/logic/noUnnecessaryConditionTruthy'
-import { noReferenceNodeRule } from './rules/noReferenceNodeRule'
-import { requireExtensionRule } from './rules/requireExtensionRule'
-import { unknownClassnameRule } from './rules/slots/unknownClassnameRule'
-import { unknownComponentSlotRule } from './rules/slots/unknownComponentSlotRule'
-import { invalidStyleSyntaxRule } from './rules/style/invalidStyleSyntaxRule'
-import { unknownCookieRule } from './rules/unknownCookieRule'
-import { duplicateUrlParameterRule } from './rules/urlParameters/duplicateUrlParameterRule'
-import { unknownSetUrlParameterRule } from './rules/urlParameters/unknownSetUrlParameterRule'
-import { unknownUrlParameterRule } from './rules/urlParameters/unknownUrlParameterRule'
-import { noReferenceVariableRule } from './rules/variables/noReferenceVariableRule'
-import { unknownVariableRule } from './rules/variables/unknownVariableRule'
-import { unknownVariableSetterRule } from './rules/variables/unknownVariableSetterRule'
-import { duplicateWorkflowParameterRule } from './rules/workflows/duplicateWorkflowParameterRule'
-import { noPostNavigateAction } from './rules/workflows/noPostNavigateAction'
-import { noReferenceComponentWorkflowRule } from './rules/workflows/noReferenceComponentWorkflowRule'
-import { unknownContextProviderWorkflowRule } from './rules/workflows/unknownContextProviderWorkflowRule'
-import { unknownContextWorkflowRule } from './rules/workflows/unknownContextWorkflowRule'
-import { unknownTriggerWorkflowParameterRule } from './rules/workflows/unknownTriggerWorkflowParameterRule'
-import { unknownTriggerWorkflowRule } from './rules/workflows/unknownTriggerWorkflowRule'
-import { unknownWorkflowParameterRule } from './rules/workflows/unknownWorkflowParameterRule'
+import { ISSUE_RULES } from './rules/issues/issueRules.index'
 import { searchProject } from './searchProject'
 import type {
   ApplicationState,
@@ -105,104 +45,6 @@ export type Options = {
   rulesToExclude?: Code[]
 }
 
-const RULES = [
-  createActionNameRule({ name: '@toddle/logToConsole', code: 'no-console' }),
-  createRequiredElementAttributeRule({ tag: 'a', attribute: 'href' }),
-  createRequiredElementAttributeRule({
-    tag: 'img',
-    attribute: 'alt',
-    allowEmptyString: true,
-  }),
-  createRequiredElementAttributeRule({ tag: 'img', attribute: 'src' }),
-  createRequiredMetaTagRule('description'),
-  createRequiredMetaTagRule('title'),
-  createRequiredDirectChildRule(['ul', 'ol'], ['li', 'script', 'template']),
-  createRequiredDirectParentRule(['ul', 'ol'], ['li']),
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table#technical_summary
-  createRequiredDirectChildRule(
-    ['table'],
-    ['caption', 'colgroup', 'tbody', 'thead', 'tfoot', 'tr'],
-  ),
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tbody#technical_summary
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/thead#technical_summary
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tfoot#technical_summary
-  createRequiredDirectParentRule(['table'], ['tbody', 'thead', 'tfoot']),
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr#technical_summary
-  createRequiredDirectChildRule(['tr'], ['th', 'td', 'script', 'template']),
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th#technical_summary
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td#technical_summary
-  createRequiredDirectParentRule(['tr'], ['th', 'td']),
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select#technical_summary
-  createRequiredDirectChildRule(['select'], ['option', 'optgroup', 'hr']),
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup#technical_summary
-  createRequiredDirectChildRule(['optgroup'], ['option']),
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/legend#technical_summary
-  createRequiredDirectParentRule(['fieldset'], ['legend']),
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl#technical_summary
-  createRequiredDirectChildRule(
-    ['dl'],
-    ['dd', 'dt', 'div', 'script', 'template'],
-  ),
-  duplicateEventTriggerRule,
-  duplicateRouteRule,
-  duplicateUrlParameterRule,
-  duplicateWorkflowParameterRule,
-  elementWithoutInteractiveContentRule,
-  imageWithoutDimensionRule,
-  invalidStyleSyntaxRule,
-  legacyActionRule,
-  legacyApiRule,
-  legacyFormulaRule,
-  noContextConsumersRule,
-  nonEmptyVoidElementRule,
-  noPostNavigateAction,
-  noReferenceApiRule,
-  noReferenceApiServiceRule,
-  noReferenceAttributeRule,
-  noReferenceComponentFormulaRule,
-  noReferenceComponentRule,
-  noReferenceComponentWorkflowRule,
-  noReferenceEventRule,
-  noReferenceNodeRule,
-  noReferenceProjectActionRule,
-  noReferenceProjectFormulaRule,
-  noReferenceVariableRule,
-  noStaticNodeCondition,
-  noUnnecessaryConditionFalsy,
-  noUnnecessaryConditionTruthy,
-  requireExtensionRule,
-  unknownApiInputRule,
-  unknownApiRule,
-  unknownApiServiceRule,
-  unknownAttributeRule,
-  unknownClassnameRule,
-  // unknownComponentFormulaInputRule,
-  unknownComponentRule,
-  unknownComponentSlotRule,
-  unknownContextFormulaRule,
-  unknownContextProviderFormulaRule,
-  unknownContextProviderRule,
-  unknownContextProviderWorkflowRule,
-  unknownContextWorkflowRule,
-  unknownCookieRule,
-  unknownComponentAttributeRule,
-  unknownEventRule,
-  unknownFormulaRule,
-  unknownProjectActionRule,
-  // unknownProjectFormulaInputRule,
-  unknownProjectFormulaRule,
-  unknownRepeatIndexFormulaRule,
-  unknownRepeatItemFormulaRule,
-  unknownSetUrlParameterRule,
-  unknownTriggerEventRule,
-  unknownTriggerWorkflowParameterRule,
-  unknownTriggerWorkflowRule,
-  unknownUrlParameterRule,
-  unknownVariableRule,
-  unknownVariableSetterRule,
-  unknownWorkflowParameterRule,
-]
-
 interface FindProblemsArgs {
   id: string
   files: ProjectFiles
@@ -242,7 +84,7 @@ const findProblems = (data: FindProblemsArgs) => {
       id: data.id,
       results,
     })
-  const rules = RULES.filter(
+  const rules = ISSUE_RULES.filter(
     (rule) =>
       (!options.categories || options.categories.includes(rule.category)) &&
       (!options.levels || options.levels.includes(rule.level)) &&
@@ -295,7 +137,7 @@ const findProblems = (data: FindProblemsArgs) => {
 
 const fixProblems = (data: FixProblemsArgs) => {
   const { files, options = {}, fixRule } = data
-  const rule = RULES.find((r) => r.code === fixRule)
+  const rule = ISSUE_RULES.find((r) => r.code === fixRule)
   if (!rule) {
     throw new Error(`Unknown fix rule: ${data.fixRule}`)
   }
