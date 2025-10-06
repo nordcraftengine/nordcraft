@@ -86,7 +86,7 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
       ? undefined
       : ((response.body ?? new ReadableStream()) as ReadableStream)
     response.headers.entries().forEach(([name, value]) => {
-      c.header(name, value)
+      c.header(name, value, { append: true })
     })
     c.status(response.status as StatusCode)
     if (body) {
