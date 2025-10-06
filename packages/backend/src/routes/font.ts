@@ -38,7 +38,7 @@ fontRouter.get('/stylesheet/:stylesheet{.*}', async (c: Context<HonoEnv>) => {
     }
     const headers = filterFontResponseHeaders(response.headers)
     Array.from(headers.entries()).forEach(([name, value]) =>
-      c.header(name, value),
+      c.header(name, value, { append: true }),
     )
     return c.body(stylesheetContent)
   } catch {
@@ -56,7 +56,7 @@ fontRouter.get('/font/:font{.*}', async (c: Context<HonoEnv>) => {
     )) as any as Response
     const headers = filterFontResponseHeaders(response.headers)
     Array.from(headers.entries()).forEach(([name, value]) =>
-      c.header(name, value),
+      c.header(name, value, { append: true }),
     )
     if (response.ok && response.body) {
       return c.body(response.body, response.status as any)
