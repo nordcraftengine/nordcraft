@@ -21,7 +21,7 @@
     "eslint": "9.36.0",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier": "3.6.2",
-    "typescript": "5.9.2"
+    "typescript": "5.9.3"
   },
   "scripts": {
     "build": "cd packages/core && bun run build && cd ../lib && bun run build && cd ../ssr && bun run build && cd ../search && bun run build && cd ../runtime && bun run build",
