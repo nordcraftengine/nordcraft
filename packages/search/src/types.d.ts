@@ -46,6 +46,7 @@ type Code =
   | 'duplicate route'
   | 'invalid api parser mode'
   | 'invalid api proxy body setting'
+  | 'invalid api proxy cookie setting'
   | 'invalid element child'
   | 'invalid style syntax'
   | 'legacy action'
