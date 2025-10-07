@@ -3,7 +3,7 @@ import { get } from '@nordcraft/core/dist/utils/collections'
 import type { Rule } from '../../../types'
 
 export const invalidApiProxyCookieSettingRule: Rule<{ api: string }> = {
-  code: 'invalid api proxy body setting',
+  code: 'invalid api proxy cookie setting',
   level: 'warning',
   category: 'Quality',
   visit: (report, { files, nodeType, value, path }) => {

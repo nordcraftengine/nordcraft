@@ -64,7 +64,7 @@ describe('invalidApiProxyCookieSettingRule', () => {
     )
 
     expect(problems).toHaveLength(1)
-    expect(problems[0].code).toBe('invalid api proxy body setting')
+    expect(problems[0].code).toBe('invalid api proxy cookie setting')
     expect(problems[0].details).toEqual({ api: 'my-api' })
   })
 
