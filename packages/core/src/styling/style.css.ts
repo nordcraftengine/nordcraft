@@ -1,15 +1,15 @@
 // cSpell:ignore thinn, ABCDEFGHIJKLMNOPQRSTYVWXYZ
-import type { Component } from '../component/component.types'
+import type {
+  Component,
+  ComponentNodeModel,
+  ElementNodeModel,
+  NodeStyleModel,
+} from '../component/component.types'
 import { omitKeys } from '../utils/collections'
 import { isDefined } from '../utils/util'
 import { getClassName, toValidClassName } from './className'
 import type { OldTheme, Theme, ThemeOptions } from './theme'
 import { getThemeCss } from './theme'
-import type {
-  ComponentNodeModel,
-  ElementNodeModel,
-  StyleDeclarationBlock,
-} from './variantSelector'
 import { variantSelector } from './variantSelector'
 
 const LEGACY_BREAKPOINTS = {
@@ -108,7 +108,7 @@ export const createStylesheet = (
     ),
     options,
   )
-  const styleToCss = (style: StyleDeclarationBlock) => {
+  const styleToCss = (style: NodeStyleModel) => {
     return Object.entries(style)
       .map(([property, value]) => {
         if (!isDefined(value)) {
@@ -136,10 +136,10 @@ export const createStylesheet = (
         'breakpoints',
         'shadows',
       ])
-      const styleVariants = node.variants ?? node.style?.variants
+      const styleVariants = node.variants
       const renderVariant = (
         selector: string,
-        style: StyleDeclarationBlock,
+        style: NodeStyleModel,
         options?: { startingStyle?: boolean },
       ) => {
         const scrollbarStyles = Object.entries(style).filter(

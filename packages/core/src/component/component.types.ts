@@ -1,6 +1,7 @@
 import type { ApiStatus, ComponentAPI, LegacyApiStatus } from '../api/apiTypes'
 import type { Formula } from '../formula/formula'
 import type { StyleTokenCategory } from '../styling/theme'
+import type { StyleVariant } from '../styling/variantSelector'
 import type { NordcraftMetadata, RequireFields } from '../types'
 
 interface ListItem {
@@ -44,35 +45,15 @@ export interface AnimationKeyframe {
   easing?: never
 }
 
-export interface StyleVariant {
-  id?: string
-  className?: string
-  hover?: boolean
-  focus?: boolean
-  focusWithin?: boolean
-  active?: boolean
-  disabled?: boolean
-  firstChild?: boolean
-  lastChild?: boolean
-  evenChild?: boolean
-  empty?: boolean
-  mediaQuery?: MediaQuery
-  breakpoint: 'small' | 'medium' | 'large'
-  startingStyle?: boolean
-  pseudoElement?: string
-  style: NodeStyleModel
-  customProperties?: Record<CustomPropertyName, CustomProperty>
-}
-
 export type NodeStyleModel = Record<string, string>
 
 export interface TextNodeModel {
-  id?: string
+  id?: string | null
   type: 'text'
-  condition?: Formula
-  repeat?: Formula
-  slot?: string
-  repeatKey?: Formula
+  condition?: Formula | null
+  repeat?: Formula | null
+  slot?: string | null
+  repeatKey?: Formula | null
   value: Formula
   children?: undefined
 }
@@ -97,13 +78,13 @@ export interface ElementNodeModel {
   id?: string
   type: 'element'
   slot?: string
-  condition?: Formula
-  repeat?: Formula
-  repeatKey?: Formula
+  condition?: Formula | null
+  repeat?: Formula | null
+  repeatKey?: Formula | null
   tag: string
   attrs: Partial<Record<string, Formula>>
   style: NodeStyleModel
-  variants?: StyleVariant[]
+  variants?: StyleVariant[] | null
   animations?: Record<string, Record<string, AnimationKeyframe>>
   children: string[]
   events: Partial<Record<string, EventModel | null>>
@@ -119,11 +100,11 @@ export interface ComponentNodeModel {
   path?: string
   name: string
   package?: string
-  condition?: Formula
-  repeat?: Formula
-  repeatKey?: Formula
+  condition?: Formula | null
+  repeat?: Formula | null
+  repeatKey?: Formula | null
   style?: NodeStyleModel
-  variants?: StyleVariant[]
+  variants?: StyleVariant[] | null
   animations?: Record<string, Record<string, AnimationKeyframe>>
   attrs: Record<string, Formula>
   children: string[]
@@ -135,9 +116,9 @@ export interface SlotNodeModel {
   type: 'slot'
   slot?: string
   name?: string
-  condition?: Formula
-  repeat?: undefined
-  repeatKey?: undefined
+  condition?: Formula | null
+  repeat?: undefined | null
+  repeatKey?: undefined | null
   children: string[]
 }
 export type NodeModel =
@@ -149,8 +130,8 @@ export type NodeModel =
 export interface MetaEntry {
   tag: HeadTagTypes
   attrs: Record<string, Formula>
-  content: Formula
-  index?: number
+  content?: Formula | null
+  index?: number | null
 }
 
 export interface StaticPathSegment {
@@ -182,26 +163,26 @@ export interface Component {
    * @default undefined (version 1)
    * @deprecated - we are no longer using version 2 components, but we are keeping this field for backwards compatibility
    */
-  version?: 2
+  version?: 2 | null
   // @deprecated - use route->path instead
-  page?: string // page url /projects/:id - only for pages
+  page?: string | null // page url /projects/:id - only for pages
   route?: PageRoute | null
   attributes: Record<string, ComponentAttribute>
   variables: Record<string, ComponentVariable>
-  formulas?: Record<string, ComponentFormula>
+  formulas?: Record<string, ComponentFormula> | null
   contexts?: Record<
     // `componentName` or `packageName/componentName` if the context comes from a different package than the component itself
     string,
     ComponentContext
-  >
-  workflows?: Record<string, ComponentWorkflow>
+  > | null
+  workflows?: Record<string, ComponentWorkflow> | null
   apis: Record<string, ComponentAPI>
   nodes: Record<string, NodeModel>
-  events?: ComponentEvent[]
-  onLoad?: EventModel
-  onAttributeChange?: EventModel
+  events?: ComponentEvent[] | null
+  onLoad?: EventModel | null
+  onAttributeChange?: EventModel | null
   // exported indicates that a component is exported in a package
-  exported?: boolean
+  exported?: boolean | null
 }
 
 export interface ComponentFormula extends NordcraftMetadata {
