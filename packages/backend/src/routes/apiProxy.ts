@@ -136,7 +136,7 @@ export const proxyRequestHandler = async (
     })
     c.status(response.status as StatusCode)
     if (body) {
-      c.body(body)
+      return c.body(body)
     }
     return c.res
   } catch (e) {

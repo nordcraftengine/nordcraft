@@ -90,7 +90,7 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     })
     c.status(response.status as StatusCode)
     if (body) {
-      c.body(body)
+      return c.body(body)
     }
     return c.res
   } catch {
