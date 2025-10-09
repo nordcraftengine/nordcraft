@@ -326,7 +326,7 @@ type StyleNode = {
   value: {
     styleProperty: string
     styleValue: string
-    element: ElementNodeModel
+    element: ElementNodeModel | ComponentNodeModel
   }
 } & Base
 

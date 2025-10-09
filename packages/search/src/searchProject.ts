@@ -618,6 +618,8 @@ function* visitNode({
             })
           }
         }
+      }
+      if (value.type === 'component' || value.type === 'element') {
         for (const [styleKey, styleValue] of Object.entries(
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           value.style ?? {},
