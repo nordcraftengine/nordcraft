@@ -56,7 +56,7 @@ describe('find invalidStyleSyntaxRule', () => {
     expect(problems[0].details.property).toBe('max-width')
     expect(problems[1].details.property).toBe('{')
   })
-  test.only('should find class based invalid style syntax', () => {
+  test('should find class based invalid style syntax', () => {
     const problems = Array.from(
       searchProject({
         files: {

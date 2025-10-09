@@ -49,7 +49,7 @@ describe('invalidApiProxyCookieSettingRule', () => {
                   },
                   server: {
                     proxy: {
-                      enabled: { formula: valueFormula(true) },
+                      enabled: { formula: valueFormula(false) },
                     },
                   },
                 },
@@ -113,7 +113,7 @@ describe('invalidApiProxyCookieSettingRule', () => {
                   },
                   server: {
                     proxy: {
-                      enabled: { formula: valueFormula(false) },
+                      enabled: { formula: valueFormula(true) },
                     },
                   },
                 },

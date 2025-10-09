@@ -27,11 +27,11 @@ export const invalidApiProxyCookieSettingRule: Rule<{ api: string }> = {
       !api ||
       isLegacyApi(api) ||
       api.server?.proxy?.enabled?.formula.type !== 'value' ||
-      api.server.proxy.enabled.formula.value !== true
+      api.server.proxy.enabled.formula.value !== false
     ) {
       return
     }
-    // Report an issue if the  is set to true while the API is not set to be proxied
+    // Report an issue if the 'Get Http-Only Cookie' formula is used in a non-proxied API
     report(path, { api: api.name })
   },
 }
