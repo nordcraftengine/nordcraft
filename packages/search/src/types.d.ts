@@ -37,6 +37,7 @@ import type { NoReferenceProjectFormulaRuleFix } from './rules/issues/formulas/n
 import type { NoStaticNodeConditionRuleFix } from './rules/issues/logic/noStaticNodeCondition'
 import type { NoReferenceNodeRuleFix } from './rules/issues/miscellaneous/noReferenceNodeRule'
 import type { InvalidStyleSyntaxRuleFix } from './rules/issues/style/invalidStyleSyntaxRule'
+import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noReferenceVariableRule'
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
 
 type Code =
@@ -354,22 +355,23 @@ export type NodeType =
   | StyleVariantNode
 
 type FixType =
-  | LegacyFormulaRuleFix
+  | InvalidStyleSyntaxRuleFix
   | LegacyActionRuleFix
-  | NoReferenceComponentRuleFix
-  | NoReferenceProjectFormulaRuleFix
-  | NoReferenceProjectActionRuleFix
+  | LegacyFormulaRuleFix
+  | NoPostNavigateActionRuleFix
   | NoReferenceApiRuleFix
   | NoReferenceApiServiceRuleFix
   | NoReferenceAttributeRuleFix
-  | NoReferenceEventRuleFix
   | NoReferenceComponentFormulaRuleFix
+  | NoReferenceComponentRuleFix
+  | NoReferenceEventRuleFix
   | NoReferenceNodeRuleFix
-  | InvalidStyleSyntaxRuleFix
+  | NoReferenceProjectActionRuleFix
+  | NoReferenceProjectFormulaRuleFix
+  | NoReferenceVariableRuleFix
   | NoStaticNodeConditionRuleFix
-  | NoPostNavigateActionRuleFix
-  | UnknownComponentAttributeRuleFix
   | UnknownApiServiceRuleFix
+  | UnknownComponentAttributeRuleFix
 
 export interface Rule<T = unknown, V = NodeType> {
   category: Category
