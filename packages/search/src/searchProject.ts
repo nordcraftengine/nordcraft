@@ -597,7 +597,25 @@ function* visitNode({
       break
 
     case 'component-node':
-      if (value.type === 'element') {
+      if (value.type === 'element' || value.type === 'component') {
+        for (const [styleKey, styleValue] of Object.entries(
+          value.style ?? {},
+        )) {
+          yield* visitNode({
+            args: {
+              nodeType: 'style-declaration',
+              value: { styleProperty: styleKey, styleValue, element: value },
+              path: [...path, 'style', styleKey],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
         const variants = value.variants
         if (variants) {
           for (let i = 0; i < variants.length; i++) {
@@ -616,28 +634,30 @@ function* visitNode({
               state,
               fixOptions: fixOptions as any,
             })
+            for (const [styleKey, styleValue] of Object.entries(
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              variant.style ?? {},
+            )) {
+              yield* visitNode({
+                args: {
+                  nodeType: 'style-declaration',
+                  value: {
+                    styleProperty: styleKey,
+                    styleValue,
+                    element: value,
+                  },
+                  path: [...path, 'variants', i, 'style', styleKey],
+                  rules,
+                  files,
+                  pathsToVisit,
+                  useExactPaths,
+                  memo,
+                },
+                state,
+                fixOptions: fixOptions as any,
+              })
+            }
           }
-        }
-      }
-      if (value.type === 'component' || value.type === 'element') {
-        for (const [styleKey, styleValue] of Object.entries(
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          value.style ?? {},
-        )) {
-          yield* visitNode({
-            args: {
-              nodeType: 'style-declaration',
-              value: { styleProperty: styleKey, styleValue, element: value },
-              path: [...path, 'style', styleKey],
-              rules,
-              files,
-              pathsToVisit,
-              useExactPaths,
-              memo,
-            },
-            state,
-            fixOptions: fixOptions as any,
-          })
         }
       }
       break

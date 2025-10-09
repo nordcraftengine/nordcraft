@@ -121,26 +121,10 @@ describe('find invalidStyleSyntaxRule', () => {
                       "'Red Hat Display'",
                     '/* Light gray for regular days */\n    font-family':
                       'inherit',
-                    '}\n\n/* Arrow navigation buttons */\n.vanilla-calendar .vanilla-calendar-arrow {\n    color':
+                    '}\n\n/* Arrow navigation buttons */\n.my-class .my-other-class {\n    color':
                       '#ecf0f1',
-                    '/* White text */\n}\n\n/* Hover state for day buttons */\n.vanilla-calendar .vanilla-calendar-day__btn':
+                    '/* White text */\n}\n\n/* Hover state for my buttons */\n.my-class .my-other-class-my__btn':
                       'hover {\nbackground-color: #08365b',
-                    '}\n\n/* All day buttons - background and font color */\n.vanilla-calendar .vanilla-calendar-day__btn {\n    background-color':
-                      'transparent',
-                    '/* Inherits from parent */\n}\n\n/* Weekday labels - font color */\n.vanilla-calendar .vanilla-calendar-week__day {\n    color':
-                      '#00a7e1',
-                    '/* Main calendar container - background and font family */.vanilla-calendar.vanilla-calendar_default {    background-color':
-                      'transparent',
-                    '/* Custom font */}/* Header section - background and text color */.vanilla-calendar .vanilla-calendar-header {    background-color':
-                      '#ffffff00',
-                    "/* Dimmed gray */\n}\n\n/* Today's date - special coloring */\n.vanilla-calendar .vanilla-calendar-day__btn_today {\n    background-color":
-                      '#08365b80',
-                    '/* White text */\n}\n\n/* Selected date - distinctive colors */\n.vanilla-calendar .vanilla-calendar-day__btn_selected {\n    background-color':
-                      '#00a7e1',
-                    '/* Light gray text */}/* Month and Year buttons - font color */.vanilla-calendar .vanilla-calendar-month,.vanilla-calendar .vanilla-calendar-year {    color':
-                      '#ffffff',
-                    '}\n\n/* Previous/next month days - dimmed color */\n.vanilla-calendar .vanilla-calendar-day__btn_prev,\n.vanilla-calendar .vanilla-calendar-day__btn_next {\n    color':
-                      '#7f8c8d',
                   },
                   events: {},
                   repeat: null,
@@ -150,7 +134,17 @@ describe('find invalidStyleSyntaxRule', () => {
                     '8vrF3RhVEhajiB-f-sJ7S',
                     'R-hFhzdREjkUXdlFGbpT9',
                   ],
-                  variants: [],
+                  variants: [
+                    {
+                      style: {
+                        '': '',
+                        '/* Dimmed gray */\n}\n\n/* My special coloring */\n.my-class .my-class-my__btn_special {\nbackground-color':
+                          '#ffffff',
+                      },
+                      hover: true,
+                      breakpoint: 'small',
+                    },
+                  ],
                 },
                 'R-hFhzdREjkUXdlFGbpT9': {
                   type: 'text',
@@ -172,7 +166,7 @@ describe('find invalidStyleSyntaxRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(12)
+    expect(problems).toHaveLength(6)
     expect(problems[0].code).toBe('invalid style syntax')
     expect(problems[0].path).toEqual([
       'components',
@@ -182,69 +176,32 @@ describe('find invalidStyleSyntaxRule', () => {
       'style',
       '',
     ])
-    const properties = problems.map((p) => p.details.property)
-    expect(properties).toMatchInlineSnapshot(`
-      [
-        "",
-        "}",
-        
-      "}
-
-      /* Arrow navigation buttons */
-      .vanilla-calendar .vanilla-calendar-arrow {
-          color"
-      ,
-        
-      "/* White text */
-      }
-
-      /* Hover state for day buttons */
-      .vanilla-calendar .vanilla-calendar-day__btn"
-      ,
-        
-      "}
-
-      /* All day buttons - background and font color */
-      .vanilla-calendar .vanilla-calendar-day__btn {
-          background-color"
-      ,
-        
-      "/* Inherits from parent */
-      }
-
-      /* Weekday labels - font color */
-      .vanilla-calendar .vanilla-calendar-week__day {
-          color"
-      ,
-        "/* Main calendar container - background and font family */.vanilla-calendar.vanilla-calendar_default {    background-color",
-        "/* Custom font */}/* Header section - background and text color */.vanilla-calendar .vanilla-calendar-header {    background-color",
-        
-      "/* Dimmed gray */
-      }
-
-      /* Today's date - special coloring */
-      .vanilla-calendar .vanilla-calendar-day__btn_today {
-          background-color"
-      ,
-        
-      "/* White text */
-      }
-
-      /* Selected date - distinctive colors */
-      .vanilla-calendar .vanilla-calendar-day__btn_selected {
-          background-color"
-      ,
-        "/* Light gray text */}/* Month and Year buttons - font color */.vanilla-calendar .vanilla-calendar-month,.vanilla-calendar .vanilla-calendar-year {    color",
-        
-      "}
-
-      /* Previous/next month days - dimmed color */
-      .vanilla-calendar .vanilla-calendar-day__btn_prev,
-      .vanilla-calendar .vanilla-calendar-day__btn_next {
-          color"
-      ,
-      ]
-    `)
+    expect(problems[4].path).toEqual([
+      'components',
+      'test',
+      'nodes',
+      '9HN6AOP6F6ofzHhVh089X',
+      'variants',
+      0,
+      'style',
+      '',
+    ])
+    const invalidStyleProperties = problems
+      .filter((p) => !p.path.includes('variants'))
+      .map((p) => p.details.property)
+    expect(invalidStyleProperties).toEqual([
+      '',
+      '}',
+      '}\n\n/* Arrow navigation buttons */\n.my-class .my-other-class {\n    color',
+      '/* White text */\n}\n\n/* Hover state for my buttons */\n.my-class .my-other-class-my__btn',
+    ])
+    const invalidVariantProperties = problems
+      .filter((p) => p.path.includes('variants'))
+      .map((p) => p.details.property)
+    expect(invalidVariantProperties).toEqual([
+      '',
+      '/* Dimmed gray */\n}\n\n/* My special coloring */\n.my-class .my-class-my__btn_special {\nbackground-color',
+    ])
   })
 })
 
@@ -286,6 +243,58 @@ describe('fix invalidStyleSyntaxRule', () => {
     })
     expect((fixedFiles.components.test!.nodes.root as ElementNodeModel).style)
       .toMatchInlineSnapshot(`
+      {
+        "gap": "8px",
+        "height": "/* 100px */ 22px",
+        "width": "100%",
+      }
+    `)
+  })
+  test('should remove an invalid style variant style property', () => {
+    const files: ProjectFiles = {
+      formulas: {},
+      components: {
+        test: {
+          name: 'test',
+          nodes: {
+            root: {
+              tag: 'ul',
+              type: 'element',
+              attrs: {},
+              style: {},
+              events: {},
+              classes: {},
+              children: [],
+              variants: [
+                {
+                  style: {
+                    gap: '8px',
+                    width: '100%',
+                    'max-width': 'calc(NOT VALID',
+                    height: '/* 100px */ 22px',
+                    '{': '100px',
+                  },
+                  breakpoint: 'small',
+                },
+              ],
+            },
+          },
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
+        },
+      },
+    }
+    const fixedFiles = fixProject({
+      files,
+      rule: invalidStyleSyntaxRule,
+      fixType: 'delete-style-property',
+    })
+    expect(
+      (fixedFiles.components.test!.nodes.root as ElementNodeModel).variants?.[0]
+        .style,
+    ).toMatchInlineSnapshot(`
       {
         "gap": "8px",
         "height": "/* 100px */ 22px",

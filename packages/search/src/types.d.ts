@@ -318,7 +318,10 @@ type ProjectConfigNode = {
 
 type StyleVariantNode = {
   nodeType: 'style-variant'
-  value: { variant: StyleVariant; element: ElementNodeModel }
+  value: {
+    variant: StyleVariant
+    element: ElementNodeModel | ComponentNodeModel
+  }
 } & Base
 
 type StyleNode = {
