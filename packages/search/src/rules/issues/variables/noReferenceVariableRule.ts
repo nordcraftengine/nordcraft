@@ -1,4 +1,5 @@
 import type { Rule } from '../../../types'
+import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
 export const noReferenceVariableRule: Rule<void> = {
   code: 'no-reference variable',
@@ -31,6 +32,11 @@ export const noReferenceVariableRule: Rule<void> = {
       return
     }
 
-    report(path)
+    report(path, undefined, ['delete-variable'])
+  },
+  fixes: {
+    'delete-variable': removeFromPathFix,
   },
 }
+
+export type NoReferenceVariableRuleFix = 'delete-variable'

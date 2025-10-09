@@ -1,8 +1,10 @@
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
+import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'
 import { noReferenceVariableRule } from './noReferenceVariableRule'
 
-describe('noReferenceVariableRule', () => {
+describe('find noReferenceVariableRule', () => {
   test('should detect variables with no references', () => {
     const problems = Array.from(
       searchProject({
@@ -91,5 +93,83 @@ describe('noReferenceVariableRule', () => {
     )
 
     expect(problems).toEqual([])
+  })
+})
+
+describe('fix noReferenceVariableRule', () => {
+  test('should remove variables with no references', () => {
+    const projectFiles: ProjectFiles = {
+      formulas: {},
+      components: {
+        test: {
+          name: 'test',
+          nodes: {},
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {
+            'my-variable': {
+              initialValue: { type: 'value', value: null },
+              '@nordcraft/metadata': {
+                comments: null,
+              },
+            },
+          },
+        },
+      },
+    }
+    const fixedFiles = fixProject({
+      files: projectFiles,
+      rule: noReferenceVariableRule,
+      fixType: 'delete-variable',
+    })
+    expect(fixedFiles.components['test']?.variables).toEqual({})
+  })
+  test('should not remove variables with references', () => {
+    const files: ProjectFiles = {
+      components: {
+        test: {
+          name: 'test',
+          nodes: {},
+          formulas: {
+            'my-formula': {
+              name: 'my-formula',
+              arguments: [],
+              formula: {
+                type: 'apply',
+                name: 'test',
+                arguments: [
+                  {
+                    formula: {
+                      type: 'path',
+                      path: ['Variables', 'my-variable', 'some-nested-value'],
+                    },
+                  },
+                ],
+              },
+              '@nordcraft/metadata': {
+                comments: null,
+              },
+            },
+          },
+          apis: {},
+          attributes: {},
+          variables: {
+            'my-variable': {
+              initialValue: { type: 'value', value: null },
+              '@nordcraft/metadata': {
+                comments: null,
+              },
+            },
+          },
+        },
+      },
+    }
+    const fixedFiles = fixProject({
+      files,
+      rule: noReferenceVariableRule,
+      fixType: 'delete-variable',
+    })
+    expect(fixedFiles).toEqual(files)
   })
 })
