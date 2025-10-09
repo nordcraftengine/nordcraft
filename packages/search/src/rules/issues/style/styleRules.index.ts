@@ -1,3 +1,4 @@
 import { invalidStyleSyntaxRule } from './invalidStyleSyntaxRule'
+import { unknownClassnameRule } from './unknownClassnameRule'
 
-export default [invalidStyleSyntaxRule]
+export default [invalidStyleSyntaxRule, unknownClassnameRule]
