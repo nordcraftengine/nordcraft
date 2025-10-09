@@ -127,7 +127,6 @@ describe('find invalidStyleSyntaxRule', () => {
                       'hover {\nbackground-color: #08365b',
                   },
                   events: {},
-                  repeat: null,
                   package: 'vanilla',
                   children: [
                     '6pb4ELucFmm1GwGbVfLc7',
@@ -155,7 +154,6 @@ describe('find invalidStyleSyntaxRule', () => {
                 },
               },
               events: [],
-              onLoad: null,
               formulas: {},
               variables: {},
               attributes: {},
