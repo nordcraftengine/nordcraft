@@ -1,5 +1,4 @@
-import type { StyleVariant } from '../component/component.types'
-import { variantSelector } from '../styling/variantSelector'
+import { variantSelector, type StyleVariant } from '../styling/variantSelector'
 
 type NodeSelectorOptions =
   | {

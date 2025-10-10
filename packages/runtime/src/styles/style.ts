@@ -84,7 +84,7 @@ ${
         .map((variant) => {
           const selector = `.${classHash}${variantSelector(variant)}`
           const renderedVariant = renderVariant(selector, variant.style, {
-            startingStyle: variant.startingStyle,
+            startingStyle: variant.startingStyle ?? false,
           })
           return variant.mediaQuery
             ? `

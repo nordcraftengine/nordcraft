@@ -9,7 +9,6 @@ import {
   type Component,
   type ComponentData,
   type MetaEntry,
-  type StyleVariant,
 } from '@nordcraft/core/dist/component/component.types'
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
 import type {
@@ -27,6 +26,7 @@ import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { getClassName } from '@nordcraft/core/dist/styling/className'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
 import { getThemeCss, renderTheme } from '@nordcraft/core/dist/styling/theme'
+import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type {
   ActionHandler,
   ActionHandlerV2,
