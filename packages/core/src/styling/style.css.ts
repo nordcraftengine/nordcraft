@@ -10,7 +10,7 @@ import { isDefined } from '../utils/util'
 import { getClassName, toValidClassName } from './className'
 import type { OldTheme, Theme, ThemeOptions } from './theme'
 import { getThemeCss } from './theme'
-import { variantSelector } from './variantSelector'
+import { variantSelector, type StyleVariant } from './variantSelector'
 
 const LEGACY_BREAKPOINTS = {
   large: 1440,
@@ -136,7 +136,11 @@ export const createStylesheet = (
         'breakpoints',
         'shadows',
       ])
-      const styleVariants = node.variants ?? node.style?.variants
+      const styleVariants =
+        node.variants ??
+        // Support for old style variants stored inside style object
+        // Once we have better versioning options, this should be removed
+        (node.style?.variants as any as StyleVariant[])
       const renderVariant = (
         selector: string,
         style: NodeStyleModel,
