@@ -35,9 +35,6 @@
     },
     "packages/core": {
       "name": "@nordcraft/core",
-      "devDependencies": {
-        "@types/react": "19.1.8",
-      },
     },
     "packages/lib": {
       "name": "@nordcraft/std-lib",
