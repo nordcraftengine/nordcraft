@@ -1,7 +1,7 @@
-import type { StyleVariant } from '@nordcraft/core/dist/component/component.types'
 import type { Signal } from '../signal/signal'
 
 import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core/dist/styling/theme.const'
+import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type { Runtime } from '@nordcraft/core/dist/types'
 import { CustomPropertyStyleSheet } from '../styles/CustomPropertyStyleSheet'
 

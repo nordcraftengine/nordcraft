@@ -1,12 +1,8 @@
-import type { CSSProperties } from 'react'
 import type {
-  AnimationKeyframe,
   CustomProperty,
   CustomPropertyName,
-  EventModel,
-  StyleVariable,
+  NodeStyleModel,
 } from '../component/component.types'
-import type { Formula } from '../formula/formula'
 
 export type Shadow = {
   x: number
@@ -27,11 +23,6 @@ export type Filter =
       percent: number
     }
 
-export interface StyleDeclarationBlock extends CSSProperties {
-  filters?: Filter[]
-  shadows?: Shadow[]
-}
-
 type MediaQuery = {
   'min-width'?: string
   'max-width'?: string
@@ -40,8 +31,6 @@ type MediaQuery = {
 }
 
 export interface StyleVariant {
-  autofill?: boolean
-  'nth-child(even)'?: boolean
   'even-child'?: boolean
   'first-child'?: boolean
   'first-of-type'?: boolean
@@ -49,12 +38,15 @@ export interface StyleVariant {
   'focus-within'?: boolean
   'last-child'?: boolean
   'last-of-type'?: boolean
+  'nth-child(even)'?: boolean
   'popover-open'?: boolean
   active?: boolean
+  autofill?: boolean
   breakpoint: 'small' | 'medium' | 'large'
   checked?: boolean
   class?: string
   className?: string
+  customProperties?: Record<CustomPropertyName, CustomProperty>
   disabled?: boolean
   empty?: boolean
   evenChild?: boolean
@@ -69,85 +61,8 @@ export interface StyleVariant {
   mediaQuery?: MediaQuery
   pseudoElement?: string
   startingStyle?: boolean
-  style: StyleDeclarationBlock
-  visited?: boolean
-  customProperties?: Record<CustomPropertyName, CustomProperty>
-}
-
-export interface NodeStyleModel extends StyleDeclarationBlock {
-  variants?: StyleVariant[]
-  breakpoints?: {
-    small?: NodeStyleModel
-    medium?: NodeStyleModel
-    large?: NodeStyleModel
-  }
-  mediaQuery?: MediaQuery
-}
-
-export type NodeClass = {
-  name: string
-  formula?: Formula
-}
-
-export type NodeModel =
-  | ElementNodeModel
-  | TextNodeModel
-  | ComponentNodeModel
-  | SlotNodeModel
-
-export type ElementNodeModel = {
-  id: string
-  type: 'element'
-  condition?: Formula
-  repeat?: Formula
-  repeatKey?: Formula
-  tag: string
-  classList: NodeClass[]
-  attrs: Record<string, Formula>
   style: NodeStyleModel
-  variants?: StyleVariant[]
-  animations?: Record<string, Record<string, AnimationKeyframe>>
-  children: NodeModel[]
-  events: EventModel[]
-  'style-variables'?: Array<StyleVariable>
-  customProperties?: Record<CustomPropertyName, CustomProperty>
-}
-
-export type ComponentNodeModel = {
-  id: string
-  type: 'component'
-  path?: string
-  name: string
-  condition?: Formula
-  repeat?: Formula
-  repeatKey?: Formula
-  style?: NodeStyleModel
-  variants?: StyleVariant[]
-  animations?: Record<string, Record<string, AnimationKeyframe>>
-  attrs: Record<string, Formula>
-  children: NodeModel[]
-  events: EventModel[]
-  'style-variables'?: Array<StyleVariable>
-  customProperties?: Record<CustomPropertyName, CustomProperty>
-}
-
-export type TextNodeModel = {
-  id: string
-  type: 'text'
-  condition?: Formula
-  repeat?: Formula
-  repeatKey?: Formula
-  value: Formula
-  children?: undefined
-}
-
-export type SlotNodeModel = {
-  id: string
-  type: 'slot'
-  condition?: Formula
-  repeat?: undefined
-  repeatKey?: Formula
-  children: NodeModel[]
+  visited?: boolean
 }
 
 export const variantSelector = (variant: StyleVariant) =>
