@@ -136,7 +136,7 @@ export const createStylesheet = (
         'breakpoints',
         'shadows',
       ])
-      const styleVariants = node.variants
+      const styleVariants = node.variants ?? node.style?.variants
       const renderVariant = (
         selector: string,
         style: NodeStyleModel,
