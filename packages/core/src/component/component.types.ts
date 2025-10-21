@@ -45,7 +45,7 @@ export interface AnimationKeyframe {
   easing?: never
 }
 
-export type NodeStyleModel = Record<string, string>
+export type NodeStyleModel = Record<string, string | number>
 
 export interface TextNodeModel {
   id?: string | null
@@ -89,8 +89,9 @@ export interface ElementNodeModel {
   children: string[]
   events: Partial<Record<string, EventModel | null>>
   classes: Record<string, { formula?: Formula }>
-  'style-variables'?: Array<StyleVariable>
-  customProperties?: Record<CustomPropertyName, CustomProperty>
+  'style-variables'?: Array<StyleVariable> | null
+  styleVariables?: unknown
+  customProperties?: Record<CustomPropertyName, CustomProperty> | null
 }
 
 export interface ComponentNodeModel {

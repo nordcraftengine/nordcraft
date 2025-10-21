@@ -132,23 +132,25 @@ export function createElement({
       setupAttribute()
     }
   })
-  node['style-variables']?.forEach((styleVariable) => {
-    const { name, formula, unit } = styleVariable
-    const signal = dataSignal.map((data) => {
-      const value = applyFormula(formula, {
-        data,
-        component: ctx.component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
+  if (Array.isArray(node['style-variables'])) {
+    node['style-variables'].forEach((styleVariable) => {
+      const { name, formula, unit } = styleVariable
+      const signal = dataSignal.map((data) => {
+        const value = applyFormula(formula, {
+          data,
+          component: ctx.component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+        })
+        return unit ? value + unit : value
       })
-      return unit ? value + unit : value
-    })
 
-    signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
-  })
+      signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
+    })
+  }
 
   Object.entries(node.customProperties ?? {}).forEach(
     ([customPropertyName, { formula }]) =>
