@@ -18,6 +18,8 @@ jobs:
           fetch-depth: 2
       - name: Install bun
         uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.2.23
       - name: Store package.json
         run: echo "PACKAGE_JSON=$(jq -c . < package.json)" >> $GITHUB_ENV
       - name: Current version
