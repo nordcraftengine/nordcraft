@@ -1,9 +1,7 @@
 import type { RouteDeclaration } from '@nordcraft/core/dist/component/component.types'
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
-import {
-  isToddleFormula,
-  type PluginFormula,
-} from '@nordcraft/core/dist/formula/formulaTypes'
+import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
+import { type PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
 import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'

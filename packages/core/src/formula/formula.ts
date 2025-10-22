@@ -9,7 +9,7 @@ import type {
   Toddle,
 } from '../types'
 import { isDefined, toBoolean } from '../utils/util'
-import { isToddleFormula } from './formulaTypes'
+import { type PluginFormula, type ToddleFormula } from './formulaTypes'
 
 // Define the some objects types as union of ServerSide and ClientSide runtime types as applyFormula is used in both
 declare const document: Document | undefined
@@ -171,6 +171,12 @@ export function isFormulaApplyOperation(
   return formula.type === 'apply'
 }
 
+export const isToddleFormula = <Handler>(
+  formula: PluginFormula<Handler>,
+): formula is ToddleFormula =>
+  Object.hasOwn(formula, 'formula') &&
+  isDefined((formula as ToddleFormula).formula)
+
 export function applyFormula(
   formula: Formula | string | number | undefined | null | boolean,
   ctx: FormulaContext,
@@ -224,9 +230,6 @@ export function applyFormula(
           ctx.toddle ??
           ((globalThis as any).toddle as Toddle<unknown, unknown> | undefined)
         )?.getCustomFormula(formula.name, packageName)
-        const legacyFunc: FormulaHandler | undefined = (
-          ctx.toddle ?? ((globalThis as any).toddle as Toddle<unknown, unknown>)
-        ).getFormula(formula.name)
         if (isDefined(newFunc)) {
           ctx.package = packageName
           const args = formula.arguments.reduce<Record<string, unknown>>(
@@ -248,15 +251,23 @@ export function applyFormula(
             {},
           )
           try {
-            return isToddleFormula(newFunc)
-              ? applyFormula(newFunc.formula, {
-                  ...ctx,
-                  data: { ...ctx.data, Args: args },
-                })
-              : newFunc.handler(args, {
-                  root: ctx.root ?? document,
-                  env: ctx.env,
-                } as any)
+            if (isToddleFormula(newFunc)) {
+              console.log(
+                'Found toddle formula',
+                formula.name,
+                Object.keys(newFunc),
+                JSON.stringify(newFunc),
+              )
+              return applyFormula(newFunc.formula, {
+                ...ctx,
+                data: { ...ctx.data, Args: args },
+              })
+            } else {
+              return newFunc.handler(args, {
+                root: ctx.root ?? document,
+                env: ctx.env,
+              } as any)
+            }
           } catch (e) {
             ctx.toddle.errors.push(e as Error)
             if (ctx.env?.logErrors) {
@@ -264,29 +275,36 @@ export function applyFormula(
             }
             return null
           }
-        } else if (typeof legacyFunc === 'function') {
-          const args = (formula.arguments ?? []).map((arg) =>
-            arg.isFunction
-              ? (Args: any) =>
-                  applyFormula(arg.formula, {
-                    ...ctx,
-                    data: {
-                      ...ctx.data,
-                      Args: ctx.data.Args
-                        ? { ...Args, '@toddle.parent': ctx.data.Args }
-                        : Args,
-                    },
-                  })
-              : applyFormula(arg.formula, ctx),
-          )
-          try {
-            return legacyFunc(args, ctx as any)
-          } catch (e) {
-            ctx.toddle.errors.push(e as Error)
-            if (ctx.env?.logErrors) {
-              console.error(e)
+        } else {
+          // Lookup legacy formula
+          const legacyFunc: FormulaHandler | undefined = (
+            ctx.toddle ??
+            ((globalThis as any).toddle as Toddle<unknown, unknown>)
+          ).getFormula(formula.name)
+          if (typeof legacyFunc === 'function') {
+            const args = (formula.arguments ?? []).map((arg) =>
+              arg.isFunction
+                ? (Args: any) =>
+                    applyFormula(arg.formula, {
+                      ...ctx,
+                      data: {
+                        ...ctx.data,
+                        Args: ctx.data.Args
+                          ? { ...Args, '@toddle.parent': ctx.data.Args }
+                          : Args,
+                      },
+                    })
+                : applyFormula(arg.formula, ctx),
+            )
+            try {
+              return legacyFunc(args, ctx as any)
+            } catch (e) {
+              ctx.toddle.errors.push(e as Error)
+              if (ctx.env?.logErrors) {
+                console.error(e)
+              }
+              return null
             }
-            return null
           }
         }
         if (ctx.env?.logErrors) {
