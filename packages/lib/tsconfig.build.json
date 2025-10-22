@@ -10,7 +10,7 @@
     "strict": true,
     "strictBuiltinIteratorReturn": true,
     "target": "ESNext",
-    "types": [],
+    "types": ["bun-types"],
     "outDir": "dist",
     "declaration": true
   },
