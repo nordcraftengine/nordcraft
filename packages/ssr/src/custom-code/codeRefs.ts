@@ -1,10 +1,10 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { Component } from '@nordcraft/core/dist/component/component.types'
+import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
 import type {
   CodeFormula,
   PluginFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
-import { isToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { PluginAction } from '@nordcraft/core/dist/types'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'

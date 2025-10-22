@@ -7,9 +7,11 @@ import type {
   FormulaContext,
   ToddleServerEnv,
 } from '@nordcraft/core/dist/formula/formula'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import {
+  applyFormula,
+  isToddleFormula,
+} from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import { isToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import { mapValues } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'

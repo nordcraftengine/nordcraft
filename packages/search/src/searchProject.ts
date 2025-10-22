@@ -1,6 +1,6 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import { isToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
+import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
 import { ToddleFormula } from '@nordcraft/core/dist/formula/ToddleFormula'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'

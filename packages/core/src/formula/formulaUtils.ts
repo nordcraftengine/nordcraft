@@ -6,9 +6,8 @@ import type {
   PathOperation,
   ValueOperation,
 } from './formula'
-import { isFormula } from './formula'
+import { isFormula, isToddleFormula } from './formula'
 import type { GlobalFormulas } from './formulaTypes'
-import { isToddleFormula } from './formulaTypes'
 
 export const valueFormula = (
   value: string | number | boolean | null | object,

@@ -15,9 +15,11 @@ import type {
   FormulaContext,
   ToddleEnv,
 } from '@nordcraft/core/dist/formula/formula'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
+  applyFormula,
   isToddleFormula,
+} from '@nordcraft/core/dist/formula/formula'
+import {
   type CodeFormula,
   type PluginFormula,
   type ToddleFormula,

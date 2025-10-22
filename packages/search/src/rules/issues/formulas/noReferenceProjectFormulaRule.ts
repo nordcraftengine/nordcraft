@@ -1,6 +1,6 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
-import { isToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
+import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
 import type { Rule } from '../../../types'
