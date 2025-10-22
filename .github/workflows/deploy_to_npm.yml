@@ -41,6 +41,8 @@ jobs:
           echo $(jq '. += {"version": "${{ inputs.version }}"}' package.json) > package.json
       - name: Setup bun
         uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.2.23
       - name: Install dependencies
         run: |
           rm bun.lock
