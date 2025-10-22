@@ -252,12 +252,6 @@ export function applyFormula(
           )
           try {
             if (isToddleFormula(newFunc)) {
-              console.log(
-                'Found toddle formula',
-                formula.name,
-                Object.keys(newFunc),
-                JSON.stringify(newFunc),
-              )
               return applyFormula(newFunc.formula, {
                 ...ctx,
                 data: { ...ctx.data, Args: args },
