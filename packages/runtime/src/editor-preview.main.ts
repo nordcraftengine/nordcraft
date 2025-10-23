@@ -26,6 +26,7 @@ import {
 } from '@nordcraft/core/dist/formula/formulaTypes'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { getClassName } from '@nordcraft/core/dist/styling/className'
+import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
 import { getThemeCss, renderTheme } from '@nordcraft/core/dist/styling/theme'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
@@ -177,6 +178,7 @@ type ToddlePreviewEvent =
 enum TextNodeComputedStyles {
   // Caret color is important as it is the only visible part of the text node (when text is not highlighted)
   CARET_COLOR = 'caret-color',
+  DISPLAY = 'display',
   FONT_FAMILY = 'font-family',
   FONT_SIZE = 'font-size',
   FONT_WEIGHT = 'font-weight',
@@ -197,6 +199,18 @@ enum TextNodeComputedStyles {
   DIRECTION = 'direction',
   UNICODE_BIDI = 'unicode-bidi',
   VERTICAL_ALIGN = 'vertical-align',
+  FONT_KERNING = 'font-kerning',
+  FONT_FEATURE_SETTINGS = 'font-feature-settings',
+  FONT_VARIATION_SETTINGS = 'font-variation-settings',
+  FONT_SMOOTHING = '-webkit-font-smoothing',
+  ANTI_ALIASING = '-moz-osx-font-smoothing',
+  FONT_OPTICAL_SIZING = 'font-optical-sizing',
+  TAB_SIZE = 'tab-size',
+  HYPHENS = 'hyphens',
+  TEXT_ORIENTATION = 'text-orientation',
+  WRITING_MODE = 'writing-mode',
+  LINE_BREAK = 'line-break',
+  OVERFLOW_WRAP = 'overflow-wrap',
 }
 
 let env: ToddleEnv
@@ -1249,26 +1263,31 @@ export const createRoot = (
               ] ?? ({ style: {} } as StyleVariant)
             // Add a style element specific to the selected element which
             // is only applied when the preview is in design mode
-            const styleVariantCustomProperties = Object.entries(
-              (selectedStyleVariant as StyleVariant).customProperties ?? {},
+            const styleVariantCustomProperties = Object.fromEntries(
+              Object.entries(
+                (selectedStyleVariant as StyleVariant).customProperties ?? {},
+              )
+                .map(([customPropertyName, customProperty]) => [
+                  customPropertyName,
+                  appendUnit(
+                    applyFormula(customProperty.formula, {
+                      data: {
+                        Attributes: dataSignal.get().Attributes,
+                        Variables: dataSignal.get().Variables,
+                        Contexts: ctxDataSignal?.get().Contexts ?? {},
+                      },
+                      component: getCurrentComponent(),
+                      root: ctx?.root,
+                      formulaCache: {},
+                      package: ctx?.package,
+                      toddle: window.toddle,
+                      env,
+                    } as FormulaContext),
+                    customProperty.unit,
+                  ),
+                ])
+                .filter(([, value]) => value !== undefined),
             )
-              .map(([customPropertyName, customProperty]) => ({
-                name: customPropertyName,
-                value: applyFormula(customProperty.formula, {
-                  data: {
-                    Attributes: dataSignal.get().Attributes,
-                    Variables: dataSignal.get().Variables,
-                    Contexts: ctxDataSignal?.get().Contexts ?? {},
-                  },
-                  component: getCurrentComponent(),
-                  root: ctx?.root,
-                  formulaCache: {},
-                  package: ctx?.package,
-                  toddle: window.toddle,
-                  env,
-                } as FormulaContext),
-              }))
-              .filter(({ value }) => value !== undefined)
 
             const styleElem = document.createElement('style')
             const pseudoElement = selectedStyleVariant.pseudoElement
@@ -1281,11 +1300,7 @@ export const createRoot = (
                           ${styleToCss({
                             ...(!pseudoElement && nodeLookup.node.style),
                             ...selectedStyleVariant.style,
-                            ...Object.fromEntries(
-                              styleVariantCustomProperties.map(
-                                ({ name, value }) => [name, value],
-                              ),
-                            ),
+                            ...styleVariantCustomProperties,
                           })}
                         }
                       `),
