@@ -175,6 +175,29 @@ export const createRoot = (domNode: HTMLElement) => {
     ]),
   })
 
+  const langFormula = component.route?.info?.language?.formula
+  const dynamicLang = langFormula && langFormula.type !== 'value'
+  if (dynamicLang) {
+    dataSignal
+      .map<string | null>(() =>
+        component
+          ? applyFormula(langFormula, {
+              data: dataSignal.get(),
+              component,
+              root: document,
+              package: undefined,
+              toddle: window.toddle,
+              env,
+            })
+          : null,
+      )
+      .subscribe((newLang) => {
+        if (isDefined(newLang) && document.documentElement.lang !== newLang) {
+          document.documentElement.setAttribute('lang', newLang)
+        }
+      })
+  }
+
   // Handle dynamic updates of <head> elements (title, og:image etc.)
   const titleFormula = component.route?.info?.title?.formula
   const dynamicTitle = titleFormula && titleFormula.type !== 'value'
