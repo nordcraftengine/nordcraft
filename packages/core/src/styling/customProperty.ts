@@ -112,4 +112,6 @@ const FALLBACK_VALUES: Record<CssSyntax, string> = {
 }
 
 export const appendUnit = (value: any, unit: string | undefined) =>
-  value && unit && !String(value).endsWith(unit) ? `${value}${unit}` : value
+  isDefined(value) && isDefined(unit) && !String(value).endsWith(unit)
+    ? `${value}${unit}`
+    : value

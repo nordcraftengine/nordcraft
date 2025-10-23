@@ -42,6 +42,7 @@ import type {
 } from '@nordcraft/core/dist/types'
 import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
 import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import fastDeepEqual from 'fast-deep-equal'
@@ -1286,7 +1287,7 @@ export const createRoot = (
                     customProperty.unit,
                   ),
                 ])
-                .filter(([, value]) => value !== undefined),
+                .filter(([, value]) => isDefined(value)),
             )
 
             const styleElem = document.createElement('style')
