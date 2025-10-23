@@ -62,7 +62,7 @@ export type CustomPropertyName = `--${string}`
 
 export type CustomProperty = {
   formula: Formula
-  unit?: string
+  unit?: string | null
 }
 
 /**
