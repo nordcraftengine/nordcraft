@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import { RESET_STYLES } from '@nordcraft/core/dist/styling/theme.const'
 import type { BuildOptions } from 'esbuild'
 import { build } from 'esbuild'
 import { mkdirSync, rmSync, writeFileSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { RESET_STYLES } from '../packages/core/src/styling/theme.const'
 import { combineElements } from '../packages/editor/elements/combineElements'
 
 const __filename = fileURLToPath(import.meta.url)
