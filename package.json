@@ -9,6 +9,7 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@eslint/eslintrc": "3.3.1",
     "@eslint/js": "9.37.0",
     "@html-eslint/eslint-plugin": "0.47.0",
     "@html-eslint/parser": "0.47.0",
