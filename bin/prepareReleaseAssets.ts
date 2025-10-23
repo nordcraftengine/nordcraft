@@ -34,7 +34,7 @@ const setup = () => {
   mkdirSync(distDir, { recursive: true })
 }
 
-const createTempFileFromValue = (filename, value) => {
+const createTempFileFromValue = (filename: string, value: string) => {
   const path = resolvePath(distPath, filename)
   writeFileSync(path, value)
   return path
