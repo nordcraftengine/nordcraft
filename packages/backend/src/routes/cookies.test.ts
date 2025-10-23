@@ -70,7 +70,7 @@ describe('Set cookie', () => {
       {},
     )
     expect(res.status).toBe(400)
-    const body = await res.json<{ error: string }>()
+    const body = await res.json()
     expect(body.error).toBe('Bad request. The value must be of type string.')
   })
 })
