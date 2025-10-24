@@ -19,10 +19,6 @@
           "src": {
             "type": "value",
             "value": ""
-          },
-          "alt": {
-            "type": "value",
-            "value": null
           }
         },
         "style": {},
