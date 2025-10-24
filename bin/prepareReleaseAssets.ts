@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import { RESET_STYLES } from '@nordcraft/core/dist/styling/theme.const'
 import type { BuildOptions } from 'esbuild'
 import { build } from 'esbuild'
 import { mkdirSync, rmSync, writeFileSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { RESET_STYLES } from '../packages/core/src/styling/theme.const'
 import { combineElements } from '../packages/editor/elements/combineElements'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -34,7 +34,7 @@ const setup = () => {
   mkdirSync(distDir, { recursive: true })
 }
 
-const createTempFileFromValue = (filename, value) => {
+const createTempFileFromValue = (filename: string, value: string) => {
   const path = resolvePath(distPath, filename)
   writeFileSync(path, value)
   return path
