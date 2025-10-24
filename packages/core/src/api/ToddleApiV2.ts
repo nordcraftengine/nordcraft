@@ -221,11 +221,6 @@ export class ToddleApiV2<Handler> implements ApiRequest {
         globalFormulas: this.globalFormulas,
         path: ['apis', apiKey, 'headers', headerKey, 'formula'],
       })
-      yield* getFormulasInFormula({
-        formula: header.enabled,
-        globalFormulas: this.globalFormulas,
-        path: ['apis', apiKey, 'headers', headerKey, 'enabled'],
-      })
     }
 
     yield* getFormulasInFormula({

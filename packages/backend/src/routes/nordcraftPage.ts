@@ -118,6 +118,13 @@ export const nordcraftPage = async ({
     customProperties = pageBody.customProperties
   } catch (e) {
     if (e instanceof RedirectError) {
+      if (e.redirect.headers) {
+        Object.entries(e.redirect.headers).forEach(([name, value]) => {
+          if (name !== 'location') {
+            hono.header(name, value)
+          }
+        })
+      }
       hono.header(REDIRECT_API_NAME_HEADER, e.redirect.apiName)
       hono.header(REDIRECT_COMPONENT_NAME_HEADER, e.redirect.componentName)
       return hono.redirect(e.redirect.url.href, e.redirect.statusCode ?? 302)

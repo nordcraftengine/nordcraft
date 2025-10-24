@@ -5,6 +5,7 @@ import { hash } from '../utils/hash'
 import { isDefined, isObject, toBoolean } from '../utils/util'
 import type {
   ApiBase,
+  ApiHeaders,
   ApiPerformance,
   ApiRequest,
   ComponentAPI,
@@ -194,26 +195,22 @@ export const getRequestHeaders = ({
   formulaContext,
   defaultHeaders,
 }: {
-  apiHeaders: ApiRequest['headers']
+  apiHeaders: ApiHeaders | null | undefined
   formulaContext: FormulaContext
   defaultHeaders: Headers | undefined
 }) => {
   const headers = new Headers(defaultHeaders)
   Object.entries(apiHeaders ?? {}).forEach(([key, param]) => {
-    const enabled = isDefined(param.enabled)
-      ? applyFormula(param.enabled, formulaContext)
-      : true
-    if (enabled) {
-      const value = applyFormula(param.formula, formulaContext)
-      if (isDefined(value)) {
-        try {
-          headers.set(
-            key.trim(),
-            (typeof value === 'string' ? value : String(value)).trim(),
-          )
-          // eslint-disable-next-line no-empty
-        } catch {}
-      }
+    const value = applyFormula(param.formula, formulaContext)
+    if (isDefined(value)) {
+      // Skip headers with undefined/null values
+      try {
+        headers.set(
+          key.trim(),
+          (typeof value === 'string' ? value : String(value)).trim(),
+        )
+        // eslint-disable-next-line no-empty
+      } catch {}
     }
   })
   return headers

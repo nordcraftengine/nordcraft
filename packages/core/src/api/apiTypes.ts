@@ -64,15 +64,14 @@ export interface ApiBase extends NordcraftMetadata {
   hash?: { formula: Formula } | null
 }
 
+export type ApiHeaders = Record<string, { formula: Formula }>
+
 export interface ApiRequest extends ApiBase {
   version: 2
   name: string
   type: 'http' | 'ws' // The structure for web sockets might look different
   autoFetch?: Formula | null
-  headers?: Record<
-    string,
-    { formula: Formula; enabled?: Formula | null }
-  > | null
+  headers?: ApiHeaders | null
   method?: ApiMethod | null
   body?: Formula | null
   // inputs for an API request
@@ -121,6 +120,9 @@ export interface ApiRequest extends ApiBase {
       formula: Formula
       // The status code used in the redirect response. Only relevant server side
       statusCode?: RedirectStatusCode | null
+      // Additional headers to include in the redirect response ("Set-Cookie" for instance). Only relevant server side
+      headers?: ApiHeaders | null
+      // Index is used to determine the order of execution for multiple redirect rules
       index: number
     }
   > | null
