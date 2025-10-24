@@ -5,6 +5,7 @@ import type {
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
@@ -77,17 +78,20 @@ export function createComponent({
           componentName: ctx.component.name,
           nodeId: node.id,
         }),
-        signal: dataSignal.map((data) => {
-          return applyFormula(customProperty.formula, {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          })
-        }),
+        signal: dataSignal.map((data) =>
+          appendUnit(
+            applyFormula(customProperty.formula, {
+              data,
+              component: ctx.component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+            }),
+            customProperty.unit,
+          ),
+        ),
         customPropertyName,
         root: ctx.root,
         runtime: ctx.env.runtime,
@@ -103,15 +107,18 @@ export function createComponent({
             variant,
           }),
           signal: dataSignal.map((data) =>
-            applyFormula(customProperty.formula, {
-              data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+            appendUnit(
+              applyFormula(customProperty.formula, {
+                data,
+                component: ctx.component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+              }),
+              customProperty.unit,
+            ),
           ),
           customPropertyName,
           variant,

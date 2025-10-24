@@ -19,6 +19,7 @@ import {
   getClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
+import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { mapValues } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
@@ -202,7 +203,10 @@ const renderComponent = async ({
         }
         Object.entries(node.customProperties ?? {}).forEach(
           ([customPropertyName, customProperty]) => {
-            const value = applyFormula(customProperty.formula, formulaContext)
+            const value = appendUnit(
+              applyFormula(customProperty.formula, formulaContext),
+              customProperty.unit,
+            )
             if (isDefined(value)) {
               addCustomProperty(
                 getNodeSelector(path),
@@ -216,7 +220,10 @@ const renderComponent = async ({
           Object.entries(variant.customProperties ?? {}).forEach(
             ([customPropertyName, customProperty]) => {
               // style-variables on variants are always version 2
-              const value = applyFormula(customProperty.formula, formulaContext)
+              const value = appendUnit(
+                applyFormula(customProperty.formula, formulaContext),
+                customProperty.unit,
+              )
               if (isDefined(value)) {
                 addCustomProperty(
                   getNodeSelector(path, { variant }),
@@ -449,7 +456,10 @@ const renderComponent = async ({
         // Add extra instance styling for each style-variable
         Object.entries(node.customProperties ?? {}).forEach(
           ([customPropertyName, customProperty]) => {
-            const value = applyFormula(customProperty.formula, formulaContext)
+            const value = appendUnit(
+              applyFormula(customProperty.formula, formulaContext),
+              customProperty.unit,
+            )
             if (isDefined(value)) {
               addCustomProperty(
                 getNodeSelector(path, {
@@ -465,7 +475,10 @@ const renderComponent = async ({
         node.variants?.forEach((variant) => {
           Object.entries(variant.customProperties ?? {}).forEach(
             ([customPropertyName, customProperty]) => {
-              const value = applyFormula(customProperty.formula, formulaContext)
+              const value = appendUnit(
+                applyFormula(customProperty.formula, formulaContext),
+                customProperty.unit,
+              )
               if (isDefined(value)) {
                 addCustomProperty(
                   getNodeSelector(path, {

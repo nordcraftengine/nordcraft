@@ -8,6 +8,7 @@ import {
   getClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
+import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { handleAction } from '../events/handleAction'
@@ -151,7 +152,7 @@ export function createElement({
   })
 
   Object.entries(node.customProperties ?? {}).forEach(
-    ([customPropertyName, { formula }]) =>
+    ([customPropertyName, { formula, unit }]) =>
       subscribeCustomProperty({
         customPropertyName,
         selector:
@@ -161,31 +162,7 @@ export function createElement({
             ? `${getNodeSelector(path)}, :host`
             : getNodeSelector(path),
         signal: dataSignal.map((data) =>
-          applyFormula(formula, {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          }),
-        ),
-        root: ctx.root,
-        runtime: ctx.env.runtime,
-      }),
-  )
-
-  node.variants?.forEach((variant) => {
-    Object.entries(variant.customProperties ?? {}).forEach(
-      ([customPropertyName, { formula }]) => {
-        subscribeCustomProperty({
-          customPropertyName,
-          selector: getNodeSelector(path, {
-            variant,
-          }),
-          variant,
-          signal: dataSignal.map((data) =>
+          appendUnit(
             applyFormula(formula, {
               data,
               component: ctx.component,
@@ -195,6 +172,36 @@ export function createElement({
               toddle: ctx.toddle,
               env: ctx.env,
             }),
+            unit,
+          ),
+        ),
+        root: ctx.root,
+        runtime: ctx.env.runtime,
+      }),
+  )
+
+  node.variants?.forEach((variant) => {
+    Object.entries(variant.customProperties ?? {}).forEach(
+      ([customPropertyName, { formula, unit }]) => {
+        subscribeCustomProperty({
+          customPropertyName,
+          selector: getNodeSelector(path, {
+            variant,
+          }),
+          variant,
+          signal: dataSignal.map((data) =>
+            appendUnit(
+              applyFormula(formula, {
+                data,
+                component: ctx.component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+              }),
+              unit,
+            ),
           ),
           root: ctx.root,
           runtime: ctx.env.runtime,
@@ -203,6 +210,7 @@ export function createElement({
     )
   })
 
+  // TODO: This is a bit heavy on the runtime. Can we optimize this with a static function instead of creating a closure for each event?
   Object.values(node.events).forEach((event) => {
     const handler = (e: Event) => {
       event?.actions.forEach((action) => {
