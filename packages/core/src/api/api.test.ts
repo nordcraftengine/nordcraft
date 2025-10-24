@@ -238,13 +238,12 @@ describe('getApiHeaders()', () => {
     expect(headersWithDefaults.get('accept-encoding')).toBe('gzip')
     expect([...headersWithDefaults.entries()].length).toBe(3)
   })
-  test('it ignores disabled headers', () => {
+  test('it ignores nullish headers', () => {
     const headers = getRequestHeaders({
       apiHeaders: {
         q: { formula: valueFormula('hello') },
         test: {
-          formula: valueFormula('hidden'),
-          enabled: valueFormula(false),
+          formula: valueFormula(null),
         },
         filter: { formula: valueFormula('world') },
       },
