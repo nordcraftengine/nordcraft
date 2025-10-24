@@ -1,5 +1,6 @@
 import {
   createApiRequest,
+  getRequestHeaders,
   isApiError,
   requestHash,
   sortApiEntries,
@@ -278,7 +279,7 @@ const fetchApiV2 = async ({
     Object.values(api.redirectRules ?? {}),
     (rule) => rule.index,
   ).forEach((rule) => {
-    const location = applyFormula(rule.formula, {
+    const ruleFormulaContext: FormulaContext = {
       ...formulaContext,
       data: {
         ...formulaContext.data,
@@ -286,13 +287,19 @@ const fetchApiV2 = async ({
           [api.name]: apiStatus,
         },
       },
-    })
+    }
+    const location = applyFormula(rule.formula, ruleFormulaContext)
     if (typeof location === 'string') {
       const url = validateUrl({
         path: location,
         origin: originalRequestUrl.origin,
       })
       if (url) {
+        const headers = getRequestHeaders({
+          apiHeaders: rule.headers,
+          formulaContext: ruleFormulaContext,
+          defaultHeaders: undefined,
+        })
         // Opt out early to avoid additional API requests/rendering
         throw new RedirectError({
           url,
@@ -300,6 +307,7 @@ const fetchApiV2 = async ({
             typeof rule.statusCode === 'number' ? rule.statusCode : undefined,
           componentName,
           apiName: api.name,
+          headers,
         })
       }
     }
@@ -332,6 +340,7 @@ export class RedirectError extends Error {
       componentName: string
       url: URL
       statusCode?: RedirectStatusCode
+      headers?: Headers
     },
   ) {
     super()
