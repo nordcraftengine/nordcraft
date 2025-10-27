@@ -6,7 +6,6 @@ import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
 import {
   HeadTagTypes,
-  type AnimationKeyframe,
   type Component,
   type ComponentData,
   type MetaEntry,
@@ -37,7 +36,7 @@ import type {
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
-  LegacyPluginAction,
+  PluginAction,
   PluginActionV2,
   Toddle,
 } from '@nordcraft/core/dist/types'
@@ -58,7 +57,14 @@ import { dragMove } from './editor/drag-drop/dragMove'
 import { dragReorder } from './editor/drag-drop/dragReorder'
 import { dragStarted } from './editor/drag-drop/dragStarted'
 import { introspectApiRequest } from './editor/graphql'
-import type { DragState } from './editor/types'
+import { isInputTarget } from './editor/input'
+import { getRectData } from './editor/overlay'
+import {
+  TextNodeComputedStyles,
+  type DragState,
+  type EditorPostMessageType,
+  type NordcraftPreviewEvent,
+} from './editor/types'
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
@@ -77,143 +83,6 @@ import {
   getScrollStateRestorer,
   storeScrollState,
 } from './utils/storeScrollState'
-
-type ToddlePreviewEvent =
-  | {
-      type: 'style_variant_changed'
-      variantIndex: number | null
-    }
-  | {
-      type: 'component'
-      component: Component
-    }
-  | { type: 'components'; components: Component[] }
-  | {
-      type: 'packages'
-      packages: Record<
-        string,
-        {
-          components: Record<string, Component>
-          formulas: Record<
-            string,
-            PluginFormula<FormulaHandlerV2> | PluginFormula<string>
-          >
-          actions: Record<string, PluginActionV2 | LegacyPluginAction>
-          manifest: {
-            name: string
-            // commit represents the commit hash (version) of the package
-            commit: string
-          }
-        }
-      >
-    }
-  | {
-      type: 'global_formulas'
-      formulas: Record<
-        string,
-        PluginFormula<FormulaHandlerV2> | PluginFormula<string>
-      >
-    }
-  | {
-      type: 'global_actions'
-      actions: Record<string, PluginActionV2 | LegacyPluginAction>
-    }
-  | { type: 'theme'; theme: Record<string, OldTheme | Theme> }
-  | { type: 'mode'; mode: 'design' | 'test' }
-  | { type: 'attrs'; attrs: Record<string, unknown> }
-  | { type: 'selection'; selectedNodeId: string | null }
-  | { type: 'highlight'; highlightedNodeId: string | null }
-  | {
-      type: 'click' | 'mousemove' | 'dblclick'
-      metaKey: boolean
-      x: number
-      y: number
-    }
-  | { type: 'report_document_scroll_size' }
-  | { type: 'update_inner_text'; innerText: string }
-  | { type: 'reload' }
-  | { type: 'fetch_api'; apiKey: string }
-  | { type: 'introspect_qraphql_api'; apiKey: string }
-  | { type: 'drag-started'; x: number; y: number }
-  | { type: 'drag-ended'; canceled?: true }
-  | { type: 'keydown'; key: string; altKey: boolean; metaKey: boolean }
-  | { type: 'keyup'; key: string; altKey: boolean; metaKey: boolean }
-  | {
-      type: 'get_computed_style'
-      styles?: string[]
-    }
-  | {
-      type: 'set_timeline_keyframes'
-      keyframes: Record<string, AnimationKeyframe> | null
-    }
-  | {
-      type: 'set_timeline_time'
-      time: number | null
-      timingFunction:
-        | 'linear'
-        | 'ease'
-        | 'ease-in'
-        | 'ease-out'
-        | 'ease-in-out'
-        | 'step-start'
-        | 'step-end'
-        | string
-        | undefined
-      fillMode: 'none' | 'forwards' | 'backwards' | 'both' | undefined
-    }
-  | {
-      type: 'preview_style'
-      styles: Record<string, string> | null
-      theme?: {
-        key: string
-        value: Theme
-      }
-    }
-  | {
-      type: 'preview_theme'
-      theme: string | null
-    }
-
-/**
- * Styles required for rendering the same exact text again somewhere else (on a overlay rect in the editor)
- */
-enum TextNodeComputedStyles {
-  // Caret color is important as it is the only visible part of the text node (when text is not highlighted)
-  CARET_COLOR = 'caret-color',
-  DISPLAY = 'display',
-  FONT_FAMILY = 'font-family',
-  FONT_SIZE = 'font-size',
-  FONT_WEIGHT = 'font-weight',
-  FONT_STYLE = 'font-style',
-  FONT_VARIANT = 'font-variant',
-  FONT_STRETCH = 'font-stretch',
-  LINE_HEIGHT = 'line-height',
-  TEXT_ALIGN = 'text-align',
-  TEXT_TRANSFORM = 'text-transform',
-  LETTER_SPACING = 'letter-spacing',
-  WHITE_SPACE = 'white-space',
-  WORD_SPACING = 'word-spacing',
-  TEXT_INDENT = 'text-indent',
-  TEXT_OVERFLOW = 'text-overflow',
-  TEXT_RENDERING = 'text-rendering',
-  WORD_BREAK = 'word-break',
-  WORD_WRAP = 'word-wrap',
-  DIRECTION = 'direction',
-  UNICODE_BIDI = 'unicode-bidi',
-  VERTICAL_ALIGN = 'vertical-align',
-  FONT_KERNING = 'font-kerning',
-  FONT_FEATURE_SETTINGS = 'font-feature-settings',
-  FONT_VARIATION_SETTINGS = 'font-variation-settings',
-  FONT_SMOOTHING = '-webkit-font-smoothing',
-  ANTI_ALIASING = '-moz-osx-font-smoothing',
-  FONT_OPTICAL_SIZING = 'font-optical-sizing',
-  TAB_SIZE = 'tab-size',
-  HYPHENS = 'hyphens',
-  TEXT_ORIENTATION = 'text-orientation',
-  WRITING_MODE = 'writing-mode',
-  LINE_BREAK = 'line-break',
-  OVERFLOW_WRAP = 'overflow-wrap',
-}
 
 let env: ToddleEnv
 
@@ -313,6 +182,18 @@ export const initGlobalObject = () => {
   )
 }
 
+const EMPTY_COMPONENT_DATA: ComponentData = {
+  Location: {
+    query: {},
+    params: {},
+    page: '/',
+    path: '/',
+    hash: '',
+  },
+  Attributes: {},
+  Variables: {},
+}
+
 // imported by "/.toddle/preview" (see worker/src/preview.ts)
 export const createRoot = (
   domNode: HTMLElement | null = document.getElementById('App'),
@@ -320,35 +201,8 @@ export const createRoot = (
   if (!domNode) {
     throw new Error('Cant find root domNode')
   }
-  const isInputTarget = (event: Event) => {
-    const target = event.target
-    if (target instanceof HTMLElement) {
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.tagName === 'SELECT' ||
-        target.tagName === 'STYLE-EDITOR'
-      ) {
-        return true
-      }
-      if (target.contentEditable?.toLocaleLowerCase() === 'true') {
-        return true
-      }
-    }
-    return false
-  }
 
-  const dataSignal = signal<ComponentData>({
-    Location: {
-      query: {},
-      params: {},
-      page: '/',
-      path: '/',
-      hash: '',
-    },
-    Attributes: {},
-    Variables: {},
-  })
+  const dataSignal = signal(EMPTY_COMPONENT_DATA)
   let ctxDataSignal: Signal<ComponentData> | undefined
 
   let ctx: ComponentContext | null = null
@@ -388,87 +242,9 @@ export const createRoot = (
   let previewStyleAnimationFrame = -1
   let timelineTimeAnimationFrame = -1
 
-  /**
-   * Modifies all link nodes on a component
-   * NOTE: alters in place
-   */
-  const updateComponentLinks = (component: Component) => {
-    // Find all links and add target="_blank" to them
-    Object.entries(component.nodes ?? {}).forEach(([_, node]) => {
-      if (node.type === 'element' && node.tag === 'a') {
-        node.attrs['target'] = valueFormula('_blank')
-      }
-    })
-    return component
-  }
-
-  const registerActions = (
-    allActions: Record<string, PluginActionV2 | LegacyPluginAction>,
-    packageName?: string,
-  ) => {
-    const actions: Record<string, PluginActionV2> = {}
-    Object.entries(allActions ?? {}).forEach(([name, action]) => {
-      if (isLegacyPluginAction(action)) {
-        // Legacy actions are self-registering. We need to execute them to register them
-        Function(action.handler)()
-        return
-      }
-      // We need to convert the handler string into a real function
-      actions[name] = {
-        ...(action as PluginActionV2),
-        handler:
-          typeof action.handler === 'string'
-            ? (new Function(
-                'args, ctx',
-                `${action.handler}
-          return ${safeFunctionName(action.name)}(args, ctx)`,
-              ) as ActionHandlerV2)
-            : action.handler,
-      }
-    })
-    window.toddle.actions[packageName ?? window.__toddle.project] = actions
-  }
-
-  const registerFormulas = (
-    allFormulas: Record<
-      string,
-      ToddleFormula | CodeFormula<FormulaHandlerV2> | CodeFormula<string>
-    >,
-    packageName?: string,
-  ) => {
-    const formulas: Record<string, PluginFormula<FormulaHandlerV2>> = {}
-    Object.entries(allFormulas ?? {}).forEach(([name, formula]) => {
-      if (
-        !isToddleFormula<FormulaHandlerV2 | string>(formula) &&
-        typeof formula.name === 'string' &&
-        formula.version === undefined
-      ) {
-        // Legacy formulas are self-registering. We need to execute them to register them
-        Function(formula.handler as unknown as string)()
-        return
-      } else if (!isToddleFormula<FormulaHandlerV2 | string>(formula)) {
-        // For code formulas we need to convert the handler string into a real function
-        formulas[name] = {
-          ...formula,
-          handler:
-            typeof formula.handler === 'string'
-              ? (new Function(
-                  'args, ctx',
-                  `${formula.handler}
-                return ${safeFunctionName(formula.name)}(args, ctx)`,
-                ) as FormulaHandlerV2)
-              : formula.handler,
-        }
-        return
-      }
-      formulas[name] = formula as PluginFormula<FormulaHandlerV2>
-    })
-    window.toddle.formulas[packageName ?? window.__toddle.project] = formulas
-  }
-
   window.addEventListener(
     'message',
-    async (message: MessageEvent<ToddlePreviewEvent>) => {
+    async (message: MessageEvent<NordcraftPreviewEvent>) => {
       if (!message.isTrusted) {
         console.error('UNTRUSTED MESSAGE')
       }
@@ -487,6 +263,8 @@ export const createRoot = (
             scrollStateRestorer = getScrollStateRestorer(
               message.data.component.name,
             )
+            // Reset the dataSignal that might include data from the previous component
+            dataSignal.set(EMPTY_COMPONENT_DATA)
           }
 
           component = updateComponentLinks(message.data.component)
@@ -1759,54 +1537,7 @@ export const createRoot = (
     return ctx
   }
 
-  document.addEventListener('keydown', (event) => {
-    if (isInputTarget(event)) {
-      return
-    }
-    switch (event.key) {
-      case 'k':
-        if (event.metaKey) {
-          event.preventDefault()
-        }
-    }
-    postMessageToEditor({
-      type: 'keydown',
-      event: {
-        key: event.key,
-        metaKey: event.metaKey,
-        shiftKey: event.shiftKey,
-        altKey: event.altKey,
-      },
-    })
-  })
-  document.addEventListener('keyup', (event) => {
-    if (isInputTarget(event)) {
-      return
-    }
-    postMessageToEditor({
-      type: 'keyup',
-      event: {
-        key: event.key,
-        metaKey: event.metaKey,
-        shiftKey: event.shiftKey,
-        altKey: event.altKey,
-      },
-    })
-  })
-  document.addEventListener('keypress', (event) => {
-    if (isInputTarget(event)) {
-      return
-    }
-    postMessageToEditor({
-      type: 'keypress',
-      event: {
-        key: event.key,
-        metaKey: event.metaKey,
-        shiftKey: event.shiftKey,
-        altKey: event.altKey,
-      },
-    })
-  })
+  initKeyListeners()
 
   dataSignal.subscribe((data) => {
     if (component && components && packageComponents && data) {
@@ -1879,28 +1610,6 @@ export const createRoot = (
 
     requestAnimationFrame(() => syncOverlayRects(selectionRect, highlightRect))
   })()
-}
-
-function getRectData(selectedNode: Element | null | undefined) {
-  if (!selectedNode) {
-    return null
-  }
-
-  const { borderRadius, rotate } = window.getComputedStyle(selectedNode)
-  const rect: DOMRect = selectedNode.getBoundingClientRect()
-
-  return {
-    left: rect.left,
-    right: rect.right,
-    top: rect.top,
-    bottom: rect.bottom,
-    width: rect.width,
-    height: rect.height,
-    x: rect.x,
-    y: rect.y,
-    borderRadius: borderRadius.split(' '),
-    rotate,
-  }
 }
 
 const insertOrReplaceHeadNode = (id: string, node: Node) => {
@@ -2005,90 +1714,135 @@ const insertTheme = (
   parent.appendChild(styleElem)
 }
 
-type PostMessageType =
-  | {
-      type: 'textComputedStyle'
-      computedStyle: Record<string, string>
+const initKeyListeners = () => {
+  document.addEventListener('keydown', (event) => {
+    if (isInputTarget(event)) {
+      return
     }
-  | {
-      type: 'selection'
-      selectedNodeId: string | null
+    switch (event.key) {
+      case 'k':
+        if (event.metaKey) {
+          event.preventDefault()
+        }
     }
-  | {
-      type: 'highlight'
-      highlightedNodeId: string | null
-    }
-  | {
-      type: 'navigate'
-      name: string
-    }
-  | {
-      type: 'documentScrollSize'
-      scrollHeight: number
-      scrollWidth: number
-    }
-  | {
-      type: 'nodeMoved'
-      copy: boolean
-      parent?: string | null
-      index?: number
-    }
-  | {
-      type: 'computedStyle'
-      computedStyle: Record<string, string>
-    }
-  | {
-      type: 'style'
-      time: string
-    }
-  | {
-      type: 'component event'
-      event: any
-      time: string
-      data: any
-    }
-  | {
-      type: 'keydown'
+    postMessageToEditor({
+      type: 'keydown',
       event: {
-        key: string
-        metaKey: boolean
-        shiftKey: boolean
-        altKey: boolean
-      }
+        key: event.key,
+        metaKey: event.metaKey,
+        shiftKey: event.shiftKey,
+        altKey: event.altKey,
+      },
+    })
+  })
+  document.addEventListener('keyup', (event) => {
+    if (isInputTarget(event)) {
+      return
     }
-  | {
-      type: 'keyup'
+    postMessageToEditor({
+      type: 'keyup',
       event: {
-        key: string
-        metaKey: boolean
-        shiftKey: boolean
-        altKey: boolean
-      }
+        key: event.key,
+        metaKey: event.metaKey,
+        shiftKey: event.shiftKey,
+        altKey: event.altKey,
+      },
+    })
+  })
+  document.addEventListener('keypress', (event) => {
+    if (isInputTarget(event)) {
+      return
     }
-  | {
-      type: 'keypress'
+    postMessageToEditor({
+      type: 'keypress',
       event: {
-        key: string
-        metaKey: boolean
-        shiftKey: boolean
-        altKey: boolean
-      }
-    }
-  | { type: 'data'; data: ComponentData }
-  | {
-      type: 'selectionRect'
-      rect: ReturnType<typeof getRectData>
-    }
-  | {
-      type: 'highlightRect'
-      rect: ReturnType<typeof getRectData>
-    }
-  | {
-      type: 'introspectionResult'
-      data: any
-      apiKey: string
-    }
+        key: event.key,
+        metaKey: event.metaKey,
+        shiftKey: event.shiftKey,
+        altKey: event.altKey,
+      },
+    })
+  })
+}
 
-const postMessageToEditor = (message: PostMessageType) => {
+/**
+ * Modifies all link nodes on a component
+ * NOTE: alters in place
+ */
+const updateComponentLinks = (component: Component) => {
+  // Find all links and add target="_blank" to them
+  Object.entries(component.nodes ?? {}).forEach(([_, node]) => {
+    if (node.type === 'element' && node.tag === 'a') {
+      node.attrs['target'] = valueFormula('_blank')
+    }
+  })
+  return component
+}
+
+const registerActions = (
+  allActions: Record<string, PluginAction>,
+  packageName?: string,
+) => {
+  const actions: Record<string, PluginActionV2> = {}
+  Object.entries(allActions ?? {}).forEach(([name, action]) => {
+    if (isLegacyPluginAction(action)) {
+      // Legacy actions are self-registering. We need to execute them to register them
+      Function(action.handler)()
+      return
+    }
+    // We need to convert the handler string into a real function
+    actions[name] = {
+      ...(action as PluginActionV2),
+      handler:
+        typeof action.handler === 'string'
+          ? (new Function(
+              'args, ctx',
+              `${action.handler}
+          return ${safeFunctionName(action.name)}(args, ctx)`,
+            ) as ActionHandlerV2)
+          : action.handler,
+    }
+  })
+  window.toddle.actions[packageName ?? window.__toddle.project] = actions
+}
+
+const registerFormulas = (
+  allFormulas: Record<
+    string,
+    ToddleFormula | CodeFormula<FormulaHandlerV2> | CodeFormula<string>
+  >,
+  packageName?: string,
+) => {
+  const formulas: Record<string, PluginFormula<FormulaHandlerV2>> = {}
+  Object.entries(allFormulas ?? {}).forEach(([name, formula]) => {
+    if (
+      !isToddleFormula<FormulaHandlerV2 | string>(formula) &&
+      typeof formula.name === 'string' &&
+      formula.version === undefined
+    ) {
+      // Legacy formulas are self-registering. We need to execute them to register them
+      Function(formula.handler as unknown as string)()
+      return
+    } else if (!isToddleFormula<FormulaHandlerV2 | string>(formula)) {
+      // For code formulas we need to convert the handler string into a real function
+      formulas[name] = {
+        ...formula,
+        handler:
+          typeof formula.handler === 'string'
+            ? (new Function(
+                'args, ctx',
+                `${formula.handler}
+                return ${safeFunctionName(formula.name)}(args, ctx)`,
+              ) as FormulaHandlerV2)
+            : formula.handler,
+      }
+      return
+    }
+    formulas[name] = formula as PluginFormula<FormulaHandlerV2>
+  })
+  window.toddle.formulas[packageName ?? window.__toddle.project] = formulas
+}
+
+const postMessageToEditor = (message: EditorPostMessageType) => {
   window.parent?.postMessage(message, '*')
 }

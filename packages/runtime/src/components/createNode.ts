@@ -216,7 +216,6 @@ export function createNode({
               Key,
             },
           }
-
           let childKey = node.repeatKey
             ? applyFormula(node.repeatKey, {
                 data: childData,
