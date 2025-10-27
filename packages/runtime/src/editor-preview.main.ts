@@ -242,6 +242,23 @@ export const createRoot = (
   let previewStyleAnimationFrame = -1
   let timelineTimeAnimationFrame = -1
 
+  const setupDataSignalSubscribers = () => {
+    dataSignal.subscribe((data) => {
+      if (component && components && packageComponents && data) {
+        try {
+          postMessageToEditor({ type: 'data', data })
+        } catch {
+          // If we're unable to send the data, let's try to JSON serialize it
+          postMessageToEditor({
+            type: 'data',
+            data: JSON.parse(JSON.stringify(data)),
+          })
+        }
+      }
+    })
+  }
+  setupDataSignalSubscribers()
+
   window.addEventListener(
     'message',
     async (message: MessageEvent<NordcraftPreviewEvent>) => {
@@ -258,13 +275,22 @@ export const createRoot = (
             | undefined
 
           if (message.data.component.name !== component?.name) {
+            // Store scroll state for the previous component
             storeScrollState(component?.name)
+            // Remove all subscribers from the previous showSignal
             showSignal.cleanSubscribers()
+            // Clear any previously overridden conditional elements
+            showSignal.set({ displayedNodes: [], testMode: mode === 'test' })
+            // Restore scroll state for the new component
             scrollStateRestorer = getScrollStateRestorer(
               message.data.component.name,
             )
-            // Reset the dataSignal that might include data from the previous component
-            dataSignal.set(EMPTY_COMPONENT_DATA)
+            // Destroy the dataSignal (including subscribers) for the previous component
+            dataSignal.destroy()
+            // Re-subscribe all dataSignal subscribers
+            setupDataSignalSubscribers()
+            // Re-initialize the data signal for the new component
+            ctxDataSignal?.destroy()
           }
 
           component = updateComponentLinks(message.data.component)
@@ -1538,20 +1564,6 @@ export const createRoot = (
   }
 
   initKeyListeners()
-
-  dataSignal.subscribe((data) => {
-    if (component && components && packageComponents && data) {
-      try {
-        postMessageToEditor({ type: 'data', data })
-      } catch {
-        // If we're unable to send the data, let's try to JSON serialize it
-        postMessageToEditor({
-          type: 'data',
-          data: JSON.parse(JSON.stringify(data)),
-        })
-      }
-    }
-  })
 
   const clearSelectedStyleVariant = () => {
     if (styleVariantSelection) {
