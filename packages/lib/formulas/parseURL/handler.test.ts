@@ -44,4 +44,19 @@ describe('Formula: Parse URL', () => {
       origin: 'https://test.com:8080',
     })
   })
+  test('Should print the href when calling toString on the returned object', () => {
+    const result = handler(
+      ['https://test.com:8080/path1/path2?q1=test&q2=test2#hash'],
+      undefined as any,
+    )
+    expect(result?.toString()).toBe(
+      'https://test.com:8080/path1/path2?q1=test&q2=test2#hash',
+    )
+  })
+  test("Should print the same string as when using the native URL's toString", () => {
+    const url = 'https://test.com:8080/path1/path2?q1=test&q2=test2#hash'
+    const result = handler([url], undefined as any)
+    const nativeUrl = new URL(url)
+    expect(result?.toString()).toBe(nativeUrl.toString())
+  })
 })
