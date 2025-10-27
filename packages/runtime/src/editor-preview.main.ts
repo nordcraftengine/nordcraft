@@ -24,7 +24,6 @@ import {
   type PluginFormula,
   type ToddleFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { getClassName } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
@@ -58,6 +57,7 @@ import { dragReorder } from './editor/drag-drop/dragReorder'
 import { dragStarted } from './editor/drag-drop/dragStarted'
 import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
+import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
 import {
   TextNodeComputedStyles,
@@ -1763,20 +1763,6 @@ const initKeyListeners = () => {
       },
     })
   })
-}
-
-/**
- * Modifies all link nodes on a component
- * NOTE: alters in place
- */
-const updateComponentLinks = (component: Component) => {
-  // Find all links and add target="_blank" to them
-  Object.entries(component.nodes ?? {}).forEach(([_, node]) => {
-    if (node.type === 'element' && node.tag === 'a') {
-      node.attrs['target'] = valueFormula('_blank')
-    }
-  })
-  return component
 }
 
 const registerActions = (
