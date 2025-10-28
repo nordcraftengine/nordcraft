@@ -50,7 +50,10 @@ describe('CustomPropertyStyleSheet', () => {
     })('256px')
     expect(instance.getStyleSheet().cssRules.length).toBe(1)
     expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
-      '@media (max-width: 600px) { .my-class { --my-property: 256px; } }',
+      `\
+@media (max-width: 600px) {
+  .my-class { --my-property: 256px; }
+}`,
     )
   })
 
@@ -87,7 +90,10 @@ describe('CustomPropertyStyleSheet', () => {
     setter('256px')
     expect(instance.getStyleSheet().cssRules.length).toBe(1)
     expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
-      '@media (max-width: 600px) { .my-class-with-media { --my-property-with-media: 256px; } }',
+      `\
+@media (max-width: 600px) {
+  .my-class-with-media { --my-property-with-media: 256px; }
+}`,
     )
 
     instance.unregisterProperty(
@@ -98,7 +104,10 @@ describe('CustomPropertyStyleSheet', () => {
       },
     )
     expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
-      '@media (max-width: 600px) { .my-class-with-media {  } }',
+      `\
+@media (max-width: 600px) {
+  .my-class-with-media {  }
+}`,
     )
   })
 })
