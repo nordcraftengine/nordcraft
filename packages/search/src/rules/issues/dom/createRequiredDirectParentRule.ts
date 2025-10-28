@@ -25,11 +25,7 @@ export function createRequiredDirectParentRule(
       const parent = Object.values(component.nodes).find(
         (node) => node.type === 'element' && node.children.includes(nodeId),
       )
-      if (
-        parent &&
-        parent.type === 'element' &&
-        !parentTags.includes(parent.tag)
-      ) {
+      if (parent?.type === 'element' && !parentTags.includes(parent.tag)) {
         report(path, {
           parentTag: parent.tag,
           childTag: value.tag,
