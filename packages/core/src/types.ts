@@ -50,7 +50,11 @@ interface PluginActionBase {
     name: string
     formula: Formula
   }>
+  // eslint-disable-next-line inclusive-language/use-inclusive-words
+  events?: Record<string, { dummyEvent?: any }>
   variableArguments: boolean | null
+  // exported indicates that an action is exported in a package
+  exported?: boolean
 }
 
 export interface PluginActionV2 extends PluginActionBase {
@@ -58,18 +62,9 @@ export interface PluginActionV2 extends PluginActionBase {
   version: 2
 }
 
-export interface PluginAction {
-  name: string
-  description?: string
-  version?: 2 | never
-  arguments: Array<{
-    name: string
-    formula: Formula
-  }>
-  variableArguments: boolean | null
+export interface PluginAction extends PluginActionBase {
   handler: string
-  // exported indicates that an action is exported in a package
-  exported?: boolean
+  version: undefined
 }
 
 export type ArgumentInputDataFunction = (
