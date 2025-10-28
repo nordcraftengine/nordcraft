@@ -110,6 +110,7 @@ describe('find noReferenceProjectAction', () => {
                 handler: '() => console.log("test")',
                 variableArguments: false,
                 exported: true,
+                version: 2,
               },
             },
             components: {

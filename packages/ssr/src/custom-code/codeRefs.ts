@@ -1,11 +1,12 @@
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
+import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
 import type { Component } from '@nordcraft/core/dist/component/component.types'
+import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
 import type {
   CodeFormula,
   PluginFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
-import type { PluginAction } from '@nordcraft/core/dist/types'
+import type { PluginAction, PluginActionV2 } from '@nordcraft/core/dist/types'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
@@ -19,7 +20,11 @@ export function takeReferencedFormulasAndActions({
   files: ProjectFiles
 }): {
   __PROJECT__: {
-    actions: Record<string, PluginAction & { packageName?: string }>
+    actions: Record<
+      string,
+      | (PluginAction & { packageName?: string })
+      | (PluginActionV2 & { packageName?: string })
+    >
     formulas: Record<string, PluginFormula<string> & { packageName?: string }>
   }
   [packageName: string]: {
@@ -153,7 +158,7 @@ export const generateCustomCodeFile = ({
 }) => {
   const v2ActionCode = mapObject(
     filterObject(code, ([_, c]) =>
-      Object.values(c.actions).some((a) => a.version === 2),
+      Object.values(c.actions).some((a) => !isLegacyPluginAction(a)),
     ),
     ([packageName, c]) => [
       // A small hack to group project actions/formulas under the project short id
@@ -193,7 +198,7 @@ export const loadCustomCode = () => {
     // We assume that packages don't have legacy actions/formulas
     // Therefore we only load code from the actual project
     Object.values(code.__PROJECT__.actions)
-      .filter((a) => typeof a.name === 'string' && a.version === undefined)
+      .filter((a) => typeof a.name === 'string' && !isLegacyPluginAction(a))
       .map((action) => action.handler)
       .join('\n')
   }
@@ -213,7 +218,7 @@ export const actions = {
     .map(
       ([packageName, { actions }]) => `"${packageName}": {
     ${Object.values(actions)
-      .filter((a) => a.version === 2)
+      .filter((a) => !isLegacyPluginAction(a))
       .map(
         (a) => `"${a.name}": {
       arguments: ${JSON.stringify(a.arguments)},

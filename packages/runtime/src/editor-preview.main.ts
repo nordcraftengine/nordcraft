@@ -3,6 +3,7 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-fallthrough */
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
 import {
   HeadTagTypes,
   type AnimationKeyframe,
@@ -36,7 +37,7 @@ import type {
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
-  PluginAction,
+  LegacyPluginAction,
   PluginActionV2,
   Toddle,
 } from '@nordcraft/core/dist/types'
@@ -97,7 +98,7 @@ type ToddlePreviewEvent =
             string,
             PluginFormula<FormulaHandlerV2> | PluginFormula<string>
           >
-          actions: Record<string, PluginActionV2 | PluginAction>
+          actions: Record<string, PluginActionV2 | LegacyPluginAction>
           manifest: {
             name: string
             // commit represents the commit hash (version) of the package
@@ -115,7 +116,7 @@ type ToddlePreviewEvent =
     }
   | {
       type: 'global_actions'
-      actions: Record<string, PluginActionV2 | PluginAction>
+      actions: Record<string, PluginActionV2 | LegacyPluginAction>
     }
   | { type: 'theme'; theme: Record<string, OldTheme | Theme> }
   | { type: 'mode'; mode: 'design' | 'test' }
@@ -402,12 +403,12 @@ export const createRoot = (
   }
 
   const registerActions = (
-    allActions: Record<string, PluginActionV2 | PluginAction>,
+    allActions: Record<string, PluginActionV2 | LegacyPluginAction>,
     packageName?: string,
   ) => {
     const actions: Record<string, PluginActionV2> = {}
     Object.entries(allActions ?? {}).forEach(([name, action]) => {
-      if (typeof action.name === 'string' && action.version === undefined) {
+      if (isLegacyPluginAction(action)) {
         // Legacy actions are self-registering. We need to execute them to register them
         Function(action.handler)()
         return

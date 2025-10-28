@@ -50,27 +50,23 @@ interface PluginActionBase {
     name: string
     formula: Formula
   }>
+  // eslint-disable-next-line inclusive-language/use-inclusive-words
+  events?: Record<string, { dummyEvent?: any }>
   variableArguments: boolean | null
 }
 
 export interface PluginActionV2 extends PluginActionBase {
   handler: ActionHandlerV2
   version: 2
-}
-
-export interface PluginAction {
-  name: string
-  description?: string
-  version?: 2 | never
-  arguments: Array<{
-    name: string
-    formula: Formula
-  }>
-  variableArguments: boolean | null
-  handler: string
   // exported indicates that an action is exported in a package
   exported?: boolean
 }
+
+export interface LegacyPluginAction extends PluginActionBase {
+  handler: string
+}
+
+export type PluginAction = PluginActionV2 | LegacyPluginAction
 
 export type ArgumentInputDataFunction = (
   items: unknown[],

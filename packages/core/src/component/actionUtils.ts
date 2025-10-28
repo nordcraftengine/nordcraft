@@ -1,3 +1,4 @@
+import type { LegacyPluginAction, PluginActionV2 } from '../types'
 import { isDefined } from '../utils/util'
 import type { ActionModel } from './component.types'
 
@@ -60,4 +61,10 @@ export function* getActionsInAction(
       }
       break
   }
+}
+
+export const isLegacyPluginAction = (
+  action: LegacyPluginAction | PluginActionV2,
+): action is LegacyPluginAction => {
+  return !('version' in action)
 }
