@@ -42,7 +42,7 @@ export function createElement({
   }
 
   // Explicitly setting a namespace has precedence over inferring it from the tag
-  if (node.attrs['xmlns'] && node.attrs['xmlns'].type === 'value') {
+  if (node.attrs['xmlns']?.type === 'value') {
     namespace = String(node.attrs['xmlns'].value) as SupportedNamespaces
   }
 

@@ -27,8 +27,7 @@ export function createRequiredDirectChildRule(
       value.children.forEach((childId) => {
         const childNode = getElement(childId)
         if (
-          childNode &&
-          childNode.type === 'element' &&
+          childNode?.type === 'element' &&
           !childTags.includes(childNode.tag)
         ) {
           report([...path.slice(0, 3), childId], {
