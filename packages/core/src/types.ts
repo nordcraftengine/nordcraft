@@ -53,18 +53,17 @@ interface PluginActionBase {
   // eslint-disable-next-line inclusive-language/use-inclusive-words
   events?: Record<string, { dummyEvent?: any }>
   variableArguments: boolean | null
-  // exported indicates that an action is exported in a package
-  exported?: boolean
 }
 
 export interface PluginActionV2 extends PluginActionBase {
   handler: ActionHandlerV2
   version: 2
+  // exported indicates that an action is exported in a package
+  exported?: boolean
 }
 
 export interface LegacyPluginAction extends PluginActionBase {
   handler: string
-  version: never
 }
 
 export type PluginAction = PluginActionV2 | LegacyPluginAction

@@ -1,3 +1,4 @@
+import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
 import type { CustomActionModel } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { Rule } from '../../../types'
@@ -8,7 +9,10 @@ export const noReferenceProjectActionRule: Rule<void> = {
   level: 'warning',
   category: 'No References',
   visit: (report, { value, path, files, nodeType, memo }) => {
-    if (nodeType !== 'project-action' || value.exported === true) {
+    if (
+      nodeType !== 'project-action' ||
+      (!isLegacyPluginAction(value) && value.exported === true)
+    ) {
       return
     }
 

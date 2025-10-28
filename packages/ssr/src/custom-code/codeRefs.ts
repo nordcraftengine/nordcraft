@@ -158,7 +158,7 @@ export const generateCustomCodeFile = ({
 }) => {
   const v2ActionCode = mapObject(
     filterObject(code, ([_, c]) =>
-      Object.values(c.actions).some((a) => a.version === 2),
+      Object.values(c.actions).some((a) => !isLegacyPluginAction(a)),
     ),
     ([packageName, c]) => [
       // A small hack to group project actions/formulas under the project short id
@@ -218,7 +218,7 @@ export const actions = {
     .map(
       ([packageName, { actions }]) => `"${packageName}": {
     ${Object.values(actions)
-      .filter((a) => a.version === 2)
+      .filter((a) => !isLegacyPluginAction(a))
       .map(
         (a) => `"${a.name}": {
       arguments: ${JSON.stringify(a.arguments)},
