@@ -198,7 +198,7 @@ export const loadCustomCode = () => {
     // We assume that packages don't have legacy actions/formulas
     // Therefore we only load code from the actual project
     Object.values(code.__PROJECT__.actions)
-      .filter((a) => typeof a.name === 'string' && !isLegacyPluginAction(a))
+      .filter((a) => typeof a.name === 'string' && isLegacyPluginAction(a))
       .map((action) => action.handler)
       .join('\n')
   }
