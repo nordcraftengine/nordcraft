@@ -62,10 +62,12 @@ export interface PluginActionV2 extends PluginActionBase {
   version: 2
 }
 
-export interface PluginAction extends PluginActionBase {
+export interface LegacyPluginAction extends PluginActionBase {
   handler: string
-  version: undefined
+  version: never
 }
+
+export type PluginAction = PluginActionV2 | LegacyPluginAction
 
 export type ArgumentInputDataFunction = (
   items: unknown[],
