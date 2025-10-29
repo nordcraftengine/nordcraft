@@ -15,7 +15,12 @@
         "tag": "span",
         "type": "element",
         "attrs": {},
-        "style": {},
+        "style": {
+          "display": "inline",
+          "font-family": "inherit",
+          "font-weight": "inherit",
+          "font-size": "inherit"
+        },
         "events": {},
         "classes": {},
         "children": ["MsVwQCP4yKPh_00L4fAhT"],

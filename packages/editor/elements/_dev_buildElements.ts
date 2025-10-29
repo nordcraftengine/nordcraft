@@ -1,4 +1,7 @@
-import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
+import type {
+  NodeModel,
+  NodeStyleModel,
+} from '@nordcraft/core/dist/component/component.types'
 import type { ValueOperation } from '@nordcraft/core/dist/formula/formula'
 import { writeFileSync } from 'fs'
 import type { ExportedHtmlElement, ExportedHtmlElementCategory } from '../types'
@@ -118,6 +121,13 @@ const init = () => {
   })
 }
 
+const defaultTextElementStyling: NodeStyleModel = {
+  display: 'inline',
+  'font-family': 'inherit',
+  'font-weight': 'inherit',
+  'font-size': 'inherit',
+}
+
 const defaultTextElement: (value?: string) => NodeModel = (value = 'Text') => ({
   type: 'text',
   value: {
@@ -156,7 +166,7 @@ const elements: Record<
             value: 'moderate',
           },
         },
-        style: {},
+        style: defaultTextElementStyling,
         events: {},
         classes: {},
         children: ['MsVwQCP4yKPh_00L4fAhT'],
@@ -558,7 +568,7 @@ const elements: Record<
         tag: 'i',
         type: 'element',
         attrs: {},
-        style: {},
+        style: defaultTextElementStyling,
         events: {},
         classes: {},
         children: ['MsVwQCP4yKPh_00L4fAhT'],
@@ -888,7 +898,7 @@ const elements: Record<
         tag: 'small',
         type: 'element',
         attrs: {},
-        style: {},
+        style: defaultTextElementStyling,
         events: {},
         classes: {},
         children: ['MsVwQCP4yKPh_00L4fAhT'],
@@ -912,7 +922,7 @@ const elements: Record<
         tag: 'span',
         type: 'element',
         attrs: {},
-        style: {},
+        style: defaultTextElementStyling,
         events: {},
         classes: {},
         children: ['MsVwQCP4yKPh_00L4fAhT'],
@@ -929,7 +939,7 @@ const elements: Record<
         tag: 'strong',
         type: 'element',
         attrs: {},
-        style: {},
+        style: { ...defaultTextElementStyling, 'font-weight': 'bold' },
         events: {},
         classes: {},
         children: ['MsVwQCP4yKPh_00L4fAhT'],

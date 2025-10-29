@@ -14,7 +14,12 @@
         "tag": "strong",
         "type": "element",
         "attrs": {},
-        "style": {},
+        "style": {
+          "display": "inline",
+          "font-family": "inherit",
+          "font-weight": "bold",
+          "font-size": "inherit"
+        },
         "events": {},
         "classes": {},
         "children": ["MsVwQCP4yKPh_00L4fAhT"],
