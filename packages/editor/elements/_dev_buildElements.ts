@@ -45,7 +45,8 @@ const init = () => {
         name: element,
         categories,
         description:
-          elementDescriptions[element] ??
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          elementDescriptions[element as keyof typeof elementDescriptions] ??
           `An HTML element representing the ${element} element.`,
         link: `https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${element}`,
         aliases: aliases,
@@ -84,7 +85,8 @@ const init = () => {
         name: element,
         categories,
         description:
-          svgDescriptions[element] ??
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          svgDescriptions[element as keyof typeof svgDescriptions] ??
           `An SVG element representing the SVG ${element} element.`,
         link: `https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/${element}`,
         aliases: aliases,
@@ -125,7 +127,7 @@ const defaultTextElement: (value?: string) => NodeModel = (value = 'Text') => ({
 })
 
 const elements: Record<
-  string,
+  keyof typeof elementDescriptions,
   {
     aliases: string[]
     categories: ExportedHtmlElementCategory[]
@@ -902,7 +904,23 @@ const elements: Record<
       src: { type: 'value', value: '' },
     },
   },
-  span: { aliases: ['inline-container'], categories: ['semantic'] },
+  span: {
+    aliases: ['inline-container'],
+    categories: ['semantic'],
+    nodes: {
+      root: {
+        tag: 'span',
+        type: 'element',
+        attrs: {},
+        style: {},
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement(),
+    },
+  },
   strong: {
     aliases: ['bold', 'importance'],
     categories: ['typography'],
@@ -1164,7 +1182,7 @@ const elementDescriptions = {
 }
 
 const svgElements: Record<
-  string,
+  keyof typeof svgDescriptions,
   {
     aliases: string[]
     categories: ExportedHtmlElementCategory[]
