@@ -1,4 +1,7 @@
-import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
+import type {
+  NodeModel,
+  NodeStyleModel,
+} from '@nordcraft/core/dist/component/component.types'
 import type { ValueOperation } from '@nordcraft/core/dist/formula/formula'
 import { writeFileSync } from 'fs'
 import type { ExportedHtmlElement, ExportedHtmlElementCategory } from '../types'
@@ -45,7 +48,8 @@ const init = () => {
         name: element,
         categories,
         description:
-          elementDescriptions[element] ??
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          elementDescriptions[element as keyof typeof elementDescriptions] ??
           `An HTML element representing the ${element} element.`,
         link: `https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${element}`,
         aliases: aliases,
@@ -84,7 +88,8 @@ const init = () => {
         name: element,
         categories,
         description:
-          svgDescriptions[element] ??
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          svgDescriptions[element as keyof typeof svgDescriptions] ??
           `An SVG element representing the SVG ${element} element.`,
         link: `https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/${element}`,
         aliases: aliases,
@@ -116,6 +121,13 @@ const init = () => {
   })
 }
 
+const defaultTextElementStyling: NodeStyleModel = {
+  display: 'inline',
+  'font-family': 'inherit',
+  'font-weight': 'inherit',
+  'font-size': 'inherit',
+}
+
 const defaultTextElement: (value?: string) => NodeModel = (value = 'Text') => ({
   type: 'text',
   value: {
@@ -125,7 +137,7 @@ const defaultTextElement: (value?: string) => NodeModel = (value = 'Text') => ({
 })
 
 const elements: Record<
-  string,
+  keyof typeof elementDescriptions,
   {
     aliases: string[]
     categories: ExportedHtmlElementCategory[]
@@ -154,7 +166,7 @@ const elements: Record<
             value: 'moderate',
           },
         },
-        style: {},
+        style: defaultTextElementStyling,
         events: {},
         classes: {},
         children: ['MsVwQCP4yKPh_00L4fAhT'],
@@ -556,7 +568,7 @@ const elements: Record<
         tag: 'i',
         type: 'element',
         attrs: {},
-        style: {},
+        style: defaultTextElementStyling,
         events: {},
         classes: {},
         children: ['MsVwQCP4yKPh_00L4fAhT'],
@@ -886,7 +898,7 @@ const elements: Record<
         tag: 'small',
         type: 'element',
         attrs: {},
-        style: {},
+        style: defaultTextElementStyling,
         events: {},
         classes: {},
         children: ['MsVwQCP4yKPh_00L4fAhT'],
@@ -902,7 +914,23 @@ const elements: Record<
       src: { type: 'value', value: '' },
     },
   },
-  span: { aliases: ['inline-container'], categories: ['semantic'] },
+  span: {
+    aliases: ['inline-container'],
+    categories: ['semantic'],
+    nodes: {
+      root: {
+        tag: 'span',
+        type: 'element',
+        attrs: {},
+        style: defaultTextElementStyling,
+        events: {},
+        classes: {},
+        children: ['MsVwQCP4yKPh_00L4fAhT'],
+        'style-variables': [],
+      },
+      MsVwQCP4yKPh_00L4fAhT: defaultTextElement(),
+    },
+  },
   strong: {
     aliases: ['bold', 'importance'],
     categories: ['typography'],
@@ -911,7 +939,7 @@ const elements: Record<
         tag: 'strong',
         type: 'element',
         attrs: {},
-        style: {},
+        style: { ...defaultTextElementStyling, 'font-weight': 'bold' },
         events: {},
         classes: {},
         children: ['MsVwQCP4yKPh_00L4fAhT'],
@@ -1164,7 +1192,7 @@ const elementDescriptions = {
 }
 
 const svgElements: Record<
-  string,
+  keyof typeof svgDescriptions,
   {
     aliases: string[]
     categories: ExportedHtmlElementCategory[]
