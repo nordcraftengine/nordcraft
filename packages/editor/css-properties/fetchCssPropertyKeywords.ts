@@ -1,4 +1,3 @@
-import { isDefined } from '@nordcraft/core/src/utils/util'
 import { definitionSyntax } from 'css-tree'
 import { css } from 'mdn-data'
 
@@ -32,7 +31,7 @@ export function getCssKeywordsMap() {
         ) {
           const type = syntaxes[node.name]
 
-          if (isDefined(type)) {
+          if (type) {
             recursiveWalk(type.syntax, keywords)
           }
         }
