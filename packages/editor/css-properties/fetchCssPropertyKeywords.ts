@@ -9,6 +9,10 @@ const GLOBAL_KEYWORDS = [
   'revert-layer',
 ]
 
+// the content prop has an error in the syntax
+const fixKnownSyntaxErrors = (syntax: string) =>
+  syntax.replaceAll('<image ', '<image> ')
+
 /**
  * Generates a JSON map of all CSS properties → supported keyword values,
  * including global CSS keywords (inherit, initial, unset, revert, revert-layer).
@@ -21,40 +25,36 @@ export function getCssKeywordsMap() {
 
   try {
     const recursiveWalk = (syntax: string, keywords: Set<string>) => {
-      definitionSyntax.walk(definitionSyntax.parse(syntax), (node) => {
-        if (
-          node.type === 'Type' &&
-          // exclude functions
-          !node.name.includes('()') &&
-          // exclude named colors
-          !node.name.includes('color')
-        ) {
-          const type = syntaxes[node.name]
+      definitionSyntax.walk(
+        definitionSyntax.parse(fixKnownSyntaxErrors(syntax)),
 
-          if (type) {
-            recursiveWalk(type.syntax, keywords)
+        (node) => {
+          if (
+            node.type === 'Type' &&
+            // exclude functions
+            !node.name.includes('()') &&
+            // exclude named colors
+            !node.name.includes('color')
+          ) {
+            const type = syntaxes[node.name]
+
+            if (type) {
+              recursiveWalk(type.syntax, keywords)
+            }
           }
-        }
 
-        if (node.type === 'Keyword') {
-          keywords.add(node.name)
-        }
-      })
+          if (node.type === 'Keyword') {
+            keywords.add(node.name)
+          }
+        },
+      )
     }
 
     return Object.entries(properties).reduce((result, [name, data]) => {
       const keywordSet: Set<string> = new Set()
 
       if (data.syntax) {
-        try {
-          recursiveWalk(data.syntax, keywordSet)
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.warn(
-            `Error detected in the syntax of the ${name} property. Parsing of property skipped.`,
-            error,
-          )
-        }
+        recursiveWalk(data.syntax, keywordSet)
       }
 
       return {
