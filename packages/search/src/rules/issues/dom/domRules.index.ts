@@ -14,7 +14,7 @@ export default [
   }),
   createRequiredElementAttributeRule({
     tag: 'img',
-    attribute: 'alt',
+    attribute: ['alt', 'aria-hidden'],
     allowEmptyString: true,
   }),
   createRequiredElementAttributeRule({
