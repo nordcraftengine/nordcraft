@@ -24,7 +24,6 @@ import {
   type PluginFormula,
   type ToddleFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
-import { getClassName } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
 import { getThemeCss, renderTheme } from '@nordcraft/core/dist/styling/theme'
@@ -77,7 +76,6 @@ import type {
 } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
 import { getNodeAndAncestors, isNodeOrAncestorConditional } from './utils/nodes'
-import { omitSubnodeStyleForComponent } from './utils/omitStyle'
 import { rectHasPoint } from './utils/rectHasPoint'
 import {
   getScrollStateRestorer,
@@ -355,7 +353,7 @@ export const createRoot = (
               ctx.components = allComponents
             }
 
-            updateStyle()
+            updateStyle(component)
             update()
           }
 
@@ -387,7 +385,7 @@ export const createRoot = (
               ctx.components = allComponents
             }
 
-            updateStyle()
+            updateStyle(component)
             update()
           }
 
@@ -1008,7 +1006,7 @@ export const createRoot = (
     storeScrollState(component?.name)
   })
 
-  const updateStyle = () => {
+  const updateStyle = (component: Component | null) => {
     if (component) {
       insertStyles(document.head, component, getAllComponents())
     }
@@ -1379,80 +1377,52 @@ export const createRoot = (
     if (
       fastDeepEqual(newCtx.component.nodes, ctx?.component?.nodes) === false
     ) {
-      updateStyle()
+      updateStyle(newCtx.component)
 
       // Remove preview styles automatically when the component changes
       document.head.querySelector('[data-id="selected-node-styles"]')?.remove()
-      if (
-        fastDeepEqual(
-          omitSubnodeStyleForComponent(newCtx.component),
-          omitSubnodeStyleForComponent(ctx?.component),
-        )
-      ) {
-        // If we're in here, then the latest update was only a style change, so we should try some optimistic updates
-        Object.keys(newCtx.component.nodes).forEach((nodeId) => {
-          const newNode = newCtx.component.nodes[nodeId]
-          const oldNode = ctx?.component.nodes[nodeId]
-          if (
-            (newNode.type === 'element' || newNode.type === 'component') &&
-            (oldNode?.type === 'element' || oldNode?.type === 'component') &&
-            (!fastDeepEqual(newNode.style, oldNode.style) ||
-              !fastDeepEqual(newNode.variants, oldNode.variants))
-          ) {
-            document
-              .querySelectorAll(`[data-node-id="${nodeId}"]`)
-              .forEach((nodeInstance) => {
-                nodeInstance.classList.remove(
-                  getClassName([oldNode.style, oldNode.variants]),
-                )
-                nodeInstance.classList.add(
-                  getClassName([newNode.style, newNode.variants]),
-                )
-              })
-          }
-        })
-      } else {
-        Array.from(domNode.children).forEach((child) => {
-          if (child.tagName !== 'SCRIPT') {
-            child.remove()
-          }
-        })
 
-        // Clear old root signal and create a new one to not keep old signals with previous root around
-        ctxDataSignal?.destroy()
-        ctxDataSignal = dataSignal.map((data) => data)
-        try {
-          const rootElem = createNode({
-            id: 'root',
-            path: '0',
-            dataSignal: ctxDataSignal,
-            ctx: newCtx,
-            parentElement: domNode,
-            instance: { [newCtx.component.name]: 'root' },
-          })
-          newCtx.component.onLoad?.actions.forEach((action) => {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            handleAction(action, dataSignal.get(), newCtx)
-          })
-          rootElem.forEach((elem) => domNode.appendChild(elem))
-        } catch (error: unknown) {
-          const isPage = isPageComponent(newCtx.component)
-          let name = `Unexpected error while rendering ${isPage ? 'page' : 'component'}`
-          let message = error instanceof Error ? error.message : String(error)
-          let panic = false
-          if (error instanceof RangeError) {
-            // RangeError is unrecoverable
-            panic = true
-            name = 'Infinite loop detected'
-            message =
-              'RangeError (Maximum call stack size exceeded): Remove any circular dependencies or recursive calls (Try undoing your last change). This is most likely caused by a component, formula or action using itself.'
-          }
+      Array.from(domNode.children).forEach((child) => {
+        if (child.tagName !== 'SCRIPT') {
+          child.remove()
+        }
+      })
 
-          // This can be triggered by setting "type" on a select etc.
-          if (error instanceof TypeError) {
-            panic = true
-            name = 'TypeError'
-            message = `Type errors are often caused by:
+      // Clear old root signal and create a new one to not keep old signals with previous root around
+      ctxDataSignal?.destroy()
+      ctxDataSignal = dataSignal.map((data) => data)
+      try {
+        const rootElem = createNode({
+          id: 'root',
+          path: '0',
+          dataSignal: ctxDataSignal,
+          ctx: newCtx,
+          parentElement: domNode,
+          instance: { [newCtx.component.name]: 'root' },
+        })
+        newCtx.component.onLoad?.actions.forEach((action) => {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          handleAction(action, dataSignal.get(), newCtx)
+        })
+        rootElem.forEach((elem) => domNode.appendChild(elem))
+      } catch (error: unknown) {
+        const isPage = isPageComponent(newCtx.component)
+        let name = `Unexpected error while rendering ${isPage ? 'page' : 'component'}`
+        let message = error instanceof Error ? error.message : String(error)
+        let panic = false
+        if (error instanceof RangeError) {
+          // RangeError is unrecoverable
+          panic = true
+          name = 'Infinite loop detected'
+          message =
+            'RangeError (Maximum call stack size exceeded): Remove any circular dependencies or recursive calls (Try undoing your last change). This is most likely caused by a component, formula or action using itself.'
+        }
+
+        // This can be triggered by setting "type" on a select etc.
+        if (error instanceof TypeError) {
+          panic = true
+          name = 'TypeError'
+          message = `Type errors are often caused by:
 
 • Trying to set a read-only property (like "type" on a select element).
 
@@ -1461,36 +1431,35 @@ export const createRoot = (
 • Trying to access a property on an undefined or null value.
 
 • Trying to call a method on an undefined or null value.`
-          }
-
-          console.error(name, message, error)
-
-          if (panic) {
-            // Show error overlay in the editor until next update
-            const panicScreen = createPanicScreen({
-              name: name,
-              message,
-              isPage,
-              cause: error,
-            })
-
-            // Replace the inner HTML of the editor preview with the panic screen
-            domNode.innerHTML = ''
-            domNode.appendChild(panicScreen)
-          } else {
-            // Otherwise send a toast to the editor with the error (unknown errors may be recoverable), if not please add the error-type to the above
-            sendEditorToast(name, message, {
-              type: 'critical',
-            })
-          }
         }
-        postMessageToEditor({
-          type: 'style',
-          time: new Intl.DateTimeFormat('en-GB', {
-            timeStyle: 'long',
-          }).format(new Date()),
-        })
+
+        console.error(name, message, error)
+
+        if (panic) {
+          // Show error overlay in the editor until next update
+          const panicScreen = createPanicScreen({
+            name: name,
+            message,
+            isPage,
+            cause: error,
+          })
+
+          // Replace the inner HTML of the editor preview with the panic screen
+          domNode.innerHTML = ''
+          domNode.appendChild(panicScreen)
+        } else {
+          // Otherwise send a toast to the editor with the error (unknown errors may be recoverable), if not please add the error-type to the above
+          sendEditorToast(name, message, {
+            type: 'critical',
+          })
+        }
       }
+      postMessageToEditor({
+        type: 'style',
+        time: new Intl.DateTimeFormat('en-GB', {
+          timeStyle: 'long',
+        }).format(new Date()),
+      })
     }
 
     ctx = newCtx
