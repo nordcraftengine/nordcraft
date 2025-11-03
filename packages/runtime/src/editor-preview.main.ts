@@ -1375,7 +1375,9 @@ export const createRoot = (
     }
 
     if (
-      fastDeepEqual(newCtx.component.nodes, ctx?.component?.nodes) === false
+      fastDeepEqual(newCtx.component.nodes, ctx?.component?.nodes) === false ||
+      fastDeepEqual(newCtx.component.formulas, ctx?.component?.formulas) ===
+        false
     ) {
       updateStyle(newCtx.component)
 
