@@ -29,6 +29,6 @@
     "@cloudflare/workers-types": "4.20251014.0",
     "@nordcraft/runtime": "workspace:*",
     "@types/node": "24.3.1",
-    "wrangler": "4.45.0"
+    "wrangler": "4.45.3"
   }
 }
