@@ -10,7 +10,7 @@
   ],
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
-    "@eslint/js": "9.38.0",
+    "@eslint/js": "9.39.0",
     "@html-eslint/eslint-plugin": "0.47.0",
     "@html-eslint/parser": "0.47.0",
     "@octokit/core": "7.0.3",
@@ -19,7 +19,7 @@
     "@typescript-eslint/parser": "8.46.2",
     "esbuild": "0.25.5",
     "eslint-plugin-inclusive-language": "2.2.1",
-    "eslint": "9.38.0",
+    "eslint": "9.39.0",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier": "3.6.2",
     "typescript": "5.9.3"
