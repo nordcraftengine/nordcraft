@@ -21,6 +21,18 @@ export function handleAction(
   event?: Event,
   workflowCallback?: (event: string, data: unknown) => void,
 ) {
+  if (ctx.component.exported && !ctx.package) {
+    console.warn(
+      'Handling action for exported component without package!',
+      ctx.component.name,
+      action,
+    )
+    if (action && [undefined, 'Custom'].includes(action.type)) {
+      throw new Error(
+        'Custom actions are not supported for exported components',
+      )
+    }
+  }
   try {
     if (!action) {
       throw new Error('Action does not exist')
@@ -430,13 +442,28 @@ export function handleAction(
               )
             }
           }
+          const componentNameParts = ctx.component.name.split('/')
           const newAction =
             action.version === 2
-              ? (ctx.toddle.getCustomAction ?? ctx.toddle.getCustomAction)(
+              ? ctx.toddle.getCustomAction(
                   action.name,
                   action.package ?? ctx.package,
+                  // (componentNameParts.length > 1
+                  //   ? componentNameParts[0]
+                  //   : undefined),
                 )
               : undefined
+          if (action.name === 'requestFrame' && !newAction) {
+            console.error(
+              'Component',
+              ctx.component.name,
+              'Action',
+              action,
+              'Package',
+              ctx.package,
+            )
+            throw new Error('requestFrame action was not found!')
+          }
           if (newAction) {
             // First evaluate any arguments (input) to the action
             const args = (action.arguments ?? []).reduce<
