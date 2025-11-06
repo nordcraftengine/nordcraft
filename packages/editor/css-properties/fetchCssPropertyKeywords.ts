@@ -1,4 +1,3 @@
-import { isDefined } from '@nordcraft/core/src/utils/util'
 import { definitionSyntax } from 'css-tree'
 import { css } from 'mdn-data'
 
@@ -14,14 +13,14 @@ const GLOBAL_KEYWORDS = [
 const fixKnownSyntaxErrors = (syntax: string) =>
   syntax.replaceAll('<image ', '<image> ')
 
-const COMMON_KEYWORDS: Record<string, string[]> = {
+const COMMON_KEYWORDS: Record<string, string[] | undefined> = {
   display: ['block', 'inline', 'flex', 'none'],
 }
 
 const reorderKeywords = (prop: string, keywords: string[]) => {
   const sorting = COMMON_KEYWORDS[prop]
 
-  if (isDefined(sorting)) {
+  if (sorting) {
     return [
       ...keywords.filter((keyword) => sorting.includes(keyword)),
       ...keywords.filter((keyword) => !sorting.includes(keyword)),
