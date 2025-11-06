@@ -13,7 +13,7 @@ const GLOBAL_KEYWORDS = [
 const fixKnownSyntaxErrors = (syntax: string) =>
   syntax.replaceAll('<image ', '<image> ')
 
-const COMMON_KEYWORDS: Record<string, string[] | undefined> = {
+const COMMON_KEYWORDS: Partial<Record<string, string[]>> = {
   display: ['block', 'inline', 'flex', 'none'],
 }
 
