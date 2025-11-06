@@ -13,6 +13,23 @@ const GLOBAL_KEYWORDS = [
 const fixKnownSyntaxErrors = (syntax: string) =>
   syntax.replaceAll('<image ', '<image> ')
 
+const COMMON_KEYWORDS: Partial<Record<string, string[]>> = {
+  display: ['block', 'inline', 'flex', 'none'],
+}
+
+const reorderKeywords = (prop: string, keywords: string[]) => {
+  const sorting = COMMON_KEYWORDS[prop]
+
+  if (sorting) {
+    return [
+      ...keywords.filter((keyword) => sorting.includes(keyword)),
+      ...keywords.filter((keyword) => !sorting.includes(keyword)),
+    ]
+  }
+
+  return keywords
+}
+
 /**
  * Generates a JSON map of all CSS properties → supported keyword values,
  * including global CSS keywords (inherit, initial, unset, revert, revert-layer).
@@ -59,7 +76,10 @@ export function getCssKeywordsMap() {
 
       return {
         ...result,
-        [name]: Array.from(keywordSet).concat(GLOBAL_KEYWORDS),
+        [name]: reorderKeywords(
+          name,
+          Array.from(keywordSet).concat(GLOBAL_KEYWORDS),
+        ),
       }
     }, {})
   } catch (error) {
