@@ -41,9 +41,9 @@ export const imageWithoutDimensionRule: Rule = {
       // We don't know the circumstances under which the style is applied, so we assume it is fine if just one of the variants has correct dimensions
       ...(value.variants?.map((variant) => variant.style) ?? []),
     ].forEach((style) => {
-      hasValidWidth ||= checkValue(style.width)
-      hasValidHeight ||= checkValue(style.height)
-      hasValidAspectRatio ||= checkValue(style['aspect-ratio'])
+      hasValidWidth ||= checkValue(style?.width)
+      hasValidHeight ||= checkValue(style?.height)
+      hasValidAspectRatio ||= checkValue(style?.['aspect-ratio'])
     })
 
     // If two of the three values are truthy, the third can be derived
