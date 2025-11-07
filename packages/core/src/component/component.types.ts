@@ -84,7 +84,7 @@ export interface ElementNodeModel {
   repeatKey?: Formula | null
   tag: string
   attrs: Partial<Record<string, Formula>>
-  style: NodeStyleModel | null
+  style?: NodeStyleModel | null
   variants?: StyleVariant[] | null
   animations?: Record<string, Record<string, AnimationKeyframe>>
   children: string[]
