@@ -329,7 +329,7 @@ type StyleNode = {
   nodeType: 'style-declaration'
   value: {
     styleProperty: string
-    styleValue: string
+    styleValue: string | number
     element: ElementNodeModel | ComponentNodeModel
   }
 } & Base
