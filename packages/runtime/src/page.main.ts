@@ -26,7 +26,8 @@ import { createAPI } from './api/createAPIv2'
 import { renderComponent } from './components/renderComponent'
 import { isContextProvider } from './context/isContextProvider'
 import { initLogState, registerComponentToLogState } from './debug/logState'
-import { Signal, signal } from './signal/signal'
+import type { Signal } from './signal/signal'
+import { signal } from './signal/signal'
 import type { ComponentContext, LocationSignal } from './types'
 
 initLogState()
