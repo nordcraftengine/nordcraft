@@ -26,6 +26,7 @@ import { createAPI } from './api/createAPIv2'
 import { renderComponent } from './components/renderComponent'
 import { isContextProvider } from './context/isContextProvider'
 import { initLogState, registerComponentToLogState } from './debug/logState'
+import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
 import type { ComponentContext, LocationSignal } from './types'
 
@@ -175,6 +176,167 @@ export const createRoot = (domNode: HTMLElement) => {
     ]),
   })
 
+  registerComponentToLogState(component, dataSignal)
+
+  routeSignal.subscribe((route) =>
+    dataSignal.update((data) => ({
+      ...data,
+      'URL parameters': route as Record<string, string>,
+      Attributes: route,
+    })),
+  )
+
+  // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
+  const abortController = new AbortController()
+  dataSignal.subscribe(() => {}, {
+    destroy: () =>
+      abortController.abort(`Component ${component.name} unmounted`),
+  })
+
+  const ctx: ComponentContext = {
+    component,
+    components: window.toddle.components,
+    root: document,
+    isRootComponent: true,
+    dataSignal,
+    abortSignal: abortController.signal,
+    children: {},
+    formulaCache: {},
+    providers: {},
+    apis: {},
+    toddle: window.toddle,
+    triggerEvent: (event: string, data: unknown) =>
+      // eslint-disable-next-line no-console
+      console.info('EVENT FIRED', event, data),
+    package: undefined,
+    env,
+  }
+
+  // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
+  sortApiObjects(Object.entries(component.apis)).forEach(([name, api]) => {
+    if (isLegacyApi(api)) {
+      ctx.apis[name] = createLegacyAPI(api, ctx)
+    } else {
+      ctx.apis[name] = createAPI({
+        apiRequest: api,
+        ctx,
+        componentData: dataSignal.get(),
+      })
+    }
+  })
+  // Trigger actions for all APIs after all of them are created.
+  Object.values(ctx.apis)
+    .filter(isContextApiV2)
+    .forEach((api) => {
+      api.triggerActions(dataSignal.get())
+    })
+
+  let providers = ctx.providers
+  if (isContextProvider(component)) {
+    // Subscribe to exposed formulas and update the component's data signal
+    const formulaDataSignals = Object.fromEntries(
+      Object.entries(component.formulas ?? {})
+        .filter(([, formula]) => formula.exposeInContext)
+        .map(([name, formula]) => [
+          name,
+          dataSignal.map((data) =>
+            applyFormula(formula.formula, {
+              data,
+              component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: window.toddle,
+              env,
+            }),
+          ),
+        ]),
+    )
+
+    providers = {
+      ...providers,
+      [component.name]: {
+        component,
+        formulaDataSignals,
+        ctx,
+      },
+    }
+  }
+
+  // We can only setup meta updates after the dataSignal has been initiated with API data etc.
+  setupMetaUpdates(component, dataSignal)
+
+  const elements = renderComponent({
+    ...ctx,
+    providers,
+    path: '0',
+    package: undefined,
+    onEvent: ctx.triggerEvent,
+    parentElement: domNode,
+    instance: {},
+  })
+  domNode.innerText = ''
+  elements.forEach((elem) => {
+    domNode.appendChild(elem)
+  })
+  window.__toddle.isPageLoaded = true
+}
+
+function parseUrl(component: Component) {
+  const path = window.location.pathname.split('/').slice(1)
+  let params: Record<string, string | null> = {}
+  if (component.route) {
+    component.route.path.forEach((segment, i) => {
+      if (segment.type === 'param') {
+        if (isDefined(path[i]) && path[i] !== '') {
+          params[segment.name] = decodeURIComponent(path[i])
+        } else {
+          params[segment.name] = null
+        }
+      } else {
+        params[segment.name] = segment.name
+      }
+    })
+  } else {
+    const urlPattern = match<Record<string, string>>(component.page ?? '', {
+      decode: decodeURIComponent,
+    })
+    const res = urlPattern(window.location.pathname) || {
+      params: {},
+    }
+    params = res.params
+  }
+
+  const [hash] = window.location.hash.split('?')
+  const query = parseQuery(window.location.search) as Record<string, string>
+  // Explicitly set all query params to null by default
+  // to avoid undefined values in the runtime
+  const defaultQueryParams = Object.keys(component.route?.query ?? {}).reduce<
+    Record<string, null>
+  >((params, key) => ({ ...params, [key]: null }), {})
+  return {
+    params,
+    hash: hash?.slice(1),
+    query: { ...defaultQueryParams, ...query },
+  }
+}
+
+const parseQuery = (queryString: string) =>
+  Object.fromEntries(
+    queryString
+      .replace('?', '')
+      .split('&')
+      .filter((pair) => pair !== '')
+      .map((pair: string) => {
+        return pair.split('=').map(decodeURIComponent)
+      }),
+  )
+
+const setupMetaUpdates = (
+  component: Component,
+  dataSignal: Signal<ComponentData>,
+) => {
+  // Handle dynamic updates of the document language
   const langFormula = component.route?.info?.language?.formula
   const dynamicLang = langFormula && langFormula.type !== 'value'
   if (dynamicLang) {
@@ -358,156 +520,4 @@ export const createRoot = (domNode: HTMLElement) => {
         })
     }
   }
-
-  registerComponentToLogState(component, dataSignal)
-
-  routeSignal.subscribe((route) =>
-    dataSignal.update((data) => ({
-      ...data,
-      'URL parameters': route as Record<string, string>,
-      Attributes: route,
-    })),
-  )
-
-  // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
-  const abortController = new AbortController()
-  dataSignal.subscribe(() => {}, {
-    destroy: () =>
-      abortController.abort(`Component ${component.name} unmounted`),
-  })
-
-  const ctx: ComponentContext = {
-    component,
-    components: window.toddle.components,
-    root: document,
-    isRootComponent: true,
-    dataSignal,
-    abortSignal: abortController.signal,
-    children: {},
-    formulaCache: {},
-    providers: {},
-    apis: {},
-    toddle: window.toddle,
-    triggerEvent: (event: string, data: unknown) =>
-      // eslint-disable-next-line no-console
-      console.info('EVENT FIRED', event, data),
-    package: undefined,
-    env,
-  }
-
-  // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
-  sortApiObjects(Object.entries(component.apis)).forEach(([name, api]) => {
-    if (isLegacyApi(api)) {
-      ctx.apis[name] = createLegacyAPI(api, ctx)
-    } else {
-      ctx.apis[name] = createAPI({
-        apiRequest: api,
-        ctx,
-        componentData: dataSignal.get(),
-      })
-    }
-  })
-  // Trigger actions for all APIs after all of them are created.
-  Object.values(ctx.apis)
-    .filter(isContextApiV2)
-    .forEach((api) => {
-      api.triggerActions(dataSignal.get())
-    })
-
-  let providers = ctx.providers
-  if (isContextProvider(component)) {
-    // Subscribe to exposed formulas and update the component's data signal
-    const formulaDataSignals = Object.fromEntries(
-      Object.entries(component.formulas ?? {})
-        .filter(([, formula]) => formula.exposeInContext)
-        .map(([name, formula]) => [
-          name,
-          dataSignal.map((data) =>
-            applyFormula(formula.formula, {
-              data,
-              component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: window.toddle,
-              env,
-            }),
-          ),
-        ]),
-    )
-
-    providers = {
-      ...providers,
-      [component.name]: {
-        component,
-        formulaDataSignals,
-        ctx,
-      },
-    }
-  }
-
-  const elements = renderComponent({
-    ...ctx,
-    providers,
-    path: '0',
-    package: undefined,
-    onEvent: ctx.triggerEvent,
-    parentElement: domNode,
-    instance: {},
-  })
-  domNode.innerText = ''
-  elements.forEach((elem) => {
-    domNode.appendChild(elem)
-  })
-  window.__toddle.isPageLoaded = true
 }
-
-function parseUrl(component: Component) {
-  const path = window.location.pathname.split('/').slice(1)
-  let params: Record<string, string | null> = {}
-  if (component.route) {
-    component.route.path.forEach((segment, i) => {
-      if (segment.type === 'param') {
-        if (isDefined(path[i]) && path[i] !== '') {
-          params[segment.name] = decodeURIComponent(path[i])
-        } else {
-          params[segment.name] = null
-        }
-      } else {
-        params[segment.name] = segment.name
-      }
-    })
-  } else {
-    const urlPattern = match<Record<string, string>>(component.page ?? '', {
-      decode: decodeURIComponent,
-    })
-    const res = urlPattern(window.location.pathname) || {
-      params: {},
-    }
-    params = res.params
-  }
-
-  const [hash] = window.location.hash.split('?')
-  const query = parseQuery(window.location.search) as Record<string, string>
-  // Explicitly set all query params to null by default
-  // to avoid undefined values in the runtime
-  const defaultQueryParams = Object.keys(component.route?.query ?? {}).reduce<
-    Record<string, null>
-  >((params, key) => ({ ...params, [key]: null }), {})
-  return {
-    params,
-    hash: hash?.slice(1),
-    query: { ...defaultQueryParams, ...query },
-  }
-}
-
-const parseQuery = (queryString: string) =>
-  Object.fromEntries(
-    queryString
-      .replace('?', '')
-      .split('&')
-      .filter((pair) => pair !== '')
-      .map((pair: string) => {
-        return pair.split('=').map(decodeURIComponent)
-      }),
-  )
