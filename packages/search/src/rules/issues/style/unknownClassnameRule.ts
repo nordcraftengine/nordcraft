@@ -12,7 +12,7 @@ export const unknownClassnameRule: Rule<{
       nodeType !== 'style-variant' ||
       typeof value.variant.className !== 'string' ||
       value.element.type !== 'element' ||
-      isDefined(value.element.classes[value.variant.className])
+      isDefined(value.element.classes?.[value.variant.className])
     ) {
       return
     }

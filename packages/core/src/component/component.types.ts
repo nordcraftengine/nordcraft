@@ -89,7 +89,7 @@ export interface ElementNodeModel {
   animations?: Record<string, Record<string, AnimationKeyframe>>
   children: string[]
   events: Partial<Record<string, EventModel | null>>
-  classes: Record<string, { formula?: Formula }>
+  classes?: Record<string, { formula?: Formula }> | null
   'style-variables'?: Array<StyleVariable>
   customProperties?: Record<CustomPropertyName, CustomProperty>
 }
