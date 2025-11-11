@@ -8,6 +8,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noResolve": false,
+    "noUncheckedIndexedAccess": true,
     "outDir": "dist",
     "preserveConstEnums": true,
     "sourceMap": true,
