@@ -71,6 +71,8 @@ export function getCssKeywordsMap() {
       keywords: ProcessedKeywords,
       property: string,
     ) => {
+      const keywordNames: Set<string> = new Set()
+
       definitionSyntax.walk(
         definitionSyntax.parse(fixKnownSyntaxErrors(syntax)),
 
@@ -89,10 +91,9 @@ export function getCssKeywordsMap() {
             }
           }
 
-          if (
-            node.type === 'Keyword' &&
-            !keywords.some((keyword) => keyword.value === node.name)
-          ) {
+          if (node.type === 'Keyword' && !keywordNames.has(node.name)) {
+            keywordNames.add(node.name)
+
             keywords.push({
               value: node.name,
               description: keywordDescriptionsByProperty[property]?.[node.name],
