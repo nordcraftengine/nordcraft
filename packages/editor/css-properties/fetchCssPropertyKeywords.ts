@@ -66,13 +66,17 @@ export function getCssKeywordsMap() {
   const { properties, syntaxes } = css
 
   try {
-    const recursiveWalk = (
-      syntax: string,
-      keywords: ProcessedKeywords,
-      property: string,
-    ) => {
-      const keywordNames: Set<string> = new Set()
-
+    const recursiveWalk = ({
+      syntax,
+      keywordNames,
+      keywords,
+      property,
+    }: {
+      syntax: string
+      keywordNames: Set<string>
+      keywords: ProcessedKeywords
+      property: string
+    }) => {
       definitionSyntax.walk(
         definitionSyntax.parse(fixKnownSyntaxErrors(syntax)),
 
@@ -87,7 +91,12 @@ export function getCssKeywordsMap() {
             const type = syntaxes[node.name]
 
             if (type) {
-              recursiveWalk(type.syntax, keywords, property)
+              recursiveWalk({
+                syntax: type.syntax,
+                keywords,
+                property,
+                keywordNames,
+              })
             }
           }
 
@@ -103,17 +112,23 @@ export function getCssKeywordsMap() {
       )
     }
 
-    return Object.entries(properties).reduce((result, [name, data]) => {
+    return Object.entries(properties).reduce((result, [property, data]) => {
+      const keywordNames: Set<string> = new Set()
       const processedKeywords: ProcessedKeywords = []
 
       if (data.syntax) {
-        recursiveWalk(data.syntax, processedKeywords, name)
+        recursiveWalk({
+          syntax: data.syntax,
+          keywords: processedKeywords,
+          property,
+          keywordNames,
+        })
       }
 
       return {
         ...result,
-        [name]: reorderKeywords(
-          name,
+        [property]: reorderKeywords(
+          property,
           processedKeywords.concat(GLOBAL_KEYWORDS),
         ),
       }
