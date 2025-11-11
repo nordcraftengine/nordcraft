@@ -91,6 +91,9 @@ export const decodeToken = (token?: string) => {
     // Replace Base64url encoding characters
     const jwtUrlSafe = token.replaceAll('-', '+').replaceAll('_', '/')
     const [, payload] = jwtUrlSafe.split('.')
+    if (typeof payload !== 'string') {
+      return
+    }
     const user = atob(payload)
     return JSON.parse(user) as { exp?: number }
   } catch {
