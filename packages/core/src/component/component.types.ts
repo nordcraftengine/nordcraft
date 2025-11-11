@@ -339,7 +339,7 @@ export interface WorkflowActionModel {
   type: 'TriggerWorkflow'
   workflow: string
   parameters: Record<string, { formula?: Formula }> | null
-  callbacks?: Record<string, { actions: ActionModel[] }>
+  callbacks?: Record<string, { actions?: ActionModel[] | null }>
   contextProvider?: string
 }
 

@@ -237,7 +237,10 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
           ? {
               callbacks: mapObject(action.callbacks, ([key, value]) => [
                 key,
-                { ...value, actions: value.actions.map(removeActionTestData) },
+                {
+                  ...value,
+                  actions: value.actions?.map(removeActionTestData) ?? [],
+                },
               ]),
             }
           : undefined),

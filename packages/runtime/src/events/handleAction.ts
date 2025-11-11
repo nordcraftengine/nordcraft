@@ -352,7 +352,7 @@ export function handleAction(
               event,
               (callbackName, callbackData) => {
                 const callback = callbacks?.[callbackName]
-                callback?.actions.forEach((action) =>
+                callback?.actions?.forEach((action) =>
                   handleAction(
                     action,
                     {
@@ -392,7 +392,7 @@ export function handleAction(
             event,
             (callbackName, callbackData) => {
               const callback = callbacks?.[callbackName]
-              callback?.actions.forEach((action) =>
+              callback?.actions?.forEach((action) =>
                 handleAction(
                   action,
                   {
