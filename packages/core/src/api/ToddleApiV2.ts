@@ -38,7 +38,10 @@ export class ToddleApiV2<Handler> implements ApiRequest {
       switch (formula.type) {
         case 'path':
           if (formula.path[0] === 'Apis') {
-            apis.add(formula.path[1])
+            const apiName = formula.path[1]
+            if (typeof apiName === 'string') {
+              apis.add(apiName)
+            }
           }
           break
         case 'value':

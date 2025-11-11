@@ -6,6 +6,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": true,
+    "noUncheckedIndexedAccess": true,
     "preserveConstEnums": true,
     "sourceMap": true,
     "skipLibCheck": true,

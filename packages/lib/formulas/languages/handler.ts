@@ -9,7 +9,7 @@ const handler: FormulaHandler<readonly string[]> = (_, { env }) => {
       // See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language
       env.request?.headers['accept-language']
         ?.split(',')
-        .map((lang) => lang.split(';')[0]) ?? []
+        .map((lang) => lang.split(';')[0] ?? '') ?? []
     )
   }
 }

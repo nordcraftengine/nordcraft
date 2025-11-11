@@ -18,6 +18,7 @@
     "strict": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
 
     // Some stricter flags
     "noUnusedLocals": true,

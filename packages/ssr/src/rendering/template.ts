@@ -19,7 +19,11 @@ export const applyTemplateValues = (
     if (m.index === cookieRegex.lastIndex) {
       cookieRegex.lastIndex++
     }
-    cookieNames.add(m[1])
+    const cookieName = m[1]
+    if (typeof cookieName !== 'string') {
+      continue
+    }
+    cookieNames.add(cookieName)
   }
   for (const cookieName of cookieNames) {
     const cookieValue = cookies[cookieName]

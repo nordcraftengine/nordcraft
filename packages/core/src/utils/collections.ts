@@ -27,7 +27,9 @@ export const omit = <T = object>(
     const clone: any = Array.isArray(collection)
       ? [...collection]
       : { ...collection }
-    clone[key] = omit(clone[key], rest)
+    if (isDefined(key)) {
+      clone[key] = omit(clone[key], rest)
+    }
     return clone
   }
 
@@ -36,7 +38,9 @@ export const omit = <T = object>(
   }
 
   const clone: any = { ...collection }
-  delete clone[key]
+  if (isDefined(key)) {
+    delete clone[key]
+  }
   return clone
 }
 
@@ -65,10 +69,11 @@ export const filterObject = <T>(
 ): Record<string, T> => Object.fromEntries(Object.entries(object).filter(f))
 
 export function get<T = any>(collection: T, [head, ...rest]: string[]): any {
+  const headItem = isDefined(head) ? (collection as any)?.[head] : undefined
   if (rest.length === 0) {
-    return (collection as any)?.[head]
+    return headItem
   }
-  return get((collection as any)?.[head], rest)
+  return get(headItem, rest)
 }
 
 export const set = <T = unknown>(
@@ -84,7 +89,10 @@ export const set = <T = unknown>(
       ? { ...collection }
       : {}
 
-  clone[head] = rest.length === 0 ? value : set(clone[head], rest, value)
+  // Cast to any, since it's actually possible to set a property with an undefined key on an object in Javascript
+  // and we don't want to introduce a breaking change
+  clone[head as any] =
+    rest.length === 0 ? value : set(clone[head as any], rest, value)
   return clone as T
 }
 
