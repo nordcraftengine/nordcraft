@@ -41,15 +41,19 @@ const reorderKeywords = (prop: string, keywords: ProcessedKeywords) => {
 
   if (sorting) {
     return [
-      ...Object.keys(keywords).filter((keyword) => sorting.includes(keyword)),
-      ...Object.keys(keywords).filter((keyword) => !sorting.includes(keyword)),
+      ...Object.values(keywords).filter((keyword) =>
+        sorting.includes(keyword.value),
+      ),
+      ...Object.values(keywords).filter(
+        (keyword) => !sorting.includes(keyword.value),
+      ),
     ]
   }
 
   return keywords
 }
 
-type ProcessedKeywords = Array<Record<string, string | undefined>>
+type ProcessedKeywords = Array<{ value: string; description?: string }>
 
 /**
  * Generates a JSON map of all CSS properties → supported keyword values,
@@ -87,7 +91,7 @@ export function getCssKeywordsMap() {
 
           if (
             node.type === 'Keyword' &&
-            keywords.findIndex((keyword) => keyword.value === node.name) === -1
+            !keywords.some((keyword) => keyword.value === node.name)
           ) {
             keywords.push({
               value: node.name,
