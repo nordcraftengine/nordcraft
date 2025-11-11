@@ -91,9 +91,9 @@ export const keywordDescriptionsByProperty: Record<
     central: 'Aligns based on the central baseline of the parent.',
     mathematical: 'Aligns based on the mathematical text baseline.',
     'text-before-edge':
-      'Aligns the top of the text to the parent\u2019s text-before-edge baseline.',
+      "Aligns the top of the text to the parent's text-before-edge baseline.",
     'text-after-edge':
-      'Aligns the bottom of the text to the parent\u2019s text-after-edge baseline.',
+      "Aligns the bottom of the text to the parent's text-after-edge baseline.",
   },
   all: {},
   'anchor-name': {},
@@ -155,11 +155,11 @@ export const keywordDescriptionsByProperty: Record<
   'backface-visibility': {},
   background: {},
   'background-attachment': {
-    scroll: 'The background scrolls along with the element\u2019s contents.',
+    scroll: "The background scrolls along with the element's contents.",
     fixed:
       'The background is fixed with regard to the viewport; it does not move when scrolled.',
     local:
-      'The background scrolls with the element\u2019s content and is clipped to the element\u2019s padding box.',
+      "The background scrolls with the element's content and is clipped to the element's padding box.",
   },
   'background-blend-mode': {},
   'background-clip': {
@@ -197,7 +197,7 @@ export const keywordDescriptionsByProperty: Record<
     round: 'Tile the image and scale tiles to fill the area without clipping.',
   },
   'background-size': {
-    auto: 'Use the image\u2019s intrinsic size; do not scale unless necessary.',
+    auto: "Use the image's intrinsic size; do not scale unless necessary.",
     cover:
       'Scale the image to cover the entire background area; the image may be clipped.',
     contain:
@@ -220,7 +220,7 @@ export const keywordDescriptionsByProperty: Record<
   'border-block-width': {},
   'border-bottom': {},
   'border-bottom-color': {
-    currentColor: 'Uses the element\u2019s current computed color value.',
+    currentColor: "Uses the element's current computed color value.",
   },
   'border-bottom-left-radius': {},
   'border-bottom-right-radius': {},
@@ -244,7 +244,7 @@ export const keywordDescriptionsByProperty: Record<
   },
   'border-collapse': {},
   'border-color': {
-    currentColor: 'Uses the element\u2019s current computed color value.',
+    currentColor: "Uses the element's current computed color value.",
   },
   'border-end-end-radius': {},
   'border-end-start-radius': {},
@@ -268,7 +268,7 @@ export const keywordDescriptionsByProperty: Record<
   'border-inline-width': {},
   'border-left': {},
   'border-left-color': {
-    currentColor: 'Uses the element\u2019s current computed color value.',
+    currentColor: "Uses the element's current computed color value.",
   },
   'border-left-style': {
     none: 'No border is drawn.',
@@ -291,7 +291,7 @@ export const keywordDescriptionsByProperty: Record<
   'border-radius': {},
   'border-right': {},
   'border-right-color': {
-    currentColor: 'Uses the element\u2019s current computed color value.',
+    currentColor: "Uses the element's current computed color value.",
   },
   'border-right-style': {
     none: 'No border is drawn.',
@@ -329,7 +329,7 @@ export const keywordDescriptionsByProperty: Record<
   },
   'border-top': {},
   'border-top-color': {
-    currentColor: 'Uses the element\u2019s current computed color value.',
+    currentColor: "Uses the element's current computed color value.",
   },
   'border-top-left-radius': {},
   'border-top-right-radius': {},
@@ -399,10 +399,9 @@ export const keywordDescriptionsByProperty: Record<
     'border-box': 'Uses the border box as the clipping region.',
     'padding-box': 'Uses the padding box as the clipping region.',
     'content-box': 'Uses the content box as the clipping region.',
-    'fill-box':
-      'Uses the object\u2019s fill bounding box as the clipping region.',
+    'fill-box': "Uses the object's fill bounding box as the clipping region.",
     'stroke-box':
-      'Uses the object\u2019s stroke bounding box as the clipping region.',
+      "Uses the object's stroke bounding box as the clipping region.",
     'view-box': 'Uses the SVG viewBox as the clipping region.',
   },
   'clip-rule': {},
@@ -442,7 +441,7 @@ export const keywordDescriptionsByProperty: Record<
   'counter-set': {},
   cursor: {
     auto: 'Allows the UA to choose the cursor based on context.',
-    default: 'Uses the platform\u2019s default cursor.',
+    default: "Uses the platform's default cursor.",
     pointer: 'Indicates a clickable element.',
     text: 'Indicates text selection is possible.',
     wait: 'Indicates the user should wait.',
@@ -521,8 +520,8 @@ export const keywordDescriptionsByProperty: Record<
     none: 'Disables flex sizing; the item is sized according to its base size and does not grow or shrink.',
   },
   'flex-basis': {
-    auto: 'The item\u2019s base size is determined by its content and styles before flex sizing occurs.',
-    content: 'The item\u2019s base size is determined solely by its content.',
+    auto: "The item's base size is determined by its content and styles before flex sizing occurs.",
+    content: "The item's base size is determined solely by its content.",
     'fit-content':
       'The item sizes itself based on content but does not exceed the space available.',
   },
@@ -611,14 +610,14 @@ export const keywordDescriptionsByProperty: Record<
     always: 'Forces anti-aliasing regardless of system or browser settings.',
   },
   'font-stretch': {
-    normal: 'Uses the typeface\u2019s standard width.',
+    normal: "Uses the typeface's standard width.",
     condensed: 'Uses a narrower typeface width if available.',
     expanded: 'Uses a wider typeface width if available.',
   },
   'font-style': {
-    normal: 'Uses the typeface\u2019s standard upright design.',
+    normal: "Uses the typeface's standard upright design.",
     italic:
-      'Uses the typeface\u2019s italic design, where available, to represent emphasis or alternate form.',
+      "Uses the typeface's italic design, where available, to represent emphasis or alternate form.",
     oblique:
       'Applies a slanted version of the upright typeface when a true italic design is not used.',
   },
@@ -642,7 +641,7 @@ export const keywordDescriptionsByProperty: Record<
   'font-variation-settings': {},
   'font-weight': {
     normal:
-      'Uses the typeface\u2019s standard weight (typically equivalent to 400).',
+      "Uses the typeface's standard weight (typically equivalent to 400).",
     bold: 'Uses a heavier weight than the normal weight (typically equivalent to 700).',
     lighter:
       'Uses a weight lighter than the inherited weight based on typeface weight mappings.',
@@ -677,12 +676,12 @@ export const keywordDescriptionsByProperty: Record<
     span: 'Extends the item across a specified number of column tracks.',
   },
   'grid-column-end': {
-    auto: 'The item\u2019s column end line is determined by auto-placement or other layout constraints.',
+    auto: "The item's column end line is determined by auto-placement or other layout constraints.",
     span: 'Extends the item across a specified number of column tracks from the start line.',
   },
   'grid-column-gap': {},
   'grid-column-start': {
-    auto: 'The item\u2019s column start line is determined by auto-placement or other layout constraints.',
+    auto: "The item's column start line is determined by auto-placement or other layout constraints.",
     span: 'Extends the item across a specified number of column tracks from this start position.',
   },
   'grid-gap': {},
@@ -691,12 +690,12 @@ export const keywordDescriptionsByProperty: Record<
     span: 'Extends the item across a specified number of row tracks.',
   },
   'grid-row-end': {
-    auto: 'The item\u2019s row end line is determined by auto-placement or other layout constraints.',
+    auto: "The item's row end line is determined by auto-placement or other layout constraints.",
     span: 'Extends the item across a specified number of row tracks from the start line.',
   },
   'grid-row-gap': {},
   'grid-row-start': {
-    auto: 'The item\u2019s row start line is determined by auto-placement or other layout constraints.',
+    auto: "The item's row start line is determined by auto-placement or other layout constraints.",
     span: 'Extends the item across a specified number of row tracks from this start position.',
   },
   'grid-template': {},
@@ -849,7 +848,15 @@ export const keywordDescriptionsByProperty: Record<
     normal: 'Uses the default spacing between letters based on the typeface.',
   },
   'lighting-color': {},
-  'line-break': {},
+  'line-break': {
+    auto: 'Allows the browser to choose the line breaking strategy based on language and context.',
+    loose:
+      'Applies a looser line breaking strategy, allowing more break opportunities.',
+    normal: 'Uses the default line breaking rules.',
+    strict:
+      'Applies a stricter line breaking strategy, reducing break opportunities.',
+    anywhere: 'Allows breaks at arbitrary points to prevent overflow.',
+  },
   'line-clamp': {},
   'line-height': {
     normal:
@@ -913,8 +920,8 @@ export const keywordDescriptionsByProperty: Record<
     'padding-box': 'Clips the mask to the padding box.',
     'content-box': 'Clips the mask to the content box.',
     border: 'Clips the mask to the border area in SVG contexts.',
-    fill: 'Clips the mask to the object\u2019s fill bounding box.',
-    stroke: 'Clips the mask to the object\u2019s stroke bounding box.',
+    stroke: "Clips the mask to the object's stroke bounding box.",
+    fill: "Clips the mask to the object's fill bounding box.",
     'view-box': 'Clips the mask to the SVG viewBox.',
   },
   'mask-composite': {},
@@ -1042,7 +1049,7 @@ export const keywordDescriptionsByProperty: Record<
     none: 'Disables the outline.',
   },
   'outline-color': {
-    currentColor: 'Uses the element\u2019s current text color for the outline.',
+    currentColor: "Uses the element's current text color for the outline.",
   },
   'outline-offset': {},
   'outline-style': {
@@ -1064,13 +1071,13 @@ export const keywordDescriptionsByProperty: Record<
   },
   overflow: {
     visible:
-      'Content is not clipped and may render outside the element\u2019s box in the normal flow.',
+      "Content is not clipped and may render outside the element's box in the normal flow.",
     hidden:
-      'Content that overflows the element\u2019s box is clipped and not scrollable.',
-    clip: 'Content is clipped to the element\u2019s box without providing scroll functionality.',
+      "Content that overflows the element's box is clipped and not scrollable.",
+    clip: "Content is clipped to the element's box without providing scroll functionality.",
     scroll:
-      'Content is clipped to the element\u2019s box and scrollbars are always shown, even if not needed.',
-    auto: 'Content is clipped to the element\u2019s box and scrollbars are shown only if necessary.',
+      "Content is clipped to the element's box and scrollbars are always shown, even if not needed.",
+    auto: "Content is clipped to the element's box and scrollbars are shown only if necessary.",
   },
   'overflow-anchor': {
     auto: 'Scroll anchoring is enabled to reduce visible layout shifts.',
@@ -1104,23 +1111,23 @@ export const keywordDescriptionsByProperty: Record<
   },
   'overflow-x': {
     visible:
-      'Content is not clipped and may render outside the element\u2019s box in the normal flow.',
+      "Content is not clipped and may render outside the element's box in the normal flow.",
     hidden:
-      'Content that overflows the element\u2019s box is clipped and not scrollable.',
-    clip: 'Content is clipped to the element\u2019s box without providing scroll functionality.',
+      "Content that overflows the element's box is clipped and not scrollable.",
+    clip: "Content is clipped to the element's box without providing scroll functionality.",
     scroll:
-      'Content is clipped to the element\u2019s box and scrollbars are always shown, even if not needed.',
-    auto: 'Content is clipped to the element\u2019s box and scrollbars are shown only if necessary.',
+      "Content is clipped to the element's box and scrollbars are always shown, even if not needed.",
+    auto: "Content is clipped to the element's box and scrollbars are shown only if necessary.",
   },
   'overflow-y': {
     visible:
-      'Content is not clipped and may render outside the element\u2019s box in the normal flow.',
+      "Content is not clipped and may render outside the element's box in the normal flow.",
     hidden:
-      'Content that overflows the element\u2019s box is clipped and not scrollable.',
-    clip: 'Content is clipped to the element\u2019s box without providing scroll functionality.',
+      "Content that overflows the element's box is clipped and not scrollable.",
+    clip: "Content is clipped to the element's box without providing scroll functionality.",
     scroll:
-      'Content is clipped to the element\u2019s box and scrollbars are always shown, even if not needed.',
-    auto: 'Content is clipped to the element\u2019s box and scrollbars are shown only if necessary.',
+      "Content is clipped to the element's box and scrollbars are always shown, even if not needed.",
+    auto: "Content is clipped to the element's box and scrollbars are shown only if necessary.",
   },
   overlay: {},
   'overscroll-behavior': {},
@@ -1289,8 +1296,7 @@ export const keywordDescriptionsByProperty: Record<
     'line-through': 'Draws a line through the text.',
   },
   'text-decoration-color': {
-    currentColor:
-      'Uses the element\u2019s current text color for the decoration.',
+    currentColor: "Uses the element's current text color for the decoration.",
   },
   'text-decoration-line': {
     none: 'No text decoration line is drawn.',
@@ -1310,20 +1316,28 @@ export const keywordDescriptionsByProperty: Record<
   'text-decoration-thickness': {
     auto: 'Determines thickness automatically based on font metrics.',
     'from-font':
-      'Uses the thickness specified in the font\u2019s metrics when available.',
+      "Uses the thickness specified in the font's metrics when available.",
   },
   'text-emphasis': {},
   'text-emphasis-color': {},
   'text-emphasis-position': {},
   'text-emphasis-style': {},
   'text-indent': {},
-  'text-justify': {},
+  'text-justify': {
+    auto: 'Allows the browser to choose the justification algorithm.',
+    'inter-word': 'Adjusts spacing between words to justify text.',
+    'inter-character': 'Adjusts spacing between characters to justify text.',
+    none: 'Disables justification adjustments.',
+  },
   'text-orientation': {
     mixed: 'Combines upright and rotated glyphs depending on character type.',
     upright: 'Displays all characters upright, without rotation.',
     sideways: 'Displays characters rotated as if rotated sideways.',
   },
-  'text-overflow': {},
+  'text-overflow': {
+    clip: 'Truncates text at the content edge without adding an indicator.',
+    ellipsis: 'Displays an ellipsis (\u2026) to indicate clipped text.',
+  },
   'text-rendering': {
     auto: 'Lets the browser choose an appropriate text rendering strategy.',
     optimizeSpeed: 'Prioritizes rendering speed over legibility.',
@@ -1337,7 +1351,15 @@ export const keywordDescriptionsByProperty: Record<
     none: 'Prevents automatic text size adjustment.',
   },
   'text-spacing-trim': {},
-  'text-transform': {},
+  'text-transform': {
+    none: 'No capitalization transformation is applied.',
+    capitalize: 'Transforms the first character of each word to uppercase.',
+    uppercase: 'Transforms all characters to uppercase.',
+    lowercase: 'Transforms all characters to lowercase.',
+    'full-width': 'Transforms characters to their full-width forms.',
+    'full-size-kana':
+      'Transforms small kana characters to their full-size forms.',
+  },
   'text-underline-offset': {},
   'text-underline-position': {},
   'text-wrap': {
@@ -1407,7 +1429,21 @@ export const keywordDescriptionsByProperty: Record<
     'fixed-position':
       'Renders the element as if fixed to the screen coordinate system.',
   },
-  'vertical-align': {},
+  'vertical-align': {
+    baseline:
+      'Aligns the baseline of the element with the baseline of its parent.',
+    sub: 'Aligns the element as subscript text below the baseline.',
+    super: 'Aligns the element as superscript text above the baseline.',
+    'text-top':
+      "Aligns the top of the element with the top of the parent's font metrics box.",
+    'text-bottom':
+      "Aligns the bottom of the element with the bottom of the parent's font metrics box.",
+    middle:
+      "Aligns the midpoint of the element with half the x-height above the parent's baseline.",
+    top: 'Aligns the top of the element with the top of the tallest element on the line.',
+    bottom:
+      'Aligns the bottom of the element with the bottom of the lowest element on the line.',
+  },
   'view-timeline': {},
   'view-timeline-axis': {},
   'view-timeline-inset': {},
@@ -1454,7 +1490,11 @@ export const keywordDescriptionsByProperty: Record<
   'word-spacing': {
     normal: 'Uses the default spacing between words based on the typeface.',
   },
-  'word-wrap': {},
+  'word-wrap': {
+    normal: 'Lines break only at allowed break points.',
+    'break-word': 'Allows unbreakable words to be broken to prevent overflow.',
+    anywhere: 'Lines may break anywhere if needed to prevent overflow.',
+  },
   'writing-mode': {
     'horizontal-tb':
       'Text is laid out horizontally, progressing from top to bottom.',
