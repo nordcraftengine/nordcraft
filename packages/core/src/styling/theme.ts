@@ -113,7 +113,9 @@ export const getThemeCss = (
   )
 
   const defaultTheme =
-    Object.values(themesV2).find((t) => t.default) ?? Object.values(themesV2)[0]
+    Object.values(themesV2).find((t) => t.default) ??
+    // Treat themesV2 as Partial in case there are no themes defined there
+    Object.values(themesV2 as Partial<Record<string, Theme>>)[0]
   const defaultDarkTheme = Object.values(themesV2).find((t) => t.defaultDark)
   const defaultLightTheme = Object.values(themesV2).find((t) => t.defaultLight)
 
@@ -122,15 +124,19 @@ export const getThemeCss = (
     .map((t) => getOldThemeCss(t))
     .join('\n')}
 
-  ${Object.entries(defaultTheme.propertyDefinitions ?? {})
-    .map(([propertyName, property]) =>
-      renderSyntaxDefinition(
-        propertyName as CustomPropertyName,
-        property,
-        defaultTheme,
-      ),
-    )
-    .join('\n')}
+  ${
+    defaultTheme
+      ? Object.entries(defaultTheme.propertyDefinitions ?? {})
+          .map(([propertyName, property]) =>
+            renderSyntaxDefinition(
+              propertyName as CustomPropertyName,
+              property,
+              defaultTheme,
+            ),
+          )
+          .join('\n')
+      : ''
+  }
 
   ${renderTheme(':host, :root', defaultTheme)}
   ${renderTheme(':host, :root', defaultDarkTheme, '@media (prefers-color-scheme: dark)')}

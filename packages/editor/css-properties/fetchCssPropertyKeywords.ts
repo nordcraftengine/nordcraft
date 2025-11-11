@@ -85,7 +85,10 @@ export function getCssKeywordsMap() {
             }
           }
 
-          if (node.type === 'Keyword') {
+          if (
+            node.type === 'Keyword' &&
+            keywords.findIndex((keyword) => keyword.value === node.name) === -1
+          ) {
             keywords.push({
               value: node.name,
               description: keywordDescriptionsByProperty[property]?.[node.name],

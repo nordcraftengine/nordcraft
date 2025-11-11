@@ -5,6 +5,7 @@
     "esModuleInterop": true,
     "jsx": "react",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "outDir": "./dist",

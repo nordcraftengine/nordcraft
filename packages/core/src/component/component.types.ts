@@ -84,12 +84,12 @@ export interface ElementNodeModel {
   repeatKey?: Formula | null
   tag: string
   attrs: Partial<Record<string, Formula>>
-  style: NodeStyleModel
+  style?: NodeStyleModel | null
   variants?: StyleVariant[] | null
   animations?: Record<string, Record<string, AnimationKeyframe>>
   children: string[]
   events: Partial<Record<string, EventModel | null>>
-  classes: Record<string, { formula?: Formula }>
+  classes?: Record<string, { formula?: Formula }> | null
   'style-variables'?: Array<StyleVariable>
   customProperties?: Record<CustomPropertyName, CustomProperty>
 }
@@ -104,7 +104,7 @@ export interface ComponentNodeModel {
   condition?: Formula | null
   repeat?: Formula | null
   repeatKey?: Formula | null
-  style?: NodeStyleModel
+  style?: NodeStyleModel | null
   variants?: StyleVariant[] | null
   animations?: Record<string, Record<string, AnimationKeyframe>>
   attrs: Record<string, Formula>

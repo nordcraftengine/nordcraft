@@ -190,7 +190,7 @@ const renderComponent = async ({
           toddle,
         })
         const classHash = getClassName([node.style, node.variants])
-        let classList = Object.entries(node.classes)
+        let classList = Object.entries(node.classes ?? {})
           .filter(([_, { formula }]) =>
             toBoolean(applyFormula(formula, formulaContext)),
           )
