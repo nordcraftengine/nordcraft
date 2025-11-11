@@ -38,9 +38,13 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = ([
           Object.entries(collection).filter(([k]) => k !== key),
         )
       }
-      return {
-        ...collection,
-        [key]: run(collection[key], path),
+      if (typeof key !== 'string' && typeof key !== 'number') {
+        return { ...collection }
+      } else {
+        return {
+          ...collection,
+          [key]: run(collection[key], path),
+        }
       }
     }
 

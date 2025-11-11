@@ -4,10 +4,12 @@ const handler: FormulaHandler<string> = ([input]) => {
   if (typeof input !== 'string') {
     return null
   }
-  if (input.length === 0) {
+  const firstChar = input.at(0)
+
+  if (input.length === 0 || typeof firstChar !== 'string') {
     return input
   }
-  return input[0].toLocaleUpperCase() + input.substring(1).toLocaleLowerCase()
+  return firstChar.toLocaleUpperCase() + input.substring(1).toLocaleLowerCase()
 }
 
 export default handler
