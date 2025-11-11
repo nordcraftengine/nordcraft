@@ -1,12 +1,31 @@
 import { definitionSyntax } from 'css-tree'
 import { css } from 'mdn-data'
+import { keywordDescriptionsByProperty } from './keywordDescriptionsByProperty'
 
 const GLOBAL_KEYWORDS = [
-  'inherit',
-  'initial',
-  'unset',
-  'revert',
-  'revert-layer',
+  {
+    value: 'inherit',
+    description: 'Uses the computed value from the parent element.',
+  },
+  {
+    value: 'initial',
+    description: 'Uses the property\u2019s initial value.',
+  },
+  {
+    value: 'unset',
+    description:
+      'Resets the property to inherited or initial depending on context.',
+  },
+  {
+    value: 'revert',
+    description:
+      'Reverts to the value established by the user-agent stylesheet or previous cascade origin.',
+  },
+  {
+    value: 'revert-layer',
+    description:
+      'Reverts the property to the value from a previous cascade layer.',
+  },
 ]
 
 // the content prop has an error in the syntax
@@ -17,18 +36,24 @@ const COMMON_KEYWORDS: Partial<Record<string, string[]>> = {
   display: ['block', 'inline', 'flex', 'none'],
 }
 
-const reorderKeywords = (prop: string, keywords: string[]) => {
+const reorderKeywords = (prop: string, keywords: ProcessedKeywords) => {
   const sorting = COMMON_KEYWORDS[prop]
 
   if (sorting) {
     return [
-      ...keywords.filter((keyword) => sorting.includes(keyword)),
-      ...keywords.filter((keyword) => !sorting.includes(keyword)),
+      ...Object.values(keywords).filter((keyword) =>
+        sorting.includes(keyword.value),
+      ),
+      ...Object.values(keywords).filter(
+        (keyword) => !sorting.includes(keyword.value),
+      ),
     ]
   }
 
   return keywords
 }
+
+type ProcessedKeywords = Array<{ value: string; description?: string }>
 
 /**
  * Generates a JSON map of all CSS properties → supported keyword values,
@@ -41,7 +66,13 @@ export function getCssKeywordsMap() {
   const { properties, syntaxes } = css
 
   try {
-    const recursiveWalk = (syntax: string, keywords: Set<string>) => {
+    const recursiveWalk = (
+      syntax: string,
+      keywords: ProcessedKeywords,
+      property: string,
+    ) => {
+      const keywordNames: Set<string> = new Set()
+
       definitionSyntax.walk(
         definitionSyntax.parse(fixKnownSyntaxErrors(syntax)),
 
@@ -56,29 +87,34 @@ export function getCssKeywordsMap() {
             const type = syntaxes[node.name]
 
             if (type) {
-              recursiveWalk(type.syntax, keywords)
+              recursiveWalk(type.syntax, keywords, property)
             }
           }
 
-          if (node.type === 'Keyword') {
-            keywords.add(node.name)
+          if (node.type === 'Keyword' && !keywordNames.has(node.name)) {
+            keywordNames.add(node.name)
+
+            keywords.push({
+              value: node.name,
+              description: keywordDescriptionsByProperty[property]?.[node.name],
+            })
           }
         },
       )
     }
 
     return Object.entries(properties).reduce((result, [name, data]) => {
-      const keywordSet: Set<string> = new Set()
+      const processedKeywords: ProcessedKeywords = []
 
       if (data.syntax) {
-        recursiveWalk(data.syntax, keywordSet)
+        recursiveWalk(data.syntax, processedKeywords, name)
       }
 
       return {
         ...result,
         [name]: reorderKeywords(
           name,
-          Array.from(keywordSet).concat(GLOBAL_KEYWORDS),
+          processedKeywords.concat(GLOBAL_KEYWORDS),
         ),
       }
     }, {})
