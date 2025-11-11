@@ -446,10 +446,13 @@ const renderComponent = async ({
 
         const children: Record<string, string> = {}
         childNodes.forEach((childNode, i) => {
+          const childNodeId = node.children[i]
           // Add children to the correct slot in the right order
           const slotName =
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            component.nodes[node.children[i]]?.slot ?? 'default'
+            typeof childNodeId === 'string'
+              ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                (component.nodes[childNodeId]?.slot ?? 'default')
+              : 'default'
           children[slotName] = `${children[slotName] ?? ''} ${childNode}`
         })
 

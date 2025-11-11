@@ -6,6 +6,7 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "noUncheckedIndexedAccess": true,
     "outDir": "dist",
     "preserveConstEnums": true,
     "skipLibCheck": true,
