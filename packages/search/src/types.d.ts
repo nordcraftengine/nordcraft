@@ -41,6 +41,7 @@ import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noRefe
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
 
 type Code =
+  | 'duplicate action argument name'
   | 'duplicate event trigger'
   | 'duplicate url parameter'
   | 'duplicate workflow parameter'
