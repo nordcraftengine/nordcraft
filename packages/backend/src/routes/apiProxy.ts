@@ -134,6 +134,8 @@ export const proxyRequestHandler = async (
     response.headers.entries().forEach(([name, value]) => {
       c.header(name, value, { append: true })
     })
+    // Tell the client to vary based on the original URL header
+    c.header('Vary', PROXY_URL_HEADER, { append: true })
     c.status(response.status as StatusCode)
     if (body) {
       return c.body(body)
