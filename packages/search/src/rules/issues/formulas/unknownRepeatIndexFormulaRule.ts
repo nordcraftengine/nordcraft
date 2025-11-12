@@ -10,12 +10,13 @@ export const unknownRepeatIndexFormulaRule: Rule = {
       nodeType !== 'formula' ||
       value.type !== 'path' ||
       value.path?.[0] !== 'ListItem' ||
-      value.path?.[1] !== 'Index' ||
-      path.length < 3 ||
-      path[0] !== 'components' ||
-      path[2] !== 'nodes'
+      value.path?.[1] !== 'Index'
     ) {
       return
+    }
+    if (path[0] !== 'components' || path[2] !== 'nodes') {
+      // Any use outside of a component node is invalid
+      return report(path)
     }
     const [_components, componentName, _nodes, nodeId] = path as string[]
     const component = files.components[componentName]
