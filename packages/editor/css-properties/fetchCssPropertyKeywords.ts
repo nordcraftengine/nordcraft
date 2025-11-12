@@ -112,27 +112,30 @@ export function getCssKeywordsMap() {
       )
     }
 
-    return Object.entries(properties).reduce((result, [property, data]) => {
-      const keywordNames: Set<string> = new Set()
-      const processedKeywords: ProcessedKeywords = []
+    return {
+      globalKeywords: GLOBAL_KEYWORDS,
+      keywordsByProperty: Object.entries(properties).reduce(
+        (result, [property, data]) => {
+          const keywordNames: Set<string> = new Set()
+          const processedKeywords: ProcessedKeywords = []
 
-      if (data.syntax) {
-        recursiveWalk({
-          syntax: data.syntax,
-          keywords: processedKeywords,
-          property,
-          keywordNames,
-        })
-      }
+          if (data.syntax) {
+            recursiveWalk({
+              syntax: data.syntax,
+              keywords: processedKeywords,
+              property,
+              keywordNames,
+            })
+          }
 
-      return {
-        ...result,
-        [property]: reorderKeywords(
-          property,
-          processedKeywords.concat(GLOBAL_KEYWORDS),
-        ),
-      }
-    }, {})
+          return {
+            ...result,
+            [property]: reorderKeywords(property, processedKeywords),
+          }
+        },
+        {},
+      ),
+    }
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
