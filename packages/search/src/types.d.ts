@@ -43,6 +43,7 @@ import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPos
 type Code =
   | 'duplicate action argument name'
   | 'duplicate event trigger'
+  | 'duplicate formula argument name'
   | 'duplicate url parameter'
   | 'duplicate workflow parameter'
   | 'duplicate route'
