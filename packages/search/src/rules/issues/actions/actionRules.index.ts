@@ -1,4 +1,5 @@
 import { createActionNameRule } from './createActionNameRule'
+import { duplicateActionArgumentNameRule } from './duplicateActionArgumentNameRule'
 import { legacyActionRule } from './legacyActionRule'
 import { noReferenceProjectActionRule } from './noReferenceProjectActionRule'
 import { unknownProjectActionRule } from './unknownProjectActionRule'
@@ -8,6 +9,7 @@ export default [
     name: '@toddle/logToConsole',
     code: 'no-console',
   }),
+  duplicateActionArgumentNameRule,
   legacyActionRule,
   noReferenceProjectActionRule,
   unknownProjectActionRule,
