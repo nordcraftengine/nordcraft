@@ -114,7 +114,7 @@ export function getCssKeywordsMap() {
 
     return {
       globalKeywords: GLOBAL_KEYWORDS,
-      keywordsByProperty: Object.entries(properties).reduce(
+      properties: Object.entries(properties).reduce(
         (result, [property, data]) => {
           const keywordNames: Set<string> = new Set()
           const processedKeywords: ProcessedKeywords = []
