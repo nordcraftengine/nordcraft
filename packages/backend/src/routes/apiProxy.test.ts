@@ -14,6 +14,9 @@ describe('API proxy', () => {
   beforeEach(() => {
     spyFetch.mockReset()
   })
+  afterAll(() => {
+    spyFetch.mockRestore()
+  })
   it('Should proxy a request to the correct url', async () => {
     // Create the test client from the app instance
     const client = testClient(
@@ -224,7 +227,42 @@ describe('API proxy', () => {
     )
     expect(res.status).toBe(200)
   })
-  afterAll(() => {
-    spyFetch.mockRestore()
+  it('Should respect Vary headers and append relevant header in Vary header value', async () => {
+    // Create the test client from the app instance
+    const client = testClient(
+      new Hono().get(
+        '.toddle/omvej/components/:componentName/apis/:apiName',
+        proxyRequestHandler,
+      ),
+    )
+    const targetUrl = new URL(
+      'https://example.com/api?param1=value1&param2=value2',
+    )
+    const mockGetExample = async () => {
+      return new Response(`{"success":true}`, {
+        headers: {
+          Vary: 'Accept-Encoding',
+          'Content-Type': 'application/json',
+        },
+      })
+    }
+    spyFetch.mockImplementation(mockGetExample as any)
+    const res = await client['.toddle'].omvej.components[':componentName'].apis[
+      ':apiName'
+    ].$get(
+      {
+        param: {
+          componentName: 'MyComponent',
+          apiName: 'MyApi',
+        },
+      },
+      {
+        headers: {
+          [PROXY_URL_HEADER]: targetUrl.href,
+        },
+      },
+    )
+    expect(res.status).toBe(200)
+    expect(res.headers.get('Vary')).toBe(`Accept-Encoding, ${PROXY_URL_HEADER}`)
   })
 })
