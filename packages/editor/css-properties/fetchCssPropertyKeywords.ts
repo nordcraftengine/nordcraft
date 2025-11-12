@@ -9,7 +9,7 @@ const GLOBAL_KEYWORDS = [
   },
   {
     value: 'initial',
-    description: 'Uses the property\u2019s initial value.',
+    description: "Uses the property's initial value.",
   },
   {
     value: 'unset',
