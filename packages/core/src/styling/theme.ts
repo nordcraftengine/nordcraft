@@ -1,4 +1,5 @@
 import type { CustomPropertyName } from '../component/component.types'
+import { isDefined } from '../utils/util'
 import { renderSyntaxDefinition, type CssSyntaxNode } from './customProperty'
 import { RESET_STYLES } from './theme.const'
 
@@ -73,10 +74,17 @@ export type OldTheme = {
 }
 
 export type Theme = {
-  default?: true
-  defaultDark?: true
-  defaultLight?: true
+  default?: string
+  defaultDark?: string
+  defaultLight?: string
   propertyDefinitions?: Record<CustomPropertyName, CustomPropertyDefinition>
+  themes?: Record<
+    string,
+    {
+      order?: number
+    }
+  >
+  // Legacy support
   scheme?: 'dark' | 'light'
   color?: StyleTokenGroup[]
   fonts: FontFamily[]
@@ -92,15 +100,17 @@ export type CustomPropertyDefinition = {
   syntax: CssSyntaxNode
   inherits: boolean
   initialValue: string | null // Required by CSS specs for default-theme, but we can do a fallback so null is allowed
-  value: string | null
   description: string
+  // Values mapped to theme names.
+  // Values are not required, if left out, the default theme value will be used. If no default theme value exists, initialValue will be used.
+  values: Record<string, string | null>
 }
 
 export const getThemeCss = (
-  theme: Record<string, OldTheme | Theme>,
+  themes: Record<string, OldTheme | Theme>,
   options: ThemeOptions,
 ) => {
-  const [themesV1, themesV2] = Object.entries(theme).reduce(
+  const [themesV1, themesV2] = Object.entries(themes).reduce(
     ([legacy, modern], [key, value]) => {
       if ('breakpoints' in value) {
         legacy[key] = value
@@ -112,37 +122,37 @@ export const getThemeCss = (
     [{}, {}] as [Record<string, OldTheme>, Record<string, Theme>],
   )
 
-  const defaultTheme =
-    Object.values(themesV2).find((t) => t.default) ??
-    // Treat themesV2 as Partial in case there are no themes defined there
-    Object.values(themesV2 as Partial<Record<string, Theme>>)[0]
-  const defaultDarkTheme = Object.values(themesV2).find((t) => t.defaultDark)
-  const defaultLightTheme = Object.values(themesV2).find((t) => t.defaultLight)
-
   return `
   ${Object.values(themesV1)
     .map((t) => getOldThemeCss(t))
     .join('\n')}
 
-  ${
-    defaultTheme
-      ? Object.entries(defaultTheme.propertyDefinitions ?? {})
-          .map(([propertyName, property]) =>
-            renderSyntaxDefinition(
-              propertyName as CustomPropertyName,
-              property,
-              defaultTheme,
-            ),
-          )
-          .join('\n')
-      : ''
-  }
+  ${Object.values(themesV2)
+    .map((themeV2) => {
+      return `
+  ${Object.entries(themeV2.propertyDefinitions ?? {})
+    .map(([propertyName, property]) =>
+      renderSyntaxDefinition(
+        propertyName as CustomPropertyName,
+        property,
+        themeV2,
+      ),
+    )
+    .join('\n')}
 
-  ${renderTheme(':host, :root', defaultTheme)}
-  ${renderTheme(':host, :root', defaultDarkTheme, '@media (prefers-color-scheme: dark)')}
-  ${renderTheme(':host, :root', defaultLightTheme, '@media (prefers-color-scheme: light)')}
-  ${Object.entries(themesV2)
-    .map(([key, t]) => renderTheme(`[data-theme~="${key}"]`, t))
+  ${renderThemeValues(':host, :root', getThemeEntries(themeV2, themeV2.default))}
+  ${renderThemeValues(':host, :root', getThemeEntries(themeV2, themeV2.defaultDark), '@media (prefers-color-scheme: dark)')}
+  ${renderThemeValues(':host, :root', getThemeEntries(themeV2, themeV2.defaultLight), '@media (prefers-color-scheme: light)')}
+  ${Object.entries(themeV2.themes ?? {})
+    .map(([key, _t]) =>
+      renderThemeValues(
+        `[data-theme~="${key}"]`,
+        getThemeEntries(themeV2, key),
+      ),
+    )
+    .join('\n')}
+    `
+    })
     .join('\n')}
 
 ${options.includeResetStyle ? RESET_STYLES : ''}
@@ -408,25 +418,18 @@ ${RESET_STYLES}
 }`
 }
 
-export function renderTheme(
+export function renderThemeValues(
   selector: string,
-  theme: Theme | undefined,
+  entries: Record<string, string>,
   mediaQuery?: string,
 ) {
-  if (!theme?.propertyDefinitions) {
-    return ''
-  }
-
-  const properties = Object.entries(theme.propertyDefinitions).filter(
-    ([, property]) => property.value,
-  )
-  if (properties.length === 0) {
+  if (Object.entries(entries).length === 0) {
     return ''
   }
 
   const css = `${selector} {
-  ${properties
-    .map(([propertyName, property]) => `${propertyName}: ${property.value};`)
+  ${Object.entries(entries)
+    .map(([propertyName, value]) => `${propertyName}: ${value};`)
     .join('\n  ')}
 }`
 
@@ -437,4 +440,27 @@ export function renderTheme(
   }
 
   return css
+}
+
+export function getThemeEntries(
+  theme: Theme,
+  themeName: string | undefined,
+): Record<string, string> {
+  const entries: Record<string, string> = {}
+  if (!themeName) {
+    return entries
+  }
+
+  for (const [propertyName, definition] of Object.entries(
+    theme.propertyDefinitions ?? {},
+  )) {
+    const value = definition.values?.[themeName]
+    if (!isDefined(value)) {
+      continue
+    }
+
+    entries[propertyName] = value
+  }
+
+  return entries
 }
