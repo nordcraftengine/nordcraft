@@ -78,14 +78,12 @@ export type Theme = {
   defaultDark?: string
   defaultLight?: string
   propertyDefinitions?: Record<CustomPropertyName, CustomPropertyDefinition>
-  themes?: {
-    [key: string]: Record<
-      string,
-      {
-        order?: number
-      }
-    >
-  }
+  themes?: Record<
+    string,
+    {
+      order?: number
+    }
+  >
   // Legacy support
   scheme?: 'dark' | 'light'
   color?: StyleTokenGroup[]
@@ -103,6 +101,8 @@ export type CustomPropertyDefinition = {
   inherits: boolean
   initialValue: string | null // Required by CSS specs for default-theme, but we can do a fallback so null is allowed
   description: string
+  // Values mapped to theme names.
+  // Values are not required, if left out, the default theme value will be used. If no default theme value exists, initialValue will be used.
   values: Record<string, string | null>
 }
 
