@@ -448,8 +448,8 @@ export function renderThemeValues(
 export function getThemeEntries(
   theme: Theme,
   themeName: string | undefined,
-): Record<string, string | null> {
-  const entries: Record<string, string | null> = {}
+): Record<string, string> {
+  const entries: Record<string, string> = {}
   if (!themeName) {
     return entries
   }
@@ -457,7 +457,12 @@ export function getThemeEntries(
   for (const [propertyName, definition] of Object.entries(
     theme.propertyDefinitions ?? {},
   )) {
-    entries[propertyName] = definition.values?.[themeName] ?? null
+    const value = definition.values?.[themeName]
+    if (!isDefined(value)) {
+      continue
+    }
+
+    entries[propertyName] = value
   }
 
   return entries
