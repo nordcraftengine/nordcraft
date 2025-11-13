@@ -45,11 +45,11 @@ export function stringifySyntaxNode(node: CssSyntaxNode): string {
 export function renderSyntaxDefinition(
   key: CustomPropertyName,
   { syntax, inherits, initialValue }: CustomPropertyDefinition,
-  defaultTheme: Theme,
+  theme: Theme,
 ): string {
   let value = initialValue
   if (initialValue?.includes('var(--')) {
-    value = solveVarRecursively(initialValue, defaultTheme)
+    value = solveVarRecursively(initialValue, theme)
   }
 
   // Fallback in-case of no reference

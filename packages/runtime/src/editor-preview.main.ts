@@ -26,7 +26,11 @@ import {
 } from '@nordcraft/core/dist/formula/formulaTypes'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
-import { getThemeCss, renderTheme } from '@nordcraft/core/dist/styling/theme'
+import {
+  getThemeCss,
+  getThemeEntries,
+  renderThemeValues,
+} from '@nordcraft/core/dist/styling/theme'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type {
   ActionHandler,
@@ -950,33 +954,47 @@ export const createRoot = (
                   .filter(([key]) => previewStyleStyles[key])
                   .map(([key, val]) => [
                     key,
-                    { ...val, value: previewStyleStyles[key] },
+                    {
+                      ...val,
+                      values: {
+                        ...val.values,
+                        [theme.key]: previewStyleStyles[key],
+                      },
+                    },
                   ]),
               )
               const cssBlocks: string[] = []
-              if (theme.value.default) {
-                cssBlocks.push(renderTheme(`:host, :root`, theme.value))
-              }
-              if (theme.value.defaultDark) {
+              if (theme.key === theme.value.default) {
                 cssBlocks.push(
-                  renderTheme(
+                  renderThemeValues(
                     `:host, :root`,
-                    theme.value,
+                    getThemeEntries(theme.value, theme.key),
+                  ),
+                )
+              }
+              if (theme.key === theme.value.defaultDark) {
+                cssBlocks.push(
+                  renderThemeValues(
+                    `:host, :root`,
+                    getThemeEntries(theme.value, theme.key),
                     '@media (prefers-color-scheme: dark)',
                   ),
                 )
               }
-              if (theme.value.defaultLight) {
+              if (theme.key === theme.value.defaultLight) {
                 cssBlocks.push(
-                  renderTheme(
+                  renderThemeValues(
                     `:host, :root`,
-                    theme.value,
+                    getThemeEntries(theme.value, theme.key),
                     '@media (prefers-color-scheme: light)',
                   ),
                 )
               }
               cssBlocks.push(
-                renderTheme(`[data-theme~="${theme.key}"]`, theme.value),
+                renderThemeValues(
+                  `[data-theme~="${theme.key}"]`,
+                  getThemeEntries(theme.value, theme.key),
+                ),
               )
               styleTag.innerHTML = cssBlocks.join('\n')
             } else {
