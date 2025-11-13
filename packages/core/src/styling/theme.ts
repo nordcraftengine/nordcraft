@@ -420,18 +420,15 @@ ${RESET_STYLES}
 
 export function renderThemeValues(
   selector: string,
-  entries: Record<string, string | null>,
+  entries: Record<string, string>,
   mediaQuery?: string,
 ) {
-  const properties = Object.entries(entries).filter(([, property]) =>
-    isDefined(property),
-  )
-  if (properties.length === 0) {
+  if (Object.entries(entries).length === 0) {
     return ''
   }
 
   const css = `${selector} {
-  ${properties
+  ${Object.entries(entries)
     .map(([propertyName, value]) => `${propertyName}: ${value};`)
     .join('\n  ')}
 }`
