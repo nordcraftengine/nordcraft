@@ -1,5 +1,5 @@
 {
-  "name": "nordcraft-cloudflare-worker",
+  "name": "nordcraft-backend",
   "type": "module",
   "scripts": {
     "compile": "bun build --minify --target=node ./src/node.index.ts --outdir dist/",
@@ -7,7 +7,8 @@
     "sync": "bun bin/syncStaticAssets.ts",
     "predocker:build": "bun run build && bun run sync",
     "docker:build": "cd ../../ && docker build --no-cache --progress=plain . -t nordcraft-backend -f packages/backend/Dockerfile",
-    "docker:run": "docker rm -f nordcraft-backend && docker run --rm --dns 8.8.8.8 --dns 1.1.1.1 -p 3000:3000 --name nordcraft-backend -e PORT=3000 nordcraft-backend",
+    "docker:run:debug": "docker rm -f nordcraft-backend && docker run --rm -p 3000:3000 --name nordcraft-backend -e PORT=3000 nordcraft-backend",
+    "docker:run": "docker run -p 3000:3000 --name nordcraft-backend -e PORT=3000 nordcraft-backend",
     "predev": "bun bin/syncStaticAssets.ts && bunx esbuild --bundle --outdir=dist --platform=node --format=esm src/index.ts",
     "dev": "wrangler dev --no-bundle --port 8989",
     "preview-link": "sh -c 'ln -s \"$1\" ./nordcraft-internal' --",

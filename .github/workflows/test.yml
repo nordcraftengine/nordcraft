@@ -142,7 +142,7 @@ jobs:
       - name: Run docker container
         run: |
           cd packages/backend
-          bun run docker:run &
+          bun run docker:run:debug &
           sleep 10
       - name: Test backend docker container
         run: |
