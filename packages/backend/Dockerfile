@@ -26,7 +26,7 @@ RUN ls -R ./packages/backend/dist/
 
 # -------- RUN STAGE --------
 
-# Our application runner. Use gcr.io/distroless/base-debian12:debug to allow debugging
+# Our application runner. Use gcr.io/distroless/nodejs24-debian12:debug to allow debugging
 # using docker run -it --entrypoint=sh nordcraft-backend
 # see https://github.com/GoogleContainerTools/distroless
 FROM gcr.io/distroless/nodejs24-debian12 AS runner
