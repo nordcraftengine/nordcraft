@@ -1,3 +1,4 @@
+import { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
 import {
   pathFormula,
   valueFormula,
@@ -22,6 +23,7 @@ describe('noReferenceApiInputRule', () => {
                   name: 'my-api',
                   type: 'http',
                   version: 2,
+                  method: ApiMethod.POST,
                   autoFetch: valueFormula(true),
                   inputs: {
                     first: { formula: valueFormula('hello') },
