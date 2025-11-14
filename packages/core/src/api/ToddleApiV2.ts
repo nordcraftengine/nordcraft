@@ -7,7 +7,8 @@ import {
   getFormulasInFormula,
 } from '../formula/formulaUtils'
 import { isDefined } from '../utils/util'
-import type { ApiRequest } from './apiTypes'
+import { HttpMethodsWithAllowedBody } from './api'
+import { ApiMethod, type ApiRequest } from './apiTypes'
 
 export class ToddleApiV2<Handler> implements ApiRequest {
   private api: ApiRequest
@@ -231,11 +232,13 @@ export class ToddleApiV2<Handler> implements ApiRequest {
       })
     }
 
-    yield* getFormulasInFormula({
-      formula: api.body,
-      globalFormulas: this.globalFormulas,
-      path: ['apis', apiKey, 'body'],
-    })
+    if (HttpMethodsWithAllowedBody.includes(api.method ?? ApiMethod.GET)) {
+      yield* getFormulasInFormula({
+        formula: api.body,
+        globalFormulas: this.globalFormulas,
+        path: ['apis', apiKey, 'body'],
+      })
+    }
     for (const [actionKey, action] of Object.entries(
       api.client?.onCompleted?.actions ?? {},
     )) {
