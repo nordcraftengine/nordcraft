@@ -1,7 +1,11 @@
 import { STRING_TEMPLATE } from '@nordcraft/core/dist/api/template'
 import type { ToddleServerEnv } from '@nordcraft/core/dist/formula/formula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import { skipCookieHeader, skipNordcraftHeaders } from '../utils/headers'
+import {
+  skipCookieHeader,
+  skipHopByHopHeaders,
+  skipNordcraftHeaders,
+} from '../utils/headers'
 
 export const applyTemplateValues = (
   input: string | null | undefined,
@@ -47,7 +51,9 @@ export const sanitizeProxyHeaders = ({
   new Headers(
     mapTemplateHeaders({
       cookies,
-      headers: skipCookieHeader(skipNordcraftHeaders(headers)),
+      headers: skipCookieHeader(
+        skipNordcraftHeaders(skipHopByHopHeaders(headers)),
+      ),
     }),
   )
 

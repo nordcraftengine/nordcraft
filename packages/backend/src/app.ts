@@ -26,6 +26,7 @@ export const getApp = <T extends Record<string, any>>(options: {
     urls: PageLoaderUrls
   }
   fileLoaders: MiddlewareHandler[]
+  earlyMiddleware?: MiddlewareHandler[]
 }) => {
   // Inject isEqual on globalThis used by some builtin formulas
   initIsEqual()
@@ -40,6 +41,8 @@ export const getApp = <T extends Record<string, any>>(options: {
       enabled: true,
     }),
   )
+
+  options.earlyMiddleware?.forEach((mw) => app.use(mw))
 
   app.use(poweredBy({ serverName: 'Nordcraft' })) // 🌲🌲🌲
 

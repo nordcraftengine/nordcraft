@@ -30,3 +30,29 @@ export const skipNordcraftHeaders = (headers: Headers) => {
   newHeaders.delete(PROXY_TEMPLATES_IN_BODY)
   return newHeaders
 }
+
+// https://datatracker.ietf.org/doc/html/rfc2616#section-13.5.1
+const HOP_BY_HOP_HEADERS = [
+  'connection',
+  'keep-alive',
+  'proxy-authenticate',
+  'proxy-authorization',
+  'te',
+  'trailer',
+  'transfer-encoding',
+  'upgrade',
+]
+
+export const skipHopByHopHeaders = (headers: Headers) => {
+  const newHeaders = new Headers(headers)
+  for (const header of HOP_BY_HOP_HEADERS) {
+    newHeaders.delete(header)
+  }
+  return newHeaders
+}
+
+export const skipContentEncodingHeader = (headers: Headers) => {
+  const newHeaders = new Headers(headers)
+  newHeaders.delete('content-encoding')
+  return newHeaders
+}

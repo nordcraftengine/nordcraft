@@ -71,6 +71,12 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     // Add header to identify that this is a rewrite
     // This allows us to avoid recursive fetch calls across Nordcraft routes
     headers.set(REWRITE_HEADER, 'true')
+    // Remove the cf-connecting-ip header if the request is from localhost
+    // This is to prevent cf to throw an error when the requester ip is ::1
+    if ((headers.get('host') ?? '').startsWith('localhost')) {
+      headers.delete('cf-connecting-ip')
+      headers.delete('host')
+    }
     const timingKey = 'proxyRequest'
     startTime(c, timingKey)
     const response = await fetch(destination, {

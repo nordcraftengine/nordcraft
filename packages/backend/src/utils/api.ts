@@ -344,12 +344,12 @@ const executeFetchCall = async (request: Request) => {
     // This is to prevent cf to throw an error when the requester ip is ::1
     if ((request.headers.get('host') ?? '').startsWith('localhost')) {
       request.headers.delete('cf-connecting-ip')
+      request.headers.delete('host')
     }
     const response = await fetch(request)
     return response
   } catch (e: any) {
     // eslint-disable-next-line no-console
-    console.log('API request threw error', e.message)
     const status = e instanceof Error && e.name === 'TimeoutError' ? 504 : 500
     return Response.json(e.message, { status })
   }
