@@ -146,8 +146,8 @@ jobs:
           sleep 10
       - name: Test backend docker container
         run: |
-          curl --fail http://localhost:12345/
-          curl --fail http://localhost:12345/otherpage
+          curl --fail http://localhost:3000/
+          curl --fail http://localhost:3000/otherpage
   test-release:
     runs-on: ubuntu-latest
     steps:
