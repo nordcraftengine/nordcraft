@@ -349,7 +349,6 @@ const executeFetchCall = async (request: Request) => {
     const response = await fetch(request)
     return response
   } catch (e: any) {
-    // eslint-disable-next-line no-console
     const status = e instanceof Error && e.name === 'TimeoutError' ? 504 : 500
     return Response.json(e.message, { status })
   }
