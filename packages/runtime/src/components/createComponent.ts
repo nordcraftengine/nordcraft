@@ -59,15 +59,21 @@ export function createComponent({
     return mapObject(node.attrs, ([attr, value]) => [
       attr,
       value?.type !== 'value'
-        ? applyFormula(value, {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          })
+        ? applyFormula(
+            value,
+            {
+              data,
+              component: ctx.component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+              jsonPath: ctx.jsonPath,
+              reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+            },
+            ['attrs', attr],
+          )
         : value?.value,
     ])
   })
@@ -80,15 +86,21 @@ export function createComponent({
         }),
         signal: dataSignal.map((data) =>
           appendUnit(
-            applyFormula(customProperty.formula, {
-              data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+            applyFormula(
+              customProperty.formula,
+              {
+                data,
+                component: ctx.component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+                jsonPath: ctx.jsonPath,
+                reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+              },
+              ['customProperties', customPropertyName],
+            ),
             customProperty.unit,
           ),
         ),
@@ -108,15 +120,21 @@ export function createComponent({
           }),
           signal: dataSignal.map((data) =>
             appendUnit(
-              applyFormula(customProperty.formula, {
-                data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-              }),
+              applyFormula(
+                customProperty.formula,
+                {
+                  data,
+                  component: ctx.component,
+                  formulaCache: ctx.formulaCache,
+                  root: ctx.root,
+                  package: ctx.package,
+                  toddle: ctx.toddle,
+                  env: ctx.env,
+                  jsonPath: ctx.jsonPath,
+                  reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+                },
+                ['variants', 'customProperties', customPropertyName],
+              ),
               customProperty.unit,
             ),
           ),
@@ -137,15 +155,21 @@ export function createComponent({
         data: null,
         isLoading:
           api.autoFetch &&
-          applyFormula(api.autoFetch, {
-            data: dataSignal.get(),
-            component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          })
+          applyFormula(
+            api.autoFetch,
+            {
+              data: dataSignal.get(),
+              component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+              jsonPath: ctx.jsonPath,
+              reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+            },
+            ['apis', name, 'autoFetch'],
+          )
             ? true
             : false,
         error: null,
@@ -158,16 +182,22 @@ export function createComponent({
     ...data,
     Variables: mapObject(component.variables, ([name, variable]) => [
       name,
-      applyFormula(variable.initialValue, {
-        // Initial value
-        data: componentDataSignal.get(),
-        component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
-      }),
+      applyFormula(
+        variable.initialValue,
+        {
+          // Initial value
+          data: componentDataSignal.get(),
+          component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+          jsonPath: ctx.jsonPath,
+          reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+        },
+        ['variables', name, 'initialValue'],
+      ),
     ]),
   }))
   registerComponentToLogState(component, componentDataSignal)
@@ -226,6 +256,8 @@ export function createComponent({
               )
             }
           },
+          jsonPath: [...(ctx.jsonPath ?? []), 'apis', name],
+          reportFormulaEvaluation: ctx.reportFormulaEvaluation,
         },
         componentData: componentDataSignal.get(),
       })
@@ -257,15 +289,21 @@ export function createComponent({
         .map(([name, formula]) => [
           name,
           componentDataSignal.map((data) =>
-            applyFormula(formula.formula, {
-              data,
-              component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+            applyFormula(
+              formula.formula,
+              {
+                data,
+                component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+                jsonPath: ctx.jsonPath,
+                reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+              },
+              ['formulas', name],
+            ),
           ),
         ]),
     )
@@ -336,5 +374,7 @@ export function createComponent({
       node.id === 'root'
         ? { ...instance, [ctx.component.name]: 'root' }
         : { [ctx.component.name]: node.id ?? '' },
+    jsonPath: ctx.jsonPath,
+    reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   })
 }

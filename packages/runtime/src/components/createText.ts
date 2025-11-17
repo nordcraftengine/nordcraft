@@ -48,15 +48,21 @@ export function createText({
   if (value.type !== 'value') {
     const sig = dataSignal.map((data) =>
       String(
-        applyFormula(value, {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        }),
+        applyFormula(
+          value,
+          {
+            data,
+            component: ctx.component,
+            formulaCache: ctx.formulaCache,
+            root: ctx.root,
+            package: ctx.package,
+            toddle: ctx.toddle,
+            env: ctx.env,
+            jsonPath: ctx.jsonPath,
+            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+          },
+          ['value'],
+        ),
       ),
     )
     sig.subscribe((value) => {
@@ -82,15 +88,21 @@ export function createTextNS({
   if (value.type !== 'value') {
     const sig = dataSignal.map((data) =>
       String(
-        applyFormula(value, {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        }),
+        applyFormula(
+          value,
+          {
+            data,
+            component: ctx.component,
+            formulaCache: ctx.formulaCache,
+            root: ctx.root,
+            package: ctx.package,
+            toddle: ctx.toddle,
+            env: ctx.env,
+            jsonPath: ctx.jsonPath,
+            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+          },
+          ['value'],
+        ),
       ),
     )
     sig.subscribe((value) => {

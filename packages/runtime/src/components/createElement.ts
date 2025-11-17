@@ -71,15 +71,21 @@ export function createElement({
       if (formula) {
         const classSignal = dataSignal.map((data) =>
           toBoolean(
-            applyFormula(formula, {
-              data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+            applyFormula(
+              formula,
+              {
+                data,
+                component: ctx.component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+                jsonPath: ctx.jsonPath,
+                reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+              },
+              ['classes', className],
+            ),
           ),
         )
         classSignal.subscribe((show) =>
@@ -103,15 +109,21 @@ export function createElement({
         setAttribute(elem, attr, value?.value)
       } else {
         o = dataSignal.map((data) =>
-          applyFormula(value, {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          }),
+          applyFormula(
+            value,
+            {
+              data,
+              component: ctx.component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+              jsonPath: ctx.jsonPath,
+              reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+            },
+            ['attrs', attr],
+          ),
         )
         o.subscribe((val) => {
           setAttribute(elem, attr, val)
@@ -138,15 +150,21 @@ export function createElement({
   node['style-variables']?.forEach((styleVariable) => {
     const { name, formula, unit } = styleVariable
     const signal = dataSignal.map((data) => {
-      const value = applyFormula(formula, {
-        data,
-        component: ctx.component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
-      })
+      const value = applyFormula(
+        formula,
+        {
+          data,
+          component: ctx.component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+          jsonPath: ctx.jsonPath,
+          reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+        },
+        ['style-variables', name],
+      )
       return unit ? value + unit : value
     })
 
@@ -165,15 +183,21 @@ export function createElement({
             : getNodeSelector(path),
         signal: dataSignal.map((data) =>
           appendUnit(
-            applyFormula(formula, {
-              data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+            applyFormula(
+              formula,
+              {
+                data,
+                component: ctx.component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+                jsonPath: ctx.jsonPath,
+                reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+              },
+              ['customProperties', customPropertyName],
+            ),
             unit,
           ),
         ),
@@ -193,15 +217,26 @@ export function createElement({
           variant,
           signal: dataSignal.map((data) =>
             appendUnit(
-              applyFormula(formula, {
-                data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-              }),
+              applyFormula(
+                formula,
+                {
+                  data,
+                  component: ctx.component,
+                  formulaCache: ctx.formulaCache,
+                  root: ctx.root,
+                  package: ctx.package,
+                  toddle: ctx.toddle,
+                  env: ctx.env,
+                  jsonPath: ctx.jsonPath,
+                  reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+                },
+                [
+                  'variants',
+                  Object.keys(variant)[0],
+                  'customProperties',
+                  customPropertyName,
+                ],
+              ),
               unit,
             ),
           ),
@@ -242,15 +277,21 @@ export function createElement({
         } else {
           const textSignal = dataSignal.map((data) => {
             return String(
-              applyFormula(node.value, {
-                data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-              }),
+              applyFormula(
+                node.value,
+                {
+                  data,
+                  component: ctx.component,
+                  formulaCache: ctx.formulaCache,
+                  root: ctx.root,
+                  package: ctx.package,
+                  toddle: ctx.toddle,
+                  env: ctx.env,
+                  jsonPath: ctx.jsonPath,
+                  reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+                },
+                ['value'],
+              ),
             )
           })
           textValues.push(textSignal)
@@ -281,7 +322,7 @@ export function createElement({
           id: child,
           path: path + '.' + i,
           dataSignal,
-          ctx,
+          ctx: { ...ctx, jsonPath: ['nodes', child] },
           namespace,
           instance,
         }),

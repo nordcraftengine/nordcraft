@@ -13,21 +13,21 @@ import { ApiMethod } from './apiTypes'
 
 describe('getApiPath()', () => {
   test('it returns a valid url path string', () => {
-    expect(getRequestPath({}, undefined as any)).toBe('')
+    expect(getRequestPath({}, {} as any)).toBe('')
     expect(
       getRequestPath(
         {
           first: { formula: valueFormula('hello'), index: 0 },
           second: { formula: valueFormula('world'), index: 1 },
         },
-        undefined as any,
+        {} as any,
       ),
     ).toBe('hello/world')
   })
 })
 describe('getQueryParams()', () => {
   test('it returns a valid url path string', () => {
-    const emptyParams = getRequestQueryParams({}, undefined as any)
+    const emptyParams = getRequestQueryParams({}, {} as any)
     expect(emptyParams.size).toBe(0)
     const params = getRequestQueryParams(
       {
@@ -44,7 +44,7 @@ describe('getQueryParams()', () => {
           enabled: valueFormula(false),
         },
       },
-      undefined as any,
+      {} as any,
     )
     expect(params.get('q')).toBe('hello')
     expect(params.get('filter')).toBe('world')
@@ -59,7 +59,7 @@ describe('getQueryParams()', () => {
           enabled: valueFormula(true),
         },
       },
-      undefined as any,
+      {} as any,
     )
     expect(params.getAll('q')).toEqual(['hello', 'world'])
     expect(params.size).toBe(2)
@@ -72,7 +72,7 @@ describe('getQueryParams()', () => {
           enabled: valueFormula(true),
         },
       },
-      undefined as any,
+      {} as any,
     )
     expect(params.get('q[a]')).toEqual('hello')
     expect(params.get('q[b][c]')).toEqual('world')
@@ -95,7 +95,7 @@ describe('getUrl()', () => {
           },
         },
       },
-      undefined as any,
+      {} as any,
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/hello/world?q=test')
@@ -114,7 +114,7 @@ describe('getUrl()', () => {
           },
         },
       },
-      undefined as any,
+      {} as any,
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/test/path/hello/world?q=test')
@@ -128,7 +128,7 @@ describe('getUrl()', () => {
           b: { formula: valueFormula('world'), index: 1 },
         },
       },
-      undefined as any,
+      {} as any,
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/test/path/hello/world')
@@ -142,7 +142,7 @@ describe('getUrl()', () => {
           b: { formula: valueFormula('world'), index: 1 },
         },
       },
-      undefined as any,
+      {} as any,
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/88/hello/world')
@@ -156,7 +156,7 @@ describe('getUrl()', () => {
           b: { formula: valueFormula('world'), index: 1 },
         },
       },
-      undefined as any,
+      {} as any,
       'https://mysite.com',
     )
     expect(url.href).toBe('https://mysite.com/test/path/hello/world')
@@ -175,7 +175,7 @@ describe('getUrl()', () => {
           },
         },
       },
-      undefined as any,
+      {} as any,
       'https://mysite.com',
     )
     expect(url.href).toBe(
@@ -197,7 +197,7 @@ describe('getUrl()', () => {
         },
         hash: { formula: valueFormula('my-hash') },
       },
-      undefined as any,
+      {} as any,
       'https://mysite.com',
     )
     expect(url.hash).toBe('#my-hash')
@@ -210,7 +210,7 @@ describe('getApiHeaders()', () => {
   test('it returns valid headers', () => {
     const emptyParams = getRequestHeaders({
       apiHeaders: {},
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       defaultHeaders: undefined,
     })
     expect(emptyParams.entries.length).toBe(0)
@@ -219,7 +219,7 @@ describe('getApiHeaders()', () => {
         q: { formula: valueFormula('hello') },
         filter: { formula: valueFormula('world') },
       },
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       defaultHeaders: undefined,
     })
     expect(headers.get('q')).toBe('hello')
@@ -230,7 +230,7 @@ describe('getApiHeaders()', () => {
         q: { formula: valueFormula('hello') },
         filter: { formula: valueFormula('world') },
       },
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       defaultHeaders: new Headers([['accept-encoding', 'gzip']]),
     })
     expect(headersWithDefaults.get('q')).toBe('hello')
@@ -248,7 +248,7 @@ describe('getApiHeaders()', () => {
         },
         filter: { formula: valueFormula('world') },
       },
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       defaultHeaders: undefined,
     })
     expect(headers.get('q')).toBe('hello')
@@ -282,7 +282,7 @@ describe('createApiRequest', () => {
 
     const { url, requestSettings } = createApiRequest({
       api: apiRequest,
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       baseUrl,
       defaultHeaders: undefined,
     })
@@ -327,7 +327,7 @@ describe('createApiRequest', () => {
 
     const { url, requestSettings } = createApiRequest({
       api: apiRequest,
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       baseUrl,
       defaultHeaders: undefined,
     })
@@ -353,7 +353,7 @@ describe('getRequestBody', () => {
     }
     const body = getRequestBody({
       api: apiRequest,
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       headers: new Headers(),
       method: ApiMethod.POST,
     })
@@ -372,7 +372,7 @@ describe('getRequestBody', () => {
     }
     const body = getRequestBody({
       api: apiRequest,
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       headers: new Headers([
         ['Content-Type', 'application/x-www-form-urlencoded'],
       ]),
@@ -393,7 +393,7 @@ describe('getRequestBody', () => {
     }
     const body = getRequestBody({
       api: apiRequest,
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       headers: new Headers([['Content-Type', 'multipart/form-data']]),
       method: ApiMethod.POST,
     })
