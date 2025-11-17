@@ -18,13 +18,13 @@ export const unknownContextFormulaRule: Rule<{
     }
 
     const contexts = files.components[path[1]]?.contexts ?? {}
-    if (contexts[value.path[1]]?.formulas.includes(value.path[2])) {
+    if (contexts[value.path[1]]?.formulas.includes(value.path[2] as string)) {
       return
     }
 
     report(path, {
-      providerName: value.path[1],
-      formulaName: value.path[2],
+      providerName: value.path[1] as string,
+      formulaName: value.path[2] as string,
     })
   },
 }

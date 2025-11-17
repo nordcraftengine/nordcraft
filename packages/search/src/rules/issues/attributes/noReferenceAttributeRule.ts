@@ -23,7 +23,7 @@ export const noReferenceAttributeRule: Rule<void> = {
       const attrs = new Set<string>()
       for (const { formula } of component.formulasInComponent()) {
         if (formula.type === 'path' && formula.path[0] === 'Attributes') {
-          attrs.add(formula.path[1])
+          attrs.add(formula.path[1] as string)
         }
       }
 
