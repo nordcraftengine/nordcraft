@@ -194,6 +194,7 @@ const EMPTY_COMPONENT_DATA: ComponentData = {
   },
   Attributes: {},
   Variables: {},
+  Apis: {},
 }
 
 // imported by "/.toddle/preview" (see worker/src/preview.ts)
@@ -276,7 +277,11 @@ export const createRoot = (
             | ReturnType<typeof getScrollStateRestorer>
             | undefined
 
-          if (message.data.component.name !== component?.name) {
+          const switchComponent =
+            message.data.component.name !== component?.name
+          // Re-initialize state, subscribers, signals and ctx when switching component
+          // But only if a component was already loaded
+          if (switchComponent && component) {
             // Store scroll state for the previous component
             storeScrollState(component?.name)
             // Remove all subscribers from the previous showSignal
@@ -293,6 +298,7 @@ export const createRoot = (
             setupDataSignalSubscribers()
             // Re-initialize the data signal for the new component
             ctxDataSignal?.destroy()
+            ctx = null
           }
 
           component = updateComponentLinks(message.data.component)
@@ -314,7 +320,8 @@ export const createRoot = (
 
           dataSignal.update((data) => {
             const newData: ComponentData = {
-              ...data,
+              // When switching component, reset data to empty API data etc.
+              ...(switchComponent ? EMPTY_COMPONENT_DATA : data),
               Location: data.Location
                 ? {
                     ...data.Location,
