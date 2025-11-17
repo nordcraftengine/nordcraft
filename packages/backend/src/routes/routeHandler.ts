@@ -14,7 +14,9 @@ import {
 } from '@nordcraft/ssr/dist/routing/routing'
 import {
   REDIRECT_NAME_HEADER,
+  skipContentEncodingHeader,
   skipCookieHeader,
+  skipHopByHopHeaders,
 } from '@nordcraft/ssr/src/utils/headers'
 import type { Handler } from 'hono'
 import { endTime, startTime } from 'hono/timing'
@@ -67,7 +69,7 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     })
   }
   try {
-    const headers = skipCookieHeader(c.req.raw.headers)
+    const headers = skipCookieHeader(skipHopByHopHeaders(c.req.raw.headers))
     // Add header to identify that this is a rewrite
     // This allows us to avoid recursive fetch calls across Nordcraft routes
     headers.set(REWRITE_HEADER, 'true')
@@ -97,9 +99,12 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     const body = NON_BODY_RESPONSE_CODES.includes(response.status)
       ? undefined
       : ((response.body ?? new ReadableStream()) as ReadableStream)
-    response.headers.entries().forEach(([name, value]) => {
-      c.header(name, value, { append: true })
-    })
+    // Skip hop-by-hop and content-encoding headers. Content-Encoding is handled by compress middleware
+    skipHopByHopHeaders(skipContentEncodingHeader(response.headers))
+      .entries()
+      .forEach(([name, value]) => {
+        c.header(name, value, { append: true })
+      })
     c.status(response.status as StatusCode)
     if (body) {
       return c.body(body)
