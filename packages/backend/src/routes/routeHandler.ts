@@ -77,6 +77,12 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
       headers.delete('cf-connecting-ip')
       headers.delete('host')
     }
+
+    // Override accept + accept-encoding to increase the chance that we can work with the response
+    // from an API fetched during SSR. Many servers don't support br encoding for instance.
+    headers.set('Accept', '*/*')
+    headers.set('Accept-Encoding', 'gzip, deflate')
+
     const timingKey = 'proxyRequest'
     startTime(c, timingKey)
     const response = await fetch(destination, {

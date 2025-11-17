@@ -22,7 +22,7 @@
       },
     },
     "packages/backend": {
-      "name": "nordcraft-cloudflare-worker",
+      "name": "nordcraft-backend",
       "dependencies": {
         "@hono/node-server": "1.19.6",
         "@nordcraft/core": "workspace:*",
@@ -511,7 +511,7 @@
 
     "natural-compare": ["natural-compare@1.4.0", "", {}, "sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw=="],
 
-    "nordcraft-cloudflare-worker": ["nordcraft-cloudflare-worker@workspace:packages/backend"],
+    "nordcraft-backend": ["nordcraft-backend@workspace:packages/backend"],
 
     "ohash": ["ohash@2.0.11", "", {}, "sha512-RdR9FQrFwNBNXAr4GixM8YaRZRJ5PUWbKYbE5eOsrwAjJW0q2REGcf79oYPsLyskQCZG1PLN+S/K1V00joZAoQ=="],
 
