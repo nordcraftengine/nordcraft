@@ -19,10 +19,8 @@ RUN bun install
 # Copy source and compile
 COPY . .
 
-# RUN bun build to generate a standalone executable
+# RUN bun build
 RUN bun build --minify --target=node ./packages/backend/src/node.index.ts --outdir ./packages/backend/dist/
-
-RUN ls -R ./packages/backend/dist/
 
 # -------- RUN STAGE --------
 
