@@ -1,5 +1,5 @@
 import type { FormulaContext } from './formula'
-import { FormulaEvaluationReporter } from './formulaTypes'
+import type { FormulaEvaluationReporter } from './formulaTypes'
 
 const coreFormulas = (globalThis as any).__CORE_FORMULAS__ as Record<
   string,
