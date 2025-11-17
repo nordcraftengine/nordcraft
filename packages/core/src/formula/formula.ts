@@ -26,7 +26,6 @@ import {
 } from './switchFormula'
 
 // Define the some objects types as union of ServerSide and ClientSide runtime types as applyFormula is used in both
-declare const document: Document | undefined
 type ShadowRoot = DocumentFragment
 
 interface BaseOperation extends NordcraftMetadata {
