@@ -26,3 +26,6 @@ dist
 lint
 tsconfig.*
 eslint.config.mjs
+**/.DS_Store
+.prettierignore
+.prettierrc

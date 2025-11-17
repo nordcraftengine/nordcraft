@@ -14,7 +14,9 @@ import {
 } from '@nordcraft/ssr/dist/routing/routing'
 import {
   REDIRECT_NAME_HEADER,
+  skipContentEncodingHeader,
   skipCookieHeader,
+  skipHopByHopHeaders,
 } from '@nordcraft/ssr/src/utils/headers'
 import type { Handler } from 'hono'
 import { endTime, startTime } from 'hono/timing'
@@ -67,10 +69,22 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     })
   }
   try {
-    const headers = skipCookieHeader(c.req.raw.headers)
+    const headers = skipCookieHeader(skipHopByHopHeaders(c.req.raw.headers))
     // Add header to identify that this is a rewrite
     // This allows us to avoid recursive fetch calls across Nordcraft routes
     headers.set(REWRITE_HEADER, 'true')
+    // Remove the cf-connecting-ip header if the request is from localhost
+    // This is to prevent cf to throw an error when the requester ip is ::1
+    if ((headers.get('host') ?? '').startsWith('localhost')) {
+      headers.delete('cf-connecting-ip')
+      headers.delete('host')
+    }
+
+    // Override accept + accept-encoding to increase the chance that we can work with the response
+    // from an API fetched during SSR. Many servers don't support br encoding for instance.
+    headers.set('Accept', '*/*')
+    headers.set('Accept-Encoding', 'gzip, deflate')
+
     const timingKey = 'proxyRequest'
     startTime(c, timingKey)
     const response = await fetch(destination, {
@@ -85,9 +99,12 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     const body = NON_BODY_RESPONSE_CODES.includes(response.status)
       ? undefined
       : ((response.body ?? new ReadableStream()) as ReadableStream)
-    response.headers.entries().forEach(([name, value]) => {
-      c.header(name, value, { append: true })
-    })
+    // Skip hop-by-hop and content-encoding headers. Content-Encoding is handled by compress middleware
+    skipHopByHopHeaders(skipContentEncodingHeader(response.headers))
+      .entries()
+      .forEach(([name, value]) => {
+        c.header(name, value, { append: true })
+      })
     c.status(response.status as StatusCode)
     if (body) {
       return c.body(body)

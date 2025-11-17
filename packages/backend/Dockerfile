@@ -1,5 +1,5 @@
-# Build stage
-FROM oven/bun:1.2-debian AS build
+# -------- BUILD STAGE --------
+FROM oven/bun:1.3.2-debian AS build
 
 WORKDIR /app
 
@@ -7,6 +7,10 @@ WORKDIR /app
 COPY bun.lock package.json bunfig.toml ./
 COPY packages/backend/package.json ./packages/backend/
 COPY packages/core/package.json ./packages/core/
+# We technically don't need the editor package for anything, but if it's no included
+# then bun install will fail when --production/--frozen-lockfile is used because it
+# can't find all the packages listed in the lockfile
+COPY packages/editor/package.json ./packages/editor/
 COPY packages/lib/package.json ./packages/lib/
 COPY packages/runtime/package.json ./packages/runtime/
 COPY packages/search/package.json ./packages/search/
@@ -19,13 +23,15 @@ RUN bun install --production --verbose --frozen-lockfile
 # Copy source and compile
 COPY . .
 
-# RUN bun build to generate a standalone executable
-RUN bun build --compile --minify --sourcemap ./packages/backend/src/bun.index.ts --outfile nordcraft-backend
+# RUN bun build
+RUN bun build --minify --target=node ./packages/backend/src/node.index.ts --outdir ./packages/backend/dist/
 
-# Our application runner. Use gcr.io/distroless/base-debian12:debug to allow debugging
+# -------- RUN STAGE --------
+
+# Our application runner. Use gcr.io/distroless/nodejs24-debian12:debug to allow debugging
 # using docker run -it --entrypoint=sh nordcraft-backend
 # see https://github.com/GoogleContainerTools/distroless
-FROM gcr.io/distroless/base-debian12 AS runner
+FROM gcr.io/distroless/nodejs24-debian12 AS runner
 
 ENV NODE_ENV=production
 
@@ -33,11 +39,10 @@ ARG BUILD_APP_PORT=3000
 ENV APP_PORT=${BUILD_APP_PORT}
 EXPOSE ${APP_PORT}
 
-WORKDIR /app
+WORKDIR /app/dist
 
-# Copy the compiled executable from the build stage
-COPY --from=build /app/nordcraft-backend .
 # Copy project specific files
-COPY --from=build /app/packages/backend/dist/ .
+COPY --from=build --chown=65532:65532 /app/node_modules/ ../node_modules/
+COPY --from=build --chown=65532:65532 /app/packages/backend/dist/ .
 
-ENTRYPOINT ["./nordcraft-backend"]
+CMD ["node.index.js"]

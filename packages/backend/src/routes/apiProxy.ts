@@ -13,6 +13,10 @@ import {
   applyTemplateValues,
   sanitizeProxyHeaders,
 } from '@nordcraft/ssr/dist/rendering/template'
+import {
+  skipContentEncodingHeader,
+  skipHopByHopHeaders,
+} from '@nordcraft/ssr/src/utils/headers'
 import type { Context } from 'hono'
 import { endTime, startTime } from 'hono/timing'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -50,6 +54,8 @@ export const proxyRequestHandler = async (
       cookies: requestCookies,
       headers: req.headers,
     })
+    // Ensure we support the received content. Our server doesn't support brotli for instance
+    headers.set('accept-encoding', 'gzip, deflate')
   } catch {
     return c.json(
       {
@@ -112,8 +118,10 @@ export const proxyRequestHandler = async (
     try {
       // Remove the cf-connecting-ip header if the request is from localhost
       // This is to prevent cf to throw an error when the requester ip is ::1
+      // Also remove the host header to prevent host mismatches
       if ((request.headers.get('host') ?? '').startsWith('localhost')) {
         request.headers.delete('cf-connecting-ip')
+        request.headers.delete('host')
       }
       const timingKey = 'apiProxyFetch'
       startTime(c, timingKey)
@@ -130,10 +138,12 @@ export const proxyRequestHandler = async (
     const body = NON_BODY_RESPONSE_CODES.includes(response.status)
       ? undefined
       : ((response.body ?? new ReadableStream()) as ReadableStream)
-
-    response.headers.entries().forEach(([name, value]) => {
-      c.header(name, value, { append: true })
-    })
+    // Skip hop-by-hop and content-encoding headers. Content-Encoding is handled by compress middleware
+    skipHopByHopHeaders(skipContentEncodingHeader(response.headers))
+      .entries()
+      .forEach(([name, value]) => {
+        c.header(name, value, { append: true })
+      })
     // Tell the client to vary based on the original URL header
     c.header('Vary', PROXY_URL_HEADER, { append: true })
     c.status(response.status as StatusCode)
