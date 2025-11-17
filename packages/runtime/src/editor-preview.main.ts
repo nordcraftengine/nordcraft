@@ -1433,14 +1433,17 @@ export const createRoot = (
               ]),
             }
           })
-          newCtx.apis[api] = createLegacyAPI(apiInstance, newCtx)
+          newCtx.apis[api] = createLegacyAPI(apiInstance, {
+            ...newCtx,
+            jsonPath: ['apis', api],
+          })
         }
       } else {
         const existingApi = newCtx.apis[api] as ContextApiV2 | undefined
         if (!existingApi) {
           newCtx.apis[api] = createAPI({
             apiRequest: apiInstance,
-            ctx: newCtx,
+            ctx: { ...newCtx, jsonPath: ['apis', api] },
             componentData: dataSignal.get(),
           })
         } else {

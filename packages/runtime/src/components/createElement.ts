@@ -147,7 +147,7 @@ export function createElement({
       setupAttribute()
     }
   })
-  node['style-variables']?.forEach((styleVariable) => {
+  node['style-variables']?.forEach((styleVariable, i) => {
     const { name, formula, unit } = styleVariable
     const signal = dataSignal.map((data) => {
       const value = applyFormula(
@@ -163,7 +163,7 @@ export function createElement({
           jsonPath: ctx.jsonPath,
           reportFormulaEvaluation: ctx.reportFormulaEvaluation,
         },
-        ['style-variables', name],
+        ['style-variables', i, 'formula'],
       )
       return unit ? value + unit : value
     })
@@ -196,7 +196,7 @@ export function createElement({
                 jsonPath: ctx.jsonPath,
                 reportFormulaEvaluation: ctx.reportFormulaEvaluation,
               },
-              ['customProperties', customPropertyName],
+              ['customProperties', customPropertyName, 'formula'],
             ),
             unit,
           ),
@@ -206,7 +206,7 @@ export function createElement({
       }),
   )
 
-  node.variants?.forEach((variant) => {
+  node.variants?.forEach((variant, variantIndex) => {
     Object.entries(variant.customProperties ?? {}).forEach(
       ([customPropertyName, { formula, unit }]) => {
         subscribeCustomProperty({
@@ -232,9 +232,10 @@ export function createElement({
                 },
                 [
                   'variants',
-                  Object.keys(variant)[0],
+                  variantIndex,
                   'customProperties',
                   customPropertyName,
+                  'formula',
                 ],
               ),
               unit,
@@ -277,21 +278,18 @@ export function createElement({
         } else {
           const textSignal = dataSignal.map((data) => {
             return String(
-              applyFormula(
-                node.value,
-                {
-                  data,
-                  component: ctx.component,
-                  formulaCache: ctx.formulaCache,
-                  root: ctx.root,
-                  package: ctx.package,
-                  toddle: ctx.toddle,
-                  env: ctx.env,
-                  jsonPath: ctx.jsonPath,
-                  reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-                },
-                ['value'],
-              ),
+              applyFormula(node.value, {
+                data,
+                component: ctx.component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+                jsonPath: ctx.jsonPath,
+                // TODO: unsure what path we should report here
+                // reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+              }),
             )
           })
           textValues.push(textSignal)

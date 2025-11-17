@@ -104,10 +104,11 @@ export function subscribeToContext(
           testProvider.variables,
           ([name, variable]) => [
             name,
-            applyFormula(variable.initialValue, formulaContext, [
-              'variables',
-              name,
-            ]),
+            applyFormula(variable.initialValue, {
+              ...formulaContext,
+              // We should not report formula evaluations for test data on context providers
+              reportFormulaEvaluation: undefined,
+            }),
           ],
         )
 
@@ -128,10 +129,11 @@ export function subscribeToContext(
 
                 return [
                   formulaName,
-                  applyFormula(formula.formula, formulaContext, [
-                    'formulas',
-                    formulaName,
-                  ]),
+                  applyFormula(formula.formula, {
+                    ...formulaContext,
+                    // We should not report formula evaluations for test data on context providers
+                    reportFormulaEvaluation: undefined,
+                  }),
                 ]
               }),
             ),

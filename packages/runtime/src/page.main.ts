@@ -221,11 +221,14 @@ export const createRoot = (domNode: HTMLElement) => {
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
   sortApiObjects(Object.entries(component.apis)).forEach(([name, api]) => {
     if (isLegacyApi(api)) {
-      ctx.apis[name] = createLegacyAPI(api, ctx)
+      ctx.apis[name] = createLegacyAPI(api, {
+        ...ctx,
+        jsonPath: ['apis', name],
+      })
     } else {
       ctx.apis[name] = createAPI({
         apiRequest: api,
-        ctx,
+        ctx: { ...ctx, jsonPath: ['apis', name] },
         componentData: dataSignal.get(),
       })
     }
