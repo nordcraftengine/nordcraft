@@ -8,7 +8,7 @@ import {
 } from '../formula/formulaUtils'
 import { isDefined } from '../utils/util'
 import { HttpMethodsWithAllowedBody } from './api'
-import { ApiMethod, type ApiRequest } from './apiTypes'
+import { type ApiRequest } from './apiTypes'
 
 export class ToddleApiV2<Handler> implements ApiRequest {
   private api: ApiRequest
@@ -232,7 +232,8 @@ export class ToddleApiV2<Handler> implements ApiRequest {
       })
     }
 
-    if (HttpMethodsWithAllowedBody.includes(api.method ?? ApiMethod.GET)) {
+    // Only visit the body definition if the method supports having a body
+    if (api.method && HttpMethodsWithAllowedBody.includes(api.method)) {
       yield* getFormulasInFormula({
         formula: api.body,
         globalFormulas: this.globalFormulas,
