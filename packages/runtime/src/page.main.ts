@@ -164,15 +164,20 @@ export const createRoot = (domNode: HTMLElement) => {
     // state (e.g. localStorage, sensors etc.)
     Variables: mapObject(component.variables, ([name, variable]) => [
       name,
-      applyFormula(variable.initialValue, {
-        data: window.toddle.pageState,
-        component,
-        formulaCache: {},
-        root: document,
-        package: undefined,
-        toddle: window.toddle,
-        env,
-      }),
+      applyFormula(
+        variable.initialValue,
+        {
+          data: window.toddle.pageState,
+          component,
+          formulaCache: {},
+          root: document,
+          package: undefined,
+          toddle: window.toddle,
+          env,
+          jsonPath: [],
+        },
+        ['variables', name],
+      ),
     ]),
   })
 
@@ -210,6 +215,7 @@ export const createRoot = (domNode: HTMLElement) => {
       console.info('EVENT FIRED', event, data),
     package: undefined,
     env,
+    jsonPath: [],
   }
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
@@ -343,14 +349,19 @@ const setupMetaUpdates = (
     dataSignal
       .map<string | null>(() =>
         component
-          ? applyFormula(langFormula, {
-              data: dataSignal.get(),
-              component,
-              root: document,
-              package: undefined,
-              toddle: window.toddle,
-              env,
-            })
+          ? applyFormula(
+              langFormula,
+              {
+                data: dataSignal.get(),
+                component,
+                root: document,
+                package: undefined,
+                toddle: window.toddle,
+                env,
+                jsonPath: [],
+              },
+              ['route', 'info', 'language'],
+            )
           : null,
       )
       .subscribe((newLang) => {
@@ -367,14 +378,19 @@ const setupMetaUpdates = (
     dataSignal
       .map<string | null>(() =>
         component
-          ? applyFormula(titleFormula, {
-              data: dataSignal.get(),
-              component,
-              root: document,
-              package: undefined,
-              toddle: window.toddle,
-              env,
-            })
+          ? applyFormula(
+              titleFormula,
+              {
+                data: dataSignal.get(),
+                component,
+                root: document,
+                package: undefined,
+                toddle: window.toddle,
+                env,
+                jsonPath: [],
+              },
+              ['route', 'info', 'title'],
+            )
           : null,
       )
       .subscribe((newTitle) => {
@@ -434,14 +450,19 @@ const setupMetaUpdates = (
       dataSignal
         .map<string | null>((data) =>
           component
-            ? applyFormula(descriptionFormula, {
-                data,
-                component,
-                root: document,
-                package: undefined,
-                toddle: window.toddle,
-                env,
-              })
+            ? applyFormula(
+                descriptionFormula,
+                {
+                  data,
+                  component,
+                  root: document,
+                  package: undefined,
+                  toddle: window.toddle,
+                  env,
+                  jsonPath: [],
+                },
+                ['route', 'info', 'description'],
+              )
             : null,
         )
         .subscribe((newDescription) => {
@@ -499,14 +520,19 @@ const setupMetaUpdates = (
                   component
                     ? {
                         ...agg,
-                        [key]: applyFormula(formula, {
-                          data,
-                          component,
-                          root: document,
-                          package: undefined,
-                          toddle: window.toddle,
-                          env,
-                        }),
+                        [key]: applyFormula(
+                          formula,
+                          {
+                            data,
+                            component,
+                            root: document,
+                            package: undefined,
+                            toddle: window.toddle,
+                            env,
+                            jsonPath: [],
+                          },
+                          ['route', 'info', 'meta', id, 'attrs', key],
+                        ),
                       }
                     : agg,
                 {},

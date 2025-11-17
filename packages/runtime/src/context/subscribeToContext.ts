@@ -83,6 +83,8 @@ export function subscribeToContext(
           package: testProviderPackage ?? ctx?.package,
           toddle: ctx.toddle,
           env: ctx.env,
+          jsonPath: ctx.jsonPath,
+          reportFormulaEvaluation: ctx.reportFormulaEvaluation,
         }
 
         if (testProvider.route) {
@@ -102,7 +104,10 @@ export function subscribeToContext(
           testProvider.variables,
           ([name, variable]) => [
             name,
-            applyFormula(variable.initialValue, formulaContext),
+            applyFormula(variable.initialValue, formulaContext, [
+              'variables',
+              name,
+            ]),
           ],
         )
 
@@ -123,7 +128,10 @@ export function subscribeToContext(
 
                 return [
                   formulaName,
-                  applyFormula(formula.formula, formulaContext),
+                  applyFormula(formula.formula, formulaContext, [
+                    'formulas',
+                    formulaName,
+                  ]),
                 ]
               }),
             ),
