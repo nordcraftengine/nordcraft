@@ -388,6 +388,7 @@ export function createNode({
     instance,
   })
 }
+
 export type NodeRenderer<NodeType> = {
   node: NodeType
   dataSignal: Signal<ComponentData>
