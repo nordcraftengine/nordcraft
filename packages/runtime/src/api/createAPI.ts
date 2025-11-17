@@ -56,7 +56,9 @@ export function createLegacyAPI(
       api.path && api.path.length > 0
         ? '/' +
           api.path
-            .map((p, i) => applyFormula(p.formula, formulaContext, ['path', i]))
+            .map((p, i) =>
+              applyFormula(p.formula, formulaContext, ['path', i, 'formula']),
+            )
             .join('/')
         : ''
 
@@ -67,9 +69,13 @@ export function createLegacyAPI(
         ? '?' +
           queryParams
             .map(
-              (param) =>
+              (param, i) =>
                 `${param.name}=${encodeURIComponent(
-                  applyFormula(param.formula, formulaContext, []),
+                  applyFormula(param.formula, formulaContext, [
+                    'queryParams',
+                    i,
+                    'formula',
+                  ]),
                 )}`,
             )
             .join('&')

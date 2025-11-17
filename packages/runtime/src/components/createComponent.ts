@@ -99,7 +99,7 @@ export function createComponent({
                 jsonPath: ctx.jsonPath,
                 reportFormulaEvaluation: ctx.reportFormulaEvaluation,
               },
-              ['customProperties', customPropertyName],
+              ['customProperties', customPropertyName, 'formula'],
             ),
             customProperty.unit,
           ),
@@ -133,7 +133,7 @@ export function createComponent({
                   jsonPath: ctx.jsonPath,
                   reportFormulaEvaluation: ctx.reportFormulaEvaluation,
                 },
-                ['variants', 'customProperties', customPropertyName],
+                ['variants', 'customProperties', customPropertyName, 'formula'],
               ),
               customProperty.unit,
             ),
@@ -233,6 +233,7 @@ export function createComponent({
             )
           }
         },
+        jsonPath: ['apis', name],
       })
     } else {
       apis[name] = createAPI({

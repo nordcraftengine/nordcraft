@@ -319,7 +319,7 @@ export function handleAction(
                   jsonPath: ctx.jsonPath,
                   reportFormulaEvaluation: ctx.reportFormulaEvaluation,
                 },
-                ['inputs', key],
+                ['inputs', key, 'formula'],
               ),
             ],
           )
@@ -379,7 +379,7 @@ export function handleAction(
                 jsonPath: ctx.jsonPath,
                 reportFormulaEvaluation: ctx.reportFormulaEvaluation,
               },
-              ['parameters', key],
+              ['parameters', key, 'formula'],
             ),
           ],
         )
@@ -518,7 +518,7 @@ export function handleAction(
                           jsonPath: ctx.jsonPath,
                           reportFormulaEvaluation: ctx.reportFormulaEvaluation,
                         },
-                        ['arguments', i],
+                        ['arguments', i, 'formula'],
                       ),
                     }
                   : args,
@@ -577,7 +577,7 @@ export function handleAction(
                   jsonPath: ctx.jsonPath,
                   reportFormulaEvaluation: ctx.reportFormulaEvaluation,
                 },
-                ['arguments', i],
+                ['arguments', i, 'formula'],
               ),
             ) ?? [
               applyFormula(
