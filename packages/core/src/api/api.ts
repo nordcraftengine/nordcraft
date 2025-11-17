@@ -34,7 +34,11 @@ export const createApiRequest = <Handler>({
   baseUrl?: string
   defaultHeaders: Headers | undefined
 }) => {
-  const url = getUrl(api, formulaContext, baseUrl)
+  const url = getUrl(
+    api,
+    { ...formulaContext, jsonPath: ['apis', api.name] },
+    baseUrl,
+  )
   const requestSettings = getRequestSettings({
     api,
     formulaContext,
@@ -73,7 +77,10 @@ export const getUrl = (
   ])
   const queryString =
     [...queryParams.entries()].length > 0 ? `?${queryParams.toString()}` : ''
-  const hash = applyFormula(api.hash?.formula, formulaContext, ['hash'])
+  const hash = applyFormula(api.hash?.formula, formulaContext, [
+    'hash',
+    'formula',
+  ])
   const hashString =
     typeof hash === 'string' && hash.length > 0 ? `#${hash}` : ''
   if (parsedUrl) {
@@ -103,6 +110,7 @@ export const applyAbortSignal = (
   if (api.timeout) {
     const timeout = applyFormula(api.timeout.formula, formulaContext, [
       'timeout',
+      'formula',
     ])
     if (typeof timeout === 'number' && !Number.isNaN(timeout) && timeout > 0) {
       requestSettings.signal = AbortSignal.timeout(timeout)
@@ -173,6 +181,7 @@ export const getRequestQueryParams = (
     const value = applyFormula(param.formula, formulaContext, [
       'queryParams',
       key,
+      'formula',
     ])
     if (!isDefined(value)) {
       // Ignore null/undefined values
@@ -218,6 +227,7 @@ export const getRequestHeaders = ({
       const value = applyFormula(param.formula, formulaContext, [
         'headers',
         key,
+        'formula',
       ])
       if (isDefined(value)) {
         try {
@@ -277,35 +287,31 @@ export const isApiError = ({
   errorFormula?: { formula: Formula } | null
 }) => {
   const errorFormulaRes = errorFormula
-    ? applyFormula(
-        errorFormula.formula,
-        {
-          component: formulaContext.component,
-          package: formulaContext.package,
-          toddle: formulaContext.toddle,
-          data: {
-            Attributes: {},
-            Args: formulaContext.data.Args,
-            Apis: {
-              // The errorFormula will only have access to the data of the current API
-              [apiName]: {
-                isLoading: false,
-                data: response.body,
-                error: null,
-                response: {
-                  status: response.status,
-                  headers: response.headers,
-                  performance,
-                },
+    ? applyFormula(errorFormula.formula, {
+        component: formulaContext.component,
+        package: formulaContext.package,
+        toddle: formulaContext.toddle,
+        data: {
+          Attributes: {},
+          Args: formulaContext.data.Args,
+          Apis: {
+            // The errorFormula will only have access to the data of the current API
+            [apiName]: {
+              isLoading: false,
+              data: response.body,
+              error: null,
+              response: {
+                status: response.status,
+                headers: response.headers,
+                performance,
               },
             },
           },
-          env: formulaContext.env,
-          jsonPath: formulaContext.jsonPath,
-          reportFormulaEvaluation: formulaContext.reportFormulaEvaluation,
         },
-        [],
-      )
+        env: formulaContext.env,
+        jsonPath: ['apis', apiName, 'isError', 'formula'],
+        reportFormulaEvaluation: formulaContext.reportFormulaEvaluation,
+      })
     : null
 
   if (errorFormulaRes === null || errorFormulaRes === undefined) {
