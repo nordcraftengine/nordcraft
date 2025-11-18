@@ -1303,9 +1303,9 @@ export const createRoot = (
               package: ctx?.package,
               toddle: window.toddle,
               env,
-              // TODO: Figure out how we report formula evaluation for context providers' formulas
               jsonPath: [],
-              // reportFormulaEvaluation: ctx?.reportFormulaEvaluation,
+              // We don't evaluate formulas in context providers in preview mode currently
+              reportFormulaEvaluation: undefined,
             }
 
             // Pages can also be context-providers!
