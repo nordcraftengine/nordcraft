@@ -294,7 +294,7 @@ export function createNode({
               },
             )
 
-            const args = {
+            const args: NodeRenderer<NodeModel> = {
               node,
               id,
               dataSignal: childDataSignal,

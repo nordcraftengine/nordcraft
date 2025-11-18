@@ -137,7 +137,7 @@ export interface FormulaContext {
     errors: Error[]
   }
   jsonPath?: Array<string | number> | undefined
-  reportFormulaEvaluation?: FormulaEvaluationReporter
+  reportFormulaEvaluation?: FormulaEvaluationReporter | undefined
   env: ToddleEnv | undefined
 }
 

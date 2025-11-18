@@ -83,7 +83,7 @@ export interface ComponentContext {
   >
   toddle: Toddle<LocationSignal, PreviewShowSignal>
   jsonPath: Array<string | number> | undefined
-  reportFormulaEvaluation?: FormulaEvaluationReporter
+  reportFormulaEvaluation?: FormulaEvaluationReporter | undefined
   env: ToddleEnv
 }
 
