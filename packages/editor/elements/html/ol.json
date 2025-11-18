@@ -4,7 +4,8 @@
     "categories": ["semantic"],
     "description": "Represents an ordered list of items",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol",
-    "aliases": ["ordered-list", "numbered-list", "list"]
+    "aliases": ["ordered-list", "numbered-list", "list"],
+    "permittedChildren": ["li", "template", "script"]
   },
   "element": {
     "type": "nodes",

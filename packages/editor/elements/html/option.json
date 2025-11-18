@@ -4,7 +4,8 @@
     "categories": ["form"],
     "description": "Defines an option in a select, datalist, or optgroup",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option",
-    "aliases": ["select-option"]
+    "aliases": ["select-option"],
+    "permittedParents": ["select", "datalist", "optgroup"]
   },
   "element": {
     "type": "nodes",

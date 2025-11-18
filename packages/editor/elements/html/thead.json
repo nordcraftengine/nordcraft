@@ -4,7 +4,9 @@
     "categories": ["semantic"],
     "description": "Groups the header content in a table",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/thead",
-    "aliases": ["table-header"]
+    "aliases": ["table-header"],
+    "permittedChildren": ["tr"],
+    "permittedParents": ["table"]
   },
   "element": {
     "type": "nodes",
