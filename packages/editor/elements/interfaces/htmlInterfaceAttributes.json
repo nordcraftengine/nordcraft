@@ -80,6 +80,41 @@
     ]
   },
   {
+    "name": "global",
+    "attributes": [
+      "accesskey",
+      "autocapitalize",
+      "autocorrect",
+      "autofocus",
+      "class",
+      "contenteditable",
+      "dir",
+      "draggable",
+      "enterkeyhint",
+      "headingoffset",
+      "headingreset",
+      "hidden",
+      "id",
+      "inputmode",
+      "is",
+      "itemid",
+      "itemprop",
+      "itemref",
+      "itemscope",
+      "itemtype",
+      "lang",
+      "popover",
+      "popovertarget",
+      "popovertargetaction",
+      "slot",
+      "spellcheck",
+      "style",
+      "title",
+      "translate",
+      "writingsuggestions"
+    ]
+  },
+  {
     "name": "HTMLTitleElement",
     "attributes": ["text"]
   },

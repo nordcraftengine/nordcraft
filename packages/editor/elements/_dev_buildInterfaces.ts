@@ -34,8 +34,10 @@ const groupedAttributes = definitions.dfns
     (d) =>
       // Ignore all event attributes
       !d.id.startsWith('handler-') &&
-      // Only keep attributes
-      d.type === 'attribute',
+      // Only keep attributes and element-attr definitions (if they're global)
+      (d.type === 'attribute' ||
+        (d.type === 'element-attr' &&
+          (d.for.includes('html-global') || d.for.includes('global')))),
   )
   .reduce(
     (acc, d) => {
