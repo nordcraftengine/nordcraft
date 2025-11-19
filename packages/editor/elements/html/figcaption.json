@@ -4,7 +4,8 @@
     "categories": ["media"],
     "description": "Provides a caption or legend for a figure element",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figcaption",
-    "aliases": ["figure-caption"]
+    "aliases": ["figure-caption"],
+    "permittedParents": ["figure"]
   },
   "element": {
     "type": "nodes",

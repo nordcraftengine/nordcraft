@@ -21,6 +21,7 @@ const voidElements = [
   'track',
   'wbr',
 ]
+
 const popularElements = [
   'a',
   'button',
@@ -42,7 +43,14 @@ const popularSvgElements = ['line', 'path', 'rect', 'svg']
 
 const init = () => {
   Object.entries(elements).forEach(([element, settings]) => {
-    const { aliases, attrs, nodes, categories } = settings
+    const {
+      aliases,
+      attrs,
+      nodes,
+      categories,
+      permittedChildren,
+      permittedParents,
+    } = settings
     const output: ExportedHtmlElement = {
       metadata: {
         name: element,
@@ -55,6 +63,8 @@ const init = () => {
         aliases: aliases,
         isVoid: voidElements.includes(element) ? true : undefined,
         isPopular: popularElements.includes(element) ? true : undefined,
+        permittedChildren,
+        permittedParents,
       },
       element: {
         type: 'nodes',
@@ -141,6 +151,8 @@ const elements: Record<
   {
     aliases: string[]
     categories: ExportedHtmlElementCategory[]
+    permittedChildren?: string[]
+    permittedParents?: string[]
     attrs?: Record<string, ValueOperation>
     nodes?: Record<string, NodeModel>
   }
@@ -405,7 +417,11 @@ const elements: Record<
   },
   dialog: { aliases: ['modal', 'popup'], categories: ['semantic'] },
   div: { aliases: ['container', 'division'], categories: ['semantic'] },
-  dl: { aliases: ['description-list'], categories: ['semantic'] },
+  dl: {
+    aliases: ['description-list'],
+    categories: ['semantic'],
+    permittedChildren: ['dd', 'dt', 'div', 'script', 'template'],
+  },
   dt: { aliases: ['description-term'], categories: ['semantic'] },
   em: {
     aliases: ['emphasis', 'italic'],
@@ -433,7 +449,11 @@ const elements: Record<
     },
   },
   fieldset: { aliases: ['form-group'], categories: ['form'] },
-  figcaption: { aliases: ['figure-caption'], categories: ['media'] },
+  figcaption: {
+    aliases: ['figure-caption'],
+    categories: ['media'],
+    permittedParents: ['figure'],
+  },
   figure: { aliases: ['illustration', 'media'], categories: ['media'] },
   footer: {
     aliases: ['page-footer', 'section-footer'],
@@ -642,10 +662,15 @@ const elements: Record<
       for: { type: 'value', value: '' },
     },
   },
-  legend: { aliases: ['fieldset-caption'], categories: ['form'] },
+  legend: {
+    aliases: ['fieldset-caption'],
+    categories: ['form'],
+    permittedParents: ['fieldset'],
+  },
   li: {
     aliases: ['list-item'],
     categories: ['semantic'],
+    permittedParents: ['ul', 'ol', 'menu'],
   },
   link: {
     aliases: ['stylesheet-link', 'external-resource'],
@@ -708,6 +733,7 @@ const elements: Record<
   ol: {
     aliases: ['ordered-list', 'numbered-list', 'list'],
     categories: ['semantic'],
+    permittedChildren: ['li', 'template', 'script'],
   },
   optgroup: {
     aliases: ['option-group'],
@@ -715,6 +741,8 @@ const elements: Record<
     attrs: {
       label: { type: 'value', value: '' },
     },
+    permittedChildren: ['option'],
+    permittedParents: ['select'],
   },
   option: {
     aliases: ['select-option'],
@@ -722,6 +750,7 @@ const elements: Record<
     attrs: {
       value: { type: 'value', value: '' },
     },
+    permittedParents: ['select', 'datalist', 'optgroup'],
   },
   output: {
     aliases: ['calculation-result'],
@@ -889,6 +918,7 @@ const elements: Record<
     attrs: {
       name: { type: 'value', value: '' },
     },
+    permittedChildren: ['option', 'optgroup', 'hr'],
   },
   small: {
     aliases: ['fine-print'],
@@ -1000,9 +1030,22 @@ const elements: Record<
       MsVwQCP4yKPh_00L4fAhT: defaultTextElement('Superscript text'),
     },
   },
-  table: { aliases: ['data-table'], categories: ['semantic'] },
-  tbody: { aliases: ['table-body'], categories: ['semantic'] },
-  td: { aliases: ['table-cell'], categories: ['semantic'] },
+  table: {
+    aliases: ['data-table'],
+    categories: ['semantic'],
+    permittedChildren: ['tbody', 'thead', 'tfoot', 'tr', 'colgroup', 'caption'],
+  },
+  tbody: {
+    aliases: ['table-body'],
+    categories: ['semantic'],
+    permittedChildren: ['tr'],
+    permittedParents: ['table'],
+  },
+  td: {
+    aliases: ['table-cell'],
+    categories: ['semantic'],
+    permittedParents: ['tr'],
+  },
   template: { aliases: ['html-template'], categories: ['semantic'] },
   textarea: {
     aliases: ['multiline-input'],
@@ -1011,9 +1054,23 @@ const elements: Record<
       name: { type: 'value', value: '' },
     },
   },
-  tfoot: { aliases: ['table-footer'], categories: ['semantic'] },
-  th: { aliases: ['table-header-cell'], categories: ['semantic'] },
-  thead: { aliases: ['table-header'], categories: ['semantic'] },
+  tfoot: {
+    aliases: ['table-footer'],
+    categories: ['semantic'],
+    permittedChildren: ['tr'],
+    permittedParents: ['table'],
+  },
+  th: {
+    aliases: ['table-header-cell'],
+    categories: ['semantic'],
+    permittedParents: ['tr'],
+  },
+  thead: {
+    aliases: ['table-header'],
+    categories: ['semantic'],
+    permittedChildren: ['tr'],
+    permittedParents: ['table'],
+  },
   time: {
     aliases: ['datetime', 'timestamp'],
     categories: ['semantic'],
@@ -1021,7 +1078,12 @@ const elements: Record<
       datetime: { type: 'value', value: '' },
     },
   },
-  tr: { aliases: ['table-row'], categories: ['semantic'] },
+  tr: {
+    aliases: ['table-row'],
+    categories: ['semantic'],
+    permittedChildren: ['td', 'th', 'script', 'template'],
+    permittedParents: ['table', 'thead', 'tbody', 'tfoot'],
+  },
   track: {
     aliases: ['media-track', 'subtitles'],
     categories: ['media'],
@@ -1049,6 +1111,7 @@ const elements: Record<
   ul: {
     aliases: ['unordered-list', 'bulleted-list', 'list'],
     categories: ['semantic'],
+    permittedChildren: ['li', 'template', 'script'],
   },
   var: {
     aliases: ['variable'],

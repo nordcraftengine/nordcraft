@@ -4,7 +4,9 @@
     "categories": ["semantic"],
     "description": "Groups the footer content in a table",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tfoot",
-    "aliases": ["table-footer"]
+    "aliases": ["table-footer"],
+    "permittedChildren": ["tr"],
+    "permittedParents": ["table"]
   },
   "element": {
     "type": "nodes",

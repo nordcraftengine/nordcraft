@@ -4,7 +4,8 @@
     "categories": ["semantic"],
     "description": "Defines a cell in a table row",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td",
-    "aliases": ["table-cell"]
+    "aliases": ["table-cell"],
+    "permittedParents": ["tr"]
   },
   "element": {
     "type": "nodes",

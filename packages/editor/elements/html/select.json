@@ -4,7 +4,8 @@
     "categories": ["form"],
     "description": "Creates a dropdown list for selecting options",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select",
-    "aliases": ["dropdown", "select-box"]
+    "aliases": ["dropdown", "select-box"],
+    "permittedChildren": ["option", "optgroup", "hr"]
   },
   "element": {
     "type": "nodes",
