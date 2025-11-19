@@ -5,7 +5,14 @@
     "description": "Creates a clickable button for user interaction",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button",
     "aliases": ["form-button", "action-button", "submit-button"],
-    "isPopular": true
+    "isPopular": true,
+    "interfaces": [
+      "HTMLButtonElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

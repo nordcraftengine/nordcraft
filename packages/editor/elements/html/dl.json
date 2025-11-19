@@ -5,6 +5,13 @@
     "description": "Represents a description list of terms and their descriptions",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl",
     "aliases": ["description-list"],
+    "interfaces": [
+      "HTMLDListElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ],
     "permittedChildren": ["dd", "dt", "div", "script", "template"]
   },
   "element": {

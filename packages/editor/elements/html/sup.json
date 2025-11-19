@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Renders text as superscript",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup",
-    "aliases": ["superscript"]
+    "aliases": ["superscript"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

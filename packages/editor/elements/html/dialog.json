@@ -4,7 +4,8 @@
     "categories": ["semantic"],
     "description": "Represents a dialog box or other interactive component",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog",
-    "aliases": ["modal", "popup"]
+    "aliases": ["modal", "popup"],
+    "interfaces": ["HTMLDialogElement"]
   },
   "element": {
     "type": "nodes",

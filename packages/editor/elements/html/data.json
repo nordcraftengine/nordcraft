@@ -4,7 +4,14 @@
     "categories": ["semantic"],
     "description": "Associates a machine-readable value with its human-readable content",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/data",
-    "aliases": ["machine-readable"]
+    "aliases": ["machine-readable"],
+    "interfaces": [
+      "HTMLDataElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

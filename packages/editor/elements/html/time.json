@@ -4,7 +4,14 @@
     "categories": ["semantic"],
     "description": "Represents a specific time or date",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time",
-    "aliases": ["datetime", "timestamp"]
+    "aliases": ["datetime", "timestamp"],
+    "interfaces": [
+      "HTMLTimeElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

@@ -5,6 +5,13 @@
     "description": "Defines an option in a select, datalist, or optgroup",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option",
     "aliases": ["select-option"],
+    "interfaces": [
+      "HTMLOptionElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ],
     "permittedParents": ["select", "datalist", "optgroup"]
   },
   "element": {

@@ -3,10 +3,16 @@ import type {
   NodeStyleModel,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ValueOperation } from '@nordcraft/core/dist/formula/formula'
+import { listAll } from '@webref/elements'
 import { writeFileSync } from 'fs'
+import { api } from 'mdn-data'
 import type { ExportedHtmlElement, ExportedHtmlElementCategory } from '../types'
 
-const voidElements = [
+// Generates metadata and default structure for all HTML and SVG elements
+// The interface names for each element are fetched from the @webref/elements package
+// combined with the api data from the mdn-data package (that holds information about inheritance)
+
+const VOID_ELEMENTS = [
   'area',
   'base',
   'br',
@@ -22,7 +28,7 @@ const voidElements = [
   'wbr',
 ]
 
-const popularElements = [
+const POPULAR_ELEMENTS = [
   'a',
   'button',
   'div',
@@ -39,7 +45,17 @@ const popularElements = [
   'ul',
 ]
 
-const popularSvgElements = ['line', 'path', 'rect', 'svg']
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+const elementDefinitions = (await listAll())?.['html']?.elements
+
+const inheritedInterfaces = (interfaceName: string): string[] => {
+  const inheritanceData = api.inheritance[interfaceName]
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (!inheritanceData) {
+    return [interfaceName]
+  }
+  return [interfaceName, ...inheritedInterfaces(inheritanceData.inherits)]
+}
 
 const init = () => {
   Object.entries(elements).forEach(([element, settings]) => {
@@ -51,6 +67,13 @@ const init = () => {
       permittedChildren,
       permittedParents,
     } = settings
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const elementInterface = elementDefinitions?.find(
+      (el) => el.name === element,
+    )?.interface
+    if (typeof elementInterface !== 'string') {
+      throw new Error('No interface found for element: ' + element)
+    }
     const output: ExportedHtmlElement = {
       metadata: {
         name: element,
@@ -61,8 +84,9 @@ const init = () => {
           `An HTML element representing the ${element} element.`,
         link: `https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${element}`,
         aliases: aliases,
-        isVoid: voidElements.includes(element) ? true : undefined,
-        isPopular: popularElements.includes(element) ? true : undefined,
+        isVoid: VOID_ELEMENTS.includes(element) ? true : undefined,
+        isPopular: POPULAR_ELEMENTS.includes(element) ? true : undefined,
+        interfaces: inheritedInterfaces(elementInterface),
         permittedChildren,
         permittedParents,
       },
@@ -91,6 +115,9 @@ const init = () => {
       'utf-8',
     )
   })
+
+  const popularSvgElements = ['line', 'path', 'rect', 'svg']
+
   Object.entries(svgElements).forEach(([element, settings]) => {
     const { aliases, attrs, nodes, categories } = settings
     const output: ExportedHtmlElement = {
@@ -104,6 +131,7 @@ const init = () => {
         link: `https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/${element}`,
         aliases: aliases,
         isPopular: popularSvgElements.includes(element) ? true : undefined,
+        interfaces: undefined,
       },
       element: {
         type: 'nodes',

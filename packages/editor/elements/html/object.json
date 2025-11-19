@@ -4,7 +4,14 @@
     "categories": ["media"],
     "description": "Embeds external resources like images, audio, or plugins",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object",
-    "aliases": ["embedded-object", "plugin"]
+    "aliases": ["embedded-object", "plugin"],
+    "interfaces": [
+      "HTMLObjectElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

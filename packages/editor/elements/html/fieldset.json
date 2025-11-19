@@ -4,7 +4,14 @@
     "categories": ["form"],
     "description": "Groups related elements in a form",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset",
-    "aliases": ["form-group"]
+    "aliases": ["form-group"],
+    "interfaces": [
+      "HTMLFieldSetElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

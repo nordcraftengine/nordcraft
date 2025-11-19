@@ -4,7 +4,8 @@
     "categories": ["semantic"],
     "description": "Defines a standalone section of content",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/section",
-    "aliases": ["content-section"]
+    "aliases": ["content-section"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

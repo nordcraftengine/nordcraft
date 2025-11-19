@@ -4,7 +4,14 @@
     "categories": ["typography"],
     "description": "Represents a fourth-level heading",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h4",
-    "aliases": ["heading-4", "heading", "sub-heading"]
+    "aliases": ["heading-4", "heading", "sub-heading"],
+    "interfaces": [
+      "HTMLHeadingElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

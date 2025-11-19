@@ -4,7 +4,8 @@
     "categories": ["semantic"],
     "description": "Specifies a term or name in a description list",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt",
-    "aliases": ["description-term"]
+    "aliases": ["description-term"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { BuildOptions } from 'esbuild'
 import { build } from 'esbuild'
-import { mkdirSync, rmSync, writeFileSync } from 'fs'
+import { copyFileSync, mkdirSync, rmSync, writeFileSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { RESET_STYLES } from '../packages/core/src/styling/theme.const'
@@ -93,6 +93,14 @@ const run = async () => {
     allowOverwrite: true,
     entryNames: `[name].esm`,
   })
+
+  // Add HTML interface attribute file
+  copyFileSync(
+    resolvePath(
+      '../packages/editor/elements/interfaces/htmlInterfaceAttributes.json',
+    ),
+    resolvePath(distPath, 'htmlInterfaceAttributes.json'),
+  )
 
   // Build html elements for the editor
   createTempFileFromValue(

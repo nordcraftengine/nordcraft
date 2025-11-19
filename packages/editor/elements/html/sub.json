@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Renders text as subscript",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub",
-    "aliases": ["subscript"]
+    "aliases": ["subscript"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

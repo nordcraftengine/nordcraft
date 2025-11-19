@@ -5,7 +5,14 @@
     "description": "Generic inline container for text or other elements",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span",
     "aliases": ["inline-container"],
-    "isPopular": true
+    "isPopular": true,
+    "interfaces": [
+      "HTMLSpanElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

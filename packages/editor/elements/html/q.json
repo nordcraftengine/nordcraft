@@ -4,7 +4,14 @@
     "categories": ["typography"],
     "description": "Indicates a short inline quotation",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q",
-    "aliases": ["inline-quote"]
+    "aliases": ["inline-quote"],
+    "interfaces": [
+      "HTMLQuoteElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

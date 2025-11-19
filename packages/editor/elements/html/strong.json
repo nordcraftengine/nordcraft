@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Indicates strong importance, typically rendered in bold",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong",
-    "aliases": ["bold", "importance"]
+    "aliases": ["bold", "importance"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Represents sample output from a computer program",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/samp",
-    "aliases": ["sample-output"]
+    "aliases": ["sample-output"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

@@ -4,7 +4,8 @@
     "categories": ["semantic"],
     "description": "Represents the main content of a document",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main",
-    "aliases": ["main-content"]
+    "aliases": ["main-content"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

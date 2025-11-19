@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Groups a set of heading elements",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hgroup",
-    "aliases": ["heading-group"]
+    "aliases": ["heading-group"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

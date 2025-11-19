@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Indicates the defining instance of a term",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dfn",
-    "aliases": ["definition"]
+    "aliases": ["definition"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

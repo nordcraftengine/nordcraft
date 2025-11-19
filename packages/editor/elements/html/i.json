@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Renders text in italic for alternate voice or mood",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/i",
-    "aliases": ["italic", "alternate-voice"]
+    "aliases": ["italic", "alternate-voice"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

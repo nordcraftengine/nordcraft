@@ -5,7 +5,14 @@
     "description": "Specifies relationships between the current document and external resources",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link",
     "aliases": ["stylesheet-link", "external-resource"],
-    "isVoid": true
+    "isVoid": true,
+    "interfaces": [
+      "HTMLLinkElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

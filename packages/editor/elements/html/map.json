@@ -4,7 +4,14 @@
     "categories": ["media"],
     "description": "Defines an image map with clickable areas",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/map",
-    "aliases": ["imagemap"]
+    "aliases": ["imagemap"],
+    "interfaces": [
+      "HTMLMapElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

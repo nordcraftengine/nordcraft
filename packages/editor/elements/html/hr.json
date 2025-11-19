@@ -5,7 +5,14 @@
     "description": "Creates a thematic break with a horizontal rule",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr",
     "aliases": ["horizontal-rule", "divider"],
-    "isVoid": true
+    "isVoid": true,
+    "interfaces": [
+      "HTMLHRElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

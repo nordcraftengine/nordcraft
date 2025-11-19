@@ -4,7 +4,14 @@
     "categories": ["form"],
     "description": "Shows the progress of a task or operation",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress",
-    "aliases": ["progress-bar", "loading"]
+    "aliases": ["progress-bar", "loading"],
+    "interfaces": [
+      "HTMLProgressElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

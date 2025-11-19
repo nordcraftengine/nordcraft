@@ -4,7 +4,14 @@
     "categories": ["semantic"],
     "description": "Embeds or references executable JavaScript code",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script",
-    "aliases": ["javascript", "client-script"]
+    "aliases": ["javascript", "client-script"],
+    "interfaces": [
+      "HTMLScriptElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

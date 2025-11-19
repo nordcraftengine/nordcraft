@@ -4,7 +4,8 @@
     "categories": ["semantic"],
     "description": "Contains content tangentially related to the main content, like a sidebar",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside",
-    "aliases": ["sidebar"]
+    "aliases": ["sidebar"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",
