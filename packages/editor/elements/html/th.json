@@ -5,6 +5,13 @@
     "description": "Defines a header cell in a table",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th",
     "aliases": ["table-header-cell"],
+    "interfaces": [
+      "HTMLTableCellElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ],
     "permittedParents": ["tr"]
   },
   "element": {

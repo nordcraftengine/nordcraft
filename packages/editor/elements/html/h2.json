@@ -5,7 +5,14 @@
     "description": "Represents a second-level heading",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h2",
     "aliases": ["heading-2", "heading", "sub-heading"],
-    "isPopular": true
+    "isPopular": true,
+    "interfaces": [
+      "HTMLHeadingElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

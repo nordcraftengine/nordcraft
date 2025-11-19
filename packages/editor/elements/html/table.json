@@ -5,6 +5,13 @@
     "description": "Represents tabular data in rows and columns",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table",
     "aliases": ["data-table"],
+    "interfaces": [
+      "HTMLTableElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ],
     "permittedChildren": [
       "tbody",
       "thead",

@@ -5,6 +5,13 @@
     "description": "Provides a caption for a fieldset",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/legend",
     "aliases": ["fieldset-caption"],
+    "interfaces": [
+      "HTMLLegendElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ],
     "permittedParents": ["fieldset"]
   },
   "element": {

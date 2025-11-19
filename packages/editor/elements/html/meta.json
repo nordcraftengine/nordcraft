@@ -5,7 +5,14 @@
     "description": "Provides metadata about the HTML document",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta",
     "aliases": ["metadata"],
-    "isVoid": true
+    "isVoid": true,
+    "interfaces": [
+      "HTMLMetaElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

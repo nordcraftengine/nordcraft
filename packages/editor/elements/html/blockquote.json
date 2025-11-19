@@ -4,7 +4,14 @@
     "categories": ["typography"],
     "description": "Indicates a section quoted from another source",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/blockquote",
-    "aliases": ["quote", "quotation"]
+    "aliases": ["quote", "quotation"],
+    "interfaces": [
+      "HTMLQuoteElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

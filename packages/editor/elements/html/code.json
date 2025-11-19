@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Displays a fragment of computer code",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code",
-    "aliases": ["inline-code", "source-code"]
+    "aliases": ["inline-code", "source-code"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

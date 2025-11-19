@@ -5,7 +5,14 @@
     "description": "Embeds external content, like a plugin or interactive resource",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/embed",
     "aliases": ["external-content", "plugin"],
-    "isVoid": true
+    "isVoid": true,
+    "interfaces": [
+      "HTMLEmbedElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

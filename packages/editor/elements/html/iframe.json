@@ -4,7 +4,14 @@
     "categories": ["media"],
     "description": "Embeds another HTML page within the current page",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe",
-    "aliases": ["inline-frame", "embed-page", "frame"]
+    "aliases": ["inline-frame", "embed-page", "frame"],
+    "interfaces": [
+      "HTMLIFrameElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

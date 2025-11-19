@@ -5,7 +5,14 @@
     "description": "Produces a single line break in text",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br",
     "aliases": ["line-break"],
-    "isVoid": true
+    "isVoid": true,
+    "interfaces": [
+      "HTMLBRElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

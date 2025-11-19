@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Renders text in bold for emphasis without conveying extra importance",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/b",
-    "aliases": ["bold"]
+    "aliases": ["bold"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

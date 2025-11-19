@@ -4,7 +4,14 @@
     "categories": ["semantic"],
     "description": "Specifies the caption or title for a table",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/caption",
-    "aliases": ["table-caption"]
+    "aliases": ["table-caption"],
+    "interfaces": [
+      "HTMLTableCaptionElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

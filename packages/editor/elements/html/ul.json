@@ -6,6 +6,13 @@
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul",
     "aliases": ["unordered-list", "bulleted-list", "list"],
     "isPopular": true,
+    "interfaces": [
+      "HTMLUListElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ],
     "permittedChildren": ["li", "template", "script"]
   },
   "element": {

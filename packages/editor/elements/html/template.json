@@ -4,7 +4,14 @@
     "categories": ["semantic"],
     "description": "Holds client-side content that is not rendered when the page loads",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template",
-    "aliases": ["html-template"]
+    "aliases": ["html-template"],
+    "interfaces": [
+      "HTMLTemplateElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

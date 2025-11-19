@@ -1,0 +1,1280 @@
+[
+  {
+    "name": "HTMLOrSVGElement",
+    "attributes": ["autofocus", "dataset", "nonce", "tabIndex"]
+  },
+  {
+    "name": "HTMLAllCollection",
+    "attributes": ["length"]
+  },
+  {
+    "name": "RadioNodeList",
+    "attributes": ["value"]
+  },
+  {
+    "name": "HTMLOptionsCollection",
+    "attributes": ["length", "selectedIndex"]
+  },
+  {
+    "name": "DOMStringList",
+    "attributes": ["length"]
+  },
+  {
+    "name": "Document",
+    "attributes": [
+      "alinkColor",
+      "all",
+      "anchors",
+      "applets",
+      "bgColor",
+      "body",
+      "cookie",
+      "currentScript",
+      "defaultView",
+      "designMode",
+      "dir",
+      "domain",
+      "embeds",
+      "fgColor",
+      "forms",
+      "head",
+      "hidden",
+      "images",
+      "lastModified",
+      "linkColor",
+      "links",
+      "location",
+      "plugins",
+      "readyState",
+      "referrer",
+      "scripts",
+      "title",
+      "visibilityState",
+      "vlinkColor"
+    ]
+  },
+  {
+    "name": "HTMLElement",
+    "attributes": [
+      "accessKey",
+      "accessKeyLabel",
+      "autocapitalize",
+      "autocorrect",
+      "dir",
+      "draggable",
+      "headingOffset",
+      "headingReset",
+      "hidden",
+      "inert",
+      "innerText",
+      "lang",
+      "outerText",
+      "popover",
+      "popoverTargetAction",
+      "popoverTargetElement",
+      "spellcheck",
+      "states",
+      "title",
+      "translate",
+      "writingSuggestions"
+    ]
+  },
+  {
+    "name": "global",
+    "attributes": [
+      "accesskey",
+      "autocapitalize",
+      "autocorrect",
+      "autofocus",
+      "class",
+      "contenteditable",
+      "dir",
+      "draggable",
+      "enterkeyhint",
+      "headingoffset",
+      "headingreset",
+      "hidden",
+      "id",
+      "inputmode",
+      "is",
+      "itemid",
+      "itemprop",
+      "itemref",
+      "itemscope",
+      "itemtype",
+      "lang",
+      "popover",
+      "popovertarget",
+      "popovertargetaction",
+      "slot",
+      "spellcheck",
+      "style",
+      "title",
+      "translate",
+      "writingsuggestions"
+    ]
+  },
+  {
+    "name": "HTMLTitleElement",
+    "attributes": ["text"]
+  },
+  {
+    "name": "HTMLBaseElement",
+    "attributes": ["href", "target"]
+  },
+  {
+    "name": "HTMLLinkElement",
+    "attributes": [
+      "as",
+      "blocking",
+      "charset",
+      "crossOrigin",
+      "disabled",
+      "fetchPriority",
+      "href",
+      "hreflang",
+      "imageSizes",
+      "imageSrcset",
+      "integrity",
+      "media",
+      "referrerPolicy",
+      "rel",
+      "relList",
+      "rev",
+      "sizes",
+      "target",
+      "type"
+    ]
+  },
+  {
+    "name": "HTMLMetaElement",
+    "attributes": ["content", "httpEquiv", "media", "name", "scheme"]
+  },
+  {
+    "name": "HTMLStyleElement",
+    "attributes": ["blocking", "disabled", "media", "type"]
+  },
+  {
+    "name": "HTMLQuoteElement",
+    "attributes": ["cite"]
+  },
+  {
+    "name": "HTMLOListElement",
+    "attributes": ["compact", "reversed", "start", "type"]
+  },
+  {
+    "name": "HTMLLIElement",
+    "attributes": ["type", "value"]
+  },
+  {
+    "name": "HTMLAnchorElement",
+    "attributes": [
+      "charset",
+      "coords",
+      "download",
+      "href",
+      "hreflang",
+      "name",
+      "ping",
+      "referrerPolicy",
+      "rel",
+      "relList",
+      "rev",
+      "shape",
+      "target",
+      "text",
+      "type"
+    ]
+  },
+  {
+    "name": "HTMLDataElement",
+    "attributes": ["value"]
+  },
+  {
+    "name": "HTMLTimeElement",
+    "attributes": ["dateTime"]
+  },
+  {
+    "name": "HTMLHyperlinkElementUtils",
+    "attributes": [
+      "hash",
+      "host",
+      "hostname",
+      "href",
+      "origin",
+      "password",
+      "pathname",
+      "port",
+      "protocol",
+      "search",
+      "username"
+    ]
+  },
+  {
+    "name": "HTMLModElement",
+    "attributes": ["cite", "dateTime"]
+  },
+  {
+    "name": "HTMLSourceElement",
+    "attributes": ["height", "media", "sizes", "src", "srcset", "type", "width"]
+  },
+  {
+    "name": "HTMLImageElement",
+    "attributes": [
+      "align",
+      "alt",
+      "border",
+      "complete",
+      "crossOrigin",
+      "currentSrc",
+      "decoding",
+      "fetchPriority",
+      "height",
+      "hspace",
+      "isMap",
+      "loading",
+      "longDesc",
+      "lowsrc",
+      "name",
+      "naturalHeight",
+      "naturalWidth",
+      "referrerPolicy",
+      "sizes",
+      "src",
+      "srcset",
+      "useMap",
+      "vspace",
+      "width"
+    ]
+  },
+  {
+    "name": "HTMLIFrameElement",
+    "attributes": [
+      "align",
+      "allow",
+      "allowFullscreen",
+      "contentDocument",
+      "contentWindow",
+      "frameBorder",
+      "height",
+      "loading",
+      "longDesc",
+      "marginHeight",
+      "marginWidth",
+      "name",
+      "referrerPolicy",
+      "sandbox",
+      "scrolling",
+      "src",
+      "srcdoc",
+      "width"
+    ]
+  },
+  {
+    "name": "HTMLEmbedElement",
+    "attributes": ["align", "height", "name", "src", "type", "width"]
+  },
+  {
+    "name": "HTMLObjectElement",
+    "attributes": [
+      "align",
+      "archive",
+      "border",
+      "code",
+      "codeBase",
+      "codeType",
+      "contentDocument",
+      "contentWindow",
+      "data",
+      "declare",
+      "form",
+      "height",
+      "hspace",
+      "name",
+      "standby",
+      "type",
+      "useMap",
+      "validationMessage",
+      "validity",
+      "vspace",
+      "width",
+      "willValidate"
+    ]
+  },
+  {
+    "name": "HTMLVideoElement",
+    "attributes": [
+      "height",
+      "playsInline",
+      "poster",
+      "videoHeight",
+      "videoWidth",
+      "width"
+    ]
+  },
+  {
+    "name": "HTMLTrackElement",
+    "attributes": [
+      "default",
+      "kind",
+      "label",
+      "readyState",
+      "src",
+      "srclang",
+      "track"
+    ]
+  },
+  {
+    "name": "HTMLMediaElement",
+    "attributes": [
+      "audioTracks",
+      "autoplay",
+      "buffered",
+      "controls",
+      "crossOrigin",
+      "currentSrc",
+      "currentTime",
+      "defaultMuted",
+      "defaultPlaybackRate",
+      "duration",
+      "ended",
+      "error",
+      "loop",
+      "muted",
+      "networkState",
+      "paused",
+      "playbackRate",
+      "played",
+      "preload",
+      "preservesPitch",
+      "readyState",
+      "seekable",
+      "seeking",
+      "src",
+      "srcObject",
+      "textTracks",
+      "videoTracks",
+      "volume"
+    ]
+  },
+  {
+    "name": "MediaError",
+    "attributes": ["code", "message"]
+  },
+  {
+    "name": "AudioTrackList",
+    "attributes": ["length"]
+  },
+  {
+    "name": "VideoTrackList",
+    "attributes": ["length", "selectedIndex"]
+  },
+  {
+    "name": "AudioTrack",
+    "attributes": ["enabled", "id", "kind", "label", "language"]
+  },
+  {
+    "name": "VideoTrack",
+    "attributes": ["id", "kind", "label", "language", "selected"]
+  },
+  {
+    "name": "TextTrackList",
+    "attributes": ["length"]
+  },
+  {
+    "name": "TextTrack",
+    "attributes": [
+      "activeCues",
+      "cues",
+      "id",
+      "inBandMetadataTrackDispatchType",
+      "kind",
+      "label",
+      "language",
+      "mode"
+    ]
+  },
+  {
+    "name": "TextTrackCueList",
+    "attributes": ["length"]
+  },
+  {
+    "name": "TextTrackCue",
+    "attributes": ["endTime", "id", "pauseOnExit", "startTime", "track"]
+  },
+  {
+    "name": "TimeRanges",
+    "attributes": ["length"]
+  },
+  {
+    "name": "TrackEvent",
+    "attributes": ["track"]
+  },
+  {
+    "name": "HTMLMapElement",
+    "attributes": ["areas", "name"]
+  },
+  {
+    "name": "HTMLAreaElement",
+    "attributes": [
+      "alt",
+      "coords",
+      "download",
+      "noHref",
+      "ping",
+      "referrerPolicy",
+      "rel",
+      "relList",
+      "shape",
+      "target"
+    ]
+  },
+  {
+    "name": "HTMLTableElement",
+    "attributes": [
+      "align",
+      "bgColor",
+      "border",
+      "caption",
+      "cellPadding",
+      "cellSpacing",
+      "frame",
+      "rows",
+      "rules",
+      "summary",
+      "tBodies",
+      "tFoot",
+      "tHead",
+      "width"
+    ]
+  },
+  {
+    "name": "HTMLTableColElement",
+    "attributes": ["align", "ch", "chOff", "span", "vAlign", "width"]
+  },
+  {
+    "name": "HTMLTableSectionElement",
+    "attributes": ["align", "ch", "chOff", "rows", "vAlign"]
+  },
+  {
+    "name": "HTMLTableRowElement",
+    "attributes": [
+      "align",
+      "bgColor",
+      "cells",
+      "ch",
+      "chOff",
+      "rowIndex",
+      "sectionRowIndex",
+      "vAlign"
+    ]
+  },
+  {
+    "name": "HTMLTableCellElement",
+    "attributes": [
+      "abbr",
+      "align",
+      "axis",
+      "bgColor",
+      "cellIndex",
+      "ch",
+      "chOff",
+      "colSpan",
+      "height",
+      "noWrap",
+      "rowSpan",
+      "scope",
+      "vAlign",
+      "width"
+    ]
+  },
+  {
+    "name": "HTMLFormElement",
+    "attributes": [
+      "acceptCharset",
+      "action",
+      "autocomplete",
+      "elements",
+      "encoding",
+      "enctype",
+      "length",
+      "method",
+      "name",
+      "noValidate",
+      "rel",
+      "relList",
+      "target"
+    ]
+  },
+  {
+    "name": "HTMLLabelElement",
+    "attributes": ["control", "form", "htmlFor"]
+  },
+  {
+    "name": "HTMLInputElement",
+    "attributes": [
+      "accept",
+      "align",
+      "alpha",
+      "alt",
+      "autocomplete",
+      "checked",
+      "colorSpace",
+      "defaultChecked",
+      "defaultValue",
+      "dirName",
+      "disabled",
+      "files",
+      "form",
+      "formAction",
+      "formEnctype",
+      "formMethod",
+      "formNoValidate",
+      "formTarget",
+      "height",
+      "indeterminate",
+      "labels",
+      "list",
+      "max",
+      "maxLength",
+      "min",
+      "minLength",
+      "multiple",
+      "name",
+      "pattern",
+      "placeholder",
+      "readOnly",
+      "required",
+      "selectionDirection",
+      "selectionEnd",
+      "selectionStart",
+      "size",
+      "src",
+      "step",
+      "type",
+      "useMap",
+      "validationMessage",
+      "validity",
+      "value",
+      "valueAsDate",
+      "valueAsNumber",
+      "width",
+      "willValidate"
+    ]
+  },
+  {
+    "name": "HTMLButtonElement",
+    "attributes": [
+      "command",
+      "commandForElement",
+      "disabled",
+      "form",
+      "formAction",
+      "formEnctype",
+      "formMethod",
+      "formNoValidate",
+      "formTarget",
+      "labels",
+      "name",
+      "type",
+      "validationMessage",
+      "validity",
+      "value",
+      "willValidate"
+    ]
+  },
+  {
+    "name": "HTMLSelectElement",
+    "attributes": [
+      "autocomplete",
+      "disabled",
+      "form",
+      "labels",
+      "length",
+      "multiple",
+      "name",
+      "options",
+      "required",
+      "selectedIndex",
+      "selectedOptions",
+      "size",
+      "type",
+      "validationMessage",
+      "validity",
+      "value",
+      "willValidate"
+    ]
+  },
+  {
+    "name": "HTMLTextAreaElement",
+    "attributes": [
+      "autocomplete",
+      "cols",
+      "defaultValue",
+      "dirName",
+      "disabled",
+      "form",
+      "labels",
+      "maxLength",
+      "minLength",
+      "name",
+      "placeholder",
+      "readOnly",
+      "required",
+      "rows",
+      "selectionDirection",
+      "selectionEnd",
+      "selectionStart",
+      "textLength",
+      "type",
+      "validationMessage",
+      "validity",
+      "value",
+      "willValidate",
+      "wrap"
+    ]
+  },
+  {
+    "name": "HTMLOutputElement",
+    "attributes": [
+      "defaultValue",
+      "form",
+      "htmlFor",
+      "labels",
+      "name",
+      "type",
+      "validationMessage",
+      "validity",
+      "value",
+      "willValidate"
+    ]
+  },
+  {
+    "name": "HTMLProgressElement",
+    "attributes": ["labels", "position", "value"]
+  },
+  {
+    "name": "HTMLMeterElement",
+    "attributes": ["high", "labels", "low", "max", "min", "optimum", "value"]
+  },
+  {
+    "name": "ElementInternals",
+    "attributes": [
+      "form",
+      "labels",
+      "shadowRoot",
+      "validationMessage",
+      "validity",
+      "willValidate"
+    ]
+  },
+  {
+    "name": "HTMLDataListElement",
+    "attributes": ["options"]
+  },
+  {
+    "name": "HTMLOptGroupElement",
+    "attributes": ["disabled", "label"]
+  },
+  {
+    "name": "HTMLOptionElement",
+    "attributes": [
+      "defaultSelected",
+      "disabled",
+      "form",
+      "index",
+      "label",
+      "selected",
+      "text",
+      "value"
+    ]
+  },
+  {
+    "name": "HTMLFieldSetElement",
+    "attributes": [
+      "disabled",
+      "elements",
+      "form",
+      "name",
+      "type",
+      "validationMessage",
+      "validity",
+      "willValidate"
+    ]
+  },
+  {
+    "name": "HTMLLegendElement",
+    "attributes": ["align", "form"]
+  },
+  {
+    "name": "ValidityState",
+    "attributes": [
+      "badInput",
+      "customError",
+      "patternMismatch",
+      "rangeOverflow",
+      "rangeUnderflow",
+      "stepMismatch",
+      "tooLong",
+      "tooShort",
+      "typeMismatch",
+      "valid",
+      "valueMissing"
+    ]
+  },
+  {
+    "name": "SubmitEvent",
+    "attributes": ["submitter"]
+  },
+  {
+    "name": "FormDataEvent",
+    "attributes": ["formData"]
+  },
+  {
+    "name": "HTMLDetailsElement",
+    "attributes": ["name", "open"]
+  },
+  {
+    "name": "HTMLDialogElement",
+    "attributes": ["closedBy", "open", "returnValue"]
+  },
+  {
+    "name": "HTMLScriptElement",
+    "attributes": [
+      "async",
+      "blocking",
+      "charset",
+      "crossOrigin",
+      "defer",
+      "event",
+      "fetchPriority",
+      "htmlFor",
+      "integrity",
+      "noModule",
+      "referrerPolicy",
+      "src",
+      "text",
+      "type"
+    ]
+  },
+  {
+    "name": "HTMLTemplateElement",
+    "attributes": [
+      "content",
+      "shadowRootClonable",
+      "shadowRootCustomElementRegistry",
+      "shadowRootDelegatesFocus",
+      "shadowRootMode",
+      "shadowRootSerializable"
+    ]
+  },
+  {
+    "name": "HTMLSlotElement",
+    "attributes": ["name"]
+  },
+  {
+    "name": "HTMLCanvasElement",
+    "attributes": ["height", "width"]
+  },
+  {
+    "name": "CanvasRenderingContext2D",
+    "attributes": ["canvas"]
+  },
+  {
+    "name": "CanvasPathDrawingStyles",
+    "attributes": [
+      "lineCap",
+      "lineDashOffset",
+      "lineJoin",
+      "lineWidth",
+      "miterLimit"
+    ]
+  },
+  {
+    "name": "CanvasTextDrawingStyles",
+    "attributes": [
+      "direction",
+      "font",
+      "fontKerning",
+      "fontStretch",
+      "fontVariantCaps",
+      "lang",
+      "letterSpacing",
+      "textAlign",
+      "textBaseline",
+      "textRendering",
+      "wordSpacing"
+    ]
+  },
+  {
+    "name": "CanvasFillStrokeStyles",
+    "attributes": ["fillStyle", "strokeStyle"]
+  },
+  {
+    "name": "TextMetrics",
+    "attributes": [
+      "actualBoundingBoxAscent",
+      "actualBoundingBoxDescent",
+      "actualBoundingBoxLeft",
+      "actualBoundingBoxRight",
+      "alphabeticBaseline",
+      "emHeightAscent",
+      "emHeightDescent",
+      "fontBoundingBoxAscent",
+      "fontBoundingBoxDescent",
+      "hangingBaseline",
+      "ideographicBaseline",
+      "width"
+    ]
+  },
+  {
+    "name": "CanvasCompositing",
+    "attributes": ["globalAlpha", "globalCompositeOperation"]
+  },
+  {
+    "name": "CanvasImageSmoothing",
+    "attributes": ["imageSmoothingEnabled", "imageSmoothingQuality"]
+  },
+  {
+    "name": "CanvasShadowStyles",
+    "attributes": [
+      "shadowBlur",
+      "shadowColor",
+      "shadowOffsetX",
+      "shadowOffsetY"
+    ]
+  },
+  {
+    "name": "CanvasFilters",
+    "attributes": ["filter"]
+  },
+  {
+    "name": "ImageBitmapRenderingContext",
+    "attributes": ["canvas"]
+  },
+  {
+    "name": "OffscreenCanvas",
+    "attributes": ["canvas", "height", "width"]
+  },
+  {
+    "name": "Window",
+    "attributes": [
+      "clientInformation",
+      "closed",
+      "customElements",
+      "document",
+      "external",
+      "frameElement",
+      "frames",
+      "history",
+      "length",
+      "location",
+      "locationbar",
+      "menubar",
+      "name",
+      "navigation",
+      "navigator",
+      "opener",
+      "originAgentCluster",
+      "parent",
+      "personalbar",
+      "scrollbars",
+      "self",
+      "status",
+      "statusbar",
+      "toolbar",
+      "top",
+      "window"
+    ]
+  },
+  {
+    "name": "VisibilityStateEntry",
+    "attributes": ["duration", "entryType", "name", "startTime"]
+  },
+  {
+    "name": "Navigator",
+    "attributes": ["userActivation"]
+  },
+  {
+    "name": "UserActivation",
+    "attributes": ["hasBeenActive", "isActive"]
+  },
+  {
+    "name": "ToggleEvent",
+    "attributes": ["newState", "oldState", "source"]
+  },
+  {
+    "name": "CommandEvent",
+    "attributes": ["command", "source"]
+  },
+  {
+    "name": "DocumentOrShadowRoot",
+    "attributes": ["activeElement"]
+  },
+  {
+    "name": "ElementContentEditable",
+    "attributes": [
+      "contentEditable",
+      "enterKeyHint",
+      "inputMode",
+      "isContentEditable"
+    ]
+  },
+  {
+    "name": "DataTransfer",
+    "attributes": ["dropEffect", "effectAllowed", "files", "items", "types"]
+  },
+  {
+    "name": "DataTransferItemList",
+    "attributes": ["length"]
+  },
+  {
+    "name": "DataTransferItem",
+    "attributes": ["kind", "type"]
+  },
+  {
+    "name": "DragEvent",
+    "attributes": ["dataTransfer"]
+  },
+  {
+    "name": "BarProp",
+    "attributes": ["visible"]
+  },
+  {
+    "name": "Location",
+    "attributes": [
+      "ancestorOrigins",
+      "hash",
+      "host",
+      "hostname",
+      "href",
+      "origin",
+      "pathname",
+      "port",
+      "protocol",
+      "search"
+    ]
+  },
+  {
+    "name": "History",
+    "attributes": ["length", "scrollRestoration", "state"]
+  },
+  {
+    "name": "NavigationHistoryEntry",
+    "attributes": ["id", "index", "key", "sameDocument", "url"]
+  },
+  {
+    "name": "Navigation",
+    "attributes": [
+      "activation",
+      "canGoBack",
+      "canGoForward",
+      "currentEntry",
+      "transition"
+    ]
+  },
+  {
+    "name": "NavigationTransition",
+    "attributes": ["committed", "finished", "from", "navigationType"]
+  },
+  {
+    "name": "NavigationActivation",
+    "attributes": ["entry", "from", "navigationType"]
+  },
+  {
+    "name": "NavigateEvent",
+    "attributes": [
+      "canIntercept",
+      "destination",
+      "downloadRequest",
+      "formData",
+      "hasUAVisualTransition",
+      "hashChange",
+      "info",
+      "navigationType",
+      "signal",
+      "sourceElement",
+      "userInitiated"
+    ]
+  },
+  {
+    "name": "NavigationDestination",
+    "attributes": ["id", "index", "key", "sameDocument", "url"]
+  },
+  {
+    "name": "NavigationCurrentEntryChangeEvent",
+    "attributes": ["from", "navigationType"]
+  },
+  {
+    "name": "PopStateEvent",
+    "attributes": ["hasUAVisualTransition", "state"]
+  },
+  {
+    "name": "HashChangeEvent",
+    "attributes": ["newURL", "oldURL"]
+  },
+  {
+    "name": "PageSwapEvent",
+    "attributes": ["activation", "viewTransition"]
+  },
+  {
+    "name": "PageRevealEvent",
+    "attributes": ["viewTransition"]
+  },
+  {
+    "name": "PageTransitionEvent",
+    "attributes": ["persisted"]
+  },
+  {
+    "name": "BeforeUnloadEvent",
+    "attributes": ["returnValue"]
+  },
+  {
+    "name": "NotRestoredReasonDetails",
+    "attributes": ["reason"]
+  },
+  {
+    "name": "NotRestoredReasons",
+    "attributes": ["children", "id", "name", "reasons", "src", "url"]
+  },
+  {
+    "name": "ErrorEvent",
+    "attributes": ["colno", "error", "filename", "lineno", "message"]
+  },
+  {
+    "name": "PromiseRejectionEvent",
+    "attributes": ["promise", "reason"]
+  },
+  {
+    "name": "WindowOrWorkerGlobalScope",
+    "attributes": ["crossOriginIsolated", "isSecureContext", "origin"]
+  },
+  {
+    "name": "Element",
+    "attributes": ["innerHTML", "outerHTML"]
+  },
+  {
+    "name": "ShadowRoot",
+    "attributes": ["innerHTML"]
+  },
+  {
+    "name": "NavigatorID",
+    "attributes": [
+      "appCodeName",
+      "appName",
+      "appVersion",
+      "oscpu",
+      "platform",
+      "product",
+      "productSub",
+      "userAgent",
+      "vendor",
+      "vendorSub"
+    ]
+  },
+  {
+    "name": "NavigatorLanguage",
+    "attributes": ["language", "languages"]
+  },
+  {
+    "name": "NavigatorOnLine",
+    "attributes": ["onLine"]
+  },
+  {
+    "name": "NavigatorCookies",
+    "attributes": ["cookieEnabled"]
+  },
+  {
+    "name": "NavigatorPlugins",
+    "attributes": ["mimeTypes", "pdfViewerEnabled", "plugins"]
+  },
+  {
+    "name": "PluginArray",
+    "attributes": ["length"]
+  },
+  {
+    "name": "MimeTypeArray",
+    "attributes": ["length"]
+  },
+  {
+    "name": "Plugin",
+    "attributes": ["description", "filename", "length", "name"]
+  },
+  {
+    "name": "MimeType",
+    "attributes": ["description", "enabledPlugin", "suffixes", "type"]
+  },
+  {
+    "name": "ImageData",
+    "attributes": ["colorSpace", "data", "height", "pixelFormat", "width"]
+  },
+  {
+    "name": "ImageBitmap",
+    "attributes": ["height", "width"]
+  },
+  {
+    "name": "MessageEvent",
+    "attributes": ["data", "lastEventId", "origin", "ports", "source"]
+  },
+  {
+    "name": "EventSource",
+    "attributes": ["readyState", "url", "withCredentials"]
+  },
+  {
+    "name": "MessageChannel",
+    "attributes": ["port1", "port2"]
+  },
+  {
+    "name": "BroadcastChannel",
+    "attributes": ["name"]
+  },
+  {
+    "name": "WorkerGlobalScope",
+    "attributes": ["location", "navigator", "self"]
+  },
+  {
+    "name": "DedicatedWorkerGlobalScope",
+    "attributes": ["name"]
+  },
+  {
+    "name": "SharedWorkerGlobalScope",
+    "attributes": ["name"]
+  },
+  {
+    "name": "SharedWorker",
+    "attributes": ["port"]
+  },
+  {
+    "name": "NavigatorConcurrentHardware",
+    "attributes": ["navigator.hardwareConcurrency"]
+  },
+  {
+    "name": "WorkerLocation",
+    "attributes": [
+      "hash",
+      "host",
+      "hostname",
+      "href",
+      "origin",
+      "pathname",
+      "port",
+      "protocol",
+      "search"
+    ]
+  },
+  {
+    "name": "Storage",
+    "attributes": ["length"]
+  },
+  {
+    "name": "WindowSessionStorage",
+    "attributes": ["sessionStorage"]
+  },
+  {
+    "name": "WindowLocalStorage",
+    "attributes": ["localStorage"]
+  },
+  {
+    "name": "StorageEvent",
+    "attributes": ["key", "newValue", "oldValue", "storageArea", "url"]
+  },
+  {
+    "name": "HTMLMarqueeElement",
+    "attributes": [
+      "behavior",
+      "bgColor",
+      "direction",
+      "height",
+      "hspace",
+      "loop",
+      "scrollAmount",
+      "scrollDelay",
+      "trueSpeed",
+      "vspace",
+      "width"
+    ]
+  },
+  {
+    "name": "HTMLFrameSetElement",
+    "attributes": ["cols", "rows"]
+  },
+  {
+    "name": "HTMLFrameElement",
+    "attributes": [
+      "contentDocument",
+      "contentWindow",
+      "frameBorder",
+      "longDesc",
+      "marginHeight",
+      "marginWidth",
+      "name",
+      "noResize",
+      "scrolling",
+      "src"
+    ]
+  },
+  {
+    "name": "HTMLBodyElement",
+    "attributes": ["aLink", "background", "bgColor", "link", "text", "vLink"]
+  },
+  {
+    "name": "HTMLBRElement",
+    "attributes": ["clear"]
+  },
+  {
+    "name": "HTMLTableCaptionElement",
+    "attributes": ["align"]
+  },
+  {
+    "name": "HTMLDirectoryElement",
+    "attributes": ["compact"]
+  },
+  {
+    "name": "HTMLDivElement",
+    "attributes": ["align"]
+  },
+  {
+    "name": "HTMLDListElement",
+    "attributes": ["compact"]
+  },
+  {
+    "name": "HTMLFontElement",
+    "attributes": ["color", "face", "size"]
+  },
+  {
+    "name": "HTMLHeadingElement",
+    "attributes": ["align"]
+  },
+  {
+    "name": "HTMLHeadElement",
+    "attributes": ["profile"]
+  },
+  {
+    "name": "HTMLHRElement",
+    "attributes": ["align", "color", "noShade", "size", "width"]
+  },
+  {
+    "name": "HTMLHtmlElement",
+    "attributes": ["version"]
+  },
+  {
+    "name": "HTMLMenuElement",
+    "attributes": ["compact"]
+  },
+  {
+    "name": "HTMLParagraphElement",
+    "attributes": ["align"]
+  },
+  {
+    "name": "HTMLParamElement",
+    "attributes": ["name", "type", "value", "valueType"]
+  },
+  {
+    "name": "HTMLPreElement",
+    "attributes": ["width"]
+  },
+  {
+    "name": "HTMLUListElement",
+    "attributes": ["compact", "type"]
+  }
+]

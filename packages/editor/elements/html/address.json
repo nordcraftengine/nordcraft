@@ -4,7 +4,8 @@
     "categories": ["semantic"],
     "description": "Provides contact information for a person, organization, or author",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/address",
-    "aliases": ["contact-info"]
+    "aliases": ["contact-info"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

@@ -5,6 +5,13 @@
     "description": "Defines a cell in a table row",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td",
     "aliases": ["table-cell"],
+    "interfaces": [
+      "HTMLTableCellElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ],
     "permittedParents": ["tr"]
   },
   "element": {

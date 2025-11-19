@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Provides fallback text for browsers that do not support ruby annotations",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rp",
-    "aliases": ["ruby-parenthesis"]
+    "aliases": ["ruby-parenthesis"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

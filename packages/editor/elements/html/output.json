@@ -4,7 +4,14 @@
     "categories": ["form"],
     "description": "Displays the result of a calculation or user action",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output",
-    "aliases": ["calculation-result"]
+    "aliases": ["calculation-result"],
+    "interfaces": [
+      "HTMLOutputElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

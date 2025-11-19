@@ -5,7 +5,14 @@
     "description": "Defines a label for a form input",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
     "aliases": ["form-label"],
-    "isPopular": true
+    "isPopular": true,
+    "interfaces": [
+      "HTMLLabelElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

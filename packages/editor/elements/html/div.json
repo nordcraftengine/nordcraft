@@ -5,7 +5,14 @@
     "description": "Generic container for content, used for layout and styling",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div",
     "aliases": ["container", "division"],
-    "isPopular": true
+    "isPopular": true,
+    "interfaces": [
+      "HTMLDivElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

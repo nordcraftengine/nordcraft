@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Represents user input, typically keyboard input",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd",
-    "aliases": ["keyboard-input"]
+    "aliases": ["keyboard-input"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

@@ -5,6 +5,13 @@
     "description": "Groups related options in a dropdown list",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup",
     "aliases": ["option-group"],
+    "interfaces": [
+      "HTMLOptGroupElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ],
     "permittedChildren": ["option"],
     "permittedParents": ["select"]
   },

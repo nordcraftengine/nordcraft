@@ -5,7 +5,14 @@
     "description": "Specifies multiple media resources for media elements",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source",
     "aliases": ["media-source"],
-    "isVoid": true
+    "isVoid": true,
+    "interfaces": [
+      "HTMLSourceElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

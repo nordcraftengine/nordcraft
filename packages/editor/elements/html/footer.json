@@ -4,7 +4,8 @@
     "categories": ["semantic"],
     "description": "Defines a footer for a section or page",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer",
-    "aliases": ["page-footer", "section-footer"]
+    "aliases": ["page-footer", "section-footer"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

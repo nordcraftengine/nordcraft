@@ -9,6 +9,9 @@ export interface ExportedHtmlElement {
     aliases?: string[]
     isVoid?: true
     isPopular?: true
+    permittedChildren?: string[]
+    permittedParents?: string[]
+    interfaces: string[] | undefined
   }
   element: {
     type: 'nodes'

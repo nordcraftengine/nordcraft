@@ -6,7 +6,14 @@
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img",
     "aliases": ["image", "picture"],
     "isVoid": true,
-    "isPopular": true
+    "isPopular": true,
+    "interfaces": [
+      "HTMLImageElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

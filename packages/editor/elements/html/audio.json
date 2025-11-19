@@ -4,7 +4,15 @@
     "categories": ["media"],
     "description": "Embeds sound content such as music or audio streams",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio",
-    "aliases": ["sound", "music"]
+    "aliases": ["sound", "music"],
+    "interfaces": [
+      "HTMLAudioElement",
+      "HTMLMediaElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

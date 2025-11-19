@@ -5,7 +5,14 @@
     "description": "Provides text tracks for media elements like video or audio",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/track",
     "aliases": ["media-track", "subtitles"],
-    "isVoid": true
+    "isVoid": true,
+    "interfaces": [
+      "HTMLTrackElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

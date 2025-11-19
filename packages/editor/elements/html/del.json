@@ -4,7 +4,14 @@
     "categories": ["typography"],
     "description": "Represents deleted or removed text",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del",
-    "aliases": ["deleted-text", "remove"]
+    "aliases": ["deleted-text", "remove"],
+    "interfaces": [
+      "HTMLModElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Renders text in a smaller font size for side comments or fine print",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/small",
-    "aliases": ["fine-print"]
+    "aliases": ["fine-print"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

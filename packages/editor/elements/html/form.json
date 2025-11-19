@@ -5,7 +5,14 @@
     "description": "Collects user input via interactive controls",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form",
     "aliases": ["input-form", "user-input"],
-    "isPopular": true
+    "isPopular": true,
+    "interfaces": [
+      "HTMLFormElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

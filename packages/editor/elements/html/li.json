@@ -6,6 +6,13 @@
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li",
     "aliases": ["list-item"],
     "isPopular": true,
+    "interfaces": [
+      "HTMLLIElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ],
     "permittedParents": ["ul", "ol", "menu"]
   },
   "element": {

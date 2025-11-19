@@ -4,7 +4,14 @@
     "categories": ["form"],
     "description": "Displays a scalar measurement within a known range",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter",
-    "aliases": ["gauge", "measurement"]
+    "aliases": ["gauge", "measurement"],
+    "interfaces": [
+      "HTMLMeterElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

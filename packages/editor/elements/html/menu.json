@@ -4,7 +4,14 @@
     "categories": ["semantic"],
     "description": "Represents a list of commands or menu options",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/menu",
-    "aliases": ["context-menu", "list-menu"]
+    "aliases": ["context-menu", "list-menu"],
+    "interfaces": [
+      "HTMLMenuElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

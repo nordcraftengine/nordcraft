@@ -5,7 +5,8 @@
     "description": "Suggests a line break opportunity within text",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/wbr",
     "aliases": ["word-break"],
-    "isVoid": true
+    "isVoid": true,
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

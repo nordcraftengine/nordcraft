@@ -4,7 +4,14 @@
     "categories": ["semantic", "svg"],
     "description": "Embeds CSS styles within the document",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/style",
-    "aliases": ["css", "stylesheet"]
+    "aliases": ["css", "stylesheet"],
+    "interfaces": [
+      "HTMLStyleElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

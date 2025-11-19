@@ -5,6 +5,13 @@
     "description": "Defines a row in a table",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr",
     "aliases": ["table-row"],
+    "interfaces": [
+      "HTMLTableRowElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ],
     "permittedChildren": ["td", "th", "script", "template"],
     "permittedParents": ["table", "thead", "tbody", "tfoot"]
   },

@@ -4,7 +4,8 @@
     "categories": ["typography"],
     "description": "Represents an abbreviation or acronym, with an optional title for expansion",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/abbr",
-    "aliases": ["abbreviation"]
+    "aliases": ["abbreviation"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
   },
   "element": {
     "type": "nodes",

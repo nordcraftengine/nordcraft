@@ -5,7 +5,14 @@
     "description": "Specifies column properties for each column within a colgroup in a table",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/col",
     "aliases": ["table-column"],
-    "isVoid": true
+    "isVoid": true,
+    "interfaces": [
+      "HTMLTableColElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

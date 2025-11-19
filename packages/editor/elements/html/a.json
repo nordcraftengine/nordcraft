@@ -5,7 +5,14 @@
     "description": "Defines a hyperlink to link to another page or resource",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
     "aliases": ["link", "anchor"],
-    "isPopular": true
+    "isPopular": true,
+    "interfaces": [
+      "HTMLAnchorElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

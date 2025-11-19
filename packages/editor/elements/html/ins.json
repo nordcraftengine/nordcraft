@@ -4,7 +4,14 @@
     "categories": ["typography"],
     "description": "Indicates inserted or added text",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins",
-    "aliases": ["inserted-text", "addition"]
+    "aliases": ["inserted-text", "addition"],
+    "interfaces": [
+      "HTMLModElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

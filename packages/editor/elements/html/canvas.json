@@ -4,7 +4,14 @@
     "categories": ["media"],
     "description": "Provides an area for drawing graphics via scripting",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas",
-    "aliases": ["drawing", "graphics"]
+    "aliases": ["drawing", "graphics"],
+    "interfaces": [
+      "HTMLCanvasElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

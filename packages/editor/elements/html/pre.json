@@ -4,7 +4,14 @@
     "categories": ["typography"],
     "description": "Displays preformatted text, preserving whitespace and line breaks",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre",
-    "aliases": ["preformatted", "code-block"]
+    "aliases": ["preformatted", "code-block"],
+    "interfaces": [
+      "HTMLPreElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",
