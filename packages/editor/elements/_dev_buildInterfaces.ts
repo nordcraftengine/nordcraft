@@ -1,3 +1,4 @@
+import { listAll as listAllEvents } from '@webref/events'
 import { writeFileSync } from 'fs'
 
 // Fetches HTML attributes from the webref repository and generates a JSON file
@@ -62,17 +63,36 @@ const groupedAttributes = definitions.dfns
       })
       return acc
     },
-    {} as Record<string, { attributes: string[] }>,
+    {} as Record<string, { attributes: string[]; events?: string[] }>,
   )
+
+// Add events
+const events = await listAllEvents()
+events.forEach((e) => {
+  e.targets.forEach((et) => {
+    const interfaceItem = groupedAttributes[et.target]
+    if (interfaceItem) {
+      // Only add events if the interface is already present
+      // Later, we might want to add events for SVGElement, MathMLElement, etc.
+      interfaceItem.events ??= []
+      interfaceItem.events.push(e.type)
+    }
+  })
+})
+
 writeFileSync(
-  `./interfaces/htmlInterfaceAttributes.json`,
+  `./interfaces/htmlInterfaces.json`,
   JSON.stringify(
     Object.entries(groupedAttributes).reduce<
       Array<{ name: string; attributes: string[] }>
     >(
       (acc, [interfaceName, data]) => [
         ...acc,
-        { name: interfaceName, attributes: data.attributes.toSorted() },
+        {
+          name: interfaceName,
+          attributes: data.attributes.toSorted(),
+          events: data.events?.toSorted(),
+        },
       ],
       [],
     ),
