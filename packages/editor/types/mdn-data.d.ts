@@ -20,7 +20,7 @@ declare module 'mdn-data' {
 
   export const css: {
     properties: Record<string, Property>
-    syntaxes: Record<string, Syntax>
+    syntaxes: Partial<Record<string, Syntax>>
   }
 
   export const api: {

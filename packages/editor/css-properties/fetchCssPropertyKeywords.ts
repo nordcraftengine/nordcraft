@@ -36,6 +36,24 @@ const COMMON_KEYWORDS: Partial<Record<string, string[]>> = {
   display: ['block', 'inline', 'flex', 'none'],
 }
 
+const PAIRED_ALIGNMENT_KEYWORDS = ['safe', 'unsafe', 'first', 'last']
+
+const EXCLUDED_KEYWORDS: Partial<Record<string, string[]>> = {
+  /**
+   * When aligning items, safe and unsafe are only used in pairing with center in overflow alignment.
+   * First and last are paired with baseline in baseline alignment. These should not be included as
+   * standalone keywords.
+   */
+  'justify-items': PAIRED_ALIGNMENT_KEYWORDS,
+  'justify-self': PAIRED_ALIGNMENT_KEYWORDS,
+  'justify-tracks': PAIRED_ALIGNMENT_KEYWORDS,
+  'justify-content': PAIRED_ALIGNMENT_KEYWORDS,
+  'align-items': PAIRED_ALIGNMENT_KEYWORDS,
+  'align-self': PAIRED_ALIGNMENT_KEYWORDS,
+  'align-tracks': PAIRED_ALIGNMENT_KEYWORDS,
+  'align-content': PAIRED_ALIGNMENT_KEYWORDS,
+}
+
 const reorderKeywords = (prop: string, keywords: ProcessedKeywords) => {
   const sorting = COMMON_KEYWORDS[prop]
 
@@ -100,7 +118,11 @@ export function getCssKeywordsMap() {
             }
           }
 
-          if (node.type === 'Keyword' && !keywordNames.has(node.name)) {
+          if (
+            node.type === 'Keyword' &&
+            !keywordNames.has(node.name) &&
+            !EXCLUDED_KEYWORDS[property]?.includes(node.name)
+          ) {
             keywordNames.add(node.name)
 
             keywords.push({
