@@ -36,6 +36,17 @@ const COMMON_KEYWORDS: Partial<Record<string, string[]>> = {
   display: ['block', 'inline', 'flex', 'none'],
 }
 
+const EXCLUDED_KEYWORDS: Partial<Record<string, string[]>> = {
+  'justify-items': ['safe', 'unsafe', 'first', 'last'],
+  'justify-self': ['safe', 'unsafe', 'first', 'last'],
+  'justify-tracks': ['safe', 'unsafe', 'first', 'last'],
+  'justify-content': ['safe', 'unsafe', 'first', 'last'],
+  'align-items': ['safe', 'unsafe', 'first', 'last'],
+  'align-self': ['safe', 'unsafe', 'first', 'last'],
+  'align-tracks': ['safe', 'unsafe', 'first', 'last'],
+  'align-content': ['safe', 'unsafe', 'first', 'last'],
+}
+
 const reorderKeywords = (prop: string, keywords: ProcessedKeywords) => {
   const sorting = COMMON_KEYWORDS[prop]
 
@@ -100,7 +111,11 @@ export function getCssKeywordsMap() {
             }
           }
 
-          if (node.type === 'Keyword' && !keywordNames.has(node.name)) {
+          if (
+            node.type === 'Keyword' &&
+            !keywordNames.has(node.name) &&
+            !EXCLUDED_KEYWORDS[property]?.includes(node.name)
+          ) {
             keywordNames.add(node.name)
 
             keywords.push({
