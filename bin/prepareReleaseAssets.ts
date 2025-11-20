@@ -94,12 +94,10 @@ const run = async () => {
     entryNames: `[name].esm`,
   })
 
-  // Add HTML interface attribute file
+  // Add HTML interfaces file
   copyFileSync(
-    resolvePath(
-      '../packages/editor/elements/interfaces/htmlInterfaceAttributes.json',
-    ),
-    resolvePath(distPath, 'htmlInterfaceAttributes.json'),
+    resolvePath('../packages/editor/elements/interfaces/htmlInterfaces.json'),
+    resolvePath(distPath, 'htmlInterfaces.json'),
   )
 
   // Build html elements for the editor
