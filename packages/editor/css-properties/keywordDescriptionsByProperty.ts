@@ -2,9 +2,8 @@
  * AI-generated descriptions for most commonly used keywords.
  * If more are needed, add them by any means.
  */
-export const keywordDescriptionsByProperty: Record<
-  string,
-  Partial<Record<string, string>>
+export const keywordDescriptionsByProperty: Partial<
+  Record<string, Partial<Record<string, string>>>
 > = {
   'accent-color': {},
   'align-content': {
