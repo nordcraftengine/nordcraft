@@ -36,20 +36,22 @@ const COMMON_KEYWORDS: Partial<Record<string, string[]>> = {
   display: ['block', 'inline', 'flex', 'none'],
 }
 
+const PAIRED_ALIGNMENT_KEYWORDS = ['safe', 'unsafe', 'first', 'last']
+
 const EXCLUDED_KEYWORDS: Partial<Record<string, string[]>> = {
   /**
    * When aligning items, safe and unsafe are only used in pairing with center in overflow alignment.
    * First and last are paired with baseline in baseline alignment. These should not be included as
    * standalone keywords.
    */
-  'justify-items': ['safe', 'unsafe', 'first', 'last'],
-  'justify-self': ['safe', 'unsafe', 'first', 'last'],
-  'justify-tracks': ['safe', 'unsafe', 'first', 'last'],
-  'justify-content': ['safe', 'unsafe', 'first', 'last'],
-  'align-items': ['safe', 'unsafe', 'first', 'last'],
-  'align-self': ['safe', 'unsafe', 'first', 'last'],
-  'align-tracks': ['safe', 'unsafe', 'first', 'last'],
-  'align-content': ['safe', 'unsafe', 'first', 'last'],
+  'justify-items': PAIRED_ALIGNMENT_KEYWORDS,
+  'justify-self': PAIRED_ALIGNMENT_KEYWORDS,
+  'justify-tracks': PAIRED_ALIGNMENT_KEYWORDS,
+  'justify-content': PAIRED_ALIGNMENT_KEYWORDS,
+  'align-items': PAIRED_ALIGNMENT_KEYWORDS,
+  'align-self': PAIRED_ALIGNMENT_KEYWORDS,
+  'align-tracks': PAIRED_ALIGNMENT_KEYWORDS,
+  'align-content': PAIRED_ALIGNMENT_KEYWORDS,
 }
 
 const reorderKeywords = (prop: string, keywords: ProcessedKeywords) => {
