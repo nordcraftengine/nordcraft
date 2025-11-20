@@ -134,6 +134,25 @@ export function* searchProject({
       state,
       fixOptions: fixOptions as any,
     })
+    for (const propKey in files.themes[key].propertyDefinitions ?? {}) {
+      const propDef = files.themes[key].propertyDefinitions?.[propKey as any]
+      if (propDef) {
+        yield* visitNode({
+          args: {
+            nodeType: 'project-theme-property',
+            value: { key: propKey, value: propDef },
+            path: ['themes', key, 'propertyDefinitions', propKey],
+            rules,
+            files,
+            pathsToVisit,
+            useExactPaths,
+            memo,
+          },
+          state,
+          fixOptions: fixOptions as any,
+        })
+      }
+    }
   }
 
   if (files.services) {
@@ -320,6 +339,7 @@ function* visitNode({
     case 'project-action':
     case 'project-config':
     case 'project-theme':
+    case 'project-theme-property':
     case 'style-declaration':
     case 'style-variant':
       break

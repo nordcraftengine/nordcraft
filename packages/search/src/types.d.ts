@@ -66,6 +66,7 @@ type Code =
   | 'no-reference component workflow'
   | 'no-reference component'
   | 'no-reference event'
+  | 'no-reference global css variable'
   | 'no-reference node'
   | 'no-reference project action'
   | 'no-reference project formula'
@@ -314,6 +315,14 @@ type ProjectThemeNode = {
   value: Theme
 } & Base
 
+type ProjectThemePropertyNode = {
+  nodeType: 'project-theme-property'
+  value: {
+    key: CustomPropertyName
+    value: CustomPropertyDefinition
+  }
+} & Base
+
 type ProjectConfigNode = {
   nodeType: 'project-config'
   value: unknown
@@ -356,6 +365,7 @@ export type NodeType =
   | ProjectFormulaNode
   | ProjectRoute
   | ProjectThemeNode
+  | ProjectThemePropertyNode
   | StyleNode
   | StyleVariantNode
 
