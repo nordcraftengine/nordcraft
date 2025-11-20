@@ -37,6 +37,11 @@ const COMMON_KEYWORDS: Partial<Record<string, string[]>> = {
 }
 
 const EXCLUDED_KEYWORDS: Partial<Record<string, string[]>> = {
+  /**
+   * When aligning items, safe and unsafe are only used in pairing with center in overflow alignment.
+   * First and last are paired with baseline in baseline alignment. These should not be included as
+   * standalone keywords.
+   */
   'justify-items': ['safe', 'unsafe', 'first', 'last'],
   'justify-self': ['safe', 'unsafe', 'first', 'last'],
   'justify-tracks': ['safe', 'unsafe', 'first', 'last'],
