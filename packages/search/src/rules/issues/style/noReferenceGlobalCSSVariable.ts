@@ -9,10 +9,12 @@ export const noReferenceGlobalCSSVariableRule: Rule<{
   level: 'warning',
   category: 'No References',
   visit: (report, { path, value, nodeType, files, memo }) => {
-    if (
-      nodeType !== 'project-theme' ||
-      Object.values(value.propertyDefinitions ?? {}).length === 0
-    ) {
+    if (nodeType !== 'project-theme-property') {
+      return
+    }
+
+    const theme = files.themes?.Default
+    if (!theme) {
       return
     }
 
@@ -47,7 +49,7 @@ export const noReferenceGlobalCSSVariableRule: Rule<{
       'css-variables-used-in-css-variables',
       () => {
         const vars = new Set<string>()
-        Object.values(value.propertyDefinitions ?? {}).forEach((propDef) => {
+        Object.values(theme.propertyDefinitions ?? {}).forEach((propDef) => {
           ;[...Object.values(propDef.values), propDef.initialValue].forEach(
             (val) => {
               if (typeof val !== 'string') {
@@ -65,15 +67,12 @@ export const noReferenceGlobalCSSVariableRule: Rule<{
       },
     )
 
-    Object.entries(value.propertyDefinitions ?? {}).forEach(([key]) => {
-      if (
-        usedCSSVariablesInComponents.has(key) ||
-        usedCSSVariablesInCSSVariables.has(key)
-      ) {
-        return
-      }
-
-      report([...path, 'propertyDefinitions', key], { name: key })
-    })
+    if (
+      usedCSSVariablesInCSSVariables.has(value.key) ||
+      usedCSSVariablesInComponents.has(value.key)
+    ) {
+      return
+    }
+    report(path, { name: value.key })
   },
 }
