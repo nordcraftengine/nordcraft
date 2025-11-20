@@ -66,6 +66,7 @@ type Code =
   | 'no-reference component workflow'
   | 'no-reference component'
   | 'no-reference event'
+  | 'no-reference global css variable'
   | 'no-reference node'
   | 'no-reference project action'
   | 'no-reference project formula'
