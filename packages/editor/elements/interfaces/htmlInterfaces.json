@@ -1,23 +1,206 @@
 [
   {
-    "name": "HTMLOrSVGElement",
-    "attributes": ["autofocus", "dataset", "nonce", "tabIndex"]
+    "name": "AbortSignal",
+    "attributes": [],
+    "events": ["abort"]
   },
   {
-    "name": "HTMLAllCollection",
+    "name": "Animation",
+    "attributes": [],
+    "events": ["cancel", "finish", "remove"]
+  },
+  {
+    "name": "AudioContext",
+    "attributes": [],
+    "events": ["error", "sinkchange"]
+  },
+  {
+    "name": "AudioDecoder",
+    "attributes": [],
+    "events": ["dequeue"]
+  },
+  {
+    "name": "AudioEncoder",
+    "attributes": [],
+    "events": ["dequeue"]
+  },
+  {
+    "name": "AudioScheduledSourceNode",
+    "attributes": [],
+    "events": ["ended"]
+  },
+  {
+    "name": "AudioSession",
+    "attributes": [],
+    "events": ["statechange"]
+  },
+  {
+    "name": "AudioTrack",
+    "attributes": ["enabled", "id", "kind", "label", "language"]
+  },
+  {
+    "name": "AudioTrackList",
+    "attributes": ["length"],
+    "events": ["addtrack", "change", "removetrack"]
+  },
+  {
+    "name": "AudioWorkletNode",
+    "attributes": [],
+    "events": ["processorerror"]
+  },
+  {
+    "name": "BackgroundFetchRegistration",
+    "attributes": [],
+    "events": ["progress"]
+  },
+  {
+    "name": "BarProp",
+    "attributes": ["visible"]
+  },
+  {
+    "name": "BaseAudioContext",
+    "attributes": [],
+    "events": ["statechange"]
+  },
+  {
+    "name": "BatteryManager",
+    "attributes": [],
+    "events": [
+      "chargingchange",
+      "chargingtimechange",
+      "dischargingtimechange",
+      "levelchange"
+    ]
+  },
+  {
+    "name": "BeforeUnloadEvent",
+    "attributes": ["returnValue"]
+  },
+  {
+    "name": "Bluetooth",
+    "attributes": [],
+    "events": ["availabilitychanged"]
+  },
+  {
+    "name": "BluetoothDevice",
+    "attributes": [],
+    "events": ["advertisementreceived", "gattserverdisconnected"]
+  },
+  {
+    "name": "BluetoothRemoteGATTCharacteristic",
+    "attributes": [],
+    "events": ["characteristicvaluechanged"]
+  },
+  {
+    "name": "BluetoothRemoteGATTService",
+    "attributes": [],
+    "events": ["serviceadded", "servicechanged", "serviceremoved"]
+  },
+  {
+    "name": "BroadcastChannel",
+    "attributes": ["name"],
+    "events": ["message", "messageerror"]
+  },
+  {
+    "name": "CanvasCompositing",
+    "attributes": ["globalAlpha", "globalCompositeOperation"]
+  },
+  {
+    "name": "CanvasFillStrokeStyles",
+    "attributes": ["fillStyle", "strokeStyle"]
+  },
+  {
+    "name": "CanvasFilters",
+    "attributes": ["filter"]
+  },
+  {
+    "name": "CanvasImageSmoothing",
+    "attributes": ["imageSmoothingEnabled", "imageSmoothingQuality"]
+  },
+  {
+    "name": "CanvasPathDrawingStyles",
+    "attributes": [
+      "lineCap",
+      "lineDashOffset",
+      "lineJoin",
+      "lineWidth",
+      "miterLimit"
+    ]
+  },
+  {
+    "name": "CanvasRenderingContext2D",
+    "attributes": ["canvas"]
+  },
+  {
+    "name": "CanvasShadowStyles",
+    "attributes": [
+      "shadowBlur",
+      "shadowColor",
+      "shadowOffsetX",
+      "shadowOffsetY"
+    ]
+  },
+  {
+    "name": "CanvasTextDrawingStyles",
+    "attributes": [
+      "direction",
+      "font",
+      "fontKerning",
+      "fontStretch",
+      "fontVariantCaps",
+      "lang",
+      "letterSpacing",
+      "textAlign",
+      "textBaseline",
+      "textRendering",
+      "wordSpacing"
+    ]
+  },
+  {
+    "name": "CaptureController",
+    "attributes": [],
+    "events": ["capturedmousechange", "zoomlevelchange"]
+  },
+  {
+    "name": "CloseWatcher",
+    "attributes": [],
+    "events": ["cancel", "close"]
+  },
+  {
+    "name": "CommandEvent",
+    "attributes": ["command", "source"]
+  },
+  {
+    "name": "CookieStore",
+    "attributes": [],
+    "events": ["change"]
+  },
+  {
+    "name": "CreateMonitor",
+    "attributes": [],
+    "events": ["downloadprogress"]
+  },
+  {
+    "name": "DataTransfer",
+    "attributes": ["dropEffect", "effectAllowed", "files", "items", "types"]
+  },
+  {
+    "name": "DataTransferItem",
+    "attributes": ["kind", "type"]
+  },
+  {
+    "name": "DataTransferItemList",
     "attributes": ["length"]
   },
   {
-    "name": "RadioNodeList",
-    "attributes": ["value"]
+    "name": "DedicatedWorkerGlobalScope",
+    "attributes": ["name"],
+    "events": ["message", "messageerror", "rtctransform"]
   },
   {
-    "name": "HTMLOptionsCollection",
-    "attributes": ["length", "selectedIndex"]
-  },
-  {
-    "name": "DOMStringList",
-    "attributes": ["length"]
+    "name": "DevicePosture",
+    "attributes": [],
+    "events": ["change"]
   },
   {
     "name": "Document",
@@ -69,6 +252,297 @@
       "unload",
       "visibilitychange"
     ]
+  },
+  {
+    "name": "DocumentOrShadowRoot",
+    "attributes": ["activeElement"]
+  },
+  {
+    "name": "DocumentPictureInPicture",
+    "attributes": [],
+    "events": ["enter"]
+  },
+  {
+    "name": "DOMStringList",
+    "attributes": ["length"]
+  },
+  {
+    "name": "DragEvent",
+    "attributes": ["dataTransfer"]
+  },
+  {
+    "name": "EditContext",
+    "attributes": [],
+    "events": [
+      "characterboundsupdate",
+      "compositionend",
+      "compositionstart",
+      "textformatupdate",
+      "textupdate"
+    ]
+  },
+  {
+    "name": "Element",
+    "attributes": [],
+    "events": [
+      "DOMActivate",
+      "DOMFocusIn",
+      "DOMFocusOut",
+      "abort",
+      "auxclick",
+      "beforeinput",
+      "blur",
+      "click",
+      "compositionend",
+      "compositionstart",
+      "compositionupdate",
+      "contentvisibilityautostatechange",
+      "contextmenu",
+      "dblclick",
+      "error",
+      "focus",
+      "focusin",
+      "focusout",
+      "fullscreenchange",
+      "fullscreenerror",
+      "input",
+      "keydown",
+      "keypress",
+      "keyup",
+      "load",
+      "mousedown",
+      "mouseenter",
+      "mouseleave",
+      "mousemove",
+      "mouseout",
+      "mouseover",
+      "mouseup",
+      "scroll",
+      "scrollend",
+      "select",
+      "textInput",
+      "touchcancel",
+      "touchend",
+      "touchmove",
+      "touchstart",
+      "unload",
+      "wheel"
+    ]
+  },
+  {
+    "name": "ElementContentEditable",
+    "attributes": [
+      "contentEditable",
+      "enterKeyHint",
+      "inputMode",
+      "isContentEditable"
+    ]
+  },
+  {
+    "name": "ElementInternals",
+    "attributes": [
+      "form",
+      "labels",
+      "shadowRoot",
+      "validationMessage",
+      "validity",
+      "willValidate"
+    ]
+  },
+  {
+    "name": "ErrorEvent",
+    "attributes": ["colno", "error", "filename", "lineno", "message"]
+  },
+  {
+    "name": "EventSource",
+    "attributes": ["readyState", "url", "withCredentials"],
+    "events": ["error", "message", "open"]
+  },
+  {
+    "name": "FileReader",
+    "attributes": [],
+    "events": ["abort", "error", "load", "loadend", "loadstart", "progress"]
+  },
+  {
+    "name": "FontFaceSet",
+    "attributes": [],
+    "events": ["loading", "loadingdone", "loadingerror"]
+  },
+  {
+    "name": "FormDataEvent",
+    "attributes": ["formData"]
+  },
+  {
+    "name": "global",
+    "attributes": [
+      "accesskey",
+      "autocapitalize",
+      "autocorrect",
+      "autofocus",
+      "class",
+      "contenteditable",
+      "dir",
+      "draggable",
+      "enterkeyhint",
+      "headingoffset",
+      "headingreset",
+      "hidden",
+      "id",
+      "inputmode",
+      "is",
+      "itemid",
+      "itemprop",
+      "itemref",
+      "itemscope",
+      "itemtype",
+      "lang",
+      "popover",
+      "popovertarget",
+      "popovertargetaction",
+      "slot",
+      "spellcheck",
+      "style",
+      "title",
+      "translate",
+      "writingsuggestions"
+    ]
+  },
+  {
+    "name": "GPUDevice",
+    "attributes": [],
+    "events": ["uncapturederror"]
+  },
+  {
+    "name": "HashChangeEvent",
+    "attributes": ["newURL", "oldURL"]
+  },
+  {
+    "name": "HID",
+    "attributes": [],
+    "events": ["connect", "disconnect"]
+  },
+  {
+    "name": "HIDDevice",
+    "attributes": [],
+    "events": ["inputreport"]
+  },
+  {
+    "name": "History",
+    "attributes": ["length", "scrollRestoration", "state"]
+  },
+  {
+    "name": "HTMLAllCollection",
+    "attributes": ["length"]
+  },
+  {
+    "name": "HTMLAnchorElement",
+    "attributes": [
+      "charset",
+      "coords",
+      "download",
+      "href",
+      "hreflang",
+      "name",
+      "ping",
+      "referrerPolicy",
+      "rel",
+      "relList",
+      "rev",
+      "shape",
+      "target",
+      "text",
+      "type"
+    ]
+  },
+  {
+    "name": "HTMLAreaElement",
+    "attributes": [
+      "alt",
+      "coords",
+      "download",
+      "noHref",
+      "ping",
+      "referrerPolicy",
+      "rel",
+      "relList",
+      "shape",
+      "target"
+    ]
+  },
+  {
+    "name": "HTMLBaseElement",
+    "attributes": ["href", "target"]
+  },
+  {
+    "name": "HTMLBodyElement",
+    "attributes": ["aLink", "background", "bgColor", "link", "text", "vLink"]
+  },
+  {
+    "name": "HTMLBRElement",
+    "attributes": ["clear"]
+  },
+  {
+    "name": "HTMLButtonElement",
+    "attributes": [
+      "command",
+      "commandForElement",
+      "disabled",
+      "form",
+      "formAction",
+      "formEnctype",
+      "formMethod",
+      "formNoValidate",
+      "formTarget",
+      "labels",
+      "name",
+      "type",
+      "validationMessage",
+      "validity",
+      "value",
+      "willValidate"
+    ],
+    "events": ["invalid"]
+  },
+  {
+    "name": "HTMLCanvasElement",
+    "attributes": ["height", "width"],
+    "events": [
+      "contextlost",
+      "contextrestored",
+      "webglcontextcreationerror",
+      "webglcontextlost",
+      "webglcontextrestored"
+    ]
+  },
+  {
+    "name": "HTMLDataElement",
+    "attributes": ["value"]
+  },
+  {
+    "name": "HTMLDataListElement",
+    "attributes": ["options"]
+  },
+  {
+    "name": "HTMLDetailsElement",
+    "attributes": ["name", "open"],
+    "events": ["toggle"]
+  },
+  {
+    "name": "HTMLDialogElement",
+    "attributes": ["closedBy", "open", "returnValue"],
+    "events": ["cancel", "close"]
+  },
+  {
+    "name": "HTMLDirectoryElement",
+    "attributes": ["compact"]
+  },
+  {
+    "name": "HTMLDivElement",
+    "attributes": ["align"]
+  },
+  {
+    "name": "HTMLDListElement",
+    "attributes": ["compact"]
   },
   {
     "name": "HTMLElement",
@@ -138,119 +612,79 @@
     ]
   },
   {
-    "name": "global",
+    "name": "HTMLEmbedElement",
+    "attributes": ["align", "height", "name", "src", "type", "width"]
+  },
+  {
+    "name": "HTMLFieldSetElement",
     "attributes": [
-      "accesskey",
-      "autocapitalize",
-      "autocorrect",
-      "autofocus",
-      "class",
-      "contenteditable",
-      "dir",
-      "draggable",
-      "enterkeyhint",
-      "headingoffset",
-      "headingreset",
-      "hidden",
-      "id",
-      "inputmode",
-      "is",
-      "itemid",
-      "itemprop",
-      "itemref",
-      "itemscope",
-      "itemtype",
-      "lang",
-      "popover",
-      "popovertarget",
-      "popovertargetaction",
-      "slot",
-      "spellcheck",
-      "style",
-      "title",
-      "translate",
-      "writingsuggestions"
-    ]
-  },
-  {
-    "name": "HTMLTitleElement",
-    "attributes": ["text"]
-  },
-  {
-    "name": "HTMLBaseElement",
-    "attributes": ["href", "target"]
-  },
-  {
-    "name": "HTMLLinkElement",
-    "attributes": [
-      "as",
-      "blocking",
-      "charset",
-      "crossOrigin",
       "disabled",
-      "fetchPriority",
-      "href",
-      "hreflang",
-      "imageSizes",
-      "imageSrcset",
-      "integrity",
-      "media",
-      "referrerPolicy",
-      "rel",
-      "relList",
-      "rev",
-      "sizes",
-      "target",
-      "type"
-    ]
-  },
-  {
-    "name": "HTMLMetaElement",
-    "attributes": ["content", "httpEquiv", "media", "name", "scheme"]
-  },
-  {
-    "name": "HTMLStyleElement",
-    "attributes": ["blocking", "disabled", "media", "type"]
-  },
-  {
-    "name": "HTMLQuoteElement",
-    "attributes": ["cite"]
-  },
-  {
-    "name": "HTMLOListElement",
-    "attributes": ["compact", "reversed", "start", "type"]
-  },
-  {
-    "name": "HTMLLIElement",
-    "attributes": ["type", "value"]
-  },
-  {
-    "name": "HTMLAnchorElement",
-    "attributes": [
-      "charset",
-      "coords",
-      "download",
-      "href",
-      "hreflang",
+      "elements",
+      "form",
       "name",
-      "ping",
-      "referrerPolicy",
-      "rel",
-      "relList",
-      "rev",
-      "shape",
-      "target",
-      "text",
-      "type"
+      "type",
+      "validationMessage",
+      "validity",
+      "willValidate"
     ]
   },
   {
-    "name": "HTMLDataElement",
-    "attributes": ["value"]
+    "name": "HTMLFontElement",
+    "attributes": ["color", "face", "size"]
   },
   {
-    "name": "HTMLTimeElement",
-    "attributes": ["dateTime"]
+    "name": "HTMLFormElement",
+    "attributes": [
+      "acceptCharset",
+      "action",
+      "autocomplete",
+      "elements",
+      "encoding",
+      "enctype",
+      "length",
+      "method",
+      "name",
+      "noValidate",
+      "rel",
+      "relList",
+      "target"
+    ],
+    "events": ["formdata", "reset", "submit"]
+  },
+  {
+    "name": "HTMLFrameElement",
+    "attributes": [
+      "contentDocument",
+      "contentWindow",
+      "frameBorder",
+      "longDesc",
+      "marginHeight",
+      "marginWidth",
+      "name",
+      "noResize",
+      "scrolling",
+      "src"
+    ]
+  },
+  {
+    "name": "HTMLFrameSetElement",
+    "attributes": ["cols", "rows"]
+  },
+  {
+    "name": "HTMLHeadElement",
+    "attributes": ["profile"]
+  },
+  {
+    "name": "HTMLHeadingElement",
+    "attributes": ["align"]
+  },
+  {
+    "name": "HTMLHRElement",
+    "attributes": ["align", "color", "noShade", "size", "width"]
+  },
+  {
+    "name": "HTMLHtmlElement",
+    "attributes": ["version"]
   },
   {
     "name": "HTMLHyperlinkElementUtils",
@@ -269,21 +703,27 @@
     ]
   },
   {
-    "name": "HTMLModElement",
-    "attributes": ["cite", "dateTime"]
-  },
-  {
-    "name": "HTMLSourceElement",
+    "name": "HTMLIFrameElement",
     "attributes": [
+      "align",
+      "allow",
+      "allowFullscreen",
+      "contentDocument",
+      "contentWindow",
+      "frameBorder",
       "height",
-      "media",
-      "sizes",
+      "loading",
+      "longDesc",
+      "marginHeight",
+      "marginWidth",
+      "name",
+      "referrerPolicy",
+      "sandbox",
+      "scrolling",
       "src",
-      "srcset",
-      "type",
+      "srcdoc",
       "width"
-    ],
-    "events": ["error"]
+    ]
   },
   {
     "name": "HTMLImageElement",
@@ -315,83 +755,113 @@
     ]
   },
   {
-    "name": "HTMLIFrameElement",
+    "name": "HTMLInputElement",
     "attributes": [
+      "accept",
       "align",
-      "allow",
-      "allowFullscreen",
-      "contentDocument",
-      "contentWindow",
-      "frameBorder",
-      "height",
-      "loading",
-      "longDesc",
-      "marginHeight",
-      "marginWidth",
-      "name",
-      "referrerPolicy",
-      "sandbox",
-      "scrolling",
-      "src",
-      "srcdoc",
-      "width"
-    ]
-  },
-  {
-    "name": "HTMLEmbedElement",
-    "attributes": ["align", "height", "name", "src", "type", "width"]
-  },
-  {
-    "name": "HTMLObjectElement",
-    "attributes": [
-      "align",
-      "archive",
-      "border",
-      "code",
-      "codeBase",
-      "codeType",
-      "contentDocument",
-      "contentWindow",
-      "data",
-      "declare",
+      "alpha",
+      "alt",
+      "autocomplete",
+      "checked",
+      "colorSpace",
+      "defaultChecked",
+      "defaultValue",
+      "dirName",
+      "disabled",
+      "files",
       "form",
+      "formAction",
+      "formEnctype",
+      "formMethod",
+      "formNoValidate",
+      "formTarget",
       "height",
-      "hspace",
+      "indeterminate",
+      "labels",
+      "list",
+      "max",
+      "maxLength",
+      "min",
+      "minLength",
+      "multiple",
       "name",
-      "standby",
+      "pattern",
+      "placeholder",
+      "readOnly",
+      "required",
+      "selectionDirection",
+      "selectionEnd",
+      "selectionStart",
+      "size",
+      "src",
+      "step",
       "type",
       "useMap",
       "validationMessage",
       "validity",
-      "vspace",
+      "value",
+      "valueAsDate",
+      "valueAsNumber",
       "width",
       "willValidate"
+    ],
+    "events": ["cancel", "change", "invalid", "select"]
+  },
+  {
+    "name": "HTMLLabelElement",
+    "attributes": ["control", "form", "htmlFor"]
+  },
+  {
+    "name": "HTMLLegendElement",
+    "attributes": ["align", "form"]
+  },
+  {
+    "name": "HTMLLIElement",
+    "attributes": ["type", "value"]
+  },
+  {
+    "name": "HTMLLinkElement",
+    "attributes": [
+      "as",
+      "blocking",
+      "charset",
+      "crossOrigin",
+      "disabled",
+      "fetchPriority",
+      "href",
+      "hreflang",
+      "imageSizes",
+      "imageSrcset",
+      "integrity",
+      "media",
+      "referrerPolicy",
+      "rel",
+      "relList",
+      "rev",
+      "sizes",
+      "target",
+      "type"
     ]
   },
   {
-    "name": "HTMLVideoElement",
-    "attributes": [
-      "height",
-      "playsInline",
-      "poster",
-      "videoHeight",
-      "videoWidth",
-      "width"
-    ],
-    "events": ["enterpictureinpicture", "leavepictureinpicture"]
+    "name": "HTMLMapElement",
+    "attributes": ["areas", "name"]
   },
   {
-    "name": "HTMLTrackElement",
+    "name": "HTMLMarqueeElement",
     "attributes": [
-      "default",
-      "kind",
-      "label",
-      "readyState",
-      "src",
-      "srclang",
-      "track"
-    ],
-    "events": ["cuechange", "error", "load"]
+      "behavior",
+      "bgColor",
+      "direction",
+      "height",
+      "hspace",
+      "loop",
+      "scrollAmount",
+      "scrollDelay",
+      "trueSpeed",
+      "vspace",
+      "width"
+    ]
   },
   {
     "name": "HTMLMediaElement",
@@ -454,229 +924,83 @@
     ]
   },
   {
-    "name": "MediaError",
-    "attributes": ["code", "message"]
+    "name": "HTMLMenuElement",
+    "attributes": ["compact"]
   },
   {
-    "name": "AudioTrackList",
-    "attributes": ["length"],
-    "events": ["addtrack", "change", "removetrack"]
+    "name": "HTMLMetaElement",
+    "attributes": ["content", "httpEquiv", "media", "name", "scheme"]
   },
   {
-    "name": "VideoTrackList",
-    "attributes": ["length", "selectedIndex"],
-    "events": ["addtrack", "change", "removetrack"]
+    "name": "HTMLMeterElement",
+    "attributes": ["high", "labels", "low", "max", "min", "optimum", "value"]
   },
   {
-    "name": "AudioTrack",
-    "attributes": ["enabled", "id", "kind", "label", "language"]
+    "name": "HTMLModElement",
+    "attributes": ["cite", "dateTime"]
   },
   {
-    "name": "VideoTrack",
-    "attributes": ["id", "kind", "label", "language", "selected"]
-  },
-  {
-    "name": "TextTrackList",
-    "attributes": ["length"],
-    "events": ["addtrack", "change", "removetrack"]
-  },
-  {
-    "name": "TextTrack",
-    "attributes": [
-      "activeCues",
-      "cues",
-      "id",
-      "inBandMetadataTrackDispatchType",
-      "kind",
-      "label",
-      "language",
-      "mode"
-    ],
-    "events": ["cuechange"]
-  },
-  {
-    "name": "TextTrackCueList",
-    "attributes": ["length"]
-  },
-  {
-    "name": "TextTrackCue",
-    "attributes": ["endTime", "id", "pauseOnExit", "startTime", "track"],
-    "events": ["enter", "exit"]
-  },
-  {
-    "name": "TimeRanges",
-    "attributes": ["length"]
-  },
-  {
-    "name": "TrackEvent",
-    "attributes": ["track"]
-  },
-  {
-    "name": "HTMLMapElement",
-    "attributes": ["areas", "name"]
-  },
-  {
-    "name": "HTMLAreaElement",
-    "attributes": [
-      "alt",
-      "coords",
-      "download",
-      "noHref",
-      "ping",
-      "referrerPolicy",
-      "rel",
-      "relList",
-      "shape",
-      "target"
-    ]
-  },
-  {
-    "name": "HTMLTableElement",
+    "name": "HTMLObjectElement",
     "attributes": [
       "align",
-      "bgColor",
+      "archive",
       "border",
-      "caption",
-      "cellPadding",
-      "cellSpacing",
-      "frame",
-      "rows",
-      "rules",
-      "summary",
-      "tBodies",
-      "tFoot",
-      "tHead",
-      "width"
-    ]
-  },
-  {
-    "name": "HTMLTableColElement",
-    "attributes": ["align", "ch", "chOff", "span", "vAlign", "width"]
-  },
-  {
-    "name": "HTMLTableSectionElement",
-    "attributes": ["align", "ch", "chOff", "rows", "vAlign"]
-  },
-  {
-    "name": "HTMLTableRowElement",
-    "attributes": [
-      "align",
-      "bgColor",
-      "cells",
-      "ch",
-      "chOff",
-      "rowIndex",
-      "sectionRowIndex",
-      "vAlign"
-    ]
-  },
-  {
-    "name": "HTMLTableCellElement",
-    "attributes": [
-      "abbr",
-      "align",
-      "axis",
-      "bgColor",
-      "cellIndex",
-      "ch",
-      "chOff",
-      "colSpan",
-      "height",
-      "noWrap",
-      "rowSpan",
-      "scope",
-      "vAlign",
-      "width"
-    ]
-  },
-  {
-    "name": "HTMLFormElement",
-    "attributes": [
-      "acceptCharset",
-      "action",
-      "autocomplete",
-      "elements",
-      "encoding",
-      "enctype",
-      "length",
-      "method",
-      "name",
-      "noValidate",
-      "rel",
-      "relList",
-      "target"
-    ],
-    "events": ["formdata", "reset", "submit"]
-  },
-  {
-    "name": "HTMLLabelElement",
-    "attributes": ["control", "form", "htmlFor"]
-  },
-  {
-    "name": "HTMLInputElement",
-    "attributes": [
-      "accept",
-      "align",
-      "alpha",
-      "alt",
-      "autocomplete",
-      "checked",
-      "colorSpace",
-      "defaultChecked",
-      "defaultValue",
-      "dirName",
-      "disabled",
-      "files",
+      "code",
+      "codeBase",
+      "codeType",
+      "contentDocument",
+      "contentWindow",
+      "data",
+      "declare",
       "form",
-      "formAction",
-      "formEnctype",
-      "formMethod",
-      "formNoValidate",
-      "formTarget",
       "height",
-      "indeterminate",
-      "labels",
-      "list",
-      "max",
-      "maxLength",
-      "min",
-      "minLength",
-      "multiple",
+      "hspace",
       "name",
-      "pattern",
-      "placeholder",
-      "readOnly",
-      "required",
-      "selectionDirection",
-      "selectionEnd",
-      "selectionStart",
-      "size",
-      "src",
-      "step",
+      "standby",
       "type",
       "useMap",
       "validationMessage",
       "validity",
-      "value",
-      "valueAsDate",
-      "valueAsNumber",
+      "vspace",
       "width",
       "willValidate"
-    ],
-    "events": ["cancel", "change", "invalid", "select"]
+    ]
   },
   {
-    "name": "HTMLButtonElement",
+    "name": "HTMLOListElement",
+    "attributes": ["compact", "reversed", "start", "type"]
+  },
+  {
+    "name": "HTMLOptGroupElement",
+    "attributes": ["disabled", "label"]
+  },
+  {
+    "name": "HTMLOptionElement",
     "attributes": [
-      "command",
-      "commandForElement",
+      "defaultSelected",
       "disabled",
       "form",
-      "formAction",
-      "formEnctype",
-      "formMethod",
-      "formNoValidate",
-      "formTarget",
+      "index",
+      "label",
+      "selected",
+      "text",
+      "value"
+    ]
+  },
+  {
+    "name": "HTMLOptionsCollection",
+    "attributes": ["length", "selectedIndex"]
+  },
+  {
+    "name": "HTMLOrSVGElement",
+    "attributes": ["autofocus", "dataset", "nonce", "tabIndex"]
+  },
+  {
+    "name": "HTMLOutputElement",
+    "attributes": [
+      "defaultValue",
+      "form",
+      "htmlFor",
       "labels",
       "name",
       "type",
@@ -684,8 +1008,51 @@
       "validity",
       "value",
       "willValidate"
-    ],
-    "events": ["invalid"]
+    ]
+  },
+  {
+    "name": "HTMLParagraphElement",
+    "attributes": ["align"]
+  },
+  {
+    "name": "HTMLParamElement",
+    "attributes": ["name", "type", "value", "valueType"]
+  },
+  {
+    "name": "HTMLPortalElement",
+    "attributes": [],
+    "events": ["message", "messageerror"]
+  },
+  {
+    "name": "HTMLPreElement",
+    "attributes": ["width"]
+  },
+  {
+    "name": "HTMLProgressElement",
+    "attributes": ["labels", "position", "value"]
+  },
+  {
+    "name": "HTMLQuoteElement",
+    "attributes": ["cite"]
+  },
+  {
+    "name": "HTMLScriptElement",
+    "attributes": [
+      "async",
+      "blocking",
+      "charset",
+      "crossOrigin",
+      "defer",
+      "event",
+      "fetchPriority",
+      "htmlFor",
+      "integrity",
+      "noModule",
+      "referrerPolicy",
+      "src",
+      "text",
+      "type"
+    ]
   },
   {
     "name": "HTMLSelectElement",
@@ -709,6 +1076,102 @@
       "willValidate"
     ],
     "events": ["change", "invalid"]
+  },
+  {
+    "name": "HTMLSlotElement",
+    "attributes": ["name"],
+    "events": ["slotchange"]
+  },
+  {
+    "name": "HTMLSourceElement",
+    "attributes": [
+      "height",
+      "media",
+      "sizes",
+      "src",
+      "srcset",
+      "type",
+      "width"
+    ],
+    "events": ["error"]
+  },
+  {
+    "name": "HTMLStyleElement",
+    "attributes": ["blocking", "disabled", "media", "type"]
+  },
+  {
+    "name": "HTMLTableCaptionElement",
+    "attributes": ["align"]
+  },
+  {
+    "name": "HTMLTableCellElement",
+    "attributes": [
+      "abbr",
+      "align",
+      "axis",
+      "bgColor",
+      "cellIndex",
+      "ch",
+      "chOff",
+      "colSpan",
+      "height",
+      "noWrap",
+      "rowSpan",
+      "scope",
+      "vAlign",
+      "width"
+    ]
+  },
+  {
+    "name": "HTMLTableColElement",
+    "attributes": ["align", "ch", "chOff", "span", "vAlign", "width"]
+  },
+  {
+    "name": "HTMLTableElement",
+    "attributes": [
+      "align",
+      "bgColor",
+      "border",
+      "caption",
+      "cellPadding",
+      "cellSpacing",
+      "frame",
+      "rows",
+      "rules",
+      "summary",
+      "tBodies",
+      "tFoot",
+      "tHead",
+      "width"
+    ]
+  },
+  {
+    "name": "HTMLTableRowElement",
+    "attributes": [
+      "align",
+      "bgColor",
+      "cells",
+      "ch",
+      "chOff",
+      "rowIndex",
+      "sectionRowIndex",
+      "vAlign"
+    ]
+  },
+  {
+    "name": "HTMLTableSectionElement",
+    "attributes": ["align", "ch", "chOff", "rows", "vAlign"]
+  },
+  {
+    "name": "HTMLTemplateElement",
+    "attributes": [
+      "content",
+      "shadowRootClonable",
+      "shadowRootCustomElementRegistry",
+      "shadowRootDelegatesFocus",
+      "shadowRootMode",
+      "shadowRootSerializable"
+    ]
   },
   {
     "name": "HTMLTextAreaElement",
@@ -741,149 +1204,358 @@
     "events": ["invalid", "select"]
   },
   {
-    "name": "HTMLOutputElement",
+    "name": "HTMLTimeElement",
+    "attributes": ["dateTime"]
+  },
+  {
+    "name": "HTMLTitleElement",
+    "attributes": ["text"]
+  },
+  {
+    "name": "HTMLTrackElement",
     "attributes": [
-      "defaultValue",
-      "form",
-      "htmlFor",
-      "labels",
-      "name",
-      "type",
-      "validationMessage",
-      "validity",
-      "value",
-      "willValidate"
-    ]
-  },
-  {
-    "name": "HTMLProgressElement",
-    "attributes": ["labels", "position", "value"]
-  },
-  {
-    "name": "HTMLMeterElement",
-    "attributes": ["high", "labels", "low", "max", "min", "optimum", "value"]
-  },
-  {
-    "name": "ElementInternals",
-    "attributes": [
-      "form",
-      "labels",
-      "shadowRoot",
-      "validationMessage",
-      "validity",
-      "willValidate"
-    ]
-  },
-  {
-    "name": "HTMLDataListElement",
-    "attributes": ["options"]
-  },
-  {
-    "name": "HTMLOptGroupElement",
-    "attributes": ["disabled", "label"]
-  },
-  {
-    "name": "HTMLOptionElement",
-    "attributes": [
-      "defaultSelected",
-      "disabled",
-      "form",
-      "index",
+      "default",
+      "kind",
       "label",
-      "selected",
-      "text",
-      "value"
-    ]
-  },
-  {
-    "name": "HTMLFieldSetElement",
-    "attributes": [
-      "disabled",
-      "elements",
-      "form",
-      "name",
-      "type",
-      "validationMessage",
-      "validity",
-      "willValidate"
-    ]
-  },
-  {
-    "name": "HTMLLegendElement",
-    "attributes": ["align", "form"]
-  },
-  {
-    "name": "ValidityState",
-    "attributes": [
-      "badInput",
-      "customError",
-      "patternMismatch",
-      "rangeOverflow",
-      "rangeUnderflow",
-      "stepMismatch",
-      "tooLong",
-      "tooShort",
-      "typeMismatch",
-      "valid",
-      "valueMissing"
-    ]
-  },
-  {
-    "name": "SubmitEvent",
-    "attributes": ["submitter"]
-  },
-  {
-    "name": "FormDataEvent",
-    "attributes": ["formData"]
-  },
-  {
-    "name": "HTMLDetailsElement",
-    "attributes": ["name", "open"],
-    "events": ["toggle"]
-  },
-  {
-    "name": "HTMLDialogElement",
-    "attributes": ["closedBy", "open", "returnValue"],
-    "events": ["cancel", "close"]
-  },
-  {
-    "name": "HTMLScriptElement",
-    "attributes": [
-      "async",
-      "blocking",
-      "charset",
-      "crossOrigin",
-      "defer",
-      "event",
-      "fetchPriority",
-      "htmlFor",
-      "integrity",
-      "noModule",
-      "referrerPolicy",
+      "readyState",
       "src",
-      "text",
-      "type"
-    ]
+      "srclang",
+      "track"
+    ],
+    "events": ["cuechange", "error", "load"]
   },
   {
-    "name": "HTMLTemplateElement",
+    "name": "HTMLUListElement",
+    "attributes": ["compact", "type"]
+  },
+  {
+    "name": "HTMLVideoElement",
     "attributes": [
-      "content",
-      "shadowRootClonable",
-      "shadowRootCustomElementRegistry",
-      "shadowRootDelegatesFocus",
-      "shadowRootMode",
-      "shadowRootSerializable"
+      "height",
+      "playsInline",
+      "poster",
+      "videoHeight",
+      "videoWidth",
+      "width"
+    ],
+    "events": ["enterpictureinpicture", "leavepictureinpicture"]
+  },
+  {
+    "name": "IDBDatabase",
+    "attributes": [],
+    "events": ["close", "versionchange"]
+  },
+  {
+    "name": "IDBOpenDBRequest",
+    "attributes": [],
+    "events": ["blocked", "success", "upgradeneeded"]
+  },
+  {
+    "name": "IDBRequest",
+    "attributes": [],
+    "events": ["error", "success"]
+  },
+  {
+    "name": "IDBTransaction",
+    "attributes": [],
+    "events": ["abort", "complete"]
+  },
+  {
+    "name": "IdleDetector",
+    "attributes": [],
+    "events": ["change"]
+  },
+  {
+    "name": "ImageBitmap",
+    "attributes": ["height", "width"]
+  },
+  {
+    "name": "ImageBitmapRenderingContext",
+    "attributes": ["canvas"]
+  },
+  {
+    "name": "ImageData",
+    "attributes": ["colorSpace", "data", "height", "pixelFormat", "width"]
+  },
+  {
+    "name": "Keyboard",
+    "attributes": [],
+    "events": ["layoutchange"]
+  },
+  {
+    "name": "Location",
+    "attributes": [
+      "ancestorOrigins",
+      "hash",
+      "host",
+      "hostname",
+      "href",
+      "origin",
+      "pathname",
+      "port",
+      "protocol",
+      "search"
     ]
   },
   {
-    "name": "HTMLSlotElement",
-    "attributes": ["name"],
-    "events": ["slotchange"]
+    "name": "ManagedMediaSource",
+    "attributes": [],
+    "events": ["endstreaming", "startstreaming"]
   },
   {
-    "name": "HTMLCanvasElement",
-    "attributes": ["height", "width"],
+    "name": "ManagedSourceBuffer",
+    "attributes": [],
+    "events": ["bufferedchange"]
+  },
+  {
+    "name": "MathMLElement",
+    "attributes": [],
+    "events": [
+      "animationcancel",
+      "animationend",
+      "animationiteration",
+      "animationstart",
+      "beforexrselect",
+      "clipboardchange",
+      "copy",
+      "cut",
+      "drag",
+      "dragend",
+      "dragenter",
+      "dragleave",
+      "dragover",
+      "dragstart",
+      "drop",
+      "fencedtreeclick",
+      "gotpointercapture",
+      "lostpointercapture",
+      "paste",
+      "pointercancel",
+      "pointerdown",
+      "pointerenter",
+      "pointerleave",
+      "pointermove",
+      "pointerout",
+      "pointerover",
+      "pointerrawupdate",
+      "pointerup",
+      "selectionchange",
+      "selectstart",
+      "transitioncancel",
+      "transitionend",
+      "transitionrun",
+      "transitionstart"
+    ]
+  },
+  {
+    "name": "MediaDevices",
+    "attributes": [],
+    "events": ["captureaction", "devicechange"]
+  },
+  {
+    "name": "MediaError",
+    "attributes": ["code", "message"]
+  },
+  {
+    "name": "MediaKeySession",
+    "attributes": [],
+    "events": ["keystatuseschange", "message"]
+  },
+  {
+    "name": "MediaQueryList",
+    "attributes": [],
+    "events": ["change"]
+  },
+  {
+    "name": "MediaRecorder",
+    "attributes": [],
+    "events": ["dataavailable", "error", "pause", "resume", "start", "stop"]
+  },
+  {
+    "name": "MediaSource",
+    "attributes": [],
+    "events": ["sourceclose", "sourceended", "sourceopen"]
+  },
+  {
+    "name": "MediaStream",
+    "attributes": [],
+    "events": ["addtrack", "removetrack"]
+  },
+  {
+    "name": "MediaStreamTrack",
+    "attributes": [],
+    "events": [
+      "capturehandlechange",
+      "ended",
+      "isolationchange",
+      "mute",
+      "unmute"
+    ]
+  },
+  {
+    "name": "MessageChannel",
+    "attributes": ["port1", "port2"]
+  },
+  {
+    "name": "MessageEvent",
+    "attributes": ["data", "lastEventId", "origin", "ports", "source"]
+  },
+  {
+    "name": "MessagePort",
+    "attributes": [],
+    "events": ["close", "message", "messageerror"]
+  },
+  {
+    "name": "MIDIAccess",
+    "attributes": [],
+    "events": ["statechange"]
+  },
+  {
+    "name": "MIDIInput",
+    "attributes": [],
+    "events": ["midimessage"]
+  },
+  {
+    "name": "MIDIPort",
+    "attributes": [],
+    "events": ["statechange"]
+  },
+  {
+    "name": "MimeType",
+    "attributes": ["description", "enabledPlugin", "suffixes", "type"]
+  },
+  {
+    "name": "MimeTypeArray",
+    "attributes": ["length"]
+  },
+  {
+    "name": "NavigateEvent",
+    "attributes": [
+      "canIntercept",
+      "destination",
+      "downloadRequest",
+      "formData",
+      "hasUAVisualTransition",
+      "hashChange",
+      "info",
+      "navigationType",
+      "signal",
+      "sourceElement",
+      "userInitiated"
+    ]
+  },
+  {
+    "name": "Navigation",
+    "attributes": [
+      "activation",
+      "canGoBack",
+      "canGoForward",
+      "currentEntry",
+      "transition"
+    ],
+    "events": [
+      "currententrychange",
+      "navigate",
+      "navigateerror",
+      "navigatesuccess"
+    ]
+  },
+  {
+    "name": "NavigationActivation",
+    "attributes": ["entry", "from", "navigationType"]
+  },
+  {
+    "name": "NavigationCurrentEntryChangeEvent",
+    "attributes": ["from", "navigationType"]
+  },
+  {
+    "name": "NavigationDestination",
+    "attributes": ["id", "index", "key", "sameDocument", "url"]
+  },
+  {
+    "name": "NavigationHistoryEntry",
+    "attributes": ["id", "index", "key", "sameDocument", "url"],
+    "events": ["dispose"]
+  },
+  {
+    "name": "NavigationTransition",
+    "attributes": ["committed", "finished", "from", "navigationType"]
+  },
+  {
+    "name": "Navigator",
+    "attributes": ["userActivation"]
+  },
+  {
+    "name": "NavigatorConcurrentHardware",
+    "attributes": ["navigator.hardwareConcurrency"]
+  },
+  {
+    "name": "NavigatorCookies",
+    "attributes": ["cookieEnabled"]
+  },
+  {
+    "name": "NavigatorID",
+    "attributes": [
+      "appCodeName",
+      "appName",
+      "appVersion",
+      "oscpu",
+      "platform",
+      "product",
+      "productSub",
+      "userAgent",
+      "vendor",
+      "vendorSub"
+    ]
+  },
+  {
+    "name": "NavigatorLanguage",
+    "attributes": ["language", "languages"]
+  },
+  {
+    "name": "NavigatorManagedData",
+    "attributes": [],
+    "events": ["managedconfigurationchange"]
+  },
+  {
+    "name": "NavigatorOnLine",
+    "attributes": ["onLine"]
+  },
+  {
+    "name": "NavigatorPlugins",
+    "attributes": ["mimeTypes", "pdfViewerEnabled", "plugins"]
+  },
+  {
+    "name": "NDEFReader",
+    "attributes": [],
+    "events": ["reading", "readingerror"]
+  },
+  {
+    "name": "NetworkInformation",
+    "attributes": [],
+    "events": ["change"]
+  },
+  {
+    "name": "Notification",
+    "attributes": [],
+    "events": ["click", "close", "error", "show"]
+  },
+  {
+    "name": "NotRestoredReasonDetails",
+    "attributes": ["reason"]
+  },
+  {
+    "name": "NotRestoredReasons",
+    "attributes": ["children", "id", "name", "reasons", "src", "url"]
+  },
+  {
+    "name": "OfflineAudioContext",
+    "attributes": [],
+    "events": ["complete"]
+  },
+  {
+    "name": "OffscreenCanvas",
+    "attributes": ["canvas", "height", "width"],
     "events": [
       "contextlost",
       "contextrestored",
@@ -893,38 +1565,368 @@
     ]
   },
   {
-    "name": "CanvasRenderingContext2D",
-    "attributes": ["canvas"]
+    "name": "PageRevealEvent",
+    "attributes": ["viewTransition"]
   },
   {
-    "name": "CanvasPathDrawingStyles",
-    "attributes": [
-      "lineCap",
-      "lineDashOffset",
-      "lineJoin",
-      "lineWidth",
-      "miterLimit"
+    "name": "PageSwapEvent",
+    "attributes": ["activation", "viewTransition"]
+  },
+  {
+    "name": "PageTransitionEvent",
+    "attributes": ["persisted"]
+  },
+  {
+    "name": "PaymentRequest",
+    "attributes": [],
+    "events": [
+      "paymentmethodchange",
+      "shippingaddresschange",
+      "shippingoptionchange"
     ]
   },
   {
-    "name": "CanvasTextDrawingStyles",
-    "attributes": [
-      "direction",
-      "font",
-      "fontKerning",
-      "fontStretch",
-      "fontVariantCaps",
-      "lang",
-      "letterSpacing",
-      "textAlign",
-      "textBaseline",
-      "textRendering",
-      "wordSpacing"
+    "name": "PaymentResponse",
+    "attributes": [],
+    "events": ["payerdetailchange"]
+  },
+  {
+    "name": "Performance",
+    "attributes": [],
+    "events": ["resourcetimingbufferfull"]
+  },
+  {
+    "name": "PermissionStatus",
+    "attributes": [],
+    "events": ["change"]
+  },
+  {
+    "name": "PictureInPictureWindow",
+    "attributes": [],
+    "events": ["resize"]
+  },
+  {
+    "name": "Plugin",
+    "attributes": ["description", "filename", "length", "name"]
+  },
+  {
+    "name": "PluginArray",
+    "attributes": ["length"]
+  },
+  {
+    "name": "PopStateEvent",
+    "attributes": ["hasUAVisualTransition", "state"]
+  },
+  {
+    "name": "PortalHost",
+    "attributes": [],
+    "events": ["message", "messageerror"]
+  },
+  {
+    "name": "PreferenceObject",
+    "attributes": [],
+    "events": ["change"]
+  },
+  {
+    "name": "PresentationAvailability",
+    "attributes": [],
+    "events": ["change"]
+  },
+  {
+    "name": "PresentationConnection",
+    "attributes": [],
+    "events": ["close", "connect", "message", "terminate"]
+  },
+  {
+    "name": "PresentationConnectionList",
+    "attributes": [],
+    "events": ["connectionavailable"]
+  },
+  {
+    "name": "PresentationRequest",
+    "attributes": [],
+    "events": ["connectionavailable"]
+  },
+  {
+    "name": "PromiseRejectionEvent",
+    "attributes": ["promise", "reason"]
+  },
+  {
+    "name": "RadioNodeList",
+    "attributes": ["value"]
+  },
+  {
+    "name": "RemotePlayback",
+    "attributes": [],
+    "events": ["connect", "connecting", "disconnect"]
+  },
+  {
+    "name": "RTCDataChannel",
+    "attributes": [],
+    "events": [
+      "bufferedamountlow",
+      "close",
+      "closing",
+      "error",
+      "message",
+      "open"
     ]
   },
   {
-    "name": "CanvasFillStrokeStyles",
-    "attributes": ["fillStyle", "strokeStyle"]
+    "name": "RTCDtlsTransport",
+    "attributes": [],
+    "events": ["error", "statechange"]
+  },
+  {
+    "name": "RTCDTMFSender",
+    "attributes": [],
+    "events": ["tonechange"]
+  },
+  {
+    "name": "RTCIceTransport",
+    "attributes": [],
+    "events": [
+      "gatheringstatechange",
+      "icecandidate",
+      "icecandidateerror",
+      "selectedcandidatepairchange",
+      "statechange"
+    ]
+  },
+  {
+    "name": "RTCPeerConnection",
+    "attributes": [],
+    "events": [
+      "connectionstatechange",
+      "datachannel",
+      "icecandidate",
+      "icecandidateerror",
+      "iceconnectionstatechange",
+      "icegatheringstatechange",
+      "negotiationneeded",
+      "signalingstatechange",
+      "track"
+    ]
+  },
+  {
+    "name": "RTCRtpScriptTransformer",
+    "attributes": [],
+    "events": ["keyframerequest"]
+  },
+  {
+    "name": "RTCSctpTransport",
+    "attributes": [],
+    "events": ["statechange"]
+  },
+  {
+    "name": "Screen",
+    "attributes": [],
+    "events": ["change"]
+  },
+  {
+    "name": "ScreenDetailed",
+    "attributes": [],
+    "events": ["change"]
+  },
+  {
+    "name": "ScreenDetails",
+    "attributes": [],
+    "events": ["currentscreenchange", "screenschange"]
+  },
+  {
+    "name": "ScreenOrientation",
+    "attributes": [],
+    "events": ["change"]
+  },
+  {
+    "name": "ScriptProcessorNode",
+    "attributes": [],
+    "events": ["audioprocess"]
+  },
+  {
+    "name": "Sensor",
+    "attributes": [],
+    "events": ["activate", "error", "reading"]
+  },
+  {
+    "name": "SerialPort",
+    "attributes": [],
+    "events": ["connect", "disconnect"]
+  },
+  {
+    "name": "ServiceWorker",
+    "attributes": [],
+    "events": ["error", "statechange"]
+  },
+  {
+    "name": "ServiceWorkerContainer",
+    "attributes": [],
+    "events": [
+      "controllerchange",
+      "message",
+      "message",
+      "messageerror",
+      "messageerror"
+    ]
+  },
+  {
+    "name": "ServiceWorkerGlobalScope",
+    "attributes": [],
+    "events": [
+      "activate",
+      "backgroundfetchabort",
+      "backgroundfetchclick",
+      "backgroundfetchfail",
+      "backgroundfetchsuccess",
+      "canmakepayment",
+      "contentdelete",
+      "cookiechange",
+      "fetch",
+      "install",
+      "message",
+      "messageerror",
+      "notificationclick",
+      "notificationclose",
+      "paymentrequest",
+      "periodicsync",
+      "push",
+      "pushsubscriptionchange",
+      "sync"
+    ]
+  },
+  {
+    "name": "ServiceWorkerRegistration",
+    "attributes": [],
+    "events": ["updatefound"]
+  },
+  {
+    "name": "SFrameDecrypterStream",
+    "attributes": [],
+    "events": ["error"]
+  },
+  {
+    "name": "SFrameEncrypterStream",
+    "attributes": [],
+    "events": ["error"]
+  },
+  {
+    "name": "SFrameTransform",
+    "attributes": [],
+    "events": ["error"]
+  },
+  {
+    "name": "SharedWorker",
+    "attributes": ["port"],
+    "events": ["error", "error"]
+  },
+  {
+    "name": "SharedWorkerGlobalScope",
+    "attributes": ["name"],
+    "events": ["connect"]
+  },
+  {
+    "name": "SourceBuffer",
+    "attributes": [],
+    "events": ["abort", "error", "update", "updateend", "updatestart"]
+  },
+  {
+    "name": "SourceBufferList",
+    "attributes": [],
+    "events": ["addsourcebuffer", "removesourcebuffer"]
+  },
+  {
+    "name": "SpeechRecognition",
+    "attributes": [],
+    "events": [
+      "audioend",
+      "audiostart",
+      "end",
+      "error",
+      "nomatch",
+      "result",
+      "soundend",
+      "soundstart",
+      "speechend",
+      "speechstart",
+      "start"
+    ]
+  },
+  {
+    "name": "SpeechSynthesis",
+    "attributes": [],
+    "events": ["voiceschanged"]
+  },
+  {
+    "name": "SpeechSynthesisUtterance",
+    "attributes": [],
+    "events": ["boundary", "end", "error", "mark", "pause", "resume", "start"]
+  },
+  {
+    "name": "Storage",
+    "attributes": ["length"]
+  },
+  {
+    "name": "StorageEvent",
+    "attributes": ["key", "newValue", "oldValue", "storageArea", "url"]
+  },
+  {
+    "name": "SubmitEvent",
+    "attributes": ["submitter"]
+  },
+  {
+    "name": "SVGAnimationElement",
+    "attributes": [],
+    "events": ["begin", "end", "repeat"]
+  },
+  {
+    "name": "SVGElement",
+    "attributes": [],
+    "events": [
+      "animationcancel",
+      "animationend",
+      "animationiteration",
+      "animationstart",
+      "beforexrselect",
+      "clipboardchange",
+      "copy",
+      "cut",
+      "drag",
+      "dragend",
+      "dragenter",
+      "dragleave",
+      "dragover",
+      "dragstart",
+      "drop",
+      "fencedtreeclick",
+      "gotpointercapture",
+      "lostpointercapture",
+      "paste",
+      "pointercancel",
+      "pointerdown",
+      "pointerenter",
+      "pointerleave",
+      "pointermove",
+      "pointerout",
+      "pointerover",
+      "pointerrawupdate",
+      "pointerup",
+      "selectionchange",
+      "selectstart",
+      "transitioncancel",
+      "transitionend",
+      "transitionrun",
+      "transitionstart"
+    ]
+  },
+  {
+    "name": "TaskSignal",
+    "attributes": [],
+    "events": ["prioritychange"]
+  },
+  {
+    "name": "Text",
+    "attributes": [],
+    "events": ["drag", "dragend", "dragstart", "pointercancel"]
   },
   {
     "name": "TextMetrics",
@@ -944,40 +1946,112 @@
     ]
   },
   {
-    "name": "CanvasCompositing",
-    "attributes": ["globalAlpha", "globalCompositeOperation"]
-  },
-  {
-    "name": "CanvasImageSmoothing",
-    "attributes": ["imageSmoothingEnabled", "imageSmoothingQuality"]
-  },
-  {
-    "name": "CanvasShadowStyles",
+    "name": "TextTrack",
     "attributes": [
-      "shadowBlur",
-      "shadowColor",
-      "shadowOffsetX",
-      "shadowOffsetY"
+      "activeCues",
+      "cues",
+      "id",
+      "inBandMetadataTrackDispatchType",
+      "kind",
+      "label",
+      "language",
+      "mode"
+    ],
+    "events": ["cuechange"]
+  },
+  {
+    "name": "TextTrackCue",
+    "attributes": ["endTime", "id", "pauseOnExit", "startTime", "track"],
+    "events": ["enter", "exit"]
+  },
+  {
+    "name": "TextTrackCueList",
+    "attributes": ["length"]
+  },
+  {
+    "name": "TextTrackList",
+    "attributes": ["length"],
+    "events": ["addtrack", "change", "removetrack"]
+  },
+  {
+    "name": "TimeRanges",
+    "attributes": ["length"]
+  },
+  {
+    "name": "ToggleEvent",
+    "attributes": ["newState", "oldState", "source"]
+  },
+  {
+    "name": "TrackEvent",
+    "attributes": ["track"]
+  },
+  {
+    "name": "USB",
+    "attributes": [],
+    "events": ["connect", "disconnect"]
+  },
+  {
+    "name": "UserActivation",
+    "attributes": ["hasBeenActive", "isActive"]
+  },
+  {
+    "name": "ValidityState",
+    "attributes": [
+      "badInput",
+      "customError",
+      "patternMismatch",
+      "rangeOverflow",
+      "rangeUnderflow",
+      "stepMismatch",
+      "tooLong",
+      "tooShort",
+      "typeMismatch",
+      "valid",
+      "valueMissing"
     ]
   },
   {
-    "name": "CanvasFilters",
-    "attributes": ["filter"]
+    "name": "VideoDecoder",
+    "attributes": [],
+    "events": ["dequeue"]
   },
   {
-    "name": "ImageBitmapRenderingContext",
-    "attributes": ["canvas"]
+    "name": "VideoEncoder",
+    "attributes": [],
+    "events": ["dequeue"]
   },
   {
-    "name": "OffscreenCanvas",
-    "attributes": ["canvas", "height", "width"],
-    "events": [
-      "contextlost",
-      "contextrestored",
-      "webglcontextcreationerror",
-      "webglcontextlost",
-      "webglcontextrestored"
-    ]
+    "name": "VideoTrack",
+    "attributes": ["id", "kind", "label", "language", "selected"]
+  },
+  {
+    "name": "VideoTrackList",
+    "attributes": ["length", "selectedIndex"],
+    "events": ["addtrack", "change", "removetrack"]
+  },
+  {
+    "name": "VirtualKeyboard",
+    "attributes": [],
+    "events": ["geometrychange"]
+  },
+  {
+    "name": "VisibilityStateEntry",
+    "attributes": ["duration", "entryType", "name", "startTime"]
+  },
+  {
+    "name": "VisualViewport",
+    "attributes": [],
+    "events": ["resize", "scroll", "scrollend"]
+  },
+  {
+    "name": "WakeLockSentinel",
+    "attributes": [],
+    "events": ["release"]
+  },
+  {
+    "name": "WebSocket",
+    "attributes": [],
+    "events": ["close", "error", "message", "open"]
   },
   {
     "name": "Window",
@@ -1055,298 +2129,26 @@
     ]
   },
   {
-    "name": "VisibilityStateEntry",
-    "attributes": ["duration", "entryType", "name", "startTime"]
+    "name": "WindowControlsOverlay",
+    "attributes": [],
+    "events": ["geometrychange"]
   },
   {
-    "name": "Navigator",
-    "attributes": ["userActivation"]
-  },
-  {
-    "name": "UserActivation",
-    "attributes": ["hasBeenActive", "isActive"]
-  },
-  {
-    "name": "ToggleEvent",
-    "attributes": ["newState", "oldState", "source"]
-  },
-  {
-    "name": "CommandEvent",
-    "attributes": ["command", "source"]
-  },
-  {
-    "name": "DocumentOrShadowRoot",
-    "attributes": ["activeElement"]
-  },
-  {
-    "name": "ElementContentEditable",
-    "attributes": [
-      "contentEditable",
-      "enterKeyHint",
-      "inputMode",
-      "isContentEditable"
-    ]
-  },
-  {
-    "name": "DataTransfer",
-    "attributes": ["dropEffect", "effectAllowed", "files", "items", "types"]
-  },
-  {
-    "name": "DataTransferItemList",
-    "attributes": ["length"]
-  },
-  {
-    "name": "DataTransferItem",
-    "attributes": ["kind", "type"]
-  },
-  {
-    "name": "DragEvent",
-    "attributes": ["dataTransfer"]
-  },
-  {
-    "name": "BarProp",
-    "attributes": ["visible"]
-  },
-  {
-    "name": "Location",
-    "attributes": [
-      "ancestorOrigins",
-      "hash",
-      "host",
-      "hostname",
-      "href",
-      "origin",
-      "pathname",
-      "port",
-      "protocol",
-      "search"
-    ]
-  },
-  {
-    "name": "History",
-    "attributes": ["length", "scrollRestoration", "state"]
-  },
-  {
-    "name": "NavigationHistoryEntry",
-    "attributes": ["id", "index", "key", "sameDocument", "url"],
-    "events": ["dispose"]
-  },
-  {
-    "name": "Navigation",
-    "attributes": [
-      "activation",
-      "canGoBack",
-      "canGoForward",
-      "currentEntry",
-      "transition"
-    ],
-    "events": [
-      "currententrychange",
-      "navigate",
-      "navigateerror",
-      "navigatesuccess"
-    ]
-  },
-  {
-    "name": "NavigationTransition",
-    "attributes": ["committed", "finished", "from", "navigationType"]
-  },
-  {
-    "name": "NavigationActivation",
-    "attributes": ["entry", "from", "navigationType"]
-  },
-  {
-    "name": "NavigateEvent",
-    "attributes": [
-      "canIntercept",
-      "destination",
-      "downloadRequest",
-      "formData",
-      "hasUAVisualTransition",
-      "hashChange",
-      "info",
-      "navigationType",
-      "signal",
-      "sourceElement",
-      "userInitiated"
-    ]
-  },
-  {
-    "name": "NavigationDestination",
-    "attributes": ["id", "index", "key", "sameDocument", "url"]
-  },
-  {
-    "name": "NavigationCurrentEntryChangeEvent",
-    "attributes": ["from", "navigationType"]
-  },
-  {
-    "name": "PopStateEvent",
-    "attributes": ["hasUAVisualTransition", "state"]
-  },
-  {
-    "name": "HashChangeEvent",
-    "attributes": ["newURL", "oldURL"]
-  },
-  {
-    "name": "PageSwapEvent",
-    "attributes": ["activation", "viewTransition"]
-  },
-  {
-    "name": "PageRevealEvent",
-    "attributes": ["viewTransition"]
-  },
-  {
-    "name": "PageTransitionEvent",
-    "attributes": ["persisted"]
-  },
-  {
-    "name": "BeforeUnloadEvent",
-    "attributes": ["returnValue"]
-  },
-  {
-    "name": "NotRestoredReasonDetails",
-    "attributes": ["reason"]
-  },
-  {
-    "name": "NotRestoredReasons",
-    "attributes": ["children", "id", "name", "reasons", "src", "url"]
-  },
-  {
-    "name": "ErrorEvent",
-    "attributes": ["colno", "error", "filename", "lineno", "message"]
-  },
-  {
-    "name": "PromiseRejectionEvent",
-    "attributes": ["promise", "reason"]
+    "name": "WindowLocalStorage",
+    "attributes": ["localStorage"]
   },
   {
     "name": "WindowOrWorkerGlobalScope",
     "attributes": ["crossOriginIsolated", "isSecureContext", "origin"]
   },
   {
-    "name": "Element",
-    "attributes": ["innerHTML", "outerHTML"],
-    "events": [
-      "DOMActivate",
-      "DOMFocusIn",
-      "DOMFocusOut",
-      "abort",
-      "auxclick",
-      "beforeinput",
-      "blur",
-      "click",
-      "compositionend",
-      "compositionstart",
-      "compositionupdate",
-      "contentvisibilityautostatechange",
-      "contextmenu",
-      "dblclick",
-      "error",
-      "focus",
-      "focusin",
-      "focusout",
-      "fullscreenchange",
-      "fullscreenerror",
-      "input",
-      "keydown",
-      "keypress",
-      "keyup",
-      "load",
-      "mousedown",
-      "mouseenter",
-      "mouseleave",
-      "mousemove",
-      "mouseout",
-      "mouseover",
-      "mouseup",
-      "scroll",
-      "scrollend",
-      "select",
-      "textInput",
-      "touchcancel",
-      "touchend",
-      "touchmove",
-      "touchstart",
-      "unload",
-      "wheel"
-    ]
+    "name": "WindowSessionStorage",
+    "attributes": ["sessionStorage"]
   },
   {
-    "name": "ShadowRoot",
-    "attributes": ["innerHTML"]
-  },
-  {
-    "name": "NavigatorID",
-    "attributes": [
-      "appCodeName",
-      "appName",
-      "appVersion",
-      "oscpu",
-      "platform",
-      "product",
-      "productSub",
-      "userAgent",
-      "vendor",
-      "vendorSub"
-    ]
-  },
-  {
-    "name": "NavigatorLanguage",
-    "attributes": ["language", "languages"]
-  },
-  {
-    "name": "NavigatorOnLine",
-    "attributes": ["onLine"]
-  },
-  {
-    "name": "NavigatorCookies",
-    "attributes": ["cookieEnabled"]
-  },
-  {
-    "name": "NavigatorPlugins",
-    "attributes": ["mimeTypes", "pdfViewerEnabled", "plugins"]
-  },
-  {
-    "name": "PluginArray",
-    "attributes": ["length"]
-  },
-  {
-    "name": "MimeTypeArray",
-    "attributes": ["length"]
-  },
-  {
-    "name": "Plugin",
-    "attributes": ["description", "filename", "length", "name"]
-  },
-  {
-    "name": "MimeType",
-    "attributes": ["description", "enabledPlugin", "suffixes", "type"]
-  },
-  {
-    "name": "ImageData",
-    "attributes": ["colorSpace", "data", "height", "pixelFormat", "width"]
-  },
-  {
-    "name": "ImageBitmap",
-    "attributes": ["height", "width"]
-  },
-  {
-    "name": "MessageEvent",
-    "attributes": ["data", "lastEventId", "origin", "ports", "source"]
-  },
-  {
-    "name": "EventSource",
-    "attributes": ["readyState", "url", "withCredentials"],
-    "events": ["error", "message", "open"]
-  },
-  {
-    "name": "MessageChannel",
-    "attributes": ["port1", "port2"]
-  },
-  {
-    "name": "BroadcastChannel",
-    "attributes": ["name"],
-    "events": ["message", "messageerror"]
+    "name": "Worker",
+    "attributes": [],
+    "events": ["error", "error", "message", "messageerror"]
   },
   {
     "name": "WorkerGlobalScope",
@@ -1360,25 +2162,6 @@
       "securitypolicyviolation",
       "unhandledrejection"
     ]
-  },
-  {
-    "name": "DedicatedWorkerGlobalScope",
-    "attributes": ["name"],
-    "events": ["message", "messageerror", "rtctransform"]
-  },
-  {
-    "name": "SharedWorkerGlobalScope",
-    "attributes": ["name"],
-    "events": ["connect"]
-  },
-  {
-    "name": "SharedWorker",
-    "attributes": ["port"],
-    "events": ["error", "error"]
-  },
-  {
-    "name": "NavigatorConcurrentHardware",
-    "attributes": ["navigator.hardwareConcurrency"]
   },
   {
     "name": "WorkerLocation",
@@ -1395,118 +2178,83 @@
     ]
   },
   {
-    "name": "Storage",
-    "attributes": ["length"]
-  },
-  {
-    "name": "WindowSessionStorage",
-    "attributes": ["sessionStorage"]
-  },
-  {
-    "name": "WindowLocalStorage",
-    "attributes": ["localStorage"]
-  },
-  {
-    "name": "StorageEvent",
-    "attributes": ["key", "newValue", "oldValue", "storageArea", "url"]
-  },
-  {
-    "name": "HTMLMarqueeElement",
-    "attributes": [
-      "behavior",
-      "bgColor",
-      "direction",
-      "height",
-      "hspace",
-      "loop",
-      "scrollAmount",
-      "scrollDelay",
-      "trueSpeed",
-      "vspace",
-      "width"
+    "name": "XMLHttpRequest",
+    "attributes": [],
+    "events": [
+      "abort",
+      "error",
+      "load",
+      "loadend",
+      "loadstart",
+      "progress",
+      "readystatechange",
+      "timeout"
     ]
   },
   {
-    "name": "HTMLFrameSetElement",
-    "attributes": ["cols", "rows"]
-  },
-  {
-    "name": "HTMLFrameElement",
-    "attributes": [
-      "contentDocument",
-      "contentWindow",
-      "frameBorder",
-      "longDesc",
-      "marginHeight",
-      "marginWidth",
-      "name",
-      "noResize",
-      "scrolling",
-      "src"
+    "name": "XMLHttpRequestUpload",
+    "attributes": [],
+    "events": [
+      "abort",
+      "error",
+      "load",
+      "loadend",
+      "loadstart",
+      "progress",
+      "timeout"
     ]
   },
   {
-    "name": "HTMLBodyElement",
-    "attributes": ["aLink", "background", "bgColor", "link", "text", "vLink"]
+    "name": "XRCubeLayer",
+    "attributes": [],
+    "events": ["redraw"]
   },
   {
-    "name": "HTMLBRElement",
-    "attributes": ["clear"]
+    "name": "XRCylinderLayer",
+    "attributes": [],
+    "events": ["redraw"]
   },
   {
-    "name": "HTMLTableCaptionElement",
-    "attributes": ["align"]
+    "name": "XREquirectLayer",
+    "attributes": [],
+    "events": ["redraw"]
   },
   {
-    "name": "HTMLDirectoryElement",
-    "attributes": ["compact"]
+    "name": "XRLightProbe",
+    "attributes": [],
+    "events": ["reflectionchange"]
   },
   {
-    "name": "HTMLDivElement",
-    "attributes": ["align"]
+    "name": "XRQuadLayer",
+    "attributes": [],
+    "events": ["redraw"]
   },
   {
-    "name": "HTMLDListElement",
-    "attributes": ["compact"]
+    "name": "XRReferenceSpace",
+    "attributes": [],
+    "events": ["reset"]
   },
   {
-    "name": "HTMLFontElement",
-    "attributes": ["color", "face", "size"]
+    "name": "XRSession",
+    "attributes": [],
+    "events": [
+      "end",
+      "frameratechange",
+      "inputsourceschange",
+      "select",
+      "selectend",
+      "selectstart",
+      "squeeze",
+      "squeezeend",
+      "squeezestart",
+      "trackedsourceschange",
+      "visibilitychange",
+      "visibilitymaskchange"
+    ]
   },
   {
-    "name": "HTMLHeadingElement",
-    "attributes": ["align"]
-  },
-  {
-    "name": "HTMLHeadElement",
-    "attributes": ["profile"]
-  },
-  {
-    "name": "HTMLHRElement",
-    "attributes": ["align", "color", "noShade", "size", "width"]
-  },
-  {
-    "name": "HTMLHtmlElement",
-    "attributes": ["version"]
-  },
-  {
-    "name": "HTMLMenuElement",
-    "attributes": ["compact"]
-  },
-  {
-    "name": "HTMLParagraphElement",
-    "attributes": ["align"]
-  },
-  {
-    "name": "HTMLParamElement",
-    "attributes": ["name", "type", "value", "valueType"]
-  },
-  {
-    "name": "HTMLPreElement",
-    "attributes": ["width"]
-  },
-  {
-    "name": "HTMLUListElement",
-    "attributes": ["compact", "type"]
+    "name": "XRSystem",
+    "attributes": [],
+    "events": ["devicechange"]
   }
 ]
