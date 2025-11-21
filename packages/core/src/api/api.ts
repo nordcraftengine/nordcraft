@@ -34,7 +34,11 @@ export const createApiRequest = <Handler>({
   baseUrl?: string
   defaultHeaders: Headers | undefined
 }) => {
-  const url = getUrl(api, formulaContext, baseUrl)
+  const url = getUrl(
+    api,
+    { ...formulaContext, jsonPath: ['apis', api.name] },
+    baseUrl,
+  )
   const requestSettings = getRequestSettings({
     api,
     formulaContext,
@@ -52,7 +56,7 @@ export const getUrl = (
   let urlPathname = ''
   let urlQueryParams = new URLSearchParams()
   let parsedUrl: URL | undefined
-  const url = applyFormula(api.url, formulaContext)
+  const url = applyFormula(api.url, formulaContext, ['url'])
   if (['string', 'number'].includes(typeof url)) {
     const urlInput = typeof url === 'number' ? String(url) : url
     try {
@@ -73,7 +77,10 @@ export const getUrl = (
   ])
   const queryString =
     [...queryParams.entries()].length > 0 ? `?${queryParams.toString()}` : ''
-  const hash = applyFormula(api.hash?.formula, formulaContext)
+  const hash = applyFormula(api.hash?.formula, formulaContext, [
+    'hash',
+    'formula',
+  ])
   const hashString =
     typeof hash === 'string' && hash.length > 0 ? `#${hash}` : ''
   if (parsedUrl) {
@@ -101,7 +108,10 @@ export const applyAbortSignal = (
   formulaContext: FormulaContext,
 ) => {
   if (api.timeout) {
-    const timeout = applyFormula(api.timeout.formula, formulaContext)
+    const timeout = applyFormula(api.timeout.formula, formulaContext, [
+      'timeout',
+      'formula',
+    ])
     if (typeof timeout === 'number' && !Number.isNaN(timeout) && timeout > 0) {
       requestSettings.signal = AbortSignal.timeout(timeout)
     }
@@ -146,7 +156,9 @@ export const getRequestPath = (
   formulaContext: FormulaContext,
 ): string =>
   sortObjectEntries(path ?? {}, ([_, p]) => p.index)
-    .map(([_, p]) => applyFormula(p.formula, formulaContext))
+    .map(([parameterName, p]) =>
+      applyFormula(p.formula, formulaContext, ['path', parameterName]),
+    )
     .join('/')
 
 export const getRequestQueryParams = (
@@ -156,13 +168,21 @@ export const getRequestQueryParams = (
   const queryParams = new URLSearchParams()
   Object.entries(params ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
-      ? applyFormula(param.enabled, formulaContext)
+      ? applyFormula(param.enabled, formulaContext, [
+          'queryParams',
+          key,
+          'enabled',
+        ])
       : true
     if (!enabled) {
       return
     }
 
-    const value = applyFormula(param.formula, formulaContext)
+    const value = applyFormula(param.formula, formulaContext, [
+      'queryParams',
+      key,
+      'formula',
+    ])
     if (!isDefined(value)) {
       // Ignore null/undefined values
       return
@@ -201,10 +221,14 @@ export const getRequestHeaders = ({
   const headers = new Headers(defaultHeaders)
   Object.entries(apiHeaders ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
-      ? applyFormula(param.enabled, formulaContext)
+      ? applyFormula(param.enabled, formulaContext, ['headers', key, 'enabled'])
       : true
     if (enabled) {
-      const value = applyFormula(param.formula, formulaContext)
+      const value = applyFormula(param.formula, formulaContext, [
+        'headers',
+        key,
+        'formula',
+      ])
       if (isDefined(value)) {
         try {
           headers.set(
@@ -285,6 +309,8 @@ export const isApiError = ({
           },
         },
         env: formulaContext.env,
+        jsonPath: ['apis', apiName, 'isError', 'formula'],
+        reportFormulaEvaluation: formulaContext.reportFormulaEvaluation,
       })
     : null
 
@@ -309,7 +335,7 @@ export const getRequestBody = ({
     return
   }
 
-  const body = applyFormula(api.body, formulaContext)
+  const body = applyFormula(api.body, formulaContext, ['body'])
   if (!body) {
     return
   }
