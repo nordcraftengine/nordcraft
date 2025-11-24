@@ -326,6 +326,7 @@ function* visitNode({
   switch (nodeType) {
     // The node types below currently don't require any further traversal
     case 'action-model':
+    case 'action-custom-model-argument':
     case 'component-api-input':
     case 'component-api':
     case 'component-attribute':
