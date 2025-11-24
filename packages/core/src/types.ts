@@ -46,10 +46,10 @@ export type FormulaHandler<T = void> = (
 interface PluginActionBase {
   name: string
   description?: string
-  arguments: Array<{
+  arguments?: Array<{
     name: string
     formula: Formula
-  }>
+  }> | null
   // eslint-disable-next-line inclusive-language/use-inclusive-words
   events?: Record<string, { dummyEvent?: any }>
   variableArguments: boolean | null

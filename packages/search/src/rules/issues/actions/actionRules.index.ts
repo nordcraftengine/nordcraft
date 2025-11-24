@@ -2,6 +2,7 @@ import { createActionNameRule } from './createActionNameRule'
 import { duplicateActionArgumentNameRule } from './duplicateActionArgumentNameRule'
 import { legacyActionRule } from './legacyActionRule'
 import { noReferenceProjectActionRule } from './noReferenceProjectActionRule'
+import { unknownActionArgumentRule } from './unknownActionArgumentRule'
 import { unknownProjectActionRule } from './unknownProjectActionRule'
 
 export default [
@@ -13,4 +14,5 @@ export default [
   legacyActionRule,
   noReferenceProjectActionRule,
   unknownProjectActionRule,
+  unknownActionArgumentRule,
 ]

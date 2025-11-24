@@ -82,6 +82,7 @@ type Code =
   | 'required extension'
   | 'required meta tag'
   | 'image without dimension'
+  | 'unknown action argument'
   | 'unknown api input'
   | 'unknown api'
   | 'unknown api service'
