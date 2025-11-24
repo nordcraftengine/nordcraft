@@ -326,6 +326,7 @@ function* visitNode({
   switch (nodeType) {
     // The node types below currently don't require any further traversal
     case 'action-model':
+    case 'action-custom-model-argument':
     case 'component-api-input':
     case 'component-api':
     case 'component-attribute':
@@ -581,6 +582,32 @@ function* visitNode({
           state,
           fixOptions: fixOptions as any,
         })
+        if (action.type === 'Custom' || action.type === undefined) {
+          for (
+            let index = 0;
+            index < (action.arguments?.length ?? 0);
+            index++
+          ) {
+            const arg = action.arguments?.[index]
+            if (arg) {
+              yield* visitNode({
+                args: {
+                  nodeType: 'action-custom-model-argument',
+                  value: { action, argument: arg, argumentIndex: index },
+                  path: [...path, ...actionPath, 'arguments', index],
+                  rules,
+                  files,
+                  pathsToVisit,
+                  useExactPaths,
+                  memo,
+                  component,
+                },
+                state,
+                fixOptions: fixOptions as any,
+              })
+            }
+          }
+        }
       }
       break
     }
