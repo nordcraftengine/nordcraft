@@ -7,6 +7,8 @@ import type {
   ActionModel,
   Component,
   ComponentNodeModel,
+  CustomActionArgument,
+  CustomActionModel,
   ElementNodeModel,
   NodeModel,
   StyleVariant,
@@ -24,6 +26,7 @@ import type {
 } from '@nordcraft/ssr/dist/ssr.types'
 import type { LegacyActionRuleFix } from './rules/issues/actions/legacyActionRule'
 import type { NoReferenceProjectActionRuleFix } from './rules/issues/actions/noReferenceProjectActionRule'
+import type { UnknownActionArgumentRuleFix } from './rules/issues/actions/unknownActionArgumentRule'
 import type { NoReferenceApiRuleFix } from './rules/issues/apis/noReferenceApiRule'
 import type { NoReferenceApiServiceRuleFix } from './rules/issues/apis/noReferenceApiServiceRule'
 import type { UnknownApiServiceRuleFix } from './rules/issues/apis/unknownApiServiceRule'
@@ -290,6 +293,16 @@ type ActionModelNode<A = ActionModel> = {
   component: ToddleComponent<Function>
 } & Base
 
+type CustomActionModelArgumentNode = {
+  nodeType: 'action-custom-model-argument'
+  value: {
+    action: CustomActionModel
+    argument: CustomActionArgument
+    argumentIndex: number
+  }
+  component: ToddleComponent<Function>
+} & Base
+
 type ComponentContext = {
   nodeType: 'component-context'
   value: {
@@ -359,6 +372,7 @@ export type NodeType =
   | ComponentNodeNode
   | ComponentVariableNode
   | ComponentWorkflowNode
+  | CustomActionModelArgumentNode
   | FormulaNode
   | ProjectActionNode
   | ProjectApiService
@@ -386,6 +400,7 @@ type FixType =
   | NoReferenceProjectFormulaRuleFix
   | NoReferenceVariableRuleFix
   | NoStaticNodeConditionRuleFix
+  | UnknownActionArgumentRuleFix
   | UnknownApiServiceRuleFix
   | UnknownComponentAttributeRuleFix
 
