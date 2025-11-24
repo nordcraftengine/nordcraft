@@ -44,6 +44,7 @@
       "devDependencies": {
         "@nordcraft/core": "workspace:*",
         "@types/css-tree": "2.3.11",
+        "@types/web": "0.0.76",
         "@webref/elements": "2.5.1",
         "@webref/events": "1.19.1",
         "css-tree": "3.1.0",
@@ -309,6 +310,8 @@
     "@types/node": ["@types/node@24.3.1", "", { "dependencies": { "undici-types": "~7.10.0" } }, "sha512-3vXmQDXy+woz+gnrTvuvNrPzekOi+Ds0ReMxw0LzBiK3a+1k0kQn9f2NWk+lgD4rJehFUmYy2gMhJ2ZI+7YP9g=="],
 
     "@types/react": ["@types/react@19.2.2", "", { "dependencies": { "csstype": "^3.0.2" } }, "sha512-6mDvHUFSjyT2B2yeNx2nUgMxh9LtOWvkhIU3uePn2I2oyNymUAX1NIsdgviM4CH+JSrp2D2hsMvJOkxY+0wNRA=="],
+
+    "@types/web": ["@types/web@0.0.76", "", {}, "sha512-IuhJV22vw751K6M3tqXwVp16w5YlZqDUdNOJJRVg3cdu1y4eXcqX8JQ1mFC8A3KbiWorU5LTPT2OLUPkGxwmsw=="],
 
     "@types/whatwg-mimetype": ["@types/whatwg-mimetype@3.0.2", "", {}, "sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA=="],
 
