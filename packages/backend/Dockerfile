@@ -23,15 +23,15 @@ RUN bun install --production --verbose --frozen-lockfile
 # Copy source and compile
 COPY . .
 
-# RUN bun build
-RUN bun build --minify --target=node ./packages/backend/src/node.index.ts --outdir ./packages/backend/dist/
+# RUN bun build to generate a standalone executable
+RUN bun build --compile --minify --sourcemap ./packages/backend/src/bun.index.ts --outfile nordcraft-backend
 
 # -------- RUN STAGE --------
 
 # Our application runner. Use gcr.io/distroless/nodejs24-debian12:debug to allow debugging
 # using docker run -it --entrypoint=sh nordcraft-backend
 # see https://github.com/GoogleContainerTools/distroless
-FROM gcr.io/distroless/nodejs24-debian12 AS runner
+FROM gcr.io/distroless/base-debian12 AS runner
 
 ENV NODE_ENV=production
 
@@ -39,10 +39,11 @@ ARG BUILD_APP_PORT=3000
 ENV APP_PORT=${BUILD_APP_PORT}
 EXPOSE ${APP_PORT}
 
-WORKDIR /app/dist
+WORKDIR /app
 
+# Copy the compiled executable from the build stage
+COPY --from=build /app/nordcraft-backend .
 # Copy project specific files
-COPY --from=build --chown=65532:65532 /app/node_modules/ ../node_modules/
-COPY --from=build --chown=65532:65532 /app/packages/backend/dist/ .
+COPY --from=build /app/packages/backend/dist/ .
 
-CMD ["node.index.js"]
+ENTRYPOINT ["./nordcraft-backend"]
