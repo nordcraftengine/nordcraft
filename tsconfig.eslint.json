@@ -4,5 +4,5 @@
     "strict": true,
     "allowJs": false
   },
-  "include": ["packages", "bin", "_assets_dev"]
+  "include": ["packages", "bin", "_assets_dev", "e2e"]
 }
