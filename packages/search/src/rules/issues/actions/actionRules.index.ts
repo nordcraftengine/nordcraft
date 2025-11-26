@@ -3,6 +3,7 @@ import { duplicateActionArgumentNameRule } from './duplicateActionArgumentNameRu
 import { legacyActionRule } from './legacyActionRule'
 import { noReferenceProjectActionRule } from './noReferenceProjectActionRule'
 import { unknownActionArgumentRule } from './unknownActionArgumentRule'
+import { unknownActionEventRule } from './unknownActionEventRule'
 import { unknownProjectActionRule } from './unknownProjectActionRule'
 
 export default [
@@ -13,6 +14,7 @@ export default [
   duplicateActionArgumentNameRule,
   legacyActionRule,
   noReferenceProjectActionRule,
-  unknownProjectActionRule,
   unknownActionArgumentRule,
+  unknownActionEventRule,
+  unknownProjectActionRule,
 ]

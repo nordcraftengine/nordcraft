@@ -5,6 +5,7 @@ import type {
 import type {
   ComponentEvent as _ComponentEvent,
   ActionModel,
+  ActionModelActions,
   Component,
   ComponentNodeModel,
   CustomActionArgument,
@@ -27,6 +28,7 @@ import type {
 import type { LegacyActionRuleFix } from './rules/issues/actions/legacyActionRule'
 import type { NoReferenceProjectActionRuleFix } from './rules/issues/actions/noReferenceProjectActionRule'
 import type { UnknownActionArgumentRuleFix } from './rules/issues/actions/unknownActionArgumentRule'
+import type { UnknownActionEventRuleFix } from './rules/issues/actions/unknownActionEventRule'
 import type { NoReferenceApiRuleFix } from './rules/issues/apis/noReferenceApiRule'
 import type { NoReferenceApiServiceRuleFix } from './rules/issues/apis/noReferenceApiServiceRule'
 import type { UnknownApiServiceRuleFix } from './rules/issues/apis/unknownApiServiceRule'
@@ -86,6 +88,7 @@ type Code =
   | 'required meta tag'
   | 'image without dimension'
   | 'unknown action argument'
+  | 'unknown action event'
   | 'unknown api input'
   | 'unknown api'
   | 'unknown api service'
@@ -303,6 +306,16 @@ type CustomActionModelArgumentNode = {
   component: ToddleComponent<Function>
 } & Base
 
+type CustomActionModelEventNode = {
+  nodeType: 'action-custom-model-event'
+  value: {
+    action: CustomActionModel
+    event: ActionModelActions
+    eventName: string
+  }
+  component: ToddleComponent<Function>
+} & Base
+
 type ComponentContext = {
   nodeType: 'component-context'
   value: {
@@ -373,6 +386,7 @@ export type NodeType =
   | ComponentVariableNode
   | ComponentWorkflowNode
   | CustomActionModelArgumentNode
+  | CustomActionModelEventNode
   | FormulaNode
   | ProjectActionNode
   | ProjectApiService
@@ -401,6 +415,7 @@ type FixType =
   | NoReferenceVariableRuleFix
   | NoStaticNodeConditionRuleFix
   | UnknownActionArgumentRuleFix
+  | UnknownActionEventRuleFix
   | UnknownApiServiceRuleFix
   | UnknownComponentAttributeRuleFix
 
