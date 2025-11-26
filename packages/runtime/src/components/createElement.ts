@@ -11,8 +11,10 @@ import {
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+import type { ComponentData } from '@nordcraft/core/src/component/component.types'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
+import type { ComponentContext } from '../types'
 import { getDragData } from '../utils/getDragData'
 import { getElementTagName } from '../utils/getElementTagName'
 import { setAttribute } from '../utils/setAttribute'
@@ -210,38 +212,21 @@ export function createElement({
     )
   })
 
-  // TODO: This is a bit heavy on the runtime. Can we optimize this with a static function instead of creating a closure for each event?
   Object.values(node.events).forEach((event) => {
-    const handler = (e: Event) => {
-      event?.actions.forEach((action) => {
-        if (e instanceof DragEvent) {
-          ;(e as any).data = getDragData(e)
-        }
-        if (e instanceof ClipboardEvent) {
-          try {
-            ;(e as any).data = Array.from(e.clipboardData?.items ?? []).reduce<
-              Record<string, any>
-            >((dragData, item) => {
-              try {
-                dragData[item.type] = JSON.parse(
-                  e.clipboardData?.getData(item.type) as any,
-                )
-              } catch {
-                dragData[item.type] = e.clipboardData?.getData(item.type)
-              }
-              return dragData
-            }, {})
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error('Could not get paste data', e)
-          }
-        }
-        void handleAction(action, { ...dataSignal.get(), Event: e }, ctx, e)
-      })
-      return false
-    }
     if (event) {
+      const handler = getEventHandler({
+        event,
+        dataSignal,
+        ctx,
+      })
       elem.addEventListener(event.trigger, handler)
+
+      // Clean up event listener to prevent memory leaks
+      dataSignal.subscribe(() => {}, {
+        destroy: () => {
+          elem.removeEventListener(event.trigger, handler)
+        },
+      })
     }
   })
 
@@ -306,3 +291,42 @@ export function createElement({
 
   return elem
 }
+
+const getEventHandler =
+  ({
+    event,
+    dataSignal,
+    ctx,
+  }: {
+    event: ElementNodeModel['events'][string]
+    dataSignal: Signal<ComponentData>
+    ctx: ComponentContext
+  }) =>
+  (e: Event) => {
+    event?.actions.forEach((action) => {
+      if (e instanceof DragEvent) {
+        ;(e as any).data = getDragData(e)
+      }
+      if (e instanceof ClipboardEvent) {
+        try {
+          ;(e as any).data = Array.from(e.clipboardData?.items ?? []).reduce<
+            Record<string, any>
+          >((dragData, item) => {
+            try {
+              dragData[item.type] = JSON.parse(
+                e.clipboardData?.getData(item.type) as any,
+              )
+            } catch {
+              dragData[item.type] = e.clipboardData?.getData(item.type)
+            }
+            return dragData
+          }, {})
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error('Could not get paste data', e)
+        }
+      }
+      void handleAction(action, { ...dataSignal.get(), Event: e }, ctx, e)
+    })
+    return false
+  }
