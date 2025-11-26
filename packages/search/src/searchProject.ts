@@ -327,6 +327,7 @@ function* visitNode({
     // The node types below currently don't require any further traversal
     case 'action-model':
     case 'action-custom-model-argument':
+    case 'action-custom-model-event':
     case 'component-api-input':
     case 'component-api':
     case 'component-attribute':
@@ -606,6 +607,26 @@ function* visitNode({
                 fixOptions: fixOptions as any,
               })
             }
+          }
+          const actionEvents = action.events ?? {}
+          for (const eventName in actionEvents) {
+            if (!Object.hasOwn(actionEvents, eventName)) continue
+            const event = actionEvents[eventName]
+            yield* visitNode({
+              args: {
+                nodeType: 'action-custom-model-event',
+                value: { action, event, eventName },
+                path: [...path, ...actionPath, 'events', eventName],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+                component,
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
           }
         }
       }

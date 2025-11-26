@@ -278,6 +278,10 @@ export interface CustomActionArgument {
   description?: string
 }
 
+export interface ActionModelActions {
+  actions: ActionModel[]
+}
+
 export interface CustomActionModel {
   // Some legacy custom actions use an undefined type
   type?: 'Custom'
@@ -287,7 +291,7 @@ export interface CustomActionModel {
   group?: string
   data?: string | number | boolean | Formula
   arguments?: Partial<CustomActionArgument[]>
-  events?: Record<string, { actions: ActionModel[] }>
+  events?: Record<string, ActionModelActions>
   version?: 2 | never
   label?: string
 }
@@ -299,7 +303,7 @@ export interface SwitchActionModel {
     condition: Formula | null
     actions: ActionModel[]
   }>
-  default: { actions: ActionModel[] }
+  default: ActionModelActions
 }
 
 export interface VariableActionModel {
@@ -311,9 +315,9 @@ export interface FetchActionModel {
   type: 'Fetch'
   api: string
   inputs?: Record<string, { formula: Formula | null }>
-  onSuccess: { actions: ActionModel[] }
-  onError: { actions: ActionModel[] }
-  onMessage?: { actions: ActionModel[] }
+  onSuccess: ActionModelActions
+  onError: ActionModelActions
+  onMessage?: ActionModelActions
 }
 
 export interface SetURLParameterAction {
