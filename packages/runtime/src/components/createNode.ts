@@ -84,15 +84,21 @@ export function createNode({
     let childDataSignal: Signal<ComponentData> | null = null
     const showSignal = dataSignal.map((data) =>
       toBoolean(
-        applyFormula(node.condition, {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        }),
+        applyFormula(
+          node.condition,
+          {
+            data,
+            component: ctx.component,
+            formulaCache: ctx.formulaCache,
+            root: ctx.root,
+            package: ctx.package,
+            toddle: ctx.toddle,
+            env: ctx.env,
+            jsonPath: ctx.jsonPath,
+            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+          },
+          ['condition'],
+        ),
       ),
     )
 
@@ -177,15 +183,21 @@ export function createNode({
       }
     >()
     const repeatSignal = dataSignal.map((data) => {
-      const list = applyFormula(node.repeat, {
-        data,
-        component: ctx.component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
-      })
+      const list = applyFormula(
+        node.repeat,
+        {
+          data,
+          component: ctx.component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+          jsonPath: ctx.jsonPath,
+          reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+        },
+        ['repeat'],
+      )
       if (typeof list !== 'object') {
         return []
       }
@@ -217,15 +229,20 @@ export function createNode({
             },
           }
           let childKey = node.repeatKey
-            ? applyFormula(node.repeatKey, {
-                data: childData,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-              })
+            ? applyFormula(
+                node.repeatKey,
+                {
+                  data: childData,
+                  component: ctx.component,
+                  formulaCache: ctx.formulaCache,
+                  root: ctx.root,
+                  package: ctx.package,
+                  toddle: ctx.toddle,
+                  env: ctx.env,
+                  reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+                },
+                ['repeatKey'],
+              )
             : Key
 
           // Can't we just use the Item reference as key as we have fine-grained reactivity at this point?
@@ -277,12 +294,15 @@ export function createNode({
               },
             )
 
-            const args = {
+            const args: NodeRenderer<NodeModel> = {
               node,
               id,
               dataSignal: childDataSignal,
               path: Key === '0' ? path : `${path}(${Key})`,
-              ctx,
+              ctx: {
+                ...ctx,
+                jsonPath: [...(ctx.jsonPath ?? []), i],
+              },
               namespace,
               parentElement,
               instance,
@@ -368,6 +388,7 @@ export function createNode({
     instance,
   })
 }
+
 export type NodeRenderer<NodeType> = {
   node: NodeType
   dataSignal: Signal<ComponentData>
