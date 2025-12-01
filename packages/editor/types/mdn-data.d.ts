@@ -24,6 +24,8 @@ declare module 'mdn-data' {
   }
 
   export const api: {
-    inheritance: Record<string, { inherits: string; implements: string[] }>
+    inheritance: Partial<
+      Record<string, { inherits: string; implements: string[] }>
+    >
   }
 }

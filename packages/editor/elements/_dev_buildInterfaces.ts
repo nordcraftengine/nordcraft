@@ -1,6 +1,6 @@
 import { listAll as listAllEvents } from '@webref/events'
 import { writeFileSync } from 'fs'
-import { getElementInterface } from './utils'
+import { getElementInterface, isHtmlInterface } from './utils'
 
 // Fetches HTML attributes from the webref repository and generates a JSON file
 // mapping HTML interfaces to their attributes.
@@ -124,6 +124,12 @@ const groupedAttributes = definitions.dfns
         if (typeof mappedInterfaceName !== 'string') {
           return acc
         }
+        if (isHtmlInterface(mappedInterfaceName)) {
+          // Attibutes declared directly on HTML interfaces are skipped
+          // as they are sometimes properties rather than attributes
+          // All attributes should be included directly from elements
+          return acc
+        }
         const interfaceName = getElementInterface(mappedInterfaceName)
         if (typeof interfaceName === 'string') {
           acc[interfaceName] ??= {}
@@ -133,11 +139,15 @@ const groupedAttributes = definitions.dfns
             interfaceName === 'HTMLAnchorElement' ? [{ name: 'href' }] : []
           if (
             !acc[interfaceName].attributes.find(
-              (attr) => attr.name === attrName,
+              (attr) =>
+                attr.name.toLocaleLowerCase() === attrName.toLocaleLowerCase(),
             )
           ) {
             acc[interfaceName].attributes.push({ name: attrName })
           }
+        } else {
+          // eslint-disable-next-line no-console
+          console.warn('Skipping invalid interface name:', mappedInterfaceName)
         }
       })
       return acc
