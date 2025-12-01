@@ -92,6 +92,53 @@ referrerPolicies.dfns
       ),
     })
   })
+// Inject all commonly used og:* attribute options
+// See https://ogp.me/ for reference
+// While og:* attributes are not standard HTML attributes, they are widely used
+// in meta tags for social media integration. We're not including platform-specific
+// attributes atm (like Twitter Cards) to keep the list focused.
+const ogProperties = [
+  'og:title',
+  'og:type',
+  'og:url',
+  'og:description',
+  'og:site_name',
+  'og:locale',
+  'og:locale:alternate',
+  'og:determiner',
+  'og:image',
+  'og:image:url',
+  'og:image:secure_url',
+  'og:image:type',
+  'og:image:width',
+  'og:image:height',
+  'og:image:alt',
+  'og:video',
+  'og:video',
+  'og:video:secure_url',
+  'og:video:type',
+  'og:video:width',
+  'og:video:height',
+  'og:audio',
+  'og:audio',
+  'og:audio:secure_url',
+  'og:audio:type',
+]
+ogProperties.forEach((property) => {
+  definitions.dfns.push({
+    id: `og-property-${property}`,
+    href: 'https://ogp.me/',
+    linkingText: [property],
+    localLinkingText: [property],
+    type: 'attr-value',
+    for: ['meta/property'],
+    access: 'public',
+    informative: true,
+    heading: null,
+    definedIn: 'Open Graph Protocol',
+    links: [],
+  })
+})
 
 // Group attributes by their interfaces
 const groupedAttributes = definitions.dfns

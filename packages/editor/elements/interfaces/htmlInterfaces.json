@@ -1651,6 +1651,34 @@
         ]
       },
       {
+        "name": "property",
+        "options": [
+          "og:title",
+          "og:type",
+          "og:url",
+          "og:description",
+          "og:site_name",
+          "og:locale",
+          "og:locale:alternate",
+          "og:determiner",
+          "og:image",
+          "og:image:url",
+          "og:image:secure_url",
+          "og:image:type",
+          "og:image:width",
+          "og:image:height",
+          "og:image:alt",
+          "og:video",
+          "og:video:secure_url",
+          "og:video:type",
+          "og:video:width",
+          "og:video:height",
+          "og:audio",
+          "og:audio:secure_url",
+          "og:audio:type"
+        ]
+      },
+      {
         "name": "scheme"
       }
     ]
