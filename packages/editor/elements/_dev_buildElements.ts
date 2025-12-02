@@ -3,10 +3,10 @@ import type {
   NodeStyleModel,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ValueOperation } from '@nordcraft/core/dist/formula/formula'
-import { listAll } from '@webref/elements'
 import { writeFileSync } from 'fs'
 import { api } from 'mdn-data'
 import type { ExportedHtmlElement, ExportedHtmlElementCategory } from '../types'
+import { getElementInterface } from './utils'
 
 // Generates metadata and default structure for all HTML and SVG elements
 // The interface names for each element are fetched from the @webref/elements package
@@ -45,9 +45,6 @@ const POPULAR_ELEMENTS = [
   'ul',
 ]
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-const elementDefinitions = (await listAll())?.['html']?.elements
-
 const inheritedInterfaces = (interfaceName: string): string[] => {
   const inheritanceData = api.inheritance[interfaceName]
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -67,10 +64,7 @@ const init = () => {
       permittedChildren,
       permittedParents,
     } = settings
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    const elementInterface = elementDefinitions?.find(
-      (el) => el.name === element,
-    )?.interface
+    const elementInterface = getElementInterface(element)
     if (typeof elementInterface !== 'string') {
       throw new Error('No interface found for element: ' + element)
     }

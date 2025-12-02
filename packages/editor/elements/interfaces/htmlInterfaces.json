@@ -1,70 +1,50 @@
 [
   {
     "name": "AbortSignal",
-    "attributes": [],
     "events": ["abort"]
   },
   {
     "name": "Animation",
-    "attributes": [],
     "events": ["cancel", "finish", "remove"]
   },
   {
     "name": "AudioContext",
-    "attributes": [],
     "events": ["error", "sinkchange"]
   },
   {
     "name": "AudioDecoder",
-    "attributes": [],
     "events": ["dequeue"]
   },
   {
     "name": "AudioEncoder",
-    "attributes": [],
     "events": ["dequeue"]
   },
   {
     "name": "AudioScheduledSourceNode",
-    "attributes": [],
     "events": ["ended"]
   },
   {
     "name": "AudioSession",
-    "attributes": [],
     "events": ["statechange"]
   },
   {
-    "name": "AudioTrack",
-    "attributes": ["enabled", "id", "kind", "label", "language"]
-  },
-  {
     "name": "AudioTrackList",
-    "attributes": ["length"],
     "events": ["addtrack", "change", "removetrack"]
   },
   {
     "name": "AudioWorkletNode",
-    "attributes": [],
     "events": ["processorerror"]
   },
   {
     "name": "BackgroundFetchRegistration",
-    "attributes": [],
     "events": ["progress"]
   },
   {
-    "name": "BarProp",
-    "attributes": ["visible"]
-  },
-  {
     "name": "BaseAudioContext",
-    "attributes": [],
     "events": ["statechange"]
   },
   {
     "name": "BatteryManager",
-    "attributes": [],
     "events": [
       "chargingchange",
       "chargingtimechange",
@@ -73,168 +53,51 @@
     ]
   },
   {
-    "name": "BeforeUnloadEvent",
-    "attributes": ["returnValue"]
-  },
-  {
     "name": "Bluetooth",
-    "attributes": [],
     "events": ["availabilitychanged"]
   },
   {
     "name": "BluetoothDevice",
-    "attributes": [],
     "events": ["advertisementreceived", "gattserverdisconnected"]
   },
   {
     "name": "BluetoothRemoteGATTCharacteristic",
-    "attributes": [],
     "events": ["characteristicvaluechanged"]
   },
   {
     "name": "BluetoothRemoteGATTService",
-    "attributes": [],
     "events": ["serviceadded", "servicechanged", "serviceremoved"]
   },
   {
     "name": "BroadcastChannel",
-    "attributes": ["name"],
     "events": ["message", "messageerror"]
   },
   {
-    "name": "CanvasCompositing",
-    "attributes": ["globalAlpha", "globalCompositeOperation"]
-  },
-  {
-    "name": "CanvasFillStrokeStyles",
-    "attributes": ["fillStyle", "strokeStyle"]
-  },
-  {
-    "name": "CanvasFilters",
-    "attributes": ["filter"]
-  },
-  {
-    "name": "CanvasImageSmoothing",
-    "attributes": ["imageSmoothingEnabled", "imageSmoothingQuality"]
-  },
-  {
-    "name": "CanvasPathDrawingStyles",
-    "attributes": [
-      "lineCap",
-      "lineDashOffset",
-      "lineJoin",
-      "lineWidth",
-      "miterLimit"
-    ]
-  },
-  {
-    "name": "CanvasRenderingContext2D",
-    "attributes": ["canvas"]
-  },
-  {
-    "name": "CanvasShadowStyles",
-    "attributes": [
-      "shadowBlur",
-      "shadowColor",
-      "shadowOffsetX",
-      "shadowOffsetY"
-    ]
-  },
-  {
-    "name": "CanvasTextDrawingStyles",
-    "attributes": [
-      "direction",
-      "font",
-      "fontKerning",
-      "fontStretch",
-      "fontVariantCaps",
-      "lang",
-      "letterSpacing",
-      "textAlign",
-      "textBaseline",
-      "textRendering",
-      "wordSpacing"
-    ]
-  },
-  {
     "name": "CaptureController",
-    "attributes": [],
     "events": ["capturedmousechange", "zoomlevelchange"]
   },
   {
     "name": "CloseWatcher",
-    "attributes": [],
     "events": ["cancel", "close"]
   },
   {
-    "name": "CommandEvent",
-    "attributes": ["command", "source"]
-  },
-  {
     "name": "CookieStore",
-    "attributes": [],
     "events": ["change"]
   },
   {
     "name": "CreateMonitor",
-    "attributes": [],
     "events": ["downloadprogress"]
   },
   {
-    "name": "DataTransfer",
-    "attributes": ["dropEffect", "effectAllowed", "files", "items", "types"]
-  },
-  {
-    "name": "DataTransferItem",
-    "attributes": ["kind", "type"]
-  },
-  {
-    "name": "DataTransferItemList",
-    "attributes": ["length"]
-  },
-  {
     "name": "DedicatedWorkerGlobalScope",
-    "attributes": ["name"],
     "events": ["message", "messageerror", "rtctransform"]
   },
   {
     "name": "DevicePosture",
-    "attributes": [],
     "events": ["change"]
   },
   {
     "name": "Document",
-    "attributes": [
-      "alinkColor",
-      "all",
-      "anchors",
-      "applets",
-      "bgColor",
-      "body",
-      "cookie",
-      "currentScript",
-      "defaultView",
-      "designMode",
-      "dir",
-      "domain",
-      "embeds",
-      "fgColor",
-      "forms",
-      "head",
-      "hidden",
-      "images",
-      "lastModified",
-      "linkColor",
-      "links",
-      "location",
-      "plugins",
-      "readyState",
-      "referrer",
-      "scripts",
-      "title",
-      "visibilityState",
-      "vlinkColor"
-    ],
     "events": [
       "DOMContentLoaded",
       "freeze",
@@ -254,25 +117,11 @@
     ]
   },
   {
-    "name": "DocumentOrShadowRoot",
-    "attributes": ["activeElement"]
-  },
-  {
     "name": "DocumentPictureInPicture",
-    "attributes": [],
     "events": ["enter"]
   },
   {
-    "name": "DOMStringList",
-    "attributes": ["length"]
-  },
-  {
-    "name": "DragEvent",
-    "attributes": ["dataTransfer"]
-  },
-  {
     "name": "EditContext",
-    "attributes": [],
     "events": [
       "characterboundsupdate",
       "compositionend",
@@ -283,7 +132,6 @@
   },
   {
     "name": "Element",
-    "attributes": [],
     "events": [
       "DOMActivate",
       "DOMFocusIn",
@@ -330,182 +178,538 @@
     ]
   },
   {
-    "name": "ElementContentEditable",
-    "attributes": [
-      "contentEditable",
-      "enterKeyHint",
-      "inputMode",
-      "isContentEditable"
-    ]
-  },
-  {
-    "name": "ElementInternals",
-    "attributes": [
-      "form",
-      "labels",
-      "shadowRoot",
-      "validationMessage",
-      "validity",
-      "willValidate"
-    ]
-  },
-  {
-    "name": "ErrorEvent",
-    "attributes": ["colno", "error", "filename", "lineno", "message"]
-  },
-  {
     "name": "EventSource",
-    "attributes": ["readyState", "url", "withCredentials"],
     "events": ["error", "message", "open"]
   },
   {
     "name": "FileReader",
-    "attributes": [],
     "events": ["abort", "error", "load", "loadend", "loadstart", "progress"]
   },
   {
     "name": "FontFaceSet",
-    "attributes": [],
     "events": ["loading", "loadingdone", "loadingerror"]
-  },
-  {
-    "name": "FormDataEvent",
-    "attributes": ["formData"]
   },
   {
     "name": "global",
     "attributes": [
-      "accesskey",
-      "autocapitalize",
-      "autocorrect",
-      "autofocus",
-      "class",
-      "contenteditable",
-      "dir",
-      "draggable",
-      "enterkeyhint",
-      "headingoffset",
-      "headingreset",
-      "hidden",
-      "id",
-      "inputmode",
-      "is",
-      "itemid",
-      "itemprop",
-      "itemref",
-      "itemscope",
-      "itemtype",
-      "lang",
-      "popover",
-      "popovertarget",
-      "popovertargetaction",
-      "slot",
-      "spellcheck",
-      "style",
-      "title",
-      "translate",
-      "writingsuggestions"
+      {
+        "name": "accesskey"
+      },
+      {
+        "name": "autocapitalize",
+        "options": ["off", "none", "on", "sentences", "words", "characters"]
+      },
+      {
+        "name": "autocorrect",
+        "options": ["on", "off"]
+      },
+      {
+        "name": "autofocus"
+      },
+      {
+        "name": "class"
+      },
+      {
+        "name": "command",
+        "options": [
+          "toggle-popover",
+          "show-popover",
+          "hide-popover",
+          "close",
+          "request-close",
+          "show-modal"
+        ]
+      },
+      {
+        "name": "contenteditable",
+        "options": ["true", "false", "plaintext-only"]
+      },
+      {
+        "name": "dir",
+        "options": ["ltr", "rtl", "auto"]
+      },
+      {
+        "name": "draggable",
+        "options": ["true", "false"]
+      },
+      {
+        "name": "enterkeyhint",
+        "options": ["enter", "done", "go", "next", "previous", "search", "send"]
+      },
+      {
+        "name": "headingoffset"
+      },
+      {
+        "name": "headingreset"
+      },
+      {
+        "name": "hidden",
+        "options": ["hidden", "until-found"]
+      },
+      {
+        "name": "id"
+      },
+      {
+        "name": "inputmode",
+        "options": [
+          "none",
+          "text",
+          "tel",
+          "url",
+          "email",
+          "numeric",
+          "decimal",
+          "search"
+        ]
+      },
+      {
+        "name": "is"
+      },
+      {
+        "name": "itemid"
+      },
+      {
+        "name": "itemprop"
+      },
+      {
+        "name": "itemref"
+      },
+      {
+        "name": "itemscope"
+      },
+      {
+        "name": "itemtype"
+      },
+      {
+        "name": "lang"
+      },
+      {
+        "name": "popover",
+        "options": ["auto", "manual", "hint"]
+      },
+      {
+        "name": "popovertarget"
+      },
+      {
+        "name": "popovertargetaction",
+        "options": ["toggle", "show", "hide"]
+      },
+      {
+        "name": "slot"
+      },
+      {
+        "name": "spellcheck",
+        "options": ["true", "false"]
+      },
+      {
+        "name": "style"
+      },
+      {
+        "name": "title"
+      },
+      {
+        "name": "translate",
+        "options": ["yes", "no"]
+      },
+      {
+        "name": "writingsuggestions",
+        "options": ["true", "false"]
+      }
     ]
   },
   {
     "name": "GPUDevice",
-    "attributes": [],
     "events": ["uncapturederror"]
   },
   {
-    "name": "HashChangeEvent",
-    "attributes": ["newURL", "oldURL"]
-  },
-  {
     "name": "HID",
-    "attributes": [],
     "events": ["connect", "disconnect"]
   },
   {
     "name": "HIDDevice",
-    "attributes": [],
     "events": ["inputreport"]
-  },
-  {
-    "name": "History",
-    "attributes": ["length", "scrollRestoration", "state"]
-  },
-  {
-    "name": "HTMLAllCollection",
-    "attributes": ["length"]
   },
   {
     "name": "HTMLAnchorElement",
     "attributes": [
-      "charset",
-      "coords",
-      "download",
-      "href",
-      "hreflang",
-      "name",
-      "ping",
-      "referrerPolicy",
-      "rel",
-      "relList",
-      "rev",
-      "shape",
-      "target",
-      "text",
-      "type"
+      {
+        "name": "charset"
+      },
+      {
+        "name": "coords"
+      },
+      {
+        "name": "download"
+      },
+      {
+        "name": "href"
+      },
+      {
+        "name": "hreflang"
+      },
+      {
+        "name": "methods"
+      },
+      {
+        "name": "name"
+      },
+      {
+        "name": "ping"
+      },
+      {
+        "name": "referrerpolicy",
+        "options": [
+          "no-referrer",
+          "no-referrer-when-downgrade",
+          "same-origin",
+          "origin",
+          "strict-origin",
+          "origin-when-cross-origin",
+          "strict-origin-when-cross-origin",
+          "unsafe-url"
+        ]
+      },
+      {
+        "name": "rel",
+        "options": [
+          "alternate",
+          "author",
+          "bookmark",
+          "external",
+          "help",
+          "license",
+          "nofollow",
+          "noopener",
+          "noreferrer",
+          "opener",
+          "privacy-policy",
+          "search",
+          "tag",
+          "terms-of-service",
+          "next",
+          "prev"
+        ]
+      },
+      {
+        "name": "rev"
+      },
+      {
+        "name": "shape"
+      },
+      {
+        "name": "target"
+      },
+      {
+        "name": "type"
+      },
+      {
+        "name": "urn"
+      }
     ]
   },
   {
     "name": "HTMLAreaElement",
     "attributes": [
-      "alt",
-      "coords",
-      "download",
-      "noHref",
-      "ping",
-      "referrerPolicy",
-      "rel",
-      "relList",
-      "shape",
-      "target"
+      {
+        "name": "alt"
+      },
+      {
+        "name": "coords"
+      },
+      {
+        "name": "download"
+      },
+      {
+        "name": "href"
+      },
+      {
+        "name": "hreflang"
+      },
+      {
+        "name": "nohref"
+      },
+      {
+        "name": "ping"
+      },
+      {
+        "name": "referrerpolicy",
+        "options": [
+          "no-referrer",
+          "no-referrer-when-downgrade",
+          "same-origin",
+          "origin",
+          "strict-origin",
+          "origin-when-cross-origin",
+          "strict-origin-when-cross-origin",
+          "unsafe-url"
+        ]
+      },
+      {
+        "name": "rel",
+        "options": [
+          "alternate",
+          "author",
+          "bookmark",
+          "external",
+          "help",
+          "license",
+          "nofollow",
+          "noopener",
+          "noreferrer",
+          "opener",
+          "privacy-policy",
+          "search",
+          "tag",
+          "terms-of-service",
+          "next",
+          "prev"
+        ]
+      },
+      {
+        "name": "shape",
+        "options": [
+          "circle state",
+          "default state",
+          "polygon state",
+          "rectangle state"
+        ]
+      },
+      {
+        "name": "target"
+      },
+      {
+        "name": "type"
+      }
+    ]
+  },
+  {
+    "name": "HTMLAudioElement",
+    "attributes": [
+      {
+        "name": "autoplay"
+      },
+      {
+        "name": "controls"
+      },
+      {
+        "name": "crossorigin",
+        "options": ["anonymous", "use-credentials"]
+      },
+      {
+        "name": "loop"
+      },
+      {
+        "name": "muted"
+      },
+      {
+        "name": "preload",
+        "options": ["auto", "none", "metadata"]
+      },
+      {
+        "name": "src"
+      }
     ]
   },
   {
     "name": "HTMLBaseElement",
-    "attributes": ["href", "target"]
+    "attributes": [
+      {
+        "name": "href"
+      },
+      {
+        "name": "target"
+      }
+    ]
   },
   {
     "name": "HTMLBodyElement",
-    "attributes": ["aLink", "background", "bgColor", "link", "text", "vLink"]
+    "attributes": [
+      {
+        "name": "alink"
+      },
+      {
+        "name": "bgcolor"
+      },
+      {
+        "name": "bottommargin"
+      },
+      {
+        "name": "leftmargin"
+      },
+      {
+        "name": "link"
+      },
+      {
+        "name": "marginheight"
+      },
+      {
+        "name": "marginwidth"
+      },
+      {
+        "name": "rightmargin"
+      },
+      {
+        "name": "text"
+      },
+      {
+        "name": "topmargin"
+      },
+      {
+        "name": "vlink"
+      }
+    ]
   },
   {
     "name": "HTMLBRElement",
-    "attributes": ["clear"]
+    "attributes": [
+      {
+        "name": "clear"
+      }
+    ]
   },
   {
     "name": "HTMLButtonElement",
     "attributes": [
-      "command",
-      "commandForElement",
-      "disabled",
-      "form",
-      "formAction",
-      "formEnctype",
-      "formMethod",
-      "formNoValidate",
-      "formTarget",
-      "labels",
-      "name",
-      "type",
-      "validationMessage",
-      "validity",
-      "value",
-      "willValidate"
+      {
+        "name": "action"
+      },
+      {
+        "name": "autocomplete",
+        "options": [
+          "section-",
+          "shipping",
+          "billing",
+          "home",
+          "work",
+          "mobile",
+          "fax",
+          "pager",
+          "off",
+          "on",
+          "name",
+          "honorific-prefix",
+          "given-name",
+          "additional-name",
+          "family-name",
+          "honorific-suffix",
+          "nickname",
+          "organization-title",
+          "username",
+          "new-password",
+          "current-password",
+          "one-time-code",
+          "organization",
+          "street-address",
+          "address-line1",
+          "address-line2",
+          "address-line3",
+          "address-level4",
+          "address-level3",
+          "address-level2",
+          "address-level1",
+          "country",
+          "country-name",
+          "postal-code",
+          "cc-name",
+          "cc-given-name",
+          "cc-additional-name",
+          "cc-family-name",
+          "cc-number",
+          "cc-exp",
+          "cc-exp-month",
+          "cc-exp-year",
+          "cc-csc",
+          "cc-type",
+          "transaction-currency",
+          "transaction-amount",
+          "language",
+          "bday",
+          "bday-day",
+          "bday-month",
+          "bday-year",
+          "sex",
+          "url",
+          "photo",
+          "tel",
+          "tel-country-code",
+          "tel-national",
+          "tel-area-code",
+          "tel-local",
+          "tel-local-prefix",
+          "tel-local-suffix",
+          "tel-extension",
+          "email",
+          "impp"
+        ]
+      },
+      {
+        "name": "command"
+      },
+      {
+        "name": "commandfor"
+      },
+      {
+        "name": "disabled"
+      },
+      {
+        "name": "enctype",
+        "options": [
+          "application/x-www-form-urlencoded",
+          "multipart/form-data",
+          "text/plain"
+        ]
+      },
+      {
+        "name": "form"
+      },
+      {
+        "name": "formaction"
+      },
+      {
+        "name": "formenctype"
+      },
+      {
+        "name": "formmethod",
+        "options": ["get", "post", "dialog"]
+      },
+      {
+        "name": "formnovalidate"
+      },
+      {
+        "name": "formtarget"
+      },
+      {
+        "name": "method"
+      },
+      {
+        "name": "name"
+      },
+      {
+        "name": "novalidate"
+      },
+      {
+        "name": "target"
+      },
+      {
+        "name": "type",
+        "options": ["submit", "reset", "button"]
+      },
+      {
+        "name": "value"
+      }
     ],
     "events": ["invalid"]
   },
   {
     "name": "HTMLCanvasElement",
-    "attributes": ["height", "width"],
+    "attributes": [
+      {
+        "name": "height"
+      },
+      {
+        "name": "width"
+      }
+    ],
     "events": [
       "contextlost",
       "contextrestored",
@@ -516,58 +720,59 @@
   },
   {
     "name": "HTMLDataElement",
-    "attributes": ["value"]
-  },
-  {
-    "name": "HTMLDataListElement",
-    "attributes": ["options"]
+    "attributes": [
+      {
+        "name": "value"
+      }
+    ]
   },
   {
     "name": "HTMLDetailsElement",
-    "attributes": ["name", "open"],
+    "attributes": [
+      {
+        "name": "name"
+      },
+      {
+        "name": "open"
+      }
+    ],
     "events": ["toggle"]
   },
   {
     "name": "HTMLDialogElement",
-    "attributes": ["closedBy", "open", "returnValue"],
+    "attributes": [
+      {
+        "name": "closedby",
+        "options": ["any", "closerequest", "none"]
+      },
+      {
+        "name": "open"
+      }
+    ],
     "events": ["cancel", "close"]
   },
   {
-    "name": "HTMLDirectoryElement",
-    "attributes": ["compact"]
-  },
-  {
     "name": "HTMLDivElement",
-    "attributes": ["align"]
+    "attributes": [
+      {
+        "name": "align"
+      }
+    ]
   },
   {
     "name": "HTMLDListElement",
-    "attributes": ["compact"]
+    "attributes": [
+      {
+        "name": "compact"
+      }
+    ]
   },
   {
     "name": "HTMLElement",
     "attributes": [
-      "accessKey",
-      "accessKeyLabel",
-      "autocapitalize",
-      "autocorrect",
-      "dir",
-      "draggable",
-      "headingOffset",
-      "headingReset",
-      "hidden",
-      "inert",
-      "innerText",
-      "lang",
-      "outerText",
-      "popover",
-      "popoverTargetAction",
-      "popoverTargetElement",
-      "spellcheck",
-      "states",
-      "title",
-      "translate",
-      "writingSuggestions"
+      {
+        "name": "title"
+      }
     ],
     "events": [
       "animationcancel",
@@ -613,288 +818,759 @@
   },
   {
     "name": "HTMLEmbedElement",
-    "attributes": ["align", "height", "name", "src", "type", "width"]
+    "attributes": [
+      {
+        "name": "align"
+      },
+      {
+        "name": "height"
+      },
+      {
+        "name": "hspace"
+      },
+      {
+        "name": "name"
+      },
+      {
+        "name": "src"
+      },
+      {
+        "name": "type"
+      },
+      {
+        "name": "vspace"
+      },
+      {
+        "name": "width"
+      }
+    ]
   },
   {
     "name": "HTMLFieldSetElement",
     "attributes": [
-      "disabled",
-      "elements",
-      "form",
-      "name",
-      "type",
-      "validationMessage",
-      "validity",
-      "willValidate"
+      {
+        "name": "autocomplete",
+        "options": [
+          "section-",
+          "shipping",
+          "billing",
+          "home",
+          "work",
+          "mobile",
+          "fax",
+          "pager",
+          "off",
+          "on",
+          "name",
+          "honorific-prefix",
+          "given-name",
+          "additional-name",
+          "family-name",
+          "honorific-suffix",
+          "nickname",
+          "organization-title",
+          "username",
+          "new-password",
+          "current-password",
+          "one-time-code",
+          "organization",
+          "street-address",
+          "address-line1",
+          "address-line2",
+          "address-line3",
+          "address-level4",
+          "address-level3",
+          "address-level2",
+          "address-level1",
+          "country",
+          "country-name",
+          "postal-code",
+          "cc-name",
+          "cc-given-name",
+          "cc-additional-name",
+          "cc-family-name",
+          "cc-number",
+          "cc-exp",
+          "cc-exp-month",
+          "cc-exp-year",
+          "cc-csc",
+          "cc-type",
+          "transaction-currency",
+          "transaction-amount",
+          "language",
+          "bday",
+          "bday-day",
+          "bday-month",
+          "bday-year",
+          "sex",
+          "url",
+          "photo",
+          "tel",
+          "tel-country-code",
+          "tel-national",
+          "tel-area-code",
+          "tel-local",
+          "tel-local-prefix",
+          "tel-local-suffix",
+          "tel-extension",
+          "email",
+          "impp"
+        ]
+      },
+      {
+        "name": "disabled"
+      },
+      {
+        "name": "form"
+      },
+      {
+        "name": "name"
+      }
     ]
-  },
-  {
-    "name": "HTMLFontElement",
-    "attributes": ["color", "face", "size"]
   },
   {
     "name": "HTMLFormElement",
     "attributes": [
-      "acceptCharset",
-      "action",
-      "autocomplete",
-      "elements",
-      "encoding",
-      "enctype",
-      "length",
-      "method",
-      "name",
-      "noValidate",
-      "rel",
-      "relList",
-      "target"
+      {
+        "name": "accept"
+      },
+      {
+        "name": "accept-charset"
+      },
+      {
+        "name": "action"
+      },
+      {
+        "name": "autocomplete",
+        "options": ["on", "off"]
+      },
+      {
+        "name": "enctype",
+        "options": [
+          "application/x-www-form-urlencoded",
+          "multipart/form-data",
+          "text/plain"
+        ]
+      },
+      {
+        "name": "formaction"
+      },
+      {
+        "name": "formenctype"
+      },
+      {
+        "name": "formmethod"
+      },
+      {
+        "name": "formnovalidate"
+      },
+      {
+        "name": "formtarget"
+      },
+      {
+        "name": "method",
+        "options": ["get", "post", "dialog"]
+      },
+      {
+        "name": "name"
+      },
+      {
+        "name": "novalidate"
+      },
+      {
+        "name": "rel",
+        "options": [
+          "external",
+          "help",
+          "license",
+          "nofollow",
+          "noopener",
+          "noreferrer",
+          "opener",
+          "search",
+          "next",
+          "prev"
+        ]
+      },
+      {
+        "name": "target"
+      }
     ],
     "events": ["formdata", "reset", "submit"]
   },
   {
-    "name": "HTMLFrameElement",
+    "name": "HTMLHeadElement",
     "attributes": [
-      "contentDocument",
-      "contentWindow",
-      "frameBorder",
-      "longDesc",
-      "marginHeight",
-      "marginWidth",
-      "name",
-      "noResize",
-      "scrolling",
-      "src"
+      {
+        "name": "profile"
+      }
     ]
   },
   {
-    "name": "HTMLFrameSetElement",
-    "attributes": ["cols", "rows"]
-  },
-  {
-    "name": "HTMLHeadElement",
-    "attributes": ["profile"]
-  },
-  {
     "name": "HTMLHeadingElement",
-    "attributes": ["align"]
+    "attributes": [
+      {
+        "name": "align"
+      }
+    ]
   },
   {
     "name": "HTMLHRElement",
-    "attributes": ["align", "color", "noShade", "size", "width"]
+    "attributes": [
+      {
+        "name": "align"
+      },
+      {
+        "name": "color"
+      },
+      {
+        "name": "noshade"
+      },
+      {
+        "name": "size"
+      },
+      {
+        "name": "width"
+      }
+    ]
   },
   {
     "name": "HTMLHtmlElement",
-    "attributes": ["version"]
-  },
-  {
-    "name": "HTMLHyperlinkElementUtils",
     "attributes": [
-      "hash",
-      "host",
-      "hostname",
-      "href",
-      "origin",
-      "password",
-      "pathname",
-      "port",
-      "protocol",
-      "search",
-      "username"
+      {
+        "name": "manifest"
+      },
+      {
+        "name": "version"
+      }
     ]
   },
   {
     "name": "HTMLIFrameElement",
     "attributes": [
-      "align",
-      "allow",
-      "allowFullscreen",
-      "contentDocument",
-      "contentWindow",
-      "frameBorder",
-      "height",
-      "loading",
-      "longDesc",
-      "marginHeight",
-      "marginWidth",
-      "name",
-      "referrerPolicy",
-      "sandbox",
-      "scrolling",
-      "src",
-      "srcdoc",
-      "width"
+      {
+        "name": "align"
+      },
+      {
+        "name": "allow"
+      },
+      {
+        "name": "allowfullscreen"
+      },
+      {
+        "name": "allowtransparency"
+      },
+      {
+        "name": "frameborder"
+      },
+      {
+        "name": "framespacing"
+      },
+      {
+        "name": "height"
+      },
+      {
+        "name": "hspace"
+      },
+      {
+        "name": "loading",
+        "options": ["lazy", "eager"]
+      },
+      {
+        "name": "longdesc"
+      },
+      {
+        "name": "marginheight"
+      },
+      {
+        "name": "marginwidth"
+      },
+      {
+        "name": "name"
+      },
+      {
+        "name": "referrerpolicy",
+        "options": [
+          "no-referrer",
+          "no-referrer-when-downgrade",
+          "same-origin",
+          "origin",
+          "strict-origin",
+          "origin-when-cross-origin",
+          "strict-origin-when-cross-origin",
+          "unsafe-url"
+        ]
+      },
+      {
+        "name": "sandbox",
+        "options": [
+          "allow-popups",
+          "allow-top-navigation",
+          "allow-top-navigation-by-user-activation",
+          "allow-same-origin",
+          "allow-forms",
+          "allow-pointer-lock",
+          "allow-scripts",
+          "allow-popups-to-escape-sandbox",
+          "allow-modals",
+          "allow-orientation-lock",
+          "allow-presentation",
+          "allow-downloads",
+          "allow-top-navigation-to-custom-protocols"
+        ]
+      },
+      {
+        "name": "scrolling"
+      },
+      {
+        "name": "src"
+      },
+      {
+        "name": "srcdoc"
+      },
+      {
+        "name": "vspace"
+      },
+      {
+        "name": "width"
+      }
     ]
   },
   {
     "name": "HTMLImageElement",
     "attributes": [
-      "align",
-      "alt",
-      "border",
-      "complete",
-      "crossOrigin",
-      "currentSrc",
-      "decoding",
-      "fetchPriority",
-      "height",
-      "hspace",
-      "isMap",
-      "loading",
-      "longDesc",
-      "lowsrc",
-      "name",
-      "naturalHeight",
-      "naturalWidth",
-      "referrerPolicy",
-      "sizes",
-      "src",
-      "srcset",
-      "useMap",
-      "vspace",
-      "width"
+      {
+        "name": "align"
+      },
+      {
+        "name": "alt"
+      },
+      {
+        "name": "border"
+      },
+      {
+        "name": "crossorigin",
+        "options": ["anonymous", "use-credentials"]
+      },
+      {
+        "name": "decoding",
+        "options": ["sync", "async", "auto"]
+      },
+      {
+        "name": "fetchpriority",
+        "options": ["high", "low", "auto"]
+      },
+      {
+        "name": "height"
+      },
+      {
+        "name": "hspace"
+      },
+      {
+        "name": "ismap"
+      },
+      {
+        "name": "loading",
+        "options": ["lazy", "eager"]
+      },
+      {
+        "name": "longdesc"
+      },
+      {
+        "name": "lowsrc"
+      },
+      {
+        "name": "name"
+      },
+      {
+        "name": "referrerpolicy",
+        "options": [
+          "no-referrer",
+          "no-referrer-when-downgrade",
+          "same-origin",
+          "origin",
+          "strict-origin",
+          "origin-when-cross-origin",
+          "strict-origin-when-cross-origin",
+          "unsafe-url"
+        ]
+      },
+      {
+        "name": "sizes"
+      },
+      {
+        "name": "src"
+      },
+      {
+        "name": "srcset"
+      },
+      {
+        "name": "usemap"
+      },
+      {
+        "name": "vspace"
+      },
+      {
+        "name": "width"
+      }
     ]
   },
   {
     "name": "HTMLInputElement",
     "attributes": [
-      "accept",
-      "align",
-      "alpha",
-      "alt",
-      "autocomplete",
-      "checked",
-      "colorSpace",
-      "defaultChecked",
-      "defaultValue",
-      "dirName",
-      "disabled",
-      "files",
-      "form",
-      "formAction",
-      "formEnctype",
-      "formMethod",
-      "formNoValidate",
-      "formTarget",
-      "height",
-      "indeterminate",
-      "labels",
-      "list",
-      "max",
-      "maxLength",
-      "min",
-      "minLength",
-      "multiple",
-      "name",
-      "pattern",
-      "placeholder",
-      "readOnly",
-      "required",
-      "selectionDirection",
-      "selectionEnd",
-      "selectionStart",
-      "size",
-      "src",
-      "step",
-      "type",
-      "useMap",
-      "validationMessage",
-      "validity",
-      "value",
-      "valueAsDate",
-      "valueAsNumber",
-      "width",
-      "willValidate"
+      {
+        "name": "accept"
+      },
+      {
+        "name": "align"
+      },
+      {
+        "name": "alpha"
+      },
+      {
+        "name": "alt"
+      },
+      {
+        "name": "autocomplete",
+        "options": [
+          "section-",
+          "shipping",
+          "billing",
+          "home",
+          "work",
+          "mobile",
+          "fax",
+          "pager",
+          "off",
+          "on",
+          "name",
+          "honorific-prefix",
+          "given-name",
+          "additional-name",
+          "family-name",
+          "honorific-suffix",
+          "nickname",
+          "organization-title",
+          "username",
+          "new-password",
+          "current-password",
+          "one-time-code",
+          "organization",
+          "street-address",
+          "address-line1",
+          "address-line2",
+          "address-line3",
+          "address-level4",
+          "address-level3",
+          "address-level2",
+          "address-level1",
+          "country",
+          "country-name",
+          "postal-code",
+          "cc-name",
+          "cc-given-name",
+          "cc-additional-name",
+          "cc-family-name",
+          "cc-number",
+          "cc-exp",
+          "cc-exp-month",
+          "cc-exp-year",
+          "cc-csc",
+          "cc-type",
+          "transaction-currency",
+          "transaction-amount",
+          "language",
+          "bday",
+          "bday-day",
+          "bday-month",
+          "bday-year",
+          "sex",
+          "url",
+          "photo",
+          "tel",
+          "tel-country-code",
+          "tel-national",
+          "tel-area-code",
+          "tel-local",
+          "tel-local-prefix",
+          "tel-local-suffix",
+          "tel-extension",
+          "email",
+          "impp"
+        ]
+      },
+      {
+        "name": "border"
+      },
+      {
+        "name": "checked"
+      },
+      {
+        "name": "colorspace",
+        "options": ["limited-srgb", "display-p3"]
+      },
+      {
+        "name": "dirname"
+      },
+      {
+        "name": "disabled"
+      },
+      {
+        "name": "form"
+      },
+      {
+        "name": "formmethod",
+        "options": ["get", "post", "dialog"]
+      },
+      {
+        "name": "hspace"
+      },
+      {
+        "name": "ismap"
+      },
+      {
+        "name": "list"
+      },
+      {
+        "name": "max"
+      },
+      {
+        "name": "maxlength"
+      },
+      {
+        "name": "min"
+      },
+      {
+        "name": "minlength"
+      },
+      {
+        "name": "multiple"
+      },
+      {
+        "name": "name"
+      },
+      {
+        "name": "pattern"
+      },
+      {
+        "name": "placeholder"
+      },
+      {
+        "name": "readonly"
+      },
+      {
+        "name": "required"
+      },
+      {
+        "name": "size"
+      },
+      {
+        "name": "src"
+      },
+      {
+        "name": "step"
+      },
+      {
+        "name": "title"
+      },
+      {
+        "name": "type",
+        "options": [
+          "hidden",
+          "text",
+          "search",
+          "tel",
+          "url",
+          "email",
+          "password",
+          "date",
+          "month",
+          "week",
+          "time",
+          "datetime-local",
+          "number",
+          "range",
+          "color",
+          "checkbox",
+          "radio",
+          "file",
+          "submit",
+          "image",
+          "reset",
+          "button"
+        ]
+      },
+      {
+        "name": "usemap"
+      },
+      {
+        "name": "value"
+      },
+      {
+        "name": "vspace"
+      }
     ],
     "events": ["cancel", "change", "invalid", "select"]
   },
   {
     "name": "HTMLLabelElement",
-    "attributes": ["control", "form", "htmlFor"]
+    "attributes": [
+      {
+        "name": "for"
+      }
+    ]
   },
   {
     "name": "HTMLLegendElement",
-    "attributes": ["align", "form"]
+    "attributes": [
+      {
+        "name": "align"
+      }
+    ]
   },
   {
     "name": "HTMLLIElement",
-    "attributes": ["type", "value"]
+    "attributes": [
+      {
+        "name": "type"
+      },
+      {
+        "name": "value"
+      }
+    ]
   },
   {
     "name": "HTMLLinkElement",
     "attributes": [
-      "as",
-      "blocking",
-      "charset",
-      "crossOrigin",
-      "disabled",
-      "fetchPriority",
-      "href",
-      "hreflang",
-      "imageSizes",
-      "imageSrcset",
-      "integrity",
-      "media",
-      "referrerPolicy",
-      "rel",
-      "relList",
-      "rev",
-      "sizes",
-      "target",
-      "type"
+      {
+        "name": "as"
+      },
+      {
+        "name": "blocking"
+      },
+      {
+        "name": "charset"
+      },
+      {
+        "name": "color"
+      },
+      {
+        "name": "crossorigin",
+        "options": ["anonymous", "use-credentials"]
+      },
+      {
+        "name": "disabled"
+      },
+      {
+        "name": "fetchpriority",
+        "options": ["high", "low", "auto"]
+      },
+      {
+        "name": "href"
+      },
+      {
+        "name": "hreflang"
+      },
+      {
+        "name": "imagesizes"
+      },
+      {
+        "name": "imagesrcset"
+      },
+      {
+        "name": "integrity"
+      },
+      {
+        "name": "media"
+      },
+      {
+        "name": "methods"
+      },
+      {
+        "name": "referrerpolicy",
+        "options": [
+          "no-referrer",
+          "no-referrer-when-downgrade",
+          "same-origin",
+          "origin",
+          "strict-origin",
+          "origin-when-cross-origin",
+          "strict-origin-when-cross-origin",
+          "unsafe-url"
+        ]
+      },
+      {
+        "name": "rel",
+        "options": [
+          "alternate",
+          "author",
+          "canonical",
+          "dns-prefetch",
+          "expect",
+          "help",
+          "icon",
+          "license",
+          "manifest",
+          "modulepreload",
+          "pingback",
+          "preconnect",
+          "prefetch",
+          "preload",
+          "privacy-policy",
+          "search",
+          "stylesheet",
+          "terms-of-service",
+          "next",
+          "prev"
+        ]
+      },
+      {
+        "name": "rev"
+      },
+      {
+        "name": "sizes"
+      },
+      {
+        "name": "target"
+      },
+      {
+        "name": "title"
+      },
+      {
+        "name": "type"
+      },
+      {
+        "name": "urn"
+      }
     ]
   },
   {
     "name": "HTMLMapElement",
-    "attributes": ["areas", "name"]
+    "attributes": [
+      {
+        "name": "name"
+      }
+    ]
   },
   {
     "name": "HTMLMarqueeElement",
     "attributes": [
-      "behavior",
-      "bgColor",
-      "direction",
-      "height",
-      "hspace",
-      "loop",
-      "scrollAmount",
-      "scrollDelay",
-      "trueSpeed",
-      "vspace",
-      "width"
+      {
+        "name": "behavior"
+      },
+      {
+        "name": "direction"
+      },
+      {
+        "name": "loop"
+      },
+      {
+        "name": "truespeed"
+      }
     ]
   },
   {
     "name": "HTMLMediaElement",
-    "attributes": [
-      "audioTracks",
-      "autoplay",
-      "buffered",
-      "controls",
-      "crossOrigin",
-      "currentSrc",
-      "currentTime",
-      "defaultMuted",
-      "defaultPlaybackRate",
-      "duration",
-      "ended",
-      "error",
-      "loop",
-      "muted",
-      "networkState",
-      "paused",
-      "playbackRate",
-      "played",
-      "preload",
-      "preservesPitch",
-      "readyState",
-      "seekable",
-      "seeking",
-      "src",
-      "srcObject",
-      "textTracks",
-      "videoTracks",
-      "volume"
-    ],
     "events": [
       "abort",
       "canplay",
@@ -925,391 +1601,1053 @@
   },
   {
     "name": "HTMLMenuElement",
-    "attributes": ["compact"]
+    "attributes": [
+      {
+        "name": "compact"
+      },
+      {
+        "name": "label"
+      },
+      {
+        "name": "type"
+      }
+    ]
   },
   {
     "name": "HTMLMetaElement",
-    "attributes": ["content", "httpEquiv", "media", "name", "scheme"]
+    "attributes": [
+      {
+        "name": "charset"
+      },
+      {
+        "name": "content"
+      },
+      {
+        "name": "http-equiv",
+        "options": [
+          "content-language",
+          "content-type",
+          "default-style",
+          "refresh",
+          "set-cookie",
+          "x-ua-compatible",
+          "content-security-policy"
+        ]
+      },
+      {
+        "name": "media"
+      },
+      {
+        "name": "name",
+        "options": [
+          "application-name",
+          "author",
+          "description",
+          "generator",
+          "keywords",
+          "referrer",
+          "theme-color",
+          "color-scheme"
+        ]
+      },
+      {
+        "name": "property",
+        "options": [
+          "og:title",
+          "og:type",
+          "og:url",
+          "og:description",
+          "og:site_name",
+          "og:locale",
+          "og:locale:alternate",
+          "og:determiner",
+          "og:image",
+          "og:image:url",
+          "og:image:secure_url",
+          "og:image:type",
+          "og:image:width",
+          "og:image:height",
+          "og:image:alt",
+          "og:video",
+          "og:video:secure_url",
+          "og:video:type",
+          "og:video:width",
+          "og:video:height",
+          "og:audio",
+          "og:audio:secure_url",
+          "og:audio:type"
+        ]
+      },
+      {
+        "name": "scheme"
+      }
+    ]
   },
   {
     "name": "HTMLMeterElement",
-    "attributes": ["high", "labels", "low", "max", "min", "optimum", "value"]
+    "attributes": [
+      {
+        "name": "high"
+      },
+      {
+        "name": "low"
+      },
+      {
+        "name": "max"
+      },
+      {
+        "name": "min"
+      },
+      {
+        "name": "optimum"
+      },
+      {
+        "name": "value"
+      }
+    ]
   },
   {
     "name": "HTMLModElement",
-    "attributes": ["cite", "dateTime"]
+    "attributes": [
+      {
+        "name": "cite"
+      },
+      {
+        "name": "datetime"
+      }
+    ]
   },
   {
     "name": "HTMLObjectElement",
     "attributes": [
-      "align",
-      "archive",
-      "border",
-      "code",
-      "codeBase",
-      "codeType",
-      "contentDocument",
-      "contentWindow",
-      "data",
-      "declare",
-      "form",
-      "height",
-      "hspace",
-      "name",
-      "standby",
-      "type",
-      "useMap",
-      "validationMessage",
-      "validity",
-      "vspace",
-      "width",
-      "willValidate"
+      {
+        "name": "align"
+      },
+      {
+        "name": "archive"
+      },
+      {
+        "name": "autocomplete",
+        "options": [
+          "section-",
+          "shipping",
+          "billing",
+          "home",
+          "work",
+          "mobile",
+          "fax",
+          "pager",
+          "off",
+          "on",
+          "name",
+          "honorific-prefix",
+          "given-name",
+          "additional-name",
+          "family-name",
+          "honorific-suffix",
+          "nickname",
+          "organization-title",
+          "username",
+          "new-password",
+          "current-password",
+          "one-time-code",
+          "organization",
+          "street-address",
+          "address-line1",
+          "address-line2",
+          "address-line3",
+          "address-level4",
+          "address-level3",
+          "address-level2",
+          "address-level1",
+          "country",
+          "country-name",
+          "postal-code",
+          "cc-name",
+          "cc-given-name",
+          "cc-additional-name",
+          "cc-family-name",
+          "cc-number",
+          "cc-exp",
+          "cc-exp-month",
+          "cc-exp-year",
+          "cc-csc",
+          "cc-type",
+          "transaction-currency",
+          "transaction-amount",
+          "language",
+          "bday",
+          "bday-day",
+          "bday-month",
+          "bday-year",
+          "sex",
+          "url",
+          "photo",
+          "tel",
+          "tel-country-code",
+          "tel-national",
+          "tel-area-code",
+          "tel-local",
+          "tel-local-prefix",
+          "tel-local-suffix",
+          "tel-extension",
+          "email",
+          "impp"
+        ]
+      },
+      {
+        "name": "border"
+      },
+      {
+        "name": "classid"
+      },
+      {
+        "name": "code"
+      },
+      {
+        "name": "codebase"
+      },
+      {
+        "name": "codetype"
+      },
+      {
+        "name": "data"
+      },
+      {
+        "name": "declare"
+      },
+      {
+        "name": "disabled"
+      },
+      {
+        "name": "form"
+      },
+      {
+        "name": "height"
+      },
+      {
+        "name": "hspace"
+      },
+      {
+        "name": "name"
+      },
+      {
+        "name": "standby"
+      },
+      {
+        "name": "type"
+      },
+      {
+        "name": "typemustmatch"
+      },
+      {
+        "name": "usemap"
+      },
+      {
+        "name": "vspace"
+      },
+      {
+        "name": "width"
+      }
     ]
   },
   {
     "name": "HTMLOListElement",
-    "attributes": ["compact", "reversed", "start", "type"]
+    "attributes": [
+      {
+        "name": "compact"
+      },
+      {
+        "name": "reversed"
+      },
+      {
+        "name": "start"
+      },
+      {
+        "name": "type",
+        "options": ["1", "a", "A", "i", "I"]
+      }
+    ]
   },
   {
     "name": "HTMLOptGroupElement",
-    "attributes": ["disabled", "label"]
+    "attributes": [
+      {
+        "name": "disabled"
+      },
+      {
+        "name": "label"
+      }
+    ]
   },
   {
     "name": "HTMLOptionElement",
     "attributes": [
-      "defaultSelected",
-      "disabled",
-      "form",
-      "index",
-      "label",
-      "selected",
-      "text",
-      "value"
+      {
+        "name": "disabled"
+      },
+      {
+        "name": "label"
+      },
+      {
+        "name": "name"
+      },
+      {
+        "name": "selected"
+      },
+      {
+        "name": "value"
+      }
     ]
-  },
-  {
-    "name": "HTMLOptionsCollection",
-    "attributes": ["length", "selectedIndex"]
-  },
-  {
-    "name": "HTMLOrSVGElement",
-    "attributes": ["autofocus", "dataset", "nonce", "tabIndex"]
   },
   {
     "name": "HTMLOutputElement",
     "attributes": [
-      "defaultValue",
-      "form",
-      "htmlFor",
-      "labels",
-      "name",
-      "type",
-      "validationMessage",
-      "validity",
-      "value",
-      "willValidate"
+      {
+        "name": "autocomplete",
+        "options": [
+          "section-",
+          "shipping",
+          "billing",
+          "home",
+          "work",
+          "mobile",
+          "fax",
+          "pager",
+          "off",
+          "on",
+          "name",
+          "honorific-prefix",
+          "given-name",
+          "additional-name",
+          "family-name",
+          "honorific-suffix",
+          "nickname",
+          "organization-title",
+          "username",
+          "new-password",
+          "current-password",
+          "one-time-code",
+          "organization",
+          "street-address",
+          "address-line1",
+          "address-line2",
+          "address-line3",
+          "address-level4",
+          "address-level3",
+          "address-level2",
+          "address-level1",
+          "country",
+          "country-name",
+          "postal-code",
+          "cc-name",
+          "cc-given-name",
+          "cc-additional-name",
+          "cc-family-name",
+          "cc-number",
+          "cc-exp",
+          "cc-exp-month",
+          "cc-exp-year",
+          "cc-csc",
+          "cc-type",
+          "transaction-currency",
+          "transaction-amount",
+          "language",
+          "bday",
+          "bday-day",
+          "bday-month",
+          "bday-year",
+          "sex",
+          "url",
+          "photo",
+          "tel",
+          "tel-country-code",
+          "tel-national",
+          "tel-area-code",
+          "tel-local",
+          "tel-local-prefix",
+          "tel-local-suffix",
+          "tel-extension",
+          "email",
+          "impp"
+        ]
+      },
+      {
+        "name": "disabled"
+      },
+      {
+        "name": "for"
+      },
+      {
+        "name": "form"
+      },
+      {
+        "name": "name"
+      }
     ]
   },
   {
     "name": "HTMLParagraphElement",
-    "attributes": ["align"]
-  },
-  {
-    "name": "HTMLParamElement",
-    "attributes": ["name", "type", "value", "valueType"]
+    "attributes": [
+      {
+        "name": "align"
+      }
+    ]
   },
   {
     "name": "HTMLPortalElement",
-    "attributes": [],
     "events": ["message", "messageerror"]
   },
   {
     "name": "HTMLPreElement",
-    "attributes": ["width"]
+    "attributes": [
+      {
+        "name": "width"
+      }
+    ]
   },
   {
     "name": "HTMLProgressElement",
-    "attributes": ["labels", "position", "value"]
+    "attributes": [
+      {
+        "name": "max"
+      },
+      {
+        "name": "value"
+      }
+    ]
   },
   {
     "name": "HTMLQuoteElement",
-    "attributes": ["cite"]
+    "attributes": [
+      {
+        "name": "cite"
+      }
+    ]
   },
   {
     "name": "HTMLScriptElement",
     "attributes": [
-      "async",
-      "blocking",
-      "charset",
-      "crossOrigin",
-      "defer",
-      "event",
-      "fetchPriority",
-      "htmlFor",
-      "integrity",
-      "noModule",
-      "referrerPolicy",
-      "src",
-      "text",
-      "type"
+      {
+        "name": "async"
+      },
+      {
+        "name": "blocking"
+      },
+      {
+        "name": "charset"
+      },
+      {
+        "name": "crossorigin",
+        "options": ["anonymous", "use-credentials"]
+      },
+      {
+        "name": "defer"
+      },
+      {
+        "name": "event"
+      },
+      {
+        "name": "fetchpriority",
+        "options": ["high", "low", "auto"]
+      },
+      {
+        "name": "for"
+      },
+      {
+        "name": "integrity"
+      },
+      {
+        "name": "language"
+      },
+      {
+        "name": "nomodule"
+      },
+      {
+        "name": "referrerpolicy",
+        "options": [
+          "no-referrer",
+          "no-referrer-when-downgrade",
+          "same-origin",
+          "origin",
+          "strict-origin",
+          "origin-when-cross-origin",
+          "strict-origin-when-cross-origin",
+          "unsafe-url"
+        ]
+      },
+      {
+        "name": "src"
+      },
+      {
+        "name": "type"
+      }
     ]
   },
   {
     "name": "HTMLSelectElement",
     "attributes": [
-      "autocomplete",
-      "disabled",
-      "form",
-      "labels",
-      "length",
-      "multiple",
-      "name",
-      "options",
-      "required",
-      "selectedIndex",
-      "selectedOptions",
-      "size",
-      "type",
-      "validationMessage",
-      "validity",
-      "value",
-      "willValidate"
+      {
+        "name": "autocomplete",
+        "options": [
+          "section-",
+          "shipping",
+          "billing",
+          "home",
+          "work",
+          "mobile",
+          "fax",
+          "pager",
+          "off",
+          "on",
+          "name",
+          "honorific-prefix",
+          "given-name",
+          "additional-name",
+          "family-name",
+          "honorific-suffix",
+          "nickname",
+          "organization-title",
+          "username",
+          "new-password",
+          "current-password",
+          "one-time-code",
+          "organization",
+          "street-address",
+          "address-line1",
+          "address-line2",
+          "address-line3",
+          "address-level4",
+          "address-level3",
+          "address-level2",
+          "address-level1",
+          "country",
+          "country-name",
+          "postal-code",
+          "cc-name",
+          "cc-given-name",
+          "cc-additional-name",
+          "cc-family-name",
+          "cc-number",
+          "cc-exp",
+          "cc-exp-month",
+          "cc-exp-year",
+          "cc-csc",
+          "cc-type",
+          "transaction-currency",
+          "transaction-amount",
+          "language",
+          "bday",
+          "bday-day",
+          "bday-month",
+          "bday-year",
+          "sex",
+          "url",
+          "photo",
+          "tel",
+          "tel-country-code",
+          "tel-national",
+          "tel-area-code",
+          "tel-local",
+          "tel-local-prefix",
+          "tel-local-suffix",
+          "tel-extension",
+          "email",
+          "impp"
+        ]
+      },
+      {
+        "name": "disabled"
+      },
+      {
+        "name": "form"
+      },
+      {
+        "name": "multiple"
+      },
+      {
+        "name": "name"
+      },
+      {
+        "name": "required"
+      },
+      {
+        "name": "size"
+      }
     ],
     "events": ["change", "invalid"]
   },
   {
     "name": "HTMLSlotElement",
-    "attributes": ["name"],
+    "attributes": [
+      {
+        "name": "name"
+      }
+    ],
     "events": ["slotchange"]
   },
   {
     "name": "HTMLSourceElement",
     "attributes": [
-      "height",
-      "media",
-      "sizes",
-      "src",
-      "srcset",
-      "type",
-      "width"
+      {
+        "name": "height"
+      },
+      {
+        "name": "media"
+      },
+      {
+        "name": "sizes"
+      },
+      {
+        "name": "src"
+      },
+      {
+        "name": "srcset"
+      },
+      {
+        "name": "type"
+      },
+      {
+        "name": "width"
+      }
     ],
     "events": ["error"]
   },
   {
     "name": "HTMLStyleElement",
-    "attributes": ["blocking", "disabled", "media", "type"]
+    "attributes": [
+      {
+        "name": "blocking"
+      },
+      {
+        "name": "media"
+      },
+      {
+        "name": "title"
+      },
+      {
+        "name": "type"
+      }
+    ]
   },
   {
     "name": "HTMLTableCaptionElement",
-    "attributes": ["align"]
+    "attributes": [
+      {
+        "name": "align"
+      }
+    ]
   },
   {
     "name": "HTMLTableCellElement",
     "attributes": [
-      "abbr",
-      "align",
-      "axis",
-      "bgColor",
-      "cellIndex",
-      "ch",
-      "chOff",
-      "colSpan",
-      "height",
-      "noWrap",
-      "rowSpan",
-      "scope",
-      "vAlign",
-      "width"
+      {
+        "name": "abbr"
+      },
+      {
+        "name": "align"
+      },
+      {
+        "name": "axis"
+      },
+      {
+        "name": "bgcolor"
+      },
+      {
+        "name": "char"
+      },
+      {
+        "name": "charoff"
+      },
+      {
+        "name": "colspan"
+      },
+      {
+        "name": "headers"
+      },
+      {
+        "name": "height"
+      },
+      {
+        "name": "nowrap"
+      },
+      {
+        "name": "rowspan"
+      },
+      {
+        "name": "scope",
+        "options": ["row", "col", "rowgroup", "colgroup"]
+      },
+      {
+        "name": "valign"
+      },
+      {
+        "name": "width"
+      }
     ]
   },
   {
     "name": "HTMLTableColElement",
-    "attributes": ["align", "ch", "chOff", "span", "vAlign", "width"]
+    "attributes": [
+      {
+        "name": "align"
+      },
+      {
+        "name": "char"
+      },
+      {
+        "name": "charoff"
+      },
+      {
+        "name": "span"
+      },
+      {
+        "name": "valign"
+      },
+      {
+        "name": "width"
+      }
+    ]
   },
   {
     "name": "HTMLTableElement",
     "attributes": [
-      "align",
-      "bgColor",
-      "border",
-      "caption",
-      "cellPadding",
-      "cellSpacing",
-      "frame",
-      "rows",
-      "rules",
-      "summary",
-      "tBodies",
-      "tFoot",
-      "tHead",
-      "width"
+      {
+        "name": "align"
+      },
+      {
+        "name": "bgcolor"
+      },
+      {
+        "name": "border"
+      },
+      {
+        "name": "bordercolor"
+      },
+      {
+        "name": "cellpadding"
+      },
+      {
+        "name": "cellspacing"
+      },
+      {
+        "name": "datapagesize"
+      },
+      {
+        "name": "frame"
+      },
+      {
+        "name": "height"
+      },
+      {
+        "name": "rules"
+      },
+      {
+        "name": "summary"
+      },
+      {
+        "name": "width"
+      }
     ]
   },
   {
     "name": "HTMLTableRowElement",
     "attributes": [
-      "align",
-      "bgColor",
-      "cells",
-      "ch",
-      "chOff",
-      "rowIndex",
-      "sectionRowIndex",
-      "vAlign"
+      {
+        "name": "align"
+      },
+      {
+        "name": "bgcolor"
+      },
+      {
+        "name": "char"
+      },
+      {
+        "name": "charoff"
+      },
+      {
+        "name": "height"
+      },
+      {
+        "name": "valign"
+      }
     ]
   },
   {
     "name": "HTMLTableSectionElement",
-    "attributes": ["align", "ch", "chOff", "rows", "vAlign"]
+    "attributes": [
+      {
+        "name": "align"
+      },
+      {
+        "name": "char"
+      },
+      {
+        "name": "charoff"
+      },
+      {
+        "name": "height"
+      },
+      {
+        "name": "valign"
+      }
+    ]
   },
   {
     "name": "HTMLTemplateElement",
     "attributes": [
-      "content",
-      "shadowRootClonable",
-      "shadowRootCustomElementRegistry",
-      "shadowRootDelegatesFocus",
-      "shadowRootMode",
-      "shadowRootSerializable"
+      {
+        "name": "shadowrootclonable"
+      },
+      {
+        "name": "shadowrootcustomelementregistry"
+      },
+      {
+        "name": "shadowrootdelegatesfocus"
+      },
+      {
+        "name": "shadowrootmode",
+        "options": ["open", "closed"]
+      },
+      {
+        "name": "shadowrootserializable"
+      }
     ]
   },
   {
     "name": "HTMLTextAreaElement",
     "attributes": [
-      "autocomplete",
-      "cols",
-      "defaultValue",
-      "dirName",
-      "disabled",
-      "form",
-      "labels",
-      "maxLength",
-      "minLength",
-      "name",
-      "placeholder",
-      "readOnly",
-      "required",
-      "rows",
-      "selectionDirection",
-      "selectionEnd",
-      "selectionStart",
-      "textLength",
-      "type",
-      "validationMessage",
-      "validity",
-      "value",
-      "willValidate",
-      "wrap"
+      {
+        "name": "autocomplete",
+        "options": [
+          "section-",
+          "shipping",
+          "billing",
+          "home",
+          "work",
+          "mobile",
+          "fax",
+          "pager",
+          "off",
+          "on",
+          "name",
+          "honorific-prefix",
+          "given-name",
+          "additional-name",
+          "family-name",
+          "honorific-suffix",
+          "nickname",
+          "organization-title",
+          "username",
+          "new-password",
+          "current-password",
+          "one-time-code",
+          "organization",
+          "street-address",
+          "address-line1",
+          "address-line2",
+          "address-line3",
+          "address-level4",
+          "address-level3",
+          "address-level2",
+          "address-level1",
+          "country",
+          "country-name",
+          "postal-code",
+          "cc-name",
+          "cc-given-name",
+          "cc-additional-name",
+          "cc-family-name",
+          "cc-number",
+          "cc-exp",
+          "cc-exp-month",
+          "cc-exp-year",
+          "cc-csc",
+          "cc-type",
+          "transaction-currency",
+          "transaction-amount",
+          "language",
+          "bday",
+          "bday-day",
+          "bday-month",
+          "bday-year",
+          "sex",
+          "url",
+          "photo",
+          "tel",
+          "tel-country-code",
+          "tel-national",
+          "tel-area-code",
+          "tel-local",
+          "tel-local-prefix",
+          "tel-local-suffix",
+          "tel-extension",
+          "email",
+          "impp"
+        ]
+      },
+      {
+        "name": "cols"
+      },
+      {
+        "name": "dirname"
+      },
+      {
+        "name": "disabled"
+      },
+      {
+        "name": "form"
+      },
+      {
+        "name": "maxlength"
+      },
+      {
+        "name": "minlength"
+      },
+      {
+        "name": "name"
+      },
+      {
+        "name": "placeholder"
+      },
+      {
+        "name": "readonly"
+      },
+      {
+        "name": "required"
+      },
+      {
+        "name": "rows"
+      },
+      {
+        "name": "wrap",
+        "options": ["soft", "hard"]
+      }
     ],
     "events": ["invalid", "select"]
   },
   {
     "name": "HTMLTimeElement",
-    "attributes": ["dateTime"]
-  },
-  {
-    "name": "HTMLTitleElement",
-    "attributes": ["text"]
+    "attributes": [
+      {
+        "name": "datetime"
+      }
+    ]
   },
   {
     "name": "HTMLTrackElement",
     "attributes": [
-      "default",
-      "kind",
-      "label",
-      "readyState",
-      "src",
-      "srclang",
-      "track"
+      {
+        "name": "default"
+      },
+      {
+        "name": "kind",
+        "options": [
+          "subtitles",
+          "captions",
+          "descriptions",
+          "chapters",
+          "metadata"
+        ]
+      },
+      {
+        "name": "label"
+      },
+      {
+        "name": "src"
+      },
+      {
+        "name": "srclang"
+      }
     ],
     "events": ["cuechange", "error", "load"]
   },
   {
     "name": "HTMLUListElement",
-    "attributes": ["compact", "type"]
+    "attributes": [
+      {
+        "name": "compact"
+      },
+      {
+        "name": "type"
+      }
+    ]
   },
   {
     "name": "HTMLVideoElement",
     "attributes": [
-      "height",
-      "playsInline",
-      "poster",
-      "videoHeight",
-      "videoWidth",
-      "width"
+      {
+        "name": "autoplay"
+      },
+      {
+        "name": "controls"
+      },
+      {
+        "name": "crossorigin",
+        "options": ["anonymous", "use-credentials"]
+      },
+      {
+        "name": "height"
+      },
+      {
+        "name": "loop"
+      },
+      {
+        "name": "muted"
+      },
+      {
+        "name": "playsinline"
+      },
+      {
+        "name": "poster"
+      },
+      {
+        "name": "preload",
+        "options": ["auto", "none", "metadata"]
+      },
+      {
+        "name": "src"
+      },
+      {
+        "name": "width"
+      }
     ],
     "events": ["enterpictureinpicture", "leavepictureinpicture"]
   },
   {
     "name": "IDBDatabase",
-    "attributes": [],
     "events": ["close", "versionchange"]
   },
   {
     "name": "IDBOpenDBRequest",
-    "attributes": [],
     "events": ["blocked", "success", "upgradeneeded"]
   },
   {
     "name": "IDBRequest",
-    "attributes": [],
     "events": ["error", "success"]
   },
   {
     "name": "IDBTransaction",
-    "attributes": [],
     "events": ["abort", "complete"]
   },
   {
     "name": "IdleDetector",
-    "attributes": [],
     "events": ["change"]
   },
   {
-    "name": "ImageBitmap",
-    "attributes": ["height", "width"]
-  },
-  {
-    "name": "ImageBitmapRenderingContext",
-    "attributes": ["canvas"]
-  },
-  {
-    "name": "ImageData",
-    "attributes": ["colorSpace", "data", "height", "pixelFormat", "width"]
-  },
-  {
     "name": "Keyboard",
-    "attributes": [],
     "events": ["layoutchange"]
   },
   {
-    "name": "Location",
-    "attributes": [
-      "ancestorOrigins",
-      "hash",
-      "host",
-      "hostname",
-      "href",
-      "origin",
-      "pathname",
-      "port",
-      "protocol",
-      "search"
-    ]
-  },
-  {
     "name": "ManagedMediaSource",
-    "attributes": [],
     "events": ["endstreaming", "startstreaming"]
   },
   {
     "name": "ManagedSourceBuffer",
-    "attributes": [],
     "events": ["bufferedchange"]
   },
   {
     "name": "MathMLElement",
-    "attributes": [],
     "events": [
       "animationcancel",
       "animationend",
@@ -1349,41 +2687,30 @@
   },
   {
     "name": "MediaDevices",
-    "attributes": [],
     "events": ["captureaction", "devicechange"]
   },
   {
-    "name": "MediaError",
-    "attributes": ["code", "message"]
-  },
-  {
     "name": "MediaKeySession",
-    "attributes": [],
     "events": ["keystatuseschange", "message"]
   },
   {
     "name": "MediaQueryList",
-    "attributes": [],
     "events": ["change"]
   },
   {
     "name": "MediaRecorder",
-    "attributes": [],
     "events": ["dataavailable", "error", "pause", "resume", "start", "stop"]
   },
   {
     "name": "MediaSource",
-    "attributes": [],
     "events": ["sourceclose", "sourceended", "sourceopen"]
   },
   {
     "name": "MediaStream",
-    "attributes": [],
     "events": ["addtrack", "removetrack"]
   },
   {
     "name": "MediaStreamTrack",
-    "attributes": [],
     "events": [
       "capturehandlechange",
       "ended",
@@ -1393,66 +2720,23 @@
     ]
   },
   {
-    "name": "MessageChannel",
-    "attributes": ["port1", "port2"]
-  },
-  {
-    "name": "MessageEvent",
-    "attributes": ["data", "lastEventId", "origin", "ports", "source"]
-  },
-  {
     "name": "MessagePort",
-    "attributes": [],
     "events": ["close", "message", "messageerror"]
   },
   {
     "name": "MIDIAccess",
-    "attributes": [],
     "events": ["statechange"]
   },
   {
     "name": "MIDIInput",
-    "attributes": [],
     "events": ["midimessage"]
   },
   {
     "name": "MIDIPort",
-    "attributes": [],
     "events": ["statechange"]
   },
   {
-    "name": "MimeType",
-    "attributes": ["description", "enabledPlugin", "suffixes", "type"]
-  },
-  {
-    "name": "MimeTypeArray",
-    "attributes": ["length"]
-  },
-  {
-    "name": "NavigateEvent",
-    "attributes": [
-      "canIntercept",
-      "destination",
-      "downloadRequest",
-      "formData",
-      "hasUAVisualTransition",
-      "hashChange",
-      "info",
-      "navigationType",
-      "signal",
-      "sourceElement",
-      "userInitiated"
-    ]
-  },
-  {
     "name": "Navigation",
-    "attributes": [
-      "activation",
-      "canGoBack",
-      "canGoForward",
-      "currentEntry",
-      "transition"
-    ],
     "events": [
       "currententrychange",
       "navigate",
@@ -1461,101 +2745,31 @@
     ]
   },
   {
-    "name": "NavigationActivation",
-    "attributes": ["entry", "from", "navigationType"]
-  },
-  {
-    "name": "NavigationCurrentEntryChangeEvent",
-    "attributes": ["from", "navigationType"]
-  },
-  {
-    "name": "NavigationDestination",
-    "attributes": ["id", "index", "key", "sameDocument", "url"]
-  },
-  {
     "name": "NavigationHistoryEntry",
-    "attributes": ["id", "index", "key", "sameDocument", "url"],
     "events": ["dispose"]
   },
   {
-    "name": "NavigationTransition",
-    "attributes": ["committed", "finished", "from", "navigationType"]
-  },
-  {
-    "name": "Navigator",
-    "attributes": ["userActivation"]
-  },
-  {
-    "name": "NavigatorConcurrentHardware",
-    "attributes": ["navigator.hardwareConcurrency"]
-  },
-  {
-    "name": "NavigatorCookies",
-    "attributes": ["cookieEnabled"]
-  },
-  {
-    "name": "NavigatorID",
-    "attributes": [
-      "appCodeName",
-      "appName",
-      "appVersion",
-      "oscpu",
-      "platform",
-      "product",
-      "productSub",
-      "userAgent",
-      "vendor",
-      "vendorSub"
-    ]
-  },
-  {
-    "name": "NavigatorLanguage",
-    "attributes": ["language", "languages"]
-  },
-  {
     "name": "NavigatorManagedData",
-    "attributes": [],
     "events": ["managedconfigurationchange"]
   },
   {
-    "name": "NavigatorOnLine",
-    "attributes": ["onLine"]
-  },
-  {
-    "name": "NavigatorPlugins",
-    "attributes": ["mimeTypes", "pdfViewerEnabled", "plugins"]
-  },
-  {
     "name": "NDEFReader",
-    "attributes": [],
     "events": ["reading", "readingerror"]
   },
   {
     "name": "NetworkInformation",
-    "attributes": [],
     "events": ["change"]
   },
   {
     "name": "Notification",
-    "attributes": [],
     "events": ["click", "close", "error", "show"]
   },
   {
-    "name": "NotRestoredReasonDetails",
-    "attributes": ["reason"]
-  },
-  {
-    "name": "NotRestoredReasons",
-    "attributes": ["children", "id", "name", "reasons", "src", "url"]
-  },
-  {
     "name": "OfflineAudioContext",
-    "attributes": [],
     "events": ["complete"]
   },
   {
     "name": "OffscreenCanvas",
-    "attributes": ["canvas", "height", "width"],
     "events": [
       "contextlost",
       "contextrestored",
@@ -1565,20 +2779,7 @@
     ]
   },
   {
-    "name": "PageRevealEvent",
-    "attributes": ["viewTransition"]
-  },
-  {
-    "name": "PageSwapEvent",
-    "attributes": ["activation", "viewTransition"]
-  },
-  {
-    "name": "PageTransitionEvent",
-    "attributes": ["persisted"]
-  },
-  {
     "name": "PaymentRequest",
-    "attributes": [],
     "events": [
       "paymentmethodchange",
       "shippingaddresschange",
@@ -1587,82 +2788,50 @@
   },
   {
     "name": "PaymentResponse",
-    "attributes": [],
     "events": ["payerdetailchange"]
   },
   {
     "name": "Performance",
-    "attributes": [],
     "events": ["resourcetimingbufferfull"]
   },
   {
     "name": "PermissionStatus",
-    "attributes": [],
     "events": ["change"]
   },
   {
     "name": "PictureInPictureWindow",
-    "attributes": [],
     "events": ["resize"]
   },
   {
-    "name": "Plugin",
-    "attributes": ["description", "filename", "length", "name"]
-  },
-  {
-    "name": "PluginArray",
-    "attributes": ["length"]
-  },
-  {
-    "name": "PopStateEvent",
-    "attributes": ["hasUAVisualTransition", "state"]
-  },
-  {
     "name": "PortalHost",
-    "attributes": [],
     "events": ["message", "messageerror"]
   },
   {
     "name": "PreferenceObject",
-    "attributes": [],
     "events": ["change"]
   },
   {
     "name": "PresentationAvailability",
-    "attributes": [],
     "events": ["change"]
   },
   {
     "name": "PresentationConnection",
-    "attributes": [],
     "events": ["close", "connect", "message", "terminate"]
   },
   {
     "name": "PresentationConnectionList",
-    "attributes": [],
     "events": ["connectionavailable"]
   },
   {
     "name": "PresentationRequest",
-    "attributes": [],
     "events": ["connectionavailable"]
   },
   {
-    "name": "PromiseRejectionEvent",
-    "attributes": ["promise", "reason"]
-  },
-  {
-    "name": "RadioNodeList",
-    "attributes": ["value"]
-  },
-  {
     "name": "RemotePlayback",
-    "attributes": [],
     "events": ["connect", "connecting", "disconnect"]
   },
   {
     "name": "RTCDataChannel",
-    "attributes": [],
     "events": [
       "bufferedamountlow",
       "close",
@@ -1674,17 +2843,14 @@
   },
   {
     "name": "RTCDtlsTransport",
-    "attributes": [],
     "events": ["error", "statechange"]
   },
   {
     "name": "RTCDTMFSender",
-    "attributes": [],
     "events": ["tonechange"]
   },
   {
     "name": "RTCIceTransport",
-    "attributes": [],
     "events": [
       "gatheringstatechange",
       "icecandidate",
@@ -1695,7 +2861,6 @@
   },
   {
     "name": "RTCPeerConnection",
-    "attributes": [],
     "events": [
       "connectionstatechange",
       "datachannel",
@@ -1710,57 +2875,46 @@
   },
   {
     "name": "RTCRtpScriptTransformer",
-    "attributes": [],
     "events": ["keyframerequest"]
   },
   {
     "name": "RTCSctpTransport",
-    "attributes": [],
     "events": ["statechange"]
   },
   {
     "name": "Screen",
-    "attributes": [],
     "events": ["change"]
   },
   {
     "name": "ScreenDetailed",
-    "attributes": [],
     "events": ["change"]
   },
   {
     "name": "ScreenDetails",
-    "attributes": [],
     "events": ["currentscreenchange", "screenschange"]
   },
   {
     "name": "ScreenOrientation",
-    "attributes": [],
     "events": ["change"]
   },
   {
     "name": "ScriptProcessorNode",
-    "attributes": [],
     "events": ["audioprocess"]
   },
   {
     "name": "Sensor",
-    "attributes": [],
     "events": ["activate", "error", "reading"]
   },
   {
     "name": "SerialPort",
-    "attributes": [],
     "events": ["connect", "disconnect"]
   },
   {
     "name": "ServiceWorker",
-    "attributes": [],
     "events": ["error", "statechange"]
   },
   {
     "name": "ServiceWorkerContainer",
-    "attributes": [],
     "events": [
       "controllerchange",
       "message",
@@ -1771,7 +2925,6 @@
   },
   {
     "name": "ServiceWorkerGlobalScope",
-    "attributes": [],
     "events": [
       "activate",
       "backgroundfetchabort",
@@ -1796,47 +2949,38 @@
   },
   {
     "name": "ServiceWorkerRegistration",
-    "attributes": [],
     "events": ["updatefound"]
   },
   {
     "name": "SFrameDecrypterStream",
-    "attributes": [],
     "events": ["error"]
   },
   {
     "name": "SFrameEncrypterStream",
-    "attributes": [],
     "events": ["error"]
   },
   {
     "name": "SFrameTransform",
-    "attributes": [],
     "events": ["error"]
   },
   {
     "name": "SharedWorker",
-    "attributes": ["port"],
     "events": ["error", "error"]
   },
   {
     "name": "SharedWorkerGlobalScope",
-    "attributes": ["name"],
     "events": ["connect"]
   },
   {
     "name": "SourceBuffer",
-    "attributes": [],
     "events": ["abort", "error", "update", "updateend", "updatestart"]
   },
   {
     "name": "SourceBufferList",
-    "attributes": [],
     "events": ["addsourcebuffer", "removesourcebuffer"]
   },
   {
     "name": "SpeechRecognition",
-    "attributes": [],
     "events": [
       "audioend",
       "audiostart",
@@ -1853,34 +2997,18 @@
   },
   {
     "name": "SpeechSynthesis",
-    "attributes": [],
     "events": ["voiceschanged"]
   },
   {
     "name": "SpeechSynthesisUtterance",
-    "attributes": [],
     "events": ["boundary", "end", "error", "mark", "pause", "resume", "start"]
   },
   {
-    "name": "Storage",
-    "attributes": ["length"]
-  },
-  {
-    "name": "StorageEvent",
-    "attributes": ["key", "newValue", "oldValue", "storageArea", "url"]
-  },
-  {
-    "name": "SubmitEvent",
-    "attributes": ["submitter"]
-  },
-  {
     "name": "SVGAnimationElement",
-    "attributes": [],
     "events": ["begin", "end", "repeat"]
   },
   {
     "name": "SVGElement",
-    "attributes": [],
     "events": [
       "animationcancel",
       "animationend",
@@ -1920,169 +3048,58 @@
   },
   {
     "name": "TaskSignal",
-    "attributes": [],
     "events": ["prioritychange"]
   },
   {
     "name": "Text",
-    "attributes": [],
     "events": ["drag", "dragend", "dragstart", "pointercancel"]
   },
   {
-    "name": "TextMetrics",
-    "attributes": [
-      "actualBoundingBoxAscent",
-      "actualBoundingBoxDescent",
-      "actualBoundingBoxLeft",
-      "actualBoundingBoxRight",
-      "alphabeticBaseline",
-      "emHeightAscent",
-      "emHeightDescent",
-      "fontBoundingBoxAscent",
-      "fontBoundingBoxDescent",
-      "hangingBaseline",
-      "ideographicBaseline",
-      "width"
-    ]
-  },
-  {
     "name": "TextTrack",
-    "attributes": [
-      "activeCues",
-      "cues",
-      "id",
-      "inBandMetadataTrackDispatchType",
-      "kind",
-      "label",
-      "language",
-      "mode"
-    ],
     "events": ["cuechange"]
   },
   {
     "name": "TextTrackCue",
-    "attributes": ["endTime", "id", "pauseOnExit", "startTime", "track"],
     "events": ["enter", "exit"]
   },
   {
-    "name": "TextTrackCueList",
-    "attributes": ["length"]
-  },
-  {
     "name": "TextTrackList",
-    "attributes": ["length"],
     "events": ["addtrack", "change", "removetrack"]
   },
   {
-    "name": "TimeRanges",
-    "attributes": ["length"]
-  },
-  {
-    "name": "ToggleEvent",
-    "attributes": ["newState", "oldState", "source"]
-  },
-  {
-    "name": "TrackEvent",
-    "attributes": ["track"]
-  },
-  {
     "name": "USB",
-    "attributes": [],
     "events": ["connect", "disconnect"]
   },
   {
-    "name": "UserActivation",
-    "attributes": ["hasBeenActive", "isActive"]
-  },
-  {
-    "name": "ValidityState",
-    "attributes": [
-      "badInput",
-      "customError",
-      "patternMismatch",
-      "rangeOverflow",
-      "rangeUnderflow",
-      "stepMismatch",
-      "tooLong",
-      "tooShort",
-      "typeMismatch",
-      "valid",
-      "valueMissing"
-    ]
-  },
-  {
     "name": "VideoDecoder",
-    "attributes": [],
     "events": ["dequeue"]
   },
   {
     "name": "VideoEncoder",
-    "attributes": [],
     "events": ["dequeue"]
   },
   {
-    "name": "VideoTrack",
-    "attributes": ["id", "kind", "label", "language", "selected"]
-  },
-  {
     "name": "VideoTrackList",
-    "attributes": ["length", "selectedIndex"],
     "events": ["addtrack", "change", "removetrack"]
   },
   {
     "name": "VirtualKeyboard",
-    "attributes": [],
     "events": ["geometrychange"]
   },
   {
-    "name": "VisibilityStateEntry",
-    "attributes": ["duration", "entryType", "name", "startTime"]
-  },
-  {
     "name": "VisualViewport",
-    "attributes": [],
     "events": ["resize", "scroll", "scrollend"]
   },
   {
     "name": "WakeLockSentinel",
-    "attributes": [],
     "events": ["release"]
   },
   {
     "name": "WebSocket",
-    "attributes": [],
     "events": ["close", "error", "message", "open"]
   },
   {
     "name": "Window",
-    "attributes": [
-      "clientInformation",
-      "closed",
-      "customElements",
-      "document",
-      "external",
-      "frameElement",
-      "frames",
-      "history",
-      "length",
-      "location",
-      "locationbar",
-      "menubar",
-      "name",
-      "navigation",
-      "navigator",
-      "opener",
-      "originAgentCluster",
-      "parent",
-      "personalbar",
-      "scrollbars",
-      "self",
-      "status",
-      "statusbar",
-      "toolbar",
-      "top",
-      "window"
-    ],
     "events": [
       "abort",
       "afterprint",
@@ -2130,29 +3147,14 @@
   },
   {
     "name": "WindowControlsOverlay",
-    "attributes": [],
     "events": ["geometrychange"]
   },
   {
-    "name": "WindowLocalStorage",
-    "attributes": ["localStorage"]
-  },
-  {
-    "name": "WindowOrWorkerGlobalScope",
-    "attributes": ["crossOriginIsolated", "isSecureContext", "origin"]
-  },
-  {
-    "name": "WindowSessionStorage",
-    "attributes": ["sessionStorage"]
-  },
-  {
     "name": "Worker",
-    "attributes": [],
     "events": ["error", "error", "message", "messageerror"]
   },
   {
     "name": "WorkerGlobalScope",
-    "attributes": ["location", "navigator", "self"],
     "events": [
       "error",
       "languagechange",
@@ -2164,22 +3166,7 @@
     ]
   },
   {
-    "name": "WorkerLocation",
-    "attributes": [
-      "hash",
-      "host",
-      "hostname",
-      "href",
-      "origin",
-      "pathname",
-      "port",
-      "protocol",
-      "search"
-    ]
-  },
-  {
     "name": "XMLHttpRequest",
-    "attributes": [],
     "events": [
       "abort",
       "error",
@@ -2193,7 +3180,6 @@
   },
   {
     "name": "XMLHttpRequestUpload",
-    "attributes": [],
     "events": [
       "abort",
       "error",
@@ -2206,37 +3192,30 @@
   },
   {
     "name": "XRCubeLayer",
-    "attributes": [],
     "events": ["redraw"]
   },
   {
     "name": "XRCylinderLayer",
-    "attributes": [],
     "events": ["redraw"]
   },
   {
     "name": "XREquirectLayer",
-    "attributes": [],
     "events": ["redraw"]
   },
   {
     "name": "XRLightProbe",
-    "attributes": [],
     "events": ["reflectionchange"]
   },
   {
     "name": "XRQuadLayer",
-    "attributes": [],
     "events": ["redraw"]
   },
   {
     "name": "XRReferenceSpace",
-    "attributes": [],
     "events": ["reset"]
   },
   {
     "name": "XRSession",
-    "attributes": [],
     "events": [
       "end",
       "frameratechange",
@@ -2254,7 +3233,6 @@
   },
   {
     "name": "XRSystem",
-    "attributes": [],
     "events": ["devicechange"]
   }
 ]
