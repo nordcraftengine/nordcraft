@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsc && bun scripts/build.js",
     "npm-publish": "bun run build && bun publish --access public",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc",
     "watch": "tsc -w"
   },
   "files": [

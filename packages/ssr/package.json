@@ -9,7 +9,7 @@
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:watch:only": "bun test --watch --only",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc",
     "watch": "tsc -w"
   },
   "files": [

@@ -69,15 +69,21 @@ export function createElement({
       if (formula) {
         const classSignal = dataSignal.map((data) =>
           toBoolean(
-            applyFormula(formula, {
-              data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+            applyFormula(
+              formula,
+              {
+                data,
+                component: ctx.component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+                jsonPath: ctx.jsonPath,
+                reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+              },
+              ['classes', className],
+            ),
           ),
         )
         classSignal.subscribe((show) =>
@@ -101,15 +107,21 @@ export function createElement({
         setAttribute(elem, attr, value?.value)
       } else {
         o = dataSignal.map((data) =>
-          applyFormula(value, {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          }),
+          applyFormula(
+            value,
+            {
+              data,
+              component: ctx.component,
+              formulaCache: ctx.formulaCache,
+              root: ctx.root,
+              package: ctx.package,
+              toddle: ctx.toddle,
+              env: ctx.env,
+              jsonPath: ctx.jsonPath,
+              reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+            },
+            ['attrs', attr],
+          ),
         )
         o.subscribe((val) => {
           setAttribute(elem, attr, val)
@@ -133,18 +145,24 @@ export function createElement({
       setupAttribute()
     }
   })
-  node['style-variables']?.forEach((styleVariable) => {
+  node['style-variables']?.forEach((styleVariable, i) => {
     const { name, formula, unit } = styleVariable
     const signal = dataSignal.map((data) => {
-      const value = applyFormula(formula, {
-        data,
-        component: ctx.component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
-      })
+      const value = applyFormula(
+        formula,
+        {
+          data,
+          component: ctx.component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+          jsonPath: ctx.jsonPath,
+          reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+        },
+        ['style-variables', i, 'formula'],
+      )
       return unit ? value + unit : value
     })
 
@@ -163,15 +181,21 @@ export function createElement({
             : getNodeSelector(path),
         signal: dataSignal.map((data) =>
           appendUnit(
-            applyFormula(formula, {
-              data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+            applyFormula(
+              formula,
+              {
+                data,
+                component: ctx.component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+                jsonPath: ctx.jsonPath,
+                reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+              },
+              ['customProperties', customPropertyName, 'formula'],
+            ),
             unit,
           ),
         ),
@@ -180,7 +204,7 @@ export function createElement({
       }),
   )
 
-  node.variants?.forEach((variant) => {
+  node.variants?.forEach((variant, variantIndex) => {
     Object.entries(variant.customProperties ?? {}).forEach(
       ([customPropertyName, { formula, unit }]) => {
         subscribeCustomProperty({
@@ -191,15 +215,27 @@ export function createElement({
           variant,
           signal: dataSignal.map((data) =>
             appendUnit(
-              applyFormula(formula, {
-                data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-              }),
+              applyFormula(
+                formula,
+                {
+                  data,
+                  component: ctx.component,
+                  formulaCache: ctx.formulaCache,
+                  root: ctx.root,
+                  package: ctx.package,
+                  toddle: ctx.toddle,
+                  env: ctx.env,
+                  jsonPath: ctx.jsonPath,
+                  reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+                },
+                [
+                  'variants',
+                  variantIndex,
+                  'customProperties',
+                  customPropertyName,
+                  'formula',
+                ],
+              ),
               unit,
             ),
           ),
@@ -267,6 +303,9 @@ export function createElement({
                 package: ctx.package,
                 toddle: ctx.toddle,
                 env: ctx.env,
+                jsonPath: ctx.jsonPath,
+                // TODO: unsure what path we should report here
+                // reportFormulaEvaluation: ctx.reportFormulaEvaluation,
               }),
             )
           })
@@ -296,7 +335,7 @@ export function createElement({
         id: child,
         path: path + '.' + i,
         dataSignal,
-        ctx,
+        ctx: { ...ctx, jsonPath: ['nodes', child] },
         namespace,
         instance,
       })

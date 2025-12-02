@@ -1,7 +1,7 @@
 import type { Rule } from '../../../types'
 
 export const unknownAttributeRule: Rule<{
-  name: string
+  name: string | number
 }> = {
   code: 'unknown attribute',
   level: 'error',
