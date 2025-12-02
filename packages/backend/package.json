@@ -36,7 +36,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "4.20251202.0",
     "@nordcraft/runtime": "workspace:*",
-    "@types/node": "24.3.1",
+    "@types/node": "24.10.1",
     "wrangler": "4.51.0"
   }
 }
