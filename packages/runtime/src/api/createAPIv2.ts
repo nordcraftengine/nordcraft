@@ -900,8 +900,8 @@ export function createAPI({
         body: data.body,
         ok: Boolean(
           !apiStatus.error &&
-            apiStatus.response?.status &&
-            apiStatus.response.status < 400,
+          apiStatus.response?.status &&
+          apiStatus.response.status < 400,
         ),
         status: data.status,
         headers: data.headers,
