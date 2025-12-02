@@ -85,13 +85,11 @@ interface BaseInteractiveContent {
   tag: string
 }
 
-interface InteractiveContentWithAttributeRequirement
-  extends BaseInteractiveContent {
+interface InteractiveContentWithAttributeRequirement extends BaseInteractiveContent {
   whenAttributeIsPresent: string
 }
 
-interface InteractiveContentWithNegativeAttributeRequirement
-  extends BaseInteractiveContent {
+interface InteractiveContentWithNegativeAttributeRequirement extends BaseInteractiveContent {
   whenAttributeIsNot: { attribute: string; value: string }
 }
 
