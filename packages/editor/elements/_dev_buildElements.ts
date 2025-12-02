@@ -6,7 +6,7 @@ import type { ValueOperation } from '@nordcraft/core/dist/formula/formula'
 import { writeFileSync } from 'fs'
 import { api } from 'mdn-data'
 import type { ExportedHtmlElement, ExportedHtmlElementCategory } from '../types'
-import { getSvgElementInterface } from './utils'
+import { getHtmlElementInterface, getSvgElementInterface } from './utils'
 
 // Generates metadata and default structure for all HTML and SVG elements
 // The interface names for each element are fetched from the @webref/elements package
@@ -64,7 +64,7 @@ const init = () => {
       permittedChildren,
       permittedParents,
     } = settings
-    const elementInterface = getSvgElementInterface(element)
+    const elementInterface = getHtmlElementInterface(element)
     if (typeof elementInterface !== 'string') {
       throw new Error('No interface found for element: ' + element)
     }
@@ -114,6 +114,10 @@ const init = () => {
 
   Object.entries(svgElements).forEach(([element, settings]) => {
     const { aliases, attrs, nodes, categories } = settings
+    const elementInterface = getSvgElementInterface(element)
+    if (typeof elementInterface !== 'string') {
+      throw new Error('No interface found for element: ' + element)
+    }
     const output: ExportedHtmlElement = {
       metadata: {
         name: element,
@@ -125,7 +129,7 @@ const init = () => {
         link: `https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/${element}`,
         aliases: aliases,
         isPopular: popularSvgElements.includes(element) ? true : undefined,
-        interfaces: undefined,
+        interfaces: inheritedInterfaces(elementInterface),
       },
       element: {
         type: 'nodes',

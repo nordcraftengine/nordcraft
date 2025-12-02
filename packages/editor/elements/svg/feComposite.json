@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Combines images using arithmetic or compositing operations",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feComposite",
-    "aliases": ["composite-filter", "svg-composite"]
+    "aliases": ["composite-filter", "svg-composite"],
+    "interfaces": [
+      "SVGFECompositeElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

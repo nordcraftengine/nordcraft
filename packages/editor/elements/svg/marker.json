@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Defines shapes to be drawn at the start, middle, or end of lines or paths",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/marker",
-    "aliases": ["svg-marker", "arrowhead"]
+    "aliases": ["svg-marker", "arrowhead"],
+    "interfaces": [
+      "SVGMarkerElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

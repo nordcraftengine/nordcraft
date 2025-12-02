@@ -4,7 +4,15 @@
     "categories": ["svg"],
     "description": "Animates an element along a motion path",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animateMotion",
-    "aliases": ["motion-animation", "svg-motion"]
+    "aliases": ["motion-animation", "svg-motion"],
+    "interfaces": [
+      "SVGAnimateMotionElement",
+      "SVGAnimationElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

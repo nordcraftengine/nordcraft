@@ -5,7 +5,16 @@
     "description": "Draws a straight line between two points",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/line",
     "aliases": ["svg-line", "segment"],
-    "isPopular": true
+    "isPopular": true,
+    "interfaces": [
+      "SVGLineElement",
+      "SVGGeometryElement",
+      "SVGGraphicsElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

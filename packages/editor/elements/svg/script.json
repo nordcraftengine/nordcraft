@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Embeds or references scripting code, such as JavaScript",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/script",
-    "aliases": ["svg-script", "js"]
+    "aliases": ["svg-script", "js"],
+    "interfaces": [
+      "SVGScriptElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

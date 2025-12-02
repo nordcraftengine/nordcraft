@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Provides a description of the SVG content for accessibility",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/desc",
-    "aliases": ["description", "svg-desc"]
+    "aliases": ["description", "svg-desc"],
+    "interfaces": [
+      "SVGDescElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

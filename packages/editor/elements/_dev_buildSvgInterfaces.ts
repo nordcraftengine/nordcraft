@@ -34,6 +34,8 @@ const EXCLUDED_ATTRIBUTE_NAMES = new Set(['innerHTML', 'outerHTML'])
 
 const SVG_DEFINITIONS_URL =
   'https://raw.githubusercontent.com/w3c/webref/refs/heads/main/ed/dfns/SVG2.json'
+const FILTER_EFFECT_DEFINITIONS_URL =
+  'https://raw.githubusercontent.com/w3c/webref/refs/heads/main/ed/dfns/filter-effects-1.json'
 
 const mapInterfaceName = (name?: string) => {
   const interfaceMapping: Partial<Record<string, string>> = {
@@ -47,6 +49,13 @@ const definitions: {
   spec: { title: string; url: string }
   dfns: SvgDefinition[]
 } = await fetch(SVG_DEFINITIONS_URL).then((res) => res.json())
+// Fetch filter-effects definitions from the webref repository
+const filterEffectDefinitions: {
+  spec: { title: string; url: string }
+  dfns: SvgDefinition[]
+} = await fetch(FILTER_EFFECT_DEFINITIONS_URL).then((res) => res.json())
+// Append all filter-effects definitions
+definitions.dfns.push(...filterEffectDefinitions.dfns)
 
 // Group attributes by their interfaces
 const groupedAttributes = definitions.dfns

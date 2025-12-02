@@ -4,7 +4,15 @@
     "categories": ["svg"],
     "description": "Defines a radial color gradient for filling shapes",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/radialGradient",
-    "aliases": ["radial-gradient", "svg-gradient", "gradient"]
+    "aliases": ["radial-gradient", "svg-gradient", "gradient"],
+    "interfaces": [
+      "SVGRadialGradientElement",
+      "SVGGradientElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

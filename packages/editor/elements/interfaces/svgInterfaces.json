@@ -135,6 +135,326 @@
     ]
   },
   {
+    "name": "SVGFEBlendElement",
+    "attributes": [
+      {
+        "name": "in2"
+      },
+      {
+        "name": "mode"
+      },
+      {
+        "name": "no-composite"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEColorMatrixElement",
+    "attributes": [
+      {
+        "name": "type"
+      },
+      {
+        "name": "values"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEComponentTransferElement",
+    "attributes": [
+      {
+        "name": "amplitude"
+      },
+      {
+        "name": "exponent"
+      },
+      {
+        "name": "intercept"
+      },
+      {
+        "name": "offset"
+      },
+      {
+        "name": "slope"
+      },
+      {
+        "name": "tableValues"
+      },
+      {
+        "name": "type"
+      }
+    ]
+  },
+  {
+    "name": "SVGFECompositeElement",
+    "attributes": [
+      {
+        "name": "in2"
+      },
+      {
+        "name": "k1"
+      },
+      {
+        "name": "k2"
+      },
+      {
+        "name": "k3"
+      },
+      {
+        "name": "k4"
+      },
+      {
+        "name": "operator",
+        "options": ["over", "in", "out", "atop", "xor", "lighter", "arithmetic"]
+      }
+    ]
+  },
+  {
+    "name": "SVGFEConvolveMatrixElement",
+    "attributes": [
+      {
+        "name": "bias"
+      },
+      {
+        "name": "divisor"
+      },
+      {
+        "name": "edgeMode"
+      },
+      {
+        "name": "kernelMatrix"
+      },
+      {
+        "name": "kernelUnitLength"
+      },
+      {
+        "name": "order"
+      },
+      {
+        "name": "preserveAlpha"
+      },
+      {
+        "name": "targetX"
+      },
+      {
+        "name": "targetY"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEDiffuseLightingElement",
+    "attributes": [
+      {
+        "name": "diffuseConstant"
+      },
+      {
+        "name": "kernelUnitLength"
+      },
+      {
+        "name": "surfaceScale"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEDisplacementMapElement",
+    "attributes": [
+      {
+        "name": "in2"
+      },
+      {
+        "name": "scale"
+      },
+      {
+        "name": "xChannelSelector"
+      },
+      {
+        "name": "yChannelSelector"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEDistantLightElement",
+    "attributes": [
+      {
+        "name": "azimuth"
+      },
+      {
+        "name": "elevation"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEDropShadowElement",
+    "attributes": [
+      {
+        "name": "dx"
+      },
+      {
+        "name": "dy"
+      },
+      {
+        "name": "stdDeviation"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEGaussianBlurElement",
+    "attributes": [
+      {
+        "name": "edgeMode",
+        "options": ["duplicate", "wrap"]
+      },
+      {
+        "name": "stdDeviation"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEImageElement",
+    "attributes": [
+      {
+        "name": "crossorigin"
+      },
+      {
+        "name": "href"
+      },
+      {
+        "name": "preserveAspectRatio"
+      },
+      {
+        "name": "xlink:href"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEMorphologyElement",
+    "attributes": [
+      {
+        "name": "operator"
+      },
+      {
+        "name": "radius"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEOffsetElement",
+    "attributes": [
+      {
+        "name": "dx"
+      },
+      {
+        "name": "dy"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEPointLightElement",
+    "attributes": [
+      {
+        "name": "x"
+      },
+      {
+        "name": "y"
+      },
+      {
+        "name": "z"
+      }
+    ]
+  },
+  {
+    "name": "SVGFESpecularLightingElement",
+    "attributes": [
+      {
+        "name": "kernelUnitLength"
+      },
+      {
+        "name": "specularConstant"
+      },
+      {
+        "name": "specularExponent"
+      },
+      {
+        "name": "surfaceScale"
+      }
+    ]
+  },
+  {
+    "name": "SVGFESpotLightElement",
+    "attributes": [
+      {
+        "name": "limitingConeAngle"
+      },
+      {
+        "name": "pointsAtX"
+      },
+      {
+        "name": "pointsAtY"
+      },
+      {
+        "name": "pointsAtZ"
+      },
+      {
+        "name": "specularExponent"
+      },
+      {
+        "name": "x"
+      },
+      {
+        "name": "y"
+      },
+      {
+        "name": "z"
+      }
+    ]
+  },
+  {
+    "name": "SVGFETurbulenceElement",
+    "attributes": [
+      {
+        "name": "baseFrequency"
+      },
+      {
+        "name": "numOctaves"
+      },
+      {
+        "name": "seed"
+      },
+      {
+        "name": "stitchTiles"
+      },
+      {
+        "name": "type"
+      }
+    ]
+  },
+  {
+    "name": "SVGFilterElement",
+    "attributes": [
+      {
+        "name": "filterRes"
+      },
+      {
+        "name": "filterUnits"
+      },
+      {
+        "name": "height"
+      },
+      {
+        "name": "primitiveUnits"
+      },
+      {
+        "name": "width"
+      },
+      {
+        "name": "x"
+      },
+      {
+        "name": "y"
+      }
+    ]
+  },
+  {
     "name": "SVGForeignObjectElement",
     "attributes": [
       {
