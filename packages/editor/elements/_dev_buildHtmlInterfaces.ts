@@ -1,6 +1,6 @@
 import { listAll as listAllEvents } from '@webref/events'
 import { writeFileSync } from 'fs'
-import { getElementInterface, isHtmlInterface } from './utils'
+import { getHtmlElementInterface, isHtmlInterface } from './utils'
 
 // Fetches HTML attributes from the webref repository and generates a JSON file
 // mapping HTML interfaces to their attributes.
@@ -177,7 +177,7 @@ const groupedAttributes = definitions.dfns
           // All attributes should be included directly from elements
           return acc
         }
-        const interfaceName = getElementInterface(mappedInterfaceName)
+        const interfaceName = getHtmlElementInterface(mappedInterfaceName)
         if (typeof interfaceName === 'string') {
           acc[interfaceName] ??= {}
           // The 'href' attribute is currently missing in the webref data for the HTMLAnchorElement interface
@@ -218,7 +218,7 @@ definitions.dfns
           console.warn(`No mapping for element part: ${elementPart}`)
           return
         }
-        const interfaceName = getElementInterface(mappedElement)
+        const interfaceName = getHtmlElementInterface(mappedElement)
         if (!interfaceName) {
           // eslint-disable-next-line no-console
           console.warn(`No interface for element: ${mappedElement}`)

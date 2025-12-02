@@ -6,7 +6,7 @@ import type { ValueOperation } from '@nordcraft/core/dist/formula/formula'
 import { writeFileSync } from 'fs'
 import { api } from 'mdn-data'
 import type { ExportedHtmlElement, ExportedHtmlElementCategory } from '../types'
-import { getElementInterface } from './utils'
+import { getHtmlElementInterface } from './utils'
 
 // Generates metadata and default structure for all HTML and SVG elements
 // The interface names for each element are fetched from the @webref/elements package
@@ -64,7 +64,7 @@ const init = () => {
       permittedChildren,
       permittedParents,
     } = settings
-    const elementInterface = getElementInterface(element)
+    const elementInterface = getHtmlElementInterface(element)
     if (typeof elementInterface !== 'string') {
       throw new Error('No interface found for element: ' + element)
     }
