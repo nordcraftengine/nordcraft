@@ -46,6 +46,7 @@ export class Signal<T> {
     })
     this.subscribers.clear()
     this.subscriptions?.forEach((f) => f())
+    this.subscriptions.splice(0, this.subscriptions.length)
   }
   cleanSubscribers() {
     this.subscribers.forEach(({ destroy }) => {
