@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/libAction.schema.json",
+  "name": "Set theme",
+  "description": "Sets the application theme. Call with null to reset.",
+  "group": "themes",
+  "arguments": [
+    {
+      "name": "Name",
+      "description": "The name of the theme.",
+      "type": { "type": "String" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      }
+    }
+  ],
+  "events": {
+    "Error": {
+      "description": "An error occurred while setting the theme.",
+      "actions": []
+    }
+  }
+}
