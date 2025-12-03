@@ -212,22 +212,20 @@ export function createElement({
     )
   })
 
+  const eventHandlers: [string, (e: Event) => boolean][] = []
   Object.values(node.events).forEach((event) => {
-    if (event) {
-      const handler = getEventHandler({
-        event,
-        dataSignal,
-        ctx,
-      })
-      elem.addEventListener(event.trigger, handler)
-
-      // Clean up event listener to prevent memory leaks
-      dataSignal.subscribe(() => {}, {
-        destroy: () => {
-          elem.removeEventListener(event.trigger, handler)
-        },
-      })
+    if (!event) {
+      return
     }
+
+    eventHandlers.push([
+      event.trigger,
+      getEventHandler({ event, dataSignal, ctx }),
+    ])
+  })
+
+  eventHandlers.forEach(([eventName, handler]) => {
+    elem.addEventListener(eventName, handler)
   })
 
   // for script, style & SVG<text> tags we only render text child.
@@ -274,18 +272,39 @@ export function createElement({
             .join('')
         })
       })
+
+    dataSignal.subscribe(() => {}, {
+      destroy: () => {
+        eventHandlers.forEach(([eventName, handler]) => {
+          elem.removeEventListener(eventName, handler)
+        })
+        elem.remove()
+      },
+    })
   } else {
+    const childNodes: (Element | Text)[] = []
     node.children.forEach((child, i) => {
-      const childNodes = createNode({
-        parentElement: elem,
-        id: child,
-        path: path + '.' + i,
-        dataSignal,
-        ctx,
-        namespace,
-        instance,
-      })
-      childNodes.forEach((childNode) => elem.appendChild(childNode))
+      childNodes.push(
+        ...createNode({
+          parentElement: elem,
+          id: child,
+          path: path + '.' + i,
+          dataSignal,
+          ctx,
+          namespace,
+          instance,
+        }),
+      )
+    })
+    elem.append(...childNodes)
+    dataSignal.subscribe(() => {}, {
+      destroy: () => {
+        eventHandlers.forEach(([eventName, handler]) => {
+          elem.removeEventListener(eventName, handler)
+        })
+        childNodes.forEach((childNode) => childNode.remove())
+        elem.remove()
+      },
     })
   }
 
