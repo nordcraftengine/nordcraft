@@ -957,6 +957,7 @@ export function createAPI({
     | Signal<{
         request: ReturnType<typeof constructRequest>
         api: ReturnType<typeof getApiForComparison>
+        headers: Array<[string, string]>
         // if the evaluated value of autoFetch changes from false -> true, we need to refetch the api
         autoFetch: boolean
         // currently, the proxy setting is always controlled by a "value formula", but in case we later
@@ -966,19 +967,22 @@ export function createAPI({
     | undefined
 
   // eslint-disable-next-line prefer-const
-  payloadSignal = ctx.dataSignal.map((_) => {
-    const payloadContext = getFormulaContext(api, initialComponentData)
+  payloadSignal = ctx.dataSignal.map((data) => {
+    const payloadContext = getFormulaContext(api, data)
+    const request = constructRequest(api, data)
     return {
-      request: constructRequest(api, initialComponentData),
+      request,
       api: getApiForComparison(api),
+      // Serialize the Headers object to be able to compare changes
+      headers: Array.from(request.requestSettings.headers.entries()),
       autoFetch: api.autoFetch
         ? applyFormula(api.autoFetch, payloadContext)
         : false,
       proxy: applyFormula(api.server?.proxy?.enabled.formula, payloadContext),
     }
   })
-  payloadSignal.subscribe(async (_) => {
-    const { url, requestSettings } = constructRequest(api, initialComponentData)
+  payloadSignal.subscribe(async (apiData) => {
+    const { url, requestSettings } = apiData.request
     // Ensure we only use caching if the page is currently loading
     const cacheMatch =
       // We lookup the API from cache as long as autofetch is defined (and not statically falsy)
@@ -1138,14 +1142,17 @@ export function createAPI({
       const autoFetch =
         api.autoFetch && applyFormula(api.autoFetch, updateContext)
       if (autoFetch) {
+        const request = constructRequest(newApi, componentData)
         payloadSignal?.set({
-          request: constructRequest(newApi, componentData),
+          request,
           api: getApiForComparison(newApi),
           autoFetch,
           proxy: applyFormula(
             newApi.server?.proxy?.enabled.formula,
             updateContext,
           ),
+          // Serialize the Headers object to be able to compare changes
+          headers: Array.from(request.requestSettings.headers.entries()),
         })
       }
     },
