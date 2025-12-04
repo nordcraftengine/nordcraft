@@ -107,7 +107,7 @@ describe('noReferenceGlobalCSSVariableRule', () => {
     )
 
     expect(problems).toHaveLength(1)
-    expect(problems[0].level).toBe('warning')
+    expect(problems[0].level).toBe('info')
     expect(problems[0].code).toBe('no-reference global css variable')
     expect(problems[0].path).toEqual([
       'themes',
