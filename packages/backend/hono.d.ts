@@ -1,4 +1,3 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
 import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
 import type { DurableObject } from 'cloudflare:workers'
 import type { Routes } from './src/middleware/routesLoader'
@@ -24,12 +23,6 @@ export interface HonoProject {
 export interface HonoRoutes {
   // Holds routes for the project
   routes: Routes
-}
-
-export interface HonoComponent {
-  // Holds all relevant files for a given component
-  files: ProjectFiles & { customCode: boolean }
-  component: Component
 }
 
 interface BranchStateObject extends DurableObject {

@@ -13,7 +13,8 @@ import {
   renderHeadItems,
 } from '@nordcraft/ssr/dist/rendering/head'
 import { getCharset, getHtmlLanguage } from '@nordcraft/ssr/dist/rendering/html'
-import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
+import type { ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
 import { removeTestData } from '@nordcraft/ssr/src/rendering/testData'
 import {
   REDIRECT_API_NAME_HEADER,
@@ -37,7 +38,7 @@ export const nordcraftPage = async ({
 }: {
   hono: Context<HonoEnv<any>>
   project: ToddleProject
-  files: ProjectFiles & { customCode: boolean }
+  files: ProjectFilesWithCustomCode
   page: PageComponent
   status: ContentfulStatusCode
   options: PageLoaderUrls

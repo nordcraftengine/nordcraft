@@ -184,6 +184,10 @@ export interface Component {
   onAttributeChange?: EventModel | null
   // exported indicates that a component is exported in a package
   exported?: boolean | null
+  customElement?: {
+    // Later, we will add information about allowed origins here
+    enabled?: Formula
+  }
 }
 
 export interface ComponentFormula extends NordcraftMetadata {

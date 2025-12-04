@@ -62,7 +62,10 @@ export const getApp = <T extends Record<string, any>>(options: {
   // Load project info and all routes for endpoints below to use
   app.use(...options.fileLoaders)
 
-  app.get('/.toddle/custom-element/:filename{.+.js}', customElement)
+  app.get(
+    '/.toddle/custom-element/:filename{.+.js}',
+    customElement(options.pageLoader.loader),
+  )
 
   if (options.stylesheetRouter) {
     app.get(options.stylesheetRouter.path, options.stylesheetRouter.handler)

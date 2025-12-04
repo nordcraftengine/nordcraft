@@ -1,6 +1,7 @@
 // Copies and modifies relevant assets and JSON files to the dist/ folder
 // This script is executed by the build process
 import { RESET_STYLES } from '@nordcraft/core/dist/styling/theme.const'
+import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
 import { splitRoutes } from '@nordcraft/ssr/dist/utils/routes'
 import fs from 'fs'
 import path from 'path'
@@ -40,8 +41,15 @@ fs.writeFileSync(resolvePath('../dist/assets/_static/reset.css'), RESET_STYLES)
 
 // Read the project.json file and split it into routes and files
 const projectFile = fs.readFileSync(resolvePath('../__project__/project.json'))
-const json = JSON.parse(projectFile.toString())
-const { project, routes, files, styles, code } = splitRoutes(json)
+const json = JSON.parse(projectFile.toString()) as {
+  files: ProjectFiles
+  project: ToddleProject
+}
+const { project, routes, files, styles, code } = splitRoutes({
+  branchName: 'main',
+  files: json.files,
+  project: json.project,
+})
 // Create a stylesheet for each component
 Object.entries(styles).forEach(([name, style]) => {
   const styleDestination = resolvePath('../dist/assets/_static', `${name}.css`)
