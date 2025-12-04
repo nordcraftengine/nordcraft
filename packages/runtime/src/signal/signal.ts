@@ -7,6 +7,7 @@ export class Signal<T> {
     destroy?: () => void
   }>
   subscriptions: Array<() => void>
+  destroying = false
 
   constructor(value: T) {
     this.value = value
@@ -25,7 +26,9 @@ export class Signal<T> {
 
     if (fastDeepEqual(value, this.value) === false) {
       this.value = value
-      this.subscribers.forEach(({ notify }) => notify(this.value))
+      for (const subscriber of this.subscribers) {
+        subscriber.notify(this.value)
+      }
     }
   }
 
@@ -41,17 +44,26 @@ export class Signal<T> {
     }
   }
   destroy() {
-    this.subscribers.forEach(({ destroy }) => {
-      destroy?.()
-    })
+    // Prevent re-entrancy
+    if (this.destroying) {
+      return
+    }
+
+    this.destroying = true
+    for (const subscriber of this.subscribers) {
+      subscriber.destroy?.()
+    }
     this.subscribers.clear()
-    this.subscriptions?.forEach((f) => f())
+    for (const subscription of this.subscriptions) {
+      subscription()
+    }
     this.subscriptions.splice(0, this.subscriptions.length)
+    this.destroying = false
   }
   cleanSubscribers() {
-    this.subscribers.forEach(({ destroy }) => {
-      destroy?.()
-    })
+    for (const subscriber of this.subscribers) {
+      subscriber.destroy?.()
+    }
     this.subscribers.clear()
   }
   map<T2>(f: (value: T) => T2): Signal<T2> {

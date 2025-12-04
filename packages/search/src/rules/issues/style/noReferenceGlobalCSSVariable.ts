@@ -6,7 +6,7 @@ export const noReferenceGlobalCSSVariableRule: Rule<{
   name: string
 }> = {
   code: 'no-reference global css variable',
-  level: 'warning',
+  level: 'info',
   category: 'No References',
   visit: (report, { path, value, nodeType, files, memo }) => {
     if (nodeType !== 'project-theme-property') {

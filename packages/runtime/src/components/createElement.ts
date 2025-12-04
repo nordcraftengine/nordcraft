@@ -272,15 +272,6 @@ export function createElement({
             .join('')
         })
       })
-
-    dataSignal.subscribe(() => {}, {
-      destroy: () => {
-        eventHandlers.forEach(([eventName, handler]) => {
-          elem.removeEventListener(eventName, handler)
-        })
-        elem.remove()
-      },
-    })
   } else {
     const childNodes: (Element | Text)[] = []
     node.children.forEach((child, i) => {
@@ -297,16 +288,13 @@ export function createElement({
       )
     })
     elem.append(...childNodes)
-    dataSignal.subscribe(() => {}, {
-      destroy: () => {
-        eventHandlers.forEach(([eventName, handler]) => {
-          elem.removeEventListener(eventName, handler)
-        })
-        childNodes.forEach((childNode) => childNode.remove())
-        elem.remove()
-      },
-    })
   }
+  dataSignal.subscribe(() => {}, {
+    destroy: () => {
+      // TODO: Clean up event listeners, but after destruction of child signals (Maybe we need a "afterDestroy" hook on signals?)
+      elem.parentNode?.removeChild(elem)
+    },
+  })
 
   return elem
 }
