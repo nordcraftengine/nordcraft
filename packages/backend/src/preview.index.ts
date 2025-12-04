@@ -51,7 +51,11 @@ const loadProject = ({
     if (!doProject) {
       return reject('Project or branch not found')
     }
-    const { routes } = splitRoutes(doProject)
+    const { routes } = splitRoutes({
+      branchName,
+      files: doProject.files,
+      project: doProject.project,
+    })
     resolve({
       routes,
       project: doProject.project,
