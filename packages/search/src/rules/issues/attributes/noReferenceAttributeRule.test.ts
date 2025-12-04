@@ -138,6 +138,46 @@ describe('find noReferenceAttributeRule', () => {
 
     expect(problems).toEqual([])
   })
+
+  test('should ignore unused attributes when the component has onAttributeChange actions', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          components: {
+            test: {
+              name: 'test',
+              nodes: {},
+              formulas: {},
+              apis: {},
+              attributes: {
+                'my-attribute': {
+                  name: 'my-attribute-name',
+                  testValue: { type: 'value', value: null },
+                  '@nordcraft/metadata': {
+                    comments: null,
+                  },
+                },
+              },
+              variables: {},
+              onAttributeChange: {
+                trigger: 'onAttributeChange',
+                actions: [
+                  {
+                    type: 'Custom',
+                    name: 'Log',
+                    version: 2,
+                  },
+                ],
+              },
+            },
+          },
+        },
+        rules: [noReferenceAttributeRule],
+      }),
+    )
+
+    expect(problems).toEqual([])
+  })
 })
 
 describe('fix noReferenceAttributeRule', () => {
