@@ -6,7 +6,12 @@ export const noReferenceAttributeRule: Rule<void> = {
   level: 'warning',
   category: 'No References',
   visit: (report, args) => {
-    if (args.nodeType !== 'component-attribute') {
+    if (
+      args.nodeType !== 'component-attribute' ||
+      // Don't report unused attributes if the component has onAttributeChange actions.
+      // The attribute might be used to trigger some logic there.
+      (args.component.onAttributeChange?.actions.length ?? 0) > 0
+    ) {
       return
     }
     const { path, component, memo } = args
