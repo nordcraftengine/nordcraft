@@ -3,8 +3,8 @@
   "scripts": {
     "predev": "cd .. && bun bin/prepareReleaseAssets.ts",
     "dev": "bun --watch src/index.ts",
-    "typecheck": "tsc --noEmit",
-    "watch": "tsc --noEmit -w"
+    "typecheck": "tsgo --noEmit",
+    "watch": "tsgo --noEmit -w"
   },
   "dependencies": {
     "hono": "4.7.11"

@@ -23,9 +23,9 @@
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:watch:only": "bun test --watch --only",
-    "typecheck": "tsc --noEmit",
-    "typecheck:watch": "tsc --noEmit --watch",
-    "watch": "tsc --noEmit -w"
+    "typecheck": "tsgo --noEmit",
+    "typecheck:watch": "tsgo --noEmit --watch",
+    "watch": "tsgo --noEmit -w"
   },
   "dependencies": {
     "@nordcraft/core": "workspace:*",
