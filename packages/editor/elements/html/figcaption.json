@@ -5,7 +5,7 @@
     "description": "Provides a caption or legend for a figure element",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figcaption",
     "aliases": ["figure-caption"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"],
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"],
     "permittedParents": ["figure"]
   },
   "element": {

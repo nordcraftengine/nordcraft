@@ -5,7 +5,7 @@
     "description": "Represents a self-contained, independent piece of content",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article",
     "aliases": ["blog-post", "news-article"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

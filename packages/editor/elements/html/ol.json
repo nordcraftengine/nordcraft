@@ -10,7 +10,8 @@
       "HTMLElement",
       "Element",
       "Node",
-      "EventTarget"
+      "EventTarget",
+      "global"
     ],
     "permittedChildren": ["li", "template", "script"]
   },

@@ -45,13 +45,18 @@ const POPULAR_ELEMENTS = [
   'ul',
 ]
 
-const inheritedInterfaces = (interfaceName: string): string[] => {
+const inheritedInterfaces = (
+  interfaceName: string,
+  includeGlobal: boolean,
+): string[] => {
   const inheritanceData = api.inheritance[interfaceName]
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (!inheritanceData) {
-    return [interfaceName]
+    return [interfaceName, ...(includeGlobal ? ['global'] : [])]
   }
-  return [interfaceName, ...inheritedInterfaces(inheritanceData.inherits)]
+  return [
+    interfaceName,
+    ...inheritedInterfaces(inheritanceData.inherits, includeGlobal),
+  ]
 }
 
 const init = () => {
@@ -80,7 +85,7 @@ const init = () => {
         aliases: aliases,
         isVoid: VOID_ELEMENTS.includes(element) ? true : undefined,
         isPopular: POPULAR_ELEMENTS.includes(element) ? true : undefined,
-        interfaces: inheritedInterfaces(elementInterface),
+        interfaces: inheritedInterfaces(elementInterface, true),
         permittedChildren,
         permittedParents,
       },
@@ -129,7 +134,7 @@ const init = () => {
         link: `https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/${element}`,
         aliases: aliases,
         isPopular: popularSvgElements.includes(element) ? true : undefined,
-        interfaces: inheritedInterfaces(elementInterface),
+        interfaces: inheritedInterfaces(elementInterface, false),
       },
       element: {
         type: 'nodes',

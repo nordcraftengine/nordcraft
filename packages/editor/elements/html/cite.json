@@ -5,7 +5,7 @@
     "description": "Cites the title of a creative work",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite",
     "aliases": ["citation", "reference"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",
