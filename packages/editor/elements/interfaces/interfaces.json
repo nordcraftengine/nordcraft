@@ -1,74 +1,47 @@
 [
   {
     "name": "AbortSignal",
-    "events": [
-      "abort"
-    ]
+    "events": ["abort"]
   },
   {
     "name": "Animation",
-    "events": [
-      "cancel",
-      "finish",
-      "remove"
-    ]
+    "events": ["cancel", "finish", "remove"]
   },
   {
     "name": "AudioContext",
-    "events": [
-      "error",
-      "sinkchange"
-    ]
+    "events": ["error", "sinkchange"]
   },
   {
     "name": "AudioDecoder",
-    "events": [
-      "dequeue"
-    ]
+    "events": ["dequeue"]
   },
   {
     "name": "AudioEncoder",
-    "events": [
-      "dequeue"
-    ]
+    "events": ["dequeue"]
   },
   {
     "name": "AudioScheduledSourceNode",
-    "events": [
-      "ended"
-    ]
+    "events": ["ended"]
   },
   {
     "name": "AudioSession",
-    "events": [
-      "statechange"
-    ]
+    "events": ["statechange"]
   },
   {
     "name": "AudioTrackList",
-    "events": [
-      "addtrack",
-      "change",
-      "removetrack"
-    ]
+    "events": ["addtrack", "change", "removetrack"]
   },
   {
     "name": "AudioWorkletNode",
-    "events": [
-      "processorerror"
-    ]
+    "events": ["processorerror"]
   },
   {
     "name": "BackgroundFetchRegistration",
-    "events": [
-      "progress"
-    ]
+    "events": ["progress"]
   },
   {
     "name": "BaseAudioContext",
-    "events": [
-      "statechange"
-    ]
+    "events": ["statechange"]
   },
   {
     "name": "BatteryManager",
@@ -81,77 +54,47 @@
   },
   {
     "name": "Bluetooth",
-    "events": [
-      "availabilitychanged"
-    ]
+    "events": ["availabilitychanged"]
   },
   {
     "name": "BluetoothDevice",
-    "events": [
-      "advertisementreceived",
-      "gattserverdisconnected"
-    ]
+    "events": ["advertisementreceived", "gattserverdisconnected"]
   },
   {
     "name": "BluetoothRemoteGATTCharacteristic",
-    "events": [
-      "characteristicvaluechanged"
-    ]
+    "events": ["characteristicvaluechanged"]
   },
   {
     "name": "BluetoothRemoteGATTService",
-    "events": [
-      "serviceadded",
-      "servicechanged",
-      "serviceremoved"
-    ]
+    "events": ["serviceadded", "servicechanged", "serviceremoved"]
   },
   {
     "name": "BroadcastChannel",
-    "events": [
-      "message",
-      "messageerror"
-    ]
+    "events": ["message", "messageerror"]
   },
   {
     "name": "CaptureController",
-    "events": [
-      "capturedmousechange",
-      "zoomlevelchange"
-    ]
+    "events": ["capturedmousechange", "zoomlevelchange"]
   },
   {
     "name": "CloseWatcher",
-    "events": [
-      "cancel",
-      "close"
-    ]
+    "events": ["cancel", "close"]
   },
   {
     "name": "CookieStore",
-    "events": [
-      "change"
-    ]
+    "events": ["change"]
   },
   {
     "name": "CreateMonitor",
-    "events": [
-      "downloadprogress"
-    ]
+    "events": ["downloadprogress"]
   },
   {
     "name": "DedicatedWorkerGlobalScope",
-    "events": [
-      "message",
-      "messageerror",
-      "rtctransform"
-    ]
+    "events": ["message", "messageerror", "rtctransform"]
   },
   {
     "name": "DevicePosture",
-    "events": [
-      "change"
-    ]
+    "events": ["change"]
   },
   {
     "name": "Document",
@@ -175,9 +118,7 @@
   },
   {
     "name": "DocumentPictureInPicture",
-    "events": [
-      "enter"
-    ]
+    "events": ["enter"]
   },
   {
     "name": "EditContext",
@@ -238,30 +179,15 @@
   },
   {
     "name": "EventSource",
-    "events": [
-      "error",
-      "message",
-      "open"
-    ]
+    "events": ["error", "message", "open"]
   },
   {
     "name": "FileReader",
-    "events": [
-      "abort",
-      "error",
-      "load",
-      "loadend",
-      "loadstart",
-      "progress"
-    ]
+    "events": ["abort", "error", "load", "loadend", "loadstart", "progress"]
   },
   {
     "name": "FontFaceSet",
-    "events": [
-      "loading",
-      "loadingdone",
-      "loadingerror"
-    ]
+    "events": ["loading", "loadingdone", "loadingerror"]
   },
   {
     "name": "global",
@@ -271,21 +197,11 @@
       },
       {
         "name": "autocapitalize",
-        "options": [
-          "off",
-          "none",
-          "on",
-          "sentences",
-          "words",
-          "characters"
-        ]
+        "options": ["off", "none", "on", "sentences", "words", "characters"]
       },
       {
         "name": "autocorrect",
-        "options": [
-          "on",
-          "off"
-        ]
+        "options": ["on", "off"]
       },
       {
         "name": "autofocus"
@@ -306,38 +222,19 @@
       },
       {
         "name": "contenteditable",
-        "options": [
-          "true",
-          "false",
-          "plaintext-only"
-        ]
+        "options": ["true", "false", "plaintext-only"]
       },
       {
         "name": "dir",
-        "options": [
-          "ltr",
-          "rtl",
-          "auto"
-        ]
+        "options": ["ltr", "rtl", "auto"]
       },
       {
         "name": "draggable",
-        "options": [
-          "true",
-          "false"
-        ]
+        "options": ["true", "false"]
       },
       {
         "name": "enterkeyhint",
-        "options": [
-          "enter",
-          "done",
-          "go",
-          "next",
-          "previous",
-          "search",
-          "send"
-        ]
+        "options": ["enter", "done", "go", "next", "previous", "search", "send"]
       },
       {
         "name": "headingoffset"
@@ -347,10 +244,7 @@
       },
       {
         "name": "hidden",
-        "options": [
-          "hidden",
-          "until-found"
-        ]
+        "options": ["hidden", "until-found"]
       },
       {
         "name": "id"
@@ -391,32 +285,21 @@
       },
       {
         "name": "popover",
-        "options": [
-          "auto",
-          "manual",
-          "hint"
-        ]
+        "options": ["auto", "manual", "hint"]
       },
       {
         "name": "popovertarget"
       },
       {
         "name": "popovertargetaction",
-        "options": [
-          "toggle",
-          "show",
-          "hide"
-        ]
+        "options": ["toggle", "show", "hide"]
       },
       {
         "name": "slot"
       },
       {
         "name": "spellcheck",
-        "options": [
-          "true",
-          "false"
-        ]
+        "options": ["true", "false"]
       },
       {
         "name": "style"
@@ -426,38 +309,25 @@
       },
       {
         "name": "translate",
-        "options": [
-          "yes",
-          "no"
-        ]
+        "options": ["yes", "no"]
       },
       {
         "name": "writingsuggestions",
-        "options": [
-          "true",
-          "false"
-        ]
+        "options": ["true", "false"]
       }
     ]
   },
   {
     "name": "GPUDevice",
-    "events": [
-      "uncapturederror"
-    ]
+    "events": ["uncapturederror"]
   },
   {
     "name": "HID",
-    "events": [
-      "connect",
-      "disconnect"
-    ]
+    "events": ["connect", "disconnect"]
   },
   {
     "name": "HIDDevice",
-    "events": [
-      "inputreport"
-    ]
+    "events": ["inputreport"]
   },
   {
     "name": "HTMLAnchorElement",
@@ -623,10 +493,7 @@
       },
       {
         "name": "crossorigin",
-        "options": [
-          "anonymous",
-          "use-credentials"
-        ]
+        "options": ["anonymous", "use-credentials"]
       },
       {
         "name": "loop"
@@ -636,11 +503,7 @@
       },
       {
         "name": "preload",
-        "options": [
-          "auto",
-          "none",
-          "metadata"
-        ]
+        "options": ["auto", "none", "metadata"]
       },
       {
         "name": "src"
@@ -807,11 +670,7 @@
       },
       {
         "name": "formmethod",
-        "options": [
-          "get",
-          "post",
-          "dialog"
-        ]
+        "options": ["get", "post", "dialog"]
       },
       {
         "name": "formnovalidate"
@@ -833,19 +692,13 @@
       },
       {
         "name": "type",
-        "options": [
-          "submit",
-          "reset",
-          "button"
-        ]
+        "options": ["submit", "reset", "button"]
       },
       {
         "name": "value"
       }
     ],
-    "events": [
-      "invalid"
-    ]
+    "events": ["invalid"]
   },
   {
     "name": "HTMLCanvasElement",
@@ -883,29 +736,20 @@
         "name": "open"
       }
     ],
-    "events": [
-      "toggle"
-    ]
+    "events": ["toggle"]
   },
   {
     "name": "HTMLDialogElement",
     "attributes": [
       {
         "name": "closedby",
-        "options": [
-          "any",
-          "closerequest",
-          "none"
-        ]
+        "options": ["any", "closerequest", "none"]
       },
       {
         "name": "open"
       }
     ],
-    "events": [
-      "cancel",
-      "close"
-    ]
+    "events": ["cancel", "close"]
   },
   {
     "name": "HTMLDivElement",
@@ -1098,10 +942,7 @@
       },
       {
         "name": "autocomplete",
-        "options": [
-          "on",
-          "off"
-        ]
+        "options": ["on", "off"]
       },
       {
         "name": "enctype",
@@ -1128,11 +969,7 @@
       },
       {
         "name": "method",
-        "options": [
-          "get",
-          "post",
-          "dialog"
-        ]
+        "options": ["get", "post", "dialog"]
       },
       {
         "name": "name"
@@ -1159,11 +996,7 @@
         "name": "target"
       }
     ],
-    "events": [
-      "formdata",
-      "reset",
-      "submit"
-    ]
+    "events": ["formdata", "reset", "submit"]
   },
   {
     "name": "HTMLHeadElement",
@@ -1241,10 +1074,7 @@
       },
       {
         "name": "loading",
-        "options": [
-          "lazy",
-          "eager"
-        ]
+        "options": ["lazy", "eager"]
       },
       {
         "name": "longdesc"
@@ -1320,26 +1150,15 @@
       },
       {
         "name": "crossorigin",
-        "options": [
-          "anonymous",
-          "use-credentials"
-        ]
+        "options": ["anonymous", "use-credentials"]
       },
       {
         "name": "decoding",
-        "options": [
-          "sync",
-          "async",
-          "auto"
-        ]
+        "options": ["sync", "async", "auto"]
       },
       {
         "name": "fetchpriority",
-        "options": [
-          "high",
-          "low",
-          "auto"
-        ]
+        "options": ["high", "low", "auto"]
       },
       {
         "name": "height"
@@ -1352,10 +1171,7 @@
       },
       {
         "name": "loading",
-        "options": [
-          "lazy",
-          "eager"
-        ]
+        "options": ["lazy", "eager"]
       },
       {
         "name": "longdesc"
@@ -1491,10 +1307,7 @@
       },
       {
         "name": "colorspace",
-        "options": [
-          "limited-srgb",
-          "display-p3"
-        ]
+        "options": ["limited-srgb", "display-p3"]
       },
       {
         "name": "dirname"
@@ -1507,11 +1320,7 @@
       },
       {
         "name": "formmethod",
-        "options": [
-          "get",
-          "post",
-          "dialog"
-        ]
+        "options": ["get", "post", "dialog"]
       },
       {
         "name": "hspace"
@@ -1601,12 +1410,7 @@
         "name": "vspace"
       }
     ],
-    "events": [
-      "cancel",
-      "change",
-      "invalid",
-      "select"
-    ]
+    "events": ["cancel", "change", "invalid", "select"]
   },
   {
     "name": "HTMLLabelElement",
@@ -1652,21 +1456,14 @@
       },
       {
         "name": "crossorigin",
-        "options": [
-          "anonymous",
-          "use-credentials"
-        ]
+        "options": ["anonymous", "use-credentials"]
       },
       {
         "name": "disabled"
       },
       {
         "name": "fetchpriority",
-        "options": [
-          "high",
-          "low",
-          "auto"
-        ]
+        "options": ["high", "low", "auto"]
       },
       {
         "name": "href"
@@ -2068,13 +1865,7 @@
       },
       {
         "name": "type",
-        "options": [
-          "1",
-          "a",
-          "A",
-          "i",
-          "I"
-        ]
+        "options": ["1", "a", "A", "i", "I"]
       }
     ]
   },
@@ -2205,10 +1996,7 @@
   },
   {
     "name": "HTMLPortalElement",
-    "events": [
-      "message",
-      "messageerror"
-    ]
+    "events": ["message", "messageerror"]
   },
   {
     "name": "HTMLPreElement",
@@ -2251,10 +2039,7 @@
       },
       {
         "name": "crossorigin",
-        "options": [
-          "anonymous",
-          "use-credentials"
-        ]
+        "options": ["anonymous", "use-credentials"]
       },
       {
         "name": "defer"
@@ -2264,11 +2049,7 @@
       },
       {
         "name": "fetchpriority",
-        "options": [
-          "high",
-          "low",
-          "auto"
-        ]
+        "options": ["high", "low", "auto"]
       },
       {
         "name": "for"
@@ -2394,10 +2175,7 @@
         "name": "size"
       }
     ],
-    "events": [
-      "change",
-      "invalid"
-    ]
+    "events": ["change", "invalid"]
   },
   {
     "name": "HTMLSlotElement",
@@ -2406,9 +2184,7 @@
         "name": "name"
       }
     ],
-    "events": [
-      "slotchange"
-    ]
+    "events": ["slotchange"]
   },
   {
     "name": "HTMLSourceElement",
@@ -2435,9 +2211,7 @@
         "name": "width"
       }
     ],
-    "events": [
-      "error"
-    ]
+    "events": ["error"]
   },
   {
     "name": "HTMLStyleElement",
@@ -2502,12 +2276,7 @@
       },
       {
         "name": "scope",
-        "options": [
-          "row",
-          "col",
-          "rowgroup",
-          "colgroup"
-        ]
+        "options": ["row", "col", "rowgroup", "colgroup"]
       },
       {
         "name": "valign"
@@ -2638,10 +2407,7 @@
       },
       {
         "name": "shadowrootmode",
-        "options": [
-          "open",
-          "closed"
-        ]
+        "options": ["open", "closed"]
       },
       {
         "name": "shadowrootserializable"
@@ -2755,16 +2521,10 @@
       },
       {
         "name": "wrap",
-        "options": [
-          "soft",
-          "hard"
-        ]
+        "options": ["soft", "hard"]
       }
     ],
-    "events": [
-      "invalid",
-      "select"
-    ]
+    "events": ["invalid", "select"]
   },
   {
     "name": "HTMLTimeElement",
@@ -2800,11 +2560,7 @@
         "name": "srclang"
       }
     ],
-    "events": [
-      "cuechange",
-      "error",
-      "load"
-    ]
+    "events": ["cuechange", "error", "load"]
   },
   {
     "name": "HTMLUListElement",
@@ -2828,10 +2584,7 @@
       },
       {
         "name": "crossorigin",
-        "options": [
-          "anonymous",
-          "use-credentials"
-        ]
+        "options": ["anonymous", "use-credentials"]
       },
       {
         "name": "height"
@@ -2850,11 +2603,7 @@
       },
       {
         "name": "preload",
-        "options": [
-          "auto",
-          "none",
-          "metadata"
-        ]
+        "options": ["auto", "none", "metadata"]
       },
       {
         "name": "src"
@@ -2863,64 +2612,39 @@
         "name": "width"
       }
     ],
-    "events": [
-      "enterpictureinpicture",
-      "leavepictureinpicture"
-    ]
+    "events": ["enterpictureinpicture", "leavepictureinpicture"]
   },
   {
     "name": "IDBDatabase",
-    "events": [
-      "close",
-      "versionchange"
-    ]
+    "events": ["close", "versionchange"]
   },
   {
     "name": "IDBOpenDBRequest",
-    "events": [
-      "blocked",
-      "success",
-      "upgradeneeded"
-    ]
+    "events": ["blocked", "success", "upgradeneeded"]
   },
   {
     "name": "IDBRequest",
-    "events": [
-      "error",
-      "success"
-    ]
+    "events": ["error", "success"]
   },
   {
     "name": "IDBTransaction",
-    "events": [
-      "abort",
-      "complete"
-    ]
+    "events": ["abort", "complete"]
   },
   {
     "name": "IdleDetector",
-    "events": [
-      "change"
-    ]
+    "events": ["change"]
   },
   {
     "name": "Keyboard",
-    "events": [
-      "layoutchange"
-    ]
+    "events": ["layoutchange"]
   },
   {
     "name": "ManagedMediaSource",
-    "events": [
-      "endstreaming",
-      "startstreaming"
-    ]
+    "events": ["endstreaming", "startstreaming"]
   },
   {
     "name": "ManagedSourceBuffer",
-    "events": [
-      "bufferedchange"
-    ]
+    "events": ["bufferedchange"]
   },
   {
     "name": "MathMLElement",
@@ -2963,49 +2687,27 @@
   },
   {
     "name": "MediaDevices",
-    "events": [
-      "captureaction",
-      "devicechange"
-    ]
+    "events": ["captureaction", "devicechange"]
   },
   {
     "name": "MediaKeySession",
-    "events": [
-      "keystatuseschange",
-      "message"
-    ]
+    "events": ["keystatuseschange", "message"]
   },
   {
     "name": "MediaQueryList",
-    "events": [
-      "change"
-    ]
+    "events": ["change"]
   },
   {
     "name": "MediaRecorder",
-    "events": [
-      "dataavailable",
-      "error",
-      "pause",
-      "resume",
-      "start",
-      "stop"
-    ]
+    "events": ["dataavailable", "error", "pause", "resume", "start", "stop"]
   },
   {
     "name": "MediaSource",
-    "events": [
-      "sourceclose",
-      "sourceended",
-      "sourceopen"
-    ]
+    "events": ["sourceclose", "sourceended", "sourceopen"]
   },
   {
     "name": "MediaStream",
-    "events": [
-      "addtrack",
-      "removetrack"
-    ]
+    "events": ["addtrack", "removetrack"]
   },
   {
     "name": "MediaStreamTrack",
@@ -3019,29 +2721,19 @@
   },
   {
     "name": "MessagePort",
-    "events": [
-      "close",
-      "message",
-      "messageerror"
-    ]
+    "events": ["close", "message", "messageerror"]
   },
   {
     "name": "MIDIAccess",
-    "events": [
-      "statechange"
-    ]
+    "events": ["statechange"]
   },
   {
     "name": "MIDIInput",
-    "events": [
-      "midimessage"
-    ]
+    "events": ["midimessage"]
   },
   {
     "name": "MIDIPort",
-    "events": [
-      "statechange"
-    ]
+    "events": ["statechange"]
   },
   {
     "name": "Navigation",
@@ -3054,43 +2746,27 @@
   },
   {
     "name": "NavigationHistoryEntry",
-    "events": [
-      "dispose"
-    ]
+    "events": ["dispose"]
   },
   {
     "name": "NavigatorManagedData",
-    "events": [
-      "managedconfigurationchange"
-    ]
+    "events": ["managedconfigurationchange"]
   },
   {
     "name": "NDEFReader",
-    "events": [
-      "reading",
-      "readingerror"
-    ]
+    "events": ["reading", "readingerror"]
   },
   {
     "name": "NetworkInformation",
-    "events": [
-      "change"
-    ]
+    "events": ["change"]
   },
   {
     "name": "Notification",
-    "events": [
-      "click",
-      "close",
-      "error",
-      "show"
-    ]
+    "events": ["click", "close", "error", "show"]
   },
   {
     "name": "OfflineAudioContext",
-    "events": [
-      "complete"
-    ]
+    "events": ["complete"]
   },
   {
     "name": "OffscreenCanvas",
@@ -3112,75 +2788,47 @@
   },
   {
     "name": "PaymentResponse",
-    "events": [
-      "payerdetailchange"
-    ]
+    "events": ["payerdetailchange"]
   },
   {
     "name": "Performance",
-    "events": [
-      "resourcetimingbufferfull"
-    ]
+    "events": ["resourcetimingbufferfull"]
   },
   {
     "name": "PermissionStatus",
-    "events": [
-      "change"
-    ]
+    "events": ["change"]
   },
   {
     "name": "PictureInPictureWindow",
-    "events": [
-      "resize"
-    ]
+    "events": ["resize"]
   },
   {
     "name": "PortalHost",
-    "events": [
-      "message",
-      "messageerror"
-    ]
+    "events": ["message", "messageerror"]
   },
   {
     "name": "PreferenceObject",
-    "events": [
-      "change"
-    ]
+    "events": ["change"]
   },
   {
     "name": "PresentationAvailability",
-    "events": [
-      "change"
-    ]
+    "events": ["change"]
   },
   {
     "name": "PresentationConnection",
-    "events": [
-      "close",
-      "connect",
-      "message",
-      "terminate"
-    ]
+    "events": ["close", "connect", "message", "terminate"]
   },
   {
     "name": "PresentationConnectionList",
-    "events": [
-      "connectionavailable"
-    ]
+    "events": ["connectionavailable"]
   },
   {
     "name": "PresentationRequest",
-    "events": [
-      "connectionavailable"
-    ]
+    "events": ["connectionavailable"]
   },
   {
     "name": "RemotePlayback",
-    "events": [
-      "connect",
-      "connecting",
-      "disconnect"
-    ]
+    "events": ["connect", "connecting", "disconnect"]
   },
   {
     "name": "RTCDataChannel",
@@ -3195,16 +2843,11 @@
   },
   {
     "name": "RTCDtlsTransport",
-    "events": [
-      "error",
-      "statechange"
-    ]
+    "events": ["error", "statechange"]
   },
   {
     "name": "RTCDTMFSender",
-    "events": [
-      "tonechange"
-    ]
+    "events": ["tonechange"]
   },
   {
     "name": "RTCIceTransport",
@@ -3232,68 +2875,43 @@
   },
   {
     "name": "RTCRtpScriptTransformer",
-    "events": [
-      "keyframerequest"
-    ]
+    "events": ["keyframerequest"]
   },
   {
     "name": "RTCSctpTransport",
-    "events": [
-      "statechange"
-    ]
+    "events": ["statechange"]
   },
   {
     "name": "Screen",
-    "events": [
-      "change"
-    ]
+    "events": ["change"]
   },
   {
     "name": "ScreenDetailed",
-    "events": [
-      "change"
-    ]
+    "events": ["change"]
   },
   {
     "name": "ScreenDetails",
-    "events": [
-      "currentscreenchange",
-      "screenschange"
-    ]
+    "events": ["currentscreenchange", "screenschange"]
   },
   {
     "name": "ScreenOrientation",
-    "events": [
-      "change"
-    ]
+    "events": ["change"]
   },
   {
     "name": "ScriptProcessorNode",
-    "events": [
-      "audioprocess"
-    ]
+    "events": ["audioprocess"]
   },
   {
     "name": "Sensor",
-    "events": [
-      "activate",
-      "error",
-      "reading"
-    ]
+    "events": ["activate", "error", "reading"]
   },
   {
     "name": "SerialPort",
-    "events": [
-      "connect",
-      "disconnect"
-    ]
+    "events": ["connect", "disconnect"]
   },
   {
     "name": "ServiceWorker",
-    "events": [
-      "error",
-      "statechange"
-    ]
+    "events": ["error", "statechange"]
   },
   {
     "name": "ServiceWorkerContainer",
@@ -3331,57 +2949,35 @@
   },
   {
     "name": "ServiceWorkerRegistration",
-    "events": [
-      "updatefound"
-    ]
+    "events": ["updatefound"]
   },
   {
     "name": "SFrameDecrypterStream",
-    "events": [
-      "error"
-    ]
+    "events": ["error"]
   },
   {
     "name": "SFrameEncrypterStream",
-    "events": [
-      "error"
-    ]
+    "events": ["error"]
   },
   {
     "name": "SFrameTransform",
-    "events": [
-      "error"
-    ]
+    "events": ["error"]
   },
   {
     "name": "SharedWorker",
-    "events": [
-      "error",
-      "error"
-    ]
+    "events": ["error", "error"]
   },
   {
     "name": "SharedWorkerGlobalScope",
-    "events": [
-      "connect"
-    ]
+    "events": ["connect"]
   },
   {
     "name": "SourceBuffer",
-    "events": [
-      "abort",
-      "error",
-      "update",
-      "updateend",
-      "updatestart"
-    ]
+    "events": ["abort", "error", "update", "updateend", "updatestart"]
   },
   {
     "name": "SourceBufferList",
-    "events": [
-      "addsourcebuffer",
-      "removesourcebuffer"
-    ]
+    "events": ["addsourcebuffer", "removesourcebuffer"]
   },
   {
     "name": "SpeechRecognition",
@@ -3401,21 +2997,11 @@
   },
   {
     "name": "SpeechSynthesis",
-    "events": [
-      "voiceschanged"
-    ]
+    "events": ["voiceschanged"]
   },
   {
     "name": "SpeechSynthesisUtterance",
-    "events": [
-      "boundary",
-      "end",
-      "error",
-      "mark",
-      "pause",
-      "resume",
-      "start"
-    ]
+    "events": ["boundary", "end", "error", "mark", "pause", "resume", "start"]
   },
   {
     "name": "SVGAElement",
@@ -3477,11 +3063,7 @@
         "name": "systemLanguage"
       }
     ],
-    "events": [
-      "begin",
-      "end",
-      "repeat"
-    ]
+    "events": ["begin", "end", "repeat"]
   },
   {
     "name": "SVGAnimateMotionElement",
@@ -3525,11 +3107,7 @@
   },
   {
     "name": "SVGAnimationElement",
-    "events": [
-      "begin",
-      "end",
-      "repeat"
-    ]
+    "events": ["begin", "end", "repeat"]
   },
   {
     "name": "SVGCircleElement",
@@ -3674,15 +3252,7 @@
       },
       {
         "name": "operator",
-        "options": [
-          "over",
-          "in",
-          "out",
-          "atop",
-          "xor",
-          "lighter",
-          "arithmetic"
-        ]
+        "options": ["over", "in", "out", "atop", "xor", "lighter", "arithmetic"]
       }
     ]
   },
@@ -3779,10 +3349,7 @@
     "attributes": [
       {
         "name": "edgeMode",
-        "options": [
-          "duplicate",
-          "wrap"
-        ]
+        "options": ["duplicate", "wrap"]
       },
       {
         "name": "stdDeviation"
@@ -4434,95 +4001,55 @@
   },
   {
     "name": "TaskSignal",
-    "events": [
-      "prioritychange"
-    ]
+    "events": ["prioritychange"]
   },
   {
     "name": "Text",
-    "events": [
-      "drag",
-      "dragend",
-      "dragstart",
-      "pointercancel"
-    ]
+    "events": ["drag", "dragend", "dragstart", "pointercancel"]
   },
   {
     "name": "TextTrack",
-    "events": [
-      "cuechange"
-    ]
+    "events": ["cuechange"]
   },
   {
     "name": "TextTrackCue",
-    "events": [
-      "enter",
-      "exit"
-    ]
+    "events": ["enter", "exit"]
   },
   {
     "name": "TextTrackList",
-    "events": [
-      "addtrack",
-      "change",
-      "removetrack"
-    ]
+    "events": ["addtrack", "change", "removetrack"]
   },
   {
     "name": "USB",
-    "events": [
-      "connect",
-      "disconnect"
-    ]
+    "events": ["connect", "disconnect"]
   },
   {
     "name": "VideoDecoder",
-    "events": [
-      "dequeue"
-    ]
+    "events": ["dequeue"]
   },
   {
     "name": "VideoEncoder",
-    "events": [
-      "dequeue"
-    ]
+    "events": ["dequeue"]
   },
   {
     "name": "VideoTrackList",
-    "events": [
-      "addtrack",
-      "change",
-      "removetrack"
-    ]
+    "events": ["addtrack", "change", "removetrack"]
   },
   {
     "name": "VirtualKeyboard",
-    "events": [
-      "geometrychange"
-    ]
+    "events": ["geometrychange"]
   },
   {
     "name": "VisualViewport",
-    "events": [
-      "resize",
-      "scroll",
-      "scrollend"
-    ]
+    "events": ["resize", "scroll", "scrollend"]
   },
   {
     "name": "WakeLockSentinel",
-    "events": [
-      "release"
-    ]
+    "events": ["release"]
   },
   {
     "name": "WebSocket",
-    "events": [
-      "close",
-      "error",
-      "message",
-      "open"
-    ]
+    "events": ["close", "error", "message", "open"]
   },
   {
     "name": "Window",
@@ -4573,18 +4100,11 @@
   },
   {
     "name": "WindowControlsOverlay",
-    "events": [
-      "geometrychange"
-    ]
+    "events": ["geometrychange"]
   },
   {
     "name": "Worker",
-    "events": [
-      "error",
-      "error",
-      "message",
-      "messageerror"
-    ]
+    "events": ["error", "error", "message", "messageerror"]
   },
   {
     "name": "WorkerGlobalScope",
@@ -4625,39 +4145,27 @@
   },
   {
     "name": "XRCubeLayer",
-    "events": [
-      "redraw"
-    ]
+    "events": ["redraw"]
   },
   {
     "name": "XRCylinderLayer",
-    "events": [
-      "redraw"
-    ]
+    "events": ["redraw"]
   },
   {
     "name": "XREquirectLayer",
-    "events": [
-      "redraw"
-    ]
+    "events": ["redraw"]
   },
   {
     "name": "XRLightProbe",
-    "events": [
-      "reflectionchange"
-    ]
+    "events": ["reflectionchange"]
   },
   {
     "name": "XRQuadLayer",
-    "events": [
-      "redraw"
-    ]
+    "events": ["redraw"]
   },
   {
     "name": "XRReferenceSpace",
-    "events": [
-      "reset"
-    ]
+    "events": ["reset"]
   },
   {
     "name": "XRSession",
@@ -4678,8 +4186,6 @@
   },
   {
     "name": "XRSystem",
-    "events": [
-      "devicechange"
-    ]
+    "events": ["devicechange"]
   }
 ]
