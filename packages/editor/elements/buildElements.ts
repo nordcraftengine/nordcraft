@@ -46,10 +46,11 @@ const POPULAR_ELEMENTS = [
 ]
 
 const inheritedInterfaces = (
-  interfaceName: string,
+  _interfaceName: string,
   includeGlobal: boolean,
 ): string[] => {
-  const inheritanceData = api.inheritance[interfaceName]
+  const inheritanceData = api.inheritance[_interfaceName]
+  const interfaceName = _interfaceName.replaceAll('SVGSVG', 'SVG')
   if (!inheritanceData) {
     return [interfaceName, ...(includeGlobal ? ['global'] : [])]
   }

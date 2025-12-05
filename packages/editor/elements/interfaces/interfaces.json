@@ -3139,6 +3139,20 @@
   },
   {
     "name": "SVGElement",
+    "attributes": [
+      {
+        "name": "preserveAspectRatio"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      },
+      {
+        "name": "viewBox"
+      }
+    ],
     "events": [
       "animationcancel",
       "animationend",
@@ -3830,59 +3844,6 @@
       {
         "name": "type"
       }
-    ]
-  },
-  {
-    "name": "SVGSVGElement",
-    "attributes": [
-      {
-        "name": "preserveAspectRatio"
-      },
-      {
-        "name": "requiredExtensions"
-      },
-      {
-        "name": "systemLanguage"
-      },
-      {
-        "name": "viewBox"
-      }
-    ],
-    "events": [
-      "animationcancel",
-      "animationend",
-      "animationiteration",
-      "animationstart",
-      "beforexrselect",
-      "clipboardchange",
-      "copy",
-      "cut",
-      "drag",
-      "dragend",
-      "dragenter",
-      "dragleave",
-      "dragover",
-      "dragstart",
-      "drop",
-      "fencedtreeclick",
-      "gotpointercapture",
-      "lostpointercapture",
-      "paste",
-      "pointercancel",
-      "pointerdown",
-      "pointerenter",
-      "pointerleave",
-      "pointermove",
-      "pointerout",
-      "pointerover",
-      "pointerrawupdate",
-      "pointerup",
-      "selectionchange",
-      "selectstart",
-      "transitioncancel",
-      "transitionend",
-      "transitionrun",
-      "transitionstart"
     ]
   },
   {

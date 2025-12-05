@@ -7,7 +7,7 @@
     "aliases": ["vector", "graphic", "svg-root"],
     "isPopular": true,
     "interfaces": [
-      "SVGSVGElement",
+      "SVGElement",
       "SVGGraphicsElement",
       "SVGElement",
       "Element",

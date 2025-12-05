@@ -97,10 +97,7 @@ export const getSvgInterfaces = async () => {
           const interfaceName = getSvgElementInterface(mappedInterfaceName)
           if (typeof interfaceName === 'string') {
             acc[interfaceName] ??= {}
-            // The 'href' attribute is currently missing in the webref data for the HTMLAnchorElement interface
-            // So we add it manually here
-            acc[interfaceName].attributes ??=
-              interfaceName === 'HTMLAnchorElement' ? [{ name: 'href' }] : []
+            acc[interfaceName].attributes ??= []
             if (
               !acc[interfaceName].attributes.find(
                 (attr) =>
@@ -198,9 +195,17 @@ export const getSvgInterfaces = async () => {
     })
   })
 
+  // Sanitize data to avoid SVGSVG* interfaces
+  const stanitizedData = Object.fromEntries(
+    Object.entries(groupedAttributes).map(([interfaceName, data]) => [
+      interfaceName.replaceAll('SVGSVG', 'SVG'),
+      data,
+    ]),
+  )
+
   // Sort all attributes and events
   const sortedData = Object.fromEntries(
-    Object.entries(groupedAttributes)
+    Object.entries(stanitizedData)
       .filter(
         (args): args is [string, SvgInterfaceDefinition] =>
           args[1] !== undefined,
