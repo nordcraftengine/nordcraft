@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Allows per-channel color manipulation using component transfer functions",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feComponentTransfer",
-    "aliases": ["component-transfer", "svg-component"]
+    "aliases": ["component-transfer", "svg-component"],
+    "interfaces": [
+      "SVGFEComponentTransferElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

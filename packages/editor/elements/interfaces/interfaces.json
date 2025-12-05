@@ -225,6 +225,12 @@
         "options": ["true", "false", "plaintext-only"]
       },
       {
+        "name": "data-theme"
+      },
+      {
+        "name": "data-unset-toddle-styles"
+      },
+      {
         "name": "dir",
         "options": ["ltr", "rtl", "auto"]
       },
@@ -3004,11 +3010,149 @@
     "events": ["boundary", "end", "error", "mark", "pause", "resume", "start"]
   },
   {
+    "name": "SVGAElement",
+    "attributes": [
+      {
+        "name": "download"
+      },
+      {
+        "name": "href"
+      },
+      {
+        "name": "hreflang"
+      },
+      {
+        "name": "ping"
+      },
+      {
+        "name": "referrerpolicy"
+      },
+      {
+        "name": "rel"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      },
+      {
+        "name": "target"
+      },
+      {
+        "name": "type"
+      },
+      {
+        "name": "xlink:href"
+      },
+      {
+        "name": "xlink:title"
+      }
+    ]
+  },
+  {
+    "name": "SVGAnimateElement",
+    "attributes": [
+      {
+        "name": "onbegin"
+      },
+      {
+        "name": "onend"
+      },
+      {
+        "name": "onrepeat"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ],
+    "events": ["begin", "end", "repeat"]
+  },
+  {
+    "name": "SVGAnimateMotionElement",
+    "attributes": [
+      {
+        "name": "onbegin"
+      },
+      {
+        "name": "onend"
+      },
+      {
+        "name": "onrepeat"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGAnimateTransformElement",
+    "attributes": [
+      {
+        "name": "onbegin"
+      },
+      {
+        "name": "onend"
+      },
+      {
+        "name": "onrepeat"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
     "name": "SVGAnimationElement",
     "events": ["begin", "end", "repeat"]
   },
   {
+    "name": "SVGCircleElement",
+    "attributes": [
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGClipPathElement",
+    "attributes": [
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
     "name": "SVGElement",
+    "attributes": [
+      {
+        "name": "preserveAspectRatio"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      },
+      {
+        "name": "viewBox"
+      }
+    ],
     "events": [
       "animationcancel",
       "animationend",
@@ -3044,6 +3188,782 @@
       "transitionend",
       "transitionrun",
       "transitionstart"
+    ]
+  },
+  {
+    "name": "SVGEllipseElement",
+    "attributes": [
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEBlendElement",
+    "attributes": [
+      {
+        "name": "in2"
+      },
+      {
+        "name": "mode"
+      },
+      {
+        "name": "no-composite"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEColorMatrixElement",
+    "attributes": [
+      {
+        "name": "type"
+      },
+      {
+        "name": "values"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEComponentTransferElement",
+    "attributes": [
+      {
+        "name": "amplitude"
+      },
+      {
+        "name": "exponent"
+      },
+      {
+        "name": "intercept"
+      },
+      {
+        "name": "offset"
+      },
+      {
+        "name": "slope"
+      },
+      {
+        "name": "tableValues"
+      },
+      {
+        "name": "type"
+      }
+    ]
+  },
+  {
+    "name": "SVGFECompositeElement",
+    "attributes": [
+      {
+        "name": "in2"
+      },
+      {
+        "name": "k1"
+      },
+      {
+        "name": "k2"
+      },
+      {
+        "name": "k3"
+      },
+      {
+        "name": "k4"
+      },
+      {
+        "name": "operator",
+        "options": ["over", "in", "out", "atop", "xor", "lighter", "arithmetic"]
+      }
+    ]
+  },
+  {
+    "name": "SVGFEConvolveMatrixElement",
+    "attributes": [
+      {
+        "name": "bias"
+      },
+      {
+        "name": "divisor"
+      },
+      {
+        "name": "edgeMode"
+      },
+      {
+        "name": "kernelMatrix"
+      },
+      {
+        "name": "kernelUnitLength"
+      },
+      {
+        "name": "order"
+      },
+      {
+        "name": "preserveAlpha"
+      },
+      {
+        "name": "targetX"
+      },
+      {
+        "name": "targetY"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEDiffuseLightingElement",
+    "attributes": [
+      {
+        "name": "diffuseConstant"
+      },
+      {
+        "name": "kernelUnitLength"
+      },
+      {
+        "name": "surfaceScale"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEDisplacementMapElement",
+    "attributes": [
+      {
+        "name": "in2"
+      },
+      {
+        "name": "scale"
+      },
+      {
+        "name": "xChannelSelector"
+      },
+      {
+        "name": "yChannelSelector"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEDistantLightElement",
+    "attributes": [
+      {
+        "name": "azimuth"
+      },
+      {
+        "name": "elevation"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEDropShadowElement",
+    "attributes": [
+      {
+        "name": "dx"
+      },
+      {
+        "name": "dy"
+      },
+      {
+        "name": "stdDeviation"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEGaussianBlurElement",
+    "attributes": [
+      {
+        "name": "edgeMode",
+        "options": ["duplicate", "wrap"]
+      },
+      {
+        "name": "stdDeviation"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEImageElement",
+    "attributes": [
+      {
+        "name": "crossorigin"
+      },
+      {
+        "name": "href"
+      },
+      {
+        "name": "preserveAspectRatio"
+      },
+      {
+        "name": "xlink:href"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEMorphologyElement",
+    "attributes": [
+      {
+        "name": "operator"
+      },
+      {
+        "name": "radius"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEOffsetElement",
+    "attributes": [
+      {
+        "name": "dx"
+      },
+      {
+        "name": "dy"
+      }
+    ]
+  },
+  {
+    "name": "SVGFEPointLightElement",
+    "attributes": [
+      {
+        "name": "x"
+      },
+      {
+        "name": "y"
+      },
+      {
+        "name": "z"
+      }
+    ]
+  },
+  {
+    "name": "SVGFESpecularLightingElement",
+    "attributes": [
+      {
+        "name": "kernelUnitLength"
+      },
+      {
+        "name": "specularConstant"
+      },
+      {
+        "name": "specularExponent"
+      },
+      {
+        "name": "surfaceScale"
+      }
+    ]
+  },
+  {
+    "name": "SVGFESpotLightElement",
+    "attributes": [
+      {
+        "name": "limitingConeAngle"
+      },
+      {
+        "name": "pointsAtX"
+      },
+      {
+        "name": "pointsAtY"
+      },
+      {
+        "name": "pointsAtZ"
+      },
+      {
+        "name": "specularExponent"
+      },
+      {
+        "name": "x"
+      },
+      {
+        "name": "y"
+      },
+      {
+        "name": "z"
+      }
+    ]
+  },
+  {
+    "name": "SVGFETurbulenceElement",
+    "attributes": [
+      {
+        "name": "baseFrequency"
+      },
+      {
+        "name": "numOctaves"
+      },
+      {
+        "name": "seed"
+      },
+      {
+        "name": "stitchTiles"
+      },
+      {
+        "name": "type"
+      }
+    ]
+  },
+  {
+    "name": "SVGFilterElement",
+    "attributes": [
+      {
+        "name": "filterRes"
+      },
+      {
+        "name": "filterUnits"
+      },
+      {
+        "name": "height"
+      },
+      {
+        "name": "primitiveUnits"
+      },
+      {
+        "name": "width"
+      },
+      {
+        "name": "x"
+      },
+      {
+        "name": "y"
+      }
+    ]
+  },
+  {
+    "name": "SVGForeignObjectElement",
+    "attributes": [
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGGElement",
+    "attributes": [
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGImageElement",
+    "attributes": [
+      {
+        "name": "crossorigin"
+      },
+      {
+        "name": "href"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      },
+      {
+        "name": "xlink:href"
+      },
+      {
+        "name": "xlink:title"
+      }
+    ]
+  },
+  {
+    "name": "SVGLinearGradientElement",
+    "attributes": [
+      {
+        "name": "gradientTransform"
+      },
+      {
+        "name": "gradientUnits"
+      },
+      {
+        "name": "href"
+      },
+      {
+        "name": "spreadMethod"
+      },
+      {
+        "name": "x1"
+      },
+      {
+        "name": "x2"
+      },
+      {
+        "name": "xlink:href"
+      },
+      {
+        "name": "xlink:title"
+      },
+      {
+        "name": "y1"
+      },
+      {
+        "name": "y2"
+      }
+    ]
+  },
+  {
+    "name": "SVGLineElement",
+    "attributes": [
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      },
+      {
+        "name": "x1"
+      },
+      {
+        "name": "x2"
+      },
+      {
+        "name": "y1"
+      },
+      {
+        "name": "y2"
+      }
+    ]
+  },
+  {
+    "name": "SVGMarkerElement",
+    "attributes": [
+      {
+        "name": "markerHeight"
+      },
+      {
+        "name": "markerUnits"
+      },
+      {
+        "name": "markerWidth"
+      },
+      {
+        "name": "orient"
+      },
+      {
+        "name": "refX"
+      },
+      {
+        "name": "refY"
+      }
+    ]
+  },
+  {
+    "name": "SVGMaskElement",
+    "attributes": [
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGPathElement",
+    "attributes": [
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGPatternElement",
+    "attributes": [
+      {
+        "name": "height"
+      },
+      {
+        "name": "href"
+      },
+      {
+        "name": "patternContentUnits"
+      },
+      {
+        "name": "patternTransform"
+      },
+      {
+        "name": "patternUnits"
+      },
+      {
+        "name": "width"
+      },
+      {
+        "name": "x"
+      },
+      {
+        "name": "xlink:href"
+      },
+      {
+        "name": "xlink:title"
+      },
+      {
+        "name": "y"
+      }
+    ]
+  },
+  {
+    "name": "SVGPolygonElement",
+    "attributes": [
+      {
+        "name": "points"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGPolylineElement",
+    "attributes": [
+      {
+        "name": "points"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGRadialGradientElement",
+    "attributes": [
+      {
+        "name": "cx"
+      },
+      {
+        "name": "cy"
+      },
+      {
+        "name": "fr"
+      },
+      {
+        "name": "fx"
+      },
+      {
+        "name": "fy"
+      },
+      {
+        "name": "gradientTransform"
+      },
+      {
+        "name": "gradientUnits"
+      },
+      {
+        "name": "href"
+      },
+      {
+        "name": "r"
+      },
+      {
+        "name": "spreadMethod"
+      },
+      {
+        "name": "xlink:href"
+      },
+      {
+        "name": "xlink:title"
+      }
+    ]
+  },
+  {
+    "name": "SVGRectElement",
+    "attributes": [
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGScriptElement",
+    "attributes": [
+      {
+        "name": "crossorigin"
+      },
+      {
+        "name": "href"
+      },
+      {
+        "name": "type"
+      },
+      {
+        "name": "xlink:href"
+      },
+      {
+        "name": "xlink:title"
+      }
+    ]
+  },
+  {
+    "name": "SVGSetElement",
+    "attributes": [
+      {
+        "name": "onbegin"
+      },
+      {
+        "name": "onend"
+      },
+      {
+        "name": "onrepeat"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGStopElement",
+    "attributes": [
+      {
+        "name": "offset"
+      }
+    ]
+  },
+  {
+    "name": "SVGStyleElement",
+    "attributes": [
+      {
+        "name": "media"
+      },
+      {
+        "name": "title"
+      },
+      {
+        "name": "type"
+      }
+    ]
+  },
+  {
+    "name": "SVGSwitchElement",
+    "attributes": [
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGSymbolElement",
+    "attributes": [
+      {
+        "name": "refX"
+      },
+      {
+        "name": "refY"
+      }
+    ]
+  },
+  {
+    "name": "SVGTextElement",
+    "attributes": [
+      {
+        "name": "dx"
+      },
+      {
+        "name": "dy"
+      },
+      {
+        "name": "lengthAdjust"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "rotate"
+      },
+      {
+        "name": "systemLanguage"
+      },
+      {
+        "name": "textLength"
+      },
+      {
+        "name": "x"
+      },
+      {
+        "name": "y"
+      }
+    ]
+  },
+  {
+    "name": "SVGTextPathElement",
+    "attributes": [
+      {
+        "name": "href"
+      },
+      {
+        "name": "method"
+      },
+      {
+        "name": "path"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "side"
+      },
+      {
+        "name": "spacing"
+      },
+      {
+        "name": "startOffset"
+      },
+      {
+        "name": "systemLanguage"
+      },
+      {
+        "name": "xlink:href"
+      },
+      {
+        "name": "xlink:title"
+      }
+    ]
+  },
+  {
+    "name": "SVGTSpanElement",
+    "attributes": [
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      }
+    ]
+  },
+  {
+    "name": "SVGUseElement",
+    "attributes": [
+      {
+        "name": "href"
+      },
+      {
+        "name": "requiredExtensions"
+      },
+      {
+        "name": "systemLanguage"
+      },
+      {
+        "name": "xlink:href"
+      },
+      {
+        "name": "xlink:title"
+      }
     ]
   },
   {

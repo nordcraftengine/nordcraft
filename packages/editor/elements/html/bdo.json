@@ -5,7 +5,7 @@
     "description": "Overrides the current text direction for its children",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdo",
     "aliases": ["bidirectional-override"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

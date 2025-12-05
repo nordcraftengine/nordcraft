@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Defines a spotlight source for lighting effects",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feSpotLight",
-    "aliases": ["spot-light", "svg-spot"]
+    "aliases": ["spot-light", "svg-spot"],
+    "interfaces": [
+      "SVGFESpotLightElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

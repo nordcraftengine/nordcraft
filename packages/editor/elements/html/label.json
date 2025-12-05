@@ -11,7 +11,8 @@
       "HTMLElement",
       "Element",
       "Node",
-      "EventTarget"
+      "EventTarget",
+      "global"
     ]
   },
   "element": {

@@ -5,7 +5,7 @@
     "description": "Represents a search section within a document",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search",
     "aliases": ["search-region"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

@@ -5,7 +5,7 @@
     "description": "Defines navigation links for the site or section",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav",
     "aliases": ["navigation", "menu"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

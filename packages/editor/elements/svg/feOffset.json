@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Offsets the input image by a specified amount",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feOffset",
-    "aliases": ["offset-filter", "svg-offset"]
+    "aliases": ["offset-filter", "svg-offset"],
+    "interfaces": [
+      "SVGFEOffsetElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

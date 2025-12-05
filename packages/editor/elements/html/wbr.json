@@ -6,7 +6,7 @@
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/wbr",
     "aliases": ["word-break"],
     "isVoid": true,
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

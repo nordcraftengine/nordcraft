@@ -4,7 +4,15 @@
     "categories": ["svg"],
     "description": "Allows inclusion of non-SVG content, such as HTML, within an SVG",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/foreignObject",
-    "aliases": ["foreign-object", "svg-foreign"]
+    "aliases": ["foreign-object", "svg-foreign"],
+    "interfaces": [
+      "SVGForeignObjectElement",
+      "SVGGraphicsElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

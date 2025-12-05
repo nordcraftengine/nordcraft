@@ -4,7 +4,15 @@
     "categories": ["svg"],
     "description": "Animates transformations such as scale, rotate, or translate on an element",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animateTransform",
-    "aliases": ["transform-animation", "svg-transform"]
+    "aliases": ["transform-animation", "svg-transform"],
+    "interfaces": [
+      "SVGAnimateTransformElement",
+      "SVGAnimationElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

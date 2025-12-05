@@ -4,7 +4,16 @@
     "categories": ["svg"],
     "description": "Draws a series of connected straight lines",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/polyline",
-    "aliases": ["svg-polyline", "line-sequence"]
+    "aliases": ["svg-polyline", "line-sequence"],
+    "interfaces": [
+      "SVGPolylineElement",
+      "SVGGeometryElement",
+      "SVGGraphicsElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

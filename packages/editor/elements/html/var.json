@@ -5,7 +5,7 @@
     "description": "Represents a variable in a mathematical expression or programming context",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/var",
     "aliases": ["variable"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

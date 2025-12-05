@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Applies a matrix transformation to the colors of the input image, enabling effects like grayscale or sepia",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feColorMatrix",
-    "aliases": ["color-matrix", "svg-color"]
+    "aliases": ["color-matrix", "svg-color"],
+    "interfaces": [
+      "SVGFEColorMatrixElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

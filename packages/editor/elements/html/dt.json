@@ -5,7 +5,7 @@
     "description": "Specifies a term or name in a description list",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt",
     "aliases": ["description-term"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

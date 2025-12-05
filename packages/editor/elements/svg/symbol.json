@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Defines reusable graphical objects that are not rendered directly",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/symbol",
-    "aliases": ["svg-symbol", "icon"]
+    "aliases": ["svg-symbol", "icon"],
+    "interfaces": [
+      "SVGSymbolElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

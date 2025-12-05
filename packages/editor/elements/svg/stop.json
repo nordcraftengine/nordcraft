@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Specifies a color and position in a gradient",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/stop",
-    "aliases": ["gradient-stop", "svg-stop", "gradient"]
+    "aliases": ["gradient-stop", "svg-stop", "gradient"],
+    "interfaces": [
+      "SVGStopElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

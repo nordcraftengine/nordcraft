@@ -4,7 +4,15 @@
     "categories": ["svg"],
     "description": "Animates an attribute of an SVG element over time",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animate",
-    "aliases": ["animation", "svg-animate"]
+    "aliases": ["animation", "svg-animate"],
+    "interfaces": [
+      "SVGAnimateElement",
+      "SVGAnimationElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

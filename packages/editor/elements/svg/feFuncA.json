@@ -4,7 +4,15 @@
     "categories": ["svg"],
     "description": "Defines the transfer function for the alpha (opacity) channel in feComponentTransfer",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncA",
-    "aliases": ["function-a", "svg-func-a"]
+    "aliases": ["function-a", "svg-func-a"],
+    "interfaces": [
+      "SVGFEFuncAElement",
+      "SVGComponentTransferFunctionElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Fills the filter region with a solid color",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFlood",
-    "aliases": ["flood-filter", "svg-flood"]
+    "aliases": ["flood-filter", "svg-flood"],
+    "interfaces": [
+      "SVGFEFloodElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

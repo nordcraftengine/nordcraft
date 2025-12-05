@@ -5,7 +5,7 @@
     "description": "Isolates a span of text that might have a different text direction",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdi",
     "aliases": ["bidirectional-isolation"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

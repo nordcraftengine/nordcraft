@@ -5,7 +5,7 @@
     "description": "Indicates the defining instance of a term",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dfn",
     "aliases": ["definition"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

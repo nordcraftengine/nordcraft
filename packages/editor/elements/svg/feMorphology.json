@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Applies erosion or dilation to the input image",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMorphology",
-    "aliases": ["morphology-filter", "svg-morphology"]
+    "aliases": ["morphology-filter", "svg-morphology"],
+    "interfaces": [
+      "SVGFEMorphologyElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

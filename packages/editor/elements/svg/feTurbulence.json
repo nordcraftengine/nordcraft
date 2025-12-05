@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Generates a noise or turbulence pattern for texture effects",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feTurbulence",
-    "aliases": ["turbulence-filter", "svg-turbulence"]
+    "aliases": ["turbulence-filter", "svg-turbulence"],
+    "interfaces": [
+      "SVGFETurbulenceElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

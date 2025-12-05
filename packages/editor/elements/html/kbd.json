@@ -5,7 +5,7 @@
     "description": "Represents user input, typically keyboard input",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd",
     "aliases": ["keyboard-input"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

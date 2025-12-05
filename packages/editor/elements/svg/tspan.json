@@ -4,7 +4,17 @@
     "categories": ["svg"],
     "description": "Allows for styling or positioning parts of text within a text element",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/tspan",
-    "aliases": ["text-span", "svg-tspan"]
+    "aliases": ["text-span", "svg-tspan"],
+    "interfaces": [
+      "SVGTSpanElement",
+      "SVGTextPositioningElement",
+      "SVGTextContentElement",
+      "SVGGraphicsElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

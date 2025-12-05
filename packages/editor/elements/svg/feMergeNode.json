@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Specifies an input image to be merged in a feMerge filter",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMergeNode",
-    "aliases": ["merge-node", "svg-merge-node"]
+    "aliases": ["merge-node", "svg-merge-node"],
+    "interfaces": [
+      "SVGFEMergeNodeElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",
