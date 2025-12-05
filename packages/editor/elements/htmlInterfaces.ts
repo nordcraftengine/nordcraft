@@ -92,6 +92,7 @@ export const getHtmlInterfaces = async () => {
         ),
       })
     })
+
   // Inject all commonly used og:* attribute options
   // See https://ogp.me/ for reference
   // While og:* attributes are not standard HTML attributes, they are widely used
@@ -136,6 +137,29 @@ export const getHtmlInterfaces = async () => {
       informative: true,
       heading: null,
       definedIn: 'Open Graph Protocol',
+      links: [],
+    })
+  })
+
+  // Inject commonly used Nordcraft data-* attributes
+  const nordcraftProperties = [
+    // Used to disable Nordcraft's default styles
+    // See https://docs.nordcraft.com/styling/default-styles#custom-styles
+    'data-unset-toddle-styles',
+    'data-theme', // Used for theming
+  ]
+  nordcraftProperties.forEach((property) => {
+    definitions.dfns.push({
+      id: `nordcraft-property-${property}`,
+      href: 'https://docs.nordcraft.com',
+      linkingText: [property],
+      localLinkingText: [property],
+      type: 'element-attr',
+      for: ['html-global'],
+      access: 'public',
+      informative: true,
+      heading: null,
+      definedIn: 'Nordcraft Documentation',
       links: [],
     })
   })

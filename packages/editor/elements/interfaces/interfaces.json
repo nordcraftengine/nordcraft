@@ -225,6 +225,12 @@
         "options": ["true", "false", "plaintext-only"]
       },
       {
+        "name": "data-theme"
+      },
+      {
+        "name": "data-unset-toddle-styles"
+      },
+      {
         "name": "dir",
         "options": ["ltr", "rtl", "auto"]
       },
