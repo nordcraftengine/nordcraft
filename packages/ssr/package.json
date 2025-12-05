@@ -4,13 +4,13 @@
   "type": "module",
   "homepage": "https://github.com/nordcraftengine/nordcraft",
   "scripts": {
-    "build": "tsc",
+    "build": "tsgo",
     "npm-publish": "bun run build && bun publish --access public",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:watch:only": "bun test --watch --only",
-    "typecheck": "tsc --noEmit",
-    "watch": "tsc -w"
+    "typecheck": "tsgo --noEmit",
+    "watch": "tsgo -w"
   },
   "files": [
     "dist",

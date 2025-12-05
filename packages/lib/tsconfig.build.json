@@ -1,17 +1,18 @@
 {
   "compilerOptions": {
     "alwaysStrict": true,
+    "declaration": true,
     "esModuleInterop": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
     "moduleResolution": "node",
+    "outDir": "dist",
     "preserveConstEnums": true,
+    "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "strictBuiltinIteratorReturn": true,
-    "target": "ESNext",
-    "outDir": "dist",
-    "declaration": true
+    "target": "ESNext"
   },
   "include": [
     "formulas/**/*.ts",

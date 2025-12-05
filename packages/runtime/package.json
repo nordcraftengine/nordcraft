@@ -13,10 +13,10 @@
     "@happy-dom/global-registrator": "20.0.10"
   },
   "scripts": {
-    "build": "tsc && bun scripts/build.js",
+    "build": "tsgo && bun scripts/build.js",
     "npm-publish": "bun run build && bun publish --access public",
-    "typecheck": "tsc --noEmit",
-    "watch": "tsc -w"
+    "typecheck": "tsgo --noEmit",
+    "watch": "tsgo -w"
   },
   "files": [
     "dist",

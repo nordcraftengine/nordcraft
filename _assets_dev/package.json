@@ -3,13 +3,14 @@
   "scripts": {
     "predev": "cd .. && bun bin/prepareReleaseAssets.ts",
     "dev": "bun --watch src/index.ts",
-    "typecheck": "tsc --noEmit",
-    "watch": "tsc --noEmit -w"
+    "typecheck": "tsgo --noEmit",
+    "watch": "tsgo --noEmit -w"
   },
   "dependencies": {
     "hono": "4.7.11"
   },
   "devDependencies": {
-    "@types/node": "24.0.3"
+    "@types/node": "24.0.3",
+    "@typescript/native-preview": "7.0.0-dev.20251204.1"
   }
 }
