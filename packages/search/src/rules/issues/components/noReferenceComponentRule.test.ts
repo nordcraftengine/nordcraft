@@ -1,3 +1,4 @@
+import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { describe, expect, test } from 'bun:test'
 import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'
@@ -212,6 +213,66 @@ describe('detect noReferenceComponentRule', () => {
     expect(problems).toHaveLength(1)
     expect(problems[0].code).toBe('no-reference component')
     expect(problems[0].path).toEqual(['components', 'exportedOrphan'])
+  })
+
+  test('should ignore components that are used as web components', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            orphan: {
+              name: 'test',
+              nodes: {},
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+              customElement: {
+                enabled: valueFormula(false),
+              },
+            },
+            exportedOrphan: {
+              name: 'test',
+              nodes: {},
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+              customElement: {
+                enabled: valueFormula(true),
+              },
+            },
+            page: {
+              name: 'my-page',
+              nodes: {},
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+              route: {
+                info: {},
+                path: [],
+                query: {},
+              },
+            },
+          },
+        },
+        rules: [noReferenceComponentRule],
+        state: {
+          projectDetails: {
+            type: 'package',
+            id: 'test-project-id',
+            name: 'test-project',
+            short_id: 'test-project-id',
+          },
+        },
+      }),
+    )
+
+    expect(problems).toHaveLength(1)
+    expect(problems[0].code).toBe('no-reference component')
+    expect(problems[0].path).toEqual(['components', 'orphan'])
   })
 })
 

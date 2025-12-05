@@ -1,4 +1,4 @@
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
 import type { Context } from 'hono'
 import type { HonoEnv } from '../../hono'
 
@@ -9,7 +9,7 @@ export type PageLoader<T = any> = ({
 }: {
   name: string
   ctx: Context<HonoEnv<T>>
-}) => MaybePromise<(ProjectFiles & { customCode: boolean }) | undefined>
+}) => MaybePromise<ProjectFilesWithCustomCode | undefined>
 
 export interface PageLoaderUrls {
   pageStylesheetUrl: (name: string) => string

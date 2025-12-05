@@ -16,11 +16,17 @@ import { type Formula } from '@nordcraft/core/dist/formula/formula'
  * TODO: Add a complex test-suite to ensure it works and develops as expected.
  */
 export const contextlessEvaluateFormula = (
-  formula: Formula,
+  formula?: Formula,
 ): {
   isStatic: boolean
   result: unknown
 } => {
+  if (!formula) {
+    return {
+      isStatic: true,
+      result: formula,
+    }
+  }
   // Very basic implementation, just to get started.
   switch (formula.type) {
     case 'value': {

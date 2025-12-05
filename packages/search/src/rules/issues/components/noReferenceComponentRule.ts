@@ -1,6 +1,7 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Rule } from '../../../types'
+import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
 export const noReferenceComponentRule: Rule<void> = {
@@ -12,7 +13,9 @@ export const noReferenceComponentRule: Rule<void> = {
       data.nodeType !== 'component' ||
       isPage(data.value) ||
       (state?.projectDetails?.type === 'package' &&
-        data.value.exported === true)
+        data.value.exported === true) ||
+      contextlessEvaluateFormula(data.value.customElement?.enabled).result ===
+        true
     ) {
       return
     }
