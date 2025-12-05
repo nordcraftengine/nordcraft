@@ -10,6 +10,7 @@
     "hono": "4.7.11"
   },
   "devDependencies": {
-    "@types/node": "24.0.3"
+    "@types/node": "24.0.3",
+    "@typescript/native-preview": "7.0.0-dev.20251204.1"
   }
 }
