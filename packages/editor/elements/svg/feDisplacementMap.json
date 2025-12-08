@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Distorts an image using another image as a displacement map",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDisplacementMap",
-    "aliases": ["displacement-map", "svg-displacement"]
+    "aliases": ["displacement-map", "svg-displacement"],
+    "interfaces": [
+      "SVGFEDisplacementMapElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

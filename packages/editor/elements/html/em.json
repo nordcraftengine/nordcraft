@@ -5,7 +5,7 @@
     "description": "Stresses emphasis of its contents, typically rendered in italics",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em",
     "aliases": ["emphasis", "italic"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

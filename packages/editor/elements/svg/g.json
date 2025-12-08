@@ -4,7 +4,15 @@
     "categories": ["svg"],
     "description": "Groups SVG shapes together so they can be transformed or styled as a unit",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/g",
-    "aliases": ["group", "svg-group"]
+    "aliases": ["group", "svg-group"],
+    "interfaces": [
+      "SVGGElement",
+      "SVGGraphicsElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

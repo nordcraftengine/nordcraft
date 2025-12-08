@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Defines a repeating graphic pattern for filling shapes",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/pattern",
-    "aliases": ["svg-pattern", "fill-pattern"]
+    "aliases": ["svg-pattern", "fill-pattern"],
+    "interfaces": [
+      "SVGPatternElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

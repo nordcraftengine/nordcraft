@@ -5,7 +5,7 @@
     "description": "Renders text with a strikethrough, indicating inaccuracy or removal",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/s",
     "aliases": ["strikethrough", "deleted"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

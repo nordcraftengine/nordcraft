@@ -6,7 +6,7 @@ import type { ValueOperation } from '@nordcraft/core/dist/formula/formula'
 import { writeFileSync } from 'fs'
 import { api } from 'mdn-data'
 import type { ExportedHtmlElement, ExportedHtmlElementCategory } from '../types'
-import { getElementInterface } from './utils'
+import { getHtmlElementInterface, getSvgElementInterface } from './utils'
 
 // Generates metadata and default structure for all HTML and SVG elements
 // The interface names for each element are fetched from the @webref/elements package
@@ -45,13 +45,19 @@ const POPULAR_ELEMENTS = [
   'ul',
 ]
 
-const inheritedInterfaces = (interfaceName: string): string[] => {
-  const inheritanceData = api.inheritance[interfaceName]
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+const inheritedInterfaces = (
+  _interfaceName: string,
+  includeGlobal: boolean,
+): string[] => {
+  const inheritanceData = api.inheritance[_interfaceName]
+  const interfaceName = _interfaceName.replaceAll('SVGSVG', 'SVG')
   if (!inheritanceData) {
-    return [interfaceName]
+    return [interfaceName, ...(includeGlobal ? ['global'] : [])]
   }
-  return [interfaceName, ...inheritedInterfaces(inheritanceData.inherits)]
+  return [
+    interfaceName,
+    ...inheritedInterfaces(inheritanceData.inherits, includeGlobal),
+  ]
 }
 
 const init = () => {
@@ -64,7 +70,7 @@ const init = () => {
       permittedChildren,
       permittedParents,
     } = settings
-    const elementInterface = getElementInterface(element)
+    const elementInterface = getHtmlElementInterface(element)
     if (typeof elementInterface !== 'string') {
       throw new Error('No interface found for element: ' + element)
     }
@@ -80,7 +86,7 @@ const init = () => {
         aliases: aliases,
         isVoid: VOID_ELEMENTS.includes(element) ? true : undefined,
         isPopular: POPULAR_ELEMENTS.includes(element) ? true : undefined,
-        interfaces: inheritedInterfaces(elementInterface),
+        interfaces: inheritedInterfaces(elementInterface, true),
         permittedChildren,
         permittedParents,
       },
@@ -114,6 +120,10 @@ const init = () => {
 
   Object.entries(svgElements).forEach(([element, settings]) => {
     const { aliases, attrs, nodes, categories } = settings
+    const elementInterface = getSvgElementInterface(element)
+    if (typeof elementInterface !== 'string') {
+      throw new Error('No interface found for element: ' + element)
+    }
     const output: ExportedHtmlElement = {
       metadata: {
         name: element,
@@ -125,7 +135,7 @@ const init = () => {
         link: `https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/${element}`,
         aliases: aliases,
         isPopular: popularSvgElements.includes(element) ? true : undefined,
-        interfaces: undefined,
+        interfaces: inheritedInterfaces(elementInterface, false),
       },
       element: {
         type: 'nodes',

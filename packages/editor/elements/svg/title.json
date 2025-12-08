@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Provides a title for the SVG content, often shown as a tooltip",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/title",
-    "aliases": ["svg-title", "caption"]
+    "aliases": ["svg-title", "caption"],
+    "interfaces": [
+      "SVGTitleElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",

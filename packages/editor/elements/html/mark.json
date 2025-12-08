@@ -5,7 +5,7 @@
     "description": "Highlights text for reference or relevance",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/mark",
     "aliases": ["highlight"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

@@ -5,7 +5,7 @@
     "description": "Provides a summary or heading for a details element",
     "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary",
     "aliases": ["details-summary"],
-    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget"]
+    "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
   "element": {
     "type": "nodes",

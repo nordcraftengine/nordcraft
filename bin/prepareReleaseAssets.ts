@@ -96,8 +96,8 @@ const run = async () => {
 
   // Add HTML interfaces file
   copyFileSync(
-    resolvePath('../packages/editor/elements/interfaces/htmlInterfaces.json'),
-    resolvePath(distPath, 'htmlInterfaces.json'),
+    resolvePath('../packages/editor/elements/interfaces/interfaces.json'),
+    resolvePath(distPath, 'interfaces.json'),
   )
 
   // Build html elements for the editor

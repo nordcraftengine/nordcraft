@@ -4,7 +4,14 @@
     "categories": ["svg"],
     "description": "Defines a motion path for animateMotion",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/mpath",
-    "aliases": ["motion-path", "svg-mpath"]
+    "aliases": ["motion-path", "svg-mpath"],
+    "interfaces": [
+      "SVGMPathElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget"
+    ]
   },
   "element": {
     "type": "nodes",
