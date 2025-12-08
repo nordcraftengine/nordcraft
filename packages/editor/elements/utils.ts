@@ -5,7 +5,8 @@ import { api } from 'mdn-data'
 const htmlElementDefinitions = (await listAll())?.['html']?.elements
 const svg1ElementDefinitions = (await listAll())?.['SVG11']?.elements
 const svg2ElementDefinitions = (await listAll())?.['SVG2']?.elements
-const filterEfectDefinitions = (await listAll())?.['filter-effects-1']?.elements
+const filterEffectDefinitions = (await listAll())?.['filter-effects-1']
+  ?.elements
 
 export const getHtmlElementInterface = (element: string) =>
   element === 'global'
@@ -17,7 +18,7 @@ export const getSvgElementInterface = (element: string) =>
     ? 'global'
     : (svg2ElementDefinitions?.find((el) => el.name === element)?.interface ??
       svg1ElementDefinitions?.find((el) => el.name === element)?.interface ??
-      filterEfectDefinitions?.find((el) => el.name === element)?.interface)
+      filterEffectDefinitions?.find((el) => el.name === element)?.interface)
 
 export const isHtmlInterface = (interfaceName: string) =>
   api.inheritance[interfaceName] !== undefined
