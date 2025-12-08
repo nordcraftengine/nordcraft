@@ -22,7 +22,7 @@
     "eslint": "9.39.1",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier": "3.7.3",
-    "@typescript/native-preview": "7.0.0-dev.20251204.1"
+    "@typescript/native-preview": "7.0.0-dev.20251208.1"
   },
   "scripts": {
     "build": "cd packages/core && bun run build && cd ../lib && bun run build && cd ../ssr && bun run build && cd ../search && bun run build && cd ../runtime && bun run build",
