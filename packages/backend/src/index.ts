@@ -1,4 +1,5 @@
 import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
+import { getConnInfo } from 'hono/cloudflare-workers'
 import { endTime, startTime } from 'hono/timing'
 import { getApp } from './app'
 import { loadJsFile } from './middleware/jsLoader'
@@ -6,6 +7,7 @@ import { loadProjectInfo } from './middleware/projectInfo'
 import { routesLoader } from './middleware/routesLoader'
 
 const app = getApp({
+  getConnInfo,
   fileLoaders: [routesLoader, loadProjectInfo],
   pageLoader: {
     loader: async ({ name, ctx }) => {
