@@ -1,6 +1,7 @@
 import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
 import { splitRoutes } from '@nordcraft/ssr/dist/utils/routes'
 import type { Context } from 'hono'
+import { getConnInfo } from 'hono/cloudflare-workers'
 import { createMiddleware } from 'hono/factory'
 import type { HonoProject, HonoRoutes, PreviewHonoEnv } from '../hono'
 import { getApp } from './app'
@@ -67,6 +68,7 @@ const loadProject = ({
 }
 
 const app = getApp({
+  getConnInfo,
   stylesheetRouter: {
     path: '/.toddle/stylesheet/:pageName{.+.css}',
     handler: stylesheetHandler,

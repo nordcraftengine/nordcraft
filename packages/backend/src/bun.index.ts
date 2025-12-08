@@ -1,5 +1,5 @@
 import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
-import { serveStatic } from 'hono/bun'
+import { getConnInfo, serveStatic } from 'hono/bun'
 import { compress } from 'hono/compress'
 import { getApp } from './app'
 import { loadJsFile } from './middleware/jsLoader'
@@ -7,6 +7,7 @@ import { loadProjectInfo } from './middleware/projectInfo'
 import { routesLoader } from './middleware/routesLoader'
 
 const app = getApp({
+  getConnInfo,
   fileLoaders: [routesLoader, loadProjectInfo],
   staticRouter: {
     path: '/_static/*',

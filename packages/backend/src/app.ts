@@ -1,5 +1,6 @@
 import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
 import { Hono, type Handler, type MiddlewareHandler } from 'hono'
+import type { GetConnInfo } from 'hono/conninfo'
 import { poweredBy } from 'hono/powered-by'
 import { timing } from 'hono/timing'
 import type { HonoEnv } from '../hono'
@@ -18,6 +19,7 @@ import { serviceWorker } from './routes/serviceWorker'
 import { sitemap } from './routes/sitemap'
 
 export const getApp = <T extends Record<string, any>>(options: {
+  getConnInfo: GetConnInfo
   staticRouter?: { path: string; handler: Handler }
   stylesheetRouter?: { path: string; handler: Handler }
   customCodeRouter?: { path: string; handler: Handler }
@@ -55,7 +57,9 @@ export const getApp = <T extends Record<string, any>>(options: {
   // Proxy endpoint for Nordcraft APIs
   app.all(
     '/.toddle/omvej/components/:componentName/apis/:apiName',
-    proxyRequestHandler,
+    proxyRequestHandler((requestContext) =>
+      options.getConnInfo(requestContext),
+    ),
   )
   app.get('/.nordcraft/cookies/set-cookie', setCookieHandler)
 

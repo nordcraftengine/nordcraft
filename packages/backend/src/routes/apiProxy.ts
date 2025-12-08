@@ -18,144 +18,163 @@ import {
   skipHopByHopHeaders,
 } from '@nordcraft/ssr/src/utils/headers'
 import type { Context } from 'hono'
+import type { ConnInfo } from 'hono/conninfo'
 import { endTime, startTime } from 'hono/timing'
 import type { StatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
 
-export const proxyRequestHandler = async (
-  c: Context<HonoEnv, '/.toddle/omvej/components/:componentName/apis/:apiName'>,
-): Promise<Response> => {
-  const req = c.req.raw
-  const requestCookies = getRequestCookies(req)
-  const requestUrl = new URL(req.url)
-  const outgoingRequestUrl = validateUrl(
-    // Replace potential cookie values in the URL
-    {
-      path: applyTemplateValues(
-        req.headers.get(PROXY_URL_HEADER),
-        requestCookies,
-      ),
-      origin: requestUrl.origin,
-    },
-  )
-  if (!outgoingRequestUrl) {
-    return c.json(
+export const proxyRequestHandler =
+  (getConnInfo: (c: Context) => ConnInfo) =>
+  async (
+    c: Context<
+      HonoEnv,
+      '/.toddle/omvej/components/:componentName/apis/:apiName'
+    >,
+  ): Promise<Response> => {
+    const req = c.req.raw
+    const requestCookies = getRequestCookies(req)
+    const requestUrl = new URL(req.url)
+    const outgoingRequestUrl = validateUrl(
+      // Replace potential cookie values in the URL
       {
-        error: `The provided URL is invalid: ${req.headers.get(
-          PROXY_URL_HEADER,
-        )}`,
+        path: applyTemplateValues(
+          req.headers.get(PROXY_URL_HEADER),
+          requestCookies,
+        ),
+        origin: requestUrl.origin,
       },
-      { status: 400 },
     )
-  }
-  let headers: Headers
-  try {
-    headers = sanitizeProxyHeaders({
-      cookies: requestCookies,
-      headers: req.headers,
-    })
-    // Ensure we support the received content. Our server doesn't support brotli for instance
-    headers.set('accept-encoding', 'gzip, deflate')
-  } catch {
-    return c.json(
-      {
-        error:
-          'Proxy validation failed: one or more headers had an invalid name/value',
-      },
-      { status: 400 },
-    )
-  }
-  try {
-    let templateBody: string | undefined
-    if (
-      HttpMethodsWithAllowedBody.includes(req.method as ApiMethod) &&
-      req.headers.get(PROXY_TEMPLATES_IN_BODY) !== null
-    ) {
-      // If the request has the PROXY_TEMPLATES_IN_BODY header set,
-      // we must apply the template values to the body as well
-      try {
-        const bodyText = await req.text()
-        const contentType = req.headers.get('content-type')?.toLowerCase()
-
-        if (contentType?.includes('application/x-www-form-urlencoded')) {
-          // Parse form data, apply templates to values, then re-encode
-          templateBody = new URLSearchParams(
-            Object.fromEntries(
-              new URLSearchParams(bodyText)
-                .entries()
-                .map(([key, value]) => [
-                  key,
-                  applyTemplateValues(value, requestCookies),
-                ]),
-            ),
-          ).toString()
-        } else {
-          // Handle other content types (JSON, text, etc.)
-          templateBody = applyTemplateValues(bodyText, requestCookies)
-        }
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('Error applying template values to request body', e)
-        return c.json(
-          {
-            error:
-              'Error applying template values to request body. Perhaps the request body was not text?',
-          },
-          { status: 400 },
-        )
-      }
+    if (!outgoingRequestUrl) {
+      return c.json(
+        {
+          error: `The provided URL is invalid: ${req.headers.get(
+            PROXY_URL_HEADER,
+          )}`,
+        },
+        { status: 400 },
+      )
     }
-    const request = new Request(outgoingRequestUrl.href, {
-      // We copy over the method
-      method: c.req.method,
-      headers,
-      // We use the adjusted body or forward the body as is
-      body: templateBody ?? req.body,
-      // Let's add a 5s timeout
-      signal: AbortSignal.timeout(5000),
-    })
-    let response: Response
+    let headers: Headers
     try {
-      // Remove the cf-connecting-ip header if the request is from localhost
-      // This is to prevent cf to throw an error when the requester ip is ::1
-      // Also remove the host header to prevent host mismatches
-      if ((request.headers.get('host') ?? '').startsWith('localhost')) {
-        request.headers.delete('cf-connecting-ip')
-        request.headers.delete('host')
-      }
-      const timingKey = 'apiProxyFetch'
-      startTime(c, timingKey)
-      response = await fetch(request)
-      endTime(c, timingKey)
-    } catch (e: any) {
-      // eslint-disable-next-line no-console
-      console.error('API request error', e.message)
-      const status = e instanceof Error && e.name === 'TimeoutError' ? 504 : 500
-      response = c.json(e.message, { status })
-    }
-
-    // Pass the stream into a new response so we can write the headers
-    const body = NON_BODY_RESPONSE_CODES.includes(response.status)
-      ? undefined
-      : ((response.body ?? new ReadableStream()) as ReadableStream)
-    // Skip hop-by-hop and content-encoding headers. Content-Encoding is handled by compress middleware
-    skipHopByHopHeaders(skipContentEncodingHeader(response.headers))
-      .entries()
-      .forEach(([name, value]) => {
-        c.header(name, value, { append: true })
+      headers = sanitizeProxyHeaders({
+        cookies: requestCookies,
+        headers: req.headers,
       })
-    // Tell the client to vary based on the original URL header
-    c.header('Vary', PROXY_URL_HEADER, { append: true })
-    c.status(response.status as StatusCode)
-    if (body) {
-      return c.body(body)
+      // Ensure we support the received content. Our server doesn't support brotli for instance
+      headers.set('accept-encoding', 'gzip, deflate')
+    } catch {
+      return c.json(
+        {
+          error:
+            'Proxy validation failed: one or more headers had an invalid name/value',
+        },
+        { status: 400 },
+      )
     }
-    return c.res
-  } catch (e) {
-    const error =
-      e instanceof Error
-        ? e.message
-        : 'Unable to build a valid request from the API definition'
-    return c.json({ error }, { status: 500 })
+    try {
+      let templateBody: string | undefined
+      if (
+        HttpMethodsWithAllowedBody.includes(req.method as ApiMethod) &&
+        req.headers.get(PROXY_TEMPLATES_IN_BODY) !== null
+      ) {
+        // If the request has the PROXY_TEMPLATES_IN_BODY header set,
+        // we must apply the template values to the body as well
+        try {
+          const bodyText = await req.text()
+          const contentType = req.headers.get('content-type')?.toLowerCase()
+
+          if (contentType?.includes('application/x-www-form-urlencoded')) {
+            // Parse form data, apply templates to values, then re-encode
+            templateBody = new URLSearchParams(
+              Object.fromEntries(
+                new URLSearchParams(bodyText)
+                  .entries()
+                  .map(([key, value]) => [
+                    key,
+                    applyTemplateValues(value, requestCookies),
+                  ]),
+              ),
+            ).toString()
+          } else {
+            // Handle other content types (JSON, text, etc.)
+            templateBody = applyTemplateValues(bodyText, requestCookies)
+          }
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error('Error applying template values to request body', e)
+          return c.json(
+            {
+              error:
+                'Error applying template values to request body. Perhaps the request body was not text?',
+            },
+            { status: 400 },
+          )
+        }
+      }
+      const request = new Request(outgoingRequestUrl.href, {
+        // We copy over the method
+        method: c.req.method,
+        headers,
+        // We use the adjusted body or forward the body as is
+        body: templateBody ?? req.body,
+        // Let's add a 5s timeout
+        signal: AbortSignal.timeout(5000),
+      })
+      let response: Response
+      try {
+        // Remove the cf-connecting-ip header if the request is from localhost
+        // This is to prevent cf to throw an error when the requester ip is ::1
+        // Also remove the host header to prevent host mismatches
+        if ((request.headers.get('host') ?? '').startsWith('localhost')) {
+          request.headers.delete('cf-connecting-ip')
+          request.headers.delete('host')
+        }
+        const ip = normalizeIP(getConnInfo(c).remote.address)
+        if (ip) {
+          request.headers.set('X-Forwarded-For', ip)
+        }
+        const timingKey = 'apiProxyFetch'
+        startTime(c, timingKey)
+        response = await fetch(request)
+        endTime(c, timingKey)
+      } catch (e: any) {
+        // eslint-disable-next-line no-console
+        console.error('API request error', e.message)
+        const status =
+          e instanceof Error && e.name === 'TimeoutError' ? 504 : 500
+        response = c.json(e.message, { status })
+      }
+
+      // Pass the stream into a new response so we can write the headers
+      const body = NON_BODY_RESPONSE_CODES.includes(response.status)
+        ? undefined
+        : ((response.body ?? new ReadableStream()) as ReadableStream)
+      // Skip hop-by-hop and content-encoding headers. Content-Encoding is handled by compress middleware
+      skipHopByHopHeaders(skipContentEncodingHeader(response.headers))
+        .entries()
+        .forEach(([name, value]) => {
+          c.header(name, value, { append: true })
+        })
+      // Tell the client to vary based on the original URL header
+      c.header('Vary', PROXY_URL_HEADER, { append: true })
+      c.status(response.status as StatusCode)
+      if (body) {
+        return c.body(body)
+      }
+      return c.res
+    } catch (e) {
+      const error =
+        e instanceof Error
+          ? e.message
+          : 'Unable to build a valid request from the API definition'
+      return c.json({ error }, { status: 500 })
+    }
   }
+
+const normalizeIP = (address?: string) => {
+  // Remove IPv4-mapped IPv6 prefix if present
+  if (address?.startsWith('::ffff:')) {
+    return address.substring(7)
+  }
+  return address
 }

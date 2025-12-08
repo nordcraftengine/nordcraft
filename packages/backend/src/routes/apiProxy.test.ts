@@ -10,6 +10,12 @@ import { proxyRequestHandler } from './apiProxy'
 
 const spyFetch = spyOn(globalThis, 'fetch')
 
+const fakeProxy = proxyRequestHandler(() => ({
+  remote: {
+    address: '127.0.0.1',
+  },
+}))
+
 describe('API proxy', () => {
   beforeEach(() => {
     spyFetch.mockReset()
@@ -22,7 +28,7 @@ describe('API proxy', () => {
     const client = testClient(
       new Hono().get(
         '.toddle/omvej/components/:componentName/apis/:apiName',
-        proxyRequestHandler,
+        fakeProxy,
       ),
     )
     const targetUrl = new URL(
@@ -69,7 +75,7 @@ describe('API proxy', () => {
     const client = testClient(
       new Hono().post(
         '.toddle/omvej/components/:componentName/apis/:apiName',
-        proxyRequestHandler,
+        fakeProxy,
       ),
     )
     const targetUrl = new URL('https://example.com/api')
@@ -121,7 +127,7 @@ describe('API proxy', () => {
     const client = testClient(
       new Hono().post(
         '.toddle/omvej/components/:componentName/apis/:apiName',
-        proxyRequestHandler,
+        fakeProxy,
       ),
     )
     const targetUrl = new URL('https://example.com/api')
@@ -174,7 +180,7 @@ describe('API proxy', () => {
     const client = testClient(
       new Hono().post(
         '.toddle/omvej/components/:componentName/apis/:apiName',
-        proxyRequestHandler,
+        fakeProxy,
       ),
     )
     const targetUrl = new URL('https://example.com/api')
@@ -232,7 +238,7 @@ describe('API proxy', () => {
     const client = testClient(
       new Hono().get(
         '.toddle/omvej/components/:componentName/apis/:apiName',
-        proxyRequestHandler,
+        fakeProxy,
       ),
     )
     const targetUrl = new URL(
