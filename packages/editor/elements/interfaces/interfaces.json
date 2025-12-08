@@ -345,13 +345,16 @@
         "name": "coords"
       },
       {
-        "name": "download"
+        "name": "download",
+        "description": "The HTMLAnchorElement.download property is a\nstring indicating that the linked resource is intended to be\ndownloaded rather than displayed in the browser. The value, if any, specifies the\ndefault file name for use in labeling the resource in a local file system. If the name\nis not a valid file name in the underlying OS, the browser will adjust it."
       },
       {
-        "name": "href"
+        "name": "href",
+        "description": "The href property of the HTMLAnchorElement interface is a stringifier that returns the absolute URL corresponding to the element's href attribute (or an empty string if href is unset). Setting this property updates the element's href attribute to the provided value."
       },
       {
-        "name": "hreflang"
+        "name": "hreflang",
+        "description": "The hreflang property of the HTMLAnchorElement interface is a string that is the language of the linked resource."
       },
       {
         "name": "methods"
@@ -360,7 +363,8 @@
         "name": "name"
       },
       {
-        "name": "ping"
+        "name": "ping",
+        "description": "The ping property of the HTMLAnchorElement interface is a space-separated list of URLs. When the link is followed, the browser will send POST requests with the body PING to the URLs."
       },
       {
         "name": "referrerpolicy",
@@ -377,6 +381,7 @@
       },
       {
         "name": "rel",
+        "description": "The rel attribute defines the relationship between a linked resource and the current document. Valid on <link>, <a>, <area>, and <form>, the supported values depend on the element on which the attribute is found.",
         "options": [
           "alternate",
           "author",
@@ -403,10 +408,12 @@
         "name": "shape"
       },
       {
-        "name": "target"
+        "name": "target",
+        "description": "The target property of the HTMLAnchorElement interface is a string that indicates where to display the linked resource."
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type property of the HTMLAnchorElement interface is a string that indicates the MIME type of the linked resource."
       },
       {
         "name": "urn"
@@ -417,16 +424,20 @@
     "name": "HTMLAreaElement",
     "attributes": [
       {
-        "name": "alt"
+        "name": "alt",
+        "description": "The alt property of the HTMLAreaElement interface specifies the text of the hyperlink, defining the textual label for an image map's link. It reflects the <area> element's alt attribute."
       },
       {
-        "name": "coords"
+        "name": "coords",
+        "description": "The coords property of the HTMLAreaElement interface specifies the coordinates of the element's shape as a list of floating-point numbers. It reflects the <area> element's coords attribute."
       },
       {
-        "name": "download"
+        "name": "download",
+        "description": "The download property of the HTMLAreaElement interface is a string indicating that the linked resource is intended to be downloaded rather than displayed in the browser. The value represent the proposed name of the file. If the name is not a valid filename of the underlying OS, browser will adjust it accordingly."
       },
       {
-        "name": "href"
+        "name": "href",
+        "description": "The HTMLAreaElement.href property is a\nstringifier that returns a string containing the whole URL, and allows\nthe href to be updated."
       },
       {
         "name": "hreflang"
@@ -435,7 +446,8 @@
         "name": "nohref"
       },
       {
-        "name": "ping"
+        "name": "ping",
+        "description": "The ping property of the HTMLAreaElement interface is a space-separated list of URLs. When the link is followed, the browser will send POST requests with the body PING to the URLs."
       },
       {
         "name": "referrerpolicy",
@@ -452,6 +464,7 @@
       },
       {
         "name": "rel",
+        "description": "The rel attribute defines the relationship between a linked resource and the current document. Valid on <link>, <a>, <area>, and <form>, the supported values depend on the element on which the attribute is found.",
         "options": [
           "alternate",
           "author",
@@ -473,6 +486,7 @@
       },
       {
         "name": "shape",
+        "description": "The shape property of the HTMLAreaElement interface specifies the shape of an image map area. It reflects the <area> element's shape attribute.",
         "options": [
           "circle state",
           "default state",
@@ -481,7 +495,8 @@
         ]
       },
       {
-        "name": "target"
+        "name": "target",
+        "description": "The target property of the HTMLAreaElement interface is a string that indicates where to display the linked resource."
       },
       {
         "name": "type"
@@ -499,6 +514,7 @@
       },
       {
         "name": "crossorigin",
+        "description": "The crossorigin attribute, valid on the <audio>, <img>, <link>, <script>, and <video> elements, provides support for CORS, defining how the element handles cross-origin requests, thereby enabling the configuration of the CORS requests for the element's fetched data. Depending on the element, the attribute can be a CORS settings attribute.",
         "options": ["anonymous", "use-credentials"]
       },
       {
@@ -520,10 +536,12 @@
     "name": "HTMLBaseElement",
     "attributes": [
       {
-        "name": "href"
+        "name": "href",
+        "description": "The href property of the HTMLBaseElement interface contains a string that is the URL to use as the base for relative URLs."
       },
       {
-        "name": "target"
+        "name": "target",
+        "description": "The target property of the HTMLBaseElement interface is a string that represents the default target tab to show the resulting output for hyperlinks and form elements."
       }
     ]
   },
@@ -581,6 +599,7 @@
       },
       {
         "name": "autocomplete",
+        "description": "The HTML autocomplete attribute lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.",
         "options": [
           "section-",
           "shipping",
@@ -649,13 +668,15 @@
         ]
       },
       {
-        "name": "command"
+        "name": "command",
+        "description": "The command property of the HTMLButtonElement interface gets and sets the action to be performed on an element being controlled by this button. For this to have an effect, commandfor must be set."
       },
       {
         "name": "commandfor"
       },
       {
-        "name": "disabled"
+        "name": "disabled",
+        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants."
       },
       {
         "name": "enctype",
@@ -666,7 +687,8 @@
         ]
       },
       {
-        "name": "form"
+        "name": "form",
+        "description": "The form HTML attribute associates a form-associated element with a <form> element within the same document. This attribute applies to the <button>, <fieldset>, <input>, <object>, <output>, <select>, and <textarea> elements."
       },
       {
         "name": "formaction"
@@ -688,7 +710,8 @@
         "name": "method"
       },
       {
-        "name": "name"
+        "name": "name",
+        "description": "The name property of the HTMLButtonElement interface indicates the name of the <button> element or the empty string if the element has no name. It reflects the element's name attribute."
       },
       {
         "name": "novalidate"
@@ -698,10 +721,12 @@
       },
       {
         "name": "type",
+        "description": "The type property of the HTMLButtonElement interface is a string that indicates the behavior type of the <button> element.",
         "options": ["submit", "reset", "button"]
       },
       {
-        "name": "value"
+        "name": "value",
+        "description": "The value property of the HTMLButtonElement interface represents the value of the <button> element as a string, or the empty string if no value is set. It reflects the element's value attribute."
       }
     ],
     "events": ["invalid"]
@@ -710,10 +735,12 @@
     "name": "HTMLCanvasElement",
     "attributes": [
       {
-        "name": "height"
+        "name": "height",
+        "description": "The HTMLCanvasElement.height property is a\npositive integer reflecting the height HTML\nattribute of the <canvas> element interpreted in CSS pixels. When the\nattribute is not specified, or if it is set to an invalid value, like a negative, the\ndefault value of 150 is used."
       },
       {
-        "name": "width"
+        "name": "width",
+        "description": "The HTMLCanvasElement.width property is a\npositive integer reflecting the width HTML\nattribute of the <canvas> element interpreted in CSS pixels. When the\nattribute is not specified, or if it is set to an invalid value, like a negative, the\ndefault value of 300 is used."
       }
     ],
     "events": [
@@ -728,7 +755,8 @@
     "name": "HTMLDataElement",
     "attributes": [
       {
-        "name": "value"
+        "name": "value",
+        "description": "The value property of the HTMLDataElement\ninterface returns a string reflecting the value HTML attribute."
       }
     ]
   },
@@ -736,10 +764,12 @@
     "name": "HTMLDetailsElement",
     "attributes": [
       {
-        "name": "name"
+        "name": "name",
+        "description": "The name property of the HTMLDetailsElement interface reflects the name attribute of <details> elements. It enables multiple <details> elements to be connected together, where only one for the <details> elements can be open at once. This allows developers to easily create UI features such as accordions without scripting."
       },
       {
-        "name": "open"
+        "name": "open",
+        "description": "The open property of the\nHTMLDetailsElement interface is a boolean value reflecting the\nopen HTML attribute, indicating whether the <details>'s contents (not counting the <summary>) is to be shown to the user."
       }
     ],
     "events": ["toggle"]
@@ -752,7 +782,8 @@
         "options": ["any", "closerequest", "none"]
       },
       {
-        "name": "open"
+        "name": "open",
+        "description": "The open property of the\nHTMLDialogElement interface is a boolean value reflecting the\nopen HTML attribute, indicating whether the <dialog> is\navailable for interaction."
       }
     ],
     "events": ["cancel", "close"]
@@ -769,7 +800,8 @@
     "name": "HTMLDListElement",
     "attributes": [
       {
-        "name": "compact"
+        "name": "compact",
+        "description": "The compact property of the HTMLDListElement interface indicates that spacing between list items should be reduced. The exact handling of the compact attribute is browser-specific. Instead of using this property, consider using CSS line-height instead."
       }
     ]
   },
@@ -777,7 +809,8 @@
     "name": "HTMLElement",
     "attributes": [
       {
-        "name": "title"
+        "name": "title",
+        "description": "The HTMLElement.title property\nrepresents the title of the element: the text usually displayed in a 'tooltip' popup\nwhen the mouse is over the node."
       }
     ],
     "events": [
@@ -829,7 +862,8 @@
         "name": "align"
       },
       {
-        "name": "height"
+        "name": "height",
+        "description": "The height property of the HTMLEmbedElement interface returns a string that reflects the height attribute of the <embed> element, indicating the displayed height of the resource in CSS pixels."
       },
       {
         "name": "hspace"
@@ -838,16 +872,19 @@
         "name": "name"
       },
       {
-        "name": "src"
+        "name": "src",
+        "description": "The src property of the HTMLEmbedElement interface returns a string that indicates the URL of the resource being embedded."
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type property of the HTMLEmbedElement interface returns a string that reflects the type attribute of the <embed> element, indicating the MIME type of the resource. It reflects the <embed> element's type attribute"
       },
       {
         "name": "vspace"
       },
       {
-        "name": "width"
+        "name": "width",
+        "description": "The width property of the HTMLEmbedElement interface returns a string that reflects the width attribute of the <embed> element, indicating the displayed width of the resource in CSS pixels."
       }
     ]
   },
@@ -856,6 +893,7 @@
     "attributes": [
       {
         "name": "autocomplete",
+        "description": "The HTML autocomplete attribute lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.",
         "options": [
           "section-",
           "shipping",
@@ -924,13 +962,16 @@
         ]
       },
       {
-        "name": "disabled"
+        "name": "disabled",
+        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants."
       },
       {
-        "name": "form"
+        "name": "form",
+        "description": "The form HTML attribute associates a form-associated element with a <form> element within the same document. This attribute applies to the <button>, <fieldset>, <input>, <object>, <output>, <select>, and <textarea> elements."
       },
       {
-        "name": "name"
+        "name": "name",
+        "description": "The name property of the HTMLFieldSetElement interface indicates the name of the <fieldset> element. It reflects the element's name attribute."
       }
     ]
   },
@@ -938,20 +979,24 @@
     "name": "HTMLFormElement",
     "attributes": [
       {
-        "name": "accept"
+        "name": "accept",
+        "description": "The accept attribute takes as its value a comma-separated list of one or more file types, or unique file type specifiers, describing which file types to allow."
       },
       {
         "name": "accept-charset"
       },
       {
-        "name": "action"
+        "name": "action",
+        "description": "The HTMLFormElement.action property represents the action\nof the <form> element."
       },
       {
         "name": "autocomplete",
+        "description": "The HTML autocomplete attribute lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.",
         "options": ["on", "off"]
       },
       {
         "name": "enctype",
+        "description": "The HTMLFormElement.enctype property is the MIME type of content that is used\nto submit the form to the server. Possible values are:",
         "options": [
           "application/x-www-form-urlencoded",
           "multipart/form-data",
@@ -975,16 +1020,19 @@
       },
       {
         "name": "method",
+        "description": "The HTMLFormElement.method property represents the\nHTTP method used to submit the <form>.",
         "options": ["get", "post", "dialog"]
       },
       {
-        "name": "name"
+        "name": "name",
+        "description": "The HTMLFormElement.name property represents the name of\nthe current <form> element as a string."
       },
       {
         "name": "novalidate"
       },
       {
         "name": "rel",
+        "description": "The rel attribute defines the relationship between a linked resource and the current document. Valid on <link>, <a>, <area>, and <form>, the supported values depend on the element on which the attribute is found.",
         "options": [
           "external",
           "help",
@@ -999,7 +1047,8 @@
         ]
       },
       {
-        "name": "target"
+        "name": "target",
+        "description": "The target property of the HTMLFormElement\ninterface represents the target of the form's action (i.e., the frame in which to render\nits output)."
       }
     ],
     "events": ["formdata", "reset", "submit"]
@@ -1033,7 +1082,8 @@
         "name": "noshade"
       },
       {
-        "name": "size"
+        "name": "size",
+        "description": "The size attribute defines the width of the <input> and the height of the <select> element. For an input element, it defines the number of characters that the user agent allows the user to see when editing the value. For a select element, it defines the number of options that should be shown to the user. This must be a valid non-negative integer greater than zero."
       },
       {
         "name": "width"
@@ -1047,7 +1097,8 @@
         "name": "manifest"
       },
       {
-        "name": "version"
+        "name": "version",
+        "description": "Returns version information about the document type definition (DTD) of a document. While this property is recognized by Mozilla, the return value for this property is always an empty string."
       }
     ]
   },
@@ -1058,7 +1109,8 @@
         "name": "align"
       },
       {
-        "name": "allow"
+        "name": "allow",
+        "description": "The allow property of the HTMLIFrameElement interface indicates the Permissions Policy specified for this <iframe> element. The policy defines what features are available to the <iframe> element (for example, access to the microphone, camera, battery, web-share, etc.) based on the origin of the request."
       },
       {
         "name": "allowfullscreen"
@@ -1073,13 +1125,15 @@
         "name": "framespacing"
       },
       {
-        "name": "height"
+        "name": "height",
+        "description": "The height property of the HTMLIFrameElement interface returns a string that reflects the height attribute of the <iframe> element, indicating the height of the frame in CSS pixels."
       },
       {
         "name": "hspace"
       },
       {
         "name": "loading",
+        "description": "The loading property of the HTMLIFrameElement interface is a string that provides a hint to the user agent indicating whether the iframe should be loaded immediately on page load, or only when it is needed.",
         "options": ["lazy", "eager"]
       },
       {
@@ -1092,7 +1146,8 @@
         "name": "marginwidth"
       },
       {
-        "name": "name"
+        "name": "name",
+        "description": "The name property of the HTMLIFrameElement interface is a string value that reflects the name attribute of the <iframe> element, indicating the specific name of the <iframe> element."
       },
       {
         "name": "referrerpolicy",
@@ -1109,6 +1164,7 @@
       },
       {
         "name": "sandbox",
+        "description": "The read-only sandbox property of the HTMLIFrameElement returns a live DOMTokenList object indicating extra restrictions on the behavior of the nested content. It reflects the <iframe> element's sandbox content attribute.",
         "options": [
           "allow-popups",
           "allow-top-navigation",
@@ -1129,16 +1185,19 @@
         "name": "scrolling"
       },
       {
-        "name": "src"
+        "name": "src",
+        "description": "The HTMLIFrameElement.src\nA string that reflects the src HTML attribute, containing the address of the content to be embedded."
       },
       {
-        "name": "srcdoc"
+        "name": "srcdoc",
+        "description": "The srcdoc property of the HTMLIFrameElement interface gets or sets the inline HTML markup of the frame's document."
       },
       {
         "name": "vspace"
       },
       {
-        "name": "width"
+        "name": "width",
+        "description": "The width property of the HTMLIFrameElement interface returns a string that reflects the width attribute of the <iframe> element, indicating the width of the frame in CSS pixels."
       }
     ]
   },
@@ -1146,37 +1205,46 @@
     "name": "HTMLImageElement",
     "attributes": [
       {
-        "name": "align"
+        "name": "align",
+        "description": "The deprecated align property of the HTMLImageElement interface is a string which indicates how to position the image relative to its container. It reflects the <img> element's align content attribute."
       },
       {
-        "name": "alt"
+        "name": "alt",
+        "description": "The alt property of the HTMLImageElement interface provides fallback (alternate) text to display when the image specified by the <img> element is not displayed, whether because of an error, because the user has disabled the loading of images, or because the image hasn't finished loading yet. It reflects the <img> element's alt content attribute."
       },
       {
-        "name": "border"
+        "name": "border",
+        "description": "The deprecated border property of the HTMLImageElement interface specifies the number of pixels thick the border surrounding the image should be. A value of 0, the default, indicates that no border should be drawn. It reflects the <img> element's border content attribute."
       },
       {
         "name": "crossorigin",
+        "description": "The crossorigin attribute, valid on the <audio>, <img>, <link>, <script>, and <video> elements, provides support for CORS, defining how the element handles cross-origin requests, thereby enabling the configuration of the CORS requests for the element's fetched data. Depending on the element, the attribute can be a CORS settings attribute.",
         "options": ["anonymous", "use-credentials"]
       },
       {
         "name": "decoding",
+        "description": "The decoding property of the HTMLImageElement interface provides a hint to the browser as to how it should decode the image. More specifically, whether it should wait for the image to be decoded before presenting other content updates or not. It reflects the <img> element's decoding content attribute.",
         "options": ["sync", "async", "auto"]
       },
       {
         "name": "fetchpriority",
+        "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority.\nThis in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
         "options": ["high", "low", "auto"]
       },
       {
-        "name": "height"
+        "name": "height",
+        "description": "The height property of the HTMLImageElement interface indicates the height at which the image is drawn, in CSS pixels, if the image is being drawn or rendered to any visual medium such as a screen or printer. Otherwise, it's the natural, pixel density-corrected height of the image."
       },
       {
-        "name": "hspace"
+        "name": "hspace",
+        "description": "The deprecated hspace property of the HTMLImageElement interface specifies the number of pixels of empty space to leave empty on the left and right sides of the <img> element when laying out the page. It reflects the <img> element's hspace content attribute."
       },
       {
         "name": "ismap"
       },
       {
         "name": "loading",
+        "description": "The loading property of the HTMLImageElement interface provides a hint to the user agent on how to handle the loading of the image which is currently outside the window's visual viewport. This helps to optimize the loading of the document's contents by postponing loading the image until it's expected to be needed, rather than immediately during the initial page load. It reflects the <img> element's loading content attribute.",
         "options": ["lazy", "eager"]
       },
       {
@@ -1186,7 +1254,8 @@
         "name": "lowsrc"
       },
       {
-        "name": "name"
+        "name": "name",
+        "description": "The deprecated name property of the HTMLImageElement interface specifies a name for the element. It reflects the <img> element's name content attribute. It has been replaced by the id property available on all elements, and is kept only for compatibility reasons."
       },
       {
         "name": "referrerpolicy",
@@ -1202,22 +1271,27 @@
         ]
       },
       {
-        "name": "sizes"
+        "name": "sizes",
+        "description": "The sizes property of the HTMLImageElement interface allows you to specify the layout width of the image for each of a list of media queries. This provides the ability to automatically select among different images—even images of different orientations or aspect ratios—as the document state changes to match different media conditions. It reflects the <img> element's sizes content attribute."
       },
       {
-        "name": "src"
+        "name": "src",
+        "description": "The src property of the HTMLImageElement interface specifies the image to display in the <img> element. It reflects the <img> element's src content attribute."
       },
       {
-        "name": "srcset"
+        "name": "srcset",
+        "description": "The srcset property of the HTMLImageElement interface identifies one or more image candidate strings, separated using commas (,), each specifying image resources to use under given circumstances. Each image candidate string contains an image URL and an optional width or pixel density descriptor that indicates the conditions under which that candidate should be used instead of the image specified by the src property. It reflects the <img> element's srcset content attribute."
       },
       {
         "name": "usemap"
       },
       {
-        "name": "vspace"
+        "name": "vspace",
+        "description": "The deprecated vspace property of the HTMLImageElement interface specifies the number of pixels of empty space to leave empty on the top and bottom sides of the <img> element when laying out the page. It reflects the <img> element's vspace content attribute."
       },
       {
-        "name": "width"
+        "name": "width",
+        "description": "The width property of the HTMLImageElement interface indicates the width at which the image is drawn, in CSS pixels, if the image is being drawn or rendered to any visual medium such as a screen or printer. Otherwise, it's the natural, pixel density-corrected width of the image."
       }
     ]
   },
@@ -1225,19 +1299,23 @@
     "name": "HTMLInputElement",
     "attributes": [
       {
-        "name": "accept"
+        "name": "accept",
+        "description": "The accept attribute takes as its value a comma-separated list of one or more file types, or unique file type specifiers, describing which file types to allow."
       },
       {
         "name": "align"
       },
       {
-        "name": "alpha"
+        "name": "alpha",
+        "description": "The alpha property of the HTMLInputElement interface reflects the <input> element's alpha attribute, which indicates whether the CSS color's alpha component can be manipulated by the end user and does not have to be fully opaque. It is only relevant to color controls."
       },
       {
-        "name": "alt"
+        "name": "alt",
+        "description": "The alt property of the HTMLInputElement interface defines the textual label for the button for users and user agents who cannot use the image. It reflects the <input> element's alt attribute."
       },
       {
         "name": "autocomplete",
+        "description": "The HTML autocomplete attribute lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.",
         "options": [
           "section-",
           "shipping",
@@ -1309,20 +1387,24 @@
         "name": "border"
       },
       {
-        "name": "checked"
+        "name": "checked",
+        "description": "The checked property of the HTMLInputElement interface specifies the current checkedness of the element; that is, whether the form control is checked or not."
       },
       {
         "name": "colorspace",
         "options": ["limited-srgb", "display-p3"]
       },
       {
-        "name": "dirname"
+        "name": "dirname",
+        "description": "The dirname attribute can be used on the <textarea> element and several <input> types and describes the directionality of the element's text content during form submission.\nThe browser uses this attribute's value to determine whether text the user has entered is left-to-right or right-to-left oriented.\nWhen used, the element's text directionality value is included in form submission data along with the dirname attribute's value as the name of the field."
       },
       {
-        "name": "disabled"
+        "name": "disabled",
+        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants."
       },
       {
-        "name": "form"
+        "name": "form",
+        "description": "The form HTML attribute associates a form-associated element with a <form> element within the same document. This attribute applies to the <button>, <fieldset>, <input>, <object>, <output>, <select>, and <textarea> elements."
       },
       {
         "name": "formmethod",
@@ -1338,49 +1420,63 @@
         "name": "list"
       },
       {
-        "name": "max"
+        "name": "max",
+        "description": "The max attribute defines the maximum value that is acceptable and valid for the input containing the attribute. If the value of the element is greater than this, the element fails validation. This value must be greater than or equal to the value of the min attribute. If the max attribute is present but is not specified or is invalid, no max value is applied. If the max attribute is valid and a non-empty value is greater than the maximum allowed by the max attribute, constraint validation will prevent form submission."
       },
       {
-        "name": "maxlength"
+        "name": "maxlength",
+        "description": "The maxlength attribute defines the maximum string length that the user can enter into an <input> or <textarea>. The attribute must have an integer value of 0 or higher."
       },
       {
-        "name": "min"
+        "name": "min",
+        "description": "The min attribute defines the minimum value that is acceptable and valid for the input containing the attribute. If the value of the element is less than this, the element fails validation. This value must be less than or equal to the value of the max attribute."
       },
       {
-        "name": "minlength"
+        "name": "minlength",
+        "description": "The minlength attribute defines the minimum string length that the user can enter into an <input> or <textarea>. The attribute must have an integer value of 0 or higher."
       },
       {
-        "name": "multiple"
+        "name": "multiple",
+        "description": "The Boolean multiple attribute, if set, means the form control accepts one or more values. The attribute is valid for the email and file input types and the <select>. The manner by which the user opts for multiple values depends on the form control."
       },
       {
-        "name": "name"
+        "name": "name",
+        "description": "The name property of the HTMLInputElement interface indicates the name of the <input> element. It reflects the element's name attribute."
       },
       {
-        "name": "pattern"
+        "name": "pattern",
+        "description": "The pattern attribute specifies a regular expression the form control's value should match. If a non-null value doesn't conform to the constraints set by the pattern value, the ValidityState object's read-only patternMismatch property will be true."
       },
       {
-        "name": "placeholder"
+        "name": "placeholder",
+        "description": "The placeholder attribute defines the text displayed in a form control when the control has no value. The placeholder text should provide a brief hint to the user as to the expected type of data that should be entered into the control."
       },
       {
-        "name": "readonly"
+        "name": "readonly",
+        "description": "The Boolean readonly attribute, when present, makes the element not mutable, meaning the user can not edit the control."
       },
       {
-        "name": "required"
+        "name": "required",
+        "description": "The Boolean required attribute, if present, indicates that the user must specify a value for the input before the owning form can be submitted."
       },
       {
-        "name": "size"
+        "name": "size",
+        "description": "The size attribute defines the width of the <input> and the height of the <select> element. For an input element, it defines the number of characters that the user agent allows the user to see when editing the value. For a select element, it defines the number of options that should be shown to the user. This must be a valid non-negative integer greater than zero."
       },
       {
-        "name": "src"
+        "name": "src",
+        "description": "The src property of the HTMLInputElement interface specifies the source of an image to display as the graphical submit button. It reflects the <input> element's src attribute."
       },
       {
-        "name": "step"
+        "name": "step",
+        "description": "The step attribute is a number that specifies the granularity that the value must adhere to or the keyword any. It is valid for the numeric input types, including the date, month, week, time, datetime-local, number and range types."
       },
       {
         "name": "title"
       },
       {
         "name": "type",
+        "description": "The type property of the HTMLInputElement interface indicates the kind of data allowed in the <input> element, for example a number, a date, or an email. Browsers will select the appropriate widget and behavior to help users to enter a valid value.",
         "options": [
           "hidden",
           "text",
@@ -1410,7 +1506,8 @@
         "name": "usemap"
       },
       {
-        "name": "value"
+        "name": "value",
+        "description": "The value property of the HTMLInputElement interface represents the current value of the <input> element as a string."
       },
       {
         "name": "vspace"
@@ -1422,7 +1519,8 @@
     "name": "HTMLLabelElement",
     "attributes": [
       {
-        "name": "for"
+        "name": "for",
+        "description": "The for attribute is an allowed attribute for <label> and <output>. When used on a <label> element it indicates the form element that this label describes. When used on an <output> element it allows for an explicit relationship between the elements that represent values which are used in the output."
       }
     ]
   },
@@ -1441,7 +1539,8 @@
         "name": "type"
       },
       {
-        "name": "value"
+        "name": "value",
+        "description": "The value property of the HTMLLIElement interface indicates the ordinal position of the list element inside a given <ol>. It can be smaller than 0. If the <li> element is not a child of an <ol> element, the property has no meaning."
       }
     ]
   },
@@ -1449,10 +1548,12 @@
     "name": "HTMLLinkElement",
     "attributes": [
       {
-        "name": "as"
+        "name": "as",
+        "description": "The as property of the HTMLLinkElement interface returns a string representing the type of content to be preloaded by a link element."
       },
       {
-        "name": "blocking"
+        "name": "blocking",
+        "description": "The read-only blocking property of the HTMLLinkElement returns a live DOMTokenList object containing the operations that should be blocked on the fetching of an external resource. It reflects the <link> element's blocking content attribute."
       },
       {
         "name": "charset"
@@ -1462,20 +1563,25 @@
       },
       {
         "name": "crossorigin",
+        "description": "The crossorigin attribute, valid on the <audio>, <img>, <link>, <script>, and <video> elements, provides support for CORS, defining how the element handles cross-origin requests, thereby enabling the configuration of the CORS requests for the element's fetched data. Depending on the element, the attribute can be a CORS settings attribute.",
         "options": ["anonymous", "use-credentials"]
       },
       {
-        "name": "disabled"
+        "name": "disabled",
+        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants."
       },
       {
         "name": "fetchpriority",
+        "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority.\nThis in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
         "options": ["high", "low", "auto"]
       },
       {
-        "name": "href"
+        "name": "href",
+        "description": "The href property of the HTMLLinkElement interface contains a string that is the URL associated with the link."
       },
       {
-        "name": "hreflang"
+        "name": "hreflang",
+        "description": "The hreflang property of the HTMLLinkElement interface is used to indicate the language and the geographical targeting of a page. This hint can be used by browsers to select the more appropriate page or to improve SEO."
       },
       {
         "name": "imagesizes"
@@ -1484,10 +1590,12 @@
         "name": "imagesrcset"
       },
       {
-        "name": "integrity"
+        "name": "integrity",
+        "description": "The integrity property of the HTMLLinkElement interface is a string containing inline metadata that a browser can use to verify that a fetched resource has been delivered without unexpected manipulation."
       },
       {
-        "name": "media"
+        "name": "media",
+        "description": "The media property of the HTMLLinkElement interface is a string representing a list of one or more media formats to which the resource applies."
       },
       {
         "name": "methods"
@@ -1507,6 +1615,7 @@
       },
       {
         "name": "rel",
+        "description": "The rel attribute defines the relationship between a linked resource and the current document. Valid on <link>, <a>, <area>, and <form>, the supported values depend on the element on which the attribute is found.",
         "options": [
           "alternate",
           "author",
@@ -1534,7 +1643,8 @@
         "name": "rev"
       },
       {
-        "name": "sizes"
+        "name": "sizes",
+        "description": "The read-only sizes property of the HTMLLinkElement interface defines the sizes of the icons for visual media contained in the resource. It reflects the <link> element's sizes attribute, which takes a list of space-separated sizes, each in the format <width in pixels>x<height in pixels>, or the keyword any."
       },
       {
         "name": "target"
@@ -1543,7 +1653,8 @@
         "name": "title"
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type property of the HTMLLinkElement interface is a string that reflects the MIME type of the linked resource."
       },
       {
         "name": "urn"
@@ -1554,7 +1665,8 @@
     "name": "HTMLMapElement",
     "attributes": [
       {
-        "name": "name"
+        "name": "name",
+        "description": "The name property of the HTMLMapElement represents the unique name <map> element.\nIts value can be used with the useMap attribute of the <img> element to reference a <map> element."
       }
     ]
   },
@@ -1609,7 +1721,8 @@
     "name": "HTMLMenuElement",
     "attributes": [
       {
-        "name": "compact"
+        "name": "compact",
+        "description": "The compact property of the HTMLMenuElement interface indicates that spacing between list items should be reduced. The exact handling of the compact attribute is browser-specific. Instead of using this property, consider using CSS line-height instead."
       },
       {
         "name": "label"
@@ -1626,7 +1739,8 @@
         "name": "charset"
       },
       {
-        "name": "content"
+        "name": "content",
+        "description": "The content attribute specifies the value of a metadata name defined by the <meta> name attribute.\nIt takes a string as its value, and the expected syntax varies depending on the name value used."
       },
       {
         "name": "http-equiv",
@@ -1641,10 +1755,12 @@
         ]
       },
       {
-        "name": "media"
+        "name": "media",
+        "description": "The HTMLMetaElement.media property enables specifying the media for theme-color metadata."
       },
       {
         "name": "name",
+        "description": "The HTMLMetaElement.name property is used in combination with HTMLMetaElement.content to define the name-value pairs for the metadata of a document.\nThe name attribute defines the metadata name and the content attribute defines the value.",
         "options": [
           "application-name",
           "author",
@@ -1685,7 +1801,8 @@
         ]
       },
       {
-        "name": "scheme"
+        "name": "scheme",
+        "description": "The HTMLMetaElement.scheme property defines the scheme of the value in the HTMLMetaElement.content attribute.\nThe scheme property was created to enable providing additional information to be used to interpret the value of the content property. The scheme property takes as its value a scheme format (i.e., YYYY-MM-DD) or scheme format name (i.e., ISBN), or a URI providing more information regarding the scheme format. The scheme defines the format of the value of the content attribute.\nThe scheme content is interpreted as an extension of the element's HTMLMetaElement.name if a browser or user agent recognizes the scheme."
       }
     ]
   },
@@ -1693,22 +1810,28 @@
     "name": "HTMLMeterElement",
     "attributes": [
       {
-        "name": "high"
+        "name": "high",
+        "description": "The high property of the HTMLMeterElement interface represents the high boundary of the <meter> element as a floating-point number. It reflects the element's high attribute, or the value of max if not defined. The value of high is clamped by the low and max values."
       },
       {
-        "name": "low"
+        "name": "low",
+        "description": "The low property of the HTMLMeterElement interface represents the low boundary of the <meter> element as a floating-point number. It reflects the element's low attribute, or the value of min if not defined. The value of low is clamped by the min and max values."
       },
       {
-        "name": "max"
+        "name": "max",
+        "description": "The max attribute defines the maximum value that is acceptable and valid for the input containing the attribute. If the value of the element is greater than this, the element fails validation. This value must be greater than or equal to the value of the min attribute. If the max attribute is present but is not specified or is invalid, no max value is applied. If the max attribute is valid and a non-empty value is greater than the maximum allowed by the max attribute, constraint validation will prevent form submission."
       },
       {
-        "name": "min"
+        "name": "min",
+        "description": "The min attribute defines the minimum value that is acceptable and valid for the input containing the attribute. If the value of the element is less than this, the element fails validation. This value must be less than or equal to the value of the max attribute."
       },
       {
-        "name": "optimum"
+        "name": "optimum",
+        "description": "The optimum property of the HTMLMeterElement interface represents the optimum boundary of the <meter> element as a floating-point number. It reflects the element's optimum attribute, or the midpoint between min and max values if not defined. The value of optimum is clamped by the min and max values."
       },
       {
-        "name": "value"
+        "name": "value",
+        "description": "The value property of the HTMLMeterElement interface represents the current value of the <meter> element as a floating-point number. It reflects the element's value attribute. If no value is set, it is the HTMLMeterElement.min value or 0, whichever is greater."
       }
     ]
   },
@@ -1716,7 +1839,8 @@
     "name": "HTMLModElement",
     "attributes": [
       {
-        "name": "cite"
+        "name": "cite",
+        "description": "The cite property of the HTMLModElement interface indicates the URL of the resource explaining the modification. It reflects the cite attribute of the <del> element and <ins> elements."
       },
       {
         "name": "datetime"
@@ -1734,6 +1858,7 @@
       },
       {
         "name": "autocomplete",
+        "description": "The HTML autocomplete attribute lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.",
         "options": [
           "section-",
           "shipping",
@@ -1817,31 +1942,37 @@
         "name": "codetype"
       },
       {
-        "name": "data"
+        "name": "data",
+        "description": "The data property of the\nHTMLObjectElement interface returns a string that\nreflects the data HTML attribute, specifying the address\nof a resource's data."
       },
       {
         "name": "declare"
       },
       {
-        "name": "disabled"
+        "name": "disabled",
+        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants."
       },
       {
-        "name": "form"
+        "name": "form",
+        "description": "The form HTML attribute associates a form-associated element with a <form> element within the same document. This attribute applies to the <button>, <fieldset>, <input>, <object>, <output>, <select>, and <textarea> elements."
       },
       {
-        "name": "height"
+        "name": "height",
+        "description": "The height property of the\nHTMLObjectElement interface Returns a string that\nreflects the height HTML attribute, specifying the\ndisplayed height of the resource in CSS pixels."
       },
       {
         "name": "hspace"
       },
       {
-        "name": "name"
+        "name": "name",
+        "description": "The name property of the\nHTMLObjectElement interface returns a string that\nreflects the name HTML attribute, specifying the name of\nthe browsing context."
       },
       {
         "name": "standby"
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type property of the\nHTMLObjectElement interface returns a string that\nreflects the type HTML attribute, specifying the MIME type\nof the resource."
       },
       {
         "name": "typemustmatch"
@@ -1853,7 +1984,8 @@
         "name": "vspace"
       },
       {
-        "name": "width"
+        "name": "width",
+        "description": "The width property of the\nHTMLObjectElement interface returns a string that\nreflects the width HTML attribute, specifying the\ndisplayed width of the resource in CSS pixels."
       }
     ]
   },
@@ -1861,16 +1993,20 @@
     "name": "HTMLOListElement",
     "attributes": [
       {
-        "name": "compact"
+        "name": "compact",
+        "description": "The compact property of the HTMLOListElement interface indicates that spacing between list items should be reduced. The exact handling of the compact attribute is browser-specific. Instead of using this property, consider using CSS line-height instead."
       },
       {
-        "name": "reversed"
+        "name": "reversed",
+        "description": "The reversed property of the HTMLOListElement interface indicates order of a list."
       },
       {
-        "name": "start"
+        "name": "start",
+        "description": "The start property of the HTMLOListElement interface indicates starting value of the ordered list, with default value of 1."
       },
       {
         "name": "type",
+        "description": "The type property of the HTMLOListElement interface indicates the kind of marker to be used to display ordered list.",
         "options": ["1", "a", "A", "i", "I"]
       }
     ]
@@ -1879,10 +2015,12 @@
     "name": "HTMLOptGroupElement",
     "attributes": [
       {
-        "name": "disabled"
+        "name": "disabled",
+        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants."
       },
       {
-        "name": "label"
+        "name": "label",
+        "description": "The label property of the HTMLOptGroupElement interface is a string value that reflects the <optgroup> element's label attribute, which provides a textual label to the group of options."
       }
     ]
   },
@@ -1890,19 +2028,23 @@
     "name": "HTMLOptionElement",
     "attributes": [
       {
-        "name": "disabled"
+        "name": "disabled",
+        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants."
       },
       {
-        "name": "label"
+        "name": "label",
+        "description": "The label property of the HTMLOptionElement represents the text displayed for an option in a <select> element or as part of a list of suggestions in a <datalist> element. It reflects the <option> element's label attribute."
       },
       {
         "name": "name"
       },
       {
-        "name": "selected"
+        "name": "selected",
+        "description": "The selected property of the HTMLOptionElement interface specifies the current selectedness of the element; that is, whether the <option> is selected or not."
       },
       {
-        "name": "value"
+        "name": "value",
+        "description": "The value property of the HTMLOptionElement interface represents the value of the <option> element as a string, or the empty string if no value is set. It reflects the element's value attribute, if present. Otherwise, it returns or sets the contents of the element, similar to the textContent property."
       }
     ]
   },
@@ -1911,6 +2053,7 @@
     "attributes": [
       {
         "name": "autocomplete",
+        "description": "The HTML autocomplete attribute lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.",
         "options": [
           "section-",
           "shipping",
@@ -1979,16 +2122,20 @@
         ]
       },
       {
-        "name": "disabled"
+        "name": "disabled",
+        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants."
       },
       {
-        "name": "for"
+        "name": "for",
+        "description": "The for attribute is an allowed attribute for <label> and <output>. When used on a <label> element it indicates the form element that this label describes. When used on an <output> element it allows for an explicit relationship between the elements that represent values which are used in the output."
       },
       {
-        "name": "form"
+        "name": "form",
+        "description": "The form HTML attribute associates a form-associated element with a <form> element within the same document. This attribute applies to the <button>, <fieldset>, <input>, <object>, <output>, <select>, and <textarea> elements."
       },
       {
-        "name": "name"
+        "name": "name",
+        "description": "The name property of the HTMLOutputElement interface indicates the name of the <output> element. It reflects the element's name attribute."
       }
     ]
   },
@@ -2016,10 +2163,12 @@
     "name": "HTMLProgressElement",
     "attributes": [
       {
-        "name": "max"
+        "name": "max",
+        "description": "The max attribute defines the maximum value that is acceptable and valid for the input containing the attribute. If the value of the element is greater than this, the element fails validation. This value must be greater than or equal to the value of the min attribute. If the max attribute is present but is not specified or is invalid, no max value is applied. If the max attribute is valid and a non-empty value is greater than the maximum allowed by the max attribute, constraint validation will prevent form submission."
       },
       {
-        "name": "value"
+        "name": "value",
+        "description": "The value property of the HTMLProgressElement interface represents the current progress of the <progress> element."
       }
     ]
   },
@@ -2027,7 +2176,8 @@
     "name": "HTMLQuoteElement",
     "attributes": [
       {
-        "name": "cite"
+        "name": "cite",
+        "description": "The cite property of the HTMLQuoteElement interface indicates the URL for the source of the quotation. It reflects the <q> element's cite attribute."
       }
     ]
   },
@@ -2035,33 +2185,40 @@
     "name": "HTMLScriptElement",
     "attributes": [
       {
-        "name": "async"
+        "name": "async",
+        "description": "The async property of the HTMLScriptElement interface is a boolean value that controls how the script should be executed. For classic scripts, if the async property is set to true, the external script will be fetched in parallel to parsing and evaluated as soon as it is available. For module scripts, if the async property is set to true, the script and all their dependencies will be fetched in parallel to parsing and evaluated as soon as they are available."
       },
       {
-        "name": "blocking"
+        "name": "blocking",
+        "description": "The read-only blocking property of the HTMLScriptElement returns a live DOMTokenList object containing the operations that should be blocked on the fetching of an external resource. It reflects the <script> element's blocking content attribute."
       },
       {
         "name": "charset"
       },
       {
         "name": "crossorigin",
+        "description": "The crossorigin attribute, valid on the <audio>, <img>, <link>, <script>, and <video> elements, provides support for CORS, defining how the element handles cross-origin requests, thereby enabling the configuration of the CORS requests for the element's fetched data. Depending on the element, the attribute can be a CORS settings attribute.",
         "options": ["anonymous", "use-credentials"]
       },
       {
-        "name": "defer"
+        "name": "defer",
+        "description": "The defer property of the HTMLScriptElement interface is a boolean value that controls how the script should be executed. For classic scripts, if the defer property is set to true, the external script will be executed after the document has been parsed, but before firing DOMContentLoaded event. For module scripts, the defer property has no effect."
       },
       {
         "name": "event"
       },
       {
         "name": "fetchpriority",
+        "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority.\nThis in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
         "options": ["high", "low", "auto"]
       },
       {
-        "name": "for"
+        "name": "for",
+        "description": "The for attribute is an allowed attribute for <label> and <output>. When used on a <label> element it indicates the form element that this label describes. When used on an <output> element it allows for an explicit relationship between the elements that represent values which are used in the output."
       },
       {
-        "name": "integrity"
+        "name": "integrity",
+        "description": "The integrity property of the HTMLScriptElement interface is a string that contains inline metadata that a browser can use to verify that a fetched resource has been delivered without unexpected manipulation."
       },
       {
         "name": "language"
@@ -2083,10 +2240,12 @@
         ]
       },
       {
-        "name": "src"
+        "name": "src",
+        "description": "The src property of the HTMLScriptElement interface is a string representing the URL of an external script; this can be used as an alternative to embedding a script directly within a document."
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type property of the HTMLScriptElement interface is a string that reflects the type of the script."
       }
     ]
   },
@@ -2095,6 +2254,7 @@
     "attributes": [
       {
         "name": "autocomplete",
+        "description": "The HTML autocomplete attribute lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.",
         "options": [
           "section-",
           "shipping",
@@ -2163,22 +2323,28 @@
         ]
       },
       {
-        "name": "disabled"
+        "name": "disabled",
+        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants."
       },
       {
-        "name": "form"
+        "name": "form",
+        "description": "The form HTML attribute associates a form-associated element with a <form> element within the same document. This attribute applies to the <button>, <fieldset>, <input>, <object>, <output>, <select>, and <textarea> elements."
       },
       {
-        "name": "multiple"
+        "name": "multiple",
+        "description": "The Boolean multiple attribute, if set, means the form control accepts one or more values. The attribute is valid for the email and file input types and the <select>. The manner by which the user opts for multiple values depends on the form control."
       },
       {
-        "name": "name"
+        "name": "name",
+        "description": "The name property of the HTMLSelectElement interface indicates the name of the <select> element. It reflects the element's name attribute."
       },
       {
-        "name": "required"
+        "name": "required",
+        "description": "The Boolean required attribute, if present, indicates that the user must specify a value for the input before the owning form can be submitted."
       },
       {
-        "name": "size"
+        "name": "size",
+        "description": "The size attribute defines the width of the <input> and the height of the <select> element. For an input element, it defines the number of characters that the user agent allows the user to see when editing the value. For a select element, it defines the number of options that should be shown to the user. This must be a valid non-negative integer greater than zero."
       }
     ],
     "events": ["change", "invalid"]
@@ -2187,7 +2353,8 @@
     "name": "HTMLSlotElement",
     "attributes": [
       {
-        "name": "name"
+        "name": "name",
+        "description": "The name property of the HTMLSlotElement\ninterface returns or sets the slot name. A slot is a placeholder inside a web component\nthat users can fill with their own markup."
       }
     ],
     "events": ["slotchange"]
@@ -2196,25 +2363,32 @@
     "name": "HTMLSourceElement",
     "attributes": [
       {
-        "name": "height"
+        "name": "height",
+        "description": "The height property of the HTMLSourceElement interface is a non-negative number indicating the height of the image resource in CSS pixels."
       },
       {
-        "name": "media"
+        "name": "media",
+        "description": "The media property of the HTMLSourceElement interface is a string representing the intended destination medium for the resource. The value is a media query, which is a comma separated list of media-types, media-features, and logical operators."
       },
       {
-        "name": "sizes"
+        "name": "sizes",
+        "description": "The sizes property of the HTMLSourceElement interface is a string representing a list of one or more sizes, representing sizes between breakpoints, to which the resource applies."
       },
       {
-        "name": "src"
+        "name": "src",
+        "description": "The src property of the HTMLSourceElement interface is a string indicating the URL of a media resource to use as the source for the element."
       },
       {
-        "name": "srcset"
+        "name": "srcset",
+        "description": "The srcset property of the HTMLSourceElement interface is a string containing a comma-separated list of candidate images."
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type property of the HTMLSourceElement interface is a string representing the MIME type of the media resource."
       },
       {
-        "name": "width"
+        "name": "width",
+        "description": "The width property of the HTMLSourceElement interface is a non-negative number indicating the width of the image resource in CSS pixels."
       }
     ],
     "events": ["error"]
@@ -2223,16 +2397,19 @@
     "name": "HTMLStyleElement",
     "attributes": [
       {
-        "name": "blocking"
+        "name": "blocking",
+        "description": "The read-only blocking property of the HTMLStyleElement returns a live DOMTokenList object containing the operations that should be blocked on the fetching of an external resource. It reflects the <style> element's blocking content attribute."
       },
       {
-        "name": "media"
+        "name": "media",
+        "description": "The HTMLStyleElement.media property specifies the\nintended destination medium for style information."
       },
       {
         "name": "title"
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The HTMLStyleElement.type property returns the type of the current style.\nThe value mirrors the HTML <style> element's type attribute."
       }
     ]
   },
@@ -2240,7 +2417,8 @@
     "name": "HTMLTableCaptionElement",
     "attributes": [
       {
-        "name": "align"
+        "name": "align",
+        "description": "The align property of the HTMLTableCaptionElement interface is a string indicating how to horizontally align text in the <caption> table element."
       }
     ]
   },
@@ -2248,10 +2426,12 @@
     "name": "HTMLTableCellElement",
     "attributes": [
       {
-        "name": "abbr"
+        "name": "abbr",
+        "description": "The abbr property of the HTMLTableCellElement interface\nindicates an abbreviation associated with the cell. If the cell does not represent a header cell <th>, it is ignored."
       },
       {
-        "name": "align"
+        "name": "align",
+        "description": "The align property of the HTMLTableCellElement interface is a string indicating how to horizontally align text in the <th> or <td> table cell."
       },
       {
         "name": "axis"
@@ -2269,7 +2449,8 @@
         "name": "colspan"
       },
       {
-        "name": "headers"
+        "name": "headers",
+        "description": "The headers property of the HTMLTableCellElement interface\ncontains a list of IDs of <th> elements that are headers for this specific cell."
       },
       {
         "name": "height"
@@ -2282,6 +2463,7 @@
       },
       {
         "name": "scope",
+        "description": "The scope property of the HTMLTableCellElement interface\nindicates the scope of a <th> cell.",
         "options": ["row", "col", "rowgroup", "colgroup"]
       },
       {
@@ -2296,7 +2478,8 @@
     "name": "HTMLTableColElement",
     "attributes": [
       {
-        "name": "align"
+        "name": "align",
+        "description": "The align property of the HTMLTableColElement interface is a string indicating how to horizontally align text in a table <col> column element."
       },
       {
         "name": "char"
@@ -2305,7 +2488,8 @@
         "name": "charoff"
       },
       {
-        "name": "span"
+        "name": "span",
+        "description": "The span property of the HTMLTableColElement interface represents the number of columns this <col> or <colgroup> must span; this lets the column occupy space across multiple columns of the table. It reflects the span attribute."
       },
       {
         "name": "valign"
@@ -2319,13 +2503,15 @@
     "name": "HTMLTableElement",
     "attributes": [
       {
-        "name": "align"
+        "name": "align",
+        "description": "The HTMLTableElement.align property represents the\nalignment of the table."
       },
       {
         "name": "bgcolor"
       },
       {
-        "name": "border"
+        "name": "border",
+        "description": "The HTMLTableElement.border property represents the\nborder width of the <table> element."
       },
       {
         "name": "bordercolor"
@@ -2340,19 +2526,23 @@
         "name": "datapagesize"
       },
       {
-        "name": "frame"
+        "name": "frame",
+        "description": "The HTMLTableElement interface's frame\nproperty is a string that indicates which of the table's exterior borders should be\ndrawn."
       },
       {
         "name": "height"
       },
       {
-        "name": "rules"
+        "name": "rules",
+        "description": "The HTMLTableElement.rules property indicates which cell\nborders to render in the table."
       },
       {
-        "name": "summary"
+        "name": "summary",
+        "description": "The HTMLTableElement.summary property represents the\ntable description."
       },
       {
-        "name": "width"
+        "name": "width",
+        "description": "The HTMLTableElement.width property represents the\ndesired width of the table."
       }
     ]
   },
@@ -2360,7 +2550,8 @@
     "name": "HTMLTableRowElement",
     "attributes": [
       {
-        "name": "align"
+        "name": "align",
+        "description": "The align property of the HTMLTableRowElement interface is a string indicating how to horizontally align text in the <tr> table row. Individual cells can override it."
       },
       {
         "name": "bgcolor"
@@ -2383,7 +2574,8 @@
     "name": "HTMLTableSectionElement",
     "attributes": [
       {
-        "name": "align"
+        "name": "align",
+        "description": "The align property of the HTMLTableSectionElement interface is a string indicating how to horizontally align text in a <thead>, <tbody> or <tfoot> table section. Individual rows and cells can override it."
       },
       {
         "name": "char"
@@ -2425,6 +2617,7 @@
     "attributes": [
       {
         "name": "autocomplete",
+        "description": "The HTML autocomplete attribute lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.",
         "options": [
           "section-",
           "shipping",
@@ -2493,40 +2686,52 @@
         ]
       },
       {
-        "name": "cols"
+        "name": "cols",
+        "description": "The cols property of the HTMLTextAreaElement interface is a positive integer representing the visible width of the multi-line text control, in average character widths. It reflects the <textarea> element's cols attribute."
       },
       {
-        "name": "dirname"
+        "name": "dirname",
+        "description": "The dirname attribute can be used on the <textarea> element and several <input> types and describes the directionality of the element's text content during form submission.\nThe browser uses this attribute's value to determine whether text the user has entered is left-to-right or right-to-left oriented.\nWhen used, the element's text directionality value is included in form submission data along with the dirname attribute's value as the name of the field."
       },
       {
-        "name": "disabled"
+        "name": "disabled",
+        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants."
       },
       {
-        "name": "form"
+        "name": "form",
+        "description": "The form HTML attribute associates a form-associated element with a <form> element within the same document. This attribute applies to the <button>, <fieldset>, <input>, <object>, <output>, <select>, and <textarea> elements."
       },
       {
-        "name": "maxlength"
+        "name": "maxlength",
+        "description": "The maxlength attribute defines the maximum string length that the user can enter into an <input> or <textarea>. The attribute must have an integer value of 0 or higher."
       },
       {
-        "name": "minlength"
+        "name": "minlength",
+        "description": "The minlength attribute defines the minimum string length that the user can enter into an <input> or <textarea>. The attribute must have an integer value of 0 or higher."
       },
       {
-        "name": "name"
+        "name": "name",
+        "description": "The name property of the HTMLTextAreaElement interface indicates the name of the <textarea> element. It reflects the element's name attribute."
       },
       {
-        "name": "placeholder"
+        "name": "placeholder",
+        "description": "The placeholder attribute defines the text displayed in a form control when the control has no value. The placeholder text should provide a brief hint to the user as to the expected type of data that should be entered into the control."
       },
       {
-        "name": "readonly"
+        "name": "readonly",
+        "description": "The Boolean readonly attribute, when present, makes the element not mutable, meaning the user can not edit the control."
       },
       {
-        "name": "required"
+        "name": "required",
+        "description": "The Boolean required attribute, if present, indicates that the user must specify a value for the input before the owning form can be submitted."
       },
       {
-        "name": "rows"
+        "name": "rows",
+        "description": "The rows property of the HTMLTextAreaElement interface is a positive integer representing the visible text lines of the text control. It reflects the <textarea> element's rows attribute."
       },
       {
         "name": "wrap",
+        "description": "The wrap property of the HTMLTextAreaElement interface indicates how the control should wrap the value for form submission. It reflects the <textarea> element's wrap attribute. Note that the \"hard\" value only has an effect when the cols attribute is also set.",
         "options": ["soft", "hard"]
       }
     ],
@@ -2544,10 +2749,12 @@
     "name": "HTMLTrackElement",
     "attributes": [
       {
-        "name": "default"
+        "name": "default",
+        "description": "The default property of the HTMLTrackElement interface represents whether the track will be enabled if the user's preferences do not indicate that another track would be more appropriate. It reflects the <track> element's boolean default attribute, returning true if present and false otherwise."
       },
       {
         "name": "kind",
+        "description": "The kind property of the HTMLTrackElement interface represents the type of track, or how the text track is meant to be used. It reflects the <track> element's enumerated kind attribute.",
         "options": [
           "subtitles",
           "captions",
@@ -2557,13 +2764,16 @@
         ]
       },
       {
-        "name": "label"
+        "name": "label",
+        "description": "The label property of the HTMLTrackElement represents the user-readable title displayed when listing subtitle, caption, and audio descriptions for a track. It reflects the <track> element's label attribute."
       },
       {
-        "name": "src"
+        "name": "src",
+        "description": "The src property of the HTMLTrackElement interface reflects the value of\nthe <track> element's src attribute, which\nindicates the URL of the text track's data."
       },
       {
-        "name": "srclang"
+        "name": "srclang",
+        "description": "The srclang property of the HTMLTrackElement interface reflects the value of\nthe <track> element's srclang attribute or the empty string if not defined."
       }
     ],
     "events": ["cuechange", "error", "load"]
@@ -2572,7 +2782,8 @@
     "name": "HTMLUListElement",
     "attributes": [
       {
-        "name": "compact"
+        "name": "compact",
+        "description": "The compact property of the HTMLUListElement interface indicates that spacing between list items should be reduced. The exact handling of the compact attribute is browser-specific. Instead of using this property, consider using CSS line-height instead."
       },
       {
         "name": "type"
@@ -2590,10 +2801,12 @@
       },
       {
         "name": "crossorigin",
+        "description": "The crossorigin attribute, valid on the <audio>, <img>, <link>, <script>, and <video> elements, provides support for CORS, defining how the element handles cross-origin requests, thereby enabling the configuration of the CORS requests for the element's fetched data. Depending on the element, the attribute can be a CORS settings attribute.",
         "options": ["anonymous", "use-credentials"]
       },
       {
-        "name": "height"
+        "name": "height",
+        "description": "The height property of the HTMLVideoElement interface returns an integer that reflects the height attribute of the <video> element, specifying the displayed height of the resource in CSS pixels."
       },
       {
         "name": "loop"
@@ -2605,7 +2818,8 @@
         "name": "playsinline"
       },
       {
-        "name": "poster"
+        "name": "poster",
+        "description": "The poster property of the HTMLVideoElement interface is a string that reflects the URL for an image to be shown while no video data is available. If the property does not represent a valid URL, no poster frame will be shown."
       },
       {
         "name": "preload",
@@ -2615,7 +2829,8 @@
         "name": "src"
       },
       {
-        "name": "width"
+        "name": "width",
+        "description": "The width property of the HTMLVideoElement interface returns an integer that reflects the width attribute of the <video> element, specifying the displayed width of the resource in CSS pixels."
       }
     ],
     "events": ["enterpictureinpicture", "leavepictureinpicture"]
@@ -3013,40 +3228,52 @@
     "name": "SVGAElement",
     "attributes": [
       {
-        "name": "download"
+        "name": "download",
+        "description": "The download property of the SVGAElement interface returns a string indicating that the browser should treat the linked URL as a download."
       },
       {
-        "name": "href"
+        "name": "href",
+        "description": "The href attribute defines a link to a resource as a reference URL. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "hreflang"
+        "name": "hreflang",
+        "description": "The hreflang property of the SVGAElement interface returns a string indicating the language of the linked resource."
       },
       {
-        "name": "ping"
+        "name": "ping",
+        "description": "The ping property of the SVGAElement interface returns a string that reflects the ping attribute, containing a space-separated list of URLs to which, when the hyperlink is followed, POST requests with the body PING will be sent by the browser (in the background). Typically used for tracking."
       },
       {
-        "name": "referrerpolicy"
+        "name": "referrerpolicy",
+        "description": "The referrerpolicy property of the SVGAElement interface returns a string specifying which referrer to send when fetching the URL.."
       },
       {
-        "name": "rel"
+        "name": "rel",
+        "description": "The rel property of the SVGAElement returns a string reflecting the value of the rel attribute of the SVG <a> element."
       },
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       },
       {
-        "name": "target"
+        "name": "target",
+        "description": "The target attribute should be used when there are multiple possible targets for the ending resource, such as when the parent document is embedded within an HTML or XHTML document, or is viewed with a tabbed browser. This attribute specifies the name of the browsing context (e.g., a browser tab or an (X)HTML iframe or object element) into which a document is to be opened when the link is activated:"
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type attribute is a generic attribute and it has different meaning based on the context in which it's used."
       },
       {
-        "name": "xlink:href"
+        "name": "xlink:href",
+        "description": "The xlink:href attribute defines a reference to a resource as a reference IRI. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "xlink:title"
+        "name": "xlink:title",
+        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion."
       }
     ]
   },
@@ -3063,10 +3290,12 @@
         "name": "onrepeat"
       },
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ],
     "events": ["begin", "end", "repeat"]
@@ -3084,10 +3313,12 @@
         "name": "onrepeat"
       },
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3104,10 +3335,12 @@
         "name": "onrepeat"
       },
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3119,10 +3352,24 @@
     "name": "SVGCircleElement",
     "attributes": [
       {
-        "name": "requiredExtensions"
+        "name": "cx",
+        "description": "The cx attribute defines the x-axis coordinate of a center point."
       },
       {
-        "name": "systemLanguage"
+        "name": "cy",
+        "description": "The cy attribute defines the y-axis coordinate of a center point."
+      },
+      {
+        "name": "r",
+        "description": "The r attribute defines the radius of a circle."
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
+      },
+      {
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3130,10 +3377,12 @@
     "name": "SVGClipPathElement",
     "attributes": [
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3141,16 +3390,36 @@
     "name": "SVGElement",
     "attributes": [
       {
-        "name": "preserveAspectRatio"
+        "name": "height",
+        "description": "The height attribute defines the vertical length of an element in the user coordinate system."
       },
       {
-        "name": "requiredExtensions"
+        "name": "preserveAspectRatio",
+        "description": "The preserveAspectRatio attribute indicates how an element with a viewBox providing a given aspect ratio must fit into a viewport with a different aspect ratio."
       },
       {
-        "name": "systemLanguage"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "viewBox"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
+      },
+      {
+        "name": "viewBox",
+        "description": "The viewBox attribute defines the position and dimension, in user space, of an SVG viewport."
+      },
+      {
+        "name": "width",
+        "description": "The width attribute defines the horizontal length of an element in the user coordinate system."
+      },
+      {
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system."
+      },
+      {
+        "name": "y",
+        "description": "The y attribute defines a y-axis coordinate in the user coordinate system."
       }
     ],
     "events": [
@@ -3194,10 +3463,28 @@
     "name": "SVGEllipseElement",
     "attributes": [
       {
-        "name": "requiredExtensions"
+        "name": "cx",
+        "description": "The cx attribute defines the x-axis coordinate of a center point."
       },
       {
-        "name": "systemLanguage"
+        "name": "cy",
+        "description": "The cy attribute defines the y-axis coordinate of a center point."
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
+      },
+      {
+        "name": "rx",
+        "description": "The rx attribute defines a radius on the x-axis."
+      },
+      {
+        "name": "ry",
+        "description": "The ry attribute defines a radius on the y-axis."
+      },
+      {
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3205,10 +3492,12 @@
     "name": "SVGFEBlendElement",
     "attributes": [
       {
-        "name": "in2"
+        "name": "in2",
+        "description": "The in2 attribute identifies the second input for the given filter primitive. It works exactly like the in attribute."
       },
       {
-        "name": "mode"
+        "name": "mode",
+        "description": "The mode attribute defines the blending mode on the <feBlend> filter primitive."
       },
       {
         "name": "no-composite"
@@ -3219,10 +3508,12 @@
     "name": "SVGFEColorMatrixElement",
     "attributes": [
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type attribute is a generic attribute and it has different meaning based on the context in which it's used."
       },
       {
-        "name": "values"
+        "name": "values",
+        "description": "The values attribute has different meanings, depending upon the context where it's used, either it defines a sequence of values used over the course of an animation, or it's a list of numbers for a color matrix, which is interpreted differently depending on the type of color change to be performed."
       }
     ]
   },
@@ -3230,25 +3521,31 @@
     "name": "SVGFEComponentTransferElement",
     "attributes": [
       {
-        "name": "amplitude"
+        "name": "amplitude",
+        "description": "The amplitude attribute controls the amplitude of the gamma function of a component transfer element when its type attribute is gamma."
       },
       {
-        "name": "exponent"
+        "name": "exponent",
+        "description": "The exponent attribute defines the exponent of the gamma function."
       },
       {
-        "name": "intercept"
+        "name": "intercept",
+        "description": "The intercept attribute defines the intercept of the linear function of color component transfers when the type attribute is set to linear."
       },
       {
         "name": "offset"
       },
       {
-        "name": "slope"
+        "name": "slope",
+        "description": "The slope attribute defines the values for linear filters, such as brightness."
       },
       {
-        "name": "tableValues"
+        "name": "tableValues",
+        "description": "The tableValues attribute defines a list of numbers defining a lookup table of values for a color component transfer function."
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type attribute is a generic attribute and it has different meaning based on the context in which it's used."
       }
     ]
   },
@@ -3256,22 +3553,28 @@
     "name": "SVGFECompositeElement",
     "attributes": [
       {
-        "name": "in2"
+        "name": "in2",
+        "description": "The in2 attribute identifies the second input for the given filter primitive. It works exactly like the in attribute."
       },
       {
-        "name": "k1"
+        "name": "k1",
+        "description": "The k1 attribute defines one of the values to be used within the arithmetic operation of the <feComposite> filter primitive."
       },
       {
-        "name": "k2"
+        "name": "k2",
+        "description": "The k2 attribute defines one of the values to be used within the arithmetic operation of the <feComposite> filter primitive."
       },
       {
-        "name": "k3"
+        "name": "k3",
+        "description": "The k3 attribute defines one of the values to be used within the arithmetic operation of the <feComposite> filter primitive."
       },
       {
-        "name": "k4"
+        "name": "k4",
+        "description": "The k4 attribute defines one of the values to be used within the arithmetic operation of the <feComposite> filter primitive."
       },
       {
         "name": "operator",
+        "description": "The operator attribute has two meanings based on the context it's used in. Either it defines the compositing or morphing operation to be performed.",
         "options": ["over", "in", "out", "atop", "xor", "lighter", "arithmetic"]
       }
     ]
@@ -3280,31 +3583,40 @@
     "name": "SVGFEConvolveMatrixElement",
     "attributes": [
       {
-        "name": "bias"
+        "name": "bias",
+        "description": "The bias attribute shifts the range of the filter. After applying the kernelMatrix of the <feConvolveMatrix> element to the input image to yield a number and applied the divisor attribute, the bias attribute is added to each component. This allows representation of values that would otherwise be clamped to 0 or 1."
       },
       {
-        "name": "divisor"
+        "name": "divisor",
+        "description": "The divisor attribute specifies the value by which the resulting number of applying the kernelMatrix of a <feConvolveMatrix> element to the input image color value is divided to yield the destination color value."
       },
       {
-        "name": "edgeMode"
+        "name": "edgeMode",
+        "description": "The edgeMode attribute determines how to extend the input image as necessary with color values so that the matrix operations can be applied when the kernel is positioned at or near the edge of the input image."
       },
       {
-        "name": "kernelMatrix"
+        "name": "kernelMatrix",
+        "description": "The kernelMatrix attribute defines the list of numbers that make up the kernel matrix for the <feConvolveMatrix> element."
       },
       {
-        "name": "kernelUnitLength"
+        "name": "kernelUnitLength",
+        "description": "The kernelUnitLength attribute has two meanings based on the context it's used in. For lighting filter primitives, it indicates the intended distance for the x and y coordinates, for <feConvolveMatrix>, it indicates the intended distance between successive columns and rows in the kernel matrix."
       },
       {
-        "name": "order"
+        "name": "order",
+        "description": "The order attribute indicates the size of the matrix to be used by a <feConvolveMatrix> element."
       },
       {
-        "name": "preserveAlpha"
+        "name": "preserveAlpha",
+        "description": "the preserveAlpha attribute indicates how a <feConvolveMatrix> element handles alpha transparency."
       },
       {
-        "name": "targetX"
+        "name": "targetX",
+        "description": "The targetX attribute determines the positioning in horizontal direction of the convolution matrix relative to a given target pixel in the input image. The leftmost column of the matrix is column number zero. The value must be such that: 0 <= targetX < x of order."
       },
       {
-        "name": "targetY"
+        "name": "targetY",
+        "description": "The targetY attribute determines the positioning in vertical direction of the convolution matrix relative to a given target pixel in the input image. The topmost row of the matrix is row number zero. The value must be such that: 0 <= targetY < y of order."
       }
     ]
   },
@@ -3312,13 +3624,16 @@
     "name": "SVGFEDiffuseLightingElement",
     "attributes": [
       {
-        "name": "diffuseConstant"
+        "name": "diffuseConstant",
+        "description": "The diffuseConstant attribute represents the kd value in the Phong lighting model. In SVG, this can be any non-negative number."
       },
       {
-        "name": "kernelUnitLength"
+        "name": "kernelUnitLength",
+        "description": "The kernelUnitLength attribute has two meanings based on the context it's used in. For lighting filter primitives, it indicates the intended distance for the x and y coordinates, for <feConvolveMatrix>, it indicates the intended distance between successive columns and rows in the kernel matrix."
       },
       {
-        "name": "surfaceScale"
+        "name": "surfaceScale",
+        "description": "The surfaceScale attribute represents the height of the surface for a light filter primitive."
       }
     ]
   },
@@ -3326,16 +3641,20 @@
     "name": "SVGFEDisplacementMapElement",
     "attributes": [
       {
-        "name": "in2"
+        "name": "in2",
+        "description": "The in2 attribute identifies the second input for the given filter primitive. It works exactly like the in attribute."
       },
       {
-        "name": "scale"
+        "name": "scale",
+        "description": "The scale attribute defines the displacement scale factor to be used on a <feDisplacementMap> filter primitive. The amount is expressed in the coordinate system established by the primitiveUnits attribute on the <filter> element."
       },
       {
-        "name": "xChannelSelector"
+        "name": "xChannelSelector",
+        "description": "The xChannelSelector attribute indicates which color channel from in2 to use to displace the pixels in in along the x-axis."
       },
       {
-        "name": "yChannelSelector"
+        "name": "yChannelSelector",
+        "description": "The yChannelSelector attribute indicates which color channel from in2 to use to displace the pixels in in along the y-axis."
       }
     ]
   },
@@ -3343,10 +3662,12 @@
     "name": "SVGFEDistantLightElement",
     "attributes": [
       {
-        "name": "azimuth"
+        "name": "azimuth",
+        "description": "The azimuth attribute specifies the direction angle for the light source on the XY plane (clockwise), in degrees from the x axis."
       },
       {
-        "name": "elevation"
+        "name": "elevation",
+        "description": "The elevation attribute specifies the direction angle for the light source from the XY plane towards the Z-axis, in degrees. Note that the positive Z-axis points towards the viewer of the content."
       }
     ]
   },
@@ -3354,13 +3675,16 @@
     "name": "SVGFEDropShadowElement",
     "attributes": [
       {
-        "name": "dx"
+        "name": "dx",
+        "description": "The dx attribute indicates a shift along the x-axis on the position of an element or its content."
       },
       {
-        "name": "dy"
+        "name": "dy",
+        "description": "The dy attribute indicates a shift along the y-axis on the position of an element or its content."
       },
       {
-        "name": "stdDeviation"
+        "name": "stdDeviation",
+        "description": "The stdDeviation attribute defines the standard deviation for the blur operation."
       }
     ]
   },
@@ -3369,10 +3693,12 @@
     "attributes": [
       {
         "name": "edgeMode",
+        "description": "The edgeMode attribute determines how to extend the input image as necessary with color values so that the matrix operations can be applied when the kernel is positioned at or near the edge of the input image.",
         "options": ["duplicate", "wrap"]
       },
       {
-        "name": "stdDeviation"
+        "name": "stdDeviation",
+        "description": "The stdDeviation attribute defines the standard deviation for the blur operation."
       }
     ]
   },
@@ -3380,16 +3706,20 @@
     "name": "SVGFEImageElement",
     "attributes": [
       {
-        "name": "crossorigin"
+        "name": "crossorigin",
+        "description": "The crossorigin attribute, valid on the <image>, <feImage>, and <script> elements, provides support for configuration of Cross-Origin Resource Sharing (CORS) requests for the element's fetched data."
       },
       {
-        "name": "href"
+        "name": "href",
+        "description": "The href attribute defines a link to a resource as a reference URL. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "preserveAspectRatio"
+        "name": "preserveAspectRatio",
+        "description": "The preserveAspectRatio attribute indicates how an element with a viewBox providing a given aspect ratio must fit into a viewport with a different aspect ratio."
       },
       {
-        "name": "xlink:href"
+        "name": "xlink:href",
+        "description": "The xlink:href attribute defines a reference to a resource as a reference IRI. The exact meaning of that link depends on the context of each element using it."
       }
     ]
   },
@@ -3397,10 +3727,12 @@
     "name": "SVGFEMorphologyElement",
     "attributes": [
       {
-        "name": "operator"
+        "name": "operator",
+        "description": "The operator attribute has two meanings based on the context it's used in. Either it defines the compositing or morphing operation to be performed."
       },
       {
-        "name": "radius"
+        "name": "radius",
+        "description": "The radius attribute represents the radius (or radii) for the operation on a given <feMorphology> filter primitive."
       }
     ]
   },
@@ -3408,10 +3740,12 @@
     "name": "SVGFEOffsetElement",
     "attributes": [
       {
-        "name": "dx"
+        "name": "dx",
+        "description": "The dx attribute indicates a shift along the x-axis on the position of an element or its content."
       },
       {
-        "name": "dy"
+        "name": "dy",
+        "description": "The dy attribute indicates a shift along the y-axis on the position of an element or its content."
       }
     ]
   },
@@ -3419,13 +3753,16 @@
     "name": "SVGFEPointLightElement",
     "attributes": [
       {
-        "name": "x"
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system."
       },
       {
-        "name": "y"
+        "name": "y",
+        "description": "The y attribute defines a y-axis coordinate in the user coordinate system."
       },
       {
-        "name": "z"
+        "name": "z",
+        "description": "The z attribute defines the location along the z-axis for a light source in the coordinate system established by the primitiveUnits attribute on the <filter> element, assuming that, in the initial coordinate system, the positive z-axis comes out towards the person viewing the content and assuming that one unit along the z-axis equals one unit in x and y."
       }
     ]
   },
@@ -3433,16 +3770,20 @@
     "name": "SVGFESpecularLightingElement",
     "attributes": [
       {
-        "name": "kernelUnitLength"
+        "name": "kernelUnitLength",
+        "description": "The kernelUnitLength attribute has two meanings based on the context it's used in. For lighting filter primitives, it indicates the intended distance for the x and y coordinates, for <feConvolveMatrix>, it indicates the intended distance between successive columns and rows in the kernel matrix."
       },
       {
-        "name": "specularConstant"
+        "name": "specularConstant",
+        "description": "The specularConstant attribute controls the ratio of reflection of the specular lighting. It represents the ks value in the Phong lighting model. The bigger the value the stronger the reflection."
       },
       {
-        "name": "specularExponent"
+        "name": "specularExponent",
+        "description": "The specularExponent attribute controls the focus for the light source. The bigger the value the brighter the light."
       },
       {
-        "name": "surfaceScale"
+        "name": "surfaceScale",
+        "description": "The surfaceScale attribute represents the height of the surface for a light filter primitive."
       }
     ]
   },
@@ -3450,28 +3791,36 @@
     "name": "SVGFESpotLightElement",
     "attributes": [
       {
-        "name": "limitingConeAngle"
+        "name": "limitingConeAngle",
+        "description": "The limitingConeAngle attribute represents the angle in degrees between the spot light axis (i.e., the axis between the light source and the point to which it is pointing at) and the spot light cone. So it defines a limiting cone which restricts the region where the light is projected. No light is projected outside the cone."
       },
       {
-        "name": "pointsAtX"
+        "name": "pointsAtX",
+        "description": "The pointsAtX attribute represents the x location in the coordinate system established by attribute primitiveUnits on the <filter> element of the point at which the light source is pointing."
       },
       {
-        "name": "pointsAtY"
+        "name": "pointsAtY",
+        "description": "The pointsAtY attribute represents the y location in the coordinate system established by attribute primitiveUnits on the <filter> element of the point at which the light source is pointing."
       },
       {
-        "name": "pointsAtZ"
+        "name": "pointsAtZ",
+        "description": "The pointsAtZ attribute represents the z location in the coordinate system established by attribute primitiveUnits on the <filter> element of the point at which the light source is pointing, assuming that, in the initial local coordinate system, the positive z-axis comes out towards the person viewing the content and assuming that one unit along the z-axis equals one unit in x and y."
       },
       {
-        "name": "specularExponent"
+        "name": "specularExponent",
+        "description": "The specularExponent attribute controls the focus for the light source. The bigger the value the brighter the light."
       },
       {
-        "name": "x"
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system."
       },
       {
-        "name": "y"
+        "name": "y",
+        "description": "The y attribute defines a y-axis coordinate in the user coordinate system."
       },
       {
-        "name": "z"
+        "name": "z",
+        "description": "The z attribute defines the location along the z-axis for a light source in the coordinate system established by the primitiveUnits attribute on the <filter> element, assuming that, in the initial coordinate system, the positive z-axis comes out towards the person viewing the content and assuming that one unit along the z-axis equals one unit in x and y."
       }
     ]
   },
@@ -3479,19 +3828,24 @@
     "name": "SVGFETurbulenceElement",
     "attributes": [
       {
-        "name": "baseFrequency"
+        "name": "baseFrequency",
+        "description": "The baseFrequency attribute represents the base frequency parameter for the noise function of the <feTurbulence> filter primitive."
       },
       {
-        "name": "numOctaves"
+        "name": "numOctaves",
+        "description": "The numOctaves attribute defines the number of octaves for the noise function of the <feTurbulence> primitive."
       },
       {
-        "name": "seed"
+        "name": "seed",
+        "description": "The seed attribute represents the starting number for the pseudo random number generator of the <feTurbulence> filter primitive."
       },
       {
-        "name": "stitchTiles"
+        "name": "stitchTiles",
+        "description": "The stitchTiles attribute defines how the Perlin Noise tiles behave at the border."
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type attribute is a generic attribute and it has different meaning based on the context in which it's used."
       }
     ]
   },
@@ -3502,22 +3856,28 @@
         "name": "filterRes"
       },
       {
-        "name": "filterUnits"
+        "name": "filterUnits",
+        "description": "The filterUnits attribute defines the coordinate system for the attributes x, y, width and height."
       },
       {
-        "name": "height"
+        "name": "height",
+        "description": "The height attribute defines the vertical length of an element in the user coordinate system."
       },
       {
-        "name": "primitiveUnits"
+        "name": "primitiveUnits",
+        "description": "The primitiveUnits attribute specifies the coordinate system for the various length values within the filter primitives and for the attributes that define the filter primitive subregion."
       },
       {
-        "name": "width"
+        "name": "width",
+        "description": "The width attribute defines the horizontal length of an element in the user coordinate system."
       },
       {
-        "name": "x"
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system."
       },
       {
-        "name": "y"
+        "name": "y",
+        "description": "The y attribute defines a y-axis coordinate in the user coordinate system."
       }
     ]
   },
@@ -3525,10 +3885,28 @@
     "name": "SVGForeignObjectElement",
     "attributes": [
       {
-        "name": "requiredExtensions"
+        "name": "height",
+        "description": "The height attribute defines the vertical length of an element in the user coordinate system."
       },
       {
-        "name": "systemLanguage"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
+      },
+      {
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
+      },
+      {
+        "name": "width",
+        "description": "The width attribute defines the horizontal length of an element in the user coordinate system."
+      },
+      {
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system."
+      },
+      {
+        "name": "y",
+        "description": "The y attribute defines a y-axis coordinate in the user coordinate system."
       }
     ]
   },
@@ -3536,10 +3914,12 @@
     "name": "SVGGElement",
     "attributes": [
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3547,22 +3927,48 @@
     "name": "SVGImageElement",
     "attributes": [
       {
-        "name": "crossorigin"
+        "name": "crossorigin",
+        "description": "The crossorigin attribute, valid on the <image>, <feImage>, and <script> elements, provides support for configuration of Cross-Origin Resource Sharing (CORS) requests for the element's fetched data."
       },
       {
-        "name": "href"
+        "name": "height",
+        "description": "The height attribute defines the vertical length of an element in the user coordinate system."
       },
       {
-        "name": "requiredExtensions"
+        "name": "href",
+        "description": "The href attribute defines a link to a resource as a reference URL. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "systemLanguage"
+        "name": "preserveAspectRatio",
+        "description": "The preserveAspectRatio attribute indicates how an element with a viewBox providing a given aspect ratio must fit into a viewport with a different aspect ratio."
       },
       {
-        "name": "xlink:href"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "xlink:title"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
+      },
+      {
+        "name": "width",
+        "description": "The width attribute defines the horizontal length of an element in the user coordinate system."
+      },
+      {
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system."
+      },
+      {
+        "name": "xlink:href",
+        "description": "The xlink:href attribute defines a reference to a resource as a reference IRI. The exact meaning of that link depends on the context of each element using it."
+      },
+      {
+        "name": "xlink:title",
+        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion."
+      },
+      {
+        "name": "y",
+        "description": "The y attribute defines a y-axis coordinate in the user coordinate system."
       }
     ]
   },
@@ -3570,34 +3976,44 @@
     "name": "SVGLinearGradientElement",
     "attributes": [
       {
-        "name": "gradientTransform"
+        "name": "gradientTransform",
+        "description": "The gradientTransform attribute contains the definition of an optional additional transformation from the gradient coordinate system onto the target coordinate system (i.e., userSpaceOnUse or objectBoundingBox). This allows for things such as skewing the gradient. This additional transformation matrix is post-multiplied to (i.e., inserted to the right of) any previously defined transformations, including the implicit transformation necessary to convert from object bounding box units to user space."
       },
       {
-        "name": "gradientUnits"
+        "name": "gradientUnits",
+        "description": "The gradientUnits attribute defines the coordinate system used for attributes specified on the gradient elements."
       },
       {
-        "name": "href"
+        "name": "href",
+        "description": "The href attribute defines a link to a resource as a reference URL. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "spreadMethod"
+        "name": "spreadMethod",
+        "description": "The spreadMethod attribute determines how a shape is filled beyond the defined edges of a gradient."
       },
       {
-        "name": "x1"
+        "name": "x1",
+        "description": "The x1 attribute is used to specify the first x-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the x attribute instead."
       },
       {
-        "name": "x2"
+        "name": "x2",
+        "description": "The x2 attribute is used to specify the second x-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the x attribute instead."
       },
       {
-        "name": "xlink:href"
+        "name": "xlink:href",
+        "description": "The xlink:href attribute defines a reference to a resource as a reference IRI. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "xlink:title"
+        "name": "xlink:title",
+        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion."
       },
       {
-        "name": "y1"
+        "name": "y1",
+        "description": "The y1 attribute is used to specify the first y-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the y attribute instead."
       },
       {
-        "name": "y2"
+        "name": "y2",
+        "description": "The y2 attribute is used to specify the second y-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the y attribute instead."
       }
     ]
   },
@@ -3605,22 +4021,28 @@
     "name": "SVGLineElement",
     "attributes": [
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       },
       {
-        "name": "x1"
+        "name": "x1",
+        "description": "The x1 attribute is used to specify the first x-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the x attribute instead."
       },
       {
-        "name": "x2"
+        "name": "x2",
+        "description": "The x2 attribute is used to specify the second x-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the x attribute instead."
       },
       {
-        "name": "y1"
+        "name": "y1",
+        "description": "The y1 attribute is used to specify the first y-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the y attribute instead."
       },
       {
-        "name": "y2"
+        "name": "y2",
+        "description": "The y2 attribute is used to specify the second y-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the y attribute instead."
       }
     ]
   },
@@ -3628,22 +4050,28 @@
     "name": "SVGMarkerElement",
     "attributes": [
       {
-        "name": "markerHeight"
+        "name": "markerHeight",
+        "description": "The markerHeight attribute represents the height of the viewport into which the <marker> is to be fitted when it is rendered according to the viewBox and preserveAspectRatio attributes."
       },
       {
-        "name": "markerUnits"
+        "name": "markerUnits",
+        "description": "The markerUnits attribute defines the coordinate system for the markerWidth and markerHeight attributes and the contents of the <marker>."
       },
       {
-        "name": "markerWidth"
+        "name": "markerWidth",
+        "description": "The markerWidth attribute represents the width of the viewport into which the <marker> is to be fitted when it is rendered according to the viewBox and preserveAspectRatio attributes."
       },
       {
-        "name": "orient"
+        "name": "orient",
+        "description": "The orient attribute indicates how a marker is rotated when it is placed at its position on the shape."
       },
       {
-        "name": "refX"
+        "name": "refX",
+        "description": "The refX attribute defines the x coordinate of an element's reference point."
       },
       {
-        "name": "refY"
+        "name": "refY",
+        "description": "The refY attribute defines the y coordinate of an element's reference point."
       }
     ]
   },
@@ -3651,10 +4079,12 @@
     "name": "SVGMaskElement",
     "attributes": [
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3662,10 +4092,12 @@
     "name": "SVGPathElement",
     "attributes": [
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3673,34 +4105,44 @@
     "name": "SVGPatternElement",
     "attributes": [
       {
-        "name": "height"
+        "name": "height",
+        "description": "The height attribute defines the vertical length of an element in the user coordinate system."
       },
       {
-        "name": "href"
+        "name": "href",
+        "description": "The href attribute defines a link to a resource as a reference URL. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "patternContentUnits"
+        "name": "patternContentUnits",
+        "description": "The patternContentUnits attribute indicates which coordinate system to use for the contents of the <pattern> element."
       },
       {
-        "name": "patternTransform"
+        "name": "patternTransform",
+        "description": "The patternTransform attribute defines a list of transform definitions that are applied to a pattern tile."
       },
       {
-        "name": "patternUnits"
+        "name": "patternUnits",
+        "description": "The patternUnits attribute indicates which coordinate system to use for the geometry properties of the <pattern> element."
       },
       {
-        "name": "width"
+        "name": "width",
+        "description": "The width attribute defines the horizontal length of an element in the user coordinate system."
       },
       {
-        "name": "x"
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system."
       },
       {
-        "name": "xlink:href"
+        "name": "xlink:href",
+        "description": "The xlink:href attribute defines a reference to a resource as a reference IRI. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "xlink:title"
+        "name": "xlink:title",
+        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion."
       },
       {
-        "name": "y"
+        "name": "y",
+        "description": "The y attribute defines a y-axis coordinate in the user coordinate system."
       }
     ]
   },
@@ -3708,13 +4150,16 @@
     "name": "SVGPolygonElement",
     "attributes": [
       {
-        "name": "points"
+        "name": "points",
+        "description": "The points attribute defines a list of points. Each point is defined by a pair of number representing a X and a Y coordinate in the user coordinate system. If the attribute contains an odd number of coordinates, the last one will be ignored."
       },
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3722,13 +4167,16 @@
     "name": "SVGPolylineElement",
     "attributes": [
       {
-        "name": "points"
+        "name": "points",
+        "description": "The points attribute defines a list of points. Each point is defined by a pair of number representing a X and a Y coordinate in the user coordinate system. If the attribute contains an odd number of coordinates, the last one will be ignored."
       },
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3736,40 +4184,52 @@
     "name": "SVGRadialGradientElement",
     "attributes": [
       {
-        "name": "cx"
+        "name": "cx",
+        "description": "The cx attribute defines the x-axis coordinate of a center point."
       },
       {
-        "name": "cy"
+        "name": "cy",
+        "description": "The cy attribute defines the y-axis coordinate of a center point."
       },
       {
-        "name": "fr"
+        "name": "fr",
+        "description": "The fr attribute defines the radius of the focal point for the radial gradient."
       },
       {
-        "name": "fx"
+        "name": "fx",
+        "description": "The fx attribute defines the x-axis coordinate of the focal point for a radial gradient."
       },
       {
-        "name": "fy"
+        "name": "fy",
+        "description": "The fy attribute defines the y-axis coordinate of the focal point for a radial gradient."
       },
       {
-        "name": "gradientTransform"
+        "name": "gradientTransform",
+        "description": "The gradientTransform attribute contains the definition of an optional additional transformation from the gradient coordinate system onto the target coordinate system (i.e., userSpaceOnUse or objectBoundingBox). This allows for things such as skewing the gradient. This additional transformation matrix is post-multiplied to (i.e., inserted to the right of) any previously defined transformations, including the implicit transformation necessary to convert from object bounding box units to user space."
       },
       {
-        "name": "gradientUnits"
+        "name": "gradientUnits",
+        "description": "The gradientUnits attribute defines the coordinate system used for attributes specified on the gradient elements."
       },
       {
-        "name": "href"
+        "name": "href",
+        "description": "The href attribute defines a link to a resource as a reference URL. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "r"
+        "name": "r",
+        "description": "The r attribute defines the radius of a circle."
       },
       {
-        "name": "spreadMethod"
+        "name": "spreadMethod",
+        "description": "The spreadMethod attribute determines how a shape is filled beyond the defined edges of a gradient."
       },
       {
-        "name": "xlink:href"
+        "name": "xlink:href",
+        "description": "The xlink:href attribute defines a reference to a resource as a reference IRI. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "xlink:title"
+        "name": "xlink:title",
+        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion."
       }
     ]
   },
@@ -3777,10 +4237,36 @@
     "name": "SVGRectElement",
     "attributes": [
       {
-        "name": "requiredExtensions"
+        "name": "height",
+        "description": "The height attribute defines the vertical length of an element in the user coordinate system."
       },
       {
-        "name": "systemLanguage"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
+      },
+      {
+        "name": "rx",
+        "description": "The rx attribute defines a radius on the x-axis."
+      },
+      {
+        "name": "ry",
+        "description": "The ry attribute defines a radius on the y-axis."
+      },
+      {
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
+      },
+      {
+        "name": "width",
+        "description": "The width attribute defines the horizontal length of an element in the user coordinate system."
+      },
+      {
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system."
+      },
+      {
+        "name": "y",
+        "description": "The y attribute defines a y-axis coordinate in the user coordinate system."
       }
     ]
   },
@@ -3788,19 +4274,24 @@
     "name": "SVGScriptElement",
     "attributes": [
       {
-        "name": "crossorigin"
+        "name": "crossorigin",
+        "description": "The crossorigin attribute, valid on the <image>, <feImage>, and <script> elements, provides support for configuration of Cross-Origin Resource Sharing (CORS) requests for the element's fetched data."
       },
       {
-        "name": "href"
+        "name": "href",
+        "description": "The href attribute defines a link to a resource as a reference URL. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type attribute is a generic attribute and it has different meaning based on the context in which it's used."
       },
       {
-        "name": "xlink:href"
+        "name": "xlink:href",
+        "description": "The xlink:href attribute defines a reference to a resource as a reference IRI. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "xlink:title"
+        "name": "xlink:title",
+        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion."
       }
     ]
   },
@@ -3817,10 +4308,12 @@
         "name": "onrepeat"
       },
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3836,13 +4329,16 @@
     "name": "SVGStyleElement",
     "attributes": [
       {
-        "name": "media"
+        "name": "media",
+        "description": "The media attribute specifies a media query that must be matched for a style sheet to apply."
       },
       {
-        "name": "title"
+        "name": "title",
+        "description": "The SVGStyleElement.title property is a string corresponding to the title attribute of the given SVG style element.\nIt may be used to select between alternate style sheets."
       },
       {
-        "name": "type"
+        "name": "type",
+        "description": "The type attribute is a generic attribute and it has different meaning based on the context in which it's used."
       }
     ]
   },
@@ -3850,10 +4346,12 @@
     "name": "SVGSwitchElement",
     "attributes": [
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3861,10 +4359,12 @@
     "name": "SVGSymbolElement",
     "attributes": [
       {
-        "name": "refX"
+        "name": "refX",
+        "description": "The refX attribute defines the x coordinate of an element's reference point."
       },
       {
-        "name": "refY"
+        "name": "refY",
+        "description": "The refY attribute defines the y coordinate of an element's reference point."
       }
     ]
   },
@@ -3872,31 +4372,40 @@
     "name": "SVGTextElement",
     "attributes": [
       {
-        "name": "dx"
+        "name": "dx",
+        "description": "The dx attribute indicates a shift along the x-axis on the position of an element or its content."
       },
       {
-        "name": "dy"
+        "name": "dy",
+        "description": "The dy attribute indicates a shift along the y-axis on the position of an element or its content."
       },
       {
-        "name": "lengthAdjust"
+        "name": "lengthAdjust",
+        "description": "The lengthAdjust attribute controls how the text is stretched into the length defined by the textLength attribute."
       },
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "rotate"
+        "name": "rotate",
+        "description": "The rotate attribute specifies how the animated element rotates as it travels along a path specified in an <animateMotion> element."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       },
       {
-        "name": "textLength"
+        "name": "textLength",
+        "description": "The textLength attribute, available on SVG <text> and <tspan> elements, lets you specify the width of the space into which the text will draw. The user agent will ensure that the text does not extend farther than that distance, using the method or methods specified by the lengthAdjust attribute. By default, only the spacing between characters is adjusted, but the glyph size can also be adjusted if you change lengthAdjust."
       },
       {
-        "name": "x"
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system."
       },
       {
-        "name": "y"
+        "name": "y",
+        "description": "The y attribute defines a y-axis coordinate in the user coordinate system."
       }
     ]
   },
@@ -3904,34 +4413,44 @@
     "name": "SVGTextPathElement",
     "attributes": [
       {
-        "name": "href"
+        "name": "href",
+        "description": "The href attribute defines a link to a resource as a reference URL. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "method"
+        "name": "method",
+        "description": "The method attribute indicates the method by which text should be rendered along the path of a <textPath> element."
       },
       {
-        "name": "path"
+        "name": "path",
+        "description": "The path attribute has two different meanings, either it defines a text path along which the characters of a text are rendered, or a motion path along which a referenced element is animated."
       },
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "side"
+        "name": "side",
+        "description": "The side attribute determines the side of a path the text is placed on (relative to the path direction)."
       },
       {
-        "name": "spacing"
+        "name": "spacing",
+        "description": "The spacing attribute indicates how the user agent should determine the spacing between typographic characters that are to be rendered along a path."
       },
       {
-        "name": "startOffset"
+        "name": "startOffset",
+        "description": "The startOffset attribute defines an offset from the start of the path for the initial current text position along the path after converting the path to the <textPath> element's coordinate system."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       },
       {
-        "name": "xlink:href"
+        "name": "xlink:href",
+        "description": "The xlink:href attribute defines a reference to a resource as a reference IRI. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "xlink:title"
+        "name": "xlink:title",
+        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion."
       }
     ]
   },
@@ -3939,10 +4458,12 @@
     "name": "SVGTSpanElement",
     "attributes": [
       {
-        "name": "requiredExtensions"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "systemLanguage"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       }
     ]
   },
@@ -3950,19 +4471,40 @@
     "name": "SVGUseElement",
     "attributes": [
       {
-        "name": "href"
+        "name": "height",
+        "description": "The height attribute defines the vertical length of an element in the user coordinate system."
       },
       {
-        "name": "requiredExtensions"
+        "name": "href",
+        "description": "The href attribute defines a link to a resource as a reference URL. The exact meaning of that link depends on the context of each element using it."
       },
       {
-        "name": "systemLanguage"
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications."
       },
       {
-        "name": "xlink:href"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences."
       },
       {
-        "name": "xlink:title"
+        "name": "width",
+        "description": "The width attribute defines the horizontal length of an element in the user coordinate system."
+      },
+      {
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system."
+      },
+      {
+        "name": "xlink:href",
+        "description": "The xlink:href attribute defines a reference to a resource as a reference IRI. The exact meaning of that link depends on the context of each element using it."
+      },
+      {
+        "name": "xlink:title",
+        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion."
+      },
+      {
+        "name": "y",
+        "description": "The y attribute defines a y-axis coordinate in the user coordinate system."
       }
     ]
   },
