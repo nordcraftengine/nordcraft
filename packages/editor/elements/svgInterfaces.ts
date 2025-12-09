@@ -1,5 +1,10 @@
 import { listAll as listAllEvents } from '@webref/events'
-import { getSvgElementInterface, isHtmlInterface } from './utils'
+import {
+  getAttributeInfo,
+  getSvgElementInterface,
+  initMdnMetadata,
+  isSvgInterface,
+} from './utils'
 
 // Fetches SVG attributes from the webref repository and generates a JSON file
 // mapping SVG interfaces to their attributes.
@@ -21,6 +26,7 @@ interface SvgDefinition {
 
 interface SvgAttributeDefinition {
   name: string
+  description?: string
   options?: string[]
 }
 
@@ -57,6 +63,9 @@ export const getSvgInterfaces = async () => {
   // Append all filter-effects definitions
   definitions.dfns.push(...filterEffectDefinitions.dfns)
 
+  // Initialize additional MDN metadata
+  await initMdnMetadata()
+
   // Group attributes by their interfaces
   const groupedAttributes = definitions.dfns
     .filter(
@@ -82,36 +91,59 @@ export const getSvgInterfaces = async () => {
     .reduce(
       (acc, d) => {
         const attrName = d.linkingText[0]
-        const interfaceNames = d.for
-        interfaceNames.forEach((_interfaceName) => {
-          const mappedInterfaceName = mapInterfaceName(_interfaceName)
-          if (typeof mappedInterfaceName !== 'string') {
+        const elementOrInterfaceNames = d.for
+        elementOrInterfaceNames.forEach((_interfaceName) => {
+          const mappedElementOrInterfaceName = mapInterfaceName(_interfaceName)
+          if (typeof mappedElementOrInterfaceName !== 'string') {
             return acc
           }
-          if (isHtmlInterface(mappedInterfaceName)) {
-            // Attributes declared directly on HTML interfaces are skipped
-            // as they are sometimes properties rather than attributes
-            // All attributes should be included directly from elements
-            return acc
+          let interfaceName = getSvgElementInterface(
+            mappedElementOrInterfaceName,
+          )
+          const attributeInfo = getAttributeInfo({
+            namespace: 'SVG',
+            attribute: attrName,
+            interfaceName,
+          })
+          if (
+            typeof interfaceName !== 'string' &&
+            isSvgInterface(mappedElementOrInterfaceName)
+          ) {
+            // We need to make sure we can look up info about this attribute
+            // to make sure it's not a property
+            if (!attributeInfo) {
+              // eslint-disable-next-line no-console
+              console.warn(
+                'Unable to find attribute info for',
+                attrName,
+                'Skipping as it might be a property.',
+              )
+              return
+            }
+            interfaceName = mappedElementOrInterfaceName
           }
-          const interfaceName = getSvgElementInterface(mappedInterfaceName)
           if (typeof interfaceName === 'string') {
-            acc[interfaceName] ??= {}
-            acc[interfaceName].attributes ??= []
+            // We'll help Typescript recognize the key as a string
+            const interfaceKey = interfaceName as string
+            acc[interfaceKey] ??= {}
+            acc[interfaceKey].attributes ??= []
             if (
-              !acc[interfaceName].attributes.find(
+              !acc[interfaceKey].attributes.find(
                 (attr) =>
                   attr.name.toLocaleLowerCase() ===
                   attrName.toLocaleLowerCase(),
               )
             ) {
-              acc[interfaceName].attributes.push({ name: attrName })
+              acc[interfaceKey].attributes.push({
+                name: attrName,
+                description: attributeInfo?.summary,
+              })
             }
           } else {
             // eslint-disable-next-line no-console
             console.warn(
               'Skipping invalid interface name:',
-              mappedInterfaceName,
+              mappedElementOrInterfaceName,
             )
           }
         })
@@ -142,10 +174,19 @@ export const getSvgInterfaces = async () => {
             console.warn(`No interface for element: ${mappedElement}`)
             return
           }
+          const attributeInfo = getAttributeInfo({
+            namespace: 'SVG',
+            attribute: attributePart,
+            interfaceName,
+          })
           let interfaceItem = groupedAttributes[interfaceName]
           if (!interfaceItem) {
             // Create the missing interface entry
-            interfaceItem = { attributes: [{ name: attributePart }] }
+            interfaceItem = {
+              attributes: [
+                { name: attributePart, description: attributeInfo?.summary },
+              ],
+            }
             groupedAttributes[interfaceName] = interfaceItem
           }
           const attributeItem = interfaceItem.attributes?.find(
@@ -164,6 +205,7 @@ export const getSvgInterfaces = async () => {
             interfaceItem.attributes ??= []
             interfaceItem.attributes.push({
               name: attributePart,
+              description: attributeInfo?.summary,
               options: [value],
             })
           }

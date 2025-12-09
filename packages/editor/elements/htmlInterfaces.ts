@@ -1,5 +1,10 @@
 import { listAll as listAllEvents } from '@webref/events'
-import { getHtmlElementInterface, isHtmlInterface } from './utils'
+import {
+  getAttributeInfo,
+  getHtmlElementInterface,
+  initMdnMetadata,
+  isHtmlInterface,
+} from './utils'
 
 // Fetches HTML attributes from the webref repository and generates a JSON file
 // mapping HTML interfaces to their attributes.
@@ -21,6 +26,7 @@ interface HtmlDefinition {
 
 interface HtmlAttributeDefinition {
   name: string
+  description?: string
   options?: string[]
 }
 
@@ -164,6 +170,9 @@ export const getHtmlInterfaces = async () => {
     })
   })
 
+  // Initialize additional MDN metadata
+  await initMdnMetadata()
+
   // Group attributes by their interfaces
   const groupedAttributes = definitions.dfns
     .filter(
@@ -203,11 +212,18 @@ export const getHtmlInterfaces = async () => {
           }
           const interfaceName = getHtmlElementInterface(mappedInterfaceName)
           if (typeof interfaceName === 'string') {
+            const attributeInfo = getAttributeInfo({
+              namespace: 'HTML',
+              attribute: attrName,
+              interfaceName,
+            })
             acc[interfaceName] ??= {}
             // The 'href' attribute is currently missing in the webref data for the HTMLAnchorElement interface
             // So we add it manually here
             acc[interfaceName].attributes ??=
-              interfaceName === 'HTMLAnchorElement' ? [{ name: 'href' }] : []
+              interfaceName === 'HTMLAnchorElement'
+                ? [{ name: 'href', description: attributeInfo?.summary }]
+                : []
             if (
               !acc[interfaceName].attributes.find(
                 (attr) =>
@@ -215,7 +231,10 @@ export const getHtmlInterfaces = async () => {
                   attrName.toLocaleLowerCase(),
               )
             ) {
-              acc[interfaceName].attributes.push({ name: attrName })
+              acc[interfaceName].attributes.push({
+                name: attrName,
+                description: attributeInfo?.summary,
+              })
             }
           } else {
             // eslint-disable-next-line no-console
@@ -252,10 +271,19 @@ export const getHtmlInterfaces = async () => {
             console.warn(`No interface for element: ${mappedElement}`)
             return
           }
+          const attributeInfo = getAttributeInfo({
+            namespace: 'HTML',
+            attribute: attributePart,
+            interfaceName,
+          })
           let interfaceItem = groupedAttributes[interfaceName]
           if (!interfaceItem) {
             // Create the missing interface entry
-            interfaceItem = { attributes: [{ name: attributePart }] }
+            interfaceItem = {
+              attributes: [
+                { name: attributePart, description: attributeInfo?.summary },
+              ],
+            }
             groupedAttributes[interfaceName] = interfaceItem
           }
           const attributeItem = interfaceItem.attributes?.find(
@@ -274,6 +302,7 @@ export const getHtmlInterfaces = async () => {
             interfaceItem.attributes ??= []
             interfaceItem.attributes.push({
               name: attributePart,
+              description: attributeInfo?.summary,
               options: [value],
             })
           }
