@@ -34,6 +34,10 @@ export type CssSyntaxNode =
 export function stringifySyntaxNode(node: CssSyntaxNode): string {
   switch (node.type) {
     case 'primitive':
+      if (node.name === '*') {
+        return node.name
+      }
+
       return `<${node.name}>`
     case 'keyword':
       return node.keywords.join(' | ')
