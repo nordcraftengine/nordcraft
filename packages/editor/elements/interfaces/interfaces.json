@@ -846,7 +846,7 @@
       {
         "name": "href",
         "description": "The href property of the HTMLAnchorElement interface is a stringifier that returns the absolute URL corresponding to the element's href attribute (or an empty string if href is unset). Setting this property updates the element's href attribute to the provided value.",
-        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Elements/a#href"
+        "mdnUrl": "/en-US/docs/Web/API/HTMLAnchorElement/href"
       },
       {
         "name": "rel",
