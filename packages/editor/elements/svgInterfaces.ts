@@ -1,9 +1,12 @@
 import { listAll as listAllEvents } from '@webref/events'
 import {
   getAttributeInfo,
+  getEventInfo,
   getSvgElementInterface,
+  inheritedInterfaces,
   initMdnMetadata,
   isSvgInterface,
+  sortByPopularityOrAlphabetical,
 } from './utils'
 
 // Fetches SVG attributes from the webref repository and generates a JSON file
@@ -28,11 +31,18 @@ interface SvgAttributeDefinition {
   name: string
   description?: string
   options?: string[]
+  popularity?: number
+}
+
+interface SvgEventDefinition {
+  name: string
+  description?: string
+  popularity?: number
 }
 
 interface SvgInterfaceDefinition {
   attributes?: Array<SvgAttributeDefinition>
-  events?: string[]
+  events?: Array<SvgEventDefinition>
 }
 
 const EXCLUDED_ATTRIBUTE_NAMES = new Set(['innerHTML', 'outerHTML'])
@@ -137,6 +147,7 @@ export const getSvgInterfaces = async () => {
               acc[interfaceKey].attributes.push({
                 name: attrName,
                 description: attributeInfo?.summary,
+                popularity: attributeInfo?.popularity ?? 0,
               })
             }
           } else {
@@ -184,7 +195,12 @@ export const getSvgInterfaces = async () => {
             // Create the missing interface entry
             interfaceItem = {
               attributes: [
-                { name: attributePart, description: attributeInfo?.summary },
+                {
+                  name: attributePart,
+                  description: attributeInfo?.summary,
+                  popularity: attributeInfo?.popularity ?? 0,
+                  options: [value],
+                },
               ],
             }
             groupedAttributes[interfaceName] = interfaceItem
@@ -207,6 +223,7 @@ export const getSvgInterfaces = async () => {
               name: attributePart,
               description: attributeInfo?.summary,
               options: [value],
+              popularity: attributeInfo?.popularity ?? 0,
             })
           }
         } else {
@@ -227,13 +244,36 @@ export const getSvgInterfaces = async () => {
   const events = await listAllEvents()
   events.forEach((e) => {
     e.targets.forEach((et) => {
-      const interfaceItem = groupedAttributes[mapSvgInterfaceName(et.target)]
+      const interfaceName = mapSvgInterfaceName(et.target)
+      const interfaceItem = groupedAttributes[interfaceName]
       if (!interfaceItem) {
         // We'll skip events for missing interfaces to ensure we don't add all HTML elements
         return
       }
+      let eventInfo = getEventInfo({ interfaceName, eventName: e.type })
+      if (!eventInfo) {
+        // As a fallback, try to get event info from any inherited interface
+        const eventInterfaces = inheritedInterfaces(interfaceName, false)
+        let parentIndex = 1
+        while (parentIndex < eventInterfaces.length && !eventInfo) {
+          const parentInterface = eventInterfaces.at(parentIndex)
+          if (typeof parentInterface !== 'string') {
+            break
+          }
+          // Try to get event info from the interface's parent interface
+          eventInfo = getEventInfo({
+            interfaceName: parentInterface,
+            eventName: e.type,
+          })
+          parentIndex++
+        }
+      }
       interfaceItem.events ??= []
-      interfaceItem.events.push(e.type)
+      interfaceItem.events.push({
+        name: e.type,
+        description: eventInfo?.summary,
+        popularity: eventInfo?.popularity,
+      })
     })
   })
 
@@ -256,9 +296,15 @@ export const getSvgInterfaces = async () => {
         interfaceName,
         {
           attributes: data.attributes
-            ? data.attributes.toSorted((a, b) => a.name.localeCompare(b.name))
+            ? data.attributes
+                .toSorted(sortByPopularityOrAlphabetical)
+                .map(({ popularity: _, ...a }) => a)
             : undefined,
-          events: data.events ? data.events.toSorted() : undefined,
+          events: data.events
+            ? data.events
+                .toSorted(sortByPopularityOrAlphabetical)
+                .map(({ popularity: _, ...e }) => e)
+            : undefined,
         },
       ]),
   )

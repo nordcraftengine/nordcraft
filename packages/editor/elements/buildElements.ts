@@ -4,9 +4,12 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import type { ValueOperation } from '@nordcraft/core/dist/formula/formula'
 import { writeFileSync } from 'fs'
-import { api } from 'mdn-data'
 import type { ExportedHtmlElement, ExportedHtmlElementCategory } from '../types'
-import { getHtmlElementInterface, getSvgElementInterface } from './utils'
+import {
+  getHtmlElementInterface,
+  getSvgElementInterface,
+  inheritedInterfaces,
+} from './utils'
 
 // Generates metadata and default structure for all HTML and SVG elements
 // The interface names for each element are fetched from the @webref/elements package
@@ -44,21 +47,6 @@ const POPULAR_ELEMENTS = [
   'span',
   'ul',
 ]
-
-const inheritedInterfaces = (
-  _interfaceName: string,
-  includeGlobal: boolean,
-): string[] => {
-  const inheritanceData = api.inheritance[_interfaceName]
-  const interfaceName = _interfaceName.replaceAll('SVGSVG', 'SVG')
-  if (!inheritanceData) {
-    return [interfaceName, ...(includeGlobal ? ['global'] : [])]
-  }
-  return [
-    interfaceName,
-    ...inheritedInterfaces(inheritanceData.inherits, includeGlobal),
-  ]
-}
 
 const init = () => {
   Object.entries(elements).forEach(([element, settings]) => {
