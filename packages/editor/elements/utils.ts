@@ -50,7 +50,7 @@ let mdnMetadata:
       summary: string
       title: string
       mdn_url: string
-      popularity: number
+      popularity?: number | null
       pageType:
         | 'glossary-definition'
         | 'landing-page'

@@ -32,12 +32,14 @@ interface HtmlAttributeDefinition {
   description?: string
   options?: string[]
   popularity?: number
+  mdnUrl?: string
 }
 
 interface HtmlEventDefinition {
   name: string
   description?: string
   popularity?: number
+  mdnUrl?: string
 }
 
 interface HtmlInterfaceDefinition {
@@ -237,6 +239,7 @@ export const getHtmlInterfaces = async () => {
                       name: 'href',
                       description: attributeInfo?.summary,
                       popularity: 1,
+                      mdnUrl: '/en-US/docs/Web/API/HTMLAnchorElement/href',
                     },
                   ]
                 : []
@@ -250,7 +253,8 @@ export const getHtmlInterfaces = async () => {
               acc[interfaceName].attributes.push({
                 name: attrName,
                 description: attributeInfo?.summary,
-                popularity: attributeInfo?.popularity,
+                popularity: attributeInfo?.popularity ?? undefined,
+                mdnUrl: attributeInfo?.mdn_url,
               })
             }
           } else {
@@ -301,7 +305,8 @@ export const getHtmlInterfaces = async () => {
                 {
                   name: attributePart,
                   description: attributeInfo?.summary,
-                  popularity: attributeInfo?.popularity,
+                  popularity: attributeInfo?.popularity ?? undefined,
+                  mdnUrl: attributeInfo?.mdn_url,
                 },
               ],
             }
@@ -325,7 +330,8 @@ export const getHtmlInterfaces = async () => {
               name: attributePart,
               description: attributeInfo?.summary,
               options: [value],
-              popularity: attributeInfo?.popularity,
+              popularity: attributeInfo?.popularity ?? undefined,
+              mdnUrl: attributeInfo?.mdn_url,
             })
           }
         } else {
@@ -367,7 +373,8 @@ export const getHtmlInterfaces = async () => {
       interfaceItem.events.push({
         name: e.type,
         description: eventInfo?.summary,
-        popularity: eventInfo?.popularity,
+        popularity: eventInfo?.popularity ?? undefined,
+        mdnUrl: eventInfo?.mdn_url,
       })
     })
   })
