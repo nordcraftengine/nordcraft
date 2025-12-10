@@ -32,14 +32,14 @@ interface SvgAttributeDefinition {
   description?: string
   options?: string[]
   popularity?: number
-  mdnUrl?: string
+  url?: string
 }
 
 interface SvgEventDefinition {
   name: string
   description?: string
   popularity?: number
-  mdnUrl?: string
+  url?: string
 }
 
 interface SvgInterfaceDefinition {
@@ -150,7 +150,7 @@ export const getSvgInterfaces = async () => {
                 name: attrName,
                 description: attributeInfo?.summary,
                 popularity: attributeInfo?.popularity ?? undefined,
-                mdnUrl: attributeInfo?.mdn_url,
+                url: attributeInfo?.mdn_url,
               })
             }
           } else {
@@ -202,7 +202,7 @@ export const getSvgInterfaces = async () => {
                   name: attributePart,
                   description: attributeInfo?.summary,
                   popularity: attributeInfo?.popularity ?? undefined,
-                  mdnUrl: attributeInfo?.mdn_url,
+                  url: attributeInfo?.mdn_url,
                   options: [value],
                 },
               ],
@@ -228,7 +228,7 @@ export const getSvgInterfaces = async () => {
               description: attributeInfo?.summary,
               options: [value],
               popularity: attributeInfo?.popularity ?? undefined,
-              mdnUrl: attributeInfo?.mdn_url,
+              url: attributeInfo?.mdn_url,
             })
           }
         } else {
@@ -278,7 +278,7 @@ export const getSvgInterfaces = async () => {
         name: e.type,
         description: eventInfo?.summary,
         popularity: eventInfo?.popularity ?? undefined,
-        mdnUrl: eventInfo?.mdn_url,
+        url: eventInfo?.mdn_url,
       })
     })
   })
