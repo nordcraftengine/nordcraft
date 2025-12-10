@@ -675,21 +675,155 @@
     "name": "global",
     "attributes": [
       {
-        "name": "accesskey"
+        "name": "class",
+        "description": "The class global attribute is a list of the classes of the element, separated by ASCII whitespace.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/class"
+      },
+      {
+        "name": "contenteditable",
+        "description": "The contenteditable global attribute is an enumerated attribute indicating if the element should be editable by the user. If so, the browser modifies its widget to allow editing.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/contenteditable",
+        "options": ["true", "false", "plaintext-only"]
+      },
+      {
+        "name": "lang",
+        "description": "The lang global attribute helps define the language of an element: the language that non-editable elements are written in, or the language that the editable elements should be written in by the user. The attribute contains a single BCP 47 language tag.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/lang"
+      },
+      {
+        "name": "inputmode",
+        "description": "The inputmode global attribute is an enumerated attribute that hints at the type of data that might be entered by the user while editing the element or its contents.\nThis allows a browser to display an appropriate virtual keyboard.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/inputmode",
+        "options": [
+          "none",
+          "text",
+          "tel",
+          "url",
+          "email",
+          "numeric",
+          "decimal",
+          "search"
+        ]
+      },
+      {
+        "name": "popover",
+        "description": "The popover global attribute is used to designate an element as a popover element.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/popover",
+        "options": ["auto", "manual", "hint"]
+      },
+      {
+        "name": "id",
+        "description": "The id global attribute defines an identifier (ID) that must be unique within the entire document.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/id"
+      },
+      {
+        "name": "hidden",
+        "description": "The hidden global attribute is an enumerated attribute indicating that the browser should not render the contents of the element. For example, it can be used to hide elements of the page that can't be used until the login process has been completed.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/hidden",
+        "options": ["hidden", "until-found"]
+      },
+      {
+        "name": "title",
+        "description": "The title global attribute contains text representing advisory information related to the element it belongs to.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/title"
+      },
+      {
+        "name": "style",
+        "description": "The style global attribute contains CSS styling declarations to be applied to the element. Note that it is recommended for styles to be defined in a separate file or files. This attribute and the <style> element have mainly the purpose of allowing for quick styling, for example for testing purposes.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/style"
+      },
+      {
+        "name": "draggable",
+        "description": "The draggable global attribute is an enumerated attribute that indicates whether the element can be dragged, either with native browser behavior or the HTML Drag and Drop API.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/draggable",
+        "options": ["true", "false"]
+      },
+      {
+        "name": "autofocus",
+        "description": "The autofocus global attribute is a Boolean attribute indicating that an element should be focused on page load, or when the <dialog> that it is part of is displayed.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/autofocus"
+      },
+      {
+        "name": "dir",
+        "description": "The dir global attribute is an enumerated attribute that indicates the directionality of the element's text.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/dir",
+        "options": ["ltr", "rtl", "auto"]
+      },
+      {
+        "name": "translate",
+        "description": "The translate global attribute is an enumerated attribute that is used to specify whether an element's translatable attribute values and its Text node children should be translated when the page is localized, or whether to leave them unchanged.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/translate",
+        "options": ["yes", "no"]
       },
       {
         "name": "autocapitalize",
+        "description": "The autocapitalize global attribute is an enumerated attribute that controls whether inputted text is automatically capitalized and, if so, in what manner. This is relevant to:",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/autocapitalize",
         "options": ["off", "none", "on", "sentences", "words", "characters"]
       },
       {
+        "name": "accesskey",
+        "description": "The accesskey global attribute provides a hint for generating a keyboard shortcut for the current element. The attribute value must consist of a single printable character (which includes accented and other characters that can be generated by the keyboard).",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/accesskey"
+      },
+      {
+        "name": "spellcheck",
+        "description": "The spellcheck global attribute is an enumerated attribute that defines whether the element may be checked for spelling errors.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/spellcheck",
+        "options": ["true", "false"]
+      },
+      {
+        "name": "itemprop",
+        "description": "The itemprop global attribute is used to add properties to an item. Every HTML element can have an itemprop attribute specified, and an itemprop consists of a name-value pair. Each name-value pair is called a property, and a group of one or more properties forms an item. Property values are either a string or a URL and can be associated with a very wide range of elements including <audio>, <embed>, <iframe>, <img>, <link>, <object>, <source>, <track>, and <video>.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemprop"
+      },
+      {
+        "name": "is",
+        "description": "The is global attribute allows you to specify that a standard HTML element should behave like a defined customized built-in element (see Using custom elements for more details).",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/is"
+      },
+      {
+        "name": "slot",
+        "description": "The slot global attribute assigns a slot in a shadow DOM shadow tree to an element: An element with a slot attribute is assigned to the slot created by the <slot> element whose name attribute's value matches that slot attribute's value. You can have multiple elements assigned to the same slot by using the same slot name. Elements without a slot attribute are assigned to the unnamed slot, if one exists.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/slot"
+      },
+      {
+        "name": "itemscope",
+        "description": "itemscope is a boolean global attribute that defines the scope of associated metadata. Specifying the itemscope attribute for an element creates a new item, which results in a number of name-value pairs that are associated with the element.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemscope"
+      },
+      {
+        "name": "enterkeyhint",
+        "description": "The enterkeyhint global attribute\nis an enumerated attribute defining what action label (or icon) to present for the enter key on virtual keyboards.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/enterkeyhint",
+        "options": ["enter", "done", "go", "next", "previous", "search", "send"]
+      },
+      {
         "name": "autocorrect",
+        "description": "The autocorrect global attribute is an enumerated attribute that controls whether autocorrection of editable text is enabled for spelling and/or punctuation errors.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/autocorrect",
         "options": ["on", "off"]
       },
       {
-        "name": "autofocus"
+        "name": "itemtype",
+        "description": "The global attribute itemtype specifies the URL of the vocabulary that will be used to define itemprop's (item properties) in the data structure.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemtype"
       },
       {
-        "name": "class"
+        "name": "itemid",
+        "description": "The itemid global attribute provides microdata in the form of a unique, global identifier of an item.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemid"
+      },
+      {
+        "name": "itemref",
+        "description": "Properties that are not descendants of an element with the itemscope attribute can be associated with an item using the global attribute itemref.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemref"
+      },
+      {
+        "name": "writingsuggestions",
+        "description": "The writingsuggestions global attribute is an enumerated attribute indicating if browser-provided writing suggestions should be enabled under the scope of the element or not.",
+        "mdnUrl": "/en-US/docs/Web/HTML/Reference/Global_attributes/writingsuggestions",
+        "options": ["true", "false"]
       },
       {
         "name": "command",
@@ -703,26 +837,10 @@
         ]
       },
       {
-        "name": "contenteditable",
-        "options": ["true", "false", "plaintext-only"]
-      },
-      {
         "name": "data-theme"
       },
       {
         "name": "data-unset-toddle-styles"
-      },
-      {
-        "name": "dir",
-        "options": ["ltr", "rtl", "auto"]
-      },
-      {
-        "name": "draggable",
-        "options": ["true", "false"]
-      },
-      {
-        "name": "enterkeyhint",
-        "options": ["enter", "done", "go", "next", "previous", "search", "send"]
       },
       {
         "name": "headingoffset"
@@ -731,77 +849,11 @@
         "name": "headingreset"
       },
       {
-        "name": "hidden",
-        "options": ["hidden", "until-found"]
-      },
-      {
-        "name": "id"
-      },
-      {
-        "name": "inputmode",
-        "options": [
-          "none",
-          "text",
-          "tel",
-          "url",
-          "email",
-          "numeric",
-          "decimal",
-          "search"
-        ]
-      },
-      {
-        "name": "is"
-      },
-      {
-        "name": "itemid"
-      },
-      {
-        "name": "itemprop"
-      },
-      {
-        "name": "itemref"
-      },
-      {
-        "name": "itemscope"
-      },
-      {
-        "name": "itemtype"
-      },
-      {
-        "name": "lang"
-      },
-      {
-        "name": "popover",
-        "options": ["auto", "manual", "hint"]
-      },
-      {
         "name": "popovertarget"
       },
       {
         "name": "popovertargetaction",
         "options": ["toggle", "show", "hide"]
-      },
-      {
-        "name": "slot"
-      },
-      {
-        "name": "spellcheck",
-        "options": ["true", "false"]
-      },
-      {
-        "name": "style"
-      },
-      {
-        "name": "title"
-      },
-      {
-        "name": "translate",
-        "options": ["yes", "no"]
-      },
-      {
-        "name": "writingsuggestions",
-        "options": ["true", "false"]
       }
     ]
   },

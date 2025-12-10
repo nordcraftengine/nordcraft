@@ -178,12 +178,15 @@ export const getAttributeInfo = ({
       return (
         entry.mdn_url === `/en-US/docs/Web/SVG/Reference/Attribute/${attribute}`
       )
-    } else {
+    } else if (interfaceName === 'global') {
       return (
         entry.mdn_url ===
-        `/en-US/docs/Web/HTML/Reference/Attributes/${attribute}`
+        `/en-US/docs/Web/HTML/Reference/Global_attributes/${attribute}`
       )
     }
+    return (
+      entry.mdn_url === `/en-US/docs/Web/HTML/Reference/Attributes/${attribute}`
+    )
   })
   if (entry) {
     return entry
