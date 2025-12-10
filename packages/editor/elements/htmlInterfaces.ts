@@ -1,9 +1,12 @@
 import { listAll as listAllEvents } from '@webref/events'
 import {
   getAttributeInfo,
+  getEventInfo,
   getHtmlElementInterface,
+  inheritedInterfaces,
   initMdnMetadata,
   isHtmlInterface,
+  sortByPopularityOrAlphabetical,
 } from './utils'
 
 // Fetches HTML attributes from the webref repository and generates a JSON file
@@ -28,11 +31,20 @@ interface HtmlAttributeDefinition {
   name: string
   description?: string
   options?: string[]
+  popularity?: number
+  mdnUrl?: string
+}
+
+interface HtmlEventDefinition {
+  name: string
+  description?: string
+  popularity?: number
+  mdnUrl?: string
 }
 
 interface HtmlInterfaceDefinition {
   attributes?: Array<HtmlAttributeDefinition>
-  events?: string[]
+  events?: Array<HtmlEventDefinition>
 }
 
 interface ReferrerPolicyValue {
@@ -222,7 +234,14 @@ export const getHtmlInterfaces = async () => {
             // So we add it manually here
             acc[interfaceName].attributes ??=
               interfaceName === 'HTMLAnchorElement'
-                ? [{ name: 'href', description: attributeInfo?.summary }]
+                ? [
+                    {
+                      name: 'href',
+                      description: attributeInfo?.summary,
+                      popularity: 1,
+                      mdnUrl: '/en-US/docs/Web/API/HTMLAnchorElement/href',
+                    },
+                  ]
                 : []
             if (
               !acc[interfaceName].attributes.find(
@@ -234,6 +253,8 @@ export const getHtmlInterfaces = async () => {
               acc[interfaceName].attributes.push({
                 name: attrName,
                 description: attributeInfo?.summary,
+                popularity: attributeInfo?.popularity ?? undefined,
+                mdnUrl: attributeInfo?.mdn_url,
               })
             }
           } else {
@@ -281,7 +302,12 @@ export const getHtmlInterfaces = async () => {
             // Create the missing interface entry
             interfaceItem = {
               attributes: [
-                { name: attributePart, description: attributeInfo?.summary },
+                {
+                  name: attributePart,
+                  description: attributeInfo?.summary,
+                  popularity: attributeInfo?.popularity ?? undefined,
+                  mdnUrl: attributeInfo?.mdn_url,
+                },
               ],
             }
             groupedAttributes[interfaceName] = interfaceItem
@@ -304,6 +330,8 @@ export const getHtmlInterfaces = async () => {
               name: attributePart,
               description: attributeInfo?.summary,
               options: [value],
+              popularity: attributeInfo?.popularity ?? undefined,
+              mdnUrl: attributeInfo?.mdn_url,
             })
           }
         } else {
@@ -317,13 +345,37 @@ export const getHtmlInterfaces = async () => {
   const events = await listAllEvents()
   events.forEach((e) => {
     e.targets.forEach((et) => {
-      let interfaceItem = groupedAttributes[et.target]
+      const interfaceName = et.target
+      if (typeof interfaceName !== 'string') {
+        // eslint-disable-next-line no-console
+        console.warn('Skipping invalid event target interface:', et)
+        return
+      }
+      let eventInfo = getEventInfo({ interfaceName, eventName: e.type })
+      if (!eventInfo) {
+        // As a fallback, try to get event info from the first inherited interface
+        const eventInterfaces = inheritedInterfaces(interfaceName, false)
+        const parentInterface = eventInterfaces.at(1)
+        if (typeof parentInterface === 'string') {
+          // Try to get event info from the interface's parent interface
+          eventInfo = getEventInfo({
+            interfaceName: parentInterface,
+            eventName: e.type,
+          })
+        }
+      }
+      let interfaceItem = groupedAttributes[interfaceName]
       if (!interfaceItem) {
         interfaceItem = { events: [] }
-        groupedAttributes[et.target] = interfaceItem
+        groupedAttributes[interfaceName] = interfaceItem
       }
       interfaceItem.events ??= []
-      interfaceItem.events.push(e.type)
+      interfaceItem.events.push({
+        name: e.type,
+        description: eventInfo?.summary,
+        popularity: eventInfo?.popularity ?? undefined,
+        mdnUrl: eventInfo?.mdn_url,
+      })
     })
   })
 
@@ -338,9 +390,15 @@ export const getHtmlInterfaces = async () => {
         interfaceName,
         {
           attributes: data.attributes
-            ? data.attributes.toSorted((a, b) => a.name.localeCompare(b.name))
+            ? data.attributes
+                .toSorted(sortByPopularityOrAlphabetical)
+                .map(({ popularity: _, ...a }) => a)
             : undefined,
-          events: data.events ? data.events.toSorted() : undefined,
+          events: data.events
+            ? data.events
+                .toSorted(sortByPopularityOrAlphabetical)
+                .map(({ popularity: _, ...e }) => e)
+            : undefined,
         },
       ]),
   )

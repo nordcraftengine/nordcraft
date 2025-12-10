@@ -28,6 +28,21 @@ export const isSvgInterface = (maybeInterface: string) =>
 export const isHtmlInterface = (interfaceName: string) =>
   api.inheritance[interfaceName] !== undefined
 
+export const inheritedInterfaces = (
+  _interfaceName: string,
+  includeGlobal: boolean,
+): string[] => {
+  const inheritanceData = api.inheritance[_interfaceName]
+  const interfaceName = _interfaceName.replaceAll('SVGSVG', 'SVG')
+  if (inheritanceData?.inherits) {
+    return [
+      interfaceName,
+      ...inheritedInterfaces(inheritanceData.inherits, includeGlobal),
+    ]
+  }
+  return [interfaceName, ...(includeGlobal ? ['global'] : [])]
+}
+
 const MDN_METADATA_URL = 'https://developer.mozilla.org/en-US/metadata.json'
 let mdnMetadata:
   | undefined
@@ -35,6 +50,7 @@ let mdnMetadata:
       summary: string
       title: string
       mdn_url: string
+      popularity?: number | null
       pageType:
         | 'glossary-definition'
         | 'landing-page'
@@ -132,9 +148,13 @@ export const initMdnMetadata = async () => {
   mdnMetadata = await fetch(MDN_METADATA_URL).then((res) => res.json())
   mdnMetadata = mdnMetadata!.filter(
     (entry) =>
-      ['html-attribute', 'svg-attribute', 'web-api-instance-property'].includes(
-        entry.pageType,
-      ) && entry.summary.includes('read-only property') === false,
+      [
+        'html-attribute',
+        'svg-attribute',
+        'web-api-instance-property',
+        'web-api-event',
+      ].includes(entry.pageType) &&
+      entry.summary.includes('read-only property') === false,
   )
 }
 
@@ -172,4 +192,35 @@ export const getAttributeInfo = ({
     (entry) =>
       entry.mdn_url === `/en-US/docs/Web/API/${interfaceName}/${attribute}`,
   )
+}
+
+export const getEventInfo = ({
+  eventName,
+  interfaceName,
+}: {
+  eventName: string
+  interfaceName: string
+}) => {
+  if (mdnMetadata === undefined) {
+    throw new Error('MDN metadata not initialized')
+  }
+  const entry = mdnMetadata.find(
+    (entry) =>
+      entry.pageType === 'web-api-event' &&
+      entry.mdn_url ===
+        `/en-US/docs/Web/API/${interfaceName}/${eventName}_event`,
+  )
+  return entry
+}
+
+export const sortByPopularityOrAlphabetical = <
+  T extends { popularity?: number; name: string },
+>(
+  a: T,
+  b: T,
+) => {
+  if (typeof a.popularity === 'number' || typeof b.popularity === 'number') {
+    return (b.popularity ?? 0) - (a.popularity ?? 0)
+  }
+  return a.name.localeCompare(b.name)
 }
