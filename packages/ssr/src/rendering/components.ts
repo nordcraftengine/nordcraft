@@ -598,16 +598,15 @@ const createComponent = async ({
     Apis: apis,
   }
 
-  data.Variables = {
-    ...data.Variables,
-    ...mapValues(component.variables, ({ initialValue }) => {
-      return applyFormula(initialValue, {
-        ...formulaContext,
-        data,
-      })
-    }),
-  }
+  // Variables initial value has access to component data like attributes, so must be applied after formulaContext is somewhat populated
+  data.Variables = mapValues(component.variables, ({ initialValue }) => {
+    return applyFormula(initialValue, {
+      ...formulaContext,
+      data,
+    })
+  })
 
+  // Own context formulas has access to all other data in the component (attributes, variables, apis etc.) so is applied last
   data.Contexts = {
     ...data.Contexts,
     ...Object.fromEntries(
