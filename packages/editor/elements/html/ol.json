@@ -2,8 +2,8 @@
   "metadata": {
     "name": "ol",
     "categories": ["semantic"],
-    "description": "Represents an ordered list of items",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol",
+    "description": "The <ol> HTML element represents an ordered list of items — typically rendered as a numbered list.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ol",
     "aliases": ["ordered-list", "numbered-list", "list"],
     "interfaces": [
       "HTMLOListElement",

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feFlood",
     "categories": ["svg"],
-    "description": "Fills the filter region with a solid color",
+    "description": "The <feFlood> SVG filter primitive fills the filter subregion with the color and opacity defined by flood-color and flood-opacity.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFlood",
     "aliases": ["flood-filter", "svg-flood"],
     "interfaces": [

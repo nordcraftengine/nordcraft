@@ -2,8 +2,8 @@
   "metadata": {
     "name": "time",
     "categories": ["semantic"],
-    "description": "Represents a specific time or date",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time",
+    "description": "The <time> HTML element represents a specific period in time. It may include the datetime attribute to translate dates into machine-readable format, allowing for better search engine results or custom features such as reminders.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/time",
     "aliases": ["datetime", "timestamp"],
     "interfaces": [
       "HTMLTimeElement",

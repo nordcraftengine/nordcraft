@@ -2,8 +2,8 @@
   "metadata": {
     "name": "canvas",
     "categories": ["media"],
-    "description": "Provides an area for drawing graphics via scripting",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas",
+    "description": "Use the HTML <canvas> element with either the canvas scripting API or the WebGL API to draw graphics and animations.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas",
     "aliases": ["drawing", "graphics"],
     "interfaces": [
       "HTMLCanvasElement",

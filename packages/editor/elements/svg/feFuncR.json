@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feFuncR",
     "categories": ["svg"],
-    "description": "Defines the transfer function for the red channel in feComponentTransfer",
+    "description": "The <feFuncR> SVG filter primitive defines the transfer function for the red component of the input graphic of its parent <feComponentTransfer> element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncR",
     "aliases": ["function-r", "svg-func-r"],
     "interfaces": [

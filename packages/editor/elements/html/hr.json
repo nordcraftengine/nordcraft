@@ -2,8 +2,8 @@
   "metadata": {
     "name": "hr",
     "categories": ["typography"],
-    "description": "Creates a thematic break with a horizontal rule",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr",
+    "description": "The <hr> HTML element represents a thematic break between paragraph-level elements: for example, a change of scene in a story, or a shift of topic within a section.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/hr",
     "aliases": ["horizontal-rule", "divider"],
     "isVoid": true,
     "interfaces": [

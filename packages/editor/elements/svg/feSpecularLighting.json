@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feSpecularLighting",
     "categories": ["svg"],
-    "description": "Simulates specular lighting on an image for shiny highlights",
+    "description": "The <feSpecularLighting> SVG filter primitive lights a source graphic using the alpha channel as a bump map. The resulting image is an RGBA image based on the light color. The lighting calculation follows the standard specular component of the Phong lighting model. The resulting image depends on the light color, light position and surface geometry of the input bump map. The result of the lighting calculation is added. The filter primitive assumes that the viewer is at infinity in the z direction.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feSpecularLighting",
     "aliases": ["specular-light", "svg-specular"],
     "interfaces": [

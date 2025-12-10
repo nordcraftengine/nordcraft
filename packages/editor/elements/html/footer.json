@@ -2,8 +2,8 @@
   "metadata": {
     "name": "footer",
     "categories": ["semantic"],
-    "description": "Defines a footer for a section or page",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer",
+    "description": "The <footer> HTML element represents a footer for its nearest ancestor sectioning content or sectioning root element. A <footer> typically contains information about the author of the section, copyright data or links to related documents.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/footer",
     "aliases": ["page-footer", "section-footer"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

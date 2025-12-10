@@ -2,8 +2,8 @@
   "metadata": {
     "name": "wbr",
     "categories": ["typography"],
-    "description": "Suggests a line break opportunity within text",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/wbr",
+    "description": "The <wbr> HTML element represents a word break opportunity—a position within text where the browser may optionally break a line, though its line-breaking rules would not otherwise create a break at that location.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/wbr",
     "aliases": ["word-break"],
     "isVoid": true,
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]

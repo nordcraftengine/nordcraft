@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feComposite",
     "categories": ["svg"],
-    "description": "Combines images using arithmetic or compositing operations",
+    "description": "The <feComposite> SVG filter primitive performs the combination of two input images pixel-wise in image space using one of the Porter-Duff compositing operations: over, in, atop, out, xor, lighter, or arithmetic.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feComposite",
     "aliases": ["composite-filter", "svg-composite"],
     "interfaces": [

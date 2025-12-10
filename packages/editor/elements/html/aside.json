@@ -2,8 +2,8 @@
   "metadata": {
     "name": "aside",
     "categories": ["semantic"],
-    "description": "Contains content tangentially related to the main content, like a sidebar",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside",
+    "description": "The <aside> HTML element represents a portion of a document whose content is only indirectly related to the document's main content. Asides are frequently presented as sidebars or call-out boxes.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/aside",
     "aliases": ["sidebar"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

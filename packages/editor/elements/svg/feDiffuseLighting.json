@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feDiffuseLighting",
     "categories": ["svg"],
-    "description": "Simulates diffuse lighting on an image for a 3D effect",
+    "description": "The <feDiffuseLighting> SVG filter primitive lights an image using the alpha channel as a bump map. The resulting image, which is an RGBA opaque image, depends on the light color, light position and surface geometry of the input bump map.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDiffuseLighting",
     "aliases": ["diffuse-light", "svg-lighting"],
     "interfaces": [

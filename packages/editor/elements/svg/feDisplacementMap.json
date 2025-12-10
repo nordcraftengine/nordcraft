@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feDisplacementMap",
     "categories": ["svg"],
-    "description": "Distorts an image using another image as a displacement map",
+    "description": "The <feDisplacementMap> SVG filter primitive uses the pixel values from the image from in2 to spatially displace the image from in.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDisplacementMap",
     "aliases": ["displacement-map", "svg-displacement"],
     "interfaces": [

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "stop",
     "categories": ["svg"],
-    "description": "Specifies a color and position in a gradient",
+    "description": "The <stop> SVG element defines a color and its position to use on a gradient. This element is always a child of a <linearGradient> or <radialGradient> element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/stop",
     "aliases": ["gradient-stop", "svg-stop", "gradient"],
     "interfaces": [

@@ -2,8 +2,8 @@
   "metadata": {
     "name": "dfn",
     "categories": ["typography"],
-    "description": "Indicates the defining instance of a term",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dfn",
+    "description": "The <dfn> HTML element indicates a term to be defined. The <dfn> element should be used in a complete definition statement, where the full definition of the term can be one of the following:",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dfn",
     "aliases": ["definition"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

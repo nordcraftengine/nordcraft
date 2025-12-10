@@ -2,7 +2,7 @@
   "metadata": {
     "name": "clipPath",
     "categories": ["svg"],
-    "description": "Defines a clipping path to restrict the visible region of elements",
+    "description": "The <clipPath> SVG element defines a clipping path, to be used by the clip-path property.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/clipPath",
     "aliases": ["clipping", "svg-clip", "masking"],
     "interfaces": [

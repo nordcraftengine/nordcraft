@@ -2,8 +2,8 @@
   "metadata": {
     "name": "meta",
     "categories": ["semantic"],
-    "description": "Provides metadata about the HTML document",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta",
+    "description": "The <meta> HTML element represents metadata that cannot be represented by other meta-related elements, such as <base>, <link>, <script>, <style>, or <title>.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta",
     "aliases": ["metadata"],
     "isVoid": true,
     "interfaces": [

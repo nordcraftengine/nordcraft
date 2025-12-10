@@ -2,8 +2,8 @@
   "metadata": {
     "name": "blockquote",
     "categories": ["typography"],
-    "description": "Indicates a section quoted from another source",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/blockquote",
+    "description": "The <blockquote> HTML element indicates that the enclosed text is an extended quotation. Usually, this is rendered visually by indentation (see Notes for how to change it). A URL for the source of the quotation may be given using the cite attribute, while a text representation of the source can be given using the <cite> element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/blockquote",
     "aliases": ["quote", "quotation"],
     "interfaces": [
       "HTMLQuoteElement",

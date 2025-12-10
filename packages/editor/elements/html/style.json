@@ -2,8 +2,8 @@
   "metadata": {
     "name": "style",
     "categories": ["semantic", "svg"],
-    "description": "Embeds CSS styles within the document",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/style",
+    "description": "The <style> HTML element contains style information for a document, or part of a document. It contains CSS, which is applied to the contents of the document containing the <style> element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/style",
     "aliases": ["css", "stylesheet"],
     "interfaces": [
       "HTMLStyleElement",

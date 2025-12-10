@@ -2,8 +2,8 @@
   "metadata": {
     "name": "dt",
     "categories": ["semantic"],
-    "description": "Specifies a term or name in a description list",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt",
+    "description": "The <dt> HTML element specifies a term in a description or definition list, and as such must be used inside a <dl> element. It is usually followed by a <dd> element; however, multiple <dt> elements in a row indicate several terms that are all defined by the immediate next <dd> element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dt",
     "aliases": ["description-term"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

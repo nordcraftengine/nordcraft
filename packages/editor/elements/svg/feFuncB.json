@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feFuncB",
     "categories": ["svg"],
-    "description": "Defines the transfer function for the blue channel in feComponentTransfer",
+    "description": "The <feFuncB> SVG filter primitive defines the transfer function for the blue component of the input graphic of its parent <feComponentTransfer> element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncB",
     "aliases": ["function-b", "svg-func-b"],
     "interfaces": [

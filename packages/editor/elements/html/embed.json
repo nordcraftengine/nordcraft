@@ -2,8 +2,8 @@
   "metadata": {
     "name": "embed",
     "categories": ["media"],
-    "description": "Embeds external content, like a plugin or interactive resource",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/embed",
+    "description": "The <embed> HTML element embeds external content at the specified point in the document. This content is provided by an external application or other source of interactive content such as a browser plug-in.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/embed",
     "aliases": ["external-content", "plugin"],
     "isVoid": true,
     "interfaces": [

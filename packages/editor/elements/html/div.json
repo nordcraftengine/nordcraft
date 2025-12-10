@@ -2,8 +2,8 @@
   "metadata": {
     "name": "div",
     "categories": ["semantic"],
-    "description": "Generic container for content, used for layout and styling",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div",
+    "description": "The <div> HTML element is the generic container for flow content. It has no effect on the content or layout until styled in some way using CSS (e.g., styling is directly applied to it, or some kind of layout model like Flexbox is applied to its parent element).",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/div",
     "aliases": ["container", "division"],
     "isPopular": true,
     "interfaces": [

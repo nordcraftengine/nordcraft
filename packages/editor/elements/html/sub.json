@@ -2,8 +2,8 @@
   "metadata": {
     "name": "sub",
     "categories": ["typography"],
-    "description": "Renders text as subscript",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub",
+    "description": "The <sub> HTML element specifies inline text which should be displayed as subscript for solely typographical reasons. Subscripts are typically rendered with a lowered baseline using smaller text.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/sub",
     "aliases": ["subscript"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

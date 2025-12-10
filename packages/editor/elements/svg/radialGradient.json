@@ -2,7 +2,7 @@
   "metadata": {
     "name": "radialGradient",
     "categories": ["svg"],
-    "description": "Defines a radial color gradient for filling shapes",
+    "description": "The <radialGradient> SVG element lets authors define radial gradients that can be applied to fill or stroke of graphical elements.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/radialGradient",
     "aliases": ["radial-gradient", "svg-gradient", "gradient"],
     "interfaces": [

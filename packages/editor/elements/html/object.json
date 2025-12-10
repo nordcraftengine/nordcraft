@@ -2,8 +2,8 @@
   "metadata": {
     "name": "object",
     "categories": ["media"],
-    "description": "Embeds external resources like images, audio, or plugins",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object",
+    "description": "The <object> HTML element represents an external resource, which can be treated as an image, a nested browsing context, or a resource to be handled by a plugin.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/object",
     "aliases": ["embedded-object", "plugin"],
     "interfaces": [
       "HTMLObjectElement",

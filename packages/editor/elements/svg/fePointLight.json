@@ -2,7 +2,7 @@
   "metadata": {
     "name": "fePointLight",
     "categories": ["svg"],
-    "description": "Defines a point light source for lighting effects",
+    "description": "The <fePointLight> SVG element defines a light source which allows to create a point light effect. It can be used within a lighting filter primitive: <feDiffuseLighting> or <feSpecularLighting>.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/fePointLight",
     "aliases": ["point-light", "svg-point"],
     "interfaces": [

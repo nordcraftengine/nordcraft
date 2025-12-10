@@ -2,8 +2,8 @@
   "metadata": {
     "name": "code",
     "categories": ["typography"],
-    "description": "Displays a fragment of computer code",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code",
+    "description": "The <code> HTML element displays its contents styled in a fashion intended to indicate that the text is a short fragment of computer code. By default, the content text is displayed using the user agent's default monospace font.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/code",
     "aliases": ["inline-code", "source-code"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

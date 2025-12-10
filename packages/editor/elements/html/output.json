@@ -2,8 +2,8 @@
   "metadata": {
     "name": "output",
     "categories": ["form"],
-    "description": "Displays the result of a calculation or user action",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output",
+    "description": "The <output> HTML element is a container element into which a site or app can inject the results of a calculation or the outcome of a user action.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/output",
     "aliases": ["calculation-result"],
     "interfaces": [
       "HTMLOutputElement",

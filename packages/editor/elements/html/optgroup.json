@@ -2,8 +2,8 @@
   "metadata": {
     "name": "optgroup",
     "categories": ["form"],
-    "description": "Groups related options in a dropdown list",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup",
+    "description": "The <optgroup> HTML element creates a grouping of options within a <select> element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/optgroup",
     "aliases": ["option-group"],
     "interfaces": [
       "HTMLOptGroupElement",

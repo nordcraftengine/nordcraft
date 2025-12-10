@@ -2,8 +2,8 @@
   "metadata": {
     "name": "u",
     "categories": ["typography"],
-    "description": "Renders text with an underline",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/u",
+    "description": "The <u> HTML element represents a span of inline text which should be rendered in a way that indicates that it has a non-textual annotation. This is rendered by default as a single solid underline, but may be altered using CSS.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/u",
     "aliases": ["underline"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

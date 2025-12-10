@@ -6,9 +6,12 @@ import type { ValueOperation } from '@nordcraft/core/dist/formula/formula'
 import { writeFileSync } from 'fs'
 import type { ExportedHtmlElement, ExportedHtmlElementCategory } from '../types'
 import {
+  getHtmlElementInfo,
   getHtmlElementInterface,
+  getSvgElementInfo,
   getSvgElementInterface,
   inheritedInterfaces,
+  initMdnMetadata,
 } from './utils'
 
 // Generates metadata and default structure for all HTML and SVG elements
@@ -48,7 +51,8 @@ const POPULAR_ELEMENTS = [
   'ul',
 ]
 
-const init = () => {
+const init = async () => {
+  await initMdnMetadata()
   Object.entries(elements).forEach(([element, settings]) => {
     const {
       aliases,
@@ -62,15 +66,16 @@ const init = () => {
     if (typeof elementInterface !== 'string') {
       throw new Error('No interface found for element: ' + element)
     }
+    const elementInfo = getHtmlElementInfo({ elementName: element })
+    if (!elementInfo) {
+      throw new Error('No MDN info found for element: ' + element)
+    }
     const output: ExportedHtmlElement = {
       metadata: {
         name: element,
         categories,
-        description:
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          elementDescriptions[element as keyof typeof elementDescriptions] ??
-          `An HTML element representing the ${element} element.`,
-        link: `https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${element}`,
+        description: elementInfo.summary,
+        link: `https://developer.mozilla.org${elementInfo.mdn_url}`,
         aliases: aliases,
         isVoid: VOID_ELEMENTS.includes(element) ? true : undefined,
         isPopular: POPULAR_ELEMENTS.includes(element) ? true : undefined,
@@ -112,15 +117,16 @@ const init = () => {
     if (typeof elementInterface !== 'string') {
       throw new Error('No interface found for element: ' + element)
     }
+    const svgElementInfo = getSvgElementInfo({ elementName: element })
+    if (!svgElementInfo) {
+      throw new Error('No MDN info found for SVG element: ' + element)
+    }
     const output: ExportedHtmlElement = {
       metadata: {
         name: element,
         categories,
-        description:
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          svgDescriptions[element as keyof typeof svgDescriptions] ??
-          `An SVG element representing the SVG ${element} element.`,
-        link: `https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/${element}`,
+        description: svgElementInfo.summary,
+        link: `https://developer.mozilla.org${svgElementInfo.mdn_url}`,
         aliases: aliases,
         isPopular: popularSvgElements.includes(element) ? true : undefined,
         interfaces: inheritedInterfaces(elementInterface, false),
@@ -167,7 +173,7 @@ const defaultTextElement: (value?: string) => NodeModel = (value = 'Text') => ({
 })
 
 const elements: Record<
-  keyof typeof elementDescriptions,
+  string,
   {
     aliases: string[]
     categories: ExportedHtmlElementCategory[]
@@ -1163,119 +1169,8 @@ const elements: Record<
   },
 }
 
-const elementDescriptions = {
-  a: 'Defines a hyperlink to link to another page or resource',
-  abbr: 'Represents an abbreviation or acronym, with an optional title for expansion',
-  address: 'Provides contact information for a person, organization, or author',
-  area: 'Defines a clickable area inside an image map',
-  article: 'Represents a self-contained, independent piece of content',
-  aside:
-    'Contains content tangentially related to the main content, like a sidebar',
-  audio: 'Embeds sound content such as music or audio streams',
-  b: 'Renders text in bold for emphasis without conveying extra importance',
-  bdi: 'Isolates a span of text that might have a different text direction',
-  bdo: 'Overrides the current text direction for its children',
-  blockquote: 'Indicates a section quoted from another source',
-  br: 'Produces a single line break in text',
-  button: 'Creates a clickable button for user interaction',
-  canvas: 'Provides an area for drawing graphics via scripting',
-  caption: 'Specifies the caption or title for a table',
-  cite: 'Cites the title of a creative work',
-  code: 'Displays a fragment of computer code',
-  col: 'Specifies column properties for each column within a colgroup in a table',
-  colgroup: 'Groups one or more columns in a table for formatting',
-  data: 'Associates a machine-readable value with its human-readable content',
-  datalist: 'Contains a set of option elements for input suggestions',
-  dd: 'Provides the description or value for a term in a description list',
-  del: 'Represents deleted or removed text',
-  details: 'Creates a disclosure widget for additional information',
-  dfn: 'Indicates the defining instance of a term',
-  dialog: 'Represents a dialog box or other interactive component',
-  div: 'Generic container for content, used for layout and styling',
-  dl: 'Represents a description list of terms and their descriptions',
-  dt: 'Specifies a term or name in a description list',
-  em: 'Stresses emphasis of its contents, typically rendered in italics',
-  embed: 'Embeds external content, like a plugin or interactive resource',
-  fieldset: 'Groups related elements in a form',
-  figcaption: 'Provides a caption or legend for a figure element',
-  figure: 'Represents self-contained content, like images or diagrams',
-  footer: 'Defines a footer for a section or page',
-  form: 'Collects user input via interactive controls',
-  h1: 'Represents a top-level heading',
-  h2: 'Represents a second-level heading',
-  h3: 'Represents a third-level heading',
-  h4: 'Represents a fourth-level heading',
-  h5: 'Represents a fifth-level heading',
-  h6: 'Represents a sixth-level heading',
-  header: 'Specifies introductory content or navigational links',
-  hgroup: 'Groups a set of heading elements',
-  hr: 'Creates a thematic break with a horizontal rule',
-  i: 'Renders text in italic for alternate voice or mood',
-  iframe: 'Embeds another HTML page within the current page',
-  img: 'Embeds an image into the document',
-  input: 'Accepts user input in a form',
-  ins: 'Indicates inserted or added text',
-  kbd: 'Represents user input, typically keyboard input',
-  label: 'Defines a label for a form input',
-  legend: 'Provides a caption for a fieldset',
-  li: 'Represents an item in a list',
-  link: 'Specifies relationships between the current document and external resources',
-  main: 'Represents the main content of a document',
-  map: 'Defines an image map with clickable areas',
-  mark: 'Highlights text for reference or relevance',
-  menu: 'Represents a list of commands or menu options',
-  meta: 'Provides metadata about the HTML document',
-  meter: 'Displays a scalar measurement within a known range',
-  nav: 'Defines navigation links for the site or section',
-  noscript: 'Provides alternate content for users without JavaScript',
-  object: 'Embeds external resources like images, audio, or plugins',
-  ol: 'Represents an ordered list of items',
-  optgroup: 'Groups related options in a dropdown list',
-  option: 'Defines an option in a select, datalist, or optgroup',
-  output: 'Displays the result of a calculation or user action',
-  p: 'Represents a paragraph of text',
-  picture: 'Provides multiple sources for responsive images',
-  pre: 'Displays preformatted text, preserving whitespace and line breaks',
-  progress: 'Shows the progress of a task or operation',
-  q: 'Indicates a short inline quotation',
-  rp: 'Provides fallback text for browsers that do not support ruby annotations',
-  rt: 'Specifies the pronunciation of characters in ruby annotations',
-  ruby: 'Represents ruby annotation for East Asian typography',
-  s: 'Renders text with a strikethrough, indicating inaccuracy or removal',
-  samp: 'Represents sample output from a computer program',
-  script: 'Embeds or references executable JavaScript code',
-  search: 'Represents a search section within a document',
-  section: 'Defines a standalone section of content',
-  select: 'Creates a dropdown list for selecting options',
-  small: 'Renders text in a smaller font size for side comments or fine print',
-  source: 'Specifies multiple media resources for media elements',
-  span: 'Generic inline container for text or other elements',
-  strong: 'Indicates strong importance, typically rendered in bold',
-  style: 'Embeds CSS styles within the document',
-  sub: 'Renders text as subscript',
-  summary: 'Provides a summary or heading for a details element',
-  sup: 'Renders text as superscript',
-  table: 'Represents tabular data in rows and columns',
-  tbody: 'Groups the body content in a table',
-  td: 'Defines a cell in a table row',
-  template:
-    'Holds client-side content that is not rendered when the page loads',
-  textarea: 'Allows multi-line text input in a form',
-  tfoot: 'Groups the footer content in a table',
-  th: 'Defines a header cell in a table',
-  thead: 'Groups the header content in a table',
-  time: 'Represents a specific time or date',
-  tr: 'Defines a row in a table',
-  track: 'Provides text tracks for media elements like video or audio',
-  u: 'Renders text with an underline',
-  ul: 'Represents an unordered list of items',
-  var: 'Represents a variable in a mathematical expression or programming context',
-  video: 'Embeds a video player for video playback',
-  wbr: 'Suggests a line break opportunity within text',
-}
-
 const svgElements: Record<
-  keyof typeof svgDescriptions,
+  string,
   {
     aliases: string[]
     categories: ExportedHtmlElementCategory[]
@@ -1412,85 +1307,4 @@ const svgElements: Record<
   view: { aliases: ['svg-view', 'viewport'], categories: ['svg'] },
 }
 
-const svgDescriptions = {
-  animate: 'Animates an attribute of an SVG element over time',
-  animateMotion: 'Animates an element along a motion path',
-  animateTransform:
-    'Animates transformations such as scale, rotate, or translate on an element',
-  circle: 'Draws a circle based on a center point and radius',
-  clipPath:
-    'Defines a clipping path to restrict the visible region of elements',
-  defs: 'Container for elements that can be referenced later, such as gradients or filters',
-  desc: 'Provides a description of the SVG content for accessibility',
-  ellipse: 'Draws an ellipse based on a center point and radii',
-  feBlend: 'Blends two images together using a specified blending mode',
-  feColorMatrix:
-    'Applies a matrix transformation to the colors of the input image, enabling effects like grayscale or sepia',
-  feComponentTransfer:
-    'Allows per-channel color manipulation using component transfer functions',
-  feComposite: 'Combines images using arithmetic or compositing operations',
-  feConvolveMatrix:
-    'Applies a matrix convolution filter for effects like edge detection or blurring',
-  feDiffuseLighting: 'Simulates diffuse lighting on an image for a 3D effect',
-  feDisplacementMap:
-    'Distorts an image using another image as a displacement map',
-  feDistantLight: 'Defines a distant light source for lighting effects',
-  feDropShadow:
-    'Applies a drop shadow effect to the input image, allowing control over color, blur, and offset',
-  feFlood: 'Fills the filter region with a solid color',
-  feFuncA:
-    'Defines the transfer function for the alpha (opacity) channel in feComponentTransfer',
-  feFuncB:
-    'Defines the transfer function for the blue channel in feComponentTransfer',
-  feFuncG:
-    'Defines the transfer function for the green channel in feComponentTransfer',
-  feFuncR:
-    'Defines the transfer function for the red channel in feComponentTransfer',
-  feGaussianBlur: 'Applies a Gaussian blur effect to the input image',
-  feImage: 'Uses an external image as input for a filter effect',
-  feMerge: 'Combines multiple filter effects into a single output',
-  feMergeNode: 'Specifies an input image to be merged in a feMerge filter',
-  feMorphology: 'Applies erosion or dilation to the input image',
-  feOffset: 'Offsets the input image by a specified amount',
-  fePointLight: 'Defines a point light source for lighting effects',
-  feSpecularLighting:
-    'Simulates specular lighting on an image for shiny highlights',
-  feSpotLight: 'Defines a spotlight source for lighting effects',
-  feTile: 'Repeats the input image to fill the filter region',
-  feTurbulence: 'Generates a noise or turbulence pattern for texture effects',
-  filter:
-    'Defines graphical effects like blurring or color shifting to be applied to elements',
-  foreignObject:
-    'Allows inclusion of non-SVG content, such as HTML, within an SVG',
-  g: 'Groups SVG shapes together so they can be transformed or styled as a unit',
-  image: 'Embeds an external image within the SVG',
-  line: 'Draws a straight line between two points',
-  linearGradient: 'Defines a linear color gradient for filling shapes',
-  marker:
-    'Defines shapes to be drawn at the start, middle, or end of lines or paths',
-  mask: 'Defines a mask to control the visibility of parts of an element',
-  metadata:
-    'Embeds metadata within the SVG, such as licensing or author information',
-  mpath: 'Defines a motion path for animateMotion',
-  path: 'Draws complex shapes using a series of commands and coordinates',
-  pattern: 'Defines a repeating graphic pattern for filling shapes',
-  polygon: 'Draws a closed shape defined by a series of points',
-  polyline: 'Draws a series of connected straight lines',
-  radialGradient: 'Defines a radial color gradient for filling shapes',
-  rect: 'Draws a rectangle, optionally with rounded corners',
-  script: 'Embeds or references scripting code, such as JavaScript',
-  set: 'Sets an attribute to a value for a specified duration',
-  stop: 'Specifies a color and position in a gradient',
-  svg: 'Container element for SVG graphics, defining the coordinate system and viewport',
-  switch: 'Renders the first child element that matches certain conditions',
-  symbol: 'Defines reusable graphical objects that are not rendered directly',
-  text: 'Renders text within the SVG canvas',
-  textPath: 'Renders text along the shape of a path',
-  title: 'Provides a title for the SVG content, often shown as a tooltip',
-  tspan:
-    'Allows for styling or positioning parts of text within a text element',
-  use: 'References and reuses an existing SVG element defined elsewhere',
-  view: 'Defines a view for the SVG, specifying a viewport and transformation',
-}
-
-init()
+await init()

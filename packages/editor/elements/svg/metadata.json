@@ -2,7 +2,7 @@
   "metadata": {
     "name": "metadata",
     "categories": ["svg"],
-    "description": "Embeds metadata within the SVG, such as licensing or author information",
+    "description": "The <metadata> SVG element adds metadata to SVG content. Metadata is structured information about data. The contents of <metadata> should be elements from other XML namespaces such as RDF, FOAF, etc.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/metadata",
     "aliases": ["svg-metadata", "meta"],
     "interfaces": [

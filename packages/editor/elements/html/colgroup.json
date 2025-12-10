@@ -2,8 +2,8 @@
   "metadata": {
     "name": "colgroup",
     "categories": ["semantic"],
-    "description": "Groups one or more columns in a table for formatting",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/colgroup",
+    "description": "The <colgroup> HTML element defines a group of columns within a table.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/colgroup",
     "aliases": ["table-column-group"],
     "interfaces": [
       "HTMLTableColElement",

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feTurbulence",
     "categories": ["svg"],
-    "description": "Generates a noise or turbulence pattern for texture effects",
+    "description": "The <feTurbulence> SVG filter primitive creates an image using the Perlin turbulence function. It allows the synthesis of artificial textures like clouds or marble. The resulting image will fill the entire filter primitive subregion.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feTurbulence",
     "aliases": ["turbulence-filter", "svg-turbulence"],
     "interfaces": [

@@ -2,8 +2,8 @@
   "metadata": {
     "name": "cite",
     "categories": ["typography"],
-    "description": "Cites the title of a creative work",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite",
+    "description": "The <cite> HTML element is used to mark up the title of a creative work. The reference may be in an abbreviated form according to context-appropriate conventions related to citation metadata.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/cite",
     "aliases": ["citation", "reference"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

@@ -2,8 +2,8 @@
   "metadata": {
     "name": "datalist",
     "categories": ["form"],
-    "description": "Contains a set of option elements for input suggestions",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist",
+    "description": "The <datalist> HTML element contains a set of <option> elements that represent the permissible or recommended options available to choose from within other controls.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/datalist",
     "aliases": ["input-suggestions"],
     "interfaces": [
       "HTMLDataListElement",

@@ -2,8 +2,8 @@
   "metadata": {
     "name": "area",
     "categories": ["media"],
-    "description": "Defines a clickable area inside an image map",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/area",
+    "description": "The <area> HTML element defines an area inside an image map that has predefined clickable areas. An image map allows geometric areas on an image to be associated with hypertext links.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area",
     "aliases": ["imagemap-area"],
     "isVoid": true,
     "interfaces": [

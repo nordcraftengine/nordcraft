@@ -2,8 +2,8 @@
   "metadata": {
     "name": "select",
     "categories": ["form"],
-    "description": "Creates a dropdown list for selecting options",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select",
+    "description": "The <select> HTML element represents a control that provides a menu of options.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select",
     "aliases": ["dropdown", "select-box"],
     "interfaces": [
       "HTMLSelectElement",

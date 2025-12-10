@@ -2,8 +2,8 @@
   "metadata": {
     "name": "meter",
     "categories": ["form"],
-    "description": "Displays a scalar measurement within a known range",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter",
+    "description": "The <meter> HTML element represents either a scalar value within a known range or a fractional value.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meter",
     "aliases": ["gauge", "measurement"],
     "interfaces": [
       "HTMLMeterElement",

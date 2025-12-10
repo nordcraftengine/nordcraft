@@ -2,8 +2,8 @@
   "metadata": {
     "name": "samp",
     "categories": ["typography"],
-    "description": "Represents sample output from a computer program",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/samp",
+    "description": "The <samp> HTML element is used to enclose inline text which represents sample (or quoted) output from a computer program. Its contents are typically rendered using the browser's default monospaced font (such as Courier or Lucida Console).",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/samp",
     "aliases": ["sample-output"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

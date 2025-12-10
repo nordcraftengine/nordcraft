@@ -2,7 +2,7 @@
   "metadata": {
     "name": "pattern",
     "categories": ["svg"],
-    "description": "Defines a repeating graphic pattern for filling shapes",
+    "description": "The <pattern> SVG element defines a graphics object which can be redrawn at repeated x- and y-coordinate intervals (\"tiled\") to cover an area.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/pattern",
     "aliases": ["svg-pattern", "fill-pattern"],
     "interfaces": [

@@ -2,8 +2,8 @@
   "metadata": {
     "name": "tbody",
     "categories": ["semantic"],
-    "description": "Groups the body content in a table",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tbody",
+    "description": "The <tbody> HTML element encapsulates a set of table rows (<tr> elements), indicating that they comprise the body of a table's (main) data.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/tbody",
     "aliases": ["table-body"],
     "interfaces": [
       "HTMLTableSectionElement",

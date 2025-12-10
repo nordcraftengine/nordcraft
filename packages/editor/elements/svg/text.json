@@ -2,7 +2,7 @@
   "metadata": {
     "name": "text",
     "categories": ["svg"],
-    "description": "Renders text within the SVG canvas",
+    "description": "The <text> SVG element draws a graphics element consisting of text. It's possible to apply a gradient, pattern, clipping path, mask, or filter to <text>, like any other SVG graphics element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/text",
     "aliases": ["svg-text", "label"],
     "interfaces": [

@@ -2,8 +2,8 @@
   "metadata": {
     "name": "textarea",
     "categories": ["form"],
-    "description": "Allows multi-line text input in a form",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea",
+    "description": "The <textarea> HTML element represents a multi-line plain-text editing control, useful when you want to allow users to enter a sizeable amount of free-form text, for example a comment on a review or feedback form.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea",
     "aliases": ["multiline-input"],
     "interfaces": [
       "HTMLTextAreaElement",

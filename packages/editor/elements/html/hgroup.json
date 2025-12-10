@@ -2,8 +2,8 @@
   "metadata": {
     "name": "hgroup",
     "categories": ["typography"],
-    "description": "Groups a set of heading elements",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hgroup",
+    "description": "The <hgroup> HTML element represents a heading and related content. It groups a single <h1>–<h6> element with one or more <p>.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/hgroup",
     "aliases": ["heading-group"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

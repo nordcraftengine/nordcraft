@@ -153,6 +153,8 @@ export const initMdnMetadata = async () => {
         'svg-attribute',
         'web-api-instance-property',
         'web-api-event',
+        'html-element',
+        'svg-element',
       ].includes(entry.pageType) &&
       entry.summary.includes('read-only property') === false,
   )
@@ -212,6 +214,45 @@ export const getEventInfo = ({
       entry.pageType === 'web-api-event' &&
       entry.mdn_url ===
         `/en-US/docs/Web/API/${interfaceName}/${eventName}_event`,
+  )
+  return entry
+}
+
+export const getHtmlElementInfo = ({
+  elementName,
+}: {
+  elementName: string
+}) => {
+  if (mdnMetadata === undefined) {
+    throw new Error('MDN metadata not initialized')
+  }
+  const elementNameMap: Record<string, string> = {
+    h1: 'Heading_Elements',
+    h2: 'Heading_Elements',
+    h3: 'Heading_Elements',
+    h4: 'Heading_Elements',
+    h5: 'Heading_Elements',
+    h6: 'Heading_Elements',
+  }
+  const entry = mdnMetadata.find(
+    (entry) =>
+      entry.pageType === 'html-element' &&
+      entry.mdn_url ===
+        `/en-US/docs/Web/HTML/Reference/Elements/${elementNameMap[elementName] ?? elementName}`,
+  )
+  return entry
+}
+
+export const getSvgElementInfo = ({ elementName }: { elementName: string }) => {
+  if (mdnMetadata === undefined) {
+    throw new Error('MDN metadata not initialized')
+  }
+  const elementNameMap: Record<string, string> = {}
+  const entry = mdnMetadata.find(
+    (entry) =>
+      entry.pageType === 'svg-element' &&
+      entry.mdn_url ===
+        `/en-US/docs/Web/SVG/Reference/Element/${elementNameMap[elementName] ?? elementName}`,
   )
   return entry
 }

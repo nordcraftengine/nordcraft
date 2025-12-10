@@ -2,8 +2,8 @@
   "metadata": {
     "name": "video",
     "categories": ["media"],
-    "description": "Embeds a video player for video playback",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video",
+    "description": "The <video> HTML element embeds a media player which supports video playback into the document. You can use <video> for audio content as well, but the <audio> element may provide a more appropriate user experience.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video",
     "aliases": ["movie", "media", "film"],
     "interfaces": [
       "HTMLVideoElement",

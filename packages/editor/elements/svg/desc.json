@@ -2,7 +2,7 @@
   "metadata": {
     "name": "desc",
     "categories": ["svg"],
-    "description": "Provides a description of the SVG content for accessibility",
+    "description": "The <desc> SVG element provides an accessible, long-text description of any SVG container element or graphics element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/desc",
     "aliases": ["description", "svg-desc"],
     "interfaces": [

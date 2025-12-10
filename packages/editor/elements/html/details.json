@@ -2,8 +2,8 @@
   "metadata": {
     "name": "details",
     "categories": ["semantic"],
-    "description": "Creates a disclosure widget for additional information",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details",
+    "description": "The <details> HTML element creates a disclosure widget in which information is visible only when the widget is toggled into an open state. A summary or label must be provided using the <summary> element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details",
     "aliases": ["disclosure", "expandable"],
     "interfaces": ["HTMLDetailsElement", "global"]
   },

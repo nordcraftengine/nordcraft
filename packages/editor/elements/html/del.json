@@ -2,8 +2,8 @@
   "metadata": {
     "name": "del",
     "categories": ["typography"],
-    "description": "Represents deleted or removed text",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del",
+    "description": "The <del> HTML element represents a range of text that has been deleted from a document. This can be used when rendering \"track changes\" or source code diff information, for example. The <ins> element can be used for the opposite purpose: to indicate text that has been added to the document.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/del",
     "aliases": ["deleted-text", "remove"],
     "interfaces": [
       "HTMLModElement",

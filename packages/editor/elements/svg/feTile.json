@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feTile",
     "categories": ["svg"],
-    "description": "Repeats the input image to fill the filter region",
+    "description": "The <feTile> SVG filter primitive allows to fill a target rectangle with a repeated, tiled pattern of an input image. The effect is similar to the one of a <pattern>.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feTile",
     "aliases": ["tile-filter", "svg-tile"],
     "interfaces": [

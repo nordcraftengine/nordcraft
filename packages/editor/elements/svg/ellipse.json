@@ -2,7 +2,7 @@
   "metadata": {
     "name": "ellipse",
     "categories": ["svg"],
-    "description": "Draws an ellipse based on a center point and radii",
+    "description": "The <ellipse> SVG element is an SVG basic shape, used to create ellipses based on a center coordinate, and both their x and y radius.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/ellipse",
     "aliases": ["oval", "svg-ellipse"],
     "interfaces": [

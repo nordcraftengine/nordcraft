@@ -2,8 +2,8 @@
   "metadata": {
     "name": "map",
     "categories": ["media"],
-    "description": "Defines an image map with clickable areas",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/map",
+    "description": "The <map> HTML element is used with <area> elements to define an image map (a clickable link area).",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/map",
     "aliases": ["imagemap"],
     "interfaces": [
       "HTMLMapElement",

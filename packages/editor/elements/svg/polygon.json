@@ -2,7 +2,7 @@
   "metadata": {
     "name": "polygon",
     "categories": ["svg"],
-    "description": "Draws a closed shape defined by a series of points",
+    "description": "The <polygon> SVG element defines a closed shape consisting of a set of connected straight line segments. The last point is connected to the first point.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/polygon",
     "aliases": ["svg-polygon", "shape"],
     "interfaces": [

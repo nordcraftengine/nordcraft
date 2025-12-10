@@ -2,8 +2,8 @@
   "metadata": {
     "name": "script",
     "categories": ["semantic"],
-    "description": "Embeds or references executable JavaScript code",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script",
+    "description": "The <script> HTML element is used to embed executable code or data; this is typically used to embed or refer to JavaScript code. The <script> element can also be used with other languages, such as WebGL's GLSL shader programming language and JSON.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script",
     "aliases": ["javascript", "client-script"],
     "interfaces": [
       "HTMLScriptElement",

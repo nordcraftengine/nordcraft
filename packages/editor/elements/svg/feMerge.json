@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feMerge",
     "categories": ["svg"],
-    "description": "Combines multiple filter effects into a single output",
+    "description": "The <feMerge> SVG element allows filter effects to be applied concurrently instead of sequentially. This is achieved by other filters storing their output via the result attribute and then accessing it in a <feMergeNode> child.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMerge",
     "aliases": ["merge-filter", "svg-merge"],
     "interfaces": [

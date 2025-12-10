@@ -2,7 +2,7 @@
   "metadata": {
     "name": "textPath",
     "categories": ["svg"],
-    "description": "Renders text along the shape of a path",
+    "description": "The <textPath> SVG element is used to render text along the shape of a <path> element.\nThe text must be enclosed in the <textPath> element and its href attribute is used to reference the desired <path>.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/textPath",
     "aliases": ["text-path", "svg-textpath"],
     "interfaces": [
