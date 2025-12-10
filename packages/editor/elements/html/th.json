@@ -2,8 +2,8 @@
   "metadata": {
     "name": "th",
     "categories": ["semantic"],
-    "description": "Defines a header cell in a table",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th",
+    "description": "The <th> HTML element defines a cell as the header of a group of table cells and may be used as a child of the <tr> element. The exact nature of this group is defined by the scope and headers attributes.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th",
     "aliases": ["table-header-cell"],
     "interfaces": [
       "HTMLTableCellElement",

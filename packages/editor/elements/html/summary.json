@@ -2,8 +2,8 @@
   "metadata": {
     "name": "summary",
     "categories": ["semantic"],
-    "description": "Provides a summary or heading for a details element",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary",
+    "description": "The <summary> HTML element specifies a summary, caption, or legend for a <details> element's disclosure box. Clicking the <summary> element toggles the state of the parent <details> element open and closed.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/summary",
     "aliases": ["details-summary"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

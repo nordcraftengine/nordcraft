@@ -2,8 +2,8 @@
   "metadata": {
     "name": "dialog",
     "categories": ["semantic"],
-    "description": "Represents a dialog box or other interactive component",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog",
+    "description": "The <dialog> HTML element represents a modal or non-modal dialog box or other interactive component, such as a dismissible alert, inspector, or subwindow.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog",
     "aliases": ["modal", "popup"],
     "interfaces": ["HTMLDialogElement", "global"]
   },

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feColorMatrix",
     "categories": ["svg"],
-    "description": "Applies a matrix transformation to the colors of the input image, enabling effects like grayscale or sepia",
+    "description": "The <feColorMatrix> SVG filter element changes colors based on a transformation matrix. Every pixel's color value [R,G,B,A] is matrix multiplied by a 5 by 5 color matrix to create new color [R',G',B',A'].",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feColorMatrix",
     "aliases": ["color-matrix", "svg-color"],
     "interfaces": [

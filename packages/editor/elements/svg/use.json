@@ -2,7 +2,7 @@
   "metadata": {
     "name": "use",
     "categories": ["svg"],
-    "description": "References and reuses an existing SVG element defined elsewhere",
+    "description": "The <use> element takes nodes from within an SVG document, and duplicates them somewhere else.\nThe effect is the same as if the nodes were deeply cloned into a non-exposed DOM, then pasted where the <use> element is, much like cloned <template> elements.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use",
     "aliases": ["svg-use", "reference"],
     "interfaces": [

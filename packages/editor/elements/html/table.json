@@ -2,8 +2,8 @@
   "metadata": {
     "name": "table",
     "categories": ["semantic"],
-    "description": "Represents tabular data in rows and columns",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table",
+    "description": "The <table> HTML element represents tabular data—that is, information presented in a two-dimensional table comprised of rows and columns of cells containing data.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/table",
     "aliases": ["data-table"],
     "interfaces": [
       "HTMLTableElement",

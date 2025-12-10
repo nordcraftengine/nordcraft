@@ -2,8 +2,8 @@
   "metadata": {
     "name": "iframe",
     "categories": ["media"],
-    "description": "Embeds another HTML page within the current page",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe",
+    "description": "The <iframe> HTML element represents a nested browsing context, embedding another HTML page into the current one.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe",
     "aliases": ["inline-frame", "embed-page", "frame"],
     "interfaces": [
       "HTMLIFrameElement",

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feMergeNode",
     "categories": ["svg"],
-    "description": "Specifies an input image to be merged in a feMerge filter",
+    "description": "The <feMergeNode> SVG takes the result of another filter to be processed by its parent <feMerge>.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMergeNode",
     "aliases": ["merge-node", "svg-merge-node"],
     "interfaces": [

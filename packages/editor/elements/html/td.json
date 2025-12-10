@@ -2,8 +2,8 @@
   "metadata": {
     "name": "td",
     "categories": ["semantic"],
-    "description": "Defines a cell in a table row",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td",
+    "description": "The <td> HTML element defines a cell of a table that contains data and may be used as a child of the <tr> element.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/td",
     "aliases": ["table-cell"],
     "interfaces": [
       "HTMLTableCellElement",

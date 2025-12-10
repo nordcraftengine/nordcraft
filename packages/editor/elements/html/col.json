@@ -2,8 +2,8 @@
   "metadata": {
     "name": "col",
     "categories": ["semantic"],
-    "description": "Specifies column properties for each column within a colgroup in a table",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/col",
+    "description": "The <col> HTML element defines one or more columns in a column group represented by its parent <colgroup> element. The <col> element is only valid as a child of a <colgroup> element that has no span attribute defined.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/col",
     "aliases": ["table-column"],
     "isVoid": true,
     "interfaces": [

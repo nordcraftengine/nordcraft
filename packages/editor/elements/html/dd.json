@@ -2,8 +2,8 @@
   "metadata": {
     "name": "dd",
     "categories": ["semantic"],
-    "description": "Provides the description or value for a term in a description list",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dd",
+    "description": "The <dd> HTML element provides the description, definition, or value for the preceding term (<dt>) in a description list (<dl>).",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dd",
     "aliases": ["description-details"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

@@ -2,8 +2,8 @@
   "metadata": {
     "name": "strong",
     "categories": ["typography"],
-    "description": "Indicates strong importance, typically rendered in bold",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong",
+    "description": "The <strong> HTML element indicates that its contents have strong importance, seriousness, or urgency. Browsers typically render the contents in bold type.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/strong",
     "aliases": ["bold", "importance"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

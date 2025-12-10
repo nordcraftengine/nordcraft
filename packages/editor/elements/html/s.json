@@ -2,8 +2,8 @@
   "metadata": {
     "name": "s",
     "categories": ["typography"],
-    "description": "Renders text with a strikethrough, indicating inaccuracy or removal",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/s",
+    "description": "The <s> HTML element renders text with a strikethrough, or a line through it. Use the <s> element to represent things that are no longer relevant or no longer accurate. However, <s> is not appropriate when indicating document edits; for that, use the <del> and <ins> elements, as appropriate.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/s",
     "aliases": ["strikethrough", "deleted"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

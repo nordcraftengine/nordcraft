@@ -2,7 +2,7 @@
   "metadata": {
     "name": "animateTransform",
     "categories": ["svg"],
-    "description": "Animates transformations such as scale, rotate, or translate on an element",
+    "description": "The <animateTransform> SVG element animates a transformation attribute on its target element, thereby allowing animations to control translation, scaling, rotation, and/or skewing.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/animateTransform",
     "aliases": ["transform-animation", "svg-transform"],
     "interfaces": [

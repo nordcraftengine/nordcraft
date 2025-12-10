@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feSpotLight",
     "categories": ["svg"],
-    "description": "Defines a spotlight source for lighting effects",
+    "description": "The <feSpotLight> SVG element defines a light source that can be used to create a spotlight effect.\nIt is used within a lighting filter primitive: <feDiffuseLighting> or <feSpecularLighting>.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feSpotLight",
     "aliases": ["spot-light", "svg-spot"],
     "interfaces": [

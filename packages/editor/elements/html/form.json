@@ -2,8 +2,8 @@
   "metadata": {
     "name": "form",
     "categories": ["form"],
-    "description": "Collects user input via interactive controls",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form",
+    "description": "The <form> HTML element represents a document section containing interactive controls for submitting information.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form",
     "aliases": ["input-form", "user-input"],
     "isPopular": true,
     "interfaces": [

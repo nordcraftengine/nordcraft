@@ -2,7 +2,7 @@
   "metadata": {
     "name": "path",
     "categories": ["svg"],
-    "description": "Draws complex shapes using a series of commands and coordinates",
+    "description": "The <path> SVG element is the generic element to define a shape. All the basic shapes can be created with a path element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/path",
     "aliases": ["svg-path", "bezier"],
     "isPopular": true,

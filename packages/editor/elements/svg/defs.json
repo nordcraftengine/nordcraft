@@ -2,7 +2,7 @@
   "metadata": {
     "name": "defs",
     "categories": ["svg"],
-    "description": "Container for elements that can be referenced later, such as gradients or filters",
+    "description": "The <defs> SVG element is used to store graphical objects that will be used at a later time. Objects created inside a <defs> element are not rendered directly. To display them you have to reference them (with a <use> element for example).",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/defs",
     "aliases": ["definitions", "svg-defs"],
     "interfaces": [

@@ -2,8 +2,8 @@
   "metadata": {
     "name": "var",
     "categories": ["typography"],
-    "description": "Represents a variable in a mathematical expression or programming context",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/var",
+    "description": "The <var> HTML element represents the name of a variable in a mathematical expression or a programming context. It's typically presented using an italicized version of the current typeface, although that behavior is browser-dependent.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/var",
     "aliases": ["variable"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

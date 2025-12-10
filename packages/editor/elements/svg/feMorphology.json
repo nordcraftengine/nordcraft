@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feMorphology",
     "categories": ["svg"],
-    "description": "Applies erosion or dilation to the input image",
+    "description": "The <feMorphology> SVG filter primitive is used to erode or dilate the input image. Its usefulness lies especially in fattening or thinning effects.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feMorphology",
     "aliases": ["morphology-filter", "svg-morphology"],
     "interfaces": [

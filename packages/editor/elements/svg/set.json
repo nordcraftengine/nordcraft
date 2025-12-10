@@ -2,7 +2,7 @@
   "metadata": {
     "name": "set",
     "categories": ["svg"],
-    "description": "Sets an attribute to a value for a specified duration",
+    "description": "The <set> SVG element provides a method of setting the value of an attribute for a specified duration.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/set",
     "aliases": ["svg-set", "attribute-set"],
     "interfaces": [

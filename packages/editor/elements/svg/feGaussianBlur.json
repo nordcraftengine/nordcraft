@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feGaussianBlur",
     "categories": ["svg"],
-    "description": "Applies a Gaussian blur effect to the input image",
+    "description": "The <feGaussianBlur> SVG filter primitive blurs the input image by the amount specified in stdDeviation, which defines the bell-curve.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feGaussianBlur",
     "aliases": ["gaussian-blur", "svg-blur"],
     "interfaces": [

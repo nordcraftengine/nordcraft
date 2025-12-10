@@ -2,7 +2,7 @@
   "metadata": {
     "name": "title",
     "categories": ["svg"],
-    "description": "Provides a title for the SVG content, often shown as a tooltip",
+    "description": "The <title> SVG element provides an accessible, short-text description of any SVG container element or graphics element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/title",
     "aliases": ["svg-title", "caption"],
     "interfaces": [

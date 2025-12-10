@@ -2,7 +2,7 @@
   "metadata": {
     "name": "foreignObject",
     "categories": ["svg"],
-    "description": "Allows inclusion of non-SVG content, such as HTML, within an SVG",
+    "description": "The <foreignObject> SVG element includes elements from a different XML namespace. In the context of a browser, it is most likely (X)HTML.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/foreignObject",
     "aliases": ["foreign-object", "svg-foreign"],
     "interfaces": [

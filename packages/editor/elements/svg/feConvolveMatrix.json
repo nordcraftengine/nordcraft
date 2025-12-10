@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feConvolveMatrix",
     "categories": ["svg"],
-    "description": "Applies a matrix convolution filter for effects like edge detection or blurring",
+    "description": "The <feConvolveMatrix> SVG filter primitive applies a matrix convolution filter effect. A convolution combines pixels in the input image with neighboring pixels to produce a resulting image. A wide variety of imaging operations can be achieved through convolutions, including blurring, edge detection, sharpening, embossing and beveling.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feConvolveMatrix",
     "aliases": ["convolve-matrix", "svg-convolve"],
     "interfaces": [

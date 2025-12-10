@@ -2,8 +2,8 @@
   "metadata": {
     "name": "noscript",
     "categories": ["semantic"],
-    "description": "Provides alternate content for users without JavaScript",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/noscript",
+    "description": "The <noscript> HTML element defines a section of HTML to be inserted if a script type on the page is unsupported or if scripting is currently turned off in the browser.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/noscript",
     "aliases": ["no-javascript"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feDropShadow",
     "categories": ["svg"],
-    "description": "Applies a drop shadow effect to the input image, allowing control over color, blur, and offset",
+    "description": "The <feDropShadow> SVG filter primitive creates a drop shadow of the input image. It can only be used inside a <filter> element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feDropShadow",
     "aliases": ["drop-shadow", "svg-shadow"],
     "interfaces": [

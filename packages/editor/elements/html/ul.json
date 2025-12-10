@@ -2,8 +2,8 @@
   "metadata": {
     "name": "ul",
     "categories": ["semantic"],
-    "description": "Represents an unordered list of items",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul",
+    "description": "The <ul> HTML element represents an unordered list of items, typically rendered as a bulleted list.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ul",
     "aliases": ["unordered-list", "bulleted-list", "list"],
     "isPopular": true,
     "interfaces": [

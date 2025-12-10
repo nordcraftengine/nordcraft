@@ -2,7 +2,7 @@
   "metadata": {
     "name": "image",
     "categories": ["svg"],
-    "description": "Embeds an external image within the SVG",
+    "description": "The <image> SVG element includes images inside SVG documents. It can display raster image files or other SVG files.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/image",
     "aliases": ["svg-image", "bitmap"],
     "interfaces": [

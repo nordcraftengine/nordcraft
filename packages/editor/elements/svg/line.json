@@ -2,7 +2,7 @@
   "metadata": {
     "name": "line",
     "categories": ["svg"],
-    "description": "Draws a straight line between two points",
+    "description": "The <line> SVG element is an SVG basic shape used to create a line connecting two points.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/line",
     "aliases": ["svg-line", "segment"],
     "isPopular": true,

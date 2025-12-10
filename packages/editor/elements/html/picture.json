@@ -2,8 +2,8 @@
   "metadata": {
     "name": "picture",
     "categories": ["media"],
-    "description": "Provides multiple sources for responsive images",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture",
+    "description": "The <picture> HTML element contains zero or more <source> elements and one <img> element to offer alternative versions of an image for different display/device scenarios.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/picture",
     "aliases": ["responsive-image", "image"],
     "interfaces": [
       "HTMLPictureElement",

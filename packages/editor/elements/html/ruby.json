@@ -2,8 +2,8 @@
   "metadata": {
     "name": "ruby",
     "categories": ["typography"],
-    "description": "Represents ruby annotation for East Asian typography",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ruby",
+    "description": "The <ruby> HTML element represents small annotations that are rendered above, below, or next to base text, usually used for showing the pronunciation of East Asian characters. It can also be used for annotating other kinds of text, but this usage is less common.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ruby",
     "aliases": ["ruby-annotation"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

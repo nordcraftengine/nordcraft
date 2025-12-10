@@ -2,8 +2,8 @@
   "metadata": {
     "name": "bdi",
     "categories": ["typography"],
-    "description": "Isolates a span of text that might have a different text direction",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdi",
+    "description": "The <bdi> HTML element tells the browser's bidirectional algorithm to treat the text it contains in isolation from its surrounding text. It's particularly useful when a website dynamically inserts some text and doesn't know the directionality of the text being inserted.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/bdi",
     "aliases": ["bidirectional-isolation"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

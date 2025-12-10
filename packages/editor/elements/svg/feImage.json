@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feImage",
     "categories": ["svg"],
-    "description": "Uses an external image as input for a filter effect",
+    "description": "The <feImage> SVG filter primitive fetches image data from an external source and provides the pixel data as output (meaning if the external source is an SVG image, it is rasterized.)",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feImage",
     "aliases": ["image-filter", "svg-image"],
     "interfaces": [

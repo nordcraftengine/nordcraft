@@ -2,8 +2,8 @@
   "metadata": {
     "name": "ins",
     "categories": ["typography"],
-    "description": "Indicates inserted or added text",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins",
+    "description": "The <ins> HTML element represents a range of text that has been added to a document. You can use the <del> element to similarly represent a range of text that has been deleted from the document.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ins",
     "aliases": ["inserted-text", "addition"],
     "interfaces": [
       "HTMLModElement",

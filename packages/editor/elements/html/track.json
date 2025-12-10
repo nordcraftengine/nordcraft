@@ -2,8 +2,8 @@
   "metadata": {
     "name": "track",
     "categories": ["media"],
-    "description": "Provides text tracks for media elements like video or audio",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/track",
+    "description": "The <track> HTML element is used as a child of the media elements, <audio> and <video>.\nEach track element lets you specify a timed text track (or time-based data) that can be displayed in parallel with the media element, for example to overlay subtitles or closed captions on top of a video or alongside audio tracks.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track",
     "aliases": ["media-track", "subtitles"],
     "isVoid": true,
     "interfaces": [

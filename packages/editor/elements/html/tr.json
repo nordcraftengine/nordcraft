@@ -2,8 +2,8 @@
   "metadata": {
     "name": "tr",
     "categories": ["semantic"],
-    "description": "Defines a row in a table",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr",
+    "description": "The <tr> HTML element defines a row of cells in a table. The row's cells can then be established using a mix of <td> (data cell) and <th> (header cell) elements.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/tr",
     "aliases": ["table-row"],
     "interfaces": [
       "HTMLTableRowElement",

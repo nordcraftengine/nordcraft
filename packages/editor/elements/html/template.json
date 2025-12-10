@@ -2,8 +2,8 @@
   "metadata": {
     "name": "template",
     "categories": ["semantic"],
-    "description": "Holds client-side content that is not rendered when the page loads",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template",
+    "description": "The <template> HTML element serves as a mechanism for holding HTML fragments, which can either be used later via JavaScript or generated immediately into shadow DOM.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/template",
     "aliases": ["html-template"],
     "interfaces": [
       "HTMLTemplateElement",

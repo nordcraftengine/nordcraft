@@ -2,8 +2,8 @@
   "metadata": {
     "name": "rp",
     "categories": ["typography"],
-    "description": "Provides fallback text for browsers that do not support ruby annotations",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rp",
+    "description": "The <rp> HTML element is used to provide fall-back parentheses for browsers that do not support display of ruby annotations using the <ruby> element. One <rp> element should enclose each of the opening and closing parentheses that wrap the <rt> element that contains the annotation's text.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/rp",
     "aliases": ["ruby-parenthesis"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

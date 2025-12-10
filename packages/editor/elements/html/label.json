@@ -2,8 +2,8 @@
   "metadata": {
     "name": "label",
     "categories": ["form"],
-    "description": "Defines a label for a form input",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
+    "description": "The <label> HTML element represents a caption for an item in a user interface.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label",
     "aliases": ["form-label"],
     "isPopular": true,
     "interfaces": [

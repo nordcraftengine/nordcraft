@@ -2,8 +2,8 @@
   "metadata": {
     "name": "li",
     "categories": ["semantic"],
-    "description": "Represents an item in a list",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li",
+    "description": "The <li> HTML element is used to represent an item in a list. It must be contained in a parent element: an ordered list (<ol>), an unordered list (<ul>), or a menu (<menu>). In menus and unordered lists, list items are usually displayed using bullet points. In ordered lists, they are usually displayed with an ascending counter on the left, such as a number or letter.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/li",
     "aliases": ["list-item"],
     "isPopular": true,
     "interfaces": [

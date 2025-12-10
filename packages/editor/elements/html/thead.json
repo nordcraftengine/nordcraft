@@ -2,8 +2,8 @@
   "metadata": {
     "name": "thead",
     "categories": ["semantic"],
-    "description": "Groups the header content in a table",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/thead",
+    "description": "The <thead> HTML element encapsulates a set of table rows (<tr> elements), indicating that they comprise the head of a table with information about the table's columns. This is usually in the form of column headers (<th> elements).",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/thead",
     "aliases": ["table-header"],
     "interfaces": [
       "HTMLTableSectionElement",

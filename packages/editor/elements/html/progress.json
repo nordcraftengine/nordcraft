@@ -2,8 +2,8 @@
   "metadata": {
     "name": "progress",
     "categories": ["form"],
-    "description": "Shows the progress of a task or operation",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress",
+    "description": "The <progress> HTML element displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/progress",
     "aliases": ["progress-bar", "loading"],
     "interfaces": [
       "HTMLProgressElement",

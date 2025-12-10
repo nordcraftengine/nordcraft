@@ -2,8 +2,8 @@
   "metadata": {
     "name": "fieldset",
     "categories": ["form"],
-    "description": "Groups related elements in a form",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset",
+    "description": "The <fieldset> HTML element is used to group several controls as well as labels (<label>) within a web form.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/fieldset",
     "aliases": ["form-group"],
     "interfaces": [
       "HTMLFieldSetElement",

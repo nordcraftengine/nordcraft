@@ -2,7 +2,7 @@
   "metadata": {
     "name": "tspan",
     "categories": ["svg"],
-    "description": "Allows for styling or positioning parts of text within a text element",
+    "description": "The <tspan> SVG element defines a subtext within a <text> element or another <tspan> element. It allows for adjustment of the style and/or position of that subtext as needed.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/tspan",
     "aliases": ["text-span", "svg-tspan"],
     "interfaces": [

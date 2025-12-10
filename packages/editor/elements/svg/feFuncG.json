@@ -2,7 +2,7 @@
   "metadata": {
     "name": "feFuncG",
     "categories": ["svg"],
-    "description": "Defines the transfer function for the green channel in feComponentTransfer",
+    "description": "The <feFuncG> SVG filter primitive defines the transfer function for the green component of the input graphic of its parent <feComponentTransfer> element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feFuncG",
     "aliases": ["function-g", "svg-func-g"],
     "interfaces": [

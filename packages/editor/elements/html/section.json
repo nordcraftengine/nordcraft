@@ -2,8 +2,8 @@
   "metadata": {
     "name": "section",
     "categories": ["semantic"],
-    "description": "Defines a standalone section of content",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/section",
+    "description": "The <section> HTML element represents a generic standalone section of a document, which doesn't have a more specific semantic element to represent it. Sections should always have a heading, with very few exceptions.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/section",
     "aliases": ["content-section"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

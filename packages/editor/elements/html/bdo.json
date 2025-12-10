@@ -2,8 +2,8 @@
   "metadata": {
     "name": "bdo",
     "categories": ["typography"],
-    "description": "Overrides the current text direction for its children",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdo",
+    "description": "The <bdo> HTML element overrides the current directionality of text, so that the text within is rendered in a different direction.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/bdo",
     "aliases": ["bidirectional-override"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },

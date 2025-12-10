@@ -2,8 +2,8 @@
   "metadata": {
     "name": "caption",
     "categories": ["semantic"],
-    "description": "Specifies the caption or title for a table",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/caption",
+    "description": "The <caption> HTML element specifies the caption (or title) of a table, providing the table an accessible name or accessible description.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/caption",
     "aliases": ["table-caption"],
     "interfaces": [
       "HTMLTableCaptionElement",

@@ -2,8 +2,8 @@
   "metadata": {
     "name": "button",
     "categories": ["form"],
-    "description": "Creates a clickable button for user interaction",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button",
+    "description": "The <button> HTML element is an interactive element activated by a user with a mouse, keyboard, finger, voice command, or other assistive technology. Once activated, it then performs an action, such as submitting a form or opening a dialog.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button",
     "aliases": ["form-button", "action-button", "submit-button"],
     "isPopular": true,
     "interfaces": [

@@ -2,7 +2,7 @@
   "metadata": {
     "name": "marker",
     "categories": ["svg"],
-    "description": "Defines shapes to be drawn at the start, middle, or end of lines or paths",
+    "description": "The <marker> SVG element defines a graphic used for drawing arrowheads or polymarkers on a given <path>, <line>, <polyline> or <polygon> element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/marker",
     "aliases": ["svg-marker", "arrowhead"],
     "interfaces": [

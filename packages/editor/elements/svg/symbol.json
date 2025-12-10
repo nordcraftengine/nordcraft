@@ -2,7 +2,7 @@
   "metadata": {
     "name": "symbol",
     "categories": ["svg"],
-    "description": "Defines reusable graphical objects that are not rendered directly",
+    "description": "The <symbol> SVG element is used to define graphical template objects which can be instantiated by a <use> element.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/symbol",
     "aliases": ["svg-symbol", "icon"],
     "interfaces": [

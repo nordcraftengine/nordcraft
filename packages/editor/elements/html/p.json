@@ -2,8 +2,8 @@
   "metadata": {
     "name": "p",
     "categories": ["typography"],
-    "description": "Represents a paragraph of text",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p",
+    "description": "The <p> HTML element represents a paragraph. Paragraphs are usually represented in visual media as blocks of text separated from adjacent blocks by blank lines and/or first-line indentation, but HTML paragraphs can be any structural grouping of related content, such as images or form fields.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/p",
     "aliases": ["paragraph", "text-block", "text"],
     "isPopular": true,
     "interfaces": [

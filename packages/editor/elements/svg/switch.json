@@ -2,7 +2,7 @@
   "metadata": {
     "name": "switch",
     "categories": ["svg"],
-    "description": "Renders the first child element that matches certain conditions",
+    "description": "The <switch> SVG element evaluates any requiredFeatures, requiredExtensions and systemLanguage attributes on its direct child elements in order, and then renders the first child where these attributes evaluate to true.",
     "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/switch",
     "aliases": ["svg-switch", "conditional"],
     "interfaces": [

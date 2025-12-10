@@ -2,8 +2,8 @@
   "metadata": {
     "name": "em",
     "categories": ["typography"],
-    "description": "Stresses emphasis of its contents, typically rendered in italics",
-    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em",
+    "description": "The <em> HTML element marks text that has stress emphasis. The <em> element can be nested, with each level of nesting indicating a greater degree of emphasis.",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/em",
     "aliases": ["emphasis", "italic"],
     "interfaces": ["HTMLElement", "Element", "Node", "EventTarget", "global"]
   },
