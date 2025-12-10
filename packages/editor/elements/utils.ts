@@ -216,14 +216,26 @@ export const getEventInfo = ({
   return entry
 }
 
+/**
+ * Sorting utility function that sorts by popularity if available (higher is more popular),
+ * otherwise falls back to alphabetical sorting by name.
+ */
 export const sortByPopularityOrAlphabetical = <
   T extends { popularity?: number; name: string },
 >(
   a: T,
   b: T,
 ) => {
-  if (typeof a.popularity === 'number' || typeof b.popularity === 'number') {
-    return (b.popularity ?? 0) - (a.popularity ?? 0)
+  if (typeof a.popularity === 'number' && typeof b.popularity === 'number') {
+    return b.popularity - a.popularity
   }
+  // Prefer items with defined popularity
+  if (typeof a.popularity === 'number') {
+    return -1
+  }
+  if (typeof b.popularity === 'number') {
+    return 1
+  }
+  // Fallback to alphabetical sorting
   return a.name.localeCompare(b.name)
 }

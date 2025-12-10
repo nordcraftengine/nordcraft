@@ -32,14 +32,14 @@ interface HtmlAttributeDefinition {
   description?: string
   options?: string[]
   popularity?: number
-  mdnUrl?: string
+  url?: string
 }
 
 interface HtmlEventDefinition {
   name: string
   description?: string
   popularity?: number
-  mdnUrl?: string
+  url?: string
 }
 
 interface HtmlInterfaceDefinition {
@@ -159,29 +159,6 @@ export const getHtmlInterfaces = async () => {
     })
   })
 
-  // Inject commonly used Nordcraft data-* attributes
-  const nordcraftProperties = [
-    // Used to disable Nordcraft's default styles
-    // See https://docs.nordcraft.com/styling/default-styles#custom-styles
-    'data-unset-toddle-styles',
-    'data-theme', // Used for theming
-  ]
-  nordcraftProperties.forEach((property) => {
-    definitions.dfns.push({
-      id: `nordcraft-property-${property}`,
-      href: 'https://docs.nordcraft.com',
-      linkingText: [property],
-      localLinkingText: [property],
-      type: 'element-attr',
-      for: ['html-global'],
-      access: 'public',
-      informative: true,
-      heading: null,
-      definedIn: 'Nordcraft Documentation',
-      links: [],
-    })
-  })
-
   // Initialize additional MDN metadata
   await initMdnMetadata()
 
@@ -239,7 +216,7 @@ export const getHtmlInterfaces = async () => {
                       name: 'href',
                       description: attributeInfo?.summary,
                       popularity: 1,
-                      mdnUrl: '/en-US/docs/Web/API/HTMLAnchorElement/href',
+                      url: '/en-US/docs/Web/API/HTMLAnchorElement/href',
                     },
                   ]
                 : []
@@ -254,7 +231,7 @@ export const getHtmlInterfaces = async () => {
                 name: attrName,
                 description: attributeInfo?.summary,
                 popularity: attributeInfo?.popularity ?? undefined,
-                mdnUrl: attributeInfo?.mdn_url,
+                url: attributeInfo?.mdn_url,
               })
             }
           } else {
@@ -306,7 +283,7 @@ export const getHtmlInterfaces = async () => {
                   name: attributePart,
                   description: attributeInfo?.summary,
                   popularity: attributeInfo?.popularity ?? undefined,
-                  mdnUrl: attributeInfo?.mdn_url,
+                  url: attributeInfo?.mdn_url,
                 },
               ],
             }
@@ -331,7 +308,7 @@ export const getHtmlInterfaces = async () => {
               description: attributeInfo?.summary,
               options: [value],
               popularity: attributeInfo?.popularity ?? undefined,
-              mdnUrl: attributeInfo?.mdn_url,
+              url: attributeInfo?.mdn_url,
             })
           }
         } else {
@@ -340,6 +317,36 @@ export const getHtmlInterfaces = async () => {
         }
       })
     })
+
+  // Inject commonly used Nordcraft data-* attributes
+  const nordcraftProperties: Record<
+    string,
+    { description: string; url?: string }
+  > = {
+    // Used to disable Nordcraft's default styles
+    // See https://docs.nordcraft.com/styling/default-styles#custom-styles
+    'data-unset-toddle-styles': {
+      description:
+        'Special Nordcraft data attribute that disables the default Nordcraft styles for an element and its children.',
+      url: 'https://docs.nordcraft.com/styling/default-styles#custom-styles',
+    },
+    // Used for theming
+    'data-theme': {
+      description:
+        'Special Nordcraft data attribute that specifies the theme to be applied to an element and its children.',
+      // TODO: Link to theming docs when available
+    },
+  }
+  Object.entries(nordcraftProperties).forEach(([name, info]) => {
+    groupedAttributes['global'] ??= {}
+    groupedAttributes['global'].attributes ??= []
+    groupedAttributes['global'].attributes.push({
+      name,
+      description: info.description,
+      url: info.url,
+      popularity: 1,
+    })
+  })
 
   // Add events
   const events = await listAllEvents()
@@ -374,7 +381,7 @@ export const getHtmlInterfaces = async () => {
         name: e.type,
         description: eventInfo?.summary,
         popularity: eventInfo?.popularity ?? undefined,
-        mdnUrl: eventInfo?.mdn_url,
+        url: eventInfo?.mdn_url,
       })
     })
   })
