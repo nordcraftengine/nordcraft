@@ -595,17 +595,19 @@ const createComponent = async ({
     Location: formulaContext.data.Location,
     Attributes: attrs,
     Contexts: contexts,
-    Variables: mapValues(component.variables, ({ initialValue }) => {
-      return applyFormula(initialValue, {
-        ...formulaContext,
-        data: {
-          ...formulaContext.data,
-          Contexts: contexts,
-        },
-      })
-    }),
     Apis: apis,
   }
+
+  data.Variables = {
+    ...data.Variables,
+    ...mapValues(component.variables, ({ initialValue }) => {
+      return applyFormula(initialValue, {
+        ...formulaContext,
+        data,
+      })
+    }),
+  }
+
   data.Contexts = {
     ...data.Contexts,
     ...Object.fromEntries(
