@@ -21,7 +21,7 @@
     "eslint-plugin-inclusive-language": "2.2.1",
     "eslint": "9.39.1",
     "prettier-plugin-organize-imports": "4.3.0",
-    "prettier": "3.7.3",
+    "prettier": "3.7.4",
     "@typescript/native-preview": "7.0.0-dev.20251208.1"
   },
   "scripts": {
