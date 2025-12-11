@@ -942,6 +942,21 @@
         "url": "/en-US/docs/Web/API/HTMLAnchorElement/target"
       },
       {
+        "name": "referrerpolicy",
+        "description": "The HTMLAnchorElement.referrerPolicy property reflect the HTML referrerpolicy attribute of the <a> element defining which referrer is sent when fetching the resource.",
+        "url": "/en-US/docs/Web/API/HTMLAnchorElement/referrerPolicy",
+        "options": [
+          "no-referrer",
+          "no-referrer-when-downgrade",
+          "same-origin",
+          "origin",
+          "strict-origin",
+          "origin-when-cross-origin",
+          "strict-origin-when-cross-origin",
+          "unsafe-url"
+        ]
+      },
+      {
         "name": "charset"
       },
       {
@@ -957,19 +972,6 @@
       },
       {
         "name": "name"
-      },
-      {
-        "name": "referrerpolicy",
-        "options": [
-          "no-referrer",
-          "no-referrer-when-downgrade",
-          "same-origin",
-          "origin",
-          "strict-origin",
-          "origin-when-cross-origin",
-          "strict-origin-when-cross-origin",
-          "unsafe-url"
-        ]
       },
       {
         "name": "rev"
@@ -1046,6 +1048,8 @@
       },
       {
         "name": "referrerpolicy",
+        "description": "The HTMLAreaElement.referrerPolicy property reflect the HTML referrerpolicy attribute of the <area> element defining which referrer is sent when fetching the resource.",
+        "url": "/en-US/docs/Web/API/HTMLAreaElement/referrerPolicy",
         "options": [
           "no-referrer",
           "no-referrer-when-downgrade",
@@ -1259,6 +1263,11 @@
         "url": "/en-US/docs/Web/API/HTMLButtonElement/command"
       },
       {
+        "name": "formaction",
+        "description": "The formAction property of the HTMLButtonElement interface is the URL of the program that is executed on the server when the form that owns this control is submitted. It reflects the value of the <button>'s formaction attribute.",
+        "url": "/en-US/docs/Web/API/HTMLButtonElement/formAction"
+      },
+      {
         "name": "action"
       },
       {
@@ -1273,20 +1282,25 @@
         ]
       },
       {
-        "name": "formaction"
-      },
-      {
-        "name": "formenctype"
+        "name": "formenctype",
+        "description": "The formEnctype property of the HTMLButtonElement interface is the MIME type of the content sent to the server when the form is submitted. It reflects the value of the <button>'s formenctype attribute.",
+        "url": "/en-US/docs/Web/API/HTMLButtonElement/formEnctype"
       },
       {
         "name": "formmethod",
+        "description": "The formMethod property of the HTMLButtonElement interface is the HTTP method used to submit the <form> if the <button> element is the control that submits the form. It reflects the value of the <button>'s formmethod attribute.",
+        "url": "/en-US/docs/Web/API/HTMLButtonElement/formMethod",
         "options": ["get", "post", "dialog"]
       },
       {
-        "name": "formnovalidate"
+        "name": "formnovalidate",
+        "description": "The formNoValidate property of the HTMLButtonElement interface is a boolean value indicating if the <form> will bypass constraint validation when submitted via the <button>. It reflects the <button> element's formnovalidate attribute.",
+        "url": "/en-US/docs/Web/API/HTMLButtonElement/formNoValidate"
       },
       {
-        "name": "formtarget"
+        "name": "formtarget",
+        "description": "The formTarget property of the HTMLButtonElement interface is the tab, window, or iframe where the response of the submitted <form> is to be displayed. It reflects the value of the <button> element's formtarget attribute.",
+        "url": "/en-US/docs/Web/API/HTMLButtonElement/formTarget"
       },
       {
         "name": "method"
@@ -1402,6 +1416,8 @@
       },
       {
         "name": "closedby",
+        "description": "The closedBy property of the HTMLDialogElement interface indicates the types of user actions that can be used to close the associated <dialog> element. It sets or returns the dialog's closedby attribute value.",
+        "url": "/en-US/docs/Web/API/HTMLDialogElement/closedBy",
         "options": ["any", "closerequest", "none"]
       }
     ],
@@ -1791,6 +1807,11 @@
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/accept"
       },
       {
+        "name": "novalidate",
+        "description": "The noValidate property of the HTMLFormElement interface is a boolean value indicating if the <form> will bypass constraint validation when submitted. It reflects the <form> element's novalidate attribute; if the attribute present, the value is true.",
+        "url": "/en-US/docs/Web/API/HTMLFormElement/noValidate"
+      },
+      {
         "name": "enctype",
         "description": "The HTMLFormElement.enctype property is the MIME type of content that is used to submit the form to the server. Possible values are:",
         "url": "/en-US/docs/Web/API/HTMLFormElement/enctype",
@@ -1838,9 +1859,6 @@
         "name": "name",
         "description": "The HTMLFormElement.name property represents the name of the current <form> element as a string.",
         "url": "/en-US/docs/Web/API/HTMLFormElement/name"
-      },
-      {
-        "name": "novalidate"
       }
     ],
     "events": [
@@ -1926,6 +1944,26 @@
         "url": "/en-US/docs/Web/API/HTMLIFrameElement/allow"
       },
       {
+        "name": "allowfullscreen",
+        "description": "The allowFullscreen property of the HTMLIFrameElement interface is a boolean value that reflects the allowfullscreen attribute of the <iframe> element, indicating whether to allow the iframe's contents to use requestFullscreen().",
+        "url": "/en-US/docs/Web/API/HTMLIFrameElement/allowFullscreen"
+      },
+      {
+        "name": "referrerpolicy",
+        "description": "The HTMLIFrameElement.referrerPolicy property reflects the HTML referrerpolicy attribute of the <iframe> element defining which referrer is sent when fetching the resource.",
+        "url": "/en-US/docs/Web/API/HTMLIFrameElement/referrerPolicy",
+        "options": [
+          "no-referrer",
+          "no-referrer-when-downgrade",
+          "same-origin",
+          "origin",
+          "strict-origin",
+          "origin-when-cross-origin",
+          "strict-origin-when-cross-origin",
+          "unsafe-url"
+        ]
+      },
+      {
         "name": "loading",
         "description": "The loading property of the HTMLIFrameElement interface is a string that provides a hint to the user agent indicating whether the iframe should be loaded immediately on page load, or only when it is needed.",
         "url": "/en-US/docs/Web/API/HTMLIFrameElement/loading",
@@ -1960,9 +1998,6 @@
         "name": "align"
       },
       {
-        "name": "allowfullscreen"
-      },
-      {
         "name": "allowtransparency"
       },
       {
@@ -1992,19 +2027,6 @@
         "name": "name",
         "description": "The name property of the HTMLIFrameElement interface is a string value that reflects the name attribute of the <iframe> element, indicating the specific name of the <iframe> element.",
         "url": "/en-US/docs/Web/API/HTMLIFrameElement/name"
-      },
-      {
-        "name": "referrerpolicy",
-        "options": [
-          "no-referrer",
-          "no-referrer-when-downgrade",
-          "same-origin",
-          "origin",
-          "strict-origin",
-          "origin-when-cross-origin",
-          "strict-origin-when-cross-origin",
-          "unsafe-url"
-        ]
       },
       {
         "name": "scrolling"
@@ -2077,36 +2099,9 @@
         "url": "/en-US/docs/Web/API/HTMLImageElement/width"
       },
       {
-        "name": "height",
-        "description": "The height property of the HTMLImageElement interface indicates the height at which the image is drawn, in CSS pixels, if the image is being drawn or rendered to any visual medium such as a screen or printer. Otherwise, it's the natural, pixel density-corrected height of the image.",
-        "url": "/en-US/docs/Web/API/HTMLImageElement/height"
-      },
-      {
-        "name": "border",
-        "description": "The deprecated border property of the HTMLImageElement interface specifies the number of pixels thick the border surrounding the image should be. A value of 0, the default, indicates that no border should be drawn. It reflects the <img> element's border content attribute.",
-        "url": "/en-US/docs/Web/API/HTMLImageElement/border"
-      },
-      {
-        "name": "hspace",
-        "description": "The deprecated hspace property of the HTMLImageElement interface specifies the number of pixels of empty space to leave empty on the left and right sides of the <img> element when laying out the page. It reflects the <img> element's hspace content attribute.",
-        "url": "/en-US/docs/Web/API/HTMLImageElement/hspace"
-      },
-      {
-        "name": "ismap"
-      },
-      {
-        "name": "longdesc"
-      },
-      {
-        "name": "lowsrc"
-      },
-      {
-        "name": "name",
-        "description": "The deprecated name property of the HTMLImageElement interface specifies a name for the element. It reflects the <img> element's name content attribute. It has been replaced by the id property available on all elements, and is kept only for compatibility reasons.",
-        "url": "/en-US/docs/Web/API/HTMLImageElement/name"
-      },
-      {
         "name": "referrerpolicy",
+        "description": "The referrerPolicy property of the HTMLImageElement interface defining which referrer is sent when fetching the resource. It reflects the <img> element's referrerpolicy content attribute.",
+        "url": "/en-US/docs/Web/API/HTMLImageElement/referrerPolicy",
         "options": [
           "no-referrer",
           "no-referrer-when-downgrade",
@@ -2119,7 +2114,42 @@
         ]
       },
       {
-        "name": "usemap"
+        "name": "height",
+        "description": "The height property of the HTMLImageElement interface indicates the height at which the image is drawn, in CSS pixels, if the image is being drawn or rendered to any visual medium such as a screen or printer. Otherwise, it's the natural, pixel density-corrected height of the image.",
+        "url": "/en-US/docs/Web/API/HTMLImageElement/height"
+      },
+      {
+        "name": "usemap",
+        "description": "The useMap property of the HTMLImageElement interface providing the name of the client-side image map to apply to the image. It reflects the <img> element's usemap content attribute.",
+        "url": "/en-US/docs/Web/API/HTMLImageElement/useMap"
+      },
+      {
+        "name": "longdesc",
+        "description": "The deprecated longDesc property of the HTMLImageElement interface specifies the URL of a text or HTML file which contains a long-form description of the image. This can be used to provide optional added details beyond the short description provided in the title attribute. It reflects the <img> element's longdesc content attribute.",
+        "url": "/en-US/docs/Web/API/HTMLImageElement/longDesc"
+      },
+      {
+        "name": "border",
+        "description": "The deprecated border property of the HTMLImageElement interface specifies the number of pixels thick the border surrounding the image should be. A value of 0, the default, indicates that no border should be drawn. It reflects the <img> element's border content attribute.",
+        "url": "/en-US/docs/Web/API/HTMLImageElement/border"
+      },
+      {
+        "name": "hspace",
+        "description": "The deprecated hspace property of the HTMLImageElement interface specifies the number of pixels of empty space to leave empty on the left and right sides of the <img> element when laying out the page. It reflects the <img> element's hspace content attribute.",
+        "url": "/en-US/docs/Web/API/HTMLImageElement/hspace"
+      },
+      {
+        "name": "ismap",
+        "description": "The isMap property of the HTMLImageElement interface indicates that the image is part of a server-side map. If so, the coordinates where the user clicked on the image are sent to the server. It reflects the <img> element's ismap content attribute. This attribute is allowed only if the <img> element is a descendant of an <a> element with a valid href attribute.",
+        "url": "/en-US/docs/Web/API/HTMLImageElement/isMap"
+      },
+      {
+        "name": "lowsrc"
+      },
+      {
+        "name": "name",
+        "description": "The deprecated name property of the HTMLImageElement interface specifies a name for the element. It reflects the <img> element's name content attribute. It has been replaced by the id property available on all elements, and is kept only for compatibility reasons.",
+        "url": "/en-US/docs/Web/API/HTMLImageElement/name"
       },
       {
         "name": "vspace",
@@ -2334,11 +2364,15 @@
       },
       {
         "name": "colorspace",
+        "description": "The colorSpace property of the HTMLInputElement interface reflects the <input> element's colorspace attribute, which indicates whether the color space of the serialized CSS color is sRGB (the default) or display-p3. It is only relevant to color controls.",
+        "url": "/en-US/docs/Web/API/HTMLInputElement/colorSpace",
         "options": ["limited-srgb", "display-p3"]
       },
       {
         "name": "formmethod",
-        "options": ["get", "post", "dialog"]
+        "description": "The formMethod property of the HTMLInputElement interface is the HTTP method used to submit the <form> if the <input> element is the control that submits the form. It reflects the value of the <input>'s formmethod attribute.",
+        "options": ["get", "post", "dialog"],
+        "url": "/en-US/docs/Web/API/HTMLInputElement/formMethod"
       },
       {
         "name": "hspace"
@@ -2476,6 +2510,11 @@
         "url": "/en-US/docs/Web/API/HTMLLinkElement/hreflang"
       },
       {
+        "name": "imagesrcset",
+        "description": "The imageSrcset property of the HTMLLinkElement interface is a string which identifies one or more comma-separated image candidate strings. This property reflects the value of the <link> element's imagesrcset attribute. This property can retrieved or set the imagesrcset attribute value.",
+        "url": "/en-US/docs/Web/API/HTMLLinkElement/imageSrcset"
+      },
+      {
         "name": "as",
         "description": "The as property of the HTMLLinkElement interface returns a string representing the type of content to be preloaded by a link element.",
         "url": "/en-US/docs/Web/API/HTMLLinkElement/as"
@@ -2497,10 +2536,9 @@
         "url": "/en-US/docs/Web/API/HTMLLinkElement/href"
       },
       {
-        "name": "imagesizes"
-      },
-      {
-        "name": "imagesrcset"
+        "name": "imagesizes",
+        "description": "The imageSizes property of the HTMLLinkElement interface indicates the size and conditions for the preloaded images defined by the imageSrcset property. It reflects the value of the <link> element's imagesizes attribute. This property can retrieve or set the imagesizes attribute value.",
+        "url": "/en-US/docs/Web/API/HTMLLinkElement/imageSizes"
       },
       {
         "name": "integrity",
@@ -2517,6 +2555,8 @@
       },
       {
         "name": "referrerpolicy",
+        "description": "The referrerPolicy property of the HTMLLinkElement interface reflects the HTML referrerpolicy attribute of the <link> element defining which referrer is sent when fetching the resource.",
+        "url": "/en-US/docs/Web/API/HTMLLinkElement/referrerPolicy",
         "options": [
           "no-referrer",
           "no-referrer-when-downgrade",
@@ -2845,7 +2885,9 @@
         "url": "/en-US/docs/Web/API/HTMLModElement/cite"
       },
       {
-        "name": "datetime"
+        "name": "datetime",
+        "description": "The dateTime property of the HTMLModElement interface is a string containing a machine-readable date with an optional time value. It reflects the datetime HTML attribute of the <del> and <ins> elements.",
+        "url": "/en-US/docs/Web/API/HTMLModElement/dateTime"
       }
     ]
   },
@@ -2987,7 +3029,9 @@
         "name": "typemustmatch"
       },
       {
-        "name": "usemap"
+        "name": "usemap",
+        "description": "The useMap property of the HTMLObjectElement interface returns a string that reflects the usemap HTML attribute, specifying a <map> element to use.",
+        "url": "/en-US/docs/Web/API/HTMLObjectElement/useMap"
       },
       {
         "name": "vspace"
@@ -3257,6 +3301,26 @@
         "url": "/en-US/docs/Web/API/HTMLScriptElement/src"
       },
       {
+        "name": "nomodule",
+        "description": "The noModule property of the HTMLScriptElement interface is a boolean value that indicates whether the script should be executed in browsers that support ES modules. Practically, this can be used to serve fallback scripts to older browsers that do not support JavaScript modules.",
+        "url": "/en-US/docs/Web/API/HTMLScriptElement/noModule"
+      },
+      {
+        "name": "referrerpolicy",
+        "description": "The referrerPolicy property of the HTMLScriptElement interface reflects the HTML referrerpolicy of the <script> element, which defines how the referrer is set when fetching the script and any scripts it imports.",
+        "url": "/en-US/docs/Web/API/HTMLScriptElement/referrerPolicy",
+        "options": [
+          "no-referrer",
+          "no-referrer-when-downgrade",
+          "same-origin",
+          "origin",
+          "strict-origin",
+          "origin-when-cross-origin",
+          "strict-origin-when-cross-origin",
+          "unsafe-url"
+        ]
+      },
+      {
         "name": "charset"
       },
       {
@@ -3269,22 +3333,6 @@
       },
       {
         "name": "language"
-      },
-      {
-        "name": "nomodule"
-      },
-      {
-        "name": "referrerpolicy",
-        "options": [
-          "no-referrer",
-          "no-referrer-when-downgrade",
-          "same-origin",
-          "origin",
-          "strict-origin",
-          "origin-when-cross-origin",
-          "strict-origin-when-cross-origin",
-          "unsafe-url"
-        ]
       },
       {
         "name": "type",
@@ -3510,6 +3558,21 @@
     "name": "HTMLTableCellElement",
     "attributes": [
       {
+        "name": "colspan",
+        "description": "The colSpan property of the HTMLTableCellElement interface represents the number of columns this cell must span; this lets the cell occupy space across multiple columns of the table. It reflects the colspan attribute.",
+        "url": "/en-US/docs/Web/API/HTMLTableCellElement/colSpan"
+      },
+      {
+        "name": "rowspan",
+        "description": "The rowSpan property of the HTMLTableCellElement interface represents the number of rows this cell must span; this lets the cell occupy space across multiple rows of the table. It reflects the rowspan attribute.",
+        "url": "/en-US/docs/Web/API/HTMLTableCellElement/rowSpan"
+      },
+      {
+        "name": "valign",
+        "description": "The vAlign property of the HTMLTableCellElement interface is a string indicating how to vertically align text in a <th> or <td> table cell.",
+        "url": "/en-US/docs/Web/API/HTMLTableCellElement/vAlign"
+      },
+      {
         "name": "scope",
         "description": "The scope property of the HTMLTableCellElement interface indicates the scope of a <th> cell.",
         "url": "/en-US/docs/Web/API/HTMLTableCellElement/scope",
@@ -3529,16 +3592,15 @@
         "name": "axis"
       },
       {
-        "name": "bgcolor"
+        "name": "bgcolor",
+        "description": "The HTMLTableCellElement.bgColor property is used to set the background color of a cell or get the value of the obsolete bgColor attribute, if present.",
+        "url": "/en-US/docs/Web/API/HTMLTableCellElement/bgColor"
       },
       {
         "name": "char"
       },
       {
         "name": "charoff"
-      },
-      {
-        "name": "colspan"
       },
       {
         "name": "headers",
@@ -3549,13 +3611,9 @@
         "name": "height"
       },
       {
-        "name": "nowrap"
-      },
-      {
-        "name": "rowspan"
-      },
-      {
-        "name": "valign"
+        "name": "nowrap",
+        "description": "The noWrap property of the HTMLTableCellElement interface returns a Boolean value indicating if the text of the cell may be wrapped on several lines or not.",
+        "url": "/en-US/docs/Web/API/HTMLTableCellElement/noWrap"
       },
       {
         "name": "width"
@@ -3582,7 +3640,9 @@
         "url": "/en-US/docs/Web/API/HTMLTableColElement/span"
       },
       {
-        "name": "valign"
+        "name": "valign",
+        "description": "The vAlign property of the HTMLTableColElement interface is a string indicating how to vertically align text in a table <col> column element.",
+        "url": "/en-US/docs/Web/API/HTMLTableColElement/vAlign"
       },
       {
         "name": "width"
@@ -3598,21 +3658,27 @@
         "url": "/en-US/docs/Web/API/HTMLTableElement/border"
       },
       {
+        "name": "cellspacing",
+        "description": "While you should instead use the CSS border-spacing property, the obsolete HTMLTableElement interface's cellSpacing property represents the spacing around the individual <th> and <td> elements representing a table's cells. Any two cells are separated by the sum of the cellSpacing of each of the two cells.",
+        "url": "/en-US/docs/Web/API/HTMLTableElement/cellSpacing"
+      },
+      {
+        "name": "cellpadding",
+        "description": "The HTMLTableElement.cellPadding property represents the padding around the individual cells of the table.",
+        "url": "/en-US/docs/Web/API/HTMLTableElement/cellPadding"
+      },
+      {
         "name": "align",
         "description": "The HTMLTableElement.align property represents the alignment of the table.",
         "url": "/en-US/docs/Web/API/HTMLTableElement/align"
       },
       {
-        "name": "bgcolor"
+        "name": "bgcolor",
+        "description": "The bgcolor property of the HTMLTableElement represents the background color of the table.",
+        "url": "/en-US/docs/Web/API/HTMLTableElement/bgColor"
       },
       {
         "name": "bordercolor"
-      },
-      {
-        "name": "cellpadding"
-      },
-      {
-        "name": "cellspacing"
       },
       {
         "name": "datapagesize"
@@ -3651,7 +3717,9 @@
         "url": "/en-US/docs/Web/API/HTMLTableRowElement/align"
       },
       {
-        "name": "bgcolor"
+        "name": "bgcolor",
+        "description": "The HTMLTableRowElement.bgColor property is used to set the background color of a row or retrieve the value of the obsolete bgColor attribute, if present.",
+        "url": "/en-US/docs/Web/API/HTMLTableRowElement/bgColor"
       },
       {
         "name": "char"
@@ -3663,7 +3731,9 @@
         "name": "height"
       },
       {
-        "name": "valign"
+        "name": "valign",
+        "description": "The vAlign property of the HTMLTableRowElement interface is a string indicating how to vertically align text in a <tr> table row. Individual cells can override it.",
+        "url": "/en-US/docs/Web/API/HTMLTableRowElement/vAlign"
       }
     ]
   },
@@ -3685,7 +3755,9 @@
         "name": "height"
       },
       {
-        "name": "valign"
+        "name": "valign",
+        "description": "The vAlign property of the HTMLTableSectionElement interface is a string indicating how to vertically align text in a <thead>, <tbody> or <tfoot> table section. Individual rows and cells can override it.",
+        "url": "/en-US/docs/Web/API/HTMLTableSectionElement/vAlign"
       }
     ]
   },
@@ -3693,20 +3765,28 @@
     "name": "HTMLTemplateElement",
     "attributes": [
       {
-        "name": "shadowrootclonable"
+        "name": "shadowrootmode",
+        "description": "The shadowRootMode property of the HTMLTemplateElement interface reflects the value of the shadowrootmode attribute of the associated <template> element.",
+        "url": "/en-US/docs/Web/API/HTMLTemplateElement/shadowRootMode",
+        "options": ["open", "closed"]
+      },
+      {
+        "name": "shadowrootclonable",
+        "description": "The shadowRootClonable property reflects the value of the shadowrootclonable attribute of the associated <template> element.",
+        "url": "/en-US/docs/Web/API/HTMLTemplateElement/shadowRootClonable"
       },
       {
         "name": "shadowrootcustomelementregistry"
       },
       {
-        "name": "shadowrootdelegatesfocus"
+        "name": "shadowrootdelegatesfocus",
+        "description": "The shadowRootDelegatesFocus property of the HTMLTemplateElement interface reflects the value of the shadowrootdelegatesfocus attribute of the associated <template> element.",
+        "url": "/en-US/docs/Web/API/HTMLTemplateElement/shadowRootDelegatesFocus"
       },
       {
-        "name": "shadowrootmode",
-        "options": ["open", "closed"]
-      },
-      {
-        "name": "shadowrootserializable"
+        "name": "shadowrootserializable",
+        "description": "The shadowRootSerializable property reflects the value of the shadowrootserializable attribute of the associated <template> element.",
+        "url": "/en-US/docs/Web/API/HTMLTemplateElement/shadowRootSerializable"
       }
     ]
   },
@@ -3861,7 +3941,9 @@
     "name": "HTMLTimeElement",
     "attributes": [
       {
-        "name": "datetime"
+        "name": "datetime",
+        "description": "The dateTime property of the HTMLTimeElement interface is a string that reflects the datetime HTML attribute, containing a machine-readable form of the element's date and time value.",
+        "url": "/en-US/docs/Web/API/HTMLTimeElement/dateTime"
       }
     ]
   },
