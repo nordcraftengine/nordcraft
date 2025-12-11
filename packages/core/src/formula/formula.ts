@@ -224,19 +224,19 @@ export function applyFormula(
         if (ctx.reportFormulaEvaluation) {
           return report(applyEvaluateAllSwitchFormula(formula, ctx))
         }
-        return report(applySwitchFormula(formula, ctx))
+        return applySwitchFormula(formula, ctx)
       }
       case 'or': {
         if (ctx.reportFormulaEvaluation) {
           return report(applyEvaluateAllOrFormula(formula, ctx))
         }
-        return report(applyOrFormula(formula, ctx))
+        return applyOrFormula(formula, ctx)
       }
       case 'and': {
         if (ctx.reportFormulaEvaluation) {
           return report(applyEvaluateAllAndFormula(formula, ctx))
         }
-        return report(applyAndFormula(formula, ctx))
+        return applyAndFormula(formula, ctx)
       }
       case 'object':
         return report(applyObjectFormula(formula, ctx))
