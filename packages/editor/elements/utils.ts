@@ -181,16 +181,18 @@ export const getAttributeInfo = ({
   const entry = mdnMetadata.find((entry) => {
     if (namespace === 'SVG') {
       return (
-        entry.mdn_url === `/en-US/docs/Web/SVG/Reference/Attribute/${attribute}`
+        entry.mdn_url.toLocaleLowerCase() ===
+        `/en-US/docs/Web/SVG/Reference/Attribute/${attribute}`.toLocaleLowerCase()
       )
     } else if (interfaceName === 'global') {
       return (
-        entry.mdn_url ===
-        `/en-US/docs/Web/HTML/Reference/Global_attributes/${attribute}`
+        entry.mdn_url.toLocaleLowerCase() ===
+        `/en-US/docs/Web/HTML/Reference/Global_attributes/${attribute}`.toLocaleLowerCase()
       )
     }
     return (
-      entry.mdn_url === `/en-US/docs/Web/HTML/Reference/Attributes/${attribute}`
+      entry.mdn_url.toLocaleLowerCase() ===
+      `/en-US/docs/Web/HTML/Reference/Attributes/${attribute}`.toLocaleLowerCase()
     )
   })
   if (entry) {
@@ -198,7 +200,8 @@ export const getAttributeInfo = ({
   }
   return mdnMetadata.find(
     (entry) =>
-      entry.mdn_url === `/en-US/docs/Web/API/${interfaceName}/${attribute}`,
+      entry.mdn_url.toLocaleLowerCase() ===
+      `/en-US/docs/Web/API/${interfaceName}/${attribute}`.toLocaleLowerCase(),
   )
 }
 
@@ -215,8 +218,8 @@ export const getEventInfo = ({
   const entry = mdnMetadata.find(
     (entry) =>
       entry.pageType === 'web-api-event' &&
-      entry.mdn_url ===
-        `/en-US/docs/Web/API/${interfaceName}/${eventName}_event`,
+      entry.mdn_url.toLocaleLowerCase() ===
+        `/en-US/docs/Web/API/${interfaceName}/${eventName}_event`.toLocaleLowerCase(),
   )
   return entry
 }
