@@ -351,7 +351,7 @@ export const getHtmlInterfaces = async () => {
       attribute: 'target',
       interface: 'HTMLAnchorElement',
       description: 'Specifies where to open the linked document.',
-      options: ['_self', '_blank', '_parent', '_top', '_unfencedTop'],
+      options: ['_self', '_blank', '_parent', '_top'],
       url: '/en-US/docs/Web/API/HTMLAnchorElement/target',
     },
     {
@@ -359,7 +359,7 @@ export const getHtmlInterfaces = async () => {
       interface: 'HTMLFormElement',
       description:
         'Specifies where to display the response after submitting the form.',
-      options: ['_self', '_blank', '_parent', '_top', '_unfencedTop'],
+      options: ['_self', '_blank', '_parent', '_top'],
       url: '/en-US/docs/Web/API/HTMLFormElement/target',
     },
   ]
