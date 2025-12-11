@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "First",
-  "description": "Return the first item in an Array.",
+  "description": "Return the first item in an Array or the first character in a String.",
   "arguments": [
     {
       "name": "Array",
@@ -10,13 +10,13 @@
         "value": []
       },
       "type": {
-        "type": "Array"
+        "type": "Array \\| String"
       },
-      "description": "An Array of items."
+      "description": "An Array of items or a String."
     }
   ],
   "output": {
-    "description": "The first item in the Array.",
+    "description": "The first item in the Array or the first character in the String.",
     "type": {
       "type": "Any"
     }
