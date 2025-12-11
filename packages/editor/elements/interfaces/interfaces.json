@@ -939,7 +939,8 @@
       {
         "name": "target",
         "description": "The target property of the HTMLAnchorElement interface is a string that indicates where to display the linked resource.",
-        "url": "/en-US/docs/Web/API/HTMLAnchorElement/target"
+        "url": "/en-US/docs/Web/API/HTMLAnchorElement/target",
+        "options": ["_self", "_blank", "_parent", "_top", "_unfencedTop"]
       },
       {
         "name": "referrerpolicy",
@@ -1829,7 +1830,8 @@
       {
         "name": "target",
         "description": "The target property of the HTMLFormElement interface represents the target of the form's action (i.e., the frame in which to render its output).",
-        "url": "/en-US/docs/Web/API/HTMLFormElement/target"
+        "url": "/en-US/docs/Web/API/HTMLFormElement/target",
+        "options": ["_self", "_blank", "_parent", "_top", "_unfencedTop"]
       },
       {
         "name": "method",

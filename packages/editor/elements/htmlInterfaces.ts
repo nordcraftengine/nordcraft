@@ -319,33 +319,74 @@ export const getHtmlInterfaces = async () => {
     })
 
   // Inject commonly used Nordcraft data-* attributes
-  const nordcraftProperties: Record<
-    string,
-    { description: string; url?: string }
-  > = {
+  const additionalInterfaceInfo: Array<{
+    attribute: string
+    interface: string
+    description: string
+    url?: string
+    options?: string[]
+    popularity?: number
+  }> = [
     // Used to disable Nordcraft's default styles
     // See https://docs.nordcraft.com/styling/default-styles#custom-styles
-    'data-unset-toddle-styles': {
+    {
+      attribute: 'data-unset-toddle-styles',
+      interface: 'global',
       description:
         'Special Nordcraft data attribute that disables the default Nordcraft styles for an element and its children.',
       url: 'https://docs.nordcraft.com/styling/default-styles#custom-styles',
+      popularity: 1,
     },
     // Used for theming
-    'data-theme': {
+    {
+      attribute: 'data-theme',
+      interface: 'global',
       description:
         'Special Nordcraft data attribute that specifies the theme to be applied to an element and its children.',
       // TODO: Link to theming docs when available
-    },
-  }
-  Object.entries(nordcraftProperties).forEach(([name, info]) => {
-    groupedAttributes['global'] ??= {}
-    groupedAttributes['global'].attributes ??= []
-    groupedAttributes['global'].attributes.push({
-      name,
-      description: info.description,
-      url: info.url,
       popularity: 1,
-    })
+    },
+    // Add missing options for the target attribute on anchor and form elements
+    {
+      attribute: 'target',
+      interface: 'HTMLAnchorElement',
+      description: 'Specifies where to open the linked document.',
+      options: ['_self', '_blank', '_parent', '_top'],
+      url: '/en-US/docs/Web/API/HTMLAnchorElement/target',
+    },
+    {
+      attribute: 'target',
+      interface: 'HTMLFormElement',
+      description:
+        'Specifies where to display the response after submitting the form.',
+      options: ['_self', '_blank', '_parent', '_top'],
+      url: '/en-US/docs/Web/API/HTMLFormElement/target',
+    },
+  ]
+  additionalInterfaceInfo.forEach((info) => {
+    groupedAttributes[info.interface] ??= {}
+    groupedAttributes[info.interface]!.attributes ??= []
+    let attribute = groupedAttributes[info.interface]!.attributes?.find(
+      (attr) =>
+        attr.name.toLocaleLowerCase() === info.attribute.toLocaleLowerCase(),
+    )
+    if (!attribute) {
+      attribute = {
+        name: info.attribute,
+        description: info.description,
+        url: info.url,
+        popularity: info.popularity,
+      }
+      groupedAttributes[info.interface]!.attributes!.push(attribute)
+    }
+    if (info.options) {
+      attribute.options ??= []
+      info.options.forEach((option) => {
+        if (!attribute!.options!.includes(option)) {
+          attribute!.options!.push(option)
+        }
+      })
+    }
   })
 
   // Add events
