@@ -14,7 +14,7 @@
     "events": [
       {
         "name": "finish",
-        "description": "The finish event of the Animation interface is fired when the animation finishes playing, either when the animation completes naturally, or\nwhen the Animation.finish() method is called to immediately cause the\nanimation to finish up.",
+        "description": "The finish event of the Animation interface is fired when the animation finishes playing, either when the animation completes naturally, or when the Animation.finish() method is called to immediately cause the animation to finish up.",
         "url": "/en-US/docs/Web/API/Animation/finish_event"
       },
       {
@@ -304,7 +304,7 @@
       },
       {
         "name": "scroll",
-        "description": "The scroll event fires when the document view has been scrolled.\nTo detect when scrolling has completed, see the scrollend event of Document.\nFor element scrolling, see scroll event of Element.",
+        "description": "The scroll event fires when the document view has been scrolled. To detect when scrolling has completed, see the scrollend event of Document. For element scrolling, see scroll event of Element.",
         "url": "/en-US/docs/Web/API/Document/scroll_event"
       },
       {
@@ -319,7 +319,7 @@
       },
       {
         "name": "scrollend",
-        "description": "The scrollend event fires when the document view has completed scrolling.\nScrolling is considered completed when the scroll position has no more pending updates and the user has completed their gesture.",
+        "description": "The scrollend event fires when the document view has completed scrolling. Scrolling is considered completed when the scroll position has no more pending updates and the user has completed their gesture.",
         "url": "/en-US/docs/Web/API/Document/scrollend_event"
       },
       {
@@ -467,7 +467,7 @@
       },
       {
         "name": "scroll",
-        "description": "The scroll event fires when an element has been scrolled.\nTo detect when scrolling has completed, see the scrollend event of Element.",
+        "description": "The scroll event fires when an element has been scrolled. To detect when scrolling has completed, see the scrollend event of Element.",
         "url": "/en-US/docs/Web/API/Element/scroll_event"
       },
       {
@@ -492,7 +492,7 @@
       },
       {
         "name": "scrollend",
-        "description": "The scrollend event fires when element scrolling has completed.\nScrolling is considered completed when the scroll position has no more pending updates and the user has completed their gesture.",
+        "description": "The scrollend event fires when element scrolling has completed. Scrolling is considered completed when the scroll position has no more pending updates and the user has completed their gesture.",
         "url": "/en-US/docs/Web/API/Element/scrollend_event"
       },
       {
@@ -701,7 +701,7 @@
       },
       {
         "name": "inputmode",
-        "description": "The inputmode global attribute is an enumerated attribute that hints at the type of data that might be entered by the user while editing the element or its contents.\nThis allows a browser to display an appropriate virtual keyboard.",
+        "description": "The inputmode global attribute is an enumerated attribute that hints at the type of data that might be entered by the user while editing the element or its contents. This allows a browser to display an appropriate virtual keyboard.",
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/inputmode",
         "options": [
           "none",
@@ -803,7 +803,7 @@
       },
       {
         "name": "enterkeyhint",
-        "description": "The enterkeyhint global attribute\nis an enumerated attribute defining what action label (or icon) to present for the enter key on virtual keyboards.",
+        "description": "The enterkeyhint global attribute is an enumerated attribute defining what action label (or icon) to present for the enter key on virtual keyboards.",
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/enterkeyhint",
         "options": ["enter", "done", "go", "next", "previous", "search", "send"]
       },
@@ -928,7 +928,7 @@
       },
       {
         "name": "download",
-        "description": "The HTMLAnchorElement.download property is a\nstring indicating that the linked resource is intended to be\ndownloaded rather than displayed in the browser. The value, if any, specifies the\ndefault file name for use in labeling the resource in a local file system. If the name\nis not a valid file name in the underlying OS, the browser will adjust it.",
+        "description": "The HTMLAnchorElement.download property is a string indicating that the linked resource is intended to be downloaded rather than displayed in the browser. The value, if any, specifies the default file name for use in labeling the resource in a local file system. If the name is not a valid file name in the underlying OS, the browser will adjust it.",
         "url": "/en-US/docs/Web/API/HTMLAnchorElement/download"
       },
       {
@@ -1030,7 +1030,7 @@
       },
       {
         "name": "href",
-        "description": "The HTMLAreaElement.href property is a\nstringifier that returns a string containing the whole URL, and allows\nthe href to be updated.",
+        "description": "The HTMLAreaElement.href property is a stringifier that returns a string containing the whole URL, and allows the href to be updated.",
         "url": "/en-US/docs/Web/API/HTMLAreaElement/href"
       },
       {
@@ -1325,12 +1325,12 @@
     "attributes": [
       {
         "name": "width",
-        "description": "The HTMLCanvasElement.width property is a\npositive integer reflecting the width HTML\nattribute of the <canvas> element interpreted in CSS pixels. When the\nattribute is not specified, or if it is set to an invalid value, like a negative, the\ndefault value of 300 is used.",
+        "description": "The HTMLCanvasElement.width property is a positive integer reflecting the width HTML attribute of the <canvas> element interpreted in CSS pixels. When the attribute is not specified, or if it is set to an invalid value, like a negative, the default value of 300 is used.",
         "url": "/en-US/docs/Web/API/HTMLCanvasElement/width"
       },
       {
         "name": "height",
-        "description": "The HTMLCanvasElement.height property is a\npositive integer reflecting the height HTML\nattribute of the <canvas> element interpreted in CSS pixels. When the\nattribute is not specified, or if it is set to an invalid value, like a negative, the\ndefault value of 150 is used.",
+        "description": "The HTMLCanvasElement.height property is a positive integer reflecting the height HTML attribute of the <canvas> element interpreted in CSS pixels. When the attribute is not specified, or if it is set to an invalid value, like a negative, the default value of 150 is used.",
         "url": "/en-US/docs/Web/API/HTMLCanvasElement/height"
       }
     ],
@@ -1342,7 +1342,7 @@
       },
       {
         "name": "contextlost",
-        "description": "The contextlost event of the Canvas API is fired if the user agent detects that the backing storage associated with a CanvasRenderingContext2D context is lost.\nContexts can be lost for several reasons like driver crashes or the application runs out of memory, etc.",
+        "description": "The contextlost event of the Canvas API is fired if the user agent detects that the backing storage associated with a CanvasRenderingContext2D context is lost. Contexts can be lost for several reasons like driver crashes or the application runs out of memory, etc.",
         "url": "/en-US/docs/Web/API/HTMLCanvasElement/contextlost_event"
       },
       {
@@ -1367,7 +1367,7 @@
     "attributes": [
       {
         "name": "value",
-        "description": "The value property of the HTMLDataElement\ninterface returns a string reflecting the value HTML attribute.",
+        "description": "The value property of the HTMLDataElement interface returns a string reflecting the value HTML attribute.",
         "url": "/en-US/docs/Web/API/HTMLDataElement/value"
       }
     ]
@@ -1382,7 +1382,7 @@
       },
       {
         "name": "open",
-        "description": "The open property of the\nHTMLDetailsElement interface is a boolean value reflecting the\nopen HTML attribute, indicating whether the <details>'s contents (not counting the <summary>) is to be shown to the user.",
+        "description": "The open property of the HTMLDetailsElement interface is a boolean value reflecting the open HTML attribute, indicating whether the <details>'s contents (not counting the <summary>) is to be shown to the user.",
         "url": "/en-US/docs/Web/API/HTMLDetailsElement/open"
       }
     ],
@@ -1397,7 +1397,7 @@
     "attributes": [
       {
         "name": "open",
-        "description": "The open property of the\nHTMLDialogElement interface is a boolean value reflecting the\nopen HTML attribute, indicating whether the <dialog> is\navailable for interaction.",
+        "description": "The open property of the HTMLDialogElement interface is a boolean value reflecting the open HTML attribute, indicating whether the <dialog> is available for interaction.",
         "url": "/en-US/docs/Web/API/HTMLDialogElement/open"
       },
       {
@@ -1441,7 +1441,7 @@
     "attributes": [
       {
         "name": "title",
-        "description": "The HTMLElement.title property\nrepresents the title of the element: the text usually displayed in a 'tooltip' popup\nwhen the mouse is over the node.",
+        "description": "The HTMLElement.title property represents the title of the element: the text usually displayed in a 'tooltip' popup when the mouse is over the node.",
         "url": "/en-US/docs/Web/API/HTMLElement/title"
       }
     ],
@@ -1568,7 +1568,7 @@
       },
       {
         "name": "pointerrawupdate",
-        "description": "The pointerrawupdate event is fired when a pointer changes any properties that don't fire pointerdown or pointerup events.\nSee pointermove for a list of these properties.",
+        "description": "The pointerrawupdate event is fired when a pointer changes any properties that don't fire pointerdown or pointerup events. See pointermove for a list of these properties.",
         "url": "/en-US/docs/Web/API/Element/pointerrawupdate_event"
       },
       {
@@ -1792,7 +1792,7 @@
       },
       {
         "name": "enctype",
-        "description": "The HTMLFormElement.enctype property is the MIME type of content that is used\nto submit the form to the server. Possible values are:",
+        "description": "The HTMLFormElement.enctype property is the MIME type of content that is used to submit the form to the server. Possible values are:",
         "url": "/en-US/docs/Web/API/HTMLFormElement/enctype",
         "options": [
           "application/x-www-form-urlencoded",
@@ -1802,17 +1802,17 @@
       },
       {
         "name": "action",
-        "description": "The HTMLFormElement.action property represents the action\nof the <form> element.",
+        "description": "The HTMLFormElement.action property represents the action of the <form> element.",
         "url": "/en-US/docs/Web/API/HTMLFormElement/action"
       },
       {
         "name": "target",
-        "description": "The target property of the HTMLFormElement\ninterface represents the target of the form's action (i.e., the frame in which to render\nits output).",
+        "description": "The target property of the HTMLFormElement interface represents the target of the form's action (i.e., the frame in which to render its output).",
         "url": "/en-US/docs/Web/API/HTMLFormElement/target"
       },
       {
         "name": "method",
-        "description": "The HTMLFormElement.method property represents the\nHTTP method used to submit the <form>.",
+        "description": "The HTMLFormElement.method property represents the HTTP method used to submit the <form>.",
         "url": "/en-US/docs/Web/API/HTMLFormElement/method",
         "options": ["get", "post", "dialog"]
       },
@@ -1836,7 +1836,7 @@
       },
       {
         "name": "name",
-        "description": "The HTMLFormElement.name property represents the name of\nthe current <form> element as a string.",
+        "description": "The HTMLFormElement.name property represents the name of the current <form> element as a string.",
         "url": "/en-US/docs/Web/API/HTMLFormElement/name"
       },
       {
@@ -1953,7 +1953,7 @@
       },
       {
         "name": "src",
-        "description": "The HTMLIFrameElement.src\nA string that reflects the src HTML attribute, containing the address of the content to be embedded.",
+        "description": "The HTMLIFrameElement.src A string that reflects the src HTML attribute, containing the address of the content to be embedded.",
         "url": "/en-US/docs/Web/API/HTMLIFrameElement/src"
       },
       {
@@ -2052,7 +2052,7 @@
       },
       {
         "name": "fetchpriority",
-        "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority.\nThis in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
+        "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority. This in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority",
         "options": ["high", "low", "auto"]
       },
@@ -2284,7 +2284,7 @@
       },
       {
         "name": "dirname",
-        "description": "The dirname attribute can be used on the <textarea> element and several <input> types and describes the directionality of the element's text content during form submission.\nThe browser uses this attribute's value to determine whether text the user has entered is left-to-right or right-to-left oriented.\nWhen used, the element's text directionality value is included in form submission data along with the dirname attribute's value as the name of the field.",
+        "description": "The dirname attribute can be used on the <textarea> element and several <input> types and describes the directionality of the element's text content during form submission. The browser uses this attribute's value to determine whether text the user has entered is left-to-right or right-to-left oriented. When used, the element's text directionality value is included in form submission data along with the dirname attribute's value as the name of the field.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/dirname"
       },
       {
@@ -2466,7 +2466,7 @@
       },
       {
         "name": "fetchpriority",
-        "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority.\nThis in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
+        "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority. This in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority",
         "options": ["high", "low", "auto"]
       },
@@ -2557,7 +2557,7 @@
     "attributes": [
       {
         "name": "name",
-        "description": "The name property of the HTMLMapElement represents the unique name <map> element.\nIts value can be used with the useMap attribute of the <img> element to reference a <map> element.",
+        "description": "The name property of the HTMLMapElement represents the unique name <map> element. Its value can be used with the useMap attribute of the <img> element to reference a <map> element.",
         "url": "/en-US/docs/Web/API/HTMLMapElement/name"
       }
     ]
@@ -2728,7 +2728,7 @@
     "attributes": [
       {
         "name": "content",
-        "description": "The content attribute specifies the value of a metadata name defined by the <meta> name attribute.\nIt takes a string as its value, and the expected syntax varies depending on the name value used.",
+        "description": "The content attribute specifies the value of a metadata name defined by the <meta> name attribute. It takes a string as its value, and the expected syntax varies depending on the name value used.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/content"
       },
       {
@@ -2753,7 +2753,7 @@
       },
       {
         "name": "name",
-        "description": "The HTMLMetaElement.name property is used in combination with HTMLMetaElement.content to define the name-value pairs for the metadata of a document.\nThe name attribute defines the metadata name and the content attribute defines the value.",
+        "description": "The HTMLMetaElement.name property is used in combination with HTMLMetaElement.content to define the name-value pairs for the metadata of a document. The name attribute defines the metadata name and the content attribute defines the value.",
         "url": "/en-US/docs/Web/API/HTMLMetaElement/name",
         "options": [
           "application-name",
@@ -2796,7 +2796,7 @@
       },
       {
         "name": "scheme",
-        "description": "The HTMLMetaElement.scheme property defines the scheme of the value in the HTMLMetaElement.content attribute.\nThe scheme property was created to enable providing additional information to be used to interpret the value of the content property. The scheme property takes as its value a scheme format (i.e., YYYY-MM-DD) or scheme format name (i.e., ISBN), or a URI providing more information regarding the scheme format. The scheme defines the format of the value of the content attribute.\nThe scheme content is interpreted as an extension of the element's HTMLMetaElement.name if a browser or user agent recognizes the scheme.",
+        "description": "The HTMLMetaElement.scheme property defines the scheme of the value in the HTMLMetaElement.content attribute. The scheme property was created to enable providing additional information to be used to interpret the value of the content property. The scheme property takes as its value a scheme format (i.e., YYYY-MM-DD) or scheme format name (i.e., ISBN), or a URI providing more information regarding the scheme format. The scheme defines the format of the value of the content attribute. The scheme content is interpreted as an extension of the element's HTMLMetaElement.name if a browser or user agent recognizes the scheme.",
         "url": "/en-US/docs/Web/API/HTMLMetaElement/scheme"
       }
     ]
@@ -2956,7 +2956,7 @@
       },
       {
         "name": "data",
-        "description": "The data property of the\nHTMLObjectElement interface returns a string that\nreflects the data HTML attribute, specifying the address\nof a resource's data.",
+        "description": "The data property of the HTMLObjectElement interface returns a string that reflects the data HTML attribute, specifying the address of a resource's data.",
         "url": "/en-US/docs/Web/API/HTMLObjectElement/data"
       },
       {
@@ -2964,7 +2964,7 @@
       },
       {
         "name": "height",
-        "description": "The height property of the\nHTMLObjectElement interface Returns a string that\nreflects the height HTML attribute, specifying the\ndisplayed height of the resource in CSS pixels.",
+        "description": "The height property of the HTMLObjectElement interface Returns a string that reflects the height HTML attribute, specifying the displayed height of the resource in CSS pixels.",
         "url": "/en-US/docs/Web/API/HTMLObjectElement/height"
       },
       {
@@ -2972,7 +2972,7 @@
       },
       {
         "name": "name",
-        "description": "The name property of the\nHTMLObjectElement interface returns a string that\nreflects the name HTML attribute, specifying the name of\nthe browsing context.",
+        "description": "The name property of the HTMLObjectElement interface returns a string that reflects the name HTML attribute, specifying the name of the browsing context.",
         "url": "/en-US/docs/Web/API/HTMLObjectElement/name"
       },
       {
@@ -2980,7 +2980,7 @@
       },
       {
         "name": "type",
-        "description": "The type property of the\nHTMLObjectElement interface returns a string that\nreflects the type HTML attribute, specifying the MIME type\nof the resource.",
+        "description": "The type property of the HTMLObjectElement interface returns a string that reflects the type HTML attribute, specifying the MIME type of the resource.",
         "url": "/en-US/docs/Web/API/HTMLObjectElement/type"
       },
       {
@@ -2994,7 +2994,7 @@
       },
       {
         "name": "width",
-        "description": "The width property of the\nHTMLObjectElement interface returns a string that\nreflects the width HTML attribute, specifying the\ndisplayed width of the resource in CSS pixels.",
+        "description": "The width property of the HTMLObjectElement interface returns a string that reflects the width HTML attribute, specifying the displayed width of the resource in CSS pixels.",
         "url": "/en-US/docs/Web/API/HTMLObjectElement/width"
       }
     ]
@@ -3232,7 +3232,7 @@
       },
       {
         "name": "fetchpriority",
-        "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority.\nThis in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
+        "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority. This in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority",
         "options": ["high", "low", "auto"]
       },
@@ -3414,7 +3414,7 @@
     "attributes": [
       {
         "name": "name",
-        "description": "The name property of the HTMLSlotElement\ninterface returns or sets the slot name. A slot is a placeholder inside a web component\nthat users can fill with their own markup.",
+        "description": "The name property of the HTMLSlotElement interface returns or sets the slot name. A slot is a placeholder inside a web component that users can fill with their own markup.",
         "url": "/en-US/docs/Web/API/HTMLSlotElement/name"
       }
     ],
@@ -3478,7 +3478,7 @@
     "attributes": [
       {
         "name": "type",
-        "description": "The HTMLStyleElement.type property returns the type of the current style.\nThe value mirrors the HTML <style> element's type attribute.",
+        "description": "The HTMLStyleElement.type property returns the type of the current style. The value mirrors the HTML <style> element's type attribute.",
         "url": "/en-US/docs/Web/API/HTMLStyleElement/type"
       },
       {
@@ -3488,7 +3488,7 @@
       },
       {
         "name": "media",
-        "description": "The HTMLStyleElement.media property specifies the\nintended destination medium for style information.",
+        "description": "The HTMLStyleElement.media property specifies the intended destination medium for style information.",
         "url": "/en-US/docs/Web/API/HTMLStyleElement/media"
       },
       {
@@ -3511,13 +3511,13 @@
     "attributes": [
       {
         "name": "scope",
-        "description": "The scope property of the HTMLTableCellElement interface\nindicates the scope of a <th> cell.",
+        "description": "The scope property of the HTMLTableCellElement interface indicates the scope of a <th> cell.",
         "url": "/en-US/docs/Web/API/HTMLTableCellElement/scope",
         "options": ["row", "col", "rowgroup", "colgroup"]
       },
       {
         "name": "abbr",
-        "description": "The abbr property of the HTMLTableCellElement interface\nindicates an abbreviation associated with the cell. If the cell does not represent a header cell <th>, it is ignored.",
+        "description": "The abbr property of the HTMLTableCellElement interface indicates an abbreviation associated with the cell. If the cell does not represent a header cell <th>, it is ignored.",
         "url": "/en-US/docs/Web/API/HTMLTableCellElement/abbr"
       },
       {
@@ -3542,7 +3542,7 @@
       },
       {
         "name": "headers",
-        "description": "The headers property of the HTMLTableCellElement interface\ncontains a list of IDs of <th> elements that are headers for this specific cell.",
+        "description": "The headers property of the HTMLTableCellElement interface contains a list of IDs of <th> elements that are headers for this specific cell.",
         "url": "/en-US/docs/Web/API/HTMLTableCellElement/headers"
       },
       {
@@ -3594,12 +3594,12 @@
     "attributes": [
       {
         "name": "border",
-        "description": "The HTMLTableElement.border property represents the\nborder width of the <table> element.",
+        "description": "The HTMLTableElement.border property represents the border width of the <table> element.",
         "url": "/en-US/docs/Web/API/HTMLTableElement/border"
       },
       {
         "name": "align",
-        "description": "The HTMLTableElement.align property represents the\nalignment of the table.",
+        "description": "The HTMLTableElement.align property represents the alignment of the table.",
         "url": "/en-US/docs/Web/API/HTMLTableElement/align"
       },
       {
@@ -3619,7 +3619,7 @@
       },
       {
         "name": "frame",
-        "description": "The HTMLTableElement interface's frame\nproperty is a string that indicates which of the table's exterior borders should be\ndrawn.",
+        "description": "The HTMLTableElement interface's frame property is a string that indicates which of the table's exterior borders should be drawn.",
         "url": "/en-US/docs/Web/API/HTMLTableElement/frame"
       },
       {
@@ -3627,17 +3627,17 @@
       },
       {
         "name": "rules",
-        "description": "The HTMLTableElement.rules property indicates which cell\nborders to render in the table.",
+        "description": "The HTMLTableElement.rules property indicates which cell borders to render in the table.",
         "url": "/en-US/docs/Web/API/HTMLTableElement/rules"
       },
       {
         "name": "summary",
-        "description": "The HTMLTableElement.summary property represents the\ntable description.",
+        "description": "The HTMLTableElement.summary property represents the table description.",
         "url": "/en-US/docs/Web/API/HTMLTableElement/summary"
       },
       {
         "name": "width",
-        "description": "The HTMLTableElement.width property represents the\ndesired width of the table.",
+        "description": "The HTMLTableElement.width property represents the desired width of the table.",
         "url": "/en-US/docs/Web/API/HTMLTableElement/width"
       }
     ]
@@ -3821,7 +3821,7 @@
       },
       {
         "name": "dirname",
-        "description": "The dirname attribute can be used on the <textarea> element and several <input> types and describes the directionality of the element's text content during form submission.\nThe browser uses this attribute's value to determine whether text the user has entered is left-to-right or right-to-left oriented.\nWhen used, the element's text directionality value is included in form submission data along with the dirname attribute's value as the name of the field.",
+        "description": "The dirname attribute can be used on the <textarea> element and several <input> types and describes the directionality of the element's text content during form submission. The browser uses this attribute's value to determine whether text the user has entered is left-to-right or right-to-left oriented. When used, the element's text directionality value is included in form submission data along with the dirname attribute's value as the name of the field.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/dirname"
       },
       {
@@ -3892,12 +3892,12 @@
       },
       {
         "name": "src",
-        "description": "The src property of the HTMLTrackElement interface reflects the value of\nthe <track> element's src attribute, which\nindicates the URL of the text track's data.",
+        "description": "The src property of the HTMLTrackElement interface reflects the value of the <track> element's src attribute, which indicates the URL of the text track's data.",
         "url": "/en-US/docs/Web/API/HTMLTrackElement/src"
       },
       {
         "name": "srclang",
-        "description": "The srclang property of the HTMLTrackElement interface reflects the value of\nthe <track> element's srclang attribute or the empty string if not defined.",
+        "description": "The srclang property of the HTMLTrackElement interface reflects the value of the <track> element's srclang attribute or the empty string if not defined.",
         "url": "/en-US/docs/Web/API/HTMLTrackElement/srclang"
       }
     ],
@@ -3997,7 +3997,7 @@
     "events": [
       {
         "name": "versionchange",
-        "description": "The versionchange event is fired when a database structure change (upgradeneeded event send on an IDBOpenDBRequest or IDBFactory.deleteDatabase) was requested elsewhere (most probably in\nanother window/tab on the same computer).",
+        "description": "The versionchange event is fired when a database structure change (upgradeneeded event send on an IDBOpenDBRequest or IDBFactory.deleteDatabase) was requested elsewhere (most probably in another window/tab on the same computer).",
         "url": "/en-US/docs/Web/API/IDBDatabase/versionchange_event"
       },
       {
@@ -4224,7 +4224,7 @@
       },
       {
         "name": "message",
-        "description": "The message event of the\nMediaKeySession interface fires when a message is generated by the\ncontent decryption module.",
+        "description": "The message event of the MediaKeySession interface fires when a message is generated by the content decryption module.",
         "url": "/en-US/docs/Web/API/MediaKeySession/message_event"
       }
     ]
@@ -4244,12 +4244,12 @@
     "events": [
       {
         "name": "dataavailable",
-        "description": "The dataavailable event of the MediaRecorder interface is fired when the MediaRecorder delivers media\ndata to your application for its use. The data is provided in a Blob\nobject that contains the data. This occurs in four situations:",
+        "description": "The dataavailable event of the MediaRecorder interface is fired when the MediaRecorder delivers media data to your application for its use. The data is provided in a Blob object that contains the data. This occurs in four situations:",
         "url": "/en-US/docs/Web/API/MediaRecorder/dataavailable_event"
       },
       {
         "name": "stop",
-        "description": "The stop event of the MediaRecorder interface is fired when\nMediaRecorder.stop() is called, or when the media stream being\ncaptured ends. In each case, the stop event is preceded by a\ndataavailable event, making the Blob captured up to that\npoint available for you to use in your application.",
+        "description": "The stop event of the MediaRecorder interface is fired when MediaRecorder.stop() is called, or when the media stream being captured ends. In each case, the stop event is preceded by a dataavailable event, making the Blob captured up to that point available for you to use in your application.",
         "url": "/en-US/docs/Web/API/MediaRecorder/stop_event"
       },
       {
@@ -4259,17 +4259,17 @@
       },
       {
         "name": "start",
-        "description": "The start event of the MediaRecorder interface is fired when\nMediaRecorder.start() is called. At this point, the data\nstarts being gathered into a Blob.",
+        "description": "The start event of the MediaRecorder interface is fired when MediaRecorder.start() is called. At this point, the data starts being gathered into a Blob.",
         "url": "/en-US/docs/Web/API/MediaRecorder/start_event"
       },
       {
         "name": "pause",
-        "description": "The pause event of the MediaRecorder interface is fired when\nMediaRecorder.pause() is called.",
+        "description": "The pause event of the MediaRecorder interface is fired when MediaRecorder.pause() is called.",
         "url": "/en-US/docs/Web/API/MediaRecorder/pause_event"
       },
       {
         "name": "resume",
-        "description": "The resume event of the MediaRecorder interface is fired when\nMediaRecorder.resume() is called.",
+        "description": "The resume event of the MediaRecorder interface is fired when MediaRecorder.resume() is called.",
         "url": "/en-US/docs/Web/API/MediaRecorder/resume_event"
       }
     ]
@@ -4289,7 +4289,7 @@
       },
       {
         "name": "sourceopen",
-        "description": "The sourceopen event is fired when a MediaSource object's readyState changes to \"open\".\nThis indicates that the MediaSource is ready to receive data from SourceBuffer objects. This can occur either when the MediaSource object is first attached to a media element or when the readyState changes from \"ended\" back to \"open\".",
+        "description": "The sourceopen event is fired when a MediaSource object's readyState changes to \"open\". This indicates that the MediaSource is ready to receive data from SourceBuffer objects. This can occur either when the MediaSource object is first attached to a media element or when the readyState changes from \"ended\" back to \"open\".",
         "url": "/en-US/docs/Web/API/MediaSource/sourceopen_event"
       }
     ]
@@ -4456,7 +4456,7 @@
     "events": [
       {
         "name": "click",
-        "description": "The click event of the Notification\ninterface fires when the user clicks on displayed Notification.",
+        "description": "The click event of the Notification interface fires when the user clicks on displayed Notification.",
         "url": "/en-US/docs/Web/API/Notification/click_event"
       },
       {
@@ -4491,7 +4491,7 @@
     "events": [
       {
         "name": "contextlost",
-        "description": "The contextlost event of the OffscreenCanvas interface is fired if the browser detects that the OffscreenCanvasRenderingContext2D context is lost.\nContexts can be lost for several reasons, such as an associated GPU driver crashes, or the application runs out of memory, and so on.",
+        "description": "The contextlost event of the OffscreenCanvas interface is fired if the browser detects that the OffscreenCanvasRenderingContext2D context is lost. Contexts can be lost for several reasons, such as an associated GPU driver crashes, or the application runs out of memory, and so on.",
         "url": "/en-US/docs/Web/API/OffscreenCanvas/contextlost_event"
       },
       {
@@ -4749,17 +4749,17 @@
       },
       {
         "name": "connectionstatechange",
-        "description": "The connectionstatechange event is sent to the onconnectionstatechange event handler on an RTCPeerConnection object after a new track has been added to an RTCRtpReceiver which is part of the connection.\nThe new connection state can be found in connectionState, and is one of the string values: new, connecting, connected, disconnected, failed, or closed.",
+        "description": "The connectionstatechange event is sent to the onconnectionstatechange event handler on an RTCPeerConnection object after a new track has been added to an RTCRtpReceiver which is part of the connection. The new connection state can be found in connectionState, and is one of the string values: new, connecting, connected, disconnected, failed, or closed.",
         "url": "/en-US/docs/Web/API/RTCPeerConnection/connectionstatechange_event"
       },
       {
         "name": "negotiationneeded",
-        "description": "A negotiationneeded event is sent to the RTCPeerConnection when negotiation of the connection through the signaling channel is required.\nThis occurs both during the initial setup of the connection as well as any time a change to the communication environment requires reconfiguring the connection.",
+        "description": "A negotiationneeded event is sent to the RTCPeerConnection when negotiation of the connection through the signaling channel is required. This occurs both during the initial setup of the connection as well as any time a change to the communication environment requires reconfiguring the connection.",
         "url": "/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event"
       },
       {
         "name": "iceconnectionstatechange",
-        "description": "An iceconnectionstatechange event is sent to an RTCPeerConnection object each time the ICE connection state changes during the negotiation process.\nThe new ICE connection state is available in the object's iceConnectionState property.",
+        "description": "An iceconnectionstatechange event is sent to an RTCPeerConnection object each time the ICE connection state changes during the negotiation process. The new ICE connection state is available in the object's iceConnectionState property.",
         "url": "/en-US/docs/Web/API/RTCPeerConnection/iceconnectionstatechange_event"
       },
       {
@@ -4774,7 +4774,7 @@
       },
       {
         "name": "icegatheringstatechange",
-        "description": "The icegatheringstatechange event is sent to the onicegatheringstatechange event handler on an RTCPeerConnection when the state of the ICE candidate gathering process changes.\nThis signifies that the value of the connection's iceGatheringState property has changed.",
+        "description": "The icegatheringstatechange event is sent to the onicegatheringstatechange event handler on an RTCPeerConnection when the state of the ICE candidate gathering process changes. This signifies that the value of the connection's iceGatheringState property has changed.",
         "url": "/en-US/docs/Web/API/RTCPeerConnection/icegatheringstatechange_event"
       },
       {
@@ -4960,7 +4960,7 @@
       },
       {
         "name": "message",
-        "description": "The message event of the ServiceWorkerGlobalScope interface occurs when incoming messages are received. Controlled pages can use the ServiceWorker.postMessage() method to send messages to service workers.\nThe service worker can optionally send a response back via the Client.postMessage(), corresponding to the controlled page.",
+        "description": "The message event of the ServiceWorkerGlobalScope interface occurs when incoming messages are received. Controlled pages can use the ServiceWorker.postMessage() method to send messages to service workers. The service worker can optionally send a response back via the Client.postMessage(), corresponding to the controlled page.",
         "url": "/en-US/docs/Web/API/ServiceWorkerGlobalScope/message_event"
       },
       {
@@ -5040,7 +5040,7 @@
     "events": [
       {
         "name": "updatefound",
-        "description": "The updatefound event of the\nServiceWorkerRegistration interface is fired any time the ServiceWorkerRegistration.installing property acquires a new service worker.",
+        "description": "The updatefound event of the ServiceWorkerRegistration interface is fired any time the ServiceWorkerRegistration.installing property acquires a new service worker.",
         "url": "/en-US/docs/Web/API/ServiceWorkerRegistration/updatefound_event"
       }
     ]
@@ -5584,7 +5584,7 @@
       },
       {
         "name": "pointerrawupdate",
-        "description": "The pointerrawupdate event is fired when a pointer changes any properties that don't fire pointerdown or pointerup events.\nSee pointermove for a list of these properties.",
+        "description": "The pointerrawupdate event is fired when a pointer changes any properties that don't fire pointerdown or pointerup events. See pointermove for a list of these properties.",
         "url": "/en-US/docs/Web/API/Element/pointerrawupdate_event"
       },
       {
@@ -6697,7 +6697,7 @@
       },
       {
         "name": "title",
-        "description": "The SVGStyleElement.title property is a string corresponding to the title attribute of the given SVG style element.\nIt may be used to select between alternate style sheets.",
+        "description": "The SVGStyleElement.title property is a string corresponding to the title attribute of the given SVG style element. It may be used to select between alternate style sheets.",
         "url": "/en-US/docs/Web/API/SVGStyleElement/title"
       }
     ]
@@ -7034,7 +7034,7 @@
     "events": [
       {
         "name": "geometrychange",
-        "description": "The geometrychange event of the VirtualKeyboard\ninterface fires when the on-screen virtual keyboard is toggled between shown and hidden states.",
+        "description": "The geometrychange event of the VirtualKeyboard interface fires when the on-screen virtual keyboard is toggled between shown and hidden states.",
         "url": "/en-US/docs/Web/API/VirtualKeyboard/geometrychange_event"
       }
     ]
@@ -7104,12 +7104,12 @@
       },
       {
         "name": "load",
-        "description": "The load event is fired when the whole page has loaded, including all dependent resources such as stylesheets, scripts (including async, deferred, and module scripts), iframes, and images, except those that are loaded lazily.\nThis is in contrast to DOMContentLoaded, which is fired as soon as the page DOM has been loaded, without waiting for resources to finish loading.",
+        "description": "The load event is fired when the whole page has loaded, including all dependent resources such as stylesheets, scripts (including async, deferred, and module scripts), iframes, and images, except those that are loaded lazily. This is in contrast to DOMContentLoaded, which is fired as soon as the page DOM has been loaded, without waiting for resources to finish loading.",
         "url": "/en-US/docs/Web/API/Window/load_event"
       },
       {
         "name": "load",
-        "description": "The load event is fired when the whole page has loaded, including all dependent resources such as stylesheets, scripts (including async, deferred, and module scripts), iframes, and images, except those that are loaded lazily.\nThis is in contrast to DOMContentLoaded, which is fired as soon as the page DOM has been loaded, without waiting for resources to finish loading.",
+        "description": "The load event is fired when the whole page has loaded, including all dependent resources such as stylesheets, scripts (including async, deferred, and module scripts), iframes, and images, except those that are loaded lazily. This is in contrast to DOMContentLoaded, which is fired as soon as the page DOM has been loaded, without waiting for resources to finish loading.",
         "url": "/en-US/docs/Web/API/Window/load_event"
       },
       {

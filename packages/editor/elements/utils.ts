@@ -146,16 +146,21 @@ let mdnMetadata:
 
 export const initMdnMetadata = async () => {
   mdnMetadata = await fetch(MDN_METADATA_URL).then((res) => res.json())
-  mdnMetadata = mdnMetadata!.filter(
-    (entry) =>
-      [
-        'html-attribute',
-        'svg-attribute',
-        'web-api-instance-property',
-        'web-api-event',
-      ].includes(entry.pageType) &&
-      entry.summary.includes('read-only property') === false,
-  )
+  mdnMetadata = mdnMetadata!
+    .filter(
+      (entry) =>
+        [
+          'html-attribute',
+          'svg-attribute',
+          'web-api-instance-property',
+          'web-api-event',
+        ].includes(entry.pageType) &&
+        entry.summary.includes('read-only property') === false,
+    )
+    .map((entry) => ({
+      ...entry,
+      summary: stripNewlines(entry.summary),
+    }))
 }
 
 export const getAttributeInfo = ({
@@ -239,3 +244,5 @@ export const sortByPopularityOrAlphabetical = <
   // Fallback to alphabetical sorting
   return a.name.localeCompare(b.name)
 }
+
+export const stripNewlines = (str: string) => str.replace(/(\r\n|\n|\r)/gm, ' ')
