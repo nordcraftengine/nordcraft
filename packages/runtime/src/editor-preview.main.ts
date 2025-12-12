@@ -913,24 +913,53 @@ export const createRoot = (
           })
           break
         case 'preview_style':
-          const { styles: previewStyleStyles, theme } = message.data
+          const { styles: previewStyleStyles, theme, resources } = message.data
           cancelAnimationFrame(previewStyleAnimationFrame)
           previewStyleAnimationFrame = requestAnimationFrame(() => {
+            // Allow for temporarily adding preview resources (e.g. fonts).
+            const resourceElements = Array.from(
+              document.head.querySelectorAll('[data-id="preview-resource"]'),
+            )
+            // Remove any resources that are no longer needed
+            resourceElements.forEach((el) => {
+              if (
+                !resources ||
+                resources.length === 0 ||
+                resources.every((res) => res.href !== el.getAttribute('href'))
+              ) {
+                el.remove()
+              }
+            })
+            resources
+              ?.filter(
+                (resource) =>
+                  !resourceElements.some(
+                    (el) => el.getAttribute('href') === resource.href,
+                  ),
+              )
+              .forEach((resource) => {
+                const resourceElement = document.createElement('link')
+                resourceElement.setAttribute('data-id', 'preview-resource')
+                resourceElement.rel = 'stylesheet'
+                resourceElement.href = resource.href
+                document.head.appendChild(resourceElement)
+              })
+
             // Update or create a new style tag and set the given styles with important priority
-            let styleTag = document.head.querySelector(
+            let styleElement = document.head.querySelector(
               '[data-id="selected-node-styles"]',
             )
 
             // Cleanup when null styles are sent
             if (!previewStyleStyles) {
-              styleTag?.remove()
+              styleElement?.remove()
               return
             }
 
-            if (!styleTag) {
-              styleTag = document.createElement('style')
-              styleTag.setAttribute('data-id', 'selected-node-styles')
-              document.head.appendChild(styleTag)
+            if (!styleElement) {
+              styleElement = document.createElement('style')
+              styleElement.setAttribute('data-id', 'selected-node-styles')
+              document.head.appendChild(styleElement)
             }
 
             // If style variant targets a pseudo-element, apply styles to it instead
@@ -1003,12 +1032,12 @@ export const createRoot = (
                   getThemeEntries(theme.value, theme.key),
                 ),
               )
-              styleTag.innerHTML = cssBlocks.join('\n')
+              styleElement.innerHTML = cssBlocks.join('\n')
             } else {
               const previewStyles = Object.entries(previewStyleStyles)
                 .map(([key, value]) => `${key}: ${value} !important;`)
                 .join('\n')
-              styleTag.innerHTML = `[data-id="${selectedNodeId}"]${pseudoElement}, [data-id="${selectedNodeId}"] ~ [data-id^="${selectedNodeId}("]${pseudoElement} {
+              styleElement.innerHTML = `[data-id="${selectedNodeId}"]${pseudoElement}, [data-id="${selectedNodeId}"] ~ [data-id^="${selectedNodeId}("]${pseudoElement} {
     ${previewStyles}
     transition: none !important;
   }`
