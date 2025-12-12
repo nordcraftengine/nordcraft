@@ -2,17 +2,30 @@
 import type { Component, ComponentData } from '../component/component.types'
 import type {
   CustomFormulaHandler,
-  FormulaHandler,
   FormulaLookup,
   NordcraftMetadata,
   Runtime,
-  Toddle,
 } from '../types'
-import { isDefined, toBoolean } from '../utils/util'
-import { type PluginFormula, type ToddleFormula } from './formulaTypes'
+import { isDefined } from '../utils/util'
+import { applyAndFormula, applyEvaluateAllAndFormula } from './andFormula'
+import { applyApplyFormula } from './applyFormula'
+import { applyArrayFormula } from './arrayFormula'
+import {
+  type FormulaEvaluationReporter,
+  type PluginFormula,
+  type ToddleFormula,
+} from './formulaTypes'
+import { applyFunctionFormula } from './functionFormula'
+import { applyObjectFormula } from './objectFormula'
+import { applyEvaluateAllOrFormula, applyOrFormula } from './orFormula'
+import { applyPathFormula } from './pathFormula'
+import { applyRecordFormula } from './recordFormula'
+import {
+  applyEvaluateAllSwitchFormula,
+  applySwitchFormula,
+} from './switchFormula'
 
 // Define the some objects types as union of ServerSide and ClientSide runtime types as applyFormula is used in both
-declare const document: Document | undefined
 type ShadowRoot = DocumentFragment
 
 interface BaseOperation extends NordcraftMetadata {
@@ -21,7 +34,7 @@ interface BaseOperation extends NordcraftMetadata {
 
 export interface PathOperation extends BaseOperation {
   type: 'path'
-  path: string[]
+  path: Array<string | number>
 }
 
 export interface FunctionArgument {
@@ -77,7 +90,13 @@ export interface ValueOperation extends BaseOperation {
   value: ValueOperationValue
 }
 
-export type ValueOperationValue = string | number | boolean | null | object
+export type ValueOperationValue =
+  | string
+  | number
+  | boolean
+  | null
+  | object
+  | undefined
 
 export interface SwitchOperation extends BaseOperation {
   type: 'switch'
@@ -100,7 +119,7 @@ export type Formula =
   | ValueOperation
   | ApplyOperation
 
-export type FormulaContext = {
+export interface FormulaContext {
   component: Component | undefined
   formulaCache?: Record<
     string,
@@ -117,6 +136,8 @@ export type FormulaContext = {
     getCustomFormula: CustomFormulaHandler
     errors: Error[]
   }
+  jsonPath?: Array<string | number> | undefined
+  reportFormulaEvaluation?: FormulaEvaluationReporter | undefined
   env: ToddleEnv | undefined
 }
 
@@ -179,206 +200,56 @@ export const isToddleFormula = <Handler>(
 
 export function applyFormula(
   formula: Formula | string | number | undefined | null | boolean,
-  ctx: FormulaContext,
+  _ctx: FormulaContext,
+  extendedPath?: Array<string | number> | undefined,
 ): any {
+  const path = [...(_ctx?.jsonPath ?? []), ...(extendedPath ?? [])]
+  const ctx = { ..._ctx, jsonPath: path }
+  const report = (value: any, p: Array<string | number> = path) => {
+    ctx?.reportFormulaEvaluation?.(p, value)
+    return value
+  }
+
   if (!isFormula(formula)) {
-    return formula
+    return report(formula)
   }
   try {
     switch (formula.type) {
       case 'value':
-        return formula.value
+        return report(formula.value)
       case 'path': {
-        let input: any = ctx.data
-        for (const key of formula.path) {
-          if (input && typeof input === 'object') {
-            input = input[key]
-          } else {
-            return null
-          }
-        }
-
-        return input
+        return report(applyPathFormula(formula, ctx.data))
       }
       case 'switch': {
-        for (const branch of formula.cases) {
-          if (toBoolean(applyFormula(branch.condition, ctx))) {
-            return applyFormula(branch.formula, ctx)
-          }
+        if (ctx.reportFormulaEvaluation) {
+          return report(applyEvaluateAllSwitchFormula(formula, ctx))
         }
-        return applyFormula(formula.default, ctx)
+        return applySwitchFormula(formula, ctx)
       }
       case 'or': {
-        for (const entry of formula.arguments) {
-          if (toBoolean(applyFormula(entry.formula, ctx))) {
-            return true
-          }
+        if (ctx.reportFormulaEvaluation) {
+          return report(applyEvaluateAllOrFormula(formula, ctx))
         }
-        return false
+        return applyOrFormula(formula, ctx)
       }
       case 'and': {
-        for (const entry of formula.arguments) {
-          if (!toBoolean(applyFormula(entry.formula, ctx))) {
-            return false
-          }
+        if (ctx.reportFormulaEvaluation) {
+          return report(applyEvaluateAllAndFormula(formula, ctx))
         }
-        return true
-      }
-      case 'function': {
-        const packageName = formula.package ?? ctx.package
-        const newFunc = (
-          ctx.toddle ??
-          ((globalThis as any).toddle as Toddle<unknown, unknown> | undefined)
-        )?.getCustomFormula(formula.name, packageName)
-        if (isDefined(newFunc)) {
-          ctx.package = packageName
-          const args = formula.arguments.reduce<Record<string, unknown>>(
-            (args, arg, i) => ({
-              ...args,
-              [arg.name ?? `${i}`]: arg.isFunction
-                ? (Args: any) =>
-                    applyFormula(arg.formula, {
-                      ...ctx,
-                      data: {
-                        ...ctx.data,
-                        Args: ctx.data.Args
-                          ? { ...Args, '@toddle.parent': ctx.data.Args }
-                          : Args,
-                      },
-                    })
-                : applyFormula(arg.formula, ctx),
-            }),
-            {},
-          )
-          try {
-            if (isToddleFormula(newFunc)) {
-              return applyFormula(newFunc.formula, {
-                ...ctx,
-                data: { ...ctx.data, Args: args },
-              })
-            } else {
-              return newFunc.handler(args, {
-                root: ctx.root ?? document,
-                env: ctx.env,
-              } as any)
-            }
-          } catch (e) {
-            ctx.toddle.errors.push(e as Error)
-            if (ctx.env?.logErrors) {
-              console.error(e)
-            }
-            return null
-          }
-        } else {
-          // Lookup legacy formula
-          const legacyFunc: FormulaHandler | undefined = (
-            ctx.toddle ??
-            ((globalThis as any).toddle as Toddle<unknown, unknown>)
-          ).getFormula(formula.name)
-          if (typeof legacyFunc === 'function') {
-            const args = (formula.arguments ?? []).map((arg) =>
-              arg.isFunction
-                ? (Args: any) =>
-                    applyFormula(arg.formula, {
-                      ...ctx,
-                      data: {
-                        ...ctx.data,
-                        Args: ctx.data.Args
-                          ? { ...Args, '@toddle.parent': ctx.data.Args }
-                          : Args,
-                      },
-                    })
-                : applyFormula(arg.formula, ctx),
-            )
-            try {
-              return legacyFunc(args, ctx as any)
-            } catch (e) {
-              ctx.toddle.errors.push(e as Error)
-              if (ctx.env?.logErrors) {
-                console.error(e)
-              }
-              return null
-            }
-          }
-        }
-        if (ctx.env?.logErrors) {
-          console.error(
-            `Could not find formula ${formula.name} in package ${
-              packageName ?? ''
-            }`,
-            formula,
-          )
-        }
-        return null
+        return applyAndFormula(formula, ctx)
       }
       case 'object':
-        return Object.fromEntries(
-          formula.arguments?.map((entry) => [
-            entry.name,
-            applyFormula(entry.formula, ctx),
-          ]) ?? [],
-        )
+        return report(applyObjectFormula(formula, ctx))
       case 'record': // object used to be called record, there are still examples in the wild.
-        return Object.fromEntries(
-          formula.entries.map((entry) => [
-            entry.name,
-            applyFormula(entry.formula, ctx),
-          ]),
-        )
+        return report(applyRecordFormula(formula, ctx))
       case 'array':
-        return formula.arguments.map((entry) =>
-          applyFormula(entry.formula, ctx),
-        )
-      case 'apply': {
-        const componentFormula = ctx.component?.formulas?.[formula.name]
-        if (!componentFormula) {
-          if (ctx.env?.logErrors) {
-            console.log(
-              'Component does not have a formula with the name ',
-              formula.name,
-            )
-          }
-          return null
-        }
-        const Input = Object.fromEntries(
-          formula.arguments.map((arg) =>
-            arg.isFunction
-              ? [
-                  arg.name,
-                  (Args: any) =>
-                    applyFormula(arg.formula, {
-                      ...ctx,
-                      data: {
-                        ...ctx.data,
-                        Args: ctx.data.Args
-                          ? { ...Args, '@toddle.parent': ctx.data.Args }
-                          : Args,
-                      },
-                    }),
-                ]
-              : [arg.name, applyFormula(arg.formula, ctx)],
-          ),
-        )
-        const data = {
-          ...ctx.data,
-          Args: ctx.data.Args
-            ? { ...Input, '@toddle.parent': ctx.data.Args }
-            : Input,
-        }
-        const cache = ctx.formulaCache?.[formula.name]?.get(data)
-
-        if (cache?.hit) {
-          return cache.data
-        } else {
-          const result = applyFormula(componentFormula.formula, {
-            ...ctx,
-            data,
-          })
-          ctx.formulaCache?.[formula.name]?.set(data, result)
-          return result
-        }
+        return report(applyArrayFormula(formula, ctx))
+      case 'function': {
+        return report(applyFunctionFormula(formula, ctx))
       }
-
+      case 'apply': {
+        return report(applyApplyFormula(formula, ctx))
+      }
       default:
         if (ctx.env?.logErrors) {
           console.error('Could not recognize formula', formula)
@@ -388,6 +259,7 @@ export function applyFormula(
     if (ctx.env?.logErrors) {
       console.error(e)
     }
-    return null
+    return report(null)
   }
+  return report(undefined)
 }

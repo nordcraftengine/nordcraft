@@ -4,6 +4,7 @@ import type {
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
+import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Toddle } from '@nordcraft/core/dist/types'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
@@ -45,6 +46,8 @@ interface RenderComponentProps {
   toddle: Toddle<LocationSignal, PreviewShowSignal>
   namespace?: SupportedNamespaces
   env: ToddleEnv
+  jsonPath: Array<string | number> | undefined
+  reportFormulaEvaluation?: FormulaEvaluationReporter
 }
 
 const BATCH_QUEUE = new BatchQueue()
@@ -68,6 +71,8 @@ export function renderComponent({
   toddle,
   namespace,
   env,
+  jsonPath,
+  reportFormulaEvaluation,
 }: RenderComponentProps): ReadonlyArray<Element | Text> {
   const ctx: ComponentContext = {
     triggerEvent: onEvent,
@@ -84,13 +89,15 @@ export function renderComponent({
     package: packageName,
     toddle,
     env,
+    jsonPath,
+    reportFormulaEvaluation,
   }
 
   const rootElem = createNode({
     id: 'root',
     path,
     dataSignal,
-    ctx,
+    ctx: { ...ctx, jsonPath: ['nodes', 'root'] },
     parentElement,
     namespace,
     instance,

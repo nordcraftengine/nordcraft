@@ -182,6 +182,7 @@ export type EditorPostMessageType =
       }
     }
   | { type: 'data'; data: ComponentData }
+  | { type: 'componentFormulaData'; data: Record<string, any> }
   | {
       type: 'selectionRect'
       rect: ReturnType<typeof getRectData>

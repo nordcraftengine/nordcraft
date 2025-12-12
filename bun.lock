@@ -38,6 +38,9 @@
     },
     "packages/core": {
       "name": "@nordcraft/core",
+      "devDependencies": {
+        "@nordcraft/std-lib": "workspace:*",
+      },
     },
     "packages/editor": {
       "name": "@nordcraft/editor",
