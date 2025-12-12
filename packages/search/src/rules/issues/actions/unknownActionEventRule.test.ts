@@ -215,16 +215,20 @@ describe('fix unknownActionEventRule', () => {
     })
 
     expect(
-      (fixedProject.components['test']?.onLoad?.actions[0] as CustomActionModel)
-        .events,
+      (
+        fixedProject.components['test']?.onLoad
+          ?.actions?.[0] as CustomActionModel
+      ).events,
     ).toEqual({
       success: {
         actions: [],
       },
     })
     expect(
-      (fixedProject.components['test']?.onLoad?.actions[1] as CustomActionModel)
-        .events,
+      (
+        fixedProject.components['test']?.onLoad
+          ?.actions?.[1] as CustomActionModel
+      ).events,
     ).toEqual({
       success: {
         actions: [],

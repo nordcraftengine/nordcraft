@@ -1456,7 +1456,7 @@ export const createRoot = (
           parentElement: domNode,
           instance: { [newCtx.component.name]: 'root' },
         })
-        newCtx.component.onLoad?.actions.forEach((action) => {
+        newCtx.component.onLoad?.actions?.forEach((action) => {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           handleAction(action, dataSignal.get(), newCtx)
         })

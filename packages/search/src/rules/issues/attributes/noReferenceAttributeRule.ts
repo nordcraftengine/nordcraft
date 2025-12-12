@@ -10,7 +10,7 @@ export const noReferenceAttributeRule: Rule<void> = {
       args.nodeType !== 'component-attribute' ||
       // Don't report unused attributes if the component has onAttributeChange actions.
       // The attribute might be used to trigger some logic there.
-      (args.component.onAttributeChange?.actions.length ?? 0) > 0
+      (args.component.onAttributeChange?.actions?.length ?? 0) > 0
     ) {
       return
     }

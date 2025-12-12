@@ -310,7 +310,7 @@ const getEventHandler =
     ctx: ComponentContext
   }) =>
   (e: Event) => {
-    event?.actions.forEach((action) => {
+    event?.actions?.forEach((action) => {
       if (e instanceof DragEvent) {
         ;(e as any).data = getDragData(e)
       }

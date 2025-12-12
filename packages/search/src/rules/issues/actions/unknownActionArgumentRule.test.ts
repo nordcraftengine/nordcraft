@@ -217,8 +217,10 @@ describe('fix unknownActionArgumentRule', () => {
     })
 
     expect(
-      (fixedProject.components['test']?.onLoad?.actions[0] as CustomActionModel)
-        .arguments,
+      (
+        fixedProject.components['test']?.onLoad
+          ?.actions?.[0] as CustomActionModel
+      ).arguments,
     ).toEqual([
       {
         formula: {
@@ -236,8 +238,10 @@ describe('fix unknownActionArgumentRule', () => {
       },
     ])
     expect(
-      (fixedProject.components['test']?.onLoad?.actions[1] as CustomActionModel)
-        .arguments,
+      (
+        fixedProject.components['test']?.onLoad
+          ?.actions?.[1] as CustomActionModel
+      ).arguments,
     ).toEqual([
       {
         formula: {

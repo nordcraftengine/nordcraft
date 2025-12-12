@@ -272,7 +272,7 @@ export enum HeadTagTypes {
 
 export interface EventModel {
   trigger: string
-  actions: ActionModel[]
+  actions?: ActionModel[] | null
 }
 
 export interface CustomActionArgument {

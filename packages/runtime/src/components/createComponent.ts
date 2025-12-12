@@ -198,7 +198,7 @@ export function createComponent({
             (e) => e.trigger === eventTrigger,
           )
           if (eventHandler) {
-            eventHandler.actions.forEach((action) =>
+            eventHandler.actions?.forEach((action) =>
               handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
             )
           }
@@ -221,7 +221,7 @@ export function createComponent({
               (e) => e.trigger === eventTrigger,
             )
             if (eventHandler) {
-              eventHandler.actions.forEach((action) =>
+              eventHandler.actions?.forEach((action) =>
                 handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
               )
             }
@@ -242,7 +242,7 @@ export function createComponent({
       (e) => e.trigger === eventTrigger,
     )
     if (eventHandler) {
-      eventHandler.actions.forEach((action) =>
+      eventHandler.actions?.forEach((action) =>
         handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
       )
     }
