@@ -602,7 +602,6 @@ export const createRoot = (
             // We only allow dblclick --> navigation if we're not in test mode
             mode === 'design'
           ) {
-            console.log('Double click on', id, message.data)
             // Figure out if the clicked element is a component
             const root = component.nodes.root
             if (root) {
