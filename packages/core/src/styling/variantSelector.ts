@@ -42,7 +42,7 @@ export interface StyleVariant {
   'popover-open'?: boolean
   active?: boolean
   autofill?: boolean
-  breakpoint: 'small' | 'medium' | 'large'
+  breakpoint?: 'small' | 'medium' | 'large'
   checked?: boolean
   class?: string
   className?: string

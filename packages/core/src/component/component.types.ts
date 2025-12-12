@@ -45,7 +45,7 @@ export interface AnimationKeyframe {
   easing?: never
 }
 
-export type NodeStyleModel = Record<string, string>
+export type NodeStyleModel = Record<string, string | number>
 
 export interface TextNodeModel {
   id?: string | null
