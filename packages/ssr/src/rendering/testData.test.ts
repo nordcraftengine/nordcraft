@@ -96,6 +96,72 @@ describe('removeTestData', () => {
       },
     ] as any)
   })
+  test.only('it removes testValue from nested formula arguments', () => {
+    expect(
+      removeTestData({
+        name: 'test',
+        variables: {},
+        apis: {},
+        nodes: {},
+        attributes: {},
+        formulas: {
+          formula2: {
+            name: 'Formula2',
+            formula: {
+              type: 'apply',
+              name: 'GaQKQo',
+              arguments: [
+                {
+                  name: 'Input',
+                  testValue: 'My test value',
+                  formula: { type: 'path', path: ['Args', 'Input'] },
+                },
+              ],
+            },
+            arguments: [{ name: 'Input', testValue: 'Input for formula2' }],
+            memoize: false,
+            exposeInContext: false,
+          },
+        },
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "apis": {},
+        "attributes": {},
+        "formulas": {
+          "formula2": {
+            "arguments": [
+              {
+                "name": "Input",
+              },
+            ],
+            "exposeInContext": false,
+            "formula": {
+              "arguments": [
+                {
+                  "formula": {
+                    "path": [
+                      "Args",
+                      "Input",
+                    ],
+                    "type": "path",
+                  },
+                  "name": "Input",
+                },
+              ],
+              "name": "GaQKQo",
+              "type": "apply",
+            },
+            "memoize": false,
+            "name": "Formula2",
+          },
+        },
+        "name": "test",
+        "nodes": {},
+        "variables": {},
+      }
+    `)
+  })
   test('it removes testValue from workflow parameters', () => {
     expect(
       removeTestData({
