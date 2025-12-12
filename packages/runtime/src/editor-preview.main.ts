@@ -925,7 +925,7 @@ export const createRoot = (
               if (
                 !resources ||
                 resources.length === 0 ||
-                resources.every((res) => res.href !== el.getAttribute('href'))
+                !resources.some((res) => res.href === el.getAttribute('href'))
               ) {
                 el.remove()
               }
