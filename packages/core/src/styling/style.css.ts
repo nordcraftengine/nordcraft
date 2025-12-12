@@ -325,6 +325,8 @@ export const getAllFonts = (components: Component[]) => {
           return []
         })
       })
-      .map((f) => f.replace('var(', '').replace(')', '').replace(/'/g, '')),
+      .map((f) =>
+        String(f).replace('var(', '').replace(')', '').replace(/'/g, ''),
+      ),
   )
 }
