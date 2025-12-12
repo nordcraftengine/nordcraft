@@ -96,7 +96,7 @@ describe('removeTestData', () => {
       },
     ] as any)
   })
-  test.only('it removes testValue from nested formula arguments', () => {
+  test('it removes testValue from nested formula arguments', () => {
     expect(
       removeTestData({
         name: 'test',
