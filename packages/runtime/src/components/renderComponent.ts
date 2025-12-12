@@ -105,7 +105,7 @@ export function renderComponent({
         .map((data) => data.Attributes)
         .subscribe((props) => {
           if (prev) {
-            component.onAttributeChange?.actions.forEach((action) => {
+            component.onAttributeChange?.actions?.forEach((action) => {
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
               handleAction(
                 action,
@@ -137,7 +137,7 @@ export function renderComponent({
           prev = props
         })
     }
-    component.onLoad?.actions.forEach((action) => {
+    component.onLoad?.actions?.forEach((action) => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       handleAction(action, dataSignal.get(), ctx)
     })

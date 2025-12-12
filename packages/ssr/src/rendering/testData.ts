@@ -31,7 +31,7 @@ export const removeTestData = (component: Component): Component => ({
           eventValue
             ? {
                 ...eventValue,
-                actions: eventValue.actions.map(removeActionTestData),
+                actions: eventValue.actions?.map(removeActionTestData),
               }
             : null,
         ]),
@@ -61,6 +61,7 @@ export const removeTestData = (component: Component): Component => ({
             arguments: (value.arguments ?? []).map((a) =>
               omitKeys(a, ['testValue']),
             ),
+            formula: removeFormulaTestData(value.formula),
           },
         ]),
       }
@@ -94,7 +95,7 @@ export const removeTestData = (component: Component): Component => ({
     ? {
         onLoad: {
           ...component.onLoad,
-          actions: component.onLoad.actions.map(removeActionTestData),
+          actions: component.onLoad.actions?.map(removeActionTestData),
         },
       }
     : undefined),
@@ -103,7 +104,7 @@ export const removeTestData = (component: Component): Component => ({
         onAttributeChange: {
           ...component.onAttributeChange,
           actions:
-            component.onAttributeChange.actions.map(removeActionTestData),
+            component.onAttributeChange.actions?.map(removeActionTestData),
         },
       }
     : undefined),
@@ -160,7 +161,7 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
             ])
           : action.inputs,
         onSuccess: {
-          ...action,
+          ...action.onSuccess,
           actions: action.onSuccess.actions.map(removeActionTestData),
         },
         onError: {
