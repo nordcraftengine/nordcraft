@@ -16,7 +16,7 @@
     }
   ],
   "output": {
-    "description": "Returns an Array of entries for the given input record. The entries are Objects with a “Key” and “Value” property.",
+    "description": "Returns an Array of entries for the given input record. The entries are Objects with a “key” and “value” property.",
     "type": {
       "type": "Array"
     }
