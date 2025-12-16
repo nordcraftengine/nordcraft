@@ -940,7 +940,7 @@
         "name": "target",
         "description": "The target property of the HTMLAnchorElement interface is a string that indicates where to display the linked resource.",
         "url": "/en-US/docs/Web/API/HTMLAnchorElement/target",
-        "options": ["_self", "_blank", "_parent", "_top", "_unfencedTop"]
+        "options": ["_self", "_blank", "_parent", "_top"]
       },
       {
         "name": "referrerpolicy",
@@ -1464,6 +1464,16 @@
     ],
     "events": [
       {
+        "name": "blur",
+        "description": "The blur event fires when an element has lost focus. The event does not bubble, but the related focusout event that follows does bubble.",
+        "url": "/en-US/docs/Web/API/Element/blur_event"
+      },
+      {
+        "name": "focus",
+        "description": "The focus event fires when an element has received focus. The event does not bubble, but the related focusin event that follows does bubble.",
+        "url": "/en-US/docs/Web/API/Element/focus_event"
+      },
+      {
         "name": "drag",
         "description": "The drag event is fired every few hundred milliseconds as an element or text selection is being dragged by the user.",
         "url": "/en-US/docs/Web/API/HTMLElement/drag_event"
@@ -1477,6 +1487,11 @@
         "name": "pointerdown",
         "description": "The pointerdown event is fired when a pointer becomes active. For mouse, it is fired when the device transitions from no buttons pressed to at least one button pressed. For touch, it is fired when physical contact is made with the digitizer. For pen, it is fired when the stylus makes physical contact with the digitizer.",
         "url": "/en-US/docs/Web/API/Element/pointerdown_event"
+      },
+      {
+        "name": "load",
+        "description": "The load event fires for elements containing a resource when the resource has successfully loaded. Currently, the list of supported HTML elements are: <body>, <embed>, <iframe>, <img>, <link>, <object>, <script>, <style>, and <track>.",
+        "url": "/en-US/docs/Web/API/HTMLElement/load_event"
       },
       {
         "name": "drop",
@@ -1512,6 +1527,11 @@
         "name": "pointermove",
         "description": "The pointermove event is fired when a pointer changes coordinates, and the pointer has not been canceled by a browser touch-action. It's very similar to the mousemove event, but with more features.",
         "url": "/en-US/docs/Web/API/Element/pointermove_event"
+      },
+      {
+        "name": "error",
+        "description": "The error event is fired on an element when a resource failed to load, or can't be used. For example, if a script has an execution error or an image can't be found or is invalid.",
+        "url": "/en-US/docs/Web/API/HTMLElement/error_event"
       },
       {
         "name": "dragenter",
@@ -1614,6 +1634,11 @@
         "url": "/en-US/docs/Web/API/Element/gotpointercapture_event"
       },
       {
+        "name": "securitypolicyviolation",
+        "description": "The securitypolicyviolation event is fired when a Content Security Policy is violated.",
+        "url": "/en-US/docs/Web/API/Element/securitypolicyviolation_event"
+      },
+      {
         "name": "transitioncancel",
         "description": "The transitioncancel event is fired when a CSS transition is canceled.",
         "url": "/en-US/docs/Web/API/Element/transitioncancel_event"
@@ -1627,9 +1652,6 @@
         "name": "beforexrselect",
         "description": "The beforexrselect event is fired before WebXR select events (select, selectstart, selectend) are dispatched. It can be used to suppress XR world input events while the user is interacting with a DOM overlay UI.",
         "url": "/en-US/docs/Web/API/Element/beforexrselect_event"
-      },
-      {
-        "name": "clipboardchange"
       },
       {
         "name": "fencedtreeclick"
@@ -1831,7 +1853,7 @@
         "name": "target",
         "description": "The target property of the HTMLFormElement interface represents the target of the form's action (i.e., the frame in which to render its output).",
         "url": "/en-US/docs/Web/API/HTMLFormElement/target",
-        "options": ["_self", "_blank", "_parent", "_top", "_unfencedTop"]
+        "options": ["_self", "_blank", "_parent", "_top"]
       },
       {
         "name": "method",
@@ -4197,9 +4219,6 @@
         "name": "beforexrselect"
       },
       {
-        "name": "clipboardchange"
-      },
-      {
         "name": "copy"
       },
       {
@@ -4264,6 +4283,9 @@
       },
       {
         "name": "pointerup"
+      },
+      {
+        "name": "securitypolicyviolation"
       },
       {
         "name": "selectionchange"
@@ -5692,6 +5714,11 @@
         "url": "/en-US/docs/Web/API/Element/gotpointercapture_event"
       },
       {
+        "name": "securitypolicyviolation",
+        "description": "The securitypolicyviolation event is fired when a Content Security Policy is violated.",
+        "url": "/en-US/docs/Web/API/Element/securitypolicyviolation_event"
+      },
+      {
         "name": "transitioncancel",
         "description": "The transitioncancel event is fired when a CSS transition is canceled.",
         "url": "/en-US/docs/Web/API/Element/transitioncancel_event"
@@ -5700,9 +5727,6 @@
         "name": "beforexrselect",
         "description": "The beforexrselect event is fired before WebXR select events (select, selectstart, selectend) are dispatched. It can be used to suppress XR world input events while the user is interacting with a DOM overlay UI.",
         "url": "/en-US/docs/Web/API/Element/beforexrselect_event"
-      },
-      {
-        "name": "clipboardchange"
       },
       {
         "name": "drag"
@@ -7365,6 +7389,9 @@
         "name": "abort"
       },
       {
+        "name": "clipboardchange"
+      },
+      {
         "name": "pointerenter"
       },
       {
@@ -7372,9 +7399,6 @@
       },
       {
         "name": "portalactivate"
-      },
-      {
-        "name": "securitypolicyviolation"
       },
       {
         "name": "selectionchange"
