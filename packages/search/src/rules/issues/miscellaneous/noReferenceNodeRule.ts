@@ -18,7 +18,9 @@ export const noReferenceNodeRule: Rule<{ node: string }> = {
       `node-references-${component.name}`,
       () =>
         new Set(
-          Object.values(component.nodes).flatMap((node) => node.children ?? []),
+          Object.values(component.nodes ?? {}).flatMap(
+            (node) => node.children ?? [],
+          ),
         ),
     )
 

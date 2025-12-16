@@ -312,7 +312,7 @@ export const getAllFonts = (components: Component[]) => {
   return new Set(
     components
       .flatMap((component) => {
-        return Object.values(component.nodes).flatMap((node) => {
+        return Object.values(component.nodes ?? {}).flatMap((node) => {
           if (node.type === 'element') {
             return [
               node.style?.fontFamily,

@@ -34,7 +34,7 @@ export const elementWithoutInteractiveContentRule: Rule<{
       results: Array<InteractiveContent> = [],
     ): Array<InteractiveContent> => {
       return children.reduce((acc, childId) => {
-        const child = container.nodes[childId]
+        const child = container.nodes?.[childId]
         if (!isDefined(child) || child.type === 'text') {
           return acc
         }
@@ -58,7 +58,7 @@ export const elementWithoutInteractiveContentRule: Rule<{
           allResults.push(
             ...searchChildren(
               component,
-              component.nodes['root']?.children ?? [],
+              component.nodes?.['root']?.children ?? [],
               acc,
             ),
           )

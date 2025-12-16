@@ -93,7 +93,7 @@ export class ToddleComponent extends HTMLElement {
   }
 
   connectedCallback() {
-    sortApiObjects(Object.entries(this.#component.apis)).forEach(
+    sortApiObjects(Object.entries(this.#component.apis ?? {})).forEach(
       ([name, api]) => {
         if (isLegacyApi(api)) {
           this.#ctx.apis[name] = createLegacyAPI(api, this.#ctx)
@@ -288,30 +288,33 @@ export const createSignal = ({
   return signal<ComponentData>({
     // Pages are not supported as custom elements, so no need to add location signal
     Location: undefined,
-    Variables: mapObject(component.variables, ([name, { initialValue }]) => {
-      if (!component) {
-        throw new Error(`Component not found`)
-      }
-      return [
-        name,
-        applyFormula(initialValue, {
-          data: {
-            Attributes: {},
-          },
-          component: component,
-          root,
-          package: undefined,
-          toddle,
-          env,
-        }),
-      ]
-    }),
-    Attributes: mapObject(component.attributes, ([name]) => [
+    Variables: mapObject(
+      component.variables ?? {},
+      ([name, { initialValue }]) => {
+        if (!component) {
+          throw new Error(`Component not found`)
+        }
+        return [
+          name,
+          applyFormula(initialValue, {
+            data: {
+              Attributes: {},
+            },
+            component: component,
+            root,
+            package: undefined,
+            toddle,
+            env,
+          }),
+        ]
+      },
+    ),
+    Attributes: mapObject(component.attributes ?? {}, ([name]) => [
       name,
       // TODO: Perhaps we can get it from the DOM already and set initial attributes already?
       undefined,
     ]),
-    Apis: mapObject(component.apis, ([name]) => [
+    Apis: mapObject(component.apis ?? {}, ([name]) => [
       name,
       { data: null, isLoading: false, error: null },
     ]),

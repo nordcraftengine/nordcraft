@@ -196,7 +196,9 @@ describe('fix legacyActions', () => {
       fixType: 'replace-legacy-action',
     })
     const fixedAction = (
-      fixedProject.components['apiComponent']?.nodes['root'] as ElementNodeModel
+      fixedProject.components['apiComponent']?.nodes?.[
+        'root'
+      ] as ElementNodeModel
     ).events['click']?.actions?.[0]
     expect(fixedAction).toMatchInlineSnapshot(`
       {
@@ -320,7 +322,9 @@ describe('fix legacyActions', () => {
       fixType: 'replace-legacy-action',
     })
     const fixedAction = (
-      fixedProject.components['apiComponent']?.nodes['root'] as ElementNodeModel
+      fixedProject.components['apiComponent']?.nodes?.[
+        'root'
+      ] as ElementNodeModel
     ).events['click']?.actions?.[0]
     expect(fixedAction).toMatchInlineSnapshot(`
       {
@@ -377,7 +381,9 @@ describe('fix legacyActions', () => {
       fixType: 'replace-legacy-action',
     })
     const fixedAction = (
-      fixedProject.components['apiComponent']?.nodes['root'] as ElementNodeModel
+      fixedProject.components['apiComponent']?.nodes?.[
+        'root'
+      ] as ElementNodeModel
     ).events['click']?.actions?.[0]
     expect(fixedAction).toMatchInlineSnapshot(`
       {

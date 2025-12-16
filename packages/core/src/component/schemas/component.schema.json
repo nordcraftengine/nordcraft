@@ -1,0 +1,3171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/Component",
+  "definitions": {
+    "Component": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "enum": [
+            2,
+            null
+          ],
+          "description": "version 2 indicates that the component's name is no longer prefixed, but will be automatically prefixed by the project name",
+          "default": "undefined (version 1)",
+          "deprecated": "- we are no longer using version 2 components, but we are keeping this field for backwards compatibility"
+        },
+        "page": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "route": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PageRoute"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ComponentAttribute"
+          }
+        },
+        "variables": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ComponentVariable"
+          }
+        },
+        "formulas": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/ComponentFormula"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contexts": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/ComponentContext"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "workflows": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/ComponentWorkflow"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "apis": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ComponentAPI"
+          }
+        },
+        "nodes": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/NodeModel"
+          }
+        },
+        "events": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ComponentEvent"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "onLoad": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EventModel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "onAttributeChange": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EventModel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "exported": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "customElement": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "$ref": "#/definitions/Formula"
+            }
+          }
+        }
+      },
+      "required": [
+        "name",
+        "attributes",
+        "variables",
+        "apis",
+        "nodes"
+      ]
+    },
+    "PageRoute": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/StaticPathSegment"
+              },
+              {
+                "$ref": "#/definitions/DynamicPathSegment"
+              }
+            ]
+          }
+        },
+        "query": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "testValue": {}
+            },
+            "required": [
+              "name",
+              "testValue"
+            ]
+          }
+        },
+        "info": {
+          "type": "object",
+          "properties": {
+            "language": {
+              "type": "object",
+              "properties": {
+                "formula": {
+                  "$ref": "#/definitions/Formula"
+                }
+              },
+              "required": [
+                "formula"
+              ]
+            },
+            "title": {
+              "type": "object",
+              "properties": {
+                "formula": {
+                  "$ref": "#/definitions/Formula"
+                }
+              },
+              "required": [
+                "formula"
+              ]
+            },
+            "description": {
+              "type": "object",
+              "properties": {
+                "formula": {
+                  "$ref": "#/definitions/Formula"
+                }
+              },
+              "required": [
+                "formula"
+              ]
+            },
+            "icon": {
+              "type": "object",
+              "properties": {
+                "formula": {
+                  "$ref": "#/definitions/Formula"
+                }
+              },
+              "required": [
+                "formula"
+              ]
+            },
+            "charset": {
+              "type": "object",
+              "properties": {
+                "formula": {
+                  "$ref": "#/definitions/Formula"
+                }
+              },
+              "required": [
+                "formula"
+              ]
+            },
+            "meta": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/MetaEntry"
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "path",
+        "query"
+      ]
+    },
+    "StaticPathSegment": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "static"
+        },
+        "optional": {
+          "type": "boolean"
+        },
+        "testValue": {
+          "not": {}
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "name"
+      ]
+    },
+    "DynamicPathSegment": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "param"
+        },
+        "testValue": {
+          "type": "string"
+        },
+        "optional": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "testValue",
+        "name"
+      ]
+    },
+    "Formula": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/FunctionOperation"
+        },
+        {
+          "$ref": "#/definitions/RecordOperation"
+        },
+        {
+          "$ref": "#/definitions/ObjectOperation"
+        },
+        {
+          "$ref": "#/definitions/ArrayOperation"
+        },
+        {
+          "$ref": "#/definitions/PathOperation"
+        },
+        {
+          "$ref": "#/definitions/SwitchOperation"
+        },
+        {
+          "$ref": "#/definitions/OrOperation"
+        },
+        {
+          "$ref": "#/definitions/AndOperation"
+        },
+        {
+          "$ref": "#/definitions/ValueOperation"
+        },
+        {
+          "$ref": "#/definitions/ApplyOperation"
+        }
+      ]
+    },
+    "FunctionOperation": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "function"
+        },
+        "name": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "package": {
+          "type": "string"
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FunctionArgument"
+          }
+        },
+        "variableArguments": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "arguments"
+      ]
+    },
+    "FunctionArgument": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "isFunction": {
+          "type": "boolean"
+        },
+        "formula": {
+          "$ref": "#/definitions/Formula"
+        },
+        "type": {},
+        "testValue": {}
+      },
+      "required": [
+        "formula"
+      ]
+    },
+    "RecordOperation": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "record"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FunctionArgument"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "entries"
+      ]
+    },
+    "ObjectOperation": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "object"
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FunctionArgument"
+          }
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "ArrayOperation": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "array"
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "formula": {
+                "$ref": "#/definitions/Formula"
+              }
+            },
+            "required": [
+              "formula"
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "arguments"
+      ]
+    },
+    "PathOperation": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "path"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "path"
+      ]
+    },
+    "SwitchOperation": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "switch"
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "condition": {
+                "$ref": "#/definitions/Formula"
+              },
+              "formula": {
+                "$ref": "#/definitions/Formula"
+              }
+            },
+            "required": [
+              "condition",
+              "formula"
+            ]
+          }
+        },
+        "default": {
+          "$ref": "#/definitions/Formula"
+        }
+      },
+      "required": [
+        "type",
+        "cases",
+        "default"
+      ]
+    },
+    "OrOperation": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "or"
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "formula": {
+                "$ref": "#/definitions/Formula"
+              }
+            },
+            "required": [
+              "formula"
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "arguments"
+      ]
+    },
+    "AndOperation": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "and"
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "formula": {
+                "$ref": "#/definitions/Formula"
+              }
+            },
+            "required": [
+              "formula"
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "arguments"
+      ]
+    },
+    "ValueOperation": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "value"
+        },
+        "value": {
+          "$ref": "#/definitions/ValueOperationValue"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ]
+    },
+    "ValueOperationValue": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "ApplyOperation": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "apply"
+        },
+        "name": {
+          "type": "string"
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FunctionArgument"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "arguments"
+      ]
+    },
+    "MetaEntry": {
+      "type": "object",
+      "properties": {
+        "tag": {
+          "$ref": "#/definitions/HeadTagTypes"
+        },
+        "attrs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Formula"
+          }
+        },
+        "content": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "index": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "tag",
+        "attrs"
+      ]
+    },
+    "HeadTagTypes": {
+      "type": "string",
+      "enum": [
+        "meta",
+        "link",
+        "script",
+        "noscript",
+        "style"
+      ]
+    },
+    "ComponentAttribute": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "testValue": {}
+      },
+      "required": [
+        "name",
+        "testValue"
+      ]
+    },
+    "ComponentVariable": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "initialValue": {
+          "$ref": "#/definitions/Formula"
+        }
+      },
+      "required": [
+        "initialValue"
+      ]
+    },
+    "ComponentFormula": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "arguments": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "testValue": {}
+                },
+                "required": [
+                  "name",
+                  "testValue"
+                ]
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "memoize": {
+          "type": "boolean"
+        },
+        "exposeInContext": {
+          "type": "boolean"
+        },
+        "formula": {
+          "$ref": "#/definitions/Formula"
+        }
+      },
+      "required": [
+        "name",
+        "formula"
+      ]
+    },
+    "ComponentContext": {
+      "type": "object",
+      "properties": {
+        "formulas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "workflows": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "componentName": {
+          "type": "string"
+        },
+        "package": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "formulas",
+        "workflows"
+      ]
+    },
+    "ComponentWorkflow": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "testValue": {}
+            },
+            "required": [
+              "name",
+              "testValue"
+            ]
+          }
+        },
+        "callbacks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "testValue": {}
+            },
+            "required": [
+              "name",
+              "testValue"
+            ]
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionModel"
+          }
+        },
+        "exposeInContext": {
+          "type": "boolean"
+        },
+        "testValue": {}
+      },
+      "required": [
+        "name",
+        "parameters",
+        "actions"
+      ]
+    },
+    "ActionModel": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/VariableActionModel"
+        },
+        {
+          "$ref": "#/definitions/EventActionModel"
+        },
+        {
+          "$ref": "#/definitions/SwitchActionModel"
+        },
+        {
+          "$ref": "#/definitions/FetchActionModel"
+        },
+        {
+          "$ref": "#/definitions/CustomActionModel"
+        },
+        {
+          "$ref": "#/definitions/SetURLParameterAction"
+        },
+        {
+          "$ref": "#/definitions/SetMultiUrlParameterAction"
+        },
+        {
+          "$ref": "#/definitions/WorkflowActionModel"
+        },
+        {
+          "$ref": "#/definitions/WorkflowCallbackActionModel"
+        }
+      ]
+    },
+    "VariableActionModel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "SetVariable"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "data": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "variable",
+        "data"
+      ]
+    },
+    "EventActionModel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "TriggerEvent"
+        },
+        "event": {
+          "type": "string"
+        },
+        "data": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "event",
+        "data"
+      ]
+    },
+    "SwitchActionModel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "Switch"
+        },
+        "data": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/Formula"
+            }
+          ]
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "condition": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/Formula"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ActionModel"
+                }
+              }
+            },
+            "required": [
+              "condition",
+              "actions"
+            ]
+          }
+        },
+        "default": {
+          "$ref": "#/definitions/ActionModelActions"
+        }
+      },
+      "required": [
+        "type",
+        "cases",
+        "default"
+      ]
+    },
+    "ActionModelActions": {
+      "type": "object",
+      "properties": {
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionModel"
+          }
+        }
+      },
+      "required": [
+        "actions"
+      ]
+    },
+    "FetchActionModel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "Fetch"
+        },
+        "api": {
+          "type": "string"
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "formula": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/Formula"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "formula"
+            ]
+          }
+        },
+        "onSuccess": {
+          "$ref": "#/definitions/ActionModelActions"
+        },
+        "onError": {
+          "$ref": "#/definitions/ActionModelActions"
+        },
+        "onMessage": {
+          "$ref": "#/definitions/ActionModelActions"
+        }
+      },
+      "required": [
+        "type",
+        "api",
+        "onSuccess",
+        "onError"
+      ]
+    },
+    "CustomActionModel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "Custom"
+        },
+        "package": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "data": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/Formula"
+            }
+          ]
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CustomActionArgument"
+          }
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ActionModelActions"
+          }
+        },
+        "version": {
+          "type": "number",
+          "const": 2
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "CustomActionArgument": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "formula": {
+          "$ref": "#/definitions/Formula"
+        },
+        "type": {},
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "SetURLParameterAction": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "SetURLParameter"
+        },
+        "parameter": {
+          "type": "string"
+        },
+        "data": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "historyMode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "replace",
+            "push",
+            null
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "parameter",
+        "data"
+      ]
+    },
+    "SetMultiUrlParameterAction": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "SetURLParameters"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Formula"
+          }
+        },
+        "historyMode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "replace",
+            "push",
+            null
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "parameters"
+      ]
+    },
+    "WorkflowActionModel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "TriggerWorkflow"
+        },
+        "workflow": {
+          "type": "string"
+        },
+        "parameters": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "formula": {
+                    "$ref": "#/definitions/Formula"
+                  }
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "callbacks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "actions": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/ActionModel"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "contextProvider": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "workflow",
+        "parameters"
+      ]
+    },
+    "WorkflowCallbackActionModel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "TriggerWorkflowCallback"
+        },
+        "event": {
+          "type": "string"
+        },
+        "data": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "event",
+        "data"
+      ]
+    },
+    "ComponentAPI": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/LegacyComponentAPI"
+        },
+        {
+          "$ref": "#/definitions/ApiRequest"
+        }
+      ]
+    },
+    "LegacyComponentAPI": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "REST"
+        },
+        "autoFetch": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "url": {
+          "$ref": "#/definitions/Formula"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "formula": {
+                "$ref": "#/definitions/Formula"
+              }
+            },
+            "required": [
+              "formula"
+            ]
+          }
+        },
+        "proxy": {
+          "type": "boolean"
+        },
+        "queryParams": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "formula": {
+                "$ref": "#/definitions/Formula"
+              }
+            },
+            "required": [
+              "name",
+              "formula"
+            ]
+          }
+        },
+        "headers": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Formula"
+              }
+            },
+            {
+              "$ref": "#/definitions/Formula"
+            }
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "DELETE",
+            "PUT"
+          ]
+        },
+        "body": {
+          "$ref": "#/definitions/Formula"
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Bearer id_token",
+                "Bearer access_token"
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ]
+        },
+        "throttle": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "debounce": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "onCompleted": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EventModel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "onFailed": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EventModel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "onCompleted",
+        "onFailed"
+      ]
+    },
+    "EventModel": {
+      "type": "object",
+      "properties": {
+        "trigger": {
+          "type": "string"
+        },
+        "actions": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ActionModel"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "trigger"
+      ]
+    },
+    "ApiRequest": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "path": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "formula": {
+                    "$ref": "#/definitions/Formula"
+                  },
+                  "index": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "formula",
+                  "index"
+                ]
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "queryParams": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "formula": {
+                    "$ref": "#/definitions/Formula"
+                  },
+                  "enabled": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/Formula"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "formula"
+                ]
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hash": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "formula": {
+                  "$ref": "#/definitions/Formula"
+                }
+              },
+              "required": [
+                "formula"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "version": {
+          "type": "number",
+          "const": 2
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "http",
+            "ws"
+          ]
+        },
+        "autoFetch": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "headers": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "formula": {
+                    "$ref": "#/definitions/Formula"
+                  },
+                  "enabled": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/Formula"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "formula"
+                ]
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ApiMethod"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "body": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "formula": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/Formula"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "formula"
+            ]
+          }
+        },
+        "service": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "servicePath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "server": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "proxy": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "object",
+                          "properties": {
+                            "formula": {
+                              "$ref": "#/definitions/Formula"
+                            }
+                          },
+                          "required": [
+                            "formula"
+                          ]
+                        },
+                        "useTemplatesInBody": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "formula": {
+                                  "$ref": "#/definitions/Formula"
+                                }
+                              },
+                              "required": [
+                                "formula"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "enabled"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "ssr": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "formula": {
+                                  "$ref": "#/definitions/Formula"
+                                }
+                              },
+                              "required": [
+                                "formula"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "client": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "debounce": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "formula": {
+                          "$ref": "#/definitions/Formula"
+                        }
+                      },
+                      "required": [
+                        "formula"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "onCompleted": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/EventModel"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "onFailed": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/EventModel"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "onMessage": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/EventModel"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "parserMode": {
+                  "$ref": "#/definitions/ApiParserMode"
+                },
+                "credentials": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "include",
+                    "same-origin",
+                    "omit",
+                    null
+                  ]
+                }
+              },
+              "required": [
+                "parserMode"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "redirectRules": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "formula": {
+                    "$ref": "#/definitions/Formula"
+                  },
+                  "statusCode": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/RedirectStatusCode"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "index": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "formula",
+                  "index"
+                ]
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isError": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "formula": {
+                  "$ref": "#/definitions/Formula"
+                }
+              },
+              "required": [
+                "formula"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "timeout": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "formula": {
+                  "$ref": "#/definitions/Formula"
+                }
+              },
+              "required": [
+                "formula"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "version",
+        "name",
+        "type",
+        "inputs"
+      ]
+    },
+    "ApiMethod": {
+      "type": "string",
+      "enum": [
+        "GET",
+        "POST",
+        "DELETE",
+        "PUT",
+        "PATCH",
+        "HEAD",
+        "OPTIONS"
+      ]
+    },
+    "ApiParserMode": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "text",
+        "json",
+        "event-stream",
+        "json-stream",
+        "blob"
+      ]
+    },
+    "RedirectStatusCode": {
+      "type": "number",
+      "enum": [
+        300,
+        301,
+        302,
+        303,
+        304,
+        307,
+        308
+      ]
+    },
+    "NodeModel": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/TextNodeModel"
+        },
+        {
+          "$ref": "#/definitions/SlotNodeModel"
+        },
+        {
+          "$ref": "#/definitions/ComponentNodeModel"
+        },
+        {
+          "$ref": "#/definitions/ElementNodeModel"
+        }
+      ]
+    },
+    "TextNodeModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "const": "text"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "repeat": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repeatKey": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/Formula"
+        },
+        "children": {
+          "not": {}
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ]
+    },
+    "SlotNodeModel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "slot"
+        },
+        "slot": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "repeat": {
+          "type": "null"
+        },
+        "repeatKey": {
+          "type": "null"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "ComponentNodeModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "component"
+        },
+        "slot": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "package": {
+          "type": "string"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "repeat": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "repeatKey": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NodeStyleModel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "variants": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/StyleVariant"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "animations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/definitions/AnimationKeyframe"
+            }
+          }
+        },
+        "attrs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Formula"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/EventModel"
+          }
+        },
+        "customProperties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/CustomProperty"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "attrs",
+        "children",
+        "events"
+      ]
+    },
+    "NodeStyleModel": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "number"
+        ]
+      }
+    },
+    "StyleVariant": {
+      "type": "object",
+      "properties": {
+        "even-child": {
+          "type": "boolean"
+        },
+        "first-child": {
+          "type": "boolean"
+        },
+        "first-of-type": {
+          "type": "boolean"
+        },
+        "focus-visible": {
+          "type": "boolean"
+        },
+        "focus-within": {
+          "type": "boolean"
+        },
+        "last-child": {
+          "type": "boolean"
+        },
+        "last-of-type": {
+          "type": "boolean"
+        },
+        "nth-child(even)": {
+          "type": "boolean"
+        },
+        "popover-open": {
+          "type": "boolean"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "autofill": {
+          "type": "boolean"
+        },
+        "breakpoint": {
+          "type": "string",
+          "enum": [
+            "small",
+            "medium",
+            "large"
+          ]
+        },
+        "checked": {
+          "type": "boolean"
+        },
+        "class": {
+          "type": "string"
+        },
+        "className": {
+          "type": "string"
+        },
+        "customProperties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/CustomProperty"
+          }
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "empty": {
+          "type": "boolean"
+        },
+        "evenChild": {
+          "type": "boolean"
+        },
+        "firstChild": {
+          "type": "boolean"
+        },
+        "focus": {
+          "type": "boolean"
+        },
+        "focusWithin": {
+          "type": "boolean"
+        },
+        "hover": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "invalid": {
+          "type": "boolean"
+        },
+        "lastChild": {
+          "type": "boolean"
+        },
+        "link": {
+          "type": "boolean"
+        },
+        "mediaQuery": {
+          "type": "object",
+          "properties": {
+            "min-width": {
+              "type": "string"
+            },
+            "max-width": {
+              "type": "string"
+            },
+            "min-height": {
+              "type": "string"
+            },
+            "max-height": {
+              "type": "string"
+            }
+          }
+        },
+        "pseudoElement": {
+          "type": "string"
+        },
+        "startingStyle": {
+          "type": "boolean"
+        },
+        "style": {
+          "$ref": "#/definitions/NodeStyleModel"
+        },
+        "visited": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "style"
+      ]
+    },
+    "CustomProperty": {
+      "type": "object",
+      "properties": {
+        "formula": {
+          "$ref": "#/definitions/Formula"
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "formula"
+      ]
+    },
+    "AnimationKeyframe": {
+      "type": "object",
+      "properties": {
+        "position": {
+          "type": "number"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "position",
+        "key",
+        "value"
+      ]
+    },
+    "ElementNodeModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "const": "element"
+        },
+        "slot": {
+          "type": "string"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "repeat": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "repeatKey": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Formula"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tag": {
+          "type": "string"
+        },
+        "attrs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Formula"
+          }
+        },
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NodeStyleModel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "variants": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/StyleVariant"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "animations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/definitions/AnimationKeyframe"
+            }
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/EventModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "classes": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "formula": {
+                    "$ref": "#/definitions/Formula"
+                  }
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "style-variables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StyleVariable"
+          }
+        },
+        "customProperties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/CustomProperty"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "tag",
+        "attrs",
+        "children",
+        "events"
+      ]
+    },
+    "StyleVariable": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "$ref": "#/definitions/StyleTokenCategory"
+        },
+        "name": {
+          "type": "string"
+        },
+        "formula": {
+          "$ref": "#/definitions/Formula"
+        },
+        "unit": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "category",
+        "name",
+        "formula"
+      ],
+      "deprecated": "- use CustomProperties instead"
+    },
+    "StyleTokenCategory": {
+      "type": "string",
+      "enum": [
+        "spacing",
+        "color",
+        "font-size",
+        "font-weight",
+        "z-index",
+        "border-radius",
+        "shadow"
+      ]
+    },
+    "ComponentEvent": {
+      "type": "object",
+      "properties": {
+        "@nordcraft/metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "text"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "dummyEvent": {}
+      },
+      "required": [
+        "name",
+        "dummyEvent"
+      ]
+    }
+  }
+}

@@ -69,11 +69,11 @@ export class ToddleComponent<Handler> {
           globalFormulas: this.globalFormulas,
         }),
       )
-      Object.values(component.nodes).forEach(
+      Object.values(component.nodes ?? {}).forEach(
         visitNode(node.package ?? packageName),
       )
     }
-    Object.values(this.nodes).forEach(visitNode())
+    Object.values(this.nodes ?? {}).forEach(visitNode())
     return [...components.values()]
   }
 

@@ -168,8 +168,8 @@ export interface Component {
   // @deprecated - use route->path instead
   page?: string | null // page url /projects/:id - only for pages
   route?: PageRoute | null
-  attributes: Record<string, ComponentAttribute>
-  variables: Record<string, ComponentVariable>
+  attributes?: Record<string, ComponentAttribute> | null
+  variables?: Record<string, ComponentVariable> | null
   formulas?: Record<string, ComponentFormula> | null
   contexts?: Record<
     // `componentName` or `packageName/componentName` if the context comes from a different package than the component itself
@@ -177,8 +177,8 @@ export interface Component {
     ComponentContext
   > | null
   workflows?: Record<string, ComponentWorkflow> | null
-  apis: Record<string, ComponentAPI>
-  nodes: Record<string, NodeModel>
+  apis?: Record<string, ComponentAPI> | null
+  nodes?: Record<string, NodeModel> | null
   events?: ComponentEvent[] | null
   onLoad?: EventModel | null
   onAttributeChange?: EventModel | null

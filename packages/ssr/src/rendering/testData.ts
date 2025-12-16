@@ -11,7 +11,7 @@ import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 export const removeTestData = (component: Component): Component => ({
   ...component,
-  attributes: mapObject(component.attributes, ([key, value]) => [
+  attributes: mapObject(component.attributes ?? {}, ([key, value]) => [
     key,
     omitKeys(value, ['testValue']),
   ]),
@@ -22,7 +22,7 @@ export const removeTestData = (component: Component): Component => ({
         ),
       }
     : undefined),
-  nodes: mapObject(component.nodes, ([key, value]) => {
+  nodes: mapObject(component.nodes ?? {}, ([key, value]) => {
     if (value.type === 'element') {
       const updatedNode: NodeModel = {
         ...value,
@@ -75,8 +75,7 @@ export const removeTestData = (component: Component): Component => ({
             // We should find all actions (also nested actions and non-workflow actions) and remove
             // the description from them. This is a start though
             actions: value.actions.map(removeActionTestData),
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            parameters: (value.parameters || []).map((p) =>
+            parameters: (value.parameters ?? []).map((p) =>
               omitKeys(p, ['testValue']),
             ),
             callbacks: value.callbacks?.map((c) => omitKeys(c, ['testValue'])),

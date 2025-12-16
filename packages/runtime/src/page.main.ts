@@ -162,7 +162,7 @@ export const createRoot = (domNode: HTMLElement) => {
     ...window.toddle.pageState,
     // Re-initialize variables since some of them might rely on client-side
     // state (e.g. localStorage, sensors etc.)
-    Variables: mapObject(component.variables, ([name, variable]) => [
+    Variables: mapObject(component.variables ?? {}, ([name, variable]) => [
       name,
       applyFormula(variable.initialValue, {
         data: window.toddle.pageState,
@@ -213,17 +213,19 @@ export const createRoot = (domNode: HTMLElement) => {
   }
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
-  sortApiObjects(Object.entries(component.apis)).forEach(([name, api]) => {
-    if (isLegacyApi(api)) {
-      ctx.apis[name] = createLegacyAPI(api, ctx)
-    } else {
-      ctx.apis[name] = createAPI({
-        apiRequest: api,
-        ctx,
-        componentData: dataSignal.get(),
-      })
-    }
-  })
+  sortApiObjects(Object.entries(component.apis ?? {})).forEach(
+    ([name, api]) => {
+      if (isLegacyApi(api)) {
+        ctx.apis[name] = createLegacyAPI(api, ctx)
+      } else {
+        ctx.apis[name] = createAPI({
+          apiRequest: api,
+          ctx,
+          componentData: dataSignal.get(),
+        })
+      }
+    },
+  )
   // Trigger actions for all APIs after all of them are created.
   Object.values(ctx.apis)
     .filter(isContextApiV2)

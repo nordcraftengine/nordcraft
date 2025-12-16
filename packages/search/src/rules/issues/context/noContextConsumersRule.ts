@@ -24,11 +24,13 @@ export const noContextConsumersRule: Rule<{
     if (!exposesFormulas && !exposesWorkflows) {
       return
     }
-    const hasSlots = Object.values(value.nodes).some((n) => n.type === 'slot')
+    const hasSlots = Object.values(value.nodes ?? {}).some(
+      (n) => n.type === 'slot',
+    )
     if (hasSlots) {
       return
     }
-    const hasComponents = Object.values(value.nodes).some(
+    const hasComponents = Object.values(value.nodes ?? {}).some(
       (n) => n.type === 'component',
     )
     if (hasComponents) {
