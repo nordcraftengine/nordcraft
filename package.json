@@ -5,6 +5,9 @@
   "version": "1.0.75",
   "homepage": "https://github.com/nordcraftengine/nordcraft",
   "private": "false",
+  "trustedDependencies": [
+    "@nordcraft/core"
+  ],
   "workspaces": [
     "packages/*"
   ],
