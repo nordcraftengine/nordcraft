@@ -63,7 +63,7 @@ function takeComponentsIncludedInProject(
       dependencies.set(nodeName, { ...component, name: nodeName })
     }
 
-    Object.values(component.nodes).forEach((node) =>
+    Object.values(component.nodes ?? {}).forEach((node) =>
       visitNode(
         node,
         (node.type === 'component' ? node.package : undefined) ?? packageName,
@@ -71,7 +71,7 @@ function takeComponentsIncludedInProject(
     )
   }
 
-  Object.values(parent.nodes).forEach((node) =>
+  Object.values(parent.nodes ?? {}).forEach((node) =>
     visitNode(node, node.type === 'component' ? node.package : undefined),
   )
 

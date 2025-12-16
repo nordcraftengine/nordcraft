@@ -155,7 +155,7 @@ const renderComponent = async ({
               renderNode({
                 id: child,
                 path: `${path}[${node.name ?? 'default'}]`,
-                node: component.nodes[child],
+                node: component.nodes?.[child],
                 data,
                 packageName,
                 namespace,
@@ -246,7 +246,7 @@ const renderComponent = async ({
                 id: child,
                 path: `${path}.${i}`,
                 namespace,
-                node: component.nodes[child],
+                node: component.nodes?.[child],
                 data,
                 packageName,
               }),
@@ -257,7 +257,7 @@ const renderComponent = async ({
         if (node.tag.toLocaleLowerCase() === 'style') {
           // render style content as text
           const textNode = node.children[0]
-            ? component.nodes[node.children[0]]
+            ? component.nodes?.[node.children[0]]
             : undefined
           if (textNode?.type === 'text') {
             innerHTML = String(applyFormula(textNode.value, formulaContext))
@@ -354,7 +354,7 @@ const renderComponent = async ({
               Attributes: attrs,
               Contexts: contexts,
               Variables: mapValues(
-                childComponent.variables,
+                childComponent.variables ?? {},
                 ({ initialValue }) => {
                   return applyFormula(initialValue, formulaContext)
                 },
@@ -378,7 +378,7 @@ const renderComponent = async ({
               id: child,
               path: `${path}.${i}`,
               namespace,
-              node: component.nodes[child],
+              node: component.nodes?.[child],
               data: {
                 ...data,
                 Contexts: {
@@ -417,7 +417,7 @@ const renderComponent = async ({
                             Apis: apis,
                             Attributes: attrs,
                             Variables: mapValues(
-                              childComponent.variables,
+                              childComponent.variables ?? {},
                               ({ initialValue }) => {
                                 return applyFormula(initialValue, {
                                   data: {
@@ -450,8 +450,7 @@ const renderComponent = async ({
           // Add children to the correct slot in the right order
           const slotName =
             typeof childNodeId === 'string'
-              ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                (component.nodes[childNodeId]?.slot ?? 'default')
+              ? (component.nodes?.[childNodeId]?.slot ?? 'default')
               : 'default'
           children[slotName] = `${children[slotName] ?? ''} ${childNode}`
         })
@@ -529,7 +528,7 @@ const renderComponent = async ({
   return renderNode({
     id: 'root',
     path,
-    node: component.nodes.root,
+    node: component.nodes?.root,
     data,
     packageName,
     isComponentRootNode: true,
@@ -599,7 +598,7 @@ const createComponent = async ({
   }
 
   // Variables initial value has access to component data like attributes, so must be applied after formulaContext is somewhat populated
-  data.Variables = mapValues(component.variables, ({ initialValue }) => {
+  data.Variables = mapValues(component.variables ?? {}, ({ initialValue }) => {
     return applyFormula(initialValue, {
       ...formulaContext,
       data,

@@ -7,7 +7,7 @@ import type { Component } from '@nordcraft/core/dist/component/component.types'
 export const replaceTagInNodes =
   (oldTag: string, newTag: string) => (component: Component) => ({
     ...component,
-    nodes: Object.entries(component.nodes).reduce((acc, [key, node]) => {
+    nodes: Object.entries(component.nodes ?? {}).reduce((acc, [key, node]) => {
       if (node.type !== 'element') {
         return {
           ...acc,
