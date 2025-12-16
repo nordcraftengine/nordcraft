@@ -1,6 +1,11 @@
 import validate from './component.js'
 
-export const validateComponent = (component: any) => {
+/**
+ * Validates a component structure against the pre-compile ajv function in component.js
+ * The ajv function is built based on the component.schema.json file generated based on
+ * the component types in src/component/component.types.ts
+ */
+export const validateComponent = (component: unknown) => {
   const valid = validate(component)
   return {
     valid,
