@@ -18,7 +18,7 @@ COPY packages/ssr/package.json ./packages/ssr/
 COPY packages/backend/dist/ ./packages/backend/dist/
 
 # Build dependencies without running any postinstall scripts
-RUN bun install --production --verbose --frozen-lockfile
+RUN bun install --production --verbose --frozen-lockfile --ignore-scripts
 
 # Copy source and compile
 COPY . .
