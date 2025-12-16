@@ -6,3 +6,5 @@ examples/hono/assets/
 examples/projects/*
 **/.wrangler/**/*
 packages/backend/__project__/
+packages/core/src/component/schemas/*.js
+packages/core/src/component/schemas/*.json
