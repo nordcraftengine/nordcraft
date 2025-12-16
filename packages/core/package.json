@@ -7,11 +7,18 @@
     "build": "tsgo",
     "npm-publish": "bun run build && bun publish --access public",
     "typecheck": "tsgo --noEmit",
-    "watch": "tsgo -w"
+    "watch": "tsgo -w",
+    "generateTypes": "bun run bin/generateSchemas.ts && ajv compile --allow-union-types -s src/component/schemas/component.schema.json -o src/component/schemas/component.js",
+    "validate": "bun run bin/validate.ts",
+    "postinstall": "bun run build && bun run generateTypes"
   },
   "files": [
     "dist",
     "src"
   ],
+  "devDependencies": {
+    "ts-json-schema-generator": "2.4.0",
+    "ajv-cli": "5.0.0"
+  },
   "main": "dist/index.js"
 }
