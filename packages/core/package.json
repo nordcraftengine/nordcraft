@@ -10,7 +10,7 @@
     "watch": "tsgo -w",
     "generateTypes": "bun run bin/generateSchemas.ts && ajv compile --allow-union-types -s src/component/schemas/component.schema.json -o src/component/schemas/component.js",
     "validate": "bun run bin/validate.ts",
-    "postinstall": "tsgo -p tsconfig.install.json && bun run generateTypes"
+    "postinstall": "./bin/postInstall.sh"
   },
   "files": [
     "dist",
