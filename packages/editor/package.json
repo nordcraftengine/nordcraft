@@ -13,7 +13,7 @@
     "@nordcraft/core": "workspace:*",
     "@types/css-tree": "2.3.11",
     "@webref/elements": "2.5.1",
-    "@webref/events": "1.19.1",
+    "@webref/events": "1.19.2",
     "css-tree": "3.1.0",
     "mdn-data": "2.25.0"
   }
