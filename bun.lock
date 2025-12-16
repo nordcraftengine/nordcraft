@@ -39,6 +39,7 @@
     "packages/core": {
       "name": "@nordcraft/core",
       "devDependencies": {
+        "@typescript/native-preview": "7.0.0-dev.20251208.1",
         "ajv-cli": "5.0.0",
         "ts-json-schema-generator": "2.4.0",
       },
