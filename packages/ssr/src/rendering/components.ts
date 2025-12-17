@@ -453,7 +453,7 @@ const renderComponent = async ({
             typeof childNodeId === 'string'
               ? (component.nodes?.[childNodeId]?.slot ?? 'default')
               : 'default'
-          children[slotName] = `${children[slotName] ?? ''} ${childNode}`
+          children[slotName] = `${children[slotName] ?? ''}${childNode}`
         })
 
         // Add extra instance styling for each style-variable
