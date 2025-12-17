@@ -35,3 +35,8 @@ export interface GlobalFormulas<Handler = string | Function> {
     Record<string, { formulas?: Record<string, PluginFormula<Handler>> }>
   >
 }
+
+export type FormulaEvaluationReporter = (
+  path: Array<string | number>,
+  result: any,
+) => void

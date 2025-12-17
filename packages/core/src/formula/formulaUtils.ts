@@ -10,7 +10,7 @@ import { isFormula, isToddleFormula } from './formula'
 import type { GlobalFormulas } from './formulaTypes'
 
 export const valueFormula = (
-  value: string | number | boolean | null | object,
+  value: string | number | boolean | null | object | undefined,
 ): ValueOperation => ({
   type: 'value',
   value,

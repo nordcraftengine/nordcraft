@@ -21,6 +21,7 @@ import {
 } from '@nordcraft/core/dist/formula/formula'
 import {
   type CodeFormula,
+  type FormulaEvaluationReporter,
   type PluginFormula,
   type ToddleFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
@@ -58,6 +59,7 @@ import { dragEnded } from './editor/drag-drop/dragEnded'
 import { dragMove } from './editor/drag-drop/dragMove'
 import { dragReorder } from './editor/drag-drop/dragReorder'
 import { dragStarted } from './editor/drag-drop/dragStarted'
+import { debounce } from './editor/editorUtils'
 import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
 import { updateComponentLinks } from './editor/links'
@@ -226,6 +228,21 @@ export const createRoot = (
     ...(packageComponents ?? []),
   ]
   let component: Component | null = null
+  let componentFormulaData: Record<string, any> = {}
+
+  const reportFormulaEvaluation: FormulaEvaluationReporter = (path, data) => {
+    componentFormulaData[path.join('/')] = data
+    reportComponentFormulaData()
+  }
+  const reportComponentFormulaData = debounce(
+    () =>
+      postMessageToEditor({
+        type: 'componentFormulaData',
+        data: componentFormulaData,
+      }),
+    5, // 5ms debounce to batch multiple rapid updates
+    true,
+  )
   let selectedNodeId: string | null = null
   let highlightedNodeId: string | null = null
   let styleVariantSelection: {
@@ -294,6 +311,8 @@ export const createRoot = (
             )
             // Destroy the dataSignal (including subscribers) for the previous component
             dataSignal.destroy()
+            // Reset all evaluated formula data
+            componentFormulaData = {}
             // Re-subscribe all dataSignal subscribers
             setupDataSignalSubscribers()
             // Re-initialize the data signal for the new component
@@ -668,6 +687,7 @@ export const createRoot = (
               package: ctx?.package,
               toddle: window.toddle,
               env,
+              jsonPath: [],
             }
             const introspectionResult = await introspectApiRequest({
               api,
@@ -1128,19 +1148,32 @@ export const createRoot = (
                 .map(([customPropertyName, customProperty]) => [
                   customPropertyName,
                   appendUnit(
-                    applyFormula(customProperty.formula, {
-                      data: {
-                        Attributes: dataSignal.get().Attributes,
-                        Variables: dataSignal.get().Variables,
-                        Contexts: ctxDataSignal?.get().Contexts ?? {},
-                      },
-                      component: getCurrentComponent(),
-                      root: ctx?.root,
-                      formulaCache: {},
-                      package: ctx?.package,
-                      toddle: window.toddle,
-                      env,
-                    } as FormulaContext),
+                    applyFormula(
+                      customProperty.formula,
+                      {
+                        data: {
+                          Attributes: dataSignal.get().Attributes,
+                          Variables: dataSignal.get().Variables,
+                          Contexts: ctxDataSignal?.get().Contexts ?? {},
+                        },
+                        component: getCurrentComponent(),
+                        root: ctx?.root,
+                        formulaCache: {},
+                        package: ctx?.package,
+                        toddle: window.toddle,
+                        env,
+                        // TODO: Ensure we have the node id here
+                        jsonPath: [
+                          'nodes',
+                          '<random id>',
+                          'variants',
+                          styleVariantSelection?.styleVariantIndex ?? 0,
+                          customPropertyName,
+                        ],
+                        reportFormulaEvaluation,
+                      } as FormulaContext,
+                      [],
+                    ),
                     customProperty.unit,
                   ),
                 ])
@@ -1252,6 +1285,8 @@ export const createRoot = (
         package: ctx?.package,
         toddle: window.toddle,
         env,
+        jsonPath: ['route', 'info', 'meta'],
+        reportFormulaEvaluation,
       })
     }
     if (fastDeepEqual(_component.contexts, ctx?.component.contexts) === false) {
@@ -1297,6 +1332,9 @@ export const createRoot = (
               package: ctx?.package,
               toddle: window.toddle,
               env,
+              jsonPath: [],
+              // We don't evaluate formulas in context providers in preview mode currently
+              reportFormulaEvaluation: undefined,
             }
 
             // Pages can also be context-providers!
@@ -1319,7 +1357,11 @@ export const createRoot = (
               providerComponent.variables,
               ([name, variable]) => [
                 name,
-                applyFormula(variable.initialValue, formulaContext),
+                applyFormula(variable.initialValue, formulaContext, [
+                  'variables',
+                  name,
+                  'initialValue',
+                ]),
               ],
             )
 
@@ -1337,7 +1379,10 @@ export const createRoot = (
 
                   return [
                     formulaName,
-                    applyFormula(formula.formula, formulaContext),
+                    applyFormula(formula.formula, formulaContext, [
+                      'formulas',
+                      formulaName,
+                    ]),
                   ]
                 }),
               ),
@@ -1353,14 +1398,20 @@ export const createRoot = (
         _component.variables,
         ([name, { initialValue }]) => [
           name,
-          applyFormula(initialValue, {
-            data: { Attributes, Contexts },
-            component: _component!,
-            root: document,
-            package: ctx?.package,
-            toddle: window.toddle,
-            env,
-          }),
+          applyFormula(
+            initialValue,
+            {
+              data: { Attributes, Contexts },
+              component: _component!,
+              root: document,
+              package: ctx?.package,
+              toddle: window.toddle,
+              env,
+              jsonPath: ctx?.jsonPath,
+              reportFormulaEvaluation,
+            },
+            ['variables', name, 'initialValue'],
+          ),
         ],
       )
     }
@@ -1411,14 +1462,17 @@ export const createRoot = (
               ]),
             }
           })
-          newCtx.apis[api] = createLegacyAPI(apiInstance, newCtx)
+          newCtx.apis[api] = createLegacyAPI(apiInstance, {
+            ...newCtx,
+            jsonPath: ['apis', api],
+          })
         }
       } else {
         const existingApi = newCtx.apis[api] as ContextApiV2 | undefined
         if (!existingApi) {
           newCtx.apis[api] = createAPI({
             apiRequest: apiInstance,
-            ctx: newCtx,
+            ctx: { ...newCtx, jsonPath: ['apis', api] },
             componentData: dataSignal.get(),
           })
         } else {
@@ -1452,7 +1506,7 @@ export const createRoot = (
           id: 'root',
           path: '0',
           dataSignal: ctxDataSignal,
-          ctx: newCtx,
+          ctx: { ...newCtx, jsonPath: ['nodes', 'root'] },
           parentElement: domNode,
           instance: { [newCtx.component.name]: 'root' },
         })
@@ -1552,6 +1606,8 @@ export const createRoot = (
       package: undefined,
       toddle: window.toddle,
       env,
+      jsonPath: [], // TODO: decide if the component path is needed here
+      reportFormulaEvaluation,
     }
 
     if (isContextProvider(component)) {
@@ -1562,15 +1618,21 @@ export const createRoot = (
           .map(([name, formula]) => [
             name,
             dataSignal.map((data) =>
-              applyFormula(formula.formula, {
-                data,
-                component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: window.toddle,
-                env,
-              }),
+              applyFormula(
+                formula.formula,
+                {
+                  data,
+                  component,
+                  formulaCache: ctx.formulaCache,
+                  root: ctx.root,
+                  package: ctx.package,
+                  toddle: window.toddle,
+                  env,
+                  jsonPath: ctx.jsonPath,
+                  reportFormulaEvaluation,
+                },
+                ['formulas', name],
+              ),
             ),
           ]),
       )
@@ -1677,7 +1739,10 @@ const insertHeadTags = (
           <link
             data-meta-id="${id}"
             ${Object.entries(entry.attrs)
-              .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
+              .map(
+                ([key, value]) =>
+                  `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
+              )
               .join(' ')}
           />
         `),
@@ -1689,7 +1754,10 @@ const insertHeadTags = (
           <script
             data-meta-id="${id}"
             ${Object.entries(entry.attrs)
-              .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
+              .map(
+                ([key, value]) =>
+                  `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
+              )
               .join(' ')}
           ></script>
         `),

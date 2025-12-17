@@ -48,7 +48,7 @@ export function createFormulaCache(component: Component): FormulaCache {
 }
 
 function getFormulaCacheConfig(formula: Formula, component: Component) {
-  const paths: string[][] = []
+  const paths: Array<string | number>[] = []
   function visitOperation(op: Formula) {
     if (!op) {
       return
@@ -81,7 +81,7 @@ function getFormulaCacheConfig(formula: Formula, component: Component) {
     }
   }
 
-  const keys: string[][] = []
+  const keys: Array<string | number>[] = []
   paths
     .sort((a, b) => a.length - b.length)
     .forEach((path) => {

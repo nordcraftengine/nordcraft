@@ -1,3 +1,4 @@
 [test]
 # To ensure bun doesn't test in our dist folder
 root = "./src"
+preload = ['./test-setup.ts']
