@@ -18,7 +18,7 @@ import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleCompo
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Theme } from '@nordcraft/core/dist/styling/theme'
-import type { PluginAction } from '@nordcraft/core/dist/types'
+import type { Nullable, PluginAction } from '@nordcraft/core/dist/types'
 import type {
   ApiService,
   ProjectFiles,
@@ -233,18 +233,20 @@ type ComponentWorkflowNode = {
   nodeType: 'component-workflow'
   value: {
     name: string
-    parameters?:
-      | {
-          name: string
-          testValue: any
-        }[]
-      | null
-    callbacks?: {
-      name: string
-      testValue: any
-    }[]
+    parameters?: Nullable<
+      {
+        name: string
+        testValue: any
+      }[]
+    >
+    callbacks?: Nullable<
+      {
+        name: string
+        testValue: any
+      }[]
+    >
     actions: ActionModel[]
-    exposeInContext?: boolean | undefined
+    exposeInContext?: Nullable<boolean>
   }
   component: ToddleComponent<Function>
 } & Base
@@ -253,14 +255,14 @@ type ComponentFormulaNode = {
   nodeType: 'component-formula'
   value: {
     name: string
-    arguments?:
-      | {
-          name: string
-          testValue: any
-        }[]
-      | null
-    memoize?: boolean | undefined
-    exposeInContext?: boolean | undefined
+    arguments?: Nullable<
+      {
+        name: string
+        testValue: any
+      }[]
+    >
+    memoize?: Nullable<boolean>
+    exposeInContext?: Nullable<boolean>
     formula: Formula
   }
   component: ToddleComponent<Function>
@@ -321,8 +323,8 @@ type ComponentContext = {
   value: {
     formulas: string[]
     workflows: string[]
-    componentName?: string
-    package?: string
+    componentName?: Nullable<string>
+    package?: Nullable<string>
   }
 } & Base
 

@@ -1,5 +1,6 @@
 import type { Formula, FormulaContext } from '../formula/formula'
 import { applyFormula } from '../formula/formula'
+import type { Nullable } from '../types'
 import { omitKeys, sortObjectEntries } from '../utils/collections'
 import { hash } from '../utils/hash'
 import { isDefined, isObject, toBoolean } from '../utils/util'
@@ -31,7 +32,7 @@ export const createApiRequest = <Handler>({
 }: {
   api: ApiRequest | ToddleApiV2<Handler>
   formulaContext: FormulaContext
-  baseUrl?: string
+  baseUrl?: Nullable<string>
   defaultHeaders: Headers | undefined
 }) => {
   const url = getUrl(api, formulaContext, baseUrl)
@@ -47,7 +48,7 @@ export const createApiRequest = <Handler>({
 export const getUrl = (
   api: ApiBase,
   formulaContext: FormulaContext,
-  baseUrl?: string,
+  baseUrl?: Nullable<string>,
 ): URL => {
   let urlPathname = ''
   let urlQueryParams = new URLSearchParams()
@@ -57,7 +58,7 @@ export const getUrl = (
     const urlInput = typeof url === 'number' ? String(url) : url
     try {
       // Try to parse the URL to extract potential path and query parameters
-      parsedUrl = new URL(urlInput, baseUrl)
+      parsedUrl = new URL(urlInput, baseUrl ?? undefined)
       urlPathname = parsedUrl.pathname
       urlQueryParams = parsedUrl.searchParams
       // eslint-disable-next-line no-empty
@@ -77,13 +78,13 @@ export const getUrl = (
   const hashString =
     typeof hash === 'string' && hash.length > 0 ? `#${hash}` : ''
   if (parsedUrl) {
-    const combinedUrl = new URL(parsedUrl.origin, baseUrl)
+    const combinedUrl = new URL(parsedUrl.origin, baseUrl ?? undefined)
     combinedUrl.pathname = path
     combinedUrl.search = queryParams.toString()
     combinedUrl.hash = hashString
     return combinedUrl
   } else {
-    return new URL(`${path}${queryString}${hashString}`, baseUrl)
+    return new URL(`${path}${queryString}${hashString}`, baseUrl ?? undefined)
   }
 }
 
@@ -224,7 +225,7 @@ export const getBaseUrl = ({
   url,
 }: {
   origin: string
-  url?: string
+  url?: Nullable<string>
 }) =>
   !isDefined(url) || url === '' || url.startsWith('/') ? origin + url : url
 
@@ -254,13 +255,13 @@ export const isApiError = ({
   apiName: string
   response: {
     ok: boolean
-    status?: number
-    headers?: Record<string, string> | null
+    status?: Nullable<number>
+    headers?: Nullable<Record<string, string>>
     body: unknown
   }
   formulaContext: FormulaContext
   performance: ApiPerformance
-  errorFormula?: { formula: Formula } | null
+  errorFormula?: Nullable<{ formula: Formula }>
 }) => {
   const errorFormulaRes = errorFormula
     ? applyFormula(errorFormula.formula, {

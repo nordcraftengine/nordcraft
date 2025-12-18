@@ -5,6 +5,7 @@ import type {
   FormulaHandler,
   FormulaLookup,
   NordcraftMetadata,
+  Nullable,
   Runtime,
   Toddle,
 } from '../types'
@@ -16,7 +17,7 @@ declare const document: Document | undefined
 type ShadowRoot = DocumentFragment
 
 interface BaseOperation extends NordcraftMetadata {
-  label?: string
+  label?: Nullable<string>
 }
 
 export interface PathOperation extends BaseOperation {
@@ -25,20 +26,20 @@ export interface PathOperation extends BaseOperation {
 }
 
 export interface FunctionArgument {
-  name?: string
-  isFunction?: boolean
+  name?: Nullable<string>
+  isFunction?: Nullable<boolean>
   formula: Formula
-  type?: any
-  testValue?: any
+  type?: Nullable<any>
+  testValue?: Nullable<any>
 }
 
 export interface FunctionOperation extends BaseOperation {
   type: 'function'
   name: string
-  display_name?: string | null
-  package?: string
+  display_name?: Nullable<string>
+  package?: Nullable<string>
   arguments: FunctionArgument[]
-  variableArguments?: boolean
+  variableArguments?: Nullable<boolean>
 }
 
 export interface RecordOperation extends BaseOperation {
@@ -48,7 +49,7 @@ export interface RecordOperation extends BaseOperation {
 
 export interface ObjectOperation extends BaseOperation {
   type: 'object'
-  arguments?: FunctionArgument[]
+  arguments?: Nullable<FunctionArgument[]>
 }
 
 export interface ArrayOperation extends BaseOperation {
@@ -102,16 +103,18 @@ export type Formula =
 
 export type FormulaContext = {
   component: Component | undefined
-  formulaCache?: Record<
-    string,
-    {
-      get: (data: ComponentData) => any
-      set: (data: ComponentData, result: any) => void
-    }
+  formulaCache?: Nullable<
+    Record<
+      string,
+      {
+        get: (data: ComponentData) => any
+        set: (data: ComponentData, result: any) => void
+      }
+    >
   >
   data: ComponentData
-  root?: Document | ShadowRoot | null
-  package: string | undefined
+  root?: Nullable<Document | ShadowRoot>
+  package: Nullable<string>
   toddle: {
     getFormula: FormulaLookup
     getCustomFormula: CustomFormulaHandler
@@ -225,7 +228,7 @@ export function applyFormula(
         return true
       }
       case 'function': {
-        const packageName = formula.package ?? ctx.package
+        const packageName = formula.package ?? ctx.package ?? undefined
         const newFunc = (
           ctx.toddle ??
           ((globalThis as any).toddle as Toddle<unknown, unknown> | undefined)

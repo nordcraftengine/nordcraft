@@ -1,4 +1,5 @@
 import type { CustomPropertyName } from '../component/component.types'
+import type { Nullable } from '../types'
 import { isDefined } from '../utils/util'
 import { renderSyntaxDefinition, type CssSyntaxNode } from './customProperty'
 import { RESET_STYLES } from './theme.const'
@@ -99,11 +100,11 @@ export type Theme = {
 export type CustomPropertyDefinition = {
   syntax: CssSyntaxNode
   inherits: boolean
-  initialValue: string | null // Required by CSS specs for default-theme, but we can do a fallback so null is allowed
+  initialValue: Nullable<string> // Required by CSS specs for default-theme, but we can do a fallback so null is allowed
   description: string
   // Values mapped to theme names.
   // Values are not required, if left out, the default theme value will be used. If no default theme value exists, initialValue will be used.
-  values: Record<string, string | null>
+  values: Record<string, Nullable<string>>
 }
 
 export const getThemeCss = (

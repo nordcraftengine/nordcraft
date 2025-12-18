@@ -1,9 +1,9 @@
-import type { LegacyPluginAction, PluginActionV2 } from '../types'
+import type { LegacyPluginAction, Nullable, PluginActionV2 } from '../types'
 import { isDefined } from '../utils/util'
 import type { ActionModel } from './component.types'
 
 export function* getActionsInAction(
-  action: ActionModel | null,
+  action: Nullable<ActionModel>,
   path: (string | number)[] = [],
 ): Generator<[(string | number)[], ActionModel]> {
   if (!isDefined(action)) {
@@ -32,6 +32,7 @@ export function* getActionsInAction(
       break
     case 'Custom':
     case undefined:
+    case null:
       for (const [eventKey, event] of Object.entries(action.events ?? {})) {
         for (const [key, a] of Object.entries(event?.actions ?? {})) {
           yield* getActionsInAction(a, [

@@ -1,16 +1,17 @@
+import type { Nullable } from '../types'
 import type { Formula } from './formula'
 
 export interface BaseFormula {
   name: string
-  description?: string
+  description?: Nullable<string>
   arguments: Array<{
     name: string
-    formula?: Formula | null
-    testValue?: unknown
+    formula?: Nullable<Formula>
+    testValue?: Nullable<unknown>
   }>
   // exported indicates that a formula is exported in a package
-  exported?: boolean
-  variableArguments?: boolean | null
+  exported?: Nullable<boolean>
+  variableArguments?: Nullable<boolean>
 }
 
 export interface ToddleFormula extends BaseFormula {
@@ -21,7 +22,7 @@ export interface ToddleFormula extends BaseFormula {
  * The Handler generic is a string server side, but a function client side
  */
 export interface CodeFormula<Handler = string | Function> extends BaseFormula {
-  version?: 2 | never
+  version?: Nullable<2 | never>
   handler: Handler
 }
 
@@ -30,8 +31,10 @@ export type PluginFormula<Handler = string | Function> =
   | CodeFormula<Handler>
 
 export interface GlobalFormulas<Handler = string | Function> {
-  formulas?: Record<string, PluginFormula<Handler>>
-  packages?: Partial<
-    Record<string, { formulas?: Record<string, PluginFormula<Handler>> }>
+  formulas?: Nullable<Record<string, PluginFormula<Handler>>>
+  packages?: Nullable<
+    Partial<
+      Record<string, { formulas?: Record<string, PluginFormula<Handler>> }>
+    >
   >
 }

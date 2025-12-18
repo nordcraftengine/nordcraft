@@ -3,6 +3,7 @@ import type { LegacyComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import { mapHeadersToObject } from '@nordcraft/core/dist/api/headers'
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula, isFormula } from '@nordcraft/core/dist/formula/formula'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import { mapValues } from '@nordcraft/core/dist/utils/collections'
 import { parseJSONWithDate } from '@nordcraft/core/dist/utils/json'
 import { handleAction } from '../events/handleAction'
@@ -12,7 +13,7 @@ import type { ComponentContext } from '../types'
 export type ApiRequest = {
   url: string
   method: 'GET' | 'POST' | 'DELETE' | 'PUT' | 'OPTION' | 'HEAD'
-  auth: { type: string } | undefined
+  auth: Nullable<{ type: string }>
   headers: Record<string, string>
   body: any
 }

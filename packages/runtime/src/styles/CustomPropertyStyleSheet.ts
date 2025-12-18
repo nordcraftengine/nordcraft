@@ -1,4 +1,5 @@
 import type { MediaQuery } from '@nordcraft/core/dist/component/component.types'
+import type { Nullable } from '@nordcraft/core/dist/types'
 
 /**
  * CustomPropertyStyleSheet is a utility class that manages CSS custom properties
@@ -15,7 +16,10 @@ export class CustomPropertyStyleSheet {
   // Selector to rule index mapping
   private ruleMap: Map<string, CSSStyleRule | CSSNestedDeclarations> | undefined
 
-  constructor(root: Document | ShadowRoot, styleSheet?: CSSStyleSheet | null) {
+  constructor(
+    root: Document | ShadowRoot,
+    styleSheet?: Nullable<CSSStyleSheet>,
+  ) {
     if (styleSheet) {
       this.styleSheet = styleSheet
     } else {
@@ -30,10 +34,10 @@ export class CustomPropertyStyleSheet {
   public registerProperty(
     selector: string,
     name: string,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+    }>,
   ): (newValue: string) => void {
     this.ruleMap ??= this.hydrateFromBase()
     const fullSelector = CustomPropertyStyleSheet.getFullSelector(
@@ -69,11 +73,11 @@ export class CustomPropertyStyleSheet {
   public unregisterProperty(
     selector: string,
     name: string,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-      deepClean?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+      deepClean?: Nullable<boolean>
+    }>,
   ): void {
     if (!this.ruleMap) {
       return
@@ -161,10 +165,10 @@ export class CustomPropertyStyleSheet {
 
   private static getFullSelector(
     selector: string,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+    }>,
   ) {
     let result =
       selector + (options?.startingStyle ? ' { @starting-style { }}' : ' { }')

@@ -25,7 +25,7 @@ import type {
   FormulaContext,
 } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import type { NestedOmit } from '@nordcraft/core/dist/types'
+import type { NestedOmit, Nullable } from '@nordcraft/core/dist/types'
 import {
   omitPaths,
   sortObjectEntries,
@@ -180,8 +180,8 @@ export function createAPI({
     api: ApiRequest
     data: {
       body: unknown
-      status?: number
-      headers?: Record<string, string>
+      status?: Nullable<number>
+      headers?: Nullable<Record<string, string>>
     }
     componentData: ComponentData
     workflowCallback?: (event: string, data: unknown) => void
@@ -251,8 +251,8 @@ export function createAPI({
     componentData: ComponentData
     data: {
       body: unknown
-      status?: number
-      headers?: Record<string, string>
+      status?: Nullable<number>
+      headers?: Nullable<Record<string, string>>
     }
     performance: ApiPerformance
   }) {
@@ -315,8 +315,8 @@ export function createAPI({
     componentData: ComponentData
     data: {
       body: unknown
-      status?: number
-      headers?: Record<string, string>
+      status?: Nullable<number>
+      headers?: Nullable<Record<string, string>>
     }
     performance: ApiPerformance
   }) {

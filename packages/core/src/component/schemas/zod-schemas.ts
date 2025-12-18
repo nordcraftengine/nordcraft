@@ -114,18 +114,18 @@ const ValueOperationValueSchema: z.ZodType<ValueOperationValue> = z.union([
 ])
 
 const ValueOperationSchema: z.ZodType<ValueOperation> = z.object({
-  '@nordcraft/metadata': MetadataSchema.optional().describe(
-    generalDescriptions.metadata('value operation'),
-  ),
+  '@nordcraft/metadata': MetadataSchema.optional()
+    .nullable()
+    .describe(generalDescriptions.metadata('value operation')),
   type: z.literal('value'),
   value: ValueOperationValueSchema.describe('Literal value.'),
 })
 
 // Path Operation
 const PathOperationSchema: z.ZodType<PathOperation> = z.object({
-  '@nordcraft/metadata': MetadataSchema.optional().describe(
-    generalDescriptions.metadata('path operation'),
-  ),
+  '@nordcraft/metadata': MetadataSchema.optional()
+    .nullable()
+    .describe(generalDescriptions.metadata('path operation')),
   type: z.literal('path'),
   path: z
     .array(z.string())
@@ -143,6 +143,7 @@ const FormulaArgumentSchema: z.ZodType<FunctionArgument> = z
     isFunction: z
       .boolean()
       .optional()
+      .nullable()
       .describe(
         'Whether the argument is a function. This will be true on array formulas like map, filter, reduce, etc. formulas.',
       ),
@@ -157,9 +158,9 @@ const FormulaArgumentSchema: z.ZodType<FunctionArgument> = z
 // Array Operation
 const ArrayOperationSchema: z.ZodType<ArrayOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().describe(
-      generalDescriptions.metadata('array operation'),
-    ),
+    '@nordcraft/metadata': MetadataSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.metadata('array operation')),
     type: z.literal('array'),
     get arguments() {
       return z
@@ -172,14 +173,15 @@ const ArrayOperationSchema: z.ZodType<ArrayOperation> = z
 // Object Operation
 const ObjectOperationSchema: z.ZodType<ObjectOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().describe(
-      generalDescriptions.metadata('object operation'),
-    ),
+    '@nordcraft/metadata': MetadataSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.metadata('object operation')),
     type: z.literal('object'),
     get arguments() {
       return z
         .array(FormulaArgumentSchema)
         .optional()
+        .nullable()
         .describe(
           'List of key-value pairs for the object. Each entry must have a name and a formula.',
         )
@@ -190,21 +192,21 @@ const ObjectOperationSchema: z.ZodType<ObjectOperation> = z
 // Record Operation
 const RecordOperationSchema: z.ZodType<RecordOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional(),
+    '@nordcraft/metadata': MetadataSchema.optional().nullable(),
     type: z.literal('record'),
     get entries() {
       return z.array(FormulaArgumentSchema)
     },
-    label: z.string().optional(),
+    label: z.string().optional().nullable(),
   })
   .describe('Deprecated - use Object operation instead.')
 
 // And Operation
 const AndOperationSchema: z.ZodType<AndOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().describe(
-      generalDescriptions.metadata('AND operation'),
-    ),
+    '@nordcraft/metadata': MetadataSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.metadata('AND operation')),
     type: z.literal('and'),
     get arguments() {
       return z
@@ -221,9 +223,9 @@ const AndOperationSchema: z.ZodType<AndOperation> = z
 // Or Operation
 const OrOperationSchema: z.ZodType<OrOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().describe(
-      generalDescriptions.metadata('OR operation'),
-    ),
+    '@nordcraft/metadata': MetadataSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.metadata('OR operation')),
     type: z.literal('or'),
     get arguments() {
       return z
@@ -240,7 +242,7 @@ const OrOperationSchema: z.ZodType<OrOperation> = z
 // Switch Operation
 const SwitchOperationSchema: z.ZodType<SwitchOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional(),
+    '@nordcraft/metadata': MetadataSchema.optional().nullable(),
     type: z.literal('switch'),
     cases: z
       .array(
@@ -274,9 +276,9 @@ const SwitchOperationSchema: z.ZodType<SwitchOperation> = z
 // Project Function Operation
 const ProjectFunctionOperationSchema: z.ZodType<FunctionOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().describe(
-      generalDescriptions.metadata('project formula operation'),
-    ),
+    '@nordcraft/metadata': MetadataSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.metadata('project formula operation')),
     type: z.literal('function'),
     name: z
       .string()
@@ -293,9 +295,9 @@ const ProjectFunctionOperationSchema: z.ZodType<FunctionOperation> = z
 
 // Built-in Function Operation
 const BuiltInFunctionOperationSchema: z.ZodType<FunctionOperation> = z.object({
-  '@nordcraft/metadata': MetadataSchema.optional().describe(
-    generalDescriptions.metadata('built-in formula operation'),
-  ),
+  '@nordcraft/metadata': MetadataSchema.optional()
+    .nullable()
+    .describe(generalDescriptions.metadata('built-in formula operation')),
   type: z.literal('function'),
   name: z
     .string()
@@ -314,6 +316,7 @@ const BuiltInFunctionOperationSchema: z.ZodType<FunctionOperation> = z.object({
   variableArguments: z
     .boolean()
     .optional()
+    .nullable()
     .describe(
       'Field defining if the formula accepts variable number of arguments. This value is read from the built-in formula definition.',
     ),
@@ -322,9 +325,9 @@ const BuiltInFunctionOperationSchema: z.ZodType<FunctionOperation> = z.object({
 // Apply Operation
 const ApplyOperationSchema: z.ZodType<ApplyOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().describe(
-      generalDescriptions.formulas('apply operation'),
-    ),
+    '@nordcraft/metadata': MetadataSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.formulas('apply operation')),
     type: z.literal('apply'),
     name: z
       .string()
@@ -455,6 +458,7 @@ const FetchActionModelSchema: z.ZodType<FetchActionModel> = z
         actions: z.array(z.lazy(() => ActionModelSchema)),
       })
       .optional()
+      .nullable()
       .describe(
         'Actions to execute when a message is received during streaming.',
       ),
@@ -468,6 +472,7 @@ const CustomActionModelSchema: z.ZodType<CustomActionModel> = z
     package: z
       .string()
       .optional()
+      .nullable()
       .describe(
         'Package where the custom action is defined. Should not be set for local custom actions.',
       ),
@@ -481,6 +486,7 @@ const CustomActionModelSchema: z.ZodType<CustomActionModel> = z
         }),
       )
       .optional()
+      .nullable()
       .describe('Arguments to pass to the custom action.'),
     events: z
       .record(
@@ -498,12 +504,14 @@ const CustomActionModelSchema: z.ZodType<CustomActionModel> = z
           ),
       )
       .optional()
+      .nullable()
       .describe(
         'Record of events defined in the custom action. Each event has a list of actions to execute when the event is emitted.',
       ),
     version: z
       .literal(2)
       .optional()
+      .nullable()
       .describe('Version of the custom action model. This should always be 2.'),
   })
   .describe(
@@ -527,6 +535,7 @@ const BuiltInActionModelSchema: z.ZodType<CustomActionModel> = z
         }),
       )
       .optional()
+      .nullable()
       .describe('Arguments to pass to the built-in action.'),
     events: z
       .record(
@@ -538,6 +547,7 @@ const BuiltInActionModelSchema: z.ZodType<CustomActionModel> = z
           .describe('List of actions to execute when the event is triggered.'),
       )
       .optional()
+      .nullable()
       .describe(
         'Events that can be triggered by the built-in action. Common events include onSuccess and onError.',
       ),
@@ -556,7 +566,7 @@ const SetURLParameterActionSchema: z.ZodType<SetURLParameterAction> = z
     type: z.literal('SetURLParameter'),
     parameter: z.string(),
     data: FormulaSchema,
-    historyMode: z.enum(['replace', 'push']).nullable().optional(),
+    historyMode: z.enum(['replace', 'push']).nullable().optional().nullable(),
   })
   .describe(
     'This model is deprecated. Instead refer to SetMultiUrlParameterActionSchema.',
@@ -575,6 +585,7 @@ const SetMultiUrlParameterActionSchema: z.ZodType<SetMultiUrlParameterAction> =
         .enum(['replace', 'push'])
         .nullable()
         .optional()
+        .nullable()
         .describe(
           'This determines how the URL is updated in the browser history. Use "replace" to update the current history entry without adding a new one, or "push" to create a new history entry for the URL change. If not specified, the default behavior is to use "push".',
         ),
@@ -600,6 +611,7 @@ const WorkflowActionModelSchema: z.ZodType<WorkflowActionModel> = z
     contextProvider: z
       .string()
       .optional()
+      .nullable()
       .describe(
         'If the workflow being triggered is from a parent component and exposed via a context provider, this is the ID of that context provider.',
       ),
@@ -648,26 +660,27 @@ const StyleTokenCategorySchema: z.ZodType<StyleTokenCategory> = z.enum([
 
 const StyleVariantSchema: z.ZodType<StyleVariant> = z.object({
   style: NodeStyleModelSchema,
-  id: z.string().optional(),
-  className: z.string().optional(),
-  hover: z.boolean().optional(),
-  active: z.boolean().optional(),
-  focus: z.boolean().optional(),
-  focusWithin: z.boolean().optional(),
-  disabled: z.boolean().optional(),
-  empty: z.boolean().optional(),
-  firstChild: z.boolean().optional(),
-  lastChild: z.boolean().optional(),
-  evenChild: z.boolean().optional(),
-  startingStyle: z.boolean().optional(),
+  id: z.string().optional().nullable(),
+  className: z.string().optional().nullable(),
+  hover: z.boolean().optional().nullable(),
+  active: z.boolean().optional().nullable(),
+  focus: z.boolean().optional().nullable(),
+  focusWithin: z.boolean().optional().nullable(),
+  disabled: z.boolean().optional().nullable(),
+  empty: z.boolean().optional().nullable(),
+  firstChild: z.boolean().optional().nullable(),
+  lastChild: z.boolean().optional().nullable(),
+  evenChild: z.boolean().optional().nullable(),
+  startingStyle: z.boolean().optional().nullable(),
   mediaQuery: z
     .object({
-      'min-width': z.string().optional(),
-      'max-width': z.string().optional(),
-      'min-height': z.string().optional(),
-      'max-height': z.string().optional(),
+      'min-width': z.string().optional().nullable(),
+      'max-width': z.string().optional().nullable(),
+      'min-height': z.string().optional().nullable(),
+      'max-height': z.string().optional().nullable(),
     })
-    .optional(),
+    .optional()
+    .nullable(),
 })
 
 // Node Models
@@ -675,16 +688,20 @@ const TextNodeModelSchema: z.ZodType<TextNodeModel> = z
   .object({
     type: z.literal('text'),
     value: FormulaSchema.describe('Formula evaluating to the text content.'),
-    condition: FormulaSchema.optional().describe(
-      generalDescriptions.condition('text node'),
-    ),
-    repeat: FormulaSchema.optional().describe(
-      generalDescriptions.repeat('text node'),
-    ),
-    repeatKey: FormulaSchema.optional().describe(
-      generalDescriptions.repeatKey('text node'),
-    ),
-    slot: z.string().optional().describe(generalDescriptions.slot('text node')),
+    condition: FormulaSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.condition('text node')),
+    repeat: FormulaSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.repeat('text node')),
+    repeatKey: FormulaSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.repeatKey('text node')),
+    slot: z
+      .string()
+      .optional()
+      .nullable()
+      .describe(generalDescriptions.slot('text node')),
   })
   .describe(
     'Schema defining a Text Node Model. A text node represents text content inside of an element.',
@@ -701,13 +718,18 @@ const SlotNodeModelSchema: z.ZodType<SlotNodeModel> = z
     name: z
       .string()
       .optional()
+      .nullable()
       .describe(
         'Name of the slot. This is the name that must be used when passing content to this slot.',
       ),
-    condition: FormulaSchema.optional().describe(
-      generalDescriptions.condition('slot node'),
-    ),
-    slot: z.string().optional().describe(generalDescriptions.slot('slot node')),
+    condition: FormulaSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.condition('slot node')),
+    slot: z
+      .string()
+      .optional()
+      .nullable()
+      .describe(generalDescriptions.slot('slot node')),
   })
   .describe(
     'Schema defining a Slot Node Model. A slot is a placeholder for child nodes. Slot nodes can only exist inside components.',
@@ -739,7 +761,7 @@ const ElementNodeModelSchema: z.ZodType<ElementNodeModel> = z
       .record(
         z.string().describe('The class name'),
         z
-          .object({ formula: FormulaSchema.optional() })
+          .object({ formula: FormulaSchema.optional().nullable() })
           .describe(
             'Formula that will determine when the class is applied. The class is applied when the formula is truthy.',
           ),
@@ -758,29 +780,33 @@ const ElementNodeModelSchema: z.ZodType<ElementNodeModel> = z
           unit: z
             .string()
             .optional()
+            .nullable()
             .describe('Unit of the style token, if applicable.'),
         }),
       )
       .optional()
+      .nullable()
       .describe(
         'Style variables defined on this element node. Style variables can be used to define design tokens such as colors, spacing, font sizes, and other reusable style values.',
       ),
-    condition: FormulaSchema.optional().describe(
-      generalDescriptions.condition('element node'),
-    ),
-    repeat: FormulaSchema.optional().describe(
-      generalDescriptions.repeat('element node'),
-    ),
-    repeatKey: FormulaSchema.optional().describe(
-      generalDescriptions.repeatKey('element node'),
-    ),
+    condition: FormulaSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.condition('element node')),
+    repeat: FormulaSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.repeat('element node')),
+    repeatKey: FormulaSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.repeatKey('element node')),
     slot: z
       .string()
       .optional()
+      .nullable()
       .describe(generalDescriptions.slot('element node')),
     variants: z
       .array(StyleVariantSchema)
       .optional()
+      .nullable()
       .describe(generalDescriptions.variants('element node')),
     animations: z
       .record(
@@ -791,6 +817,7 @@ const ElementNodeModelSchema: z.ZodType<ElementNodeModel> = z
         ),
       )
       .optional()
+      .nullable()
       .describe(generalDescriptions.animations('element node')),
   })
   .describe(
@@ -804,6 +831,7 @@ const ComponentNodeModelSchema: z.ZodType<ComponentNodeModel> = z
     package: z
       .string()
       .optional()
+      .nullable()
       .describe(
         'Name of the package this component comes from. If empty, it is a component defined in the current project.',
       ),
@@ -821,25 +849,27 @@ const ComponentNodeModelSchema: z.ZodType<ComponentNodeModel> = z
       .describe(
         'Record of events passed to the component. Only custom events defined by the component can be passed here.',
       ),
-    style: NodeStyleModelSchema.optional().describe(
-      generalDescriptions.style('component node'),
-    ),
-    condition: FormulaSchema.optional().describe(
-      generalDescriptions.condition('component node'),
-    ),
-    repeat: FormulaSchema.optional().describe(
-      generalDescriptions.repeat('component node'),
-    ),
-    repeatKey: FormulaSchema.optional().describe(
-      generalDescriptions.repeatKey('component node'),
-    ),
+    style: NodeStyleModelSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.style('component node')),
+    condition: FormulaSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.condition('component node')),
+    repeat: FormulaSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.repeat('component node')),
+    repeatKey: FormulaSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.repeatKey('component node')),
     slot: z
       .string()
       .optional()
+      .nullable()
       .describe(generalDescriptions.slot('component node')),
     variants: z
       .array(StyleVariantSchema)
       .optional()
+      .nullable()
       .describe(generalDescriptions.variants('component node')),
     animations: z
       .record(
@@ -850,6 +880,7 @@ const ComponentNodeModelSchema: z.ZodType<ComponentNodeModel> = z
         ),
       )
       .optional()
+      .nullable()
       .describe(generalDescriptions.animations('component node')),
   })
   .describe('Schema defining a Component Node Model.')
@@ -887,24 +918,27 @@ const RedirectStatusCodeSchema: z.ZodType<any> = z
 
 const ApiRequestSchema: z.ZodType<ApiRequest> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().describe(
-      'Metadata for the API request',
-    ),
+    '@nordcraft/metadata': MetadataSchema.optional()
+      .nullable()
+      .describe('Metadata for the API request'),
     version: z
       .literal(2)
       .describe('Version of the API request schema. This should always be 2.'),
     name: z.string().describe('Name of the API request.'),
     type: z.enum(['http', 'ws']).describe('Type of the API request.'),
-    method: ApiMethodSchema.optional().describe(
-      'HTTP method for the API request.',
-    ),
-    url: FormulaSchema.optional().describe(
-      'Base URL for the API request. Params and query strings are added when this API is called.',
-    ),
+    method: ApiMethodSchema.optional()
+      .nullable()
+      .describe('HTTP method for the API request.'),
+    url: FormulaSchema.optional()
+      .nullable()
+      .describe(
+        'Base URL for the API request. Params and query strings are added when this API is called.',
+      ),
     service: z
       .string()
       .nullable()
       .optional()
+      .nullable()
       .describe(
         'Name of the service to use for the API request. Only Services defined in the project can be used here.',
       ),
@@ -912,6 +946,7 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
       .string()
       .nullable()
       .optional()
+      .nullable()
       .describe(
         'File path to the service definition. If service is defined, servicePath must also be defined.',
       ),
@@ -940,6 +975,7 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
         }),
       )
       .optional()
+      .nullable()
       .describe('Path segments to include in the API request.'),
     queryParams: z
       .record(
@@ -950,12 +986,14 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
           ),
           enabled: FormulaSchema.nullable()
             .optional()
+            .nullable()
             .describe(
               'Formula evaluating to whether the query parameter is included or not. If included it should evaluate to true.',
             ),
         }),
       )
       .optional()
+      .nullable()
       .describe('Query parameters to include in the API request.'),
     headers: z
       .record(
@@ -966,16 +1004,21 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
           ),
           enabled: FormulaSchema.nullable()
             .optional()
+            .nullable()
             .describe(
               'Formula evaluating to whether the header is included or not. If included it should evaluate to true.',
             ),
         }),
       )
       .optional()
+      .nullable()
       .describe('Headers to include in the API request.'),
-    body: FormulaSchema.optional().describe('Body of the API request.'),
+    body: FormulaSchema.optional()
+      .nullable()
+      .describe('Body of the API request.'),
     autoFetch: FormulaSchema.nullable()
       .optional()
+      .nullable()
       .describe(
         'Indicates if the API request should be automatically fetched when the component or page loads.',
       ),
@@ -987,6 +1030,7 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
         credentials: z
           .enum(['include', 'same-origin', 'omit'])
           .optional()
+          .nullable()
           .describe(
             'Indicates whether credentials such as cookies or authorization headers should be sent with the request.',
           ),
@@ -994,26 +1038,31 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
           .object({ formula: FormulaSchema })
           .nullable()
           .optional()
+          .nullable()
           .describe(
             'Debounce time in milliseconds for the API request. Useful for limiting the number of requests made when inputs change rapidly.',
           ),
         onCompleted: EventModelSchema.nullable()
           .optional()
+          .nullable()
           .describe(
             'Event triggered when the API request completes successfully.',
           ),
         onFailed: EventModelSchema.nullable()
           .optional()
+          .nullable()
           .describe(
             'Event triggered when the API request fails. This is also triggered when the isError formula evaluates to true.',
           ),
         onMessage: EventModelSchema.nullable()
           .optional()
+          .nullable()
           .describe(
             'Event triggered when a message is received from the API. Only applicable for WebSocket and streaming APIs.',
           ),
       })
       .optional()
+      .nullable()
       .describe('Client-side settings for the API request.'),
     server: z
       .object({
@@ -1028,12 +1077,14 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
               .object({ formula: FormulaSchema })
               .nullable()
               .optional()
+              .nullable()
               .describe(
                 'Indicates if templates in the body should be processed when proxying the request. A template could be a http-only cookie that needs to be included in the proxied request. Enabling this flag will ensure that templates in the body are processed before sending the proxied request.',
               ),
           })
           .nullable()
           .optional()
+          .nullable()
           .describe('Proxy settings for the API request.'),
         ssr: z
           .object({
@@ -1041,25 +1092,30 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
               .object({ formula: FormulaSchema })
               .nullable()
               .optional()
+              .nullable()
               .describe(
                 'Indicates if server-side rendering is enabled for this API request. This means the API will be executed on the server during the initial page load. Note: This can have performance implications for the loading of a page on slow APIs.',
               ),
           })
           .optional()
+          .nullable()
           .describe('Server-side rendering settings.'),
       })
       .optional()
+      .nullable()
       .describe('Server-side settings for the API request.'),
     timeout: z
       .object({ formula: FormulaSchema })
       .nullable()
       .optional()
+      .nullable()
       .describe('Timeout for the API request in milliseconds.'),
-    hash: z.object({ formula: FormulaSchema }).nullable().optional(),
+    hash: z.object({ formula: FormulaSchema }).nullable().optional().nullable(),
     isError: z
       .object({ formula: FormulaSchema })
       .nullable()
       .optional()
+      .nullable()
       .describe(
         'Indicates if the last API response was an error. Useful for forcing a response to be treated as an error even if status code is 200.',
       ),
@@ -1076,12 +1132,14 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
               .describe('Index defining the order of the redirect rules.'),
             statusCode: RedirectStatusCodeSchema.nullable()
               .optional()
+              .nullable()
               .describe('HTTP status code to use for the redirect.'),
           })
           .describe('Defines a single redirect rule.'),
       )
       .nullable()
       .optional()
+      .nullable()
       .describe(
         'Rules for redirecting based on response data. The key is a unique identifier for the rule.',
       ),
@@ -1093,8 +1151,11 @@ const LegacyComponentAPISchema: z.ZodType<LegacyComponentAPI> = z
     type: z.literal('REST'),
     name: z.string(),
     method: z.enum(['GET', 'POST', 'DELETE', 'PUT']),
-    url: FormulaSchema.optional(),
-    path: z.array(z.object({ formula: FormulaSchema })).optional(),
+    url: FormulaSchema.optional().nullable(),
+    path: z
+      .array(z.object({ formula: FormulaSchema }))
+      .optional()
+      .nullable(),
     queryParams: z
       .record(
         z.string(),
@@ -1103,22 +1164,25 @@ const LegacyComponentAPISchema: z.ZodType<LegacyComponentAPI> = z
           formula: FormulaSchema,
         }),
       )
-      .optional(),
+      .optional()
+      .nullable(),
     headers: z
       .union([z.record(z.string(), FormulaSchema), FormulaSchema])
-      .optional(),
-    body: FormulaSchema.optional(),
-    autoFetch: FormulaSchema.nullable().optional(),
-    proxy: z.boolean().optional(),
-    debounce: z.number().nullable().optional(),
-    throttle: z.number().nullable().optional(),
+      .optional()
+      .nullable(),
+    body: FormulaSchema.optional().nullable(),
+    autoFetch: FormulaSchema.nullable().optional().nullable(),
+    proxy: z.boolean().optional().nullable(),
+    debounce: z.number().nullable().optional().nullable(),
+    throttle: z.number().nullable().optional().nullable(),
     onCompleted: EventModelSchema.nullable(),
     onFailed: EventModelSchema.nullable(),
     auth: z
       .object({
         type: z.enum(['Bearer id_token', 'Bearer access_token']),
       })
-      .optional(),
+      .optional()
+      .nullable(),
   })
   .describe(
     'Legacy API schema for backward compatibility. Never use this for new APIs.',
@@ -1130,9 +1194,9 @@ const ComponentAPISchema: z.ZodType<ComponentAPI> = z.union([
 ])
 
 const ComponentFormulaSchema: z.ZodType<ComponentFormula> = z.object({
-  '@nordcraft/metadata': MetadataSchema.optional().describe(
-    generalDescriptions.metadata('formula'),
-  ),
+  '@nordcraft/metadata': MetadataSchema.optional()
+    .nullable()
+    .describe(generalDescriptions.metadata('formula')),
   name: z.string().describe('Name of the formula'),
   formula: FormulaSchema.describe(
     'Contains the "code" that will be executed when this formula is called.',
@@ -1146,31 +1210,34 @@ const ComponentFormulaSchema: z.ZodType<ComponentFormula> = z.object({
     )
     .nullable()
     .optional()
+    .nullable()
     .describe('List of arguments accepted by the formula.'),
   memoize: z
     .boolean()
     .optional()
+    .nullable()
     .describe('Indicates if the formula result should be memoized.'),
   exposeInContext: z
     .boolean()
     .optional()
+    .nullable()
     .describe(
       'Indicates if the formula should be exposed in the component context for child components to subscribe to.',
     ),
 })
 
 const ComponentVariableSchema: z.ZodType<ComponentVariable> = z.object({
-  '@nordcraft/metadata': MetadataSchema.optional().describe(
-    generalDescriptions.metadata('variable'),
-  ),
+  '@nordcraft/metadata': MetadataSchema.optional()
+    .nullable()
+    .describe(generalDescriptions.metadata('variable')),
   initialValue: FormulaSchema.describe('Initial value of the variable'),
 })
 
 const ComponentWorkflowSchema: z.ZodType<ComponentWorkflow> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().describe(
-      generalDescriptions.metadata('workflow'),
-    ),
+    '@nordcraft/metadata': MetadataSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.metadata('workflow')),
     name: z.string().describe('Name of the workflow'),
     parameters: z
       .array(
@@ -1186,6 +1253,7 @@ const ComponentWorkflowSchema: z.ZodType<ComponentWorkflow> = z
     exposeInContext: z
       .boolean()
       .optional()
+      .nullable()
       .describe(
         'Indicates if the workflow should be exposed in the context for child components to subscribe to.',
       ),
@@ -1200,6 +1268,7 @@ const StaticPathSegmentSchema: z.ZodType<StaticPathSegment> = z
     optional: z
       .boolean()
       .optional()
+      .nullable()
       .describe('Indicates if the segment is optional'),
   })
   .describe('Schema for static path segments')
@@ -1216,6 +1285,7 @@ const DynamicPathSegmentSchema: z.ZodType<DynamicPathSegment> = z
     optional: z
       .boolean()
       .optional()
+      .nullable()
       .describe('Indicates if the URL parameter is optional'),
   })
   .describe('Schema for dynamic path segments (URL parameters)')
@@ -1272,30 +1342,35 @@ const RouteSchema: z.ZodType<RouteDeclaration> = z
         title: z
           .object({ formula: FormulaSchema })
           .optional()
+          .nullable()
           .describe(
             'Title of the page, used in the document title and SEO metadata.',
           ),
         description: z
           .object({ formula: FormulaSchema })
           .optional()
+          .nullable()
           .describe(
             'Description of the page, used in SEO metadata and social sharing previews.',
           ),
         icon: z
           .object({ formula: FormulaSchema })
           .optional()
+          .nullable()
           .describe(
             'URL to the icon of the page, used in SEO metadata and social sharing previews.',
           ),
         language: z
           .object({ formula: FormulaSchema })
           .optional()
+          .nullable()
           .describe(
             'Language of the page, used in the lang attribute of the HTML document.',
           ),
         charset: z
           .object({ formula: FormulaSchema })
           .optional()
+          .nullable()
           .describe(
             'Character set of the page, used in the meta charset tag of the HTML document.',
           ),
@@ -1305,11 +1380,13 @@ const RouteSchema: z.ZodType<RouteDeclaration> = z
             MetaEntrySchema,
           )
           .optional()
+          .nullable()
           .describe(
             'Additional meta tags to include in the head of the document. Each entry defines a tag and its attributes.',
           ),
       })
       .optional()
+      .nullable()
       .describe(
         'Contains additional information for the route such as SEO metadata.',
       ),
@@ -1320,9 +1397,9 @@ const RouteSchema: z.ZodType<RouteDeclaration> = z
 
 const ComponentAttributeSchema: z.ZodType<ComponentAttribute> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().describe(
-      generalDescriptions.metadata('component attribute'),
-    ),
+    '@nordcraft/metadata': MetadataSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.metadata('component attribute')),
     name: z.string().describe('Name of the component attribute'),
     testValue: z
       .any()
@@ -1332,9 +1409,9 @@ const ComponentAttributeSchema: z.ZodType<ComponentAttribute> = z
 
 const ComponentEventSchema: z.ZodType<ComponentEvent> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().describe(
-      generalDescriptions.metadata('component event'),
-    ),
+    '@nordcraft/metadata': MetadataSchema.optional()
+      .nullable()
+      .describe(generalDescriptions.metadata('component event')),
     name: z.string().describe('Name of the component event'),
     dummyEvent: z
       .any()
@@ -1347,10 +1424,12 @@ const ComponentContextSchema: z.ZodType<ComponentContext> = z
     package: z
       .string()
       .optional()
+      .nullable()
       .describe('Package name of the component providing the context'),
     componentName: z
       .string()
       .optional()
+      .nullable()
       .describe('Name of the component providing the context'),
     formulas: z
       .array(z.string())
@@ -1368,37 +1447,48 @@ const commonComponentSchema = (type: 'component' | 'page') =>
       exported: z
         .boolean()
         .optional()
+        .nullable()
         .describe(
           `Whether the ${type} is exported in a package project for use in other projects. Do not change this value. It should be managed by the user.`,
         ),
       nodes: z
         .record(z.string(), NodeModelSchema)
+        .optional()
+        .nullable()
         .describe(
           `All nodes in the ${type}, indexed by their unique IDs. Nodes represent HTML elements, text, slots, or ${type === 'component' ? 'other components' : 'components'}. They defined the UI structure of the ${type}.`,
         ),
       variables: z
         .record(z.string(), ComponentVariableSchema)
+        .optional()
+        .nullable()
         .describe(generalDescriptions.variables(type)),
       formulas: z
         .record(z.string(), ComponentFormulaSchema)
         .optional()
+        .nullable()
         .describe(generalDescriptions.formulas(type)),
       workflows: z
         .record(z.string(), ComponentWorkflowSchema)
         .optional()
+        .nullable()
         .describe(generalDescriptions.workflows(type)),
       apis: z
         .record(z.string(), ComponentAPISchema)
+        .optional()
+        .nullable()
         .describe(generalDescriptions.apis(type)),
       events: z
         .array(ComponentEventSchema)
         .optional()
+        .nullable()
         .describe(
           'All events this the component can emit. Events allow the component to communicate with its parent or other components. They can be triggered via actions.',
         ),
       contexts: z
         .record(z.string(), ComponentContextSchema)
         .optional()
+        .nullable()
         .describe(
           'Defines which contexts this component is subscribed to. Contexts allow the component to access formulas and workflows from other components, enabling reusability and modular design.',
         ),
@@ -1408,6 +1498,7 @@ const commonComponentSchema = (type: 'component' | 'page') =>
           actions: z.array(ActionModelSchema),
         })
         .optional()
+        .nullable()
         .describe(generalDescriptions.onLoad(type)),
       onAttributeChange: z
         .object({
@@ -1415,6 +1506,7 @@ const commonComponentSchema = (type: 'component' | 'page') =>
           actions: z.array(ActionModelSchema),
         })
         .optional()
+        .nullable()
         .describe(generalDescriptions.onAttributeChange(type)),
     })
     .describe('Schema defining a reusable Nordcraft component.')

@@ -6,6 +6,7 @@ import {
   getFormulasInAction,
   getFormulasInFormula,
 } from '../formula/formulaUtils'
+import type { Nullable } from '../types'
 import { isDefined } from '../utils/util'
 import { HttpMethodsWithAllowedBody } from './api'
 import { type ApiRequest } from './apiTypes'
@@ -32,7 +33,7 @@ export class ToddleApiV2<Handler> implements ApiRequest {
       return this._apiReferences
     }
     const apis = new Set<string>()
-    const visitFormulaReference = (formula?: Formula | null) => {
+    const visitFormulaReference = (formula?: Nullable<Formula>) => {
       if (!isDefined(formula)) {
         return
       }

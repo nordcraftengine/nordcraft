@@ -20,6 +20,7 @@ import {
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import { mapValues } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
@@ -68,10 +69,10 @@ const renderComponent = async ({
   addCustomProperty: (
     selector: string,
     rule: CustomPropertyRule,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+    }>,
   ) => void
   namespace?: SupportedNamespaces
 }): Promise<string> => {
@@ -584,10 +585,10 @@ const createComponent = async ({
   addCustomProperty: (
     selector: string,
     rule: CustomPropertyRule,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+    }>,
   ) => void
 }): Promise<string> => {
   const data: ComponentData = {
@@ -671,10 +672,10 @@ export const renderPageBody = async ({
   const addCustomProperty = (
     selector: string,
     rule: CustomPropertyRule,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+    }>,
   ) => {
     selector = options?.startingStyle
       ? `${selector} { @starting-style { __RULES__ } }`

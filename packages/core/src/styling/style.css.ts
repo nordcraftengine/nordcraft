@@ -5,6 +5,7 @@ import type {
   ElementNodeModel,
   NodeStyleModel,
 } from '../component/component.types'
+import type { Nullable } from '../types'
 import { omitKeys } from '../utils/collections'
 import { isDefined } from '../utils/util'
 import { getClassName, toValidClassName } from './className'
@@ -144,7 +145,7 @@ export const createStylesheet = (
       const renderVariant = (
         selector: string,
         style: NodeStyleModel,
-        options?: { startingStyle?: boolean },
+        options?: Nullable<{ startingStyle?: Nullable<boolean> }>,
       ) => {
         const scrollbarStyles = Object.entries(style).filter(
           ([key]) => key === 'scrollbar-width',

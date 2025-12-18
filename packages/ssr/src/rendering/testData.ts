@@ -176,6 +176,7 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
       }
     case 'Custom':
     case undefined:
+    case null:
       return {
         // The 'group' property was used for categorizing actions and should
         // not have been persisted in projects. But since it's there (for some actions)

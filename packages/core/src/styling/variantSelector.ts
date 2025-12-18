@@ -3,6 +3,7 @@ import type {
   CustomPropertyName,
   NodeStyleModel,
 } from '../component/component.types'
+import type { Nullable } from '../types'
 
 export type Shadow = {
   x: number
@@ -24,45 +25,45 @@ export type Filter =
     }
 
 type MediaQuery = {
-  'min-width'?: string
-  'max-width'?: string
-  'min-height'?: string
-  'max-height'?: string
+  'min-width'?: Nullable<string>
+  'max-width'?: Nullable<string>
+  'min-height'?: Nullable<string>
+  'max-height'?: Nullable<string>
 }
 
 export interface StyleVariant {
-  'even-child'?: boolean
-  'first-child'?: boolean
-  'first-of-type'?: boolean
-  'focus-visible'?: boolean
-  'focus-within'?: boolean
-  'last-child'?: boolean
-  'last-of-type'?: boolean
-  'nth-child(even)'?: boolean
-  'popover-open'?: boolean
-  active?: boolean
-  autofill?: boolean
-  breakpoint?: 'small' | 'medium' | 'large'
-  checked?: boolean
-  class?: string
-  className?: string
-  customProperties?: Record<CustomPropertyName, CustomProperty>
-  disabled?: boolean
-  empty?: boolean
-  evenChild?: boolean
-  firstChild?: boolean
-  focus?: boolean
-  focusWithin?: boolean
-  hover?: boolean
-  id?: string
-  invalid?: boolean
-  lastChild?: boolean
-  link?: boolean
-  mediaQuery?: MediaQuery
-  pseudoElement?: string
-  startingStyle?: boolean
+  'even-child'?: Nullable<boolean>
+  'first-child'?: Nullable<boolean>
+  'first-of-type'?: Nullable<boolean>
+  'focus-visible'?: Nullable<boolean>
+  'focus-within'?: Nullable<boolean>
+  'last-child'?: Nullable<boolean>
+  'last-of-type'?: Nullable<boolean>
+  'nth-child(even)'?: Nullable<boolean>
+  'popover-open'?: Nullable<boolean>
+  active?: Nullable<boolean>
+  autofill?: Nullable<boolean>
+  breakpoint?: Nullable<'small' | 'medium' | 'large'>
+  checked?: Nullable<boolean>
+  class?: Nullable<string>
+  className?: Nullable<string>
+  customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
+  disabled?: Nullable<boolean>
+  empty?: Nullable<boolean>
+  evenChild?: Nullable<boolean>
+  firstChild?: Nullable<boolean>
+  focus?: Nullable<boolean>
+  focusWithin?: Nullable<boolean>
+  hover?: Nullable<boolean>
+  id?: Nullable<string>
+  invalid?: Nullable<boolean>
+  lastChild?: Nullable<boolean>
+  link?: Nullable<boolean>
+  mediaQuery?: Nullable<MediaQuery>
+  pseudoElement?: Nullable<string>
+  startingStyle?: Nullable<boolean>
   style: NodeStyleModel
-  visited?: boolean
+  visited?: Nullable<boolean>
 }
 
 export const variantSelector = (variant: StyleVariant) =>
