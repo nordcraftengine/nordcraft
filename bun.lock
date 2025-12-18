@@ -38,7 +38,7 @@
     },
     "packages/core": {
       "name": "@nordcraft/core",
-      "devDependencies": {
+      "dependencies": {
         "zod": "4.2.1",
       },
     },
