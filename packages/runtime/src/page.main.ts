@@ -3,6 +3,7 @@ import type {
   Component,
   ComponentData,
 } from '@nordcraft/core/dist/component/component.types'
+import { ComponentSchema } from '@nordcraft/core/dist/component/schemas/zod-schemas'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
@@ -132,6 +133,8 @@ export const createRoot = (domNode: HTMLElement) => {
   if (!domNode) {
     throw new Error('Cant find root domNode')
   }
+  const validatedComponent = ComponentSchema.safeParse(component)
+  console.log('valid', validatedComponent.success)
 
   if (!window.toddle.components) {
     throw new Error('Missing components')
