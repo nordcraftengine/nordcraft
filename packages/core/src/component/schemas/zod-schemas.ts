@@ -68,9 +68,9 @@ const generalDescriptions = {
   metadata: (type: string) =>
     `Metadata associated with this ${type}. This can include comments and other information useful for understanding the ${type}.`,
   onAttributeChange: (type: string) =>
-    `Lifecycle event that is triggered when any of the ${type} attributes change. You can define actions to be executed in response to attribute changes, allowing the ${type} to react dynamically to different configurations.`,
+    `Lifecycle event that is triggered when any of the ${type} attributes change. Declared actions will be executed in response to attribute changes, allowing the ${type} to react dynamically to different configurations.`,
   onLoad: (type: string) =>
-    `Lifecycle event that is triggered when the ${type} is loaded. You can define actions to be executed when the ${type} loads, such as initializing variables or fetching data.`,
+    `Lifecycle event that is triggered when the ${type} is loaded. Declared actions will be executed when the ${type} loads, such as initializing variables or fetching data.`,
   repeat: (type: string) =>
     `Formula evaluating to an array of items to repeat this ${type} for.`,
   repeatKey: (type: string) =>
@@ -1360,110 +1360,83 @@ const ComponentContextSchema: z.ZodType<ComponentContext> = z
   })
   .describe('Schema defining a component context subscription.')
 
-// Page Component (Main Schema)
-export const PageSchema: z.ZodType<PageComponent> = z
-  .object({
-    name: z.string().describe('Name of the page'),
-    attributes: z
-      .object({})
-      .describe(
-        'Attributes for the page (currently none). Should always be an empty object.',
-      ),
-    nodes: z
-      .record(z.string(), NodeModelSchema)
-      .describe(
-        'All nodes in the page, indexed by their unique IDs. Nodes represent HTML elements, text, slots, or other components. They defined the UI structure of the page.',
-      ),
-    variables: z
-      .record(z.string(), ComponentVariableSchema)
-      .describe(generalDescriptions.variables('page')),
-    formulas: z
-      .record(z.string(), ComponentFormulaSchema)
-      .describe(generalDescriptions.formulas('page')),
-    workflows: z
-      .record(z.string(), ComponentWorkflowSchema)
-      .describe(generalDescriptions.workflows('page')),
-    apis: z
-      .record(z.string(), ComponentAPISchema)
-      .describe(generalDescriptions.apis('page')),
-    route: RouteSchema.describe(
-      'Route information for the page, including path segments, query parameters, and metadata such as title and description.',
-    ),
-    onLoad: z
-      .object({
-        trigger: z.literal('Load'),
-        actions: z.array(ActionModelSchema),
-      })
-      .optional()
-      .describe(generalDescriptions.onLoad('page')),
-    onAttributeChange: z
-      .object({
-        trigger: z.literal('Attribute change'),
-        actions: z.array(ActionModelSchema),
-      })
-      .optional()
-      .describe(generalDescriptions.onAttributeChange('page')),
-  })
-  .describe('Schema defining a full Nordcraft page.')
+const commonComponentSchema = (type: 'component' | 'page') =>
+  z
+    .object({
+      name: z.string().describe(`Name of the ${type}`),
+      exported: z
+        .boolean()
+        .optional()
+        .describe(
+          `Whether the ${type} is exported in a package project for use in other projects. Do not change this value. It should be managed by the user.`,
+        ),
+      nodes: z
+        .record(z.string(), NodeModelSchema)
+        .describe(
+          `All nodes in the ${type}, indexed by their unique IDs. Nodes represent HTML elements, text, slots, or ${type === 'component' ? 'other components' : 'components'}. They defined the UI structure of the ${type}.`,
+        ),
+      variables: z
+        .record(z.string(), ComponentVariableSchema)
+        .describe(generalDescriptions.variables(type)),
+      formulas: z
+        .record(z.string(), ComponentFormulaSchema)
+        .optional()
+        .describe(generalDescriptions.formulas(type)),
+      workflows: z
+        .record(z.string(), ComponentWorkflowSchema)
+        .optional()
+        .describe(generalDescriptions.workflows(type)),
+      apis: z
+        .record(z.string(), ComponentAPISchema)
+        .describe(generalDescriptions.apis(type)),
+      events: z
+        .array(ComponentEventSchema)
+        .optional()
+        .describe(
+          'All events this the component can emit. Events allow the component to communicate with its parent or other components. They can be triggered via actions.',
+        ),
+      contexts: z
+        .record(z.string(), ComponentContextSchema)
+        .optional()
+        .describe(
+          'Defines which contexts this component is subscribed to. Contexts allow the component to access formulas and workflows from other components, enabling reusability and modular design.',
+        ),
+      onLoad: z
+        .object({
+          trigger: z.literal('Load'),
+          actions: z.array(ActionModelSchema),
+        })
+        .optional()
+        .describe(generalDescriptions.onLoad(type)),
+      onAttributeChange: z
+        .object({
+          trigger: z.literal('Attribute change'),
+          actions: z.array(ActionModelSchema),
+        })
+        .optional()
+        .describe(generalDescriptions.onAttributeChange(type)),
+    })
+    .describe('Schema defining a reusable Nordcraft component.')
 
-export const ComponentSchema: z.ZodType<Component> = z
-  .object({
-    name: z.string().describe('Name of the component'),
-    exported: z
-      .boolean()
-      .optional()
-      .describe(
-        'Whether the component is exported in a package project for use in other projects. Do not change this value. It should be managed by the user.',
-      ),
-    nodes: z
-      .record(z.string(), NodeModelSchema)
-      .describe(
-        'All nodes in the component, indexed by their unique IDs. Nodes represent HTML elements, text, slots, or other components. They defined the UI structure of the component.',
-      ),
-    variables: z
-      .record(z.string(), ComponentVariableSchema)
-      .describe(generalDescriptions.variables('component')),
-    formulas: z
-      .record(z.string(), ComponentFormulaSchema)
-      .optional()
-      .describe(generalDescriptions.formulas('component')),
-    workflows: z
-      .record(z.string(), ComponentWorkflowSchema)
-      .optional()
-      .describe(generalDescriptions.workflows('component')),
-    apis: z
-      .record(z.string(), ComponentAPISchema)
-      .describe(generalDescriptions.apis('component')),
-    attributes: z
-      .record(z.string(), ComponentAttributeSchema)
-      .describe(
-        'All attributes that can be passed into the component when it is used. Attributes allow for customization and configuration of the component instance. When the value of an attribute changes, any formulas depending on it will automatically recalculate and the onAttributeChange lifecycle event is triggered.',
-      ),
-    events: z
-      .array(ComponentEventSchema)
-      .optional()
-      .describe(
-        'All events this the component can emit. Events allow the component to communicate with its parent or other components. They can be triggered via actions.',
-      ),
-    contexts: z
-      .record(z.string(), ComponentContextSchema)
-      .optional()
-      .describe(
-        'Defines which contexts this component is subscribed to. Contexts allow the component to access formulas and workflows from other components, enabling reusability and modular design.',
-      ),
-    onLoad: z
-      .object({
-        trigger: z.literal('Load'),
-        actions: z.array(ActionModelSchema),
-      })
-      .optional()
-      .describe(generalDescriptions.onLoad('component')),
-    onAttributeChange: z
-      .object({
-        trigger: z.literal('Attribute change'),
-        actions: z.array(ActionModelSchema),
-      })
-      .optional()
-      .describe(generalDescriptions.onAttributeChange('component')),
-  })
-  .describe('Schema defining a reusable Nordcraft component.')
+export const ComponentSchema: z.ZodType<Component> = commonComponentSchema(
+  'component',
+).extend({
+  attributes: z
+    .record(z.string(), ComponentAttributeSchema)
+    .describe(
+      'All attributes that can be passed into the component when it is used. Attributes allow for customization and configuration of the component instance. When the value of an attribute changes, any formulas depending on it will automatically recalculate and the onAttributeChange lifecycle event is triggered.',
+    ),
+})
+
+export const PageSchema: z.ZodType<PageComponent> = commonComponentSchema(
+  'page',
+).extend({
+  attributes: z
+    .object({})
+    .describe(
+      'Attributes for the page (currently none). Should always be an empty object.',
+    ),
+  route: RouteSchema.describe(
+    'Route information for the page, including path segments, query parameters, and metadata such as title and description.',
+  ),
+})
