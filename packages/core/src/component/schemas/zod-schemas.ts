@@ -11,6 +11,7 @@ import type {
   ApplyOperation,
   ArrayOperation,
   Formula,
+  FunctionArgument,
   FunctionOperation,
   ObjectOperation,
   OrOperation,
@@ -134,7 +135,7 @@ const PathOperationSchema: z.ZodType<PathOperation> = z.object({
 })
 
 // Formula argument base
-const FormulaArgumentSchema = z
+const FormulaArgumentSchema: z.ZodType<FunctionArgument> = z
   .object({
     get formula() {
       return FormulaSchema.describe('Formula for the argument.')
