@@ -80,7 +80,6 @@ export const contextlessEvaluateFormula = (
       )
 
       return {
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         isStatic: alwaysTrue || alwaysFalsy,
         result: alwaysTrue ? true : alwaysFalsy ? false : undefined,
       }
@@ -103,7 +102,6 @@ export const contextlessEvaluateFormula = (
       )
 
       return {
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         isStatic: alwaysTrue || alwaysFalsy,
         result: alwaysFalsy ? false : alwaysTrue ? true : undefined,
       }
