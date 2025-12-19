@@ -10,7 +10,7 @@ import { renameArguments } from '../../../util/helpers'
 
 export const replaceLegacyAction: FixFunction<
   ActionModelNode<CustomActionModel>
-> = ({ path, value, files }) => {
+> = ({ data: { path, value, files } }) => {
   let newAction: ActionModel | undefined
   switch (value.name) {
     case 'If': {
