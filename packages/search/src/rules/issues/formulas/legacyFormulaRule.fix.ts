@@ -15,7 +15,7 @@ import {
 
 export const replaceLegacyFormula: FixFunction<
   FormulaNode<FunctionOperation>
-> = (data) => {
+> = ({ data }) => {
   switch (data.value.name) {
     // Known legacy formulas first
     case 'AND': {
