@@ -34,12 +34,15 @@ export const unknownRepeatItemFormulaRule: Rule = {
       if (node.repeat) {
         return node
       }
-      const parent = Object.entries(component.nodes).find(([_, node]) =>
+      const parent = Object.entries(component.nodes ?? {}).find(([_, node]) =>
         node.children?.includes(id),
       )
       return findParentWithRepeat(parent)
     }
-    const node = component.nodes[nodeId]
+    const node = component.nodes?.[nodeId]
+    if (!node) {
+      return
+    }
     const parentWithRepeat = findParentWithRepeat([nodeId, node])
     if (!parentWithRepeat) {
       report(path)

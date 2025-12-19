@@ -2,6 +2,7 @@ import type {
   Component,
   NodeModel,
 } from '@nordcraft/core/dist/component/component.types'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '../ssr.types'
 
@@ -14,7 +15,7 @@ export function takeIncludedComponents({
   projectComponents: ProjectFiles['components']
   packages: ProjectFiles['packages']
   root: Component
-  includeRoot?: boolean
+  includeRoot?: Nullable<boolean>
 }) {
   const components = {
     ...projectComponents,
@@ -43,7 +44,7 @@ function takeComponentsIncludedInProject(
   components: Partial<Record<string, Component>>,
 ) {
   const dependencies = new Map<string, Component>()
-  const visitNode = (node: NodeModel, packageName?: string) => {
+  const visitNode = (node: NodeModel, packageName?: Nullable<string>) => {
     if (node.type !== 'component') {
       return
     }
@@ -63,7 +64,7 @@ function takeComponentsIncludedInProject(
       dependencies.set(nodeName, { ...component, name: nodeName })
     }
 
-    Object.values(component.nodes).forEach((node) =>
+    Object.values(component.nodes ?? {}).forEach((node) =>
       visitNode(
         node,
         (node.type === 'component' ? node.package : undefined) ?? packageName,
@@ -71,7 +72,7 @@ function takeComponentsIncludedInProject(
     )
   }
 
-  Object.values(parent.nodes).forEach((node) =>
+  Object.values(parent.nodes ?? {}).forEach((node) =>
     visitNode(node, node.type === 'component' ? node.package : undefined),
   )
 

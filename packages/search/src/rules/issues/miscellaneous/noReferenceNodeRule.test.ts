@@ -132,7 +132,7 @@ describe('fix noReferenceNodeRule', () => {
       rule: noReferenceNodeRule,
       fixType: 'delete-orphan-node',
     })
-    expect(Object.keys(fixedFiles.components.test!.nodes)).toEqual([
+    expect(Object.keys(fixedFiles.components.test!.nodes ?? {})).toEqual([
       'root',
       'used',
     ])

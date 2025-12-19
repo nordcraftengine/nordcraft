@@ -72,10 +72,10 @@ export function subscribeToContext(
         const [, testProviderPackage] = providerName.split('/').reverse()
         const formulaContext: FormulaContext = {
           data: {
-            Attributes: mapObject(testProvider.attributes, ([name, attr]) => [
-              name,
-              attr.testValue,
-            ]),
+            Attributes: mapObject(
+              testProvider.attributes ?? {},
+              ([name, attr]) => [name, attr.testValue],
+            ),
           },
           component: testProvider,
           root: ctx?.root,
@@ -99,7 +99,7 @@ export function subscribeToContext(
           }
         }
         formulaContext.data.Variables = mapObject(
-          testProvider.variables,
+          testProvider.variables ?? {},
           ([name, variable]) => [
             name,
             applyFormula(variable.initialValue, formulaContext),

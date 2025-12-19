@@ -32,7 +32,7 @@ export function createNode({
   parentElement: Element | ShadowRoot
   instance: Record<string, string>
 }): ReadonlyArray<Element | Text> {
-  const node = ctx.component.nodes[id]
+  const node = ctx.component.nodes?.[id]
   if (!node) {
     return []
   }
@@ -177,7 +177,7 @@ export function createNode({
       }
     >()
     const repeatSignal = dataSignal.map((data) => {
-      const list = applyFormula(node.repeat, {
+      const list = applyFormula(node?.repeat, {
         data,
         component: ctx.component,
         formulaCache: ctx.formulaCache,
@@ -216,7 +216,7 @@ export function createNode({
               Key,
             },
           }
-          let childKey = node.repeatKey
+          let childKey = node?.repeatKey
             ? applyFormula(node.repeatKey, {
                 data: childData,
                 component: ctx.component,
@@ -278,7 +278,7 @@ export function createNode({
             )
 
             const args = {
-              node,
+              node: node!,
               id,
               dataSignal: childDataSignal,
               path: Key === '0' ? path : `${path}(${Key})`,
@@ -287,7 +287,7 @@ export function createNode({
               parentElement,
               instance,
             }
-            const elements = node.condition ? conditional(args) : create(args)
+            const elements = node!.condition ? conditional(args) : create(args)
             newRepeatItems.set(childKey, {
               dataSignal: childDataSignal,
               cleanup,

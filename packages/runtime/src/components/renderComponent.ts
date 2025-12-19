@@ -119,9 +119,9 @@ export function renderComponent({
                     ) => {
                       if (
                         fastDeepEqual(value, prev![key]) === false &&
-                        component.attributes[key]?.name
+                        component.attributes?.[key]?.name
                       ) {
-                        changes[component.attributes[key]?.name] = {
+                        changes[component.attributes?.[key]?.name] = {
                           current: prev![key],
                           new: value,
                         }

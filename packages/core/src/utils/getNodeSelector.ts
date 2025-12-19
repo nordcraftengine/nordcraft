@@ -1,15 +1,16 @@
 import { variantSelector, type StyleVariant } from '../styling/variantSelector'
+import type { Nullable } from '../types'
 
 type NodeSelectorOptions =
   | {
       componentName: string
-      nodeId: string | undefined
-      variant?: StyleVariant
+      nodeId: Nullable<string>
+      variant?: Nullable<StyleVariant>
     }
   | {
       componentName?: never
       nodeId?: never
-      variant?: StyleVariant
+      variant?: Nullable<StyleVariant>
     }
 
 export function getNodeSelector(

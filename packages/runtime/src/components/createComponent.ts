@@ -131,7 +131,7 @@ export function createComponent({
   const componentDataSignal = signal<ComponentData>({
     Location: dataSignal.get().Location,
     Attributes: attributesSignal.get(),
-    Apis: mapObject(component.apis, ([name, api]) => [
+    Apis: mapObject(component.apis ?? {}, ([name, api]) => [
       name,
       {
         data: null,
@@ -156,7 +156,7 @@ export function createComponent({
   subscribeToContext(componentDataSignal, component, ctx)
   componentDataSignal.update((data) => ({
     ...data,
-    Variables: mapObject(component.variables, ([name, variable]) => [
+    Variables: mapObject(component.variables ?? {}, ([name, variable]) => [
       name,
       applyFormula(variable.initialValue, {
         // Initial value
@@ -182,32 +182,10 @@ export function createComponent({
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
   const apis: Record<string, ContextApi> = {}
-  sortApiObjects(Object.entries(component.apis)).forEach(([name, api]) => {
-    if (isLegacyApi(api)) {
-      apis[name] = createLegacyAPI(api, {
-        ...ctx,
-        apis,
-        component,
-        dataSignal: componentDataSignal,
-        abortSignal: abortController.signal,
-        isRootComponent: false,
-        formulaCache,
-        package: node.package ?? ctx.package,
-        triggerEvent: (eventTrigger, data) => {
-          const eventHandler = Object.values(node.events).find(
-            (e) => e.trigger === eventTrigger,
-          )
-          if (eventHandler) {
-            eventHandler.actions?.forEach((action) =>
-              handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
-            )
-          }
-        },
-      })
-    } else {
-      apis[name] = createAPI({
-        apiRequest: api,
-        ctx: {
+  sortApiObjects(Object.entries(component.apis ?? {})).forEach(
+    ([name, api]) => {
+      if (isLegacyApi(api)) {
+        apis[name] = createLegacyAPI(api, {
           ...ctx,
           apis,
           component,
@@ -226,11 +204,39 @@ export function createComponent({
               )
             }
           },
-        },
-        componentData: componentDataSignal.get(),
-      })
-    }
-  })
+        })
+      } else {
+        apis[name] = createAPI({
+          apiRequest: api,
+          ctx: {
+            ...ctx,
+            apis,
+            component,
+            dataSignal: componentDataSignal,
+            abortSignal: abortController.signal,
+            isRootComponent: false,
+            formulaCache,
+            package: node.package ?? ctx.package,
+            triggerEvent: (eventTrigger, data) => {
+              const eventHandler = Object.values(node.events).find(
+                (e) => e.trigger === eventTrigger,
+              )
+              if (eventHandler) {
+                eventHandler.actions?.forEach((action) =>
+                  handleAction(
+                    action,
+                    { ...dataSignal.get(), Event: data },
+                    ctx,
+                  ),
+                )
+              }
+            },
+          },
+          componentData: componentDataSignal.get(),
+        })
+      }
+    },
+  )
   Object.values(apis)
     .filter(isContextApiV2)
     .forEach((api) => {
@@ -290,8 +296,8 @@ export function createComponent({
   const children: Record<string, Array<ComponentChild>> = {}
   for (let i = 0; i < node.children.length; i++) {
     const childId = node.children[i]
-    const childNode = ctx.component.nodes[childId]
-    const slotName = childNode.slot ?? 'default'
+    const childNode = ctx.component.nodes?.[childId]
+    const slotName = childNode?.slot ?? 'default'
     children[slotName] = children[slotName] ?? []
     children[slotName].push({
       id: childId,

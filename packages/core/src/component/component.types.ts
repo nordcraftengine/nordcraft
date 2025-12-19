@@ -2,67 +2,70 @@ import type { ApiStatus, ComponentAPI, LegacyApiStatus } from '../api/apiTypes'
 import type { Formula } from '../formula/formula'
 import type { StyleTokenCategory } from '../styling/theme'
 import type { StyleVariant } from '../styling/variantSelector'
-import type { NordcraftMetadata, RequireFields } from '../types'
+import type { NordcraftMetadata, Nullable, RequireFields } from '../types'
 
 interface ListItem {
   Item: unknown
   Index: number
-  Parent?: ListItem
+  Parent?: Nullable<ListItem>
 }
 
 export interface ComponentData {
-  Location?: {
-    page?: string
+  Location?: Nullable<{
+    page?: Nullable<string>
     path: string
     // params is a combination of path and query parameters
-    params: Record<string, string | null>
-    query: Record<string, string | null>
+    params: Record<string, Nullable<string>>
+    query: Record<string, Nullable<string>>
     hash: string
-  }
+  }>
   Attributes: Record<string, unknown>
-  Variables?: Record<string, unknown>
-  Contexts?: Record<string, Record<string, unknown>>
-  'URL parameters'?: Record<string, string | null>
+  Variables?: Nullable<Record<string, unknown>>
+  Contexts?: Nullable<Record<string, Record<string, unknown>>>
+  'URL parameters'?: Nullable<Record<string, Nullable<string>>>
   // { path: { docs: null }, query: { embed: everything } }
-  'Route parameters'?: {
-    path: Record<string, string | null>
-    query: Record<string, string | null>
-  }
-  Apis?: Record<
-    string,
-    LegacyApiStatus | (ApiStatus & { inputs?: Record<string, unknown> })
+  'Route parameters'?: Nullable<{
+    path: Record<string, Nullable<string>>
+    query: Record<string, Nullable<string>>
+  }>
+  Apis?: Nullable<
+    Record<
+      string,
+      | LegacyApiStatus
+      | (ApiStatus & { inputs?: Nullable<Record<string, unknown>> })
+    >
   >
-  Args?: unknown
-  Parameters?: Record<string, unknown>
-  Event?: unknown
-  ListItem?: ListItem
+  Args?: Nullable<unknown>
+  Parameters?: Nullable<Record<string, unknown>>
+  Event?: Nullable<unknown>
+  ListItem?: Nullable<ListItem>
 }
 
 export interface AnimationKeyframe {
   position: number
   key: string
   value: string
-  easing?: never
+  easing?: Nullable<never>
 }
 
 export type NodeStyleModel = Record<string, string | number>
 
 export interface TextNodeModel {
-  id?: string | null
+  id?: Nullable<string>
   type: 'text'
-  condition?: Formula | null
-  repeat?: Formula | null
-  slot?: string | null
-  repeatKey?: Formula | null
+  condition?: Nullable<Formula>
+  repeat?: Nullable<Formula>
+  slot?: Nullable<string>
+  repeatKey?: Nullable<Formula>
   value: Formula
-  children?: undefined
+  children?: Nullable<never>
 }
 
 export type CustomPropertyName = `--${string}`
 
 export type CustomProperty = {
   formula: Formula
-  unit?: string | null
+  unit?: Nullable<string>
 }
 
 /**
@@ -72,54 +75,54 @@ export type StyleVariable = {
   category: StyleTokenCategory
   name: string
   formula: Formula
-  unit?: string
+  unit?: Nullable<string>
 }
 
 export interface ElementNodeModel {
-  id?: string
+  id?: Nullable<string>
   type: 'element'
-  slot?: string
-  condition?: Formula | null
-  repeat?: Formula | null
-  repeatKey?: Formula | null
+  slot?: Nullable<string>
+  condition?: Nullable<Formula>
+  repeat?: Nullable<Formula>
+  repeatKey?: Nullable<Formula>
   tag: string
   attrs: Partial<Record<string, Formula>>
-  style?: NodeStyleModel | null
-  variants?: StyleVariant[] | null
-  animations?: Record<string, Record<string, AnimationKeyframe>>
+  style?: Nullable<NodeStyleModel>
+  variants?: Nullable<StyleVariant[]>
+  animations?: Nullable<Record<string, Record<string, AnimationKeyframe>>>
   children: string[]
-  events: Partial<Record<string, EventModel | null>>
-  classes?: Record<string, { formula?: Formula }> | null
-  'style-variables'?: Array<StyleVariable>
-  customProperties?: Record<CustomPropertyName, CustomProperty>
+  events: Partial<Record<string, Nullable<EventModel>>>
+  classes?: Nullable<Record<string, { formula?: Nullable<Formula> }>>
+  'style-variables'?: Nullable<Array<StyleVariable>>
+  customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
 }
 
 export interface ComponentNodeModel {
-  id?: string
+  id?: Nullable<string>
   type: 'component'
-  slot?: string
-  path?: string
+  slot?: Nullable<string>
+  path?: Nullable<string>
   name: string
-  package?: string
-  condition?: Formula | null
-  repeat?: Formula | null
-  repeatKey?: Formula | null
-  style?: NodeStyleModel | null
-  variants?: StyleVariant[] | null
-  animations?: Record<string, Record<string, AnimationKeyframe>>
+  package?: Nullable<string>
+  condition?: Nullable<Formula>
+  repeat?: Nullable<Formula>
+  repeatKey?: Nullable<Formula>
+  style?: Nullable<NodeStyleModel>
+  variants?: Nullable<StyleVariant[]>
+  animations?: Nullable<Record<string, Record<string, AnimationKeyframe>>>
   attrs: Record<string, Formula>
   children: string[]
   events: Record<string, EventModel>
-  customProperties?: Record<CustomPropertyName, CustomProperty>
+  customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
 }
 
 export interface SlotNodeModel {
   type: 'slot'
-  slot?: string
-  name?: string
-  condition?: Formula | null
-  repeat?: undefined | null
-  repeatKey?: undefined | null
+  slot?: Nullable<string>
+  name?: Nullable<string>
+  condition?: Nullable<Formula>
+  repeat?: Nullable<never>
+  repeatKey?: Nullable<never>
   children: string[]
 }
 export type NodeModel =
@@ -131,29 +134,29 @@ export type NodeModel =
 export interface MetaEntry {
   tag: HeadTagTypes
   attrs: Record<string, Formula>
-  content?: Formula | null
-  index?: number | null
+  content?: Nullable<Formula>
+  index?: Nullable<number>
 }
 
 export interface StaticPathSegment {
   type: 'static'
-  optional?: boolean
-  testValue?: undefined
+  optional?: Nullable<boolean>
+  testValue?: Nullable<never>
   name: string
 }
 
 export interface DynamicPathSegment {
   type: 'param'
   testValue: string
-  optional?: boolean
+  optional?: Nullable<boolean>
   name: string
 }
 
 export type MediaQuery = {
-  'min-width'?: string
-  'max-width'?: string
-  'min-height'?: string
-  'max-height'?: string
+  'min-width'?: Nullable<string>
+  'max-width'?: Nullable<string>
+  'min-height'?: Nullable<string>
+  'max-height'?: Nullable<string>
 }
 
 export interface Component {
@@ -164,54 +167,56 @@ export interface Component {
    * @default undefined (version 1)
    * @deprecated - we are no longer using version 2 components, but we are keeping this field for backwards compatibility
    */
-  version?: 2 | null
+  version?: Nullable<2>
   // @deprecated - use route->path instead
-  page?: string | null // page url /projects/:id - only for pages
-  route?: PageRoute | null
-  attributes: Record<string, ComponentAttribute>
-  variables: Record<string, ComponentVariable>
-  formulas?: Record<string, ComponentFormula> | null
-  contexts?: Record<
-    // `componentName` or `packageName/componentName` if the context comes from a different package than the component itself
-    string,
-    ComponentContext
-  > | null
-  workflows?: Record<string, ComponentWorkflow> | null
-  apis: Record<string, ComponentAPI>
-  nodes: Record<string, NodeModel>
-  events?: ComponentEvent[] | null
-  onLoad?: EventModel | null
-  onAttributeChange?: EventModel | null
+  page?: Nullable<string> // page url /projects/:id - only for pages
+  route?: Nullable<PageRoute>
+  attributes?: Nullable<Record<string, ComponentAttribute>>
+  variables?: Nullable<Record<string, ComponentVariable>>
+  formulas?: Nullable<Record<string, ComponentFormula>>
+  contexts?: Nullable<
+    Record<
+      // `componentName` or `packageName/componentName` if the context comes from a different package than the component itself
+      string,
+      ComponentContext
+    >
+  >
+  workflows?: Nullable<Record<string, ComponentWorkflow>>
+  apis?: Nullable<Record<string, ComponentAPI>>
+  nodes?: Nullable<Record<string, NodeModel>>
+  events?: Nullable<ComponentEvent[]>
+  onLoad?: Nullable<EventModel>
+  onAttributeChange?: Nullable<EventModel>
   // exported indicates that a component is exported in a package
-  exported?: boolean | null
-  customElement?: {
+  exported?: Nullable<boolean>
+  customElement?: Nullable<{
     // Later, we will add information about allowed origins here
-    enabled?: Formula
-  }
+    enabled?: Nullable<Formula>
+  }>
 }
 
 export interface ComponentFormula extends NordcraftMetadata {
   name: string
-  arguments?: Array<{ name: string; testValue: any }> | null
-  memoize?: boolean
-  exposeInContext?: boolean
+  arguments?: Nullable<Array<{ name: string; testValue: any }>>
+  memoize?: Nullable<boolean>
+  exposeInContext?: Nullable<boolean>
   formula: Formula
 }
 
 export interface ComponentWorkflow extends NordcraftMetadata {
   name: string
   parameters: Array<{ name: string; testValue: any }>
-  callbacks?: Array<{ name: string; testValue: any }>
+  callbacks?: Nullable<Array<{ name: string; testValue: any }>>
   actions: ActionModel[]
-  exposeInContext?: boolean
-  testValue?: unknown
+  exposeInContext?: Nullable<boolean>
+  testValue?: Nullable<unknown>
 }
 
 export interface ComponentContext {
   formulas: string[]
   workflows: string[]
-  componentName?: string
-  package?: string
+  componentName?: Nullable<string>
+  package?: Nullable<string>
 }
 
 export type PageComponent = RequireFields<Component, 'route'>
@@ -225,12 +230,12 @@ export interface PageRoute extends RouteDeclaration {
   // Information for the <head> element
   // only relevant for pages - not for regular
   // components
-  info?: {
+  info?: Nullable<{
     // value for <html lang= > - defaults to 'en'
-    language?: { formula: Formula }
+    language?: Nullable<{ formula: Formula }>
     // title (for <title>) - defaults to page name
-    title?: { formula: Formula }
-    description?: { formula: Formula }
+    title?: Nullable<{ formula: Formula }>
+    description?: Nullable<{ formula: Formula }>
     // links - only icon (+icon:16 and icon:32) for now:
     // - manifest
     // - mask-icon
@@ -239,8 +244,8 @@ export interface PageRoute extends RouteDeclaration {
     // - icon (32)
     // - icon (16)
     // cSpell:ignore Vhmkm
-    icon?: { formula: Formula } // /cdn-cgi/imagedelivery/ZIty0Vhmkm0nD-fBKJrTZQ/my-icon
-    charset?: { formula: Formula } // defaults to utf-8
+    icon?: Nullable<{ formula: Formula }> // /cdn-cgi/imagedelivery/ZIty0Vhmkm0nD-fBKJrTZQ/my-icon
+    charset?: Nullable<{ formula: Formula }> // defaults to utf-8
 
     // meta:
     // - viewport <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -258,8 +263,8 @@ export interface PageRoute extends RouteDeclaration {
     // - twitter:card
     // - twitter:site
     // - twitter:creator
-    meta?: Record<string, MetaEntry>
-  }
+    meta?: Nullable<Record<string, MetaEntry>>
+  }>
 }
 
 export enum HeadTagTypes {
@@ -272,14 +277,14 @@ export enum HeadTagTypes {
 
 export interface EventModel {
   trigger: string
-  actions?: ActionModel[] | null
+  actions?: Nullable<ActionModel[]>
 }
 
 export interface CustomActionArgument {
   name: string
-  formula?: Formula
-  type?: any
-  description?: string
+  formula?: Nullable<Formula>
+  type?: Nullable<any>
+  description?: Nullable<string>
 }
 
 export interface ActionModelActions {
@@ -288,23 +293,23 @@ export interface ActionModelActions {
 
 export interface CustomActionModel {
   // Some legacy custom actions use an undefined type
-  type?: 'Custom'
-  package?: string
+  type?: Nullable<'Custom'>
+  package?: Nullable<string>
   name: string
-  description?: string
-  group?: string
-  data?: string | number | boolean | Formula
-  arguments?: Partial<CustomActionArgument[]>
-  events?: Record<string, ActionModelActions>
-  version?: 2 | never
-  label?: string
+  description?: Nullable<string>
+  group?: Nullable<string>
+  data?: Nullable<string | number | boolean | Formula>
+  arguments?: Nullable<Partial<CustomActionArgument[]>>
+  events?: Nullable<Record<string, ActionModelActions>>
+  version?: Nullable<2 | never>
+  label?: Nullable<string>
 }
 
 export interface SwitchActionModel {
   type: 'Switch'
-  data?: string | number | boolean | Formula
+  data?: Nullable<string | number | boolean | Formula>
   cases: Array<{
-    condition: Formula | null
+    condition: Nullable<Formula>
     actions: ActionModel[]
   }>
   default: ActionModelActions
@@ -313,48 +318,48 @@ export interface SwitchActionModel {
 export interface VariableActionModel {
   type: 'SetVariable'
   variable: string
-  data: Formula | null
+  data: Nullable<Formula>
 }
 export interface FetchActionModel {
   type: 'Fetch'
   api: string
-  inputs?: Record<string, { formula: Formula | null }>
+  inputs?: Nullable<Record<string, { formula: Nullable<Formula> }>>
   onSuccess: ActionModelActions
   onError: ActionModelActions
-  onMessage?: ActionModelActions
+  onMessage?: Nullable<ActionModelActions>
 }
 
 export interface SetURLParameterAction {
   type: 'SetURLParameter'
   parameter: string
-  data: Formula | null
-  historyMode?: 'replace' | 'push' | null
+  data?: Nullable<Formula>
+  historyMode?: Nullable<'replace' | 'push'>
 }
 
 export interface SetMultiUrlParameterAction {
   type: 'SetURLParameters'
   parameters: Record<string, Formula>
-  historyMode?: 'replace' | 'push' | null
+  historyMode?: Nullable<'replace' | 'push'>
 }
 
 export interface EventActionModel {
   type: 'TriggerEvent'
   event: string
-  data: Formula | null
+  data?: Nullable<Formula>
 }
 
 export interface WorkflowActionModel {
   type: 'TriggerWorkflow'
   workflow: string
-  parameters: Record<string, { formula?: Formula }> | null
-  callbacks?: Record<string, { actions?: ActionModel[] | null }>
-  contextProvider?: string
+  parameters: Record<string, { formula?: Nullable<Formula> }>
+  callbacks?: Nullable<Record<string, { actions?: Nullable<ActionModel[]> }>>
+  contextProvider?: Nullable<string>
 }
 
 export interface WorkflowCallbackActionModel {
   type: 'TriggerWorkflowCallback'
   event: string
-  data: Formula | null
+  data?: Nullable<Formula>
 }
 
 export type ActionModel =

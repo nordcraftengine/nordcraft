@@ -5,6 +5,7 @@ import type {
   ElementNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
 import type { FunctionArgument } from '@nordcraft/core/dist/formula/formula'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 /**
@@ -144,7 +145,7 @@ export const renameArguments = <
   T extends FunctionArgument | CustomActionArgument,
 >(
   mappings: Record<string, string>,
-  args: Partial<T[]> | undefined,
+  args: Nullable<Partial<T[]>>,
 ): T[] =>
   args
     ?.filter((arg) => isDefined(arg))

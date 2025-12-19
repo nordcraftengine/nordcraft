@@ -1,4 +1,5 @@
 import type { ActionModel } from '../component/component.types'
+import type { Nullable } from '../types'
 import { isDefined } from '../utils/util'
 import type {
   Formula,
@@ -35,15 +36,15 @@ export const functionFormula = (
 export function* getFormulasInFormula<Handler>({
   formula,
   globalFormulas,
-  path = [],
-  visitedFormulas = new Set<string>(),
-  packageName,
+  path: _path,
+  visitedFormulas: _visitedFormulas,
+  packageName: _packageName,
 }: {
-  formula: Formula | undefined | null
+  formula: Nullable<Formula>
   globalFormulas: GlobalFormulas<Handler>
-  path?: (string | number)[]
-  visitedFormulas?: Set<string>
-  packageName?: string
+  path?: Nullable<(string | number)[]>
+  visitedFormulas?: Nullable<Set<string>>
+  packageName?: Nullable<string>
 }): Generator<{
   path: (string | number)[]
   formula: Formula
@@ -52,6 +53,9 @@ export function* getFormulasInFormula<Handler>({
   if (!isDefined(formula)) {
     return
   }
+  const path = _path ?? []
+  let packageName = _packageName ?? undefined
+  const visitedFormulas = _visitedFormulas ?? new Set<string>()
 
   yield {
     path,
@@ -168,15 +172,15 @@ export function* getFormulasInFormula<Handler>({
 export function* getFormulasInAction<Handler>({
   action,
   globalFormulas,
-  path = [],
+  path: _path,
   visitedFormulas = new Set<string>(),
-  packageName,
+  packageName: _packageName,
 }: {
-  action: ActionModel | null
+  action: Nullable<ActionModel>
   globalFormulas: GlobalFormulas<Handler>
-  path?: (string | number)[]
-  visitedFormulas?: Set<string>
-  packageName?: string
+  path?: Nullable<(string | number)[]>
+  visitedFormulas?: Nullable<Set<string>>
+  packageName?: Nullable<string>
 }): Generator<{
   path: (string | number)[]
   formula: Formula
@@ -185,6 +189,8 @@ export function* getFormulasInAction<Handler>({
   if (!isDefined(action)) {
     return
   }
+  const path = _path ?? []
+  let packageName = _packageName ?? undefined
 
   switch (action.type) {
     case 'Fetch':
@@ -227,6 +233,7 @@ export function* getFormulasInAction<Handler>({
       break
     case 'Custom':
     case undefined:
+    case null:
       packageName = action.package ?? packageName
       if (isFormula(action.data)) {
         yield* getFormulasInFormula({

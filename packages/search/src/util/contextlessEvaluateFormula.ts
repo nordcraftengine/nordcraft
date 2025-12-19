@@ -1,4 +1,5 @@
 import { type Formula } from '@nordcraft/core/dist/formula/formula'
+import type { Nullable } from '@nordcraft/core/dist/types'
 
 /**
  * Static evaluation of a formula.
@@ -16,7 +17,7 @@ import { type Formula } from '@nordcraft/core/dist/formula/formula'
  * TODO: Add a complex test-suite to ensure it works and develops as expected.
  */
 export const contextlessEvaluateFormula = (
-  formula?: Formula,
+  formula?: Nullable<Formula>,
 ): {
   isStatic: boolean
   result: unknown

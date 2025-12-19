@@ -15,10 +15,14 @@ export type ActionHandlerV2 = (
   // For v2 of actions
   args: Record<string, unknown>,
   ctx: {
-    triggerActionEvent: (trigger: string, data: any, event?: Event) => void
+    triggerActionEvent: (
+      trigger: string,
+      data: any,
+      event?: Nullable<Event>,
+    ) => void
     root: Document | ShadowRoot
   },
-  event?: Event,
+  event?: Nullable<Event>,
   // If the action returns a function, that function will be called
   // from our abort signal (for cleanup)
 ) => void | (() => void) | Promise<void> | Promise<() => void>
@@ -26,11 +30,15 @@ export type ActionHandlerV2 = (
 export type ActionHandler<Args = unknown[]> = (
   args: Args,
   ctx: {
-    triggerActionEvent: (trigger: string, data: any, event?: Event) => void
+    triggerActionEvent: (
+      trigger: string,
+      data: any,
+      event?: Nullable<Event>,
+    ) => void
     env: ToddleEnv
     abortSignal: AbortSignal
   },
-  event?: Event,
+  event?: Nullable<Event>,
 ) => void
 
 export type FormulaHandler<T = void> = (
@@ -45,21 +53,23 @@ export type FormulaHandler<T = void> = (
 
 interface PluginActionBase {
   name: string
-  description?: string
-  arguments?: Array<{
-    name: string
-    formula: Formula
-  }> | null
+  description?: Nullable<string>
+  arguments?: Nullable<
+    Array<{
+      name: string
+      formula: Formula
+    }>
+  >
   // eslint-disable-next-line inclusive-language/use-inclusive-words
-  events?: Record<string, { dummyEvent?: any }>
-  variableArguments: boolean | null
+  events?: Nullable<Record<string, { dummyEvent?: any }>>
+  variableArguments: Nullable<boolean>
 }
 
 export interface PluginActionV2 extends PluginActionBase {
   handler: ActionHandlerV2
   version: 2
   // exported indicates that an action is exported in a package
-  exported?: boolean
+  exported?: Nullable<boolean>
 }
 
 export interface LegacyPluginAction extends PluginActionBase {
@@ -148,14 +158,16 @@ export interface Comment {
 }
 
 export interface NordcraftMetadata {
-  '@nordcraft/metadata'?: {
-    comments: Record<string, Comment & { index: number }> | null
-  } | null
+  '@nordcraft/metadata'?: Nullable<{
+    comments: Nullable<Partial<Record<string, Comment & { index: number }>>>
+  }>
 }
 
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & {
   [P in K]-?: NonNullable<T[P]>
 }
+
+export type Nullable<T> = T | null | undefined
 
 export type NestedOmit<
   Schema,

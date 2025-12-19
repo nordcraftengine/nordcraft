@@ -234,7 +234,7 @@ export function createElement({
   if (nodeTag === 'script' || nodeTag === 'style') {
     const textValues: Array<Signal<string> | string> = []
     node.children
-      .map<NodeModel | undefined>((child) => ctx.component.nodes[child])
+      .map<NodeModel | undefined>((child) => ctx.component.nodes?.[child])
       .filter((node) => node?.type === 'text')
       .forEach((node) => {
         if (node.value.type === 'value') {

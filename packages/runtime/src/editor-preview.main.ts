@@ -453,7 +453,7 @@ export const createRoot = (
 
             const node = getDOMNodeFromNodeId(selectedNodeId)
             const element =
-              component?.nodes[node?.getAttribute('data-node-id') ?? '']
+              component?.nodes?.[node?.getAttribute('data-node-id') ?? '']
             if (
               node &&
               element &&
@@ -544,7 +544,7 @@ export const createRoot = (
               return false
             }
             const nodeId = getNodeId(component, id.split('.').slice(1))
-            const node = nodeId ? component?.nodes[nodeId] : undefined
+            const node = nodeId ? component?.nodes?.[nodeId] : undefined
             if (!node) {
               return false
             }
@@ -562,7 +562,7 @@ export const createRoot = (
             if (message.data.metaKey) {
               // Figure out if the clicked element is a text element
               // or if one of its descendants is a text element
-              const root = component.nodes.root
+              const root = component.nodes?.root
               if (root && id) {
                 const nodeLookup = getNodeAndAncestors(component, root, id)
                 if (nodeLookup?.node.type === 'text') {
@@ -574,7 +574,7 @@ export const createRoot = (
                   const firstTextChild =
                     nodeLookup?.node.type === 'element'
                       ? nodeLookup.node.children.find(
-                          (c) => component?.nodes[c]?.type === 'text',
+                          (c) => component?.nodes?.[c]?.type === 'text',
                         )
                       : undefined
                   if (firstTextChild) {
@@ -603,7 +603,7 @@ export const createRoot = (
             mode === 'design'
           ) {
             // Figure out if the clicked element is a component
-            const root = component.nodes.root
+            const root = component.nodes?.root
             if (root) {
               const nodeLookup = getNodeAndAncestors(component, root, id)
               if (
@@ -659,7 +659,7 @@ export const createRoot = (
         }
         case 'introspect_qraphql_api': {
           const { apiKey } = message.data
-          const api = component?.apis[apiKey]
+          const api = component?.apis?.[apiKey]
           if (api && !isLegacyApi(api) && component) {
             const formulaContext: FormulaContext = {
               component,
@@ -737,7 +737,7 @@ export const createRoot = (
                     parent: parentDataId,
                     index: !isNaN(nextSiblingId)
                       ? nextSiblingId
-                      : component?.nodes[parentNodeId]?.children?.length,
+                      : component?.nodes?.[parentNodeId]?.children?.length,
                   })
                   dragState = null
                 })
@@ -965,20 +965,23 @@ export const createRoot = (
             // If style variant targets a pseudo-element, apply styles to it instead
             let pseudoElement = ''
             if (component && styleVariantSelection) {
-              const nodeLookup = getNodeAndAncestors(
-                component,
-                component.nodes.root,
-                styleVariantSelection.nodeId,
-              )
+              const rootNode = component.nodes?.root
+              if (rootNode) {
+                const nodeLookup = getNodeAndAncestors(
+                  component,
+                  rootNode,
+                  styleVariantSelection.nodeId,
+                )
 
-              if (
-                (nodeLookup?.node.type === 'element' ||
-                  nodeLookup?.node.type === 'component') &&
-                nodeLookup.node.variants?.[
-                  styleVariantSelection.styleVariantIndex
-                ].pseudoElement
-              ) {
-                pseudoElement = `::${nodeLookup.node.variants[styleVariantSelection.styleVariantIndex].pseudoElement}`
+                if (
+                  (nodeLookup?.node.type === 'element' ||
+                    nodeLookup?.node.type === 'component') &&
+                  nodeLookup.node.variants?.[
+                    styleVariantSelection.styleVariantIndex
+                  ].pseudoElement
+                ) {
+                  pseudoElement = `::${nodeLookup.node.variants[styleVariantSelection.styleVariantIndex].pseudoElement}`
+                }
               }
             }
 
@@ -1078,7 +1081,7 @@ export const createRoot = (
     }
     if (mode === 'design') {
       if (selectedNodeId !== null) {
-        const root = _component?.nodes.root
+        const root = _component?.nodes?.root
         if (root) {
           const nodeLookup = getNodeAndAncestors(
             _component,
@@ -1106,7 +1109,7 @@ export const createRoot = (
         nodeId: selectedNodeId,
         styleVariantIndex: variantIndex,
       }
-      const root = component?.nodes.root
+      const root = component?.nodes?.root
       if (root && component) {
         const nodeLookup = getNodeAndAncestors(component, root, selectedNodeId)
         if (nodeLookup) {
@@ -1187,10 +1190,10 @@ export const createRoot = (
     if (
       fastDeepEqual(ctx?.component.attributes, _component.attributes) === false
     ) {
-      Attributes = mapObject(_component.attributes, ([name, { testValue }]) => [
-        name,
-        testValue,
-      ])
+      Attributes = mapObject(
+        _component.attributes ?? {},
+        ([name, { testValue }]) => [name, testValue],
+      )
     }
     if (
       _component.route &&
@@ -1234,10 +1237,10 @@ export const createRoot = (
         )
       }
 
-      Attributes = mapObject(_component.attributes, ([name, { testValue }]) => [
-        name,
-        testValue,
-      ])
+      Attributes = mapObject(
+        _component.attributes ?? {},
+        ([name, { testValue }]) => [name, testValue],
+      )
     }
     if (
       fastDeepEqual(
@@ -1282,7 +1285,7 @@ export const createRoot = (
             const formulaContext: FormulaContext = {
               data: {
                 Attributes: mapObject(
-                  providerComponent.attributes,
+                  providerComponent.attributes ?? {},
                   ([name, attr]) => [name, attr.testValue],
                 ),
                 // Recursively resolve contexts providers before their children to build up the fake context tree in preview mode
@@ -1316,7 +1319,7 @@ export const createRoot = (
               }
             }
             formulaContext.data.Variables = mapObject(
-              providerComponent.variables,
+              providerComponent.variables ?? {},
               ([name, variable]) => [
                 name,
                 applyFormula(variable.initialValue, formulaContext),
@@ -1350,7 +1353,7 @@ export const createRoot = (
       fastDeepEqual(_component.variables, ctx?.component.variables) === false
     ) {
       Variables = mapObject(
-        _component.variables,
+        _component.variables ?? {},
         ([name, { initialValue }]) => [
           name,
           applyFormula(initialValue, {
@@ -1388,7 +1391,7 @@ export const createRoot = (
     for (const api in newCtx.component.apis) {
       // check if the api has changed (ignoring onCompleted and onFailed).
       const apiInstance = newCtx.component.apis[api]
-      const previousApiInstance = ctx?.component.apis[api]
+      const previousApiInstance = ctx?.component.apis?.[api]
       if (isLegacyApi(apiInstance)) {
         if (
           fastDeepEqual(
@@ -1405,7 +1408,7 @@ export const createRoot = (
               Apis: omitKeys(data.Apis ?? {}, [
                 ...Object.keys(data.Apis ?? {}).filter(
                   // remove any data from an api that is not part of the component
-                  (key) => !newCtx.component.apis[key],
+                  (key) => !newCtx.component.apis?.[key],
                 ),
                 api,
               ]),
@@ -1605,7 +1608,7 @@ export const createRoot = (
   const updateConditionalElements = () => {
     const displayedNodes: string[] = []
     if (selectedNodeId && component) {
-      const root = component.nodes.root
+      const root = component.nodes?.root
       if (root) {
         const nodeLookup = getNodeAndAncestors(component, root, selectedNodeId)
         if (isNodeOrAncestorConditional(nodeLookup)) {
@@ -1721,7 +1724,7 @@ function getNodeId(component: Component, path: string[]) {
     if (nextChild === undefined || currentId === undefined) {
       return currentId ?? null
     }
-    const currentNode = component.nodes[currentId]
+    const currentNode = component.nodes?.[currentId]
     if (!currentNode?.children) {
       return null
     }

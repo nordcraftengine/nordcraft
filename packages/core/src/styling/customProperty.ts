@@ -1,4 +1,5 @@
 import type { CustomPropertyName } from '../component/component.types'
+import type { Nullable } from '../types'
 import { isDefined } from '../utils/util'
 import type { CustomPropertyDefinition, Theme } from './theme'
 
@@ -115,7 +116,7 @@ const FALLBACK_VALUES: Record<CssSyntax, string> = {
   integer: '0',
 }
 
-export const appendUnit = (value: any, unit: string | null | undefined) =>
+export const appendUnit = (value: any, unit: Nullable<string>) =>
   isDefined(value) && isDefined(unit) && !String(value).endsWith(unit)
     ? `${value}${unit}`
     : value

@@ -4,6 +4,7 @@ import {
   getFormulasInAction,
   getFormulasInFormula,
 } from '../formula/formulaUtils'
+import type { Nullable } from '../types'
 import { isDefined } from '../utils/util'
 import { type LegacyComponentAPI } from './apiTypes'
 
@@ -29,7 +30,7 @@ export class LegacyToddleApi<Handler> {
       return this._apiReferences
     }
     const apis = new Set<string>()
-    const visitFormulaReference = (formula?: Formula | null) => {
+    const visitFormulaReference = (formula?: Nullable<Formula>) => {
       if (!isDefined(formula)) {
         return
       }

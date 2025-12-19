@@ -224,8 +224,8 @@ describe('fix noReferenceApiRule', () => {
       fixType: 'delete-api',
     })
     // 2/3 APIs should be removed
-    expect(Object.keys(fixedProject.components['apiComponent']!.apis)).toEqual([
-      'used-api',
-    ])
+    expect(
+      Object.keys(fixedProject.components['apiComponent']!.apis ?? {}),
+    ).toEqual(['used-api'])
   })
 })

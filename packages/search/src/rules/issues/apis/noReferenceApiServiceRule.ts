@@ -22,7 +22,7 @@ export const noReferenceApiServiceRule: Rule<{ serviceName: string }> = {
         if (!component) {
           return
         }
-        Object.values(component.apis).forEach((api) => {
+        Object.values(component.apis ?? {}).forEach((api) => {
           if (!isLegacyApi(api) && typeof api.service === 'string') {
             usedServices.add(api.service)
           }

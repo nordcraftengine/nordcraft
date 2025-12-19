@@ -64,7 +64,7 @@ export const getPageFormulaContext = ({
     toddle: getServerToddleObject(files),
   }
   formulaContext.data.Variables = mapValues(
-    component.variables,
+    component.variables ?? {},
     ({ initialValue }) => {
       return applyFormula(initialValue, formulaContext)
     },

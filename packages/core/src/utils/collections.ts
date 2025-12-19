@@ -1,3 +1,4 @@
+import type { Nullable } from '../types'
 import { isDefined } from './util'
 
 export const isObject = (input: any): input is Record<string, any> =>
@@ -118,7 +119,7 @@ export const easySort = <T>(
 
 export const deepSortObject = (
   obj: any,
-): Record<string, any> | Array<any> | undefined | null => {
+): Nullable<Record<string, any> | Array<any>> => {
   if (!isDefined(obj)) {
     return obj
   }

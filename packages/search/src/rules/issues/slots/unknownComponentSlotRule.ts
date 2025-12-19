@@ -33,13 +33,13 @@ export const unknownComponentSlotRule: Rule<{ slotName: string }> = {
       },
     })
 
-    const usableSlots = Object.values(subComponent.nodes)
+    const usableSlots = Object.values(subComponent.nodes ?? {})
       .filter((node): node is SlotNodeModel => node.type === 'slot')
       .map((node) => node.name ?? 'default')
 
     // Loop the children and report issue when using a slot that doesn't exist
     value.children.forEach((child) => {
-      const childNode = files.components[currentComponentName]?.nodes[child]
+      const childNode = files.components[currentComponentName]?.nodes?.[child]
       const usedSlot = childNode?.slot ?? 'default'
 
       if (!usableSlots.includes(usedSlot)) {

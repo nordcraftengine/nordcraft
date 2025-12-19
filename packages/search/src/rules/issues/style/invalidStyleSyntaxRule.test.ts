@@ -239,7 +239,7 @@ describe('fix invalidStyleSyntaxRule', () => {
       rule: invalidStyleSyntaxRule,
       fixType: 'delete-style-property',
     })
-    expect((fixedFiles.components.test!.nodes.root as ElementNodeModel).style)
+    expect((fixedFiles.components.test!.nodes?.root as ElementNodeModel).style)
       .toMatchInlineSnapshot(`
       {
         "gap": "8px",
@@ -290,8 +290,8 @@ describe('fix invalidStyleSyntaxRule', () => {
       fixType: 'delete-style-property',
     })
     expect(
-      (fixedFiles.components.test!.nodes.root as ElementNodeModel).variants?.[0]
-        .style,
+      (fixedFiles.components.test!.nodes?.root as ElementNodeModel)
+        .variants?.[0].style,
     ).toMatchInlineSnapshot(`
       {
         "gap": "8px",
