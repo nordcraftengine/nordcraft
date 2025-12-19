@@ -5,12 +5,12 @@ type NodeSelectorOptions =
   | {
       componentName: string
       nodeId: Nullable<string>
-      variant?: StyleVariant
+      variant?: Nullable<StyleVariant>
     }
   | {
       componentName?: never
       nodeId?: never
-      variant?: StyleVariant
+      variant?: Nullable<StyleVariant>
     }
 
 export function getNodeSelector(
