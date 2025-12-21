@@ -102,7 +102,10 @@ export type NordcraftPreviewEvent =
         key: string
         value: Theme
       }
-      resources?: ReadonlyArray<{
+    }
+  | {
+      type: 'preview_resources'
+      resources: ReadonlyArray<{
         type: 'link'
         href: string
       }>

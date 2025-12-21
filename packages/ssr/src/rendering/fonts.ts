@@ -17,7 +17,7 @@ export const getFontCssUrl = ({
   searchParams.set('display', 'swap')
   for (const font of fonts) {
     const sortedWeights = easySort(
-      font.variants.filter((v) => !Number.isNaN(Number(v.weight))),
+      (font.variants ?? []).filter((v) => !Number.isNaN(Number(v.weight))),
       (v) => Number(v.weight),
     )
     if (sortedWeights.length === 0) {
