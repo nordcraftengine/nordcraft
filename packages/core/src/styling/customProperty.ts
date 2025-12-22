@@ -4,6 +4,7 @@ import { isDefined } from '../utils/util'
 import type { CustomPropertyDefinition, Theme } from './theme'
 
 // See https://developer.mozilla.org/en-US/docs/Web/CSS/@property/syntax
+// Note: Not all CSS syntaxes are necessarily supported logically
 export type CssSyntax =
   | 'angle'
   | 'color'
@@ -22,10 +23,22 @@ export type CssSyntax =
   | 'url'
   | '*'
 
+// Custom syntaxes that cannot be represented by a single primitive or keyword list
+export type CssCustomSyntax = 'font-family' // <custom-ident> | <string>
+// | 'timing-function'
+// | 'box-shadow'
+// | 'box-shadow-list'
+// | 'filter'
+// | etc.
+
 export type CssSyntaxNode =
   | {
       type: 'primitive'
       name: CssSyntax
+    }
+  | {
+      type: 'custom'
+      name: CssCustomSyntax
     }
   | {
       type: 'keyword'
@@ -35,11 +48,18 @@ export type CssSyntaxNode =
 export function stringifySyntaxNode(node: CssSyntaxNode): string {
   switch (node.type) {
     case 'primitive':
-      if (node.name === '*') {
-        return node.name
+      switch (node.name) {
+        case '*':
+          return node.name
+        default:
+          return `<${node.name}>`
       }
-
-      return `<${node.name}>`
+    case 'custom':
+      return (
+        {
+          'font-family': '<custom-ident> | <string>',
+        } as { [key in CssCustomSyntax]: string }
+      )[node.name]
     case 'keyword':
       return node.keywords.join(' | ')
     default:
@@ -58,7 +78,10 @@ export function renderSyntaxDefinition(
   }
 
   // Fallback in-case of no reference
-  if (!isDefined(value) && syntax.type === 'primitive') {
+  if (
+    !isDefined(value) &&
+    (syntax.type === 'primitive' || syntax.type === 'custom')
+  ) {
     value = FALLBACK_VALUES[syntax.name]
   }
 
@@ -97,7 +120,7 @@ function solveVarRecursively(initialValue: string, theme: Theme, depth = 0) {
   return null
 }
 
-const FALLBACK_VALUES: Record<CssSyntax, string> = {
+const FALLBACK_VALUES: Record<CssSyntax | CssCustomSyntax, string> = {
   color: 'transparent',
   length: '0px',
   'length-percentage': '0px',
@@ -112,8 +135,9 @@ const FALLBACK_VALUES: Record<CssSyntax, string> = {
   url: 'none',
   'transform-function': 'none',
   'transform-list': 'none',
-  '*': 'initial',
   integer: '0',
+  'font-family': 'initial',
+  '*': 'initial',
 }
 
 export const appendUnit = (value: any, unit: Nullable<string>) =>

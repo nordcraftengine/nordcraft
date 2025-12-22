@@ -34,7 +34,7 @@ export type FontFamily = {
   family: string
   provider: 'google' | 'upload'
   type: 'serif' | 'sans-serif' | 'monospace' | 'cursive'
-  variants: Array<{
+  variants?: Array<{
     name: string
     weight:
       | '100'
@@ -165,7 +165,7 @@ ${options.includeResetStyle ? RESET_STYLES : ''}
           .flat()
           .map(
             (font) => `
-    ${font.variants
+    ${(font.variants ?? [])
       .map(
         (variant) => `
     @font-face {

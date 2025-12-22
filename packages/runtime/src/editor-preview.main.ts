@@ -913,38 +913,9 @@ export const createRoot = (
           })
           break
         case 'preview_style':
-          const { styles: previewStyleStyles, theme, resources } = message.data
+          const { styles: previewStyleStyles, theme } = message.data
           cancelAnimationFrame(previewStyleAnimationFrame)
           previewStyleAnimationFrame = requestAnimationFrame(() => {
-            // Allow for temporarily adding preview resources (e.g. fonts).
-            const resourceElements = Array.from(
-              document.head.querySelectorAll('[data-id="preview-resource"]'),
-            )
-            // Remove any resources that are no longer needed
-            resourceElements.forEach((el) => {
-              if (
-                !resources ||
-                resources.length === 0 ||
-                !resources.some((res) => res.href === el.getAttribute('href'))
-              ) {
-                el.remove()
-              }
-            })
-            resources
-              ?.filter(
-                (resource) =>
-                  !resourceElements.some(
-                    (el) => el.getAttribute('href') === resource.href,
-                  ),
-              )
-              .forEach((resource) => {
-                const resourceElement = document.createElement('link')
-                resourceElement.setAttribute('data-id', 'preview-resource')
-                resourceElement.rel = 'stylesheet'
-                resourceElement.href = resource.href
-                document.head.appendChild(resourceElement)
-              })
-
             // Update or create a new style tag and set the given styles with important priority
             let styleElement = document.head.querySelector(
               '[data-id="selected-node-styles"]',
@@ -1047,6 +1018,37 @@ export const createRoot = (
             }
           })
           break
+        case 'preview_resources': {
+          const { resources } = message.data
+          // Allow for temporarily adding preview resources (e.g. fonts).
+          const resourceElements = Array.from(
+            document.head.querySelectorAll('[data-id="preview-resource"]'),
+          )
+          // Remove any resources that are no longer needed
+          resourceElements.forEach((el) => {
+            if (
+              resources.length === 0 ||
+              !resources.some((res) => res.href === el.getAttribute('href'))
+            ) {
+              el.remove()
+            }
+          })
+          resources
+            .filter(
+              (resource) =>
+                !resourceElements.some(
+                  (el) => el.getAttribute('href') === resource.href,
+                ),
+            )
+            .forEach((resource) => {
+              const resourceElement = document.createElement('link')
+              resourceElement.setAttribute('data-id', 'preview-resource')
+              resourceElement.rel = 'stylesheet'
+              resourceElement.href = resource.href
+              document.head.appendChild(resourceElement)
+            })
+          break
+        }
         case 'preview_theme': {
           const { theme } = message.data
           if (theme) {
