@@ -225,7 +225,7 @@ export function createElement({
   })
 
   eventHandlers.forEach(([eventName, handler]) => {
-    elem.addEventListener(eventName, handler)
+    elem.addEventListener(eventName, handler, { signal: ctx.abortSignal })
   })
 
   // for script, style & SVG<text> tags we only render text child.
