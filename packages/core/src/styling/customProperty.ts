@@ -58,7 +58,7 @@ export function stringifySyntaxNode(node: CssSyntaxNode): string {
       return (
         {
           'font-family': '<custom-ident> | <string>',
-        } as Record<CssCustomSyntax, string>
+        } as { [key in CssCustomSyntax]: string }
       )[node.name]
     case 'keyword':
       return node.keywords.join(' | ')
