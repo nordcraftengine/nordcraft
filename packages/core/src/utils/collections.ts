@@ -69,7 +69,10 @@ export const filterObject = <T>(
   f: (kv: [string, T]) => boolean,
 ): Record<string, T> => Object.fromEntries(Object.entries(object).filter(f))
 
-export function get<T = any>(collection: T, [head, ...rest]: string[]): any {
+export function get<T = any>(
+  collection: T,
+  [head, ...rest]: Array<string | number>,
+): any {
   const headItem = isDefined(head) ? (collection as any)?.[head] : undefined
   if (rest.length === 0) {
     return headItem
