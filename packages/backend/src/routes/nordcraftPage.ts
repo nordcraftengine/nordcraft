@@ -1,4 +1,3 @@
-/* eslint-disable @html-eslint/attrs-newline */
 import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { type ToddleServerEnv } from '@nordcraft/core/dist/formula/formula'
