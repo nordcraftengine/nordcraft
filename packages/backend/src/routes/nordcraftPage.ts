@@ -1,3 +1,4 @@
+/* eslint-disable @html-eslint/attrs-newline */
 import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { type ToddleServerEnv } from '@nordcraft/core/dist/formula/formula'
@@ -12,7 +13,11 @@ import {
   getHeadItems,
   renderHeadItems,
 } from '@nordcraft/ssr/dist/rendering/head'
-import { getCharset, getHtmlLanguage } from '@nordcraft/ssr/dist/rendering/html'
+import {
+  getCharset,
+  getHtmlLanguage,
+  getTheme,
+} from '@nordcraft/ssr/dist/rendering/html'
 import type { ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
 import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
 import { removeTestData } from '@nordcraft/ssr/src/rendering/testData'
@@ -204,9 +209,19 @@ export const nordcraftPage = async ({
   }
   endTime(hono, nordcraftPageTimingKey)
 
+  const htmlAttributes = Object.entries({
+    'data-nc-theme': getTheme({
+      pageInfo: page.route.info,
+      formulaContext,
+    }),
+  })
+    .filter(([, value]) => isDefined(value))
+    .map(([key, value]) => `${key}="${value}"`)
+    .join(' ')
+
   return hono.html(
     html`<!doctype html>
-      <html lang="${language}">
+      <html lang="${language}" ${htmlAttributes}>
         <head>
           ${raw(head)}
         </head>

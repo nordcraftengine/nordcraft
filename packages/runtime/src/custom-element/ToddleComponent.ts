@@ -86,6 +86,11 @@ export class ToddleComponent extends HTMLElement {
       abortSignal: abortController.signal,
       children: {},
       providers: {},
+      stores: {
+        // Note: Theme store is a page-level store, and cannot be used in custom-elements in a meaningful way at the moment.
+        // Users can implement theming by setting data-nc-theme attribute themselves.
+        theme: signal<string | null>(null),
+      },
       package: undefined,
       toddle,
       env,

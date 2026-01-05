@@ -39,6 +39,9 @@ export interface ComponentData {
   Parameters?: Nullable<Record<string, unknown>>
   Event?: Nullable<unknown>
   ListItem?: Nullable<ListItem>
+  Page?: Nullable<{
+    Theme: string | null
+  }>
 }
 
 export interface AnimationKeyframe {
@@ -233,6 +236,10 @@ export interface PageRoute extends RouteDeclaration {
   info?: Nullable<{
     // value for <html lang= > - defaults to 'en'
     language?: Nullable<{ formula: Formula }>
+
+    // theme for <html data-nc-theme= > - defaults to read from cookie
+    theme?: Nullable<{ formula: Formula }>
+
     // title (for <title>) - defaults to page name
     title?: Nullable<{ formula: Formula }>
     description?: Nullable<{ formula: Formula }>

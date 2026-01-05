@@ -147,7 +147,7 @@ export const getThemeCss = (
   ${Object.entries(themeV2.themes ?? {})
     .map(([key, _t]) =>
       renderThemeValues(
-        `[data-theme~="${key}"]`,
+        `[data-nc-theme~="${key}"]`,
         getThemeEntries(themeV2, key),
       ),
     )

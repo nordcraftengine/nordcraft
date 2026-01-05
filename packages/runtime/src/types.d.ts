@@ -80,6 +80,9 @@ export interface ComponentContext {
       ctx: ComponentContext
     }
   >
+  stores: {
+    theme: Signal<string | null>
+  }
   toddle: Toddle<LocationSignal, PreviewShowSignal>
   env: ToddleEnv
 }

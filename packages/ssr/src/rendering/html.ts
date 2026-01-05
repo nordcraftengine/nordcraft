@@ -31,3 +31,16 @@ export const getCharset = ({
     : defaultCharset
   return typeof charset === 'string' ? charset : defaultCharset
 }
+
+export const getTheme = ({
+  pageInfo,
+  formulaContext,
+}: {
+  pageInfo?: PageRoute['info']
+  formulaContext: FormulaContext
+}) => {
+  const theme = pageInfo?.theme?.formula
+    ? (applyFormula(pageInfo.theme.formula, formulaContext) as string)
+    : formulaContext.env?.request?.cookies['theme']
+  return typeof theme === 'string' ? theme : null
+}

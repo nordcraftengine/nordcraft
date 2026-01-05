@@ -39,6 +39,9 @@ interface RenderComponentProps {
       ctx: ComponentContext
     }
   >
+  stores: {
+    theme: Signal<string | null>
+  }
   package: string | undefined
   parentElement: Element | ShadowRoot
   instance: Record<string, string>
@@ -63,6 +66,7 @@ export function renderComponent({
   root,
   providers,
   package: packageName,
+  stores,
   parentElement,
   instance,
   toddle,
@@ -81,6 +85,7 @@ export function renderComponent({
     abortSignal,
     root,
     providers,
+    stores,
     package: packageName,
     toddle,
     env,

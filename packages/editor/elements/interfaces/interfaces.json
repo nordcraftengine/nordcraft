@@ -680,7 +680,7 @@
         "url": "https://docs.nordcraft.com/styling/default-styles#custom-styles"
       },
       {
-        "name": "data-theme",
+        "name": "data-nc-theme",
         "description": "Special Nordcraft data attribute that specifies the theme to be applied to an element and its children."
       },
       {
