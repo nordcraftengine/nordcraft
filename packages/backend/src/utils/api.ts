@@ -234,7 +234,7 @@ const fetchApiV2 = async ({
   let responseBody: unknown
   try {
     performance.responseStart = Date.now()
-    responseBody = await getBody(response, api.client?.parserMode)
+    responseBody = await getBody(response, api.client?.parserMode ?? undefined)
     performance.responseEnd = Date.now()
   } catch (e: any) {
     return {

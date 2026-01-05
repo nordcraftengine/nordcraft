@@ -103,7 +103,7 @@ export interface ApiRequest extends ApiBase {
     // parserMode is used to determine how the response should be handled
     // auto: The response will be handled based on the content type of the response
     // stream: The response will be handled as a stream
-    parserMode: ApiParserMode
+    parserMode?: Nullable<ApiParserMode>
     // Whether to include credentials (cookies) in the request or not. Default is 'same-origin'
     credentials?: Nullable<'include' | 'same-origin' | 'omit'>
   }>
