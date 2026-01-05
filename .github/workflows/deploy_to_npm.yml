@@ -8,6 +8,10 @@ on:
         required: true
         type: string
 
+permissions:
+  id-token: write # Required for OIDC - see https://docs.npmjs.com/trusted-publishers
+  contents: read
+
 jobs:
   publish_to_npm:
     runs-on: ubuntu-latest
@@ -75,32 +79,27 @@ jobs:
           bun pm pack --destination ../../publish/runtime
           mv ../../publish/runtime/nordcraft-*.tgz ../../publish/runtime/runtime.tgz
       - name: Publish core
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4.1.2
         with:
-          token: ${{ secrets.NPM_TOKEN }}
           package: publish/core/core.tgz
           access: public
       - name: Publish lib
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4.1.2
         with:
-          token: ${{ secrets.NPM_TOKEN }}
           package: publish/lib/lib.tgz
           access: public
       - name: Publish ssr
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4.1.2
         with:
-          token: ${{ secrets.NPM_TOKEN }}
           package: publish/ssr/ssr.tgz
           access: public
       - name: Publish search
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4.1.2
         with:
-          token: ${{ secrets.NPM_TOKEN }}
           package: publish/search/search.tgz
           access: public
       - name: Publish runtime
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4.1.2
         with:
-          token: ${{ secrets.NPM_TOKEN }}
           package: publish/runtime/runtime.tgz
           access: public
