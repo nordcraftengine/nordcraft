@@ -306,6 +306,7 @@ describe('find noReferenceApiRule', () => {
                   },
                   type: 'http',
                   client: {
+                    parserMode: 'auto',
                     onCompleted: {
                       actions: [
                         {
