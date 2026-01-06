@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test'
+import '../../happydom'
 import { CustomPropertyStyleSheet } from './CustomPropertyStyleSheet'
 
 describe('CustomPropertyStyleSheet', () => {
@@ -52,6 +53,51 @@ describe('CustomPropertyStyleSheet', () => {
     expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
       `\
 @media (max-width: 600px) {
+  .my-class { --my-property: 256px; }
+}`,
+    )
+  })
+
+  test('it works with prefers-reduced-motion: reduce', () => {
+    const instance = new CustomPropertyStyleSheet(document)
+    instance.registerProperty('.my-class', '--my-property', {
+      mediaQuery: { 'prefers-reduced-motion': 'reduce' },
+    })('256px')
+    expect(instance.getStyleSheet().cssRules.length).toBe(1)
+    expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
+      `\
+@media (prefers-reduced-motion: reduce) {
+  .my-class { --my-property: 256px; }
+}`,
+    )
+  })
+
+  test('it works with prefers-reduced-motion: no-preference', () => {
+    const instance = new CustomPropertyStyleSheet(document)
+    instance.registerProperty('.my-class', '--my-property', {
+      mediaQuery: { 'prefers-reduced-motion': 'no-preference' },
+    })('256px')
+    expect(instance.getStyleSheet().cssRules.length).toBe(1)
+    expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
+      `\
+@media (prefers-reduced-motion: no-preference) {
+  .my-class { --my-property: 256px; }
+}`,
+    )
+  })
+
+  test('it combines prefers-reduced-motion with other media queries', () => {
+    const instance = new CustomPropertyStyleSheet(document)
+    instance.registerProperty('.my-class', '--my-property', {
+      mediaQuery: {
+        'prefers-reduced-motion': 'reduce',
+        'max-width': '768px',
+      },
+    })('256px')
+    expect(instance.getStyleSheet().cssRules.length).toBe(1)
+    expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
+      `\
+@media (prefers-reduced-motion: reduce) and (max-width: 768px) {
   .my-class { --my-property: 256px; }
 }`,
     )

@@ -89,8 +89,8 @@ ${
           return variant.mediaQuery
             ? `
                 @media (${Object.entries(variant.mediaQuery)
+                  .filter(([_, value]) => value !== null && value !== undefined)
                   .map(([key, value]) => `${key}: ${value}`)
-                  .filter(Boolean)
                   .join(') and (')}) {
                 ${renderedVariant}
                 }
