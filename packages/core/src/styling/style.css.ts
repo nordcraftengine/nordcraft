@@ -22,9 +22,9 @@ const LEGACY_BREAKPOINTS = {
 export function kebabCase(string: string) {
   return string
     .split('')
-    .map((char) => {
+    .map((char, index) => {
       return 'ABCDEFGHIJKLMNOPQRSTYVWXYZ'.includes(char)
-        ? '-' + char.toLocaleLowerCase()
+        ? (index === 0 ? '' : '-') + char.toLocaleLowerCase()
         : char
     })
     .join('')
@@ -68,6 +68,150 @@ const SIZE_PROPERTIES = new Set([
   'outline-width',
 ])
 
+export const styleToCss = (style: NodeStyleModel) => {
+  return Object.entries(style)
+    .map(([property, value]) => {
+      if (!isDefined(value)) {
+        // ignore undefined/null values
+        return
+      }
+      const propertyName = kebabCase(property)
+      const propertyValue =
+        String(Number(value)) === String(value) &&
+        SIZE_PROPERTIES.has(propertyName)
+          ? `${Number(value) * 4}px`
+          : value
+      return `${propertyName}:${propertyValue};`
+    })
+    .filter(Boolean)
+    .join('\n      ')
+}
+
+export const getNodeStyles = (
+  node: ElementNodeModel | ComponentNodeModel,
+  classHash: string,
+  animationHashes: Set<string> = new Set(),
+) => {
+  try {
+    const style = omitKeys(node.style ?? {}, [
+      'variants',
+      'breakpoints',
+      'shadows',
+    ])
+    const styleVariants =
+      node.variants ??
+      // Support for old style variants stored inside style object
+      // Once we have better versioning options, this should be removed
+      (node.style?.variants as any as StyleVariant[])
+    const renderVariant = (
+      selector: string,
+      style: NodeStyleModel,
+      options?: Nullable<{ startingStyle?: Nullable<boolean> }>,
+    ) => {
+      const scrollbarStyles = Object.entries(style).filter(
+        ([key]) => key === 'scrollbar-width',
+      )
+      // If selectorCss is empty, we don't need to render the selector
+      let styles = styleToCss(style)
+      if (options?.startingStyle) {
+        styles = `
+    @starting-style {
+      ${styles}
+    }`
+      }
+      const scrollbarCSS =
+        scrollbarStyles.length > 0
+          ? `
+
+    ${selector}::-webkit-scrollbar {
+    ${scrollbarStyles
+      .map(([_, value]) => {
+        switch (value) {
+          case 'none':
+            return 'width: 0;'
+          case 'thinn':
+          case 'thin':
+            return 'width: 4px;'
+          default:
+            return ''
+        }
+      })
+      .join('\n')}
+    }`
+          : ''
+      const stylesCSS =
+        styles.length > 0
+          ? `
+
+    ${selector} {
+      ${styles}
+    }`
+          : ''
+      return stylesCSS + scrollbarCSS
+    }
+
+    const variantsCSS = (styleVariants ?? [])
+      .map((variant) => {
+        const renderedVariant = renderVariant(
+          `.${classHash}${variantSelector(variant)}`,
+          variant.style,
+          {
+            startingStyle: variant.startingStyle,
+          },
+        )
+
+        if (variant.mediaQuery) {
+          return `
+
+    @media (${Object.entries(variant.mediaQuery)
+      .filter(([_, value]) => value !== null && value !== undefined)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(') and (')}) {${renderedVariant}
+    }`
+        }
+
+        if (variant.breakpoint) {
+          return `
+
+    @media (min-width: ${LEGACY_BREAKPOINTS[variant.breakpoint]}px) {${renderedVariant}
+    }`
+        }
+
+        return renderedVariant
+      })
+      .join('')
+    const animationsCSS = node.animations
+      ? Object.entries(node.animations)
+          .map(([animationName, keyframes]) => {
+            // Animation names are stored by their hash, so no need to render them more than once.
+            if (animationHashes.has(animationName)) {
+              return ''
+            }
+            animationHashes.add(animationName)
+            return `
+
+    @keyframes ${animationName} {${Object.values(keyframes)
+      .sort((a, b) => a.position - b.position)
+      .map(({ key, position, value }) => {
+        return `
+        ${position * 100}% {
+          ${key}: ${value};
+        }`
+      })
+      .join('\n')}
+    }`
+          })
+          .join('\n')
+      : ''
+
+    return renderVariant('.' + classHash, style) + variantsCSS + animationsCSS
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e)
+    return ''
+  }
+}
+
 export const createStylesheet = (
   root: Component,
   components: Component[],
@@ -109,155 +253,6 @@ export const createStylesheet = (
     ),
     options,
   )
-  const styleToCss = (style: NodeStyleModel) => {
-    return Object.entries(style)
-      .map(([property, value]) => {
-        if (!isDefined(value)) {
-          // ignore undefined/null values
-          return
-        }
-        const propertyName = kebabCase(property)
-        const propertyValue =
-          String(Number(value)) === String(value) &&
-          SIZE_PROPERTIES.has(propertyName)
-            ? `${Number(value) * 4}px`
-            : value
-        return `${propertyName}:${propertyValue};`
-      })
-      .filter(Boolean)
-      .join('\n  ')
-  }
-  const getNodeStyles = (
-    node: ElementNodeModel | ComponentNodeModel,
-    classHash: string,
-  ) => {
-    try {
-      const style = omitKeys(node.style ?? {}, [
-        'variants',
-        'breakpoints',
-        'shadows',
-      ])
-      const styleVariants =
-        node.variants ??
-        // Support for old style variants stored inside style object
-        // Once we have better versioning options, this should be removed
-        (node.style?.variants as any as StyleVariant[])
-      const renderVariant = (
-        selector: string,
-        style: NodeStyleModel,
-        options?: Nullable<{ startingStyle?: Nullable<boolean> }>,
-      ) => {
-        const scrollbarStyles = Object.entries(style).filter(
-          ([key]) => key === 'scrollbar-width',
-        )
-        // If selectorCss is empty, we don't need to render the selector
-        let styles = styleToCss(style)
-        if (options?.startingStyle) {
-          styles = `@starting-style {
-            ${styles}
-          }`
-        }
-
-        return `
-  ${
-    styles.length > 0
-      ? `${selector} {
-    ${styles}
-  }`
-      : ''
-  }
-      ${
-        scrollbarStyles.length > 0
-          ? `
-${selector}::-webkit-scrollbar {
-  ${scrollbarStyles
-    .map(([_, value]) => {
-      switch (value) {
-        case 'none':
-          return 'width: 0;'
-        case 'thinn':
-        case 'thin':
-          return 'width: 4px;'
-        default:
-          return ''
-      }
-    })
-    .join('\n')}
-}
-`
-          : ''
-      }
-`
-      }
-
-      return `
-      ${renderVariant('.' + classHash, style)}
-      ${(styleVariants ?? [])
-        .map((variant) => {
-          const renderedVariant = renderVariant(
-            `.${classHash}${variantSelector(variant)}`,
-            variant.style,
-            {
-              startingStyle: variant.startingStyle,
-            },
-          )
-
-          if (variant.mediaQuery) {
-            return `
-          @media (${Object.entries(variant.mediaQuery)
-            .map(([key, value]) => `${key}: ${value}`)
-            .filter(Boolean)
-            .join(') and (')}) {
-            ${renderedVariant}
-          }
-          `
-          }
-
-          if (variant.breakpoint) {
-            return `
-          @media (min-width: ${LEGACY_BREAKPOINTS[variant.breakpoint]}px) {
-            ${renderedVariant}
-          }
-          `
-          }
-
-          return renderedVariant
-        })
-        .join('\n')}
-        ${
-          node.animations
-            ? Object.entries(node.animations)
-                .map(([animationName, keyframes]) => {
-                  // Animation names are stored by their hash, so no need to render them more than once.
-                  if (animationHashes.has(animationName)) {
-                    return ''
-                  }
-                  animationHashes.add(animationName)
-                  return `
-                  @keyframes ${animationName} {
-                    ${Object.values(keyframes)
-                      .sort((a, b) => a.position - b.position)
-                      .map(({ key, position, value }) => {
-                        return `
-                        ${position * 100}% {
-                          ${key}: ${value};
-                        }
-                        `
-                      })
-                      .join('\n')}
-                  }
-                  `
-                })
-                .join('\n')
-            : ''
-        }
-      `
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e)
-      return ''
-    }
-  }
 
   // Make sure that CSS for dependencies are rendered first so that instance styles can override
   const visitedComponents = new Set<string>()
@@ -288,6 +283,7 @@ ${selector}::-webkit-scrollbar {
           stylesheet += getNodeStyles(
             node as any,
             toValidClassName(`${component.name}:${id}`, true),
+            animationHashes,
           )
 
           return
@@ -301,7 +297,7 @@ ${selector}::-webkit-scrollbar {
         return ''
       }
       hashes.add(classHash)
-      stylesheet += getNodeStyles(node as any, classHash)
+      stylesheet += getNodeStyles(node as any, classHash, animationHashes)
     })
   }
   insertComponentStyles(root)

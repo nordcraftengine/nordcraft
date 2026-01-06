@@ -11,6 +11,7 @@ import {
 import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
 import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { omitKeys } from '@nordcraft/core/dist/utils/collections'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 const LEGACY_BREAKPOINTS = {
   large: 1440,
@@ -89,8 +90,8 @@ ${
           return variant.mediaQuery
             ? `
                 @media (${Object.entries(variant.mediaQuery)
+                  .filter(([_, value]) => isDefined(value))
                   .map(([key, value]) => `${key}: ${value}`)
-                  .filter(Boolean)
                   .join(') and (')}) {
                 ${renderedVariant}
                 }

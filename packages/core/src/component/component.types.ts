@@ -157,6 +157,7 @@ export type MediaQuery = {
   'max-width'?: Nullable<string>
   'min-height'?: Nullable<string>
   'max-height'?: Nullable<string>
+  'prefers-reduced-motion'?: Nullable<'reduce' | 'no-preference'>
 }
 
 export interface Component {

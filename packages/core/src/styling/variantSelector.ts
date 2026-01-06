@@ -1,6 +1,7 @@
 import type {
   CustomProperty,
   CustomPropertyName,
+  MediaQuery,
   NodeStyleModel,
 } from '../component/component.types'
 import type { Nullable } from '../types'
@@ -23,13 +24,6 @@ export type Filter =
       name: 'Opacity'
       percent: number
     }
-
-type MediaQuery = {
-  'min-width'?: Nullable<string>
-  'max-width'?: Nullable<string>
-  'min-height'?: Nullable<string>
-  'max-height'?: Nullable<string>
-}
 
 export interface StyleVariant {
   'even-child'?: Nullable<boolean>

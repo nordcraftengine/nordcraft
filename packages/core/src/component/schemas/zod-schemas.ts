@@ -678,6 +678,10 @@ const StyleVariantSchema: z.ZodType<StyleVariant> = z.object({
       'max-width': z.string().optional().nullable(),
       'min-height': z.string().optional().nullable(),
       'max-height': z.string().optional().nullable(),
+      'prefers-reduced-motion': z
+        .enum(['reduce', 'no-preference'])
+        .optional()
+        .nullable(),
     })
     .optional()
     .nullable(),
