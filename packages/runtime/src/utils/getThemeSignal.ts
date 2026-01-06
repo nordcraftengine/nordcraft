@@ -6,8 +6,8 @@ import {
   applyFormula,
   type ToddleEnv,
 } from '@nordcraft/core/dist/formula/formula'
+import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/theme.const'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import { getCookie } from '@nordcraft/std-lib/dist/formulas'
 import { signal, type Signal } from '../signal/signal'
 
 export const getThemeSignal = (
@@ -20,16 +20,14 @@ export const getThemeSignal = (
   const dynamicTheme = themeFormula && themeFormula.type !== 'value'
   if (dynamicTheme) {
     const sig = dataSignal.map<string | null>(() =>
-      component
-        ? applyFormula(themeFormula, {
-            data: dataSignal.get(),
-            component,
-            root: document,
-            package: undefined,
-            toddle: window.toddle,
-            env,
-          })
-        : null,
+      applyFormula(themeFormula, {
+        data: dataSignal.get(),
+        component,
+        root: document,
+        package: undefined,
+        toddle: window.toddle,
+        env,
+      }),
     )
 
     return sig
@@ -38,27 +36,26 @@ export const getThemeSignal = (
     return signal<string | null>(themeFormula.value as string | null)
   } else {
     // This is the standard theme resolution logic, if not overridden:
-    // 1. Check for 'theme' cookie
+    // 1. Check for 'nc-theme' cookie
     // 2. Default to null
     //    2.1 No theme set explicitly will default to system preference
     //    2.2 Default theme (or initial value) is handled in CSS
-    const initialThemeValue = getCookie.default(['theme'], {
-      component,
-      root: document,
-      data: dataSignal.get(),
-      env,
-    })
+    const initialThemeValue =
+      document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(`${THEME_COOKIE_NAME}=`))
+        ?.split('=')[1] ?? null
 
     const sig = signal<string | null>(initialThemeValue as string | null)
-    // Listen to cookie store API changes for 'theme'
+    // Listen to cookie store API changes for 'nc-theme'
     cookieStore.addEventListener('change', (event) => {
       for (const change of event.changed) {
-        if (change.name === 'theme') {
+        if (change.name === THEME_COOKIE_NAME) {
           sig.set(change.value ?? null)
         }
       }
       for (const removal of event.deleted) {
-        if (removal.name === 'theme') {
+        if (removal.name === THEME_COOKIE_NAME) {
           sig.set(null)
         }
       }

@@ -1,3 +1,4 @@
+import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/theme.const'
 import type { ActionHandler } from '@nordcraft/core/dist/types'
 
 const ONE_YEAR = 60 * 60 * 24 * 365
@@ -16,7 +17,7 @@ const handler: ActionHandler = async function ([name], ctx) {
     // Note that the cookie store API is used with event listeners to update
     // the theme signal for reactive updates.
     await cookieStore.set({
-      name: 'theme',
+      name: THEME_COOKIE_NAME,
       value: name ?? '',
       path: '/',
       expires: shouldDelete ? 0 : Date.now() + ONE_YEAR,

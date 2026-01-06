@@ -6,6 +6,7 @@ import type {
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
+import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/theme.const'
 import type {
   ActionHandler,
   ArgumentInputDataFunction,
@@ -271,9 +272,9 @@ export const createRoot = (domNode: HTMLElement) => {
 
   ctx.stores.theme.subscribe((newTheme) => {
     if (isDefined(newTheme)) {
-      document.documentElement.setAttribute('data-nc-theme', newTheme)
+      document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
     } else {
-      document.documentElement.removeAttribute('data-nc-theme')
+      document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE)
     }
   })
 

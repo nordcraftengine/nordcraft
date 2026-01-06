@@ -2,7 +2,7 @@ import type { CustomPropertyName } from '../component/component.types'
 import type { Nullable } from '../types'
 import { isDefined } from '../utils/util'
 import { renderSyntaxDefinition, type CssSyntaxNode } from './customProperty'
-import { RESET_STYLES } from './theme.const'
+import { RESET_STYLES, THEME_DATA_ATTRIBUTE } from './theme.const'
 
 export interface ThemeOptions {
   includeResetStyle: boolean
@@ -147,7 +147,7 @@ export const getThemeCss = (
   ${Object.entries(themeV2.themes ?? {})
     .map(([key, _t]) =>
       renderThemeValues(
-        `[data-nc-theme~="${key}"]`,
+        `[${THEME_DATA_ATTRIBUTE}~="${key}"]`,
         getThemeEntries(themeV2, key),
       ),
     )

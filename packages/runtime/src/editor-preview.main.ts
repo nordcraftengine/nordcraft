@@ -31,6 +31,7 @@ import {
   getThemeEntries,
   renderThemeValues,
 } from '@nordcraft/core/dist/styling/theme'
+import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/theme.const'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type {
   ActionHandler,
@@ -1004,7 +1005,7 @@ export const createRoot = (
               }
               cssBlocks.push(
                 renderThemeValues(
-                  `[data-nc-theme~="${theme.key}"]`,
+                  `[${THEME_DATA_ATTRIBUTE}~="${theme.key}"]`,
                   getThemeEntries(theme.value, theme.key),
                 ),
               )
@@ -1054,9 +1055,9 @@ export const createRoot = (
         case 'preview_theme': {
           const { theme } = message.data
           if (theme) {
-            document.body.setAttribute('data-nc-theme', theme)
+            document.body.setAttribute(THEME_DATA_ATTRIBUTE, theme)
           } else {
-            document.body.removeAttribute('data-nc-theme')
+            document.body.removeAttribute(THEME_DATA_ATTRIBUTE)
           }
         }
       }
@@ -1925,9 +1926,9 @@ function setupThemeSubscription(
   _themeRootSignal = getThemeSignal(component, dataSignal, env)
   _themeRootSignal.subscribe((theme) => {
     if (isDefined(theme)) {
-      document.documentElement.setAttribute('data-nc-theme', theme)
+      document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, theme)
     } else {
-      document.documentElement.removeAttribute('data-nc-theme')
+      document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE)
     }
     dataSignal.update((data) => ({
       ...data,

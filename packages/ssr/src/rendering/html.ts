@@ -1,6 +1,7 @@
 import type { PageRoute } from '@nordcraft/core/dist/component/component.types'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/theme.const'
 
 export const getHtmlLanguage = ({
   pageInfo,
@@ -41,6 +42,6 @@ export const getTheme = ({
 }) => {
   const theme = pageInfo?.theme?.formula
     ? (applyFormula(pageInfo.theme.formula, formulaContext) as string)
-    : formulaContext.env?.request?.cookies['theme']
+    : formulaContext.env?.request?.cookies[THEME_COOKIE_NAME]
   return typeof theme === 'string' ? theme : null
 }

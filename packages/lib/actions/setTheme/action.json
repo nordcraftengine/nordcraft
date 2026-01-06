@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libAction.schema.json",
   "name": "Set theme",
-  "description": "Sets the application theme. Call with null to reset. Note: This action is part of a feature flag.",
+  "description": "Sets the application theme. Call with null to reset. This action automatically sets a theme-cookie so the theme persists across sessions. Note: This action is currently only supported when the \"style-variables-v2\" feature flag is enabled.",
   "group": "theming",
   "arguments": [
     {
