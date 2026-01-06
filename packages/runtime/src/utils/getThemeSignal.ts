@@ -48,18 +48,20 @@ export const getThemeSignal = (
 
     const sig = signal<string | null>(initialThemeValue as string | null)
     // Listen to cookie store API changes for 'nc-theme'
-    cookieStore.addEventListener('change', (event) => {
-      for (const change of event.changed) {
-        if (change.name === THEME_COOKIE_NAME) {
-          sig.set(change.value ?? null)
+    if ('cookieStore' in window) {
+      cookieStore.addEventListener('change', (event) => {
+        for (const change of event.changed) {
+          if (change.name === THEME_COOKIE_NAME) {
+            sig.set(change.value ?? null)
+          }
         }
-      }
-      for (const removal of event.deleted) {
-        if (removal.name === THEME_COOKIE_NAME) {
-          sig.set(null)
+        for (const removal of event.deleted) {
+          if (removal.name === THEME_COOKIE_NAME) {
+            sig.set(null)
+          }
         }
-      }
-    })
+      })
+    }
 
     return sig
   }
