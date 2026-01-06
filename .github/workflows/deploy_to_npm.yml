@@ -85,6 +85,7 @@ jobs:
           node-version: 24
       - name: Publish core
         run: |
+          npm --version
           cd publish/core
           npm publish --access public core.tgz
       - name: Publish lib
