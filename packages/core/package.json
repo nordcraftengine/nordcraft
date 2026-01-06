@@ -5,7 +5,8 @@
   "homepage": "https://github.com/nordcraftengine/nordcraft",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nordcraftengine/nordcraft.git"
+    "url": "git+https://github.com/nordcraftengine/nordcraft.git",
+    "directory": "packages/core"
   },
   "scripts": {
     "build": "tsgo",
