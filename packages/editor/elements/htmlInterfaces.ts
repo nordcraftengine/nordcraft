@@ -339,7 +339,7 @@ export const getHtmlInterfaces = async () => {
     },
     // Used for theming
     {
-      attribute: 'data-theme',
+      attribute: 'data-nc-theme',
       interface: 'global',
       description:
         'Special Nordcraft data attribute that specifies the theme to be applied to an element and its children.',

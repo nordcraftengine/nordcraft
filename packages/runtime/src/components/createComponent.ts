@@ -310,6 +310,17 @@ export function createComponent({
     })
   }
 
+  // Subscribe to global stores (currently only theme)
+  ctx.stores.theme.subscribe((value) => {
+    componentDataSignal.update((data) => ({
+      ...data,
+      Page: {
+        ...data.Page,
+        Theme: value,
+      },
+    }))
+  })
+
   attributesSignal.subscribe(
     (Attributes) =>
       componentDataSignal.update((data) => ({
@@ -329,6 +340,7 @@ export function createComponent({
     children,
     formulaCache,
     providers,
+    stores: ctx.stores,
     apis,
     abortSignal: abortController.signal,
     package: node.package ?? ctx.package,

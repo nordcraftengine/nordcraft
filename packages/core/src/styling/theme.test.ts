@@ -38,11 +38,11 @@ describe('renderThemeValues()', () => {
     }
     expect(
       renderThemeValues(
-        '[data-theme="my-theme"]',
+        '[data-nc-theme="my-theme"]',
         getThemeEntries(theme, 'my-theme'),
       ),
     ).toMatchInlineSnapshot(`
-      "[data-theme="my-theme"] {
+      "[data-nc-theme="my-theme"] {
         --my-color: rebeccapurple;
         --my-third-prop: var(--my-color);
       }"
@@ -126,11 +126,11 @@ describe('getThemeCss()', () => {
       }
           }
         
-        [data-theme~="my-theme"] {
+        [data-nc-theme~="my-theme"] {
         --my-color: rebeccapurple;
         --my-third-prop: var(--my-color);
       }
-      [data-theme~="super-dark"] {
+      [data-nc-theme~="super-dark"] {
         --my-color: black;
       }
           

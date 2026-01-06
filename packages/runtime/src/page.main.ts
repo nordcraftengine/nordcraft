@@ -6,6 +6,7 @@ import type {
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
+import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/theme.const'
 import type {
   ActionHandler,
   ArgumentInputDataFunction,
@@ -29,6 +30,7 @@ import { initLogState, registerComponentToLogState } from './debug/logState'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
 import type { ComponentContext, LocationSignal } from './types'
+import { getThemeSignal } from './utils/getThemeSignal'
 
 initLogState()
 
@@ -203,6 +205,9 @@ export const createRoot = (domNode: HTMLElement) => {
     children: {},
     formulaCache: {},
     providers: {},
+    stores: {
+      theme: getThemeSignal(component, dataSignal, env),
+    },
     apis: {},
     toddle: window.toddle,
     triggerEvent: (event: string, data: unknown) =>
@@ -264,6 +269,14 @@ export const createRoot = (domNode: HTMLElement) => {
       },
     }
   }
+
+  ctx.stores.theme.subscribe((newTheme) => {
+    if (isDefined(newTheme)) {
+      document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
+    } else {
+      document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE)
+    }
+  })
 
   // We can only setup meta updates after the dataSignal has been initiated with API data etc.
   setupMetaUpdates(component, dataSignal)

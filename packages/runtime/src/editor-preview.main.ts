@@ -31,6 +31,7 @@ import {
   getThemeEntries,
   renderThemeValues,
 } from '@nordcraft/core/dist/styling/theme'
+import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/theme.const'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type {
   ActionHandler,
@@ -79,6 +80,7 @@ import type {
   PreviewShowSignal,
 } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
+import { getThemeSignal } from './utils/getThemeSignal'
 import { getNodeAndAncestors, isNodeOrAncestorConditional } from './utils/nodes'
 import { rectHasPoint } from './utils/rectHasPoint'
 import {
@@ -217,6 +219,7 @@ export const createRoot = (
     displayedNodes: [],
     testMode: false,
   })
+  const themeSignal = signal<string | null>(null)
   window.toddle._preview = { showSignal }
   document.body.setAttribute('data-mode', 'design')
   let components: Component[] | null = null
@@ -1002,7 +1005,7 @@ export const createRoot = (
               }
               cssBlocks.push(
                 renderThemeValues(
-                  `[data-theme~="${theme.key}"]`,
+                  `[${THEME_DATA_ATTRIBUTE}~="${theme.key}"]`,
                   getThemeEntries(theme.value, theme.key),
                 ),
               )
@@ -1052,9 +1055,9 @@ export const createRoot = (
         case 'preview_theme': {
           const { theme } = message.data
           if (theme) {
-            document.body.setAttribute('data-theme', theme)
+            document.body.setAttribute(THEME_DATA_ATTRIBUTE, theme)
           } else {
-            document.body.removeAttribute('data-theme')
+            document.body.removeAttribute(THEME_DATA_ATTRIBUTE)
           }
         }
       }
@@ -1248,7 +1251,8 @@ export const createRoot = (
       fastDeepEqual(
         ctx?.component.route?.info?.meta,
         _component.route?.info?.meta,
-      ) === false
+      ) === false ||
+      !ctx
     ) {
       insertHeadTags(_component.route?.info?.meta ?? {}, {
         component: _component,
@@ -1388,6 +1392,21 @@ export const createRoot = (
     const newCtx: ComponentContext = {
       ...(ctx ?? createContext(_component, getAllComponents())),
       component: _component,
+    }
+
+    if (
+      fastDeepEqual(
+        newCtx.component.route?.info?.theme,
+        ctx?.component.route?.info?.theme,
+      ) === false
+    ) {
+      setupThemeSubscription(
+        newCtx.component,
+        newCtx.dataSignal,
+        env,
+      ).subscribe((theme) => {
+        newCtx.stores.theme.set(theme)
+      })
     }
 
     for (const api in newCtx.component.apis) {
@@ -1554,10 +1573,19 @@ export const createRoot = (
       abortSignal: new AbortController().signal,
       formulaCache: createFormulaCache(component),
       providers: {},
+      stores: {
+        theme: themeSignal,
+      },
       package: undefined,
       toddle: window.toddle,
       env,
     }
+
+    setupThemeSubscription(ctx.component, ctx.dataSignal, env).subscribe(
+      (theme) => {
+        ctx.stores.theme.set(theme)
+      },
+    )
 
     if (isContextProvider(component)) {
       // Subscribe to exposed formulas and update the component's data signal
@@ -1672,7 +1700,7 @@ const insertHeadTags = (
     .filter((elem) => !entries[elem.getAttribute('data-meta-id')!])
     .forEach((elem) => elem.remove())
 
-  // Skip anything that is not <link> or <script> tags, as they don't have any influence on the preview
+  // Skip anything that is not <link>, <style> or <script> tags, as they don't have any influence on the preview
   Object.entries(entries).forEach(([id, entry]) => {
     switch (entry.tag) {
       case HeadTagTypes.Link:
@@ -1699,9 +1727,22 @@ const insertHeadTags = (
           ></script>
         `),
         )
+      case HeadTagTypes.Style:
+        return insertOrReplaceHeadNode(
+          id,
+          document.createRange().createContextualFragment(`
+          <style
+            data-meta-id="${id}"
+            ${Object.entries(entry.attrs)
+              .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
+              .join(' ')}
+          >
+            ${applyFormula(entry.content ?? '', context)}
+          </style>
+        `),
+        )
       default:
-        // TODO: handle style meta tags?
-        break
+        return
     }
   })
 }
@@ -1873,4 +1914,29 @@ const registerFormulas = (
 
 const postMessageToEditor = (message: EditorPostMessageType) => {
   window.parent?.postMessage(message, '*')
+}
+
+let _themeRootSignal = null as Signal<string | null> | null
+function setupThemeSubscription(
+  component: Component,
+  dataSignal: Signal<ComponentData>,
+  env: ToddleEnv,
+) {
+  _themeRootSignal?.destroy()
+  _themeRootSignal = getThemeSignal(component, dataSignal, env)
+  _themeRootSignal.subscribe((theme) => {
+    if (isDefined(theme)) {
+      document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, theme)
+    } else {
+      document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE)
+    }
+    dataSignal.update((data) => ({
+      ...data,
+      Page: {
+        Theme: theme ?? null,
+      },
+    }))
+  })
+
+  return _themeRootSignal
 }
