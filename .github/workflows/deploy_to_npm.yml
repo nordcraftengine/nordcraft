@@ -81,20 +81,20 @@ jobs:
       - name: Publish core
         run: |
           cd publish/core
-          npm publish --access public --tag ${{ inputs.version }} core.tgz
+          npm publish --access public core.tgz
       - name: Publish lib
         run: |
           cd publish/lib
-          npm publish --access public --tag ${{ inputs.version }} lib.tgz
+          npm publish --access public lib.tgz
       - name: Publish ssr
         run: |
           cd publish/ssr
-          npm publish --access public --tag ${{ inputs.version }} ssr.tgz
+          npm publish --access public ssr.tgz
       - name: Publish search
         run: |
           cd publish/search
-          npm publish --access public --tag ${{ inputs.version }} search.tgz
+          npm publish --access public search.tgz
       - name: Publish runtime
         run: |
           cd publish/runtime
-          npm publish --access public --tag ${{ inputs.version }} runtime.tgz
+          npm publish --access public runtime.tgz
