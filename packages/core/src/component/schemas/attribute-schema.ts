@@ -4,9 +4,9 @@ import { MetadataSchema, SCHEMA_DESCRIPTIONS } from './zod-schemas'
 
 export const ComponentAttributeSchema: z.ZodType<ComponentAttribute> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional()
-      .nullable()
-      .describe(SCHEMA_DESCRIPTIONS.metadata('component attribute')),
+    '@nordcraft/metadata': MetadataSchema.nullish().describe(
+      SCHEMA_DESCRIPTIONS.metadata('component attribute'),
+    ),
     name: z.string().describe('Name of the component attribute'),
     testValue: z
       .any()

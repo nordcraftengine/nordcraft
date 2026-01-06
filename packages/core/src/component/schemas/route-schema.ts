@@ -38,8 +38,7 @@ const StaticPathSegmentSchema: z.ZodType<StaticPathSegment> = z
     name: z.string().describe('Name of the static path segment'),
     optional: z
       .boolean()
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Indicates if the segment is optional'),
   })
   .describe('Schema for static path segments')
@@ -55,8 +54,7 @@ const DynamicPathSegmentSchema: z.ZodType<DynamicPathSegment> = z
       .describe(SCHEMA_DESCRIPTIONS.testData('dynamic URL parameter')),
     optional: z
       .boolean()
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Indicates if the URL parameter is optional'),
   })
   .describe('Schema for dynamic path segments (URL parameters)')
@@ -89,36 +87,31 @@ export const RouteSchema: z.ZodType<RouteDeclaration> = z
       .object({
         title: z
           .object({ formula: FormulaSchema })
-          .optional()
-          .nullable()
+          .nullish()
           .describe(
             'Title of the page, used in the document title and SEO metadata.',
           ),
         description: z
           .object({ formula: FormulaSchema })
-          .optional()
-          .nullable()
+          .nullish()
           .describe(
             'Description of the page, used in SEO metadata and social sharing previews.',
           ),
         icon: z
           .object({ formula: FormulaSchema })
-          .optional()
-          .nullable()
+          .nullish()
           .describe(
             'URL to the icon of the page, used in SEO metadata and social sharing previews.',
           ),
         language: z
           .object({ formula: FormulaSchema })
-          .optional()
-          .nullable()
+          .nullish()
           .describe(
             'Language of the page, used in the lang attribute of the HTML document.',
           ),
         charset: z
           .object({ formula: FormulaSchema })
-          .optional()
-          .nullable()
+          .nullish()
           .describe(
             'Character set of the page, used in the meta charset tag of the HTML document.',
           ),
@@ -127,14 +120,12 @@ export const RouteSchema: z.ZodType<RouteDeclaration> = z
             z.string().describe('The key of the meta data record.'),
             MetaEntrySchema,
           )
-          .optional()
-          .nullable()
+          .nullish()
           .describe(
             'Additional meta tags to include in the head of the document. Each entry defines a tag and its attributes.',
           ),
       })
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'Contains additional information for the route such as SEO metadata.',
       ),

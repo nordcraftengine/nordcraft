@@ -324,7 +324,7 @@ export interface VariableActionModel {
 export interface FetchActionModel {
   type: 'Fetch'
   api: string
-  inputs?: Nullable<Record<string, { formula: Nullable<Formula> }>>
+  inputs?: Nullable<Record<string, { formula?: Nullable<Formula> }>>
   onSuccess: ActionModelActions
   onError: ActionModelActions
   onMessage?: Nullable<ActionModelActions>

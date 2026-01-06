@@ -45,6 +45,6 @@ export const MetadataSchema = z
           text: z.string(),
         }),
       )
-      .nullable(),
+      .nullish(),
   })
-  .nullable()
+  .nullish()

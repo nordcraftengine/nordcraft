@@ -159,7 +159,7 @@ export interface Comment {
 
 export interface NordcraftMetadata {
   '@nordcraft/metadata'?: Nullable<{
-    comments: Nullable<Partial<Record<string, Comment & { index: number }>>>
+    comments?: Nullable<Partial<Record<string, Comment & { index: number }>>>
   }>
 }
 

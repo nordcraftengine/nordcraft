@@ -5,9 +5,9 @@ import { MetadataSchema, SCHEMA_DESCRIPTIONS } from './zod-schemas'
 
 export const ComponentWorkflowSchema: z.ZodType<ComponentWorkflow> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional()
-      .nullable()
-      .describe(SCHEMA_DESCRIPTIONS.metadata('workflow')),
+    '@nordcraft/metadata': MetadataSchema.nullish().describe(
+      SCHEMA_DESCRIPTIONS.metadata('workflow'),
+    ),
     name: z.string().describe('Name of the workflow'),
     parameters: z
       .array(
@@ -22,8 +22,7 @@ export const ComponentWorkflowSchema: z.ZodType<ComponentWorkflow> = z
       .describe('List of actions that make up the workflow'),
     exposeInContext: z
       .boolean()
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'Indicates if the workflow should be exposed in the context for child components to subscribe to.',
       ),

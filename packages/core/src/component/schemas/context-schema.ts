@@ -5,13 +5,11 @@ export const ComponentContextSchema: z.ZodType<ComponentContext> = z
   .object({
     package: z
       .string()
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Package name of the component providing the context'),
     componentName: z
       .string()
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Name of the component providing the context'),
     formulas: z
       .array(z.string())

@@ -24,9 +24,9 @@ export const EventModelSchema: z.ZodType<EventModel> = z
 
 export const ComponentEventSchema: z.ZodType<ComponentEvent> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional()
-      .nullable()
-      .describe(SCHEMA_DESCRIPTIONS.metadata('component event')),
+    '@nordcraft/metadata': MetadataSchema.nullish().describe(
+      SCHEMA_DESCRIPTIONS.metadata('component event'),
+    ),
     name: z.string().describe('Name of the component event'),
     dummyEvent: z
       .any()

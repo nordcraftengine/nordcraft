@@ -72,7 +72,7 @@ const FetchActionModelSchema: z.ZodType<FetchActionModel> = z
       .record(
         z.string().describe('Name of the API input.'),
         z.object({
-          formula: FormulaSchema.nullable().describe('Formula for the input.'),
+          formula: FormulaSchema.nullish().describe('Formula for the input.'),
         }),
       )
       .describe(
@@ -92,8 +92,7 @@ const FetchActionModelSchema: z.ZodType<FetchActionModel> = z
       .object({
         actions: z.array(z.lazy(() => ActionModelSchema)),
       })
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'Actions to execute when a message is received during streaming.',
       ),
@@ -106,8 +105,7 @@ const CustomActionModelSchema: z.ZodType<CustomActionModel> = z
     name: z.string().describe('Name of the custom action to be executed.'),
     package: z
       .string()
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'Package where the custom action is defined. Should not be set for local custom actions.',
       ),
@@ -120,8 +118,7 @@ const CustomActionModelSchema: z.ZodType<CustomActionModel> = z
           ),
         }),
       )
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Arguments to pass to the custom action.'),
     events: z
       .record(
@@ -138,15 +135,13 @@ const CustomActionModelSchema: z.ZodType<CustomActionModel> = z
             'Record with one entry called "actions" which is a list of actions to execute when the event is triggered..',
           ),
       )
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'Record of events defined in the custom action. Each event has a list of actions to execute when the event is emitted.',
       ),
     version: z
       .literal(2)
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Version of the custom action model. This should always be 2.'),
   })
   .describe(
@@ -169,8 +164,7 @@ const BuiltInActionModelSchema: z.ZodType<CustomActionModel> = z
           ),
         }),
       )
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Arguments to pass to the built-in action.'),
     events: z
       .record(
@@ -181,8 +175,7 @@ const BuiltInActionModelSchema: z.ZodType<CustomActionModel> = z
           })
           .describe('List of actions to execute when the event is triggered.'),
       )
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'Events that can be triggered by the built-in action. Common events include onSuccess and onError.',
       ),
@@ -201,7 +194,7 @@ const SetURLParameterActionSchema: z.ZodType<SetURLParameterAction> = z
     type: z.literal('SetURLParameter'),
     parameter: z.string(),
     data: FormulaSchema,
-    historyMode: z.enum(['replace', 'push']).nullable().optional().nullable(),
+    historyMode: z.enum(['replace', 'push']).nullish(),
   })
   .describe(
     'This model is deprecated. Instead refer to SetMultiUrlParameterActionSchema.',
@@ -218,9 +211,7 @@ const SetMultiUrlParameterActionSchema: z.ZodType<SetMultiUrlParameterAction> =
         ),
       historyMode: z
         .enum(['replace', 'push'])
-        .nullable()
-        .optional()
-        .nullable()
+        .nullish()
         .describe(
           'This determines how the URL is updated in the browser history. Use "replace" to update the current history entry without adding a new one, or "push" to create a new history entry for the URL change. If not specified, the default behavior is to use "push".',
         ),
@@ -245,8 +236,7 @@ const WorkflowActionModelSchema: z.ZodType<WorkflowActionModel> = z
       .describe('Parameters to pass to the workflow being triggered. '),
     contextProvider: z
       .string()
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'If the workflow being triggered is from a parent component and exposed via a context provider, this is the ID of that context provider.',
       ),

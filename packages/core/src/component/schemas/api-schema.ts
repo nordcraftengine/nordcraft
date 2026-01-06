@@ -33,35 +33,29 @@ const RedirectStatusCodeSchema: z.ZodType<any> = z
 
 const ApiRequestSchema: z.ZodType<ApiRequest> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional()
-      .nullable()
-      .describe('Metadata for the API request'),
+    '@nordcraft/metadata': MetadataSchema.nullish().describe(
+      'Metadata for the API request',
+    ),
     version: z
       .literal(2)
       .describe('Version of the API request schema. This should always be 2.'),
     name: z.string().describe('Name of the API request.'),
     type: z.enum(['http', 'ws']).describe('Type of the API request.'),
-    method: ApiMethodSchema.optional()
-      .nullable()
-      .describe('HTTP method for the API request.'),
-    url: FormulaSchema.optional()
-      .nullable()
-      .describe(
-        'Base URL for the API request. Params and query strings are added when this API is called.',
-      ),
+    method: ApiMethodSchema.nullish().describe(
+      'HTTP method for the API request.',
+    ),
+    url: FormulaSchema.nullish().describe(
+      'Base URL for the API request. Params and query strings are added when this API is called.',
+    ),
     service: z
       .string()
-      .nullable()
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'Name of the service to use for the API request. Only Services defined in the project can be used here.',
       ),
     servicePath: z
       .string()
-      .nullable()
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'File path to the service definition. If service is defined, servicePath must also be defined.',
       ),
@@ -70,7 +64,7 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
         z.string().describe('Name of the input'),
         z
           .object({
-            formula: FormulaSchema.nullable(),
+            formula: FormulaSchema.nullish(),
           })
           .describe('Formula evaluating to the input value.'),
       )
@@ -89,8 +83,7 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
             .describe('Index defining the order of the path segments.'),
         }),
       )
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Path segments to include in the API request.'),
     queryParams: z
       .record(
@@ -99,16 +92,12 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
           formula: FormulaSchema.describe(
             'Formula evaluating to the value of the query parameter',
           ),
-          enabled: FormulaSchema.nullable()
-            .optional()
-            .nullable()
-            .describe(
-              'Formula evaluating to whether the query parameter is included or not. If included it should evaluate to true.',
-            ),
+          enabled: FormulaSchema.nullish().describe(
+            'Formula evaluating to whether the query parameter is included or not. If included it should evaluate to true.',
+          ),
         }),
       )
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Query parameters to include in the API request.'),
     headers: z
       .record(
@@ -117,26 +106,17 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
           formula: FormulaSchema.describe(
             'Formula evaluating to the header value',
           ),
-          enabled: FormulaSchema.nullable()
-            .optional()
-            .nullable()
-            .describe(
-              'Formula evaluating to whether the header is included or not. If included it should evaluate to true.',
-            ),
+          enabled: FormulaSchema.nullish().describe(
+            'Formula evaluating to whether the header is included or not. If included it should evaluate to true.',
+          ),
         }),
       )
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Headers to include in the API request.'),
-    body: FormulaSchema.optional()
-      .nullable()
-      .describe('Body of the API request.'),
-    autoFetch: FormulaSchema.nullable()
-      .optional()
-      .nullable()
-      .describe(
-        'Indicates if the API request should be automatically fetched when the component or page loads.',
-      ),
+    body: FormulaSchema.nullish().describe('Body of the API request.'),
+    autoFetch: FormulaSchema.nullish().describe(
+      'Indicates if the API request should be automatically fetched when the component or page loads.',
+    ),
     client: z
       .object({
         parserMode: ApiParserModeSchema.describe(
@@ -144,40 +124,27 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
         ),
         credentials: z
           .enum(['include', 'same-origin', 'omit'])
-          .optional()
-          .nullable()
+          .nullish()
           .describe(
             'Indicates whether credentials such as cookies or authorization headers should be sent with the request.',
           ),
         debounce: z
           .object({ formula: FormulaSchema })
-          .nullable()
-          .optional()
-          .nullable()
+          .nullish()
           .describe(
             'Debounce time in milliseconds for the API request. Useful for limiting the number of requests made when inputs change rapidly.',
           ),
-        onCompleted: EventModelSchema.nullable()
-          .optional()
-          .nullable()
-          .describe(
-            'Event triggered when the API request completes successfully.',
-          ),
-        onFailed: EventModelSchema.nullable()
-          .optional()
-          .nullable()
-          .describe(
-            'Event triggered when the API request fails. This is also triggered when the isError formula evaluates to true.',
-          ),
-        onMessage: EventModelSchema.nullable()
-          .optional()
-          .nullable()
-          .describe(
-            'Event triggered when a message is received from the API. Only applicable for WebSocket and streaming APIs.',
-          ),
+        onCompleted: EventModelSchema.nullish().describe(
+          'Event triggered when the API request completes successfully.',
+        ),
+        onFailed: EventModelSchema.nullish().describe(
+          'Event triggered when the API request fails. This is also triggered when the isError formula evaluates to true.',
+        ),
+        onMessage: EventModelSchema.nullish().describe(
+          'Event triggered when a message is received from the API. Only applicable for WebSocket and streaming APIs.',
+        ),
       })
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Client-side settings for the API request.'),
     server: z
       .object({
@@ -190,47 +157,35 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
               ),
             useTemplatesInBody: z
               .object({ formula: FormulaSchema })
-              .nullable()
-              .optional()
-              .nullable()
+              .nullish()
               .describe(
                 'Indicates if templates in the body should be processed when proxying the request. A template could be a http-only cookie that needs to be included in the proxied request. Enabling this flag will ensure that templates in the body are processed before sending the proxied request.',
               ),
           })
-          .nullable()
-          .optional()
-          .nullable()
+          .nullish()
           .describe('Proxy settings for the API request.'),
         ssr: z
           .object({
             enabled: z
               .object({ formula: FormulaSchema })
-              .nullable()
-              .optional()
-              .nullable()
+              .nullish()
               .describe(
                 'Indicates if server-side rendering is enabled for this API request. This means the API will be executed on the server during the initial page load. Note: This can have performance implications for the loading of a page on slow APIs.',
               ),
           })
-          .optional()
-          .nullable()
+          .nullish()
           .describe('Server-side rendering settings.'),
       })
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Server-side settings for the API request.'),
     timeout: z
       .object({ formula: FormulaSchema })
-      .nullable()
-      .optional()
-      .nullable()
+      .nullish()
       .describe('Timeout for the API request in milliseconds.'),
-    hash: z.object({ formula: FormulaSchema }).nullable().optional().nullable(),
+    hash: z.object({ formula: FormulaSchema }).nullish(),
     isError: z
       .object({ formula: FormulaSchema })
-      .nullable()
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'Indicates if the last API response was an error. Useful for forcing a response to be treated as an error even if status code is 200.',
       ),
@@ -245,16 +200,13 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
             index: z
               .number()
               .describe('Index defining the order of the redirect rules.'),
-            statusCode: RedirectStatusCodeSchema.nullable()
-              .optional()
-              .nullable()
-              .describe('HTTP status code to use for the redirect.'),
+            statusCode: RedirectStatusCodeSchema.nullish().describe(
+              'HTTP status code to use for the redirect.',
+            ),
           })
           .describe('Defines a single redirect rule.'),
       )
-      .nullable()
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'Rules for redirecting based on response data. The key is a unique identifier for the rule.',
       ),
@@ -266,11 +218,8 @@ const LegacyComponentAPISchema: z.ZodType<LegacyComponentAPI> = z
     type: z.literal('REST'),
     name: z.string(),
     method: z.enum(['GET', 'POST', 'DELETE', 'PUT']),
-    url: FormulaSchema.optional().nullable(),
-    path: z
-      .array(z.object({ formula: FormulaSchema }))
-      .optional()
-      .nullable(),
+    url: FormulaSchema.nullish(),
+    path: z.array(z.object({ formula: FormulaSchema })).nullish(),
     queryParams: z
       .record(
         z.string(),
@@ -279,25 +228,22 @@ const LegacyComponentAPISchema: z.ZodType<LegacyComponentAPI> = z
           formula: FormulaSchema,
         }),
       )
-      .optional()
-      .nullable(),
+      .nullish(),
     headers: z
       .union([z.record(z.string(), FormulaSchema), FormulaSchema])
-      .optional()
-      .nullable(),
-    body: FormulaSchema.optional().nullable(),
-    autoFetch: FormulaSchema.nullable().optional().nullable(),
-    proxy: z.boolean().optional().nullable(),
-    debounce: z.number().nullable().optional().nullable(),
-    throttle: z.number().nullable().optional().nullable(),
-    onCompleted: EventModelSchema.nullable(),
-    onFailed: EventModelSchema.nullable(),
+      .nullish(),
+    body: FormulaSchema.nullish(),
+    autoFetch: FormulaSchema.nullish(),
+    proxy: z.boolean().nullish(),
+    debounce: z.number().nullish(),
+    throttle: z.number().nullish(),
+    onCompleted: EventModelSchema.nullish(),
+    onFailed: EventModelSchema.nullish(),
     auth: z
       .object({
         type: z.enum(['Bearer id_token', 'Bearer access_token']),
       })
-      .optional()
-      .nullable(),
+      .nullish(),
   })
   .describe(
     'Legacy API schema for backward compatibility. Never use this for new APIs.',

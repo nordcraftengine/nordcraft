@@ -27,18 +27,18 @@ const ValueOperationValueSchema: z.ZodType<ValueOperationValue> = z.union([
 ])
 
 const ValueOperationSchema: z.ZodType<ValueOperation> = z.object({
-  '@nordcraft/metadata': MetadataSchema.optional()
-    .nullable()
-    .describe(SCHEMA_DESCRIPTIONS.metadata('value operation')),
+  '@nordcraft/metadata': MetadataSchema.nullish().describe(
+    SCHEMA_DESCRIPTIONS.metadata('value operation'),
+  ),
   type: z.literal('value'),
   value: ValueOperationValueSchema.describe('Literal value.'),
 })
 
 // Path Operation
 const PathOperationSchema: z.ZodType<PathOperation> = z.object({
-  '@nordcraft/metadata': MetadataSchema.optional()
-    .nullable()
-    .describe(SCHEMA_DESCRIPTIONS.metadata('path operation')),
+  '@nordcraft/metadata': MetadataSchema.nullish().describe(
+    SCHEMA_DESCRIPTIONS.metadata('path operation'),
+  ),
   type: z.literal('path'),
   path: z
     .array(z.string())
@@ -55,8 +55,7 @@ const FormulaArgumentSchema: z.ZodType<FunctionArgument> = z
     },
     isFunction: z
       .boolean()
-      .optional()
-      .nullable()
+      .nullish()
       .describe(
         'Whether the argument is a function. This will be true on array formulas like map, filter, reduce, etc. formulas.',
       ),
@@ -71,9 +70,9 @@ const FormulaArgumentSchema: z.ZodType<FunctionArgument> = z
 // Array Operation
 const ArrayOperationSchema: z.ZodType<ArrayOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional()
-      .nullable()
-      .describe(SCHEMA_DESCRIPTIONS.metadata('array operation')),
+    '@nordcraft/metadata': MetadataSchema.nullish().describe(
+      SCHEMA_DESCRIPTIONS.metadata('array operation'),
+    ),
     type: z.literal('array'),
     get arguments() {
       return z
@@ -86,15 +85,14 @@ const ArrayOperationSchema: z.ZodType<ArrayOperation> = z
 // Object Operation
 const ObjectOperationSchema: z.ZodType<ObjectOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional()
-      .nullable()
-      .describe(SCHEMA_DESCRIPTIONS.metadata('object operation')),
+    '@nordcraft/metadata': MetadataSchema.nullish().describe(
+      SCHEMA_DESCRIPTIONS.metadata('object operation'),
+    ),
     type: z.literal('object'),
     get arguments() {
       return z
         .array(FormulaArgumentSchema)
-        .optional()
-        .nullable()
+        .nullish()
         .describe(
           'List of key-value pairs for the object. Each entry must have a name and a formula.',
         )
@@ -105,21 +103,21 @@ const ObjectOperationSchema: z.ZodType<ObjectOperation> = z
 // Record Operation
 const RecordOperationSchema: z.ZodType<RecordOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().nullable(),
+    '@nordcraft/metadata': MetadataSchema.nullish(),
     type: z.literal('record'),
     get entries() {
       return z.array(FormulaArgumentSchema)
     },
-    label: z.string().optional().nullable(),
+    label: z.string().nullish(),
   })
   .describe('Deprecated - use Object operation instead.')
 
 // And Operation
 const AndOperationSchema: z.ZodType<AndOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional()
-      .nullable()
-      .describe(SCHEMA_DESCRIPTIONS.metadata('AND operation')),
+    '@nordcraft/metadata': MetadataSchema.nullish().describe(
+      SCHEMA_DESCRIPTIONS.metadata('AND operation'),
+    ),
     type: z.literal('and'),
     get arguments() {
       return z
@@ -136,9 +134,9 @@ const AndOperationSchema: z.ZodType<AndOperation> = z
 // Or Operation
 const OrOperationSchema: z.ZodType<OrOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional()
-      .nullable()
-      .describe(SCHEMA_DESCRIPTIONS.metadata('OR operation')),
+    '@nordcraft/metadata': MetadataSchema.nullish().describe(
+      SCHEMA_DESCRIPTIONS.metadata('OR operation'),
+    ),
     type: z.literal('or'),
     get arguments() {
       return z
@@ -155,7 +153,7 @@ const OrOperationSchema: z.ZodType<OrOperation> = z
 // Switch Operation
 const SwitchOperationSchema: z.ZodType<SwitchOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional().nullable(),
+    '@nordcraft/metadata': MetadataSchema.nullish(),
     type: z.literal('switch'),
     cases: z
       .array(
@@ -189,9 +187,9 @@ const SwitchOperationSchema: z.ZodType<SwitchOperation> = z
 // Project Function Operation
 const ProjectFunctionOperationSchema: z.ZodType<FunctionOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional()
-      .nullable()
-      .describe(SCHEMA_DESCRIPTIONS.metadata('project formula operation')),
+    '@nordcraft/metadata': MetadataSchema.nullish().describe(
+      SCHEMA_DESCRIPTIONS.metadata('project formula operation'),
+    ),
     type: z.literal('function'),
     name: z
       .string()
@@ -208,9 +206,9 @@ const ProjectFunctionOperationSchema: z.ZodType<FunctionOperation> = z
 
 // Built-in Function Operation
 const BuiltInFunctionOperationSchema: z.ZodType<FunctionOperation> = z.object({
-  '@nordcraft/metadata': MetadataSchema.optional()
-    .nullable()
-    .describe(SCHEMA_DESCRIPTIONS.metadata('built-in formula operation')),
+  '@nordcraft/metadata': MetadataSchema.nullish().describe(
+    SCHEMA_DESCRIPTIONS.metadata('built-in formula operation'),
+  ),
   type: z.literal('function'),
   name: z
     .string()
@@ -222,14 +220,13 @@ const BuiltInFunctionOperationSchema: z.ZodType<FunctionOperation> = z.object({
   },
   display_name: z
     .string()
-    .nullable()
+    .nullish()
     .describe(
       'Human readable label for the operation. This should be set from the "name" read from the built-in formula definition.',
     ),
   variableArguments: z
     .boolean()
-    .optional()
-    .nullable()
+    .nullish()
     .describe(
       'Field defining if the formula accepts variable number of arguments. This value is read from the built-in formula definition.',
     ),
@@ -238,9 +235,9 @@ const BuiltInFunctionOperationSchema: z.ZodType<FunctionOperation> = z.object({
 // Apply Operation
 const ApplyOperationSchema: z.ZodType<ApplyOperation> = z
   .object({
-    '@nordcraft/metadata': MetadataSchema.optional()
-      .nullable()
-      .describe(SCHEMA_DESCRIPTIONS.formulas('apply operation')),
+    '@nordcraft/metadata': MetadataSchema.nullish().describe(
+      SCHEMA_DESCRIPTIONS.formulas('apply operation'),
+    ),
     type: z.literal('apply'),
     name: z
       .string()
@@ -273,9 +270,9 @@ export const FormulaSchema: z.ZodType<Formula> = z.lazy(() =>
 )
 
 export const ComponentFormulaSchema: z.ZodType<ComponentFormula> = z.object({
-  '@nordcraft/metadata': MetadataSchema.optional()
-    .nullable()
-    .describe(SCHEMA_DESCRIPTIONS.metadata('formula')),
+  '@nordcraft/metadata': MetadataSchema.nullish().describe(
+    SCHEMA_DESCRIPTIONS.metadata('formula'),
+  ),
   name: z.string().describe('Name of the formula'),
   formula: FormulaSchema.describe(
     'Contains the "code" that will be executed when this formula is called.',
@@ -287,19 +284,15 @@ export const ComponentFormulaSchema: z.ZodType<ComponentFormula> = z.object({
         testValue: z.any().describe('Test value for the formula argument'),
       }),
     )
-    .nullable()
-    .optional()
-    .nullable()
+    .nullish()
     .describe('List of arguments accepted by the formula.'),
   memoize: z
     .boolean()
-    .optional()
-    .nullable()
+    .nullish()
     .describe('Indicates if the formula result should be memoized.'),
   exposeInContext: z
     .boolean()
-    .optional()
-    .nullable()
+    .nullish()
     .describe(
       'Indicates if the formula should be exposed in the component context for child components to subscribe to.',
     ),
