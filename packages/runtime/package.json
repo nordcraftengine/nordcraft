@@ -3,6 +3,11 @@
   "license": "Apache-2.0",
   "type": "module",
   "homepage": "https://github.com/nordcraftengine/nordcraft",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nordcraftengine/nordcraft.git",
+    "directory": "packages/runtime"
+  },
   "dependencies": {
     "@nordcraft/core": "workspace:*",
     "@nordcraft/std-lib": "workspace:*",
