@@ -11,6 +11,7 @@ import {
 import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
 import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { omitKeys } from '@nordcraft/core/dist/utils/collections'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 const LEGACY_BREAKPOINTS = {
   large: 1440,
