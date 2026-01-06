@@ -81,6 +81,8 @@ jobs:
           # Setup npm for publishing
       - name: Setup node/npm
         uses: actions/setup-node@v6
+        with:
+          node-version: 24
       - name: Publish core
         run: |
           cd publish/core
