@@ -34,6 +34,7 @@ import type { NoReferenceApiServiceRuleFix } from './rules/issues/apis/noReferen
 import type { UnknownApiServiceRuleFix } from './rules/issues/apis/unknownApiServiceRule'
 import type { NoReferenceAttributeRuleFix } from './rules/issues/attributes/noReferenceAttributeRule'
 import type { UnknownComponentAttributeRuleFix } from './rules/issues/attributes/unknownComponentAttributeRule'
+import type { ChangeDataTypeFix } from './rules/issues/components/invalidComponentStructureRule'
 import type { NoReferenceComponentRuleFix } from './rules/issues/components/noReferenceComponentRule'
 import type { NoReferenceEventRuleFix } from './rules/issues/events/noReferenceEventRule'
 import type { LegacyFormulaRuleFix } from './rules/issues/formulas/legacyFormulaRule'
@@ -57,6 +58,7 @@ type Code =
   | 'invalid api proxy cookie setting'
   | 'invalid element child'
   | 'invalid style syntax'
+  | 'invalid component structure'
   | 'legacy action'
   | 'legacy api'
   | 'legacy formula'
@@ -401,6 +403,7 @@ export type NodeType =
   | StyleVariantNode
 
 type FixType =
+  | ChangeDataTypeFix
   | InvalidStyleSyntaxRuleFix
   | LegacyActionRuleFix
   | LegacyFormulaRuleFix
@@ -433,7 +436,12 @@ export interface Rule<T = unknown, V = NodeType> {
   fixes?: Partial<Record<FixType, FixFunction>>
 }
 
-export type FixFunction<T extends NodeType> = (
-  data: T,
-  state?: ApplicationState,
+interface FixFunctionArgs<Data extends NodeType, Details = unknown> {
+  data: Data
+  details?: Details
+  state?: ApplicationState
+}
+
+export type FixFunction<Data extends NodeType, Details = unknown> = (
+  args: FixFunctionArgs<Data, Details>,
 ) => ProjectFiles | void

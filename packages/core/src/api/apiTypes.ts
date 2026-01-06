@@ -77,7 +77,7 @@ export interface ApiRequest extends ApiBase {
   method?: Nullable<ApiMethod>
   body?: Nullable<Formula>
   // inputs for an API request
-  inputs: Record<string, { formula: Nullable<Formula> }>
+  inputs: Record<string, { formula?: Nullable<Formula> }>
   service?: Nullable<string>
   servicePath?: Nullable<string>
   server?: Nullable<{

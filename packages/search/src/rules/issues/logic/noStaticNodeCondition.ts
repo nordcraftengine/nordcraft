@@ -39,10 +39,12 @@ export const noStaticNodeCondition: Rule<{
   },
   fixes: {
     'remove-condition': removeFromPathFix,
-    'remove-node': (({ path, ...data }) =>
+    'remove-node': (({ data: { path, ...data } }) =>
       removeNodeFromPathFix({
-        path: path.slice(0, -1),
-        ...data,
+        data: {
+          path: path.slice(0, -1),
+          ...data,
+        },
       })) as FixFunction<NodeType>,
   },
 }

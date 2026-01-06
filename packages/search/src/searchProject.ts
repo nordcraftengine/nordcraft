@@ -284,8 +284,7 @@ function* visitNode({
               const ruleFixes = rule.fixes[fixOptions.fixType]?.(
                 // We must use the path from the report, not the original path
                 // because the report might be for a subpath
-                { ...data, path },
-                state,
+                { data: { ...data, path }, details, state },
               )
               if (ruleFixes) {
                 fixedFiles = ruleFixes

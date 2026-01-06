@@ -1,5 +1,5 @@
 import { get, set } from '@nordcraft/core/dist/utils/collections'
-import type { ActionModelNode, Rule } from '../../../types'
+import type { ActionModelNode, FixFunctionArgs, Rule } from '../../../types'
 
 export const noPostNavigateAction: Rule<{ parameter: string }> = {
   code: 'no post navigate action',
@@ -13,7 +13,7 @@ export const noPostNavigateAction: Rule<{ parameter: string }> = {
     ) {
       return
     }
-    const actionsArrayPath = path.slice(0, -1).map((p) => String(p))
+    const actionsArrayPath = path.slice(0, -1)
     const actions = get(files, actionsArrayPath)
     if (!Array.isArray(actions)) {
       return
@@ -29,8 +29,10 @@ export const noPostNavigateAction: Rule<{ parameter: string }> = {
     }
   },
   fixes: {
-    'delete-following-actions': ({ path, files }: ActionModelNode) => {
-      const actionsArrayPath = path.slice(0, -1).map((p) => String(p))
+    'delete-following-actions': ({
+      data: { path, files },
+    }: FixFunctionArgs<ActionModelNode>) => {
+      const actionsArrayPath = path.slice(0, -1)
       const actions = get(files, actionsArrayPath)
       const actionIndex = path.at(-1)
       if (actionIndex === undefined || !Array.isArray(actions)) {

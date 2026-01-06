@@ -8,7 +8,8 @@
     "@nordcraft/ssr": "workspace:*",
     "@nordcraft/core": "workspace:*",
     "jsondiffpatch": "0.7.3",
-    "postcss": "8.5.6"
+    "postcss": "8.5.6",
+    "zod": "4.2.1"
   },
   "scripts": {
     "build": "tsgo",
