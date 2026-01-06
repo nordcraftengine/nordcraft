@@ -79,15 +79,11 @@ jobs:
           bun pm pack --destination ../../publish/runtime
           mv ../../publish/runtime/nordcraft-*.tgz ../../publish/runtime/runtime.tgz
           # Setup npm for publishing
-      - name: Setup node/npm
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
       - name: Publish core
-        run: |
-          npm --version
-          cd publish/core
-          npm publish --access public core.tgz
+        uses: JS-DevTools/npm-publish@v4.1.2
+        with:
+          package: publish/core/core.tgz
+          access: public
       - name: Publish lib
         run: |
           cd publish/lib
