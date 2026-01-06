@@ -436,8 +436,12 @@ export interface Rule<T = unknown, V = NodeType> {
   fixes?: Partial<Record<FixType, FixFunction>>
 }
 
-export type FixFunction<Data extends NodeType, Details = unknown> = (args: {
+interface FixFunctionArgs<Data extends NodeType, Details = unknown> {
   data: Data
   details?: Details
   state?: ApplicationState
-}) => ProjectFiles | void
+}
+
+export type FixFunction<Data extends NodeType, Details = unknown> = (
+  args: FixFunctionArgs<Data, Details>,
+) => ProjectFiles | void
