@@ -78,7 +78,6 @@ jobs:
           cd packages/runtime
           bun pm pack --destination ../../publish/runtime
           mv ../../publish/runtime/nordcraft-*.tgz ../../publish/runtime/runtime.tgz
-          # Setup npm for publishing
       - name: Setup node/npm
         uses: actions/setup-node@v6
         with:
