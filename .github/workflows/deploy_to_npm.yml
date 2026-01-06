@@ -79,22 +79,27 @@ jobs:
           bun pm pack --destination ../../publish/runtime
           mv ../../publish/runtime/nordcraft-*.tgz ../../publish/runtime/runtime.tgz
       - name: Publish core
-        run: |
-          cd publish/core
-          npm publish --access public core.tgz
+        uses: JS-DevTools/npm-publish@v4.1.2
+        with:
+          package: publish/core/core.tgz
+          access: public
       - name: Publish lib
-        run: |
-          cd publish/lib
-          npm publish --access public lib.tgz
+        uses: JS-DevTools/npm-publish@v4.1.2
+        with:
+          package: publish/lib/lib.tgz
+          access: public
       - name: Publish ssr
-        run: |
-          cd publish/ssr
-          npm publish --access public ssr.tgz
+        uses: JS-DevTools/npm-publish@v4.1.2
+        with:
+          package: publish/ssr/ssr.tgz
+          access: public
       - name: Publish search
-        run: |
-          cd publish/search
-          npm publish --access public search.tgz
+        uses: JS-DevTools/npm-publish@v4.1.2
+        with:
+          package: publish/search/search.tgz
+          access: public
       - name: Publish runtime
-        run: |
-          cd publish/runtime
-          npm publish --access public runtime.tgz
+        uses: JS-DevTools/npm-publish@v4.1.2
+        with:
+          package: publish/runtime/runtime.tgz
+          access: public
