@@ -1,4 +1,4 @@
-import { ComponentSchema } from '@nordcraft/core/dist/component/schemas/zod-schemas'
+import { ShallowComponentSchema } from '@nordcraft/core/dist/component/schemas/component-schema'
 import { get, set } from '@nordcraft/core/dist/utils/collections'
 import { coerce } from 'zod'
 import type { $ZodIssue, $ZodTypeDef } from 'zod/v4/core'
@@ -94,7 +94,7 @@ export const invalidComponentStructureRule: Rule<InvalidComponentData> = {
       return
     }
     const component = data.value
-    const validation = ComponentSchema.safeParse(component, {
+    const validation = ShallowComponentSchema.safeParse(component, {
       reportInput: false,
     })
     if (validation.success) {

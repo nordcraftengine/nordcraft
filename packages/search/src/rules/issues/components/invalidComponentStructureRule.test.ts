@@ -51,10 +51,8 @@ describe('detect invalidComponentStructureRule', () => {
       }),
     )
     const end = performance.now()
-    console.log(`Validation of large component took ${end - start} ms`)
-    console.log(problems)
-
-    expect(problems).toHaveLength(2)
+    expect(end - start).toBeLessThan(50) // Should complete within 50 ms
+    expect(problems).toHaveLength(0)
   })
 })
 describe('fix invalidComponentStructureRule', () => {
