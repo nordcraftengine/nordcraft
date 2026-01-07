@@ -1,3 +1,4 @@
+import { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
 import {
   pathFormula,
   valueFormula,
@@ -108,6 +109,7 @@ describe('find noReferenceApiRule', () => {
 
     expect(problems).toEqual([])
   })
+
   test('should not detect APIs with references from actions', () => {
     const problems = Array.from(
       searchProject({
@@ -163,6 +165,287 @@ describe('find noReferenceApiRule', () => {
     )
 
     expect(problems).toEqual([])
+  })
+
+  test('should not detect APIs when the API data is referenced in its events', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            'new-test': {
+              apis: {
+                'Weather API': {
+                  url: {
+                    type: 'value',
+                    value: 'https://nordcraft.com',
+                  },
+                  name: 'Weather API',
+                  path: {
+                    XYex4RxpjHs7jsyZx9223: {
+                      index: 0,
+                      formula: {
+                        type: 'value',
+                        value: '_api',
+                      },
+                    },
+                    jY2URy9JhngGEewv_CjGI: {
+                      index: 1,
+                      formula: {
+                        type: 'value',
+                        value: 'weather',
+                      },
+                    },
+                  },
+                  type: 'http',
+                  client: {
+                    parserMode: 'auto',
+                    onCompleted: {
+                      actions: [
+                        {
+                          name: '@toddle/logToConsole',
+                          arguments: [
+                            {
+                              name: 'Label',
+                              formula: { type: 'value', value: '' },
+                            },
+                            {
+                              name: 'Data',
+                              formula: { type: 'path', path: ['Event'] },
+                            },
+                          ],
+                          label: 'Log to console',
+                        },
+                      ],
+                      trigger: 'success',
+                    },
+                  },
+                  inputs: {},
+                  method: ApiMethod.GET,
+                  server: {
+                    ssr: {
+                      enabled: {
+                        formula: {
+                          type: 'value',
+                          value: false,
+                        },
+                      },
+                    },
+                    proxy: {
+                      enabled: {
+                        formula: {
+                          type: 'value',
+                          value: false,
+                        },
+                      },
+                    },
+                  },
+                  headers: {},
+                  version: 2,
+                  autoFetch: {
+                    type: 'value',
+                    value: true,
+                  },
+                  queryParams: {},
+                  redirectRules: {},
+                },
+              },
+              name: 'new-test',
+              nodes: {},
+              events: [],
+              onLoad: null,
+              formulas: {},
+              variables: {
+                Untitled: {
+                  initialValue: {
+                    type: 'value',
+                    value: null,
+                  },
+                },
+              },
+              attributes: {},
+            },
+          },
+        },
+        rules: [noReferenceApiRule],
+      }),
+    )
+
+    expect(problems).toEqual([])
+  })
+
+  test('should list API as unused if the event reference is in a child action in an API event', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            'new-test': {
+              apis: {
+                'Weather API': {
+                  url: {
+                    type: 'value',
+                    value: 'https://nordcraft.com',
+                  },
+                  name: 'Weather API',
+                  path: {
+                    XYex4RxpjHs7jsyZx9223: {
+                      index: 0,
+                      formula: {
+                        type: 'value',
+                        value: '_api',
+                      },
+                    },
+                    jY2URy9JhngGEewv_CjGI: {
+                      index: 1,
+                      formula: {
+                        type: 'value',
+                        value: 'weather',
+                      },
+                    },
+                  },
+                  type: 'http',
+                  client: {
+                    parserMode: 'auto',
+                    onCompleted: {
+                      actions: [
+                        {
+                          name: '@toddle/setCookie',
+                          arguments: [
+                            {
+                              name: 'Name',
+                              formula: null,
+                            },
+                            {
+                              name: 'Value',
+                              formula: {
+                                type: 'value',
+                                value: '',
+                              },
+                            },
+                            {
+                              name: 'Expires in',
+                              formula: {
+                                type: 'value',
+                                value: null,
+                              },
+                            },
+                            {
+                              name: 'SameSite',
+                              formula: {
+                                type: 'value',
+                                value: null,
+                              },
+                            },
+                            {
+                              name: 'Path',
+                              formula: {
+                                type: 'value',
+                                value: null,
+                              },
+                            },
+                            {
+                              name: 'Include Subdomains',
+                              formula: {
+                                type: 'value',
+                                value: null,
+                              },
+                            },
+                          ],
+                          label: 'Set cookie',
+                          events: {
+                            Success: {
+                              actions: [
+                                {
+                                  name: '@toddle/logToConsole',
+                                  arguments: [
+                                    {
+                                      name: 'Label',
+                                      formula: {
+                                        type: 'value',
+                                        value: 'test',
+                                      },
+                                    },
+                                    {
+                                      name: 'Data',
+                                      formula: {
+                                        type: 'path',
+                                        path: ['Event'],
+                                      },
+                                    },
+                                  ],
+                                  label: 'Log to console',
+                                },
+                              ],
+                            },
+                            Error: {
+                              actions: [],
+                            },
+                          },
+                        },
+                      ],
+                      trigger: 'success',
+                    },
+                  },
+                  inputs: {},
+                  method: ApiMethod.GET,
+                  server: {
+                    ssr: {
+                      enabled: {
+                        formula: {
+                          type: 'value',
+                          value: false,
+                        },
+                      },
+                    },
+                    proxy: {
+                      enabled: {
+                        formula: {
+                          type: 'value',
+                          value: false,
+                        },
+                      },
+                    },
+                  },
+                  headers: {},
+                  version: 2,
+                  autoFetch: {
+                    type: 'value',
+                    value: true,
+                  },
+                  queryParams: {},
+                  redirectRules: {},
+                },
+              },
+              name: 'new-test',
+              nodes: {},
+              events: [],
+              onLoad: null,
+              formulas: {},
+              variables: {
+                Untitled: {
+                  initialValue: {
+                    type: 'value',
+                    value: null,
+                  },
+                },
+              },
+              attributes: {},
+            },
+          },
+        },
+        rules: [noReferenceApiRule],
+      }),
+    )
+
+    expect(problems).toHaveLength(1)
+    expect(problems[0].code).toBe('no-reference api')
+    expect(problems[0].path).toEqual([
+      'components',
+      'new-test',
+      'apis',
+      'Weather API',
+    ])
   })
 })
 
