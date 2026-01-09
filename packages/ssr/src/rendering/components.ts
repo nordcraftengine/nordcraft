@@ -375,8 +375,6 @@ const renderComponent = async ({
           updateApiCache,
         })
 
-        // Render the child component first and get the context to continue
-
         const childNodes = await Promise.all(
           node.children.map((child, i) =>
             renderNode({
@@ -449,7 +447,6 @@ const renderComponent = async ({
           ),
         )
 
-        // TODO: Children should have access to internal context
         const children: Record<string, string> = {}
         childNodes.forEach((childNode, i) => {
           const childNodeId = node.children[i]
