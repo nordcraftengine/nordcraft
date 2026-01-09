@@ -119,7 +119,7 @@ describe('requiredElementAttributeRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
   test('should not detect issues when elements have all required attributes', () => {
     const problems = Array.from(
@@ -155,7 +155,7 @@ describe('requiredElementAttributeRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 
   test('should report if attribute is false or null, as such attributes are not rendered', () => {
@@ -256,6 +256,6 @@ describe('requiredElementAttributeRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })

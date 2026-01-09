@@ -150,7 +150,7 @@ describe('finds unknownActionArgumentRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })
 

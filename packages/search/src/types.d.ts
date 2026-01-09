@@ -120,6 +120,7 @@ type Code =
   | 'unknown url parameter'
   | 'unknown variable setter'
   | 'unknown variable'
+  | 'unknown css variable'
   | 'unknown trigger workflow parameter'
   | 'unknown workflow parameter'
 

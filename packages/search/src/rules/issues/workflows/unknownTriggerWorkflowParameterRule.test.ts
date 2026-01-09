@@ -126,7 +126,7 @@ describe('unknownTriggerWorkflowParameterRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
   test('should detect unknown workflow parameters in context workflows', () => {
     const problems = Array.from(
@@ -300,7 +300,7 @@ describe('unknownTriggerWorkflowParameterRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
   test('should detect unknown workflow parameters in context workflows from packages', () => {
     const problems = Array.from(
@@ -480,6 +480,6 @@ describe('unknownTriggerWorkflowParameterRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })

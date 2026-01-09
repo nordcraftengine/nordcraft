@@ -127,7 +127,7 @@ describe('noStaticNodeCondition', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 
   test('should fix static truthy condition by removing the condition', () => {

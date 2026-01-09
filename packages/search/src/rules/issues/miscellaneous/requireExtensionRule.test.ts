@@ -69,6 +69,6 @@ describe('requireExtension', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })

@@ -93,7 +93,7 @@ describe('find legacyActions', () => {
         rules: [legacyActionRule],
       }),
     )
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })
 

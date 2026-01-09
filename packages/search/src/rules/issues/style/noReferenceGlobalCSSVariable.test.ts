@@ -57,7 +57,7 @@ describe('noReferenceGlobalCSSVariableRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 
   test('should report global CSS variables that are never used', () => {

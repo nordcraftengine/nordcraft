@@ -457,7 +457,7 @@ describe('find noPostNavigateAction', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })
 
