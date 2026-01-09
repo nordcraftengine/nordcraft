@@ -132,6 +132,7 @@ export const getThemeCss = (
     .map((themeV2) => {
       return `
   ${Object.entries(themeV2.propertyDefinitions ?? {})
+    .filter(([, property]) => isDefined(property))
     .map(([propertyName, property]) =>
       renderSyntaxDefinition(
         propertyName as CustomPropertyName,
