@@ -77,7 +77,7 @@ describe('imageWithoutDimensionRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 
   test('should report if image has width but no height', () => {
@@ -246,7 +246,7 @@ describe('imageWithoutDimensionRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 
   test('should not report if dimensions are dynamic', () => {
@@ -288,7 +288,7 @@ describe('imageWithoutDimensionRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 
   test('should not report non-image elements', () => {
@@ -321,7 +321,7 @@ describe('imageWithoutDimensionRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 
   test('should report if dimensions are set to non-static keywords (auto | empty string)', () => {

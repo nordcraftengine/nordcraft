@@ -130,6 +130,6 @@ describe('duplicateUrlParameterRule', () => {
         rules: [duplicateUrlParameterRule],
       }),
     )
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })

@@ -216,7 +216,7 @@ describe('elementWithoutInteractiveContentRule', () => {
         rules: [elementWithoutInteractiveContentRule],
       }),
     )
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
   test('should detect invalid children when negative attribute requirement is met', () => {
     const problems = Array.from(
@@ -265,7 +265,7 @@ describe('elementWithoutInteractiveContentRule', () => {
         rules: [elementWithoutInteractiveContentRule],
       }),
     )
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
   test('should detect invalid label in button element in nested component', () => {
     const problems = Array.from(
@@ -396,6 +396,6 @@ describe('elementWithoutInteractiveContentRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })

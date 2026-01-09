@@ -128,7 +128,7 @@ describe('find noReferenceProjectAction', () => {
         }),
       )
 
-      expect(problems).toHaveLength(0)
+      expect(problems).toBeEmpty()
     })
   })
 })
