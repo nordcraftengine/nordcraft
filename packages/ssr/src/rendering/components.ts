@@ -190,17 +190,20 @@ const renderComponent = async ({
           env,
           toddle,
         })
-        const classHash = getClassName([node.style, node.variants])
-        let classList = Object.entries(node.classes ?? {})
-          .filter(([_, { formula }]) =>
-            toBoolean(applyFormula(formula, formulaContext)),
-          )
-          .map(([className]) => className)
-          .join(' ')
+        const classList = [getClassName([node.style, node.variants])]
+        classList.push(
+          ...Object.entries(node.classes ?? {})
+            .filter(([_, { formula }]) =>
+              toBoolean(applyFormula(formula, formulaContext)),
+            )
+            .map(([className]) => className),
+        )
         if (instance && id === 'root') {
-          Object.entries(instance).forEach(([key, value]) => {
-            classList += ' ' + toValidClassName(`${key}:${value}`)
-          })
+          classList.push(
+            ...Object.entries(instance).map(([key, value]) =>
+              toValidClassName(`${key}:${value}`),
+            ),
+          )
         }
         Object.entries(node.customProperties ?? {}).forEach(
           ([customPropertyName, customProperty]) => {
@@ -268,15 +271,14 @@ const renderComponent = async ({
           component.version === 2 && isComponentRootNode
             ? `${packageName ?? projectId}-${node.tag}`
             : node.tag
-        const nodeClasses = `${classHash} ${classList}`.trim()
         if (!VOID_HTML_ELEMENTS.includes(tag)) {
           return `<${tag} ${nodeAttrs} data-id="${path}" data-node-id="${escapeAttrValue(
             id,
-          )}" class="${escapeAttrValue(nodeClasses)}">${innerHTML}</${tag}>`
+          )}" class="${escapeAttrValue(classList.join(' '))}">${innerHTML}</${tag}>`
         } else {
           return `<${tag} ${nodeAttrs} data-id="${path}" data-node-id="${escapeAttrValue(
             id,
-          )}" class="${escapeAttrValue(nodeClasses)}" />`
+          )}" class="${escapeAttrValue(classList.join(' '))}" />`
         }
       }
       case 'component': {
@@ -508,8 +510,15 @@ const renderComponent = async ({
           // If the root node is another component, then append and forward previous instance
           instance:
             id === 'root'
-              ? { ...instance, [component.name]: 'root' }
-              : { [component.name]: id },
+              ? {
+                  ...instance,
+                  [[packageName, component.name].filter(isDefined).join('/')]:
+                    'root',
+                }
+              : {
+                  [[packageName, component.name].filter(isDefined).join('/')]:
+                    id,
+                },
           apis,
           env,
           includedComponents,
