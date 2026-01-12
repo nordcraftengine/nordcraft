@@ -3,7 +3,7 @@ import { searchProject } from '../../../searchProject'
 import { unknownCSSVariableRule } from './unknownCSSVariable'
 
 describe('unknownCSSVariableRule', () => {
-  test('should not CSS variables that are defined in the global theme', () => {
+  test('should not report CSS variables that are defined in the global theme', () => {
     const problems = Array.from(
       searchProject({
         files: {
