@@ -16,18 +16,17 @@ export const unknownCSSVariableRule: Rule<{
       return
     }
 
+    const theme = files.themes?.Default
+    // Issue rule only available for projects using v2 themes
+    if (theme?.propertyDefinitions === undefined) {
+      return
+    }
+
     // Has a style property definition
     const vars = [...value.styleValue.toString().matchAll(REGEX)].map(
       ([_, varName]) => varName,
     )
-
     if (vars.length === 0) {
-      return
-    }
-
-    const theme = files.themes?.Default
-    // Issue rule only available for projects using v2 themes
-    if (theme?.propertyDefinitions === undefined) {
       return
     }
 
