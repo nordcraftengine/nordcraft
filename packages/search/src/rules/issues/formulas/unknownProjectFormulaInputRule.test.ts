@@ -70,7 +70,7 @@ describe('unknownProjectFormulaInput', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
   test('should not detect @toddle.parent/item path formulas', () => {
     const problems = Array.from(
@@ -107,6 +107,6 @@ describe('unknownProjectFormulaInput', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })

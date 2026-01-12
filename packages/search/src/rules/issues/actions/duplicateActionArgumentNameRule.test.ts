@@ -66,7 +66,7 @@ describe('duplicateActionArgumentNameRule', () => {
         rules: [duplicateActionArgumentNameRule],
       }),
     )
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 
   test('should not report when there are no arguments', () => {
@@ -88,7 +88,7 @@ describe('duplicateActionArgumentNameRule', () => {
         rules: [duplicateActionArgumentNameRule],
       }),
     )
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 
   test('should not report when arguments is undefined', () => {
@@ -109,7 +109,7 @@ describe('duplicateActionArgumentNameRule', () => {
         rules: [duplicateActionArgumentNameRule],
       }),
     )
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 
   test('should report multiple duplicates', () => {

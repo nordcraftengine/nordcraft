@@ -106,7 +106,7 @@ describe('duplicateFormulaArgumentNameRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 
   test('should detect multiple duplicates', () => {
@@ -175,6 +175,6 @@ describe('duplicateFormulaArgumentNameRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })
