@@ -28,16 +28,43 @@ export const noReferenceGlobalCSSVariableRule: Rule<{
               ;[{ style: node.style }, ...(node.variants ?? [])].forEach(
                 ({ style }) => {
                   Object.values(style ?? {}).forEach((styleValue) => {
-                    if (typeof styleValue !== 'string') {
-                      return
+                    if (typeof styleValue === 'string') {
+                      styleValue.matchAll(REGEX).forEach(([_, varName]) => {
+                        vars.add(varName)
+                      })
                     }
-                    styleValue.matchAll(REGEX).forEach(([_, varName]) => {
-                      vars.add(varName)
-                    })
                   })
                 },
               )
             }
+          })
+        })
+
+        return vars
+      },
+    )
+
+    const usedCSSVariablesInPackageComponents = memo(
+      'css-variables-used-in-package-components',
+      () => {
+        const vars = new Set<string>()
+        Object.values(files.packages ?? {}).forEach((pkg) => {
+          Object.values(pkg?.components ?? {}).forEach((component) => {
+            Object.values(component?.nodes ?? {}).forEach((node) => {
+              if (node.type === 'element' || node.type === 'component') {
+                ;[{ style: node.style }, ...(node.variants ?? [])].forEach(
+                  ({ style }) => {
+                    Object.values(style ?? {}).forEach((styleValue) => {
+                      if (typeof styleValue === 'string') {
+                        styleValue.matchAll(REGEX).forEach(([_, varName]) => {
+                          vars.add(varName)
+                        })
+                      }
+                    })
+                  },
+                )
+              }
+            })
           })
         })
 
@@ -52,13 +79,11 @@ export const noReferenceGlobalCSSVariableRule: Rule<{
         Object.values(theme.propertyDefinitions ?? {}).forEach((propDef) => {
           ;[...Object.values(propDef.values), propDef.initialValue].forEach(
             (val) => {
-              if (typeof val !== 'string') {
-                return
+              if (typeof val === 'string') {
+                val.matchAll(REGEX).forEach(([_, varName]) => {
+                  vars.add(varName)
+                })
               }
-
-              val.matchAll(REGEX).forEach(([_, varName]) => {
-                vars.add(varName)
-              })
             },
           )
         })
@@ -69,7 +94,8 @@ export const noReferenceGlobalCSSVariableRule: Rule<{
 
     if (
       usedCSSVariablesInCSSVariables.has(value.key) ||
-      usedCSSVariablesInComponents.has(value.key)
+      usedCSSVariablesInComponents.has(value.key) ||
+      usedCSSVariablesInPackageComponents.has(value.key)
     ) {
       return
     }
