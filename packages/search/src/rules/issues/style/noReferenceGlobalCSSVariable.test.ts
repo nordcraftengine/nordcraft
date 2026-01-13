@@ -243,4 +243,62 @@ describe('noReferenceGlobalCSSVariableRule', () => {
     expect(problems[0].details).toEqual({ name: '--local-color' })
     expect(problems[1].details).toEqual({ name: '--a-third-local-color' })
   })
+
+  test('should not report when variable is used in package components', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          themes: {
+            Default: {
+              fonts: [],
+              propertyDefinitions: {
+                '--global-color': {
+                  syntax: { type: 'primitive', name: 'color' },
+                  description: 'A global color',
+                  inherits: true,
+                  initialValue: 'blue',
+                  values: {},
+                },
+              },
+            },
+          },
+          formulas: {},
+          components: {},
+          packages: [
+            {
+              manifest: {
+                name: 'Test Package',
+                commit: '',
+              },
+              components: {
+                PackageComponent: {
+                  name: 'PackageComponent',
+                  nodes: {
+                    root: {
+                      tag: 'div',
+                      type: 'element',
+                      attrs: {},
+                      style: {
+                        color: 'var(--global-color)',
+                      },
+                      events: {},
+                      classes: {},
+                      children: [],
+                    },
+                  },
+                  formulas: {},
+                  apis: {},
+                  attributes: {},
+                  variables: {},
+                },
+              },
+            },
+          ] as any,
+        },
+        rules: [noReferenceGlobalCSSVariableRule],
+      }),
+    )
+
+    expect(problems).toBeEmpty()
+  })
 })
