@@ -548,7 +548,13 @@ function* visitNode({
       for (const {
         path: formulaPath,
         formula,
+        packageName,
       } of component.formulasInComponent()) {
+        if (packageName && packageName !== 'root') {
+          // Skip reporting issues from inside package formulas
+          continue
+        }
+
         yield* visitNode({
           args: {
             nodeType: 'formula',
@@ -644,7 +650,13 @@ function* visitNode({
         for (const {
           path: formulaPath,
           formula: f,
+          packageName,
         } of formula.formulasInFormula()) {
+          if (packageName && packageName !== 'root') {
+            // Skip reporting issues from inside package formulas
+            continue
+          }
+
           yield* visitNode({
             args: {
               nodeType: 'formula',
