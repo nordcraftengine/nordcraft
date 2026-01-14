@@ -123,4 +123,62 @@ describe('unknownProjectFormulaRule', () => {
 
     expect(problems).toBeEmpty()
   })
+
+  test('should not report unknown formulas from within packages', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          packages: {
+            'my-package': {
+              components: {},
+              actions: {},
+              formulas: {
+                'package-formula': {
+                  formula: {
+                    type: 'function',
+                    name: 'non-existent-formula',
+                    arguments: [],
+                  },
+                  name: 'package-formula',
+                  arguments: [],
+                },
+              },
+              manifest: {
+                name: 'my-package',
+                commit: '123',
+              },
+            },
+          },
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  type: 'element',
+                  attrs: {
+                    test: functionFormula('package-formula', {
+                      package: 'my-package',
+                    }),
+                  },
+                  classes: {},
+                  events: {},
+                  tag: 'div',
+                  children: [],
+                  style: {},
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [unknownProjectFormulaRule],
+      }),
+    )
+
+    expect(problems).toBeEmpty()
+  })
 })

@@ -106,7 +106,9 @@ export function* getFormulasInFormula<Handler>({
         yield* getFormulasInFormula({
           formula: globalFormula.formula,
           globalFormulas,
-          path: [...path, 'formula'],
+          path: packageName
+            ? ['packages', packageName, 'formulas', formula.name]
+            : ['formulas', formula.name],
           visitedFormulas,
           packageName,
         })
