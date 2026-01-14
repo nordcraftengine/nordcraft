@@ -137,7 +137,7 @@ type Category =
 
 type Level = 'error' | 'warning' | 'info'
 
-export type Result = {
+type Result = {
   path: (string | number)[]
   code: Code
   category: Category
@@ -168,7 +168,7 @@ type NonHttpOnlyCookie = ApplicationCookie & {
   value: string
 }
 
-export interface ApplicationState {
+interface ApplicationState {
   cookiesAvailable?: Array<HttpOnlyCookie | NonHttpOnlyCookie>
   isBrowserExtensionAvailable?: boolean
   projectDetails?: ToddleProject
@@ -377,7 +377,7 @@ type StyleNode = {
   }
 } & Base
 
-export type NodeType =
+type NodeType =
   | ActionModelNode
   | ComponentAPIInputNode
   | ComponentAPINode
@@ -425,7 +425,7 @@ type FixType =
   | UnknownApiServiceRuleFix
   | UnknownComponentAttributeRuleFix
 
-export interface Rule<T = unknown, V = NodeType> {
+interface Rule<T = unknown, V = NodeType> {
   category: Category
   code: Code
   level: Level
@@ -443,6 +443,64 @@ interface FixFunctionArgs<Data extends NodeType, Details = unknown> {
   state?: ApplicationState
 }
 
-export type FixFunction<Data extends NodeType, Details = unknown> = (
+type FixFunction<Data extends NodeType, Details = unknown> = (
   args: FixFunctionArgs<Data, Details>,
 ) => ProjectFiles | void
+
+type Options = {
+  /**
+   * Useful for running search on a subset or a single file.
+   */
+  pathsToVisit?: string[][]
+  /**
+   * Whether to match the paths exactly (including length) or just the beginning.
+   */
+  useExactPaths?: boolean
+  /**
+   * Search only rules with these specific categories. If empty, all categories are shown.
+   */
+  categories?: Category[]
+  /**
+   * Search only rules with the specific levels. If empty, all levels are shown.
+   */
+  levels?: Level[]
+  /**
+   * The number of reports to send per message.
+   * @default 1
+   */
+  batchSize?: number | 'all' | 'per-file'
+  /**
+   * Dynamic data that is used by some rules.
+   */
+  state?: ApplicationState
+  /**
+   * Do not run rules with these codes. Useful for feature flagged rules
+   */
+  rulesToExclude?: Code[]
+}
+
+interface FindProblemsArgs {
+  id: string
+  files: ProjectFiles
+  options?: Options
+}
+
+interface FindProblemsResponse {
+  id: string
+  results: Result[]
+}
+
+interface FixProblemsArgs {
+  id: string
+  files: ProjectFiles
+  options?: Options
+  fixRule: Code
+  fixType: FixType
+}
+
+interface FixProblemsResponse {
+  id: string
+  patch: Delta
+  fixRule: Code
+  fixType: FixType
+}
