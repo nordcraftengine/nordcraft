@@ -368,7 +368,9 @@ export const createRoot = (
             }
 
             updateStyle(component)
-            update()
+            // Since changes to other components might affect the current component
+            // (if context was changed or a component node should be re-rendered)
+            update({ forceRerender: true })
           }
 
           break
@@ -1184,7 +1186,7 @@ export const createRoot = (
     }
   }
 
-  const update = () => {
+  const update = ({ forceRerender }: { forceRerender?: boolean } = {}) => {
     const _component = getCurrentComponent()
     if (!_component || !components || !packageComponents) {
       return
@@ -1453,6 +1455,7 @@ export const createRoot = (
     }
 
     if (
+      forceRerender ||
       fastDeepEqual(newCtx.component.nodes, ctx?.component?.nodes) === false ||
       fastDeepEqual(newCtx.component.formulas, ctx?.component?.formulas) ===
         false
