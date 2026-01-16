@@ -7,6 +7,7 @@ import { noReferenceApiServiceRule } from './noReferenceApiServiceRule'
 import { unknownApiInputRule } from './unknownApiInputRule'
 import { unknownApiRule } from './unknownApiRule'
 import { unknownApiServiceRule } from './unknownApiServiceRule'
+import { unknownFetchInputRule } from './unknownFetchInputRule'
 
 export default [
   // noReferenceApiInputRule,
@@ -16,6 +17,7 @@ export default [
   legacyApiRule,
   noReferenceApiRule,
   noReferenceApiServiceRule,
+  unknownFetchInputRule,
   unknownApiInputRule,
   unknownApiRule,
   unknownApiServiceRule,
