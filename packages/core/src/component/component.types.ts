@@ -328,6 +328,7 @@ export interface VariableActionModel {
   variable: string
   data: Nullable<Formula>
 }
+
 export interface FetchActionModel {
   type: 'Fetch'
   api: string
@@ -335,6 +336,11 @@ export interface FetchActionModel {
   onSuccess: ActionModelActions
   onError: ActionModelActions
   onMessage?: Nullable<ActionModelActions>
+}
+
+export interface AbortFetchActionModel {
+  type: 'AbortFetch'
+  api: string
 }
 
 export interface SetURLParameterAction {
@@ -375,6 +381,7 @@ export type ActionModel =
   | EventActionModel
   | SwitchActionModel
   | FetchActionModel
+  | AbortFetchActionModel
   | CustomActionModel
   | SetURLParameterAction
   | SetMultiUrlParameterAction

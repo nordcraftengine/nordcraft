@@ -246,6 +246,9 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
             }
           : undefined),
       }
+    case 'AbortFetch':
+      // Fetch aborts have no test data
+      return action
   }
 }
 

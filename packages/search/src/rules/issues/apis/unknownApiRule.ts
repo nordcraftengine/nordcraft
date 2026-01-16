@@ -11,7 +11,9 @@ export const unknownApiRule: Rule<{
       nodeType === 'formula' &&
       value.type === 'path' &&
       value.path[0] === 'Apis'
-    const isApiAction = nodeType === 'action-model' && value.type === 'Fetch'
+    const isApiAction =
+      nodeType === 'action-model' &&
+      (value.type === 'Fetch' || value.type === 'AbortFetch')
     if (!isApiFormula && !isApiAction) {
       return
     }

@@ -312,6 +312,22 @@ export function handleAction(
 
         break
       }
+      case 'AbortFetch': {
+        const api = ctx.apis[action.api]
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!api) {
+          console.error('The api ', action.api, 'does not exist')
+          return
+        }
+        if (isContextApiV2(api)) {
+          api.cancel()
+        } else {
+          console.warn(
+            `AbortFetch action is not supported for API "${action.api}" as it is not a v2 API.`,
+          )
+        }
+        break
+      }
       case 'TriggerWorkflow': {
         const parameters = mapValues(action.parameters ?? {}, (parameter) =>
           applyFormula(parameter.formula, {
