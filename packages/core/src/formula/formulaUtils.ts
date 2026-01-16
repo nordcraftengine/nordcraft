@@ -195,6 +195,9 @@ export function* getFormulasInAction<Handler>({
   let packageName = _packageName ?? undefined
 
   switch (action.type) {
+    case 'AbortFetch':
+      // AbortFetch has no formulas
+      break
     case 'Fetch':
       for (const [inputKey, input] of Object.entries(action.inputs ?? {})) {
         yield* getFormulasInFormula({

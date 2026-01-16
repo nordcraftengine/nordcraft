@@ -12,9 +12,10 @@ export function* getActionsInAction(
 
   yield [path, action]
   switch (action.type) {
-    case 'SetVariable':
+    case 'AbortFetch':
     case 'SetURLParameter':
     case 'SetURLParameters':
+    case 'SetVariable':
     case 'TriggerEvent':
     case 'TriggerWorkflow':
     case 'TriggerWorkflowCallback':

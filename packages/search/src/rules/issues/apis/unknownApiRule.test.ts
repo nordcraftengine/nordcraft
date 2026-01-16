@@ -72,6 +72,10 @@ describe('unknownApi', () => {
                           onSuccess: { actions: [] },
                           onError: { actions: [] },
                         },
+                        {
+                          type: 'AbortFetch',
+                          api: 'unknown-abort-api',
+                        },
                       ],
                     },
                   },
@@ -99,9 +103,11 @@ describe('unknownApi', () => {
       }),
     )
 
-    expect(problems).toHaveLength(1)
+    expect(problems).toHaveLength(2)
     expect(problems[0].code).toBe('unknown api')
     expect(problems[0].details).toEqual({ name: 'unknown-api' })
+    expect(problems[1].code).toBe('unknown api')
+    expect(problems[1].details).toEqual({ name: 'unknown-abort-api' })
   })
 
   test('should not report APIs that exist', () => {
