@@ -107,6 +107,7 @@ type Code =
   | 'unknown cookie'
   | 'unknown component'
   | 'unknown event'
+  | 'unknown fetch input'
   | 'unknown formula'
   | 'unknown project action'
   | 'unknown project formula input'
