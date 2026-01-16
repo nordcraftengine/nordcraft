@@ -368,7 +368,7 @@ export function createAPI({
     }
   }
 
-  // Execute the request - potentially to the cloudflare Query proxy
+  // Execute the request - potentially to the Nordcraft Query proxy
   async function execute({
     api,
     url,
@@ -409,6 +409,8 @@ export function createAPI({
             ) ?? false)
           : false
 
+        // Ensure we can cancel the request
+        requestSettings = applyAbortSignal(requestSettings)
         if (proxy === false) {
           response = await fetch(url, requestSettings)
         } else {
@@ -444,10 +446,19 @@ export function createAPI({
           workflowCallback,
         })
         return
-      } catch (error: any) {
-        const body = error.cause
-          ? { message: error.message, data: error.cause }
-          : error.message
+      } catch (error: unknown) {
+        let body: string | { message: string; data?: any } = 'Unknown error'
+        if (error instanceof Error) {
+          body = error.cause
+            ? { message: error.message, data: error.cause }
+            : error.message
+          if (error.name === 'TimeoutError') {
+            // Later we might want to add a timeout specific message, but that would currently
+            // be a breaking change. The "body" for a timeout will currently be: "signal timed out"
+          } else if (error.name === 'AbortError') {
+            body = 'Request was aborted'
+          }
+        }
         apiError({
           api,
           componentData,
@@ -966,6 +977,28 @@ export function createAPI({
       }>
     | undefined
 
+  let abortControllers: AbortController[] = []
+  const applyAbortSignal = (requestInit: ToddleRequestInit) => {
+    const abortController = new AbortController()
+    abortControllers.push(abortController)
+    // Clean up any aborted controllers
+    abortControllers = abortControllers.filter(
+      (controller) => !controller.signal.aborted,
+    )
+    return {
+      ...requestInit,
+      signal: requestInit.signal
+        ? AbortSignal.any([requestInit.signal, abortController.signal])
+        : abortController.signal,
+    }
+  }
+  const cancelAbortSignals = () => {
+    abortControllers.forEach((controller) => {
+      controller.abort()
+    })
+    abortControllers = []
+  }
+
   // eslint-disable-next-line prefer-const
   payloadSignal = ctx.dataSignal.map((data) => {
     const payloadContext = getFormulaContext(api, data)
@@ -1136,6 +1169,7 @@ export function createAPI({
         workflowCallback,
       })
     },
+    cancel: cancelAbortSignals,
     update: (newApi, componentData) => {
       api = newApi
       const updateContext = getFormulaContext(api, componentData)

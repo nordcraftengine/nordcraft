@@ -112,7 +112,8 @@ export interface ContextApiV2 {
     componentData: ComponentData
     workflowCallback?: (event: string, data: unknown) => void
   }) => Promise<unknown>
-  destroy: Function
+  cancel: () => void
+  destroy: () => void
   update: (newApi: CoreApiRequest, componentData: ComponentData) => void // for updating the dataSignal
   triggerActions: (componentData: ComponentData) => void // for triggering actions explicitly. Useful when initializing apis
 }
