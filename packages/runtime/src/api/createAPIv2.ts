@@ -39,6 +39,7 @@ import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
+import { ApiAbortHandler } from './apiUtils'
 
 /**
  * Set up an api v2 for a component.
@@ -410,7 +411,7 @@ export function createAPI({
           : false
 
         // Ensure we can cancel the request
-        requestSettings = applyAbortSignal(requestSettings)
+        requestSettings = abortHandler.applyAbortSignal(requestSettings)
         if (proxy === false) {
           response = await fetch(url, requestSettings)
         } else {
@@ -977,27 +978,7 @@ export function createAPI({
       }>
     | undefined
 
-  let abortControllers: AbortController[] = []
-  const applyAbortSignal = (requestInit: ToddleRequestInit) => {
-    const abortController = new AbortController()
-    abortControllers.push(abortController)
-    // Clean up any aborted controllers
-    abortControllers = abortControllers.filter(
-      (controller) => !controller.signal.aborted,
-    )
-    return {
-      ...requestInit,
-      signal: requestInit.signal
-        ? AbortSignal.any([requestInit.signal, abortController.signal])
-        : abortController.signal,
-    }
-  }
-  const cancelAbortSignals = () => {
-    abortControllers.forEach((controller) => {
-      controller.abort()
-    })
-    abortControllers = []
-  }
+  const abortHandler = new ApiAbortHandler()
 
   // eslint-disable-next-line prefer-const
   payloadSignal = ctx.dataSignal.map((data) => {
@@ -1169,7 +1150,7 @@ export function createAPI({
         workflowCallback,
       })
     },
-    cancel: cancelAbortSignals,
+    cancel: abortHandler.abort,
     update: (newApi, componentData) => {
       api = newApi
       const updateContext = getFormulaContext(api, componentData)
