@@ -47,6 +47,7 @@ const SwitchActionModelSchema: z.ZodType<SwitchActionModel> = z
             .describe('List of actions to execute if the condition is met.'),
         }),
       )
+      .nullish()
       .describe(
         'Cases for the switch action. Each case has a condition and actions.',
       ),
@@ -54,6 +55,7 @@ const SwitchActionModelSchema: z.ZodType<SwitchActionModel> = z
       .object({
         actions: z.array(z.lazy(() => ActionModelSchema)),
       })
+      .nullish()
       .describe('Actions to execute if no case conditions are met.'),
   })
   .describe(
@@ -82,11 +84,13 @@ const FetchActionModelSchema: z.ZodType<FetchActionModel> = z
       .object({
         actions: z.array(z.lazy(() => ActionModelSchema)),
       })
+      .nullish()
       .describe('Actions to execute when the fetch is successful.'),
     onError: z
       .object({
         actions: z.array(z.lazy(() => ActionModelSchema)),
       })
+      .nullish()
       .describe('Actions to execute when the fetch fails.'),
     onMessage: z
       .object({

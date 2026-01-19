@@ -133,7 +133,7 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
     case 'Switch':
       return {
         ...action,
-        cases: action.cases.map((c) => ({
+        cases: (action.cases ?? []).map((c) => ({
           ...c,
           ...(c.condition
             ? { condition: removeFormulaTestData(c.condition) }
@@ -142,7 +142,7 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
         })),
         default: {
           ...action.default,
-          actions: action.default.actions.map(removeActionTestData),
+          actions: (action.default?.actions ?? []).map(removeActionTestData),
         },
       }
     case 'Fetch':
@@ -161,16 +161,18 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
           : action.inputs,
         onSuccess: {
           ...action.onSuccess,
-          actions: action.onSuccess.actions.map(removeActionTestData),
+          actions: (action.onSuccess?.actions ?? []).map(removeActionTestData),
         },
         onError: {
           ...action.onError,
-          actions: action.onError.actions.map(removeActionTestData),
+          actions: (action.onError?.actions ?? []).map(removeActionTestData),
         },
         onMessage: action.onMessage
           ? {
               ...action.onMessage,
-              actions: action.onMessage.actions.map(removeActionTestData),
+              actions: (action.onMessage?.actions ?? []).map(
+                removeActionTestData,
+              ),
             }
           : undefined,
       }
@@ -199,7 +201,9 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
                   eventValue
                     ? {
                         ...eventValue,
-                        actions: eventValue.actions.map(removeActionTestData),
+                        actions: (eventValue.actions ?? []).map(
+                          removeActionTestData,
+                        ),
                       }
                     : eventValue,
                 ],
