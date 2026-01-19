@@ -327,7 +327,7 @@ export function* getFormulasInAction<Handler>({
           packageName,
         })
       }
-      for (const [key, c] of action.cases.entries()) {
+      for (const [key, c] of (action.cases ?? []).entries()) {
         yield* getFormulasInFormula({
           formula: c.condition,
           globalFormulas,
@@ -345,7 +345,9 @@ export function* getFormulasInAction<Handler>({
           })
         }
       }
-      for (const [actionKey, a] of Object.entries(action.default.actions)) {
+      for (const [actionKey, a] of Object.entries(
+        action.default?.actions ?? [],
+      )) {
         yield* getFormulasInAction({
           action: a,
           globalFormulas,

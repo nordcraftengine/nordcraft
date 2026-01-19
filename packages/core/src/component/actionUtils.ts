@@ -47,7 +47,7 @@ export function* getActionsInAction(
       }
       break
     case 'Switch':
-      for (const [key, c] of action.cases.entries()) {
+      for (const [key, c] of (action.cases ?? []).entries()) {
         for (const [actionKey, a] of Object.entries(c?.actions ?? {})) {
           yield* getActionsInAction(a, [
             ...path,
@@ -58,7 +58,9 @@ export function* getActionsInAction(
           ])
         }
       }
-      for (const [actionKey, a] of Object.entries(action.default.actions)) {
+      for (const [actionKey, a] of Object.entries(
+        action.default?.actions ?? [],
+      )) {
         yield* getActionsInAction(a, [...path, 'default', 'actions', actionKey])
       }
       break

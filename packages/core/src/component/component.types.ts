@@ -296,7 +296,7 @@ export interface CustomActionArgument {
 }
 
 export interface ActionModelActions {
-  actions: ActionModel[]
+  actions?: Nullable<ActionModel[]>
 }
 
 export interface CustomActionModel {
@@ -316,11 +316,13 @@ export interface CustomActionModel {
 export interface SwitchActionModel {
   type: 'Switch'
   data?: Nullable<string | number | boolean | Formula>
-  cases: Array<{
-    condition: Nullable<Formula>
-    actions: ActionModel[]
-  }>
-  default: ActionModelActions
+  cases?: Nullable<
+    Array<{
+      condition: Nullable<Formula>
+      actions: ActionModel[]
+    }>
+  >
+  default?: Nullable<ActionModelActions>
 }
 
 export interface VariableActionModel {
@@ -333,8 +335,8 @@ export interface FetchActionModel {
   type: 'Fetch'
   api: string
   inputs?: Nullable<Record<string, { formula?: Nullable<Formula> }>>
-  onSuccess: ActionModelActions
-  onError: ActionModelActions
+  onSuccess?: Nullable<ActionModelActions>
+  onError?: Nullable<ActionModelActions>
   onMessage?: Nullable<ActionModelActions>
 }
 

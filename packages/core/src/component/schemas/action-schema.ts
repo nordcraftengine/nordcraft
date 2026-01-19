@@ -82,11 +82,13 @@ const FetchActionModelSchema: z.ZodType<FetchActionModel> = z
       .object({
         actions: z.array(z.lazy(() => ActionModelSchema)),
       })
+      .nullish()
       .describe('Actions to execute when the fetch is successful.'),
     onError: z
       .object({
         actions: z.array(z.lazy(() => ActionModelSchema)),
       })
+      .nullish()
       .describe('Actions to execute when the fetch fails.'),
     onMessage: z
       .object({
