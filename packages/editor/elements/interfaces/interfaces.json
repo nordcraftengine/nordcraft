@@ -134,24 +134,24 @@
     "name": "BatteryManager",
     "events": [
       {
-        "name": "chargingchange",
-        "description": "The chargingchange event of the BatteryManager interface is fired when the battery charging property is updated.",
-        "url": "/en-US/docs/Web/API/BatteryManager/chargingchange_event"
-      },
-      {
         "name": "levelchange",
         "description": "The levelchange event of the BatteryManager interface is fired when the battery level property is updated.",
         "url": "/en-US/docs/Web/API/BatteryManager/levelchange_event"
       },
       {
-        "name": "dischargingtimechange",
-        "description": "The dischargingtimechange event of the BatteryManager interface is fired when the battery dischargingTime property is updated.",
-        "url": "/en-US/docs/Web/API/BatteryManager/dischargingtimechange_event"
+        "name": "chargingchange",
+        "description": "The chargingchange event of the BatteryManager interface is fired when the battery charging property is updated.",
+        "url": "/en-US/docs/Web/API/BatteryManager/chargingchange_event"
       },
       {
         "name": "chargingtimechange",
         "description": "The chargingtimechange event of the BatteryManager interface is fired when the battery chargingTime property is updated.",
         "url": "/en-US/docs/Web/API/BatteryManager/chargingtimechange_event"
+      },
+      {
+        "name": "dischargingtimechange",
+        "description": "The dischargingtimechange event of the BatteryManager interface is fired when the battery dischargingTime property is updated.",
+        "url": "/en-US/docs/Web/API/BatteryManager/dischargingtimechange_event"
       }
     ]
   },
@@ -228,14 +228,14 @@
     "name": "CloseWatcher",
     "events": [
       {
-        "name": "close",
-        "description": "A close event is fired at a CloseWatcher object when a close request was received and only fired if the cancel event that preceded the close one was not canceled.",
-        "url": "/en-US/docs/Web/API/CloseWatcher/close_event"
-      },
-      {
         "name": "cancel",
         "description": "A cancel event is fired at a CloseWatcher object before the close event, so that close can be prevented from firing, if necessary. It is triggered by all close signals (e.g., the Esc key) as well as CloseWatcher.requestClose().",
         "url": "/en-US/docs/Web/API/CloseWatcher/cancel_event"
+      },
+      {
+        "name": "close",
+        "description": "A close event is fired at a CloseWatcher object when a close request was received and only fired if the cancel event that preceded the close one was not canceled.",
+        "url": "/en-US/docs/Web/API/CloseWatcher/close_event"
       }
     ]
   },
@@ -308,6 +308,11 @@
         "url": "/en-US/docs/Web/API/Document/scroll_event"
       },
       {
+        "name": "scrollend",
+        "description": "The scrollend event fires when the document view has completed scrolling. Scrolling is considered completed when the scroll position has no more pending updates and the user has completed their gesture.",
+        "url": "/en-US/docs/Web/API/Document/scrollend_event"
+      },
+      {
         "name": "selectionchange",
         "description": "The selectionchange event of the Selection API is fired when the current Selection of a Document is changed.",
         "url": "/en-US/docs/Web/API/Document/selectionchange_event"
@@ -316,11 +321,6 @@
         "name": "readystatechange",
         "description": "The readystatechange event is fired when the readyState attribute of a document has changed.",
         "url": "/en-US/docs/Web/API/Document/readystatechange_event"
-      },
-      {
-        "name": "scrollend",
-        "description": "The scrollend event fires when the document view has completed scrolling. Scrolling is considered completed when the scroll position has no more pending updates and the user has completed their gesture.",
-        "url": "/en-US/docs/Web/API/Document/scrollend_event"
       },
       {
         "name": "pointerlockchange",
@@ -333,6 +333,11 @@
         "url": "/en-US/docs/Web/API/Document/prerenderingchange_event"
       },
       {
+        "name": "pointerlockerror",
+        "description": "The pointerlockerror event is fired when locking the pointer failed (for technical reasons or because the permission was denied).",
+        "url": "/en-US/docs/Web/API/Document/pointerlockerror_event"
+      },
+      {
         "name": "freeze"
       },
       {
@@ -343,11 +348,6 @@
       },
       {
         "name": "pointerleave"
-      },
-      {
-        "name": "pointerlockerror",
-        "description": "The pointerlockerror event is fired when locking the pointer failed (for technical reasons or because the permission was denied).",
-        "url": "/en-US/docs/Web/API/Document/pointerlockerror_event"
       },
       {
         "name": "resume"
@@ -441,6 +441,11 @@
         "url": "/en-US/docs/Web/API/Element/mousemove_event"
       },
       {
+        "name": "dblclick",
+        "description": "The dblclick event fires when a pointing device button (such as a mouse's primary button) is double-clicked; that is, when it's rapidly clicked twice on a single element within a very short span of time.",
+        "url": "/en-US/docs/Web/API/Element/dblclick_event"
+      },
+      {
         "name": "mousedown",
         "description": "The mousedown event is fired at an Element when a pointing device button is pressed while the pointer is inside the element.",
         "url": "/en-US/docs/Web/API/Element/mousedown_event"
@@ -451,9 +456,9 @@
         "url": "/en-US/docs/Web/API/Element/focus_event"
       },
       {
-        "name": "dblclick",
-        "description": "The dblclick event fires when a pointing device button (such as a mouse's primary button) is double-clicked; that is, when it's rapidly clicked twice on a single element within a very short span of time.",
-        "url": "/en-US/docs/Web/API/Element/dblclick_event"
+        "name": "focusout",
+        "description": "The focusout event fires when an element has lost focus, after the blur event. The two events differ in that focusout bubbles, while blur does not.",
+        "url": "/en-US/docs/Web/API/Element/focusout_event"
       },
       {
         "name": "keyup",
@@ -476,14 +481,9 @@
         "url": "/en-US/docs/Web/API/Element/contextmenu_event"
       },
       {
-        "name": "focusout",
-        "description": "The focusout event fires when an element has lost focus, after the blur event. The two events differ in that focusout bubbles, while blur does not.",
-        "url": "/en-US/docs/Web/API/Element/focusout_event"
-      },
-      {
-        "name": "mouseleave",
-        "description": "The mouseleave event is fired at an Element when the cursor of a pointing device (usually a mouse) is moved out of it.",
-        "url": "/en-US/docs/Web/API/Element/mouseleave_event"
+        "name": "scrollend",
+        "description": "The scrollend event fires when element scrolling has completed. Scrolling is considered completed when the scroll position has no more pending updates and the user has completed their gesture.",
+        "url": "/en-US/docs/Web/API/Element/scrollend_event"
       },
       {
         "name": "touchstart",
@@ -491,9 +491,9 @@
         "url": "/en-US/docs/Web/API/Element/touchstart_event"
       },
       {
-        "name": "scrollend",
-        "description": "The scrollend event fires when element scrolling has completed. Scrolling is considered completed when the scroll position has no more pending updates and the user has completed their gesture.",
-        "url": "/en-US/docs/Web/API/Element/scrollend_event"
+        "name": "mouseleave",
+        "description": "The mouseleave event is fired at an Element when the cursor of a pointing device (usually a mouse) is moved out of it.",
+        "url": "/en-US/docs/Web/API/Element/mouseleave_event"
       },
       {
         "name": "mouseout",
@@ -506,24 +506,19 @@
         "url": "/en-US/docs/Web/API/Element/focusin_event"
       },
       {
-        "name": "mouseup",
-        "description": "The mouseup event is fired at an Element when a button on a pointing device (such as a mouse or trackpad) is released while the pointer is located inside it.",
-        "url": "/en-US/docs/Web/API/Element/mouseup_event"
-      },
-      {
         "name": "beforeinput",
         "description": "The DOM beforeinput event fires when the value of an <input> or <textarea> element is about to be modified. But in contrast to the input event, it does not fire on the <select> element. The event also applies to elements with contenteditable enabled, and to any element when designMode is turned on.",
         "url": "/en-US/docs/Web/API/Element/beforeinput_event"
       },
       {
+        "name": "mouseup",
+        "description": "The mouseup event is fired at an Element when a button on a pointing device (such as a mouse or trackpad) is released while the pointer is located inside it.",
+        "url": "/en-US/docs/Web/API/Element/mouseup_event"
+      },
+      {
         "name": "touchmove",
         "description": "The touchmove event is fired when one or more touch points are moved along the touch surface.",
         "url": "/en-US/docs/Web/API/Element/touchmove_event"
-      },
-      {
-        "name": "touchend",
-        "description": "The touchend event fires when one or more touch points are removed from the touch surface. Remember that it is possible to get a touchcancel event instead.",
-        "url": "/en-US/docs/Web/API/Element/touchend_event"
       },
       {
         "name": "auxclick",
@@ -536,19 +531,9 @@
         "url": "/en-US/docs/Web/API/Element/compositionstart_event"
       },
       {
-        "name": "touchcancel",
-        "description": "The touchcancel event is fired when one or more touch points have been disrupted in an implementation-specific manner.",
-        "url": "/en-US/docs/Web/API/Element/touchcancel_event"
-      },
-      {
-        "name": "fullscreenchange",
-        "description": "The fullscreenchange event is fired immediately after an Element switches into or out of fullscreen mode.",
-        "url": "/en-US/docs/Web/API/Element/fullscreenchange_event"
-      },
-      {
-        "name": "compositionend",
-        "description": "The compositionend event is fired when a text composition system such as an input method editor completes or cancels the current composition session.",
-        "url": "/en-US/docs/Web/API/Element/compositionend_event"
+        "name": "touchend",
+        "description": "The touchend event fires when one or more touch points are removed from the touch surface. Remember that it is possible to get a touchcancel event instead.",
+        "url": "/en-US/docs/Web/API/Element/touchend_event"
       },
       {
         "name": "contentvisibilityautostatechange",
@@ -556,9 +541,29 @@
         "url": "/en-US/docs/Web/API/Element/contentvisibilityautostatechange_event"
       },
       {
+        "name": "fullscreenchange",
+        "description": "The fullscreenchange event is fired immediately after an Element switches into or out of fullscreen mode.",
+        "url": "/en-US/docs/Web/API/Element/fullscreenchange_event"
+      },
+      {
+        "name": "touchcancel",
+        "description": "The touchcancel event is fired when one or more touch points have been disrupted in an implementation-specific manner.",
+        "url": "/en-US/docs/Web/API/Element/touchcancel_event"
+      },
+      {
+        "name": "compositionend",
+        "description": "The compositionend event is fired when a text composition system such as an input method editor completes or cancels the current composition session.",
+        "url": "/en-US/docs/Web/API/Element/compositionend_event"
+      },
+      {
         "name": "compositionupdate",
         "description": "The compositionupdate event is fired when a new character is received in the context of a text composition session controlled by a text composition system such as an input method editor.",
         "url": "/en-US/docs/Web/API/Element/compositionupdate_event"
+      },
+      {
+        "name": "fullscreenerror",
+        "description": "The fullscreenerror event is fired when the browser cannot switch to fullscreen mode.",
+        "url": "/en-US/docs/Web/API/Element/fullscreenerror_event"
       },
       {
         "name": "DOMActivate",
@@ -578,11 +583,6 @@
         "name": "error"
       },
       {
-        "name": "fullscreenerror",
-        "description": "The fullscreenerror event is fired when the browser cannot switch to fullscreen mode.",
-        "url": "/en-US/docs/Web/API/Element/fullscreenerror_event"
-      },
-      {
         "name": "load"
       },
       {
@@ -600,14 +600,14 @@
     "name": "EventSource",
     "events": [
       {
-        "name": "message",
-        "description": "The message event of the EventSource interface is fired when data is received through an event source.",
-        "url": "/en-US/docs/Web/API/EventSource/message_event"
-      },
-      {
         "name": "error",
         "description": "The error event of the EventSource API is fired when a connection with an event source fails to be opened.",
         "url": "/en-US/docs/Web/API/EventSource/error_event"
+      },
+      {
+        "name": "message",
+        "description": "The message event of the EventSource interface is fired when data is received through an event source.",
+        "url": "/en-US/docs/Web/API/EventSource/message_event"
       },
       {
         "name": "open",
@@ -655,14 +655,14 @@
     "name": "FontFaceSet",
     "events": [
       {
-        "name": "loading",
-        "description": "The loading event fires when the document begins loading fonts.",
-        "url": "/en-US/docs/Web/API/FontFaceSet/loading_event"
-      },
-      {
         "name": "loadingdone",
         "description": "The loadingdone event fires when the document has loaded all fonts.",
         "url": "/en-US/docs/Web/API/FontFaceSet/loadingdone_event"
+      },
+      {
+        "name": "loading",
+        "description": "The loading event fires when the document begins loading fonts.",
+        "url": "/en-US/docs/Web/API/FontFaceSet/loading_event"
       },
       {
         "name": "loadingerror",
@@ -689,15 +689,21 @@
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/class"
       },
       {
-        "name": "contenteditable",
-        "description": "The contenteditable global attribute is an enumerated attribute indicating if the element should be editable by the user. If so, the browser modifies its widget to allow editing.",
-        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/contenteditable",
-        "options": ["true", "false", "plaintext-only"]
+        "name": "popover",
+        "description": "The popover global attribute is used to designate an element as a popover element.",
+        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/popover",
+        "options": ["auto", "manual", "hint"]
       },
       {
         "name": "lang",
         "description": "The lang global attribute helps define the language of an element: the language that non-editable elements are written in, or the language that the editable elements should be written in by the user. The attribute contains a single BCP 47 language tag.",
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/lang"
+      },
+      {
+        "name": "contenteditable",
+        "description": "The contenteditable global attribute is an enumerated attribute indicating if the element should be editable by the user. If so, the browser modifies its widget to allow editing.",
+        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/contenteditable",
+        "options": ["true", "false", "plaintext-only"]
       },
       {
         "name": "inputmode",
@@ -715,21 +721,9 @@
         ]
       },
       {
-        "name": "popover",
-        "description": "The popover global attribute is used to designate an element as a popover element.",
-        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/popover",
-        "options": ["auto", "manual", "hint"]
-      },
-      {
         "name": "id",
         "description": "The id global attribute defines an identifier (ID) that must be unique within the entire document.",
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/id"
-      },
-      {
-        "name": "hidden",
-        "description": "The hidden global attribute is an enumerated attribute indicating that the browser should not render the contents of the element. For example, it can be used to hide elements of the page that can't be used until the login process has been completed.",
-        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/hidden",
-        "options": ["hidden", "until-found"]
       },
       {
         "name": "title",
@@ -737,9 +731,10 @@
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/title"
       },
       {
-        "name": "style",
-        "description": "The style global attribute contains CSS styling declarations to be applied to the element. Note that it is recommended for styles to be defined in a separate file or files. This attribute and the <style> element have mainly the purpose of allowing for quick styling, for example for testing purposes.",
-        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/style"
+        "name": "hidden",
+        "description": "The hidden global attribute is an enumerated attribute indicating that the browser should not render the contents of the element. For example, it can be used to hide elements of the page that can't be used until the login process has been completed.",
+        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/hidden",
+        "options": ["hidden", "until-found"]
       },
       {
         "name": "draggable",
@@ -753,16 +748,21 @@
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/autofocus"
       },
       {
+        "name": "style",
+        "description": "The style global attribute contains CSS styling declarations to be applied to the element. Note that it is recommended for styles to be defined in a separate file or files. This attribute and the <style> element have mainly the purpose of allowing for quick styling, for example for testing purposes.",
+        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/style"
+      },
+      {
         "name": "dir",
         "description": "The dir global attribute is an enumerated attribute that indicates the directionality of the element's text.",
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/dir",
         "options": ["ltr", "rtl", "auto"]
       },
       {
-        "name": "translate",
-        "description": "The translate global attribute is an enumerated attribute that is used to specify whether an element's translatable attribute values and its Text node children should be translated when the page is localized, or whether to leave them unchanged.",
-        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/translate",
-        "options": ["yes", "no"]
+        "name": "spellcheck",
+        "description": "The spellcheck global attribute is an enumerated attribute that defines whether the element may be checked for spelling errors.",
+        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/spellcheck",
+        "options": ["true", "false"]
       },
       {
         "name": "autocapitalize",
@@ -776,20 +776,10 @@
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/accesskey"
       },
       {
-        "name": "spellcheck",
-        "description": "The spellcheck global attribute is an enumerated attribute that defines whether the element may be checked for spelling errors.",
-        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/spellcheck",
-        "options": ["true", "false"]
-      },
-      {
-        "name": "itemprop",
-        "description": "The itemprop global attribute is used to add properties to an item. Every HTML element can have an itemprop attribute specified, and an itemprop consists of a name-value pair. Each name-value pair is called a property, and a group of one or more properties forms an item. Property values are either a string or a URL and can be associated with a very wide range of elements including <audio>, <embed>, <iframe>, <img>, <link>, <object>, <source>, <track>, and <video>.",
-        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemprop"
-      },
-      {
-        "name": "is",
-        "description": "The is global attribute allows you to specify that a standard HTML element should behave like a defined customized built-in element (see Using custom elements for more details).",
-        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/is"
+        "name": "translate",
+        "description": "The translate global attribute is an enumerated attribute that is used to specify whether an element's translatable attribute values and its Text node children should be translated when the page is localized, or whether to leave them unchanged.",
+        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/translate",
+        "options": ["yes", "no"]
       },
       {
         "name": "slot",
@@ -797,15 +787,30 @@
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/slot"
       },
       {
-        "name": "itemscope",
-        "description": "itemscope is a boolean global attribute that defines the scope of associated metadata. Specifying the itemscope attribute for an element creates a new item, which results in a number of name-value pairs that are associated with the element.",
-        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemscope"
+        "name": "is",
+        "description": "The is global attribute allows you to specify that a standard HTML element should behave like a defined customized built-in element (see Using custom elements for more details).",
+        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/is"
+      },
+      {
+        "name": "itemprop",
+        "description": "The itemprop global attribute is used to add properties to an item. Every HTML element can have an itemprop attribute specified, and an itemprop consists of a name-value pair. Each name-value pair is called a property, and a group of one or more properties forms an item. Property values are either a string or a URL and can be associated with a very wide range of elements including <audio>, <embed>, <iframe>, <img>, <link>, <object>, <source>, <track>, and <video>.",
+        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemprop"
       },
       {
         "name": "enterkeyhint",
         "description": "The enterkeyhint global attribute is an enumerated attribute defining what action label (or icon) to present for the enter key on virtual keyboards.",
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/enterkeyhint",
         "options": ["enter", "done", "go", "next", "previous", "search", "send"]
+      },
+      {
+        "name": "itemid",
+        "description": "The itemid global attribute provides microdata in the form of a unique, global identifier of an item.",
+        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemid"
+      },
+      {
+        "name": "itemscope",
+        "description": "itemscope is a boolean global attribute that defines the scope of associated metadata. Specifying the itemscope attribute for an element creates a new item, which results in a number of name-value pairs that are associated with the element.",
+        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemscope"
       },
       {
         "name": "autocorrect",
@@ -817,11 +822,6 @@
         "name": "itemtype",
         "description": "The global attribute itemtype specifies the URL of the vocabulary that will be used to define itemprop's (item properties) in the data structure.",
         "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemtype"
-      },
-      {
-        "name": "itemid",
-        "description": "The itemid global attribute provides microdata in the form of a unique, global identifier of an item.",
-        "url": "/en-US/docs/Web/HTML/Reference/Global_attributes/itemid"
       },
       {
         "name": "itemref",
@@ -932,15 +932,15 @@
         "url": "/en-US/docs/Web/API/HTMLAnchorElement/download"
       },
       {
-        "name": "ping",
-        "description": "The ping property of the HTMLAnchorElement interface is a space-separated list of URLs. When the link is followed, the browser will send POST requests with the body PING to the URLs.",
-        "url": "/en-US/docs/Web/API/HTMLAnchorElement/ping"
-      },
-      {
         "name": "target",
         "description": "The target property of the HTMLAnchorElement interface is a string that indicates where to display the linked resource.",
         "url": "/en-US/docs/Web/API/HTMLAnchorElement/target",
         "options": ["_self", "_blank", "_parent", "_top"]
+      },
+      {
+        "name": "ping",
+        "description": "The ping property of the HTMLAnchorElement interface is a space-separated list of URLs. When the link is followed, the browser will send POST requests with the body PING to the URLs.",
+        "url": "/en-US/docs/Web/API/HTMLAnchorElement/ping"
       },
       {
         "name": "referrerpolicy",
@@ -1411,15 +1411,15 @@
     "name": "HTMLDialogElement",
     "attributes": [
       {
-        "name": "open",
-        "description": "The open property of the HTMLDialogElement interface is a boolean value reflecting the open HTML attribute, indicating whether the <dialog> is available for interaction.",
-        "url": "/en-US/docs/Web/API/HTMLDialogElement/open"
-      },
-      {
         "name": "closedby",
         "description": "The closedBy property of the HTMLDialogElement interface indicates the types of user actions that can be used to close the associated <dialog> element. It sets or returns the dialog's closedby attribute value.",
         "url": "/en-US/docs/Web/API/HTMLDialogElement/closedBy",
         "options": ["any", "closerequest", "none"]
+      },
+      {
+        "name": "open",
+        "description": "The open property of the HTMLDialogElement interface is a boolean value reflecting the open HTML attribute, indicating whether the <dialog> is available for interaction.",
+        "url": "/en-US/docs/Web/API/HTMLDialogElement/open"
       }
     ],
     "events": [
@@ -1494,19 +1494,24 @@
         "url": "/en-US/docs/Web/API/HTMLElement/load_event"
       },
       {
-        "name": "drop",
-        "description": "The drop event is fired when an element or text selection is dropped on a valid drop target. To ensure that the drop event always fires as expected, you should always include a preventDefault() call in the part of your code which handles the dragover event.",
-        "url": "/en-US/docs/Web/API/HTMLElement/drop_event"
-      },
-      {
         "name": "transitionend",
         "description": "The transitionend event is fired when a CSS transition has completed. In the case where a transition is removed before completion, such as if the transition-property is removed or display is set to none, then the event will not be generated.",
         "url": "/en-US/docs/Web/API/Element/transitionend_event"
       },
       {
+        "name": "drop",
+        "description": "The drop event is fired when an element or text selection is dropped on a valid drop target. To ensure that the drop event always fires as expected, you should always include a preventDefault() call in the part of your code which handles the dragover event.",
+        "url": "/en-US/docs/Web/API/HTMLElement/drop_event"
+      },
+      {
         "name": "animationend",
         "description": "The animationend event is fired when a CSS Animation has completed. If the animation aborts before reaching completion, such as if the element is removed from the DOM or the animation is removed from the element, the animationend event is not fired.",
         "url": "/en-US/docs/Web/API/Element/animationend_event"
+      },
+      {
+        "name": "copy",
+        "description": "The copy event of the Clipboard API fires when the user initiates a copy action through the browser's user interface.",
+        "url": "/en-US/docs/Web/API/Element/copy_event"
       },
       {
         "name": "dragover",
@@ -1517,11 +1522,6 @@
         "name": "dragstart",
         "description": "The dragstart event is fired when the user starts dragging an element or text selection.",
         "url": "/en-US/docs/Web/API/HTMLElement/dragstart_event"
-      },
-      {
-        "name": "copy",
-        "description": "The copy event of the Clipboard API fires when the user initiates a copy action through the browser's user interface.",
-        "url": "/en-US/docs/Web/API/Element/copy_event"
       },
       {
         "name": "pointermove",
@@ -1554,19 +1554,9 @@
         "url": "/en-US/docs/Web/API/Element/pointerenter_event"
       },
       {
-        "name": "dragleave",
-        "description": "The dragleave event is fired when a dragged element or text selection leaves a valid drop target.",
-        "url": "/en-US/docs/Web/API/HTMLElement/dragleave_event"
-      },
-      {
         "name": "pointercancel",
         "description": "The pointercancel event is fired when the browser determines that there are unlikely to be any more pointer events, or if after the pointerdown event is fired, the pointer is then used to manipulate the viewport by panning, zooming, or scrolling.",
         "url": "/en-US/docs/Web/API/Element/pointercancel_event"
-      },
-      {
-        "name": "pointerover",
-        "description": "The pointerover event is fired when a pointing device is moved into an element's hit test boundaries.",
-        "url": "/en-US/docs/Web/API/Element/pointerover_event"
       },
       {
         "name": "animationstart",
@@ -1574,9 +1564,9 @@
         "url": "/en-US/docs/Web/API/Element/animationstart_event"
       },
       {
-        "name": "beforetoggle",
-        "description": "The beforetoggle event of the HTMLElement interface fires on a popover or <dialog> element just before it is shown or hidden.",
-        "url": "/en-US/docs/Web/API/HTMLElement/beforetoggle_event"
+        "name": "dragleave",
+        "description": "The dragleave event is fired when a dragged element or text selection leaves a valid drop target.",
+        "url": "/en-US/docs/Web/API/HTMLElement/dragleave_event"
       },
       {
         "name": "pointerleave",
@@ -1584,9 +1574,14 @@
         "url": "/en-US/docs/Web/API/Element/pointerleave_event"
       },
       {
-        "name": "transitionstart",
-        "description": "The transitionstart event is fired when a CSS transition has actually started, i.e., after any transition-delay has ended.",
-        "url": "/en-US/docs/Web/API/Element/transitionstart_event"
+        "name": "beforematch",
+        "description": "An element receives a beforematch event when it is in the hidden until found state and the browser is about to reveal its content because the user has found the content through the \"find in page\" feature or through fragment navigation.",
+        "url": "/en-US/docs/Web/API/Element/beforematch_event"
+      },
+      {
+        "name": "pointerover",
+        "description": "The pointerover event is fired when a pointing device is moved into an element's hit test boundaries.",
+        "url": "/en-US/docs/Web/API/Element/pointerover_event"
       },
       {
         "name": "pointerout",
@@ -1594,14 +1589,29 @@
         "url": "/en-US/docs/Web/API/Element/pointerout_event"
       },
       {
+        "name": "beforetoggle",
+        "description": "The beforetoggle event of the HTMLElement interface fires on a popover or <dialog> element just before it is shown or hidden.",
+        "url": "/en-US/docs/Web/API/HTMLElement/beforetoggle_event"
+      },
+      {
         "name": "animationiteration",
         "description": "The animationiteration event is fired when an iteration of a CSS Animation ends, and another one begins. This event does not occur at the same time as the animationend event, and therefore does not occur for animations with an animation-iteration-count of one.",
         "url": "/en-US/docs/Web/API/Element/animationiteration_event"
       },
       {
-        "name": "transitionrun",
-        "description": "The transitionrun event is fired when a CSS transition is first created, i.e., before any transition-delay has begun.",
-        "url": "/en-US/docs/Web/API/Element/transitionrun_event"
+        "name": "transitionstart",
+        "description": "The transitionstart event is fired when a CSS transition has actually started, i.e., after any transition-delay has ended.",
+        "url": "/en-US/docs/Web/API/Element/transitionstart_event"
+      },
+      {
+        "name": "animationcancel",
+        "description": "The animationcancel event is fired when a CSS Animation unexpectedly aborts. In other words, any time it stops running without sending an animationend event. This might happen when the animation-name is changed such that the animation is removed, or when the animating node is hidden using CSS. Therefore, either directly or because any of its containing nodes are hidden.",
+        "url": "/en-US/docs/Web/API/Element/animationcancel_event"
+      },
+      {
+        "name": "cut",
+        "description": "The cut event of the Clipboard API is fired when the user has initiated a \"cut\" action through the browser's user interface.",
+        "url": "/en-US/docs/Web/API/Element/cut_event"
       },
       {
         "name": "pointerrawupdate",
@@ -1614,24 +1624,9 @@
         "url": "/en-US/docs/Web/API/Element/lostpointercapture_event"
       },
       {
-        "name": "cut",
-        "description": "The cut event of the Clipboard API is fired when the user has initiated a \"cut\" action through the browser's user interface.",
-        "url": "/en-US/docs/Web/API/Element/cut_event"
-      },
-      {
-        "name": "command",
-        "description": "The command event of the HTMLElement interface fires on an element that is controlled via a button with valid commandForElement and command values, whenever the button is interacted with (e.g., it is clicked).",
-        "url": "/en-US/docs/Web/API/HTMLElement/command_event"
-      },
-      {
-        "name": "animationcancel",
-        "description": "The animationcancel event is fired when a CSS Animation unexpectedly aborts. In other words, any time it stops running without sending an animationend event. This might happen when the animation-name is changed such that the animation is removed, or when the animating node is hidden using CSS. Therefore, either directly or because any of its containing nodes are hidden.",
-        "url": "/en-US/docs/Web/API/Element/animationcancel_event"
-      },
-      {
-        "name": "gotpointercapture",
-        "description": "The gotpointercapture event is fired when an element captures a pointer using setPointerCapture().",
-        "url": "/en-US/docs/Web/API/Element/gotpointercapture_event"
+        "name": "transitionrun",
+        "description": "The transitionrun event is fired when a CSS transition is first created, i.e., before any transition-delay has begun.",
+        "url": "/en-US/docs/Web/API/Element/transitionrun_event"
       },
       {
         "name": "securitypolicyviolation",
@@ -1639,14 +1634,19 @@
         "url": "/en-US/docs/Web/API/Element/securitypolicyviolation_event"
       },
       {
+        "name": "gotpointercapture",
+        "description": "The gotpointercapture event is fired when an element captures a pointer using setPointerCapture().",
+        "url": "/en-US/docs/Web/API/Element/gotpointercapture_event"
+      },
+      {
         "name": "transitioncancel",
         "description": "The transitioncancel event is fired when a CSS transition is canceled.",
         "url": "/en-US/docs/Web/API/Element/transitioncancel_event"
       },
       {
-        "name": "beforematch",
-        "description": "An element receives a beforematch event when it is in the hidden until found state and the browser is about to reveal its content because the user has found the content through the \"find in page\" feature or through fragment navigation.",
-        "url": "/en-US/docs/Web/API/Element/beforematch_event"
+        "name": "command",
+        "description": "The command event of the HTMLElement interface fires on an element that is controlled via a button with valid commandForElement and command values, whenever the button is interacted with (e.g., it is clicked).",
+        "url": "/en-US/docs/Web/API/HTMLElement/command_event"
       },
       {
         "name": "beforexrselect",
@@ -1862,6 +1862,11 @@
         "options": ["get", "post", "dialog"]
       },
       {
+        "name": "name",
+        "description": "The HTMLFormElement.name property represents the name of the current <form> element as a string.",
+        "url": "/en-US/docs/Web/API/HTMLFormElement/name"
+      },
+      {
         "name": "accept-charset"
       },
       {
@@ -1878,11 +1883,6 @@
       },
       {
         "name": "formtarget"
-      },
-      {
-        "name": "name",
-        "description": "The HTMLFormElement.name property represents the name of the current <form> element as a string.",
-        "url": "/en-US/docs/Web/API/HTMLFormElement/name"
       }
     ],
     "events": [
@@ -1900,6 +1900,23 @@
         "name": "reset",
         "description": "The reset event fires when a <form> is reset.",
         "url": "/en-US/docs/Web/API/HTMLFormElement/reset_event"
+      }
+    ]
+  },
+  {
+    "name": "HTMLGeolocationElement",
+    "events": [
+      {
+        "name": "location"
+      },
+      {
+        "name": "promptaction"
+      },
+      {
+        "name": "promptdismiss"
+      },
+      {
+        "name": "validationstatuschange"
       }
     ]
   },
@@ -1973,21 +1990,6 @@
         "url": "/en-US/docs/Web/API/HTMLIFrameElement/allowFullscreen"
       },
       {
-        "name": "referrerpolicy",
-        "description": "The HTMLIFrameElement.referrerPolicy property reflects the HTML referrerpolicy attribute of the <iframe> element defining which referrer is sent when fetching the resource.",
-        "url": "/en-US/docs/Web/API/HTMLIFrameElement/referrerPolicy",
-        "options": [
-          "no-referrer",
-          "no-referrer-when-downgrade",
-          "same-origin",
-          "origin",
-          "strict-origin",
-          "origin-when-cross-origin",
-          "strict-origin-when-cross-origin",
-          "unsafe-url"
-        ]
-      },
-      {
         "name": "loading",
         "description": "The loading property of the HTMLIFrameElement interface is a string that provides a hint to the user agent indicating whether the iframe should be loaded immediately on page load, or only when it is needed.",
         "url": "/en-US/docs/Web/API/HTMLIFrameElement/loading",
@@ -2011,6 +2013,21 @@
           "allow-presentation",
           "allow-downloads",
           "allow-top-navigation-to-custom-protocols"
+        ]
+      },
+      {
+        "name": "referrerpolicy",
+        "description": "The HTMLIFrameElement.referrerPolicy property reflects the HTML referrerpolicy attribute of the <iframe> element defining which referrer is sent when fetching the resource.",
+        "url": "/en-US/docs/Web/API/HTMLIFrameElement/referrerPolicy",
+        "options": [
+          "no-referrer",
+          "no-referrer-when-downgrade",
+          "same-origin",
+          "origin",
+          "strict-origin",
+          "origin-when-cross-origin",
+          "strict-origin-when-cross-origin",
+          "unsafe-url"
         ]
       },
       {
@@ -2075,6 +2092,12 @@
         "options": ["anonymous", "use-credentials"]
       },
       {
+        "name": "fetchpriority",
+        "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority. This in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
+        "url": "/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority",
+        "options": ["high", "low", "auto"]
+      },
+      {
         "name": "srcset",
         "description": "The srcset property of the HTMLImageElement interface identifies one or more image candidate strings, separated using commas (,), each specifying image resources to use under given circumstances. Each image candidate string contains an image URL and an optional width or pixel density descriptor that indicates the conditions under which that candidate should be used instead of the image specified by the src property. It reflects the <img> element's srcset content attribute.",
         "url": "/en-US/docs/Web/API/HTMLImageElement/srcset"
@@ -2097,12 +2120,6 @@
         "options": ["sync", "async", "auto"]
       },
       {
-        "name": "fetchpriority",
-        "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority. This in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
-        "url": "/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority",
-        "options": ["high", "low", "auto"]
-      },
-      {
         "name": "alt",
         "description": "The alt property of the HTMLImageElement interface provides fallback (alternate) text to display when the image specified by the <img> element is not displayed, whether because of an error, because the user has disabled the loading of images, or because the image hasn't finished loading yet. It reflects the <img> element's alt content attribute.",
         "url": "/en-US/docs/Web/API/HTMLImageElement/alt"
@@ -2111,16 +2128,6 @@
         "name": "src",
         "description": "The src property of the HTMLImageElement interface specifies the image to display in the <img> element. It reflects the <img> element's src content attribute.",
         "url": "/en-US/docs/Web/API/HTMLImageElement/src"
-      },
-      {
-        "name": "align",
-        "description": "The deprecated align property of the HTMLImageElement interface is a string which indicates how to position the image relative to its container. It reflects the <img> element's align content attribute.",
-        "url": "/en-US/docs/Web/API/HTMLImageElement/align"
-      },
-      {
-        "name": "width",
-        "description": "The width property of the HTMLImageElement interface indicates the width at which the image is drawn, in CSS pixels, if the image is being drawn or rendered to any visual medium such as a screen or printer. Otherwise, it's the natural, pixel density-corrected width of the image.",
-        "url": "/en-US/docs/Web/API/HTMLImageElement/width"
       },
       {
         "name": "referrerpolicy",
@@ -2138,6 +2145,16 @@
         ]
       },
       {
+        "name": "align",
+        "description": "The deprecated align property of the HTMLImageElement interface is a string which indicates how to position the image relative to its container. It reflects the <img> element's align content attribute.",
+        "url": "/en-US/docs/Web/API/HTMLImageElement/align"
+      },
+      {
+        "name": "width",
+        "description": "The width property of the HTMLImageElement interface indicates the width at which the image is drawn, in CSS pixels, if the image is being drawn or rendered to any visual medium such as a screen or printer. Otherwise, it's the natural, pixel density-corrected width of the image.",
+        "url": "/en-US/docs/Web/API/HTMLImageElement/width"
+      },
+      {
         "name": "height",
         "description": "The height property of the HTMLImageElement interface indicates the height at which the image is drawn, in CSS pixels, if the image is being drawn or rendered to any visual medium such as a screen or printer. Otherwise, it's the natural, pixel density-corrected height of the image.",
         "url": "/en-US/docs/Web/API/HTMLImageElement/height"
@@ -2146,6 +2163,11 @@
         "name": "usemap",
         "description": "The useMap property of the HTMLImageElement interface providing the name of the client-side image map to apply to the image. It reflects the <img> element's usemap content attribute.",
         "url": "/en-US/docs/Web/API/HTMLImageElement/useMap"
+      },
+      {
+        "name": "ismap",
+        "description": "The isMap property of the HTMLImageElement interface indicates that the image is part of a server-side map. If so, the coordinates where the user clicked on the image are sent to the server. It reflects the <img> element's ismap content attribute. This attribute is allowed only if the <img> element is a descendant of an <a> element with a valid href attribute.",
+        "url": "/en-US/docs/Web/API/HTMLImageElement/isMap"
       },
       {
         "name": "longdesc",
@@ -2161,11 +2183,6 @@
         "name": "hspace",
         "description": "The deprecated hspace property of the HTMLImageElement interface specifies the number of pixels of empty space to leave empty on the left and right sides of the <img> element when laying out the page. It reflects the <img> element's hspace content attribute.",
         "url": "/en-US/docs/Web/API/HTMLImageElement/hspace"
-      },
-      {
-        "name": "ismap",
-        "description": "The isMap property of the HTMLImageElement interface indicates that the image is part of a server-side map. If so, the coordinates where the user clicked on the image are sent to the server. It reflects the <img> element's ismap content attribute. This attribute is allowed only if the <img> element is a descendant of an <a> element with a valid href attribute.",
-        "url": "/en-US/docs/Web/API/HTMLImageElement/isMap"
       },
       {
         "name": "lowsrc"
@@ -2272,6 +2289,11 @@
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/pattern"
       },
       {
+        "name": "readonly",
+        "description": "The Boolean readonly attribute, when present, makes the element not mutable, meaning the user can not edit the control.",
+        "url": "/en-US/docs/Web/HTML/Reference/Attributes/readonly"
+      },
+      {
         "name": "maxlength",
         "description": "The maxlength attribute defines the maximum string length that the user can enter into an <input> or <textarea>. The attribute must have an integer value of 0 or higher.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/maxlength"
@@ -2282,24 +2304,24 @@
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/placeholder"
       },
       {
-        "name": "readonly",
-        "description": "The Boolean readonly attribute, when present, makes the element not mutable, meaning the user can not edit the control.",
-        "url": "/en-US/docs/Web/HTML/Reference/Attributes/readonly"
-      },
-      {
         "name": "required",
         "description": "The Boolean required attribute, if present, indicates that the user must specify a value for the input before the owning form can be submitted.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/required"
       },
       {
-        "name": "step",
-        "description": "The step attribute is a number that specifies the granularity that the value must adhere to or the keyword any. It is valid for the numeric input types, including the date, month, week, time, datetime-local, number and range types.",
-        "url": "/en-US/docs/Web/HTML/Reference/Attributes/step"
-      },
-      {
         "name": "multiple",
         "description": "The Boolean multiple attribute, if set, means the form control accepts one or more values. The attribute is valid for the email and file input types and the <select>. The manner by which the user opts for multiple values depends on the form control.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/multiple"
+      },
+      {
+        "name": "form",
+        "description": "The form HTML attribute associates a form-associated element with a <form> element within the same document. This attribute applies to the <button>, <fieldset>, <input>, <object>, <output>, <select>, and <textarea> elements.",
+        "url": "/en-US/docs/Web/HTML/Reference/Attributes/form"
+      },
+      {
+        "name": "step",
+        "description": "The step attribute is a number that specifies the granularity that the value must adhere to or the keyword any. It is valid for the numeric input types, including the date, month, week, time, datetime-local, number and range types.",
+        "url": "/en-US/docs/Web/HTML/Reference/Attributes/step"
       },
       {
         "name": "value",
@@ -2312,11 +2334,6 @@
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/size"
       },
       {
-        "name": "form",
-        "description": "The form HTML attribute associates a form-associated element with a <form> element within the same document. This attribute applies to the <button>, <fieldset>, <input>, <object>, <output>, <select>, and <textarea> elements.",
-        "url": "/en-US/docs/Web/HTML/Reference/Attributes/form"
-      },
-      {
         "name": "minlength",
         "description": "The minlength attribute defines the minimum string length that the user can enter into an <input> or <textarea>. The attribute must have an integer value of 0 or higher.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/minlength"
@@ -2327,14 +2344,14 @@
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/max"
       },
       {
-        "name": "checked",
-        "description": "The checked property of the HTMLInputElement interface specifies the current checkedness of the element; that is, whether the form control is checked or not.",
-        "url": "/en-US/docs/Web/API/HTMLInputElement/checked"
-      },
-      {
         "name": "min",
         "description": "The min attribute defines the minimum value that is acceptable and valid for the input containing the attribute. If the value of the element is less than this, the element fails validation. This value must be less than or equal to the value of the max attribute.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/min"
+      },
+      {
+        "name": "checked",
+        "description": "The checked property of the HTMLInputElement interface specifies the current checkedness of the element; that is, whether the form control is checked or not.",
+        "url": "/en-US/docs/Web/API/HTMLInputElement/checked"
       },
       {
         "name": "dirname",
@@ -2371,20 +2388,14 @@
         ]
       },
       {
+        "name": "name",
+        "description": "The name property of the HTMLInputElement interface indicates the name of the <input> element. It reflects the element's name attribute.",
+        "url": "/en-US/docs/Web/API/HTMLInputElement/name"
+      },
+      {
         "name": "alpha",
         "description": "The alpha property of the HTMLInputElement interface reflects the <input> element's alpha attribute, which indicates whether the CSS color's alpha component can be manipulated by the end user and does not have to be fully opaque. It is only relevant to color controls.",
         "url": "/en-US/docs/Web/API/HTMLInputElement/alpha"
-      },
-      {
-        "name": "align"
-      },
-      {
-        "name": "alt",
-        "description": "The alt property of the HTMLInputElement interface defines the textual label for the button for users and user agents who cannot use the image. It reflects the <input> element's alt attribute.",
-        "url": "/en-US/docs/Web/API/HTMLInputElement/alt"
-      },
-      {
-        "name": "border"
       },
       {
         "name": "colorspace",
@@ -2393,10 +2404,21 @@
         "options": ["limited-srgb", "display-p3"]
       },
       {
+        "name": "alt",
+        "description": "The alt property of the HTMLInputElement interface defines the textual label for the button for users and user agents who cannot use the image. It reflects the <input> element's alt attribute.",
+        "url": "/en-US/docs/Web/API/HTMLInputElement/alt"
+      },
+      {
         "name": "formmethod",
         "description": "The formMethod property of the HTMLInputElement interface is the HTTP method used to submit the <form> if the <input> element is the control that submits the form. It reflects the value of the <input>'s formmethod attribute.",
         "options": ["get", "post", "dialog"],
         "url": "/en-US/docs/Web/API/HTMLInputElement/formMethod"
+      },
+      {
+        "name": "align"
+      },
+      {
+        "name": "border"
       },
       {
         "name": "hspace"
@@ -2406,11 +2428,6 @@
       },
       {
         "name": "list"
-      },
-      {
-        "name": "name",
-        "description": "The name property of the HTMLInputElement interface indicates the name of the <input> element. It reflects the element's name attribute.",
-        "url": "/en-US/docs/Web/API/HTMLInputElement/name"
       },
       {
         "name": "src",
@@ -2512,21 +2529,26 @@
         ]
       },
       {
-        "name": "disabled",
-        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants.",
-        "url": "/en-US/docs/Web/HTML/Reference/Attributes/disabled"
-      },
-      {
         "name": "crossorigin",
         "description": "The crossorigin attribute, valid on the <audio>, <img>, <link>, <script>, and <video> elements, provides support for CORS, defining how the element handles cross-origin requests, thereby enabling the configuration of the CORS requests for the element's fetched data. Depending on the element, the attribute can be a CORS settings attribute.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/crossorigin",
         "options": ["anonymous", "use-credentials"]
       },
       {
+        "name": "disabled",
+        "description": "The Boolean disabled attribute, when present, makes the element not mutable, focusable, or even submitted with the form. The user can neither edit nor focus on the control, nor its form control descendants.",
+        "url": "/en-US/docs/Web/HTML/Reference/Attributes/disabled"
+      },
+      {
         "name": "fetchpriority",
         "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority. This in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority",
         "options": ["high", "low", "auto"]
+      },
+      {
+        "name": "type",
+        "description": "The type property of the HTMLLinkElement interface is a string that reflects the MIME type of the linked resource.",
+        "url": "/en-US/docs/Web/API/HTMLLinkElement/type"
       },
       {
         "name": "hreflang",
@@ -2542,6 +2564,11 @@
         "name": "as",
         "description": "The as property of the HTMLLinkElement interface returns a string representing the type of content to be preloaded by a link element.",
         "url": "/en-US/docs/Web/API/HTMLLinkElement/as"
+      },
+      {
+        "name": "integrity",
+        "description": "The integrity property of the HTMLLinkElement interface is a string containing inline metadata that a browser can use to verify that a fetched resource has been delivered without unexpected manipulation.",
+        "url": "/en-US/docs/Web/API/HTMLLinkElement/integrity"
       },
       {
         "name": "blocking",
@@ -2563,11 +2590,6 @@
         "name": "imagesizes",
         "description": "The imageSizes property of the HTMLLinkElement interface indicates the size and conditions for the preloaded images defined by the imageSrcset property. It reflects the value of the <link> element's imagesizes attribute. This property can retrieve or set the imagesizes attribute value.",
         "url": "/en-US/docs/Web/API/HTMLLinkElement/imageSizes"
-      },
-      {
-        "name": "integrity",
-        "description": "The integrity property of the HTMLLinkElement interface is a string containing inline metadata that a browser can use to verify that a fetched resource has been delivered without unexpected manipulation.",
-        "url": "/en-US/docs/Web/API/HTMLLinkElement/integrity"
       },
       {
         "name": "media",
@@ -2605,11 +2627,6 @@
       },
       {
         "name": "title"
-      },
-      {
-        "name": "type",
-        "description": "The type property of the HTMLLinkElement interface is a string that reflects the MIME type of the linked resource.",
-        "url": "/en-US/docs/Web/API/HTMLLinkElement/type"
       },
       {
         "name": "urn"
@@ -2652,24 +2669,24 @@
         "url": "/en-US/docs/Web/API/HTMLMediaElement/play_event"
       },
       {
-        "name": "timeupdate",
-        "description": "The timeupdate event is fired when the time indicated by the currentTime attribute has been updated.",
-        "url": "/en-US/docs/Web/API/HTMLMediaElement/timeupdate_event"
-      },
-      {
-        "name": "ended",
-        "description": "The ended event is fired when playback or streaming has stopped because the end of the media was reached or because no further data is available.",
-        "url": "/en-US/docs/Web/API/HTMLMediaElement/ended_event"
-      },
-      {
         "name": "loadeddata",
         "description": "The loadeddata event is fired when the frame at the current playback position of the media has finished loading; often the first frame.",
         "url": "/en-US/docs/Web/API/HTMLMediaElement/loadeddata_event"
       },
       {
+        "name": "timeupdate",
+        "description": "The timeupdate event is fired when the time indicated by the currentTime attribute has been updated.",
+        "url": "/en-US/docs/Web/API/HTMLMediaElement/timeupdate_event"
+      },
+      {
         "name": "loadedmetadata",
         "description": "The loadedmetadata event is fired when the metadata has been loaded.",
         "url": "/en-US/docs/Web/API/HTMLMediaElement/loadedmetadata_event"
+      },
+      {
+        "name": "ended",
+        "description": "The ended event is fired when playback or streaming has stopped because the end of the media was reached or because no further data is available.",
+        "url": "/en-US/docs/Web/API/HTMLMediaElement/ended_event"
       },
       {
         "name": "playing",
@@ -2692,19 +2709,34 @@
         "url": "/en-US/docs/Web/API/HTMLMediaElement/progress_event"
       },
       {
-        "name": "pause",
-        "description": "The pause event is sent when a request to pause an activity is handled and the activity has entered its paused state, most commonly after the media has been paused through a call to the element's pause() method.",
-        "url": "/en-US/docs/Web/API/HTMLMediaElement/pause_event"
-      },
-      {
-        "name": "seeking",
-        "description": "The seeking event is fired when a seek operation starts, meaning the Boolean seeking attribute has changed to true and the media is seeking a new position.",
-        "url": "/en-US/docs/Web/API/HTMLMediaElement/seeking_event"
+        "name": "emptied",
+        "description": "The emptied event is fired when the media has become empty; for example, this event is sent if the media has already been loaded (or partially loaded), and the load() method is called to reload it.",
+        "url": "/en-US/docs/Web/API/HTMLMediaElement/emptied_event"
       },
       {
         "name": "seeked",
         "description": "The seeked event is fired when a seek operation completed, the current playback position has changed, and the Boolean seeking attribute is changed to false.",
         "url": "/en-US/docs/Web/API/HTMLMediaElement/seeked_event"
+      },
+      {
+        "name": "pause",
+        "description": "The pause event is sent when a request to pause an activity is handled and the activity has entered its paused state, most commonly after the media has been paused through a call to the element's pause() method.",
+        "url": "/en-US/docs/Web/API/HTMLMediaElement/pause_event"
+      },
+      {
+        "name": "abort",
+        "description": "The abort event is fired when the resource was not fully loaded, but not as the result of an error.",
+        "url": "/en-US/docs/Web/API/HTMLMediaElement/abort_event"
+      },
+      {
+        "name": "error",
+        "description": "The error event is fired when the resource could not be loaded due to an error (for example, a network connectivity problem).",
+        "url": "/en-US/docs/Web/API/HTMLMediaElement/error_event"
+      },
+      {
+        "name": "seeking",
+        "description": "The seeking event is fired when a seek operation starts, meaning the Boolean seeking attribute has changed to true and the media is seeking a new position.",
+        "url": "/en-US/docs/Web/API/HTMLMediaElement/seeking_event"
       },
       {
         "name": "loadstart",
@@ -2722,29 +2754,9 @@
         "url": "/en-US/docs/Web/API/HTMLMediaElement/stalled_event"
       },
       {
-        "name": "error",
-        "description": "The error event is fired when the resource could not be loaded due to an error (for example, a network connectivity problem).",
-        "url": "/en-US/docs/Web/API/HTMLMediaElement/error_event"
-      },
-      {
-        "name": "abort",
-        "description": "The abort event is fired when the resource was not fully loaded, but not as the result of an error.",
-        "url": "/en-US/docs/Web/API/HTMLMediaElement/abort_event"
-      },
-      {
         "name": "durationchange",
         "description": "The durationchange event is fired when the duration attribute has been updated.",
         "url": "/en-US/docs/Web/API/HTMLMediaElement/durationchange_event"
-      },
-      {
-        "name": "ratechange",
-        "description": "The ratechange event is fired when the playback rate has changed.",
-        "url": "/en-US/docs/Web/API/HTMLMediaElement/ratechange_event"
-      },
-      {
-        "name": "suspend",
-        "description": "The suspend event is fired when the user agent is intentionally not fetching media data, in which case HTMLMediaElement.networkState is set to HTMLMediaElement.NETWORK_IDLE. This can happen if there's no more data to load, or if loading is unnecessary; for example, the browser may decide to only buffer 5 minutes of a video in advance, in which case loading is suspended until the user watches more of the video.",
-        "url": "/en-US/docs/Web/API/HTMLMediaElement/suspend_event"
       },
       {
         "name": "volumechange",
@@ -2752,9 +2764,19 @@
         "url": "/en-US/docs/Web/API/HTMLMediaElement/volumechange_event"
       },
       {
-        "name": "emptied",
-        "description": "The emptied event is fired when the media has become empty; for example, this event is sent if the media has already been loaded (or partially loaded), and the load() method is called to reload it.",
-        "url": "/en-US/docs/Web/API/HTMLMediaElement/emptied_event"
+        "name": "suspend",
+        "description": "The suspend event is fired when the user agent is intentionally not fetching media data, in which case HTMLMediaElement.networkState is set to HTMLMediaElement.NETWORK_IDLE. This can happen if there's no more data to load, or if loading is unnecessary; for example, the browser may decide to only buffer 5 minutes of a video in advance, in which case loading is suspended until the user watches more of the video.",
+        "url": "/en-US/docs/Web/API/HTMLMediaElement/suspend_event"
+      },
+      {
+        "name": "ratechange",
+        "description": "The ratechange event is fired when the playback rate has changed.",
+        "url": "/en-US/docs/Web/API/HTMLMediaElement/ratechange_event"
+      },
+      {
+        "name": "waitingforkey",
+        "description": "The waitingforkey event is fired at a media element when it is first unable to play because it needs a key to decode the following data, and playback is stopped.",
+        "url": "/en-US/docs/Web/API/HTMLMediaElement/waitingforkey_event"
       },
       {
         "name": "encrypted",
@@ -2763,11 +2785,6 @@
       },
       {
         "name": "resize"
-      },
-      {
-        "name": "waitingforkey",
-        "description": "The waitingforkey event is fired at a media element when it is first unable to play because it needs a key to decode the following data, and playback is stopped.",
-        "url": "/en-US/docs/Web/API/HTMLMediaElement/waitingforkey_event"
       }
     ]
   },
@@ -3241,6 +3258,20 @@
     ]
   },
   {
+    "name": "HTMLPermissionElement",
+    "events": [
+      {
+        "name": "promptaction"
+      },
+      {
+        "name": "promptdismiss"
+      },
+      {
+        "name": "validationstatuschange"
+      }
+    ]
+  },
+  {
     "name": "HTMLPortalElement",
     "events": [
       {
@@ -3294,15 +3325,15 @@
         "options": ["anonymous", "use-credentials"]
       },
       {
-        "name": "for",
-        "description": "The for attribute is an allowed attribute for <label> and <output>. When used on a <label> element it indicates the form element that this label describes. When used on an <output> element it allows for an explicit relationship between the elements that represent values which are used in the output.",
-        "url": "/en-US/docs/Web/HTML/Reference/Attributes/for"
-      },
-      {
         "name": "fetchpriority",
         "description": "The fetchpriority attribute allows a developer to signal that fetching a particular image early in the loading process has more or less impact on user experience than a browser can reasonably infer when assigning an internal priority. This in turn allows the browser to increase or decrease the priority, and potentially load the image earlier or later than it would otherwise.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority",
         "options": ["high", "low", "auto"]
+      },
+      {
+        "name": "for",
+        "description": "The for attribute is an allowed attribute for <label> and <output>. When used on a <label> element it indicates the form element that this label describes. When used on an <output> element it allows for an explicit relationship between the elements that represent values which are used in the output.",
+        "url": "/en-US/docs/Web/HTML/Reference/Attributes/for"
       },
       {
         "name": "defer",
@@ -3315,19 +3346,9 @@
         "url": "/en-US/docs/Web/API/HTMLScriptElement/async"
       },
       {
-        "name": "blocking",
-        "description": "The read-only blocking property of the HTMLScriptElement returns a live DOMTokenList object containing the operations that should be blocked on the fetching of an external resource. It reflects the <script> element's blocking content attribute.",
-        "url": "/en-US/docs/Web/API/HTMLScriptElement/blocking"
-      },
-      {
         "name": "src",
         "description": "The src property of the HTMLScriptElement interface is a string representing the URL of an external script; this can be used as an alternative to embedding a script directly within a document.",
         "url": "/en-US/docs/Web/API/HTMLScriptElement/src"
-      },
-      {
-        "name": "nomodule",
-        "description": "The noModule property of the HTMLScriptElement interface is a boolean value that indicates whether the script should be executed in browsers that support ES modules. Practically, this can be used to serve fallback scripts to older browsers that do not support JavaScript modules.",
-        "url": "/en-US/docs/Web/API/HTMLScriptElement/noModule"
       },
       {
         "name": "referrerpolicy",
@@ -3345,15 +3366,25 @@
         ]
       },
       {
-        "name": "charset"
-      },
-      {
-        "name": "event"
+        "name": "nomodule",
+        "description": "The noModule property of the HTMLScriptElement interface is a boolean value that indicates whether the script should be executed in browsers that support ES modules. Practically, this can be used to serve fallback scripts to older browsers that do not support JavaScript modules.",
+        "url": "/en-US/docs/Web/API/HTMLScriptElement/noModule"
       },
       {
         "name": "integrity",
         "description": "The integrity property of the HTMLScriptElement interface is a string that contains inline metadata that a browser can use to verify that a fetched resource has been delivered without unexpected manipulation.",
         "url": "/en-US/docs/Web/API/HTMLScriptElement/integrity"
+      },
+      {
+        "name": "blocking",
+        "description": "The read-only blocking property of the HTMLScriptElement returns a live DOMTokenList object containing the operations that should be blocked on the fetching of an external resource. It reflects the <script> element's blocking content attribute.",
+        "url": "/en-US/docs/Web/API/HTMLScriptElement/blocking"
+      },
+      {
+        "name": "charset"
+      },
+      {
+        "name": "event"
       },
       {
         "name": "language"
@@ -3455,14 +3486,14 @@
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/multiple"
       },
       {
-        "name": "size",
-        "description": "The size attribute defines the width of the <input> and the height of the <select> element. For an input element, it defines the number of characters that the user agent allows the user to see when editing the value. For a select element, it defines the number of options that should be shown to the user. This must be a valid non-negative integer greater than zero.",
-        "url": "/en-US/docs/Web/HTML/Reference/Attributes/size"
-      },
-      {
         "name": "form",
         "description": "The form HTML attribute associates a form-associated element with a <form> element within the same document. This attribute applies to the <button>, <fieldset>, <input>, <object>, <output>, <select>, and <textarea> elements.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/form"
+      },
+      {
+        "name": "size",
+        "description": "The size attribute defines the width of the <input> and the height of the <select> element. For an input element, it defines the number of characters that the user agent allows the user to see when editing the value. For a select element, it defines the number of options that should be shown to the user. This must be a valid non-negative integer greater than zero.",
+        "url": "/en-US/docs/Web/HTML/Reference/Attributes/size"
       },
       {
         "name": "name",
@@ -3592,15 +3623,15 @@
         "url": "/en-US/docs/Web/API/HTMLTableCellElement/rowSpan"
       },
       {
-        "name": "valign",
-        "description": "The vAlign property of the HTMLTableCellElement interface is a string indicating how to vertically align text in a <th> or <td> table cell.",
-        "url": "/en-US/docs/Web/API/HTMLTableCellElement/vAlign"
-      },
-      {
         "name": "scope",
         "description": "The scope property of the HTMLTableCellElement interface indicates the scope of a <th> cell.",
         "url": "/en-US/docs/Web/API/HTMLTableCellElement/scope",
         "options": ["row", "col", "rowgroup", "colgroup"]
+      },
+      {
+        "name": "valign",
+        "description": "The vAlign property of the HTMLTableCellElement interface is a string indicating how to vertically align text in a <th> or <td> table cell.",
+        "url": "/en-US/docs/Web/API/HTMLTableCellElement/vAlign"
       },
       {
         "name": "abbr",
@@ -3677,11 +3708,6 @@
     "name": "HTMLTableElement",
     "attributes": [
       {
-        "name": "border",
-        "description": "The HTMLTableElement.border property represents the border width of the <table> element.",
-        "url": "/en-US/docs/Web/API/HTMLTableElement/border"
-      },
-      {
         "name": "cellspacing",
         "description": "While you should instead use the CSS border-spacing property, the obsolete HTMLTableElement interface's cellSpacing property represents the spacing around the individual <th> and <td> elements representing a table's cells. Any two cells are separated by the sum of the cellSpacing of each of the two cells.",
         "url": "/en-US/docs/Web/API/HTMLTableElement/cellSpacing"
@@ -3690,6 +3716,11 @@
         "name": "cellpadding",
         "description": "The HTMLTableElement.cellPadding property represents the padding around the individual cells of the table.",
         "url": "/en-US/docs/Web/API/HTMLTableElement/cellPadding"
+      },
+      {
+        "name": "border",
+        "description": "The HTMLTableElement.border property represents the border width of the <table> element.",
+        "url": "/en-US/docs/Web/API/HTMLTableElement/border"
       },
       {
         "name": "align",
@@ -3894,6 +3925,11 @@
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/disabled"
       },
       {
+        "name": "readonly",
+        "description": "The Boolean readonly attribute, when present, makes the element not mutable, meaning the user can not edit the control.",
+        "url": "/en-US/docs/Web/HTML/Reference/Attributes/readonly"
+      },
+      {
         "name": "maxlength",
         "description": "The maxlength attribute defines the maximum string length that the user can enter into an <input> or <textarea>. The attribute must have an integer value of 0 or higher.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/maxlength"
@@ -3902,11 +3938,6 @@
         "name": "placeholder",
         "description": "The placeholder attribute defines the text displayed in a form control when the control has no value. The placeholder text should provide a brief hint to the user as to the expected type of data that should be entered into the control.",
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/placeholder"
-      },
-      {
-        "name": "readonly",
-        "description": "The Boolean readonly attribute, when present, makes the element not mutable, meaning the user can not edit the control.",
-        "url": "/en-US/docs/Web/HTML/Reference/Attributes/readonly"
       },
       {
         "name": "required",
@@ -3929,12 +3960,6 @@
         "url": "/en-US/docs/Web/HTML/Reference/Attributes/dirname"
       },
       {
-        "name": "wrap",
-        "description": "The wrap property of the HTMLTextAreaElement interface indicates how the control should wrap the value for form submission. It reflects the <textarea> element's wrap attribute. Note that the \"hard\" value only has an effect when the cols attribute is also set.",
-        "url": "/en-US/docs/Web/API/HTMLTextAreaElement/wrap",
-        "options": ["soft", "hard"]
-      },
-      {
         "name": "cols",
         "description": "The cols property of the HTMLTextAreaElement interface is a positive integer representing the visible width of the multi-line text control, in average character widths. It reflects the <textarea> element's cols attribute.",
         "url": "/en-US/docs/Web/API/HTMLTextAreaElement/cols"
@@ -3948,6 +3973,12 @@
         "name": "rows",
         "description": "The rows property of the HTMLTextAreaElement interface is a positive integer representing the visible text lines of the text control. It reflects the <textarea> element's rows attribute.",
         "url": "/en-US/docs/Web/API/HTMLTextAreaElement/rows"
+      },
+      {
+        "name": "wrap",
+        "description": "The wrap property of the HTMLTextAreaElement interface indicates how the control should wrap the value for form submission. It reflects the <textarea> element's wrap attribute. Note that the \"hard\" value only has an effect when the cols attribute is also set.",
+        "url": "/en-US/docs/Web/API/HTMLTextAreaElement/wrap",
+        "options": ["soft", "hard"]
       }
     ],
     "events": [
@@ -4364,11 +4395,6 @@
         "url": "/en-US/docs/Web/API/MediaRecorder/error_event"
       },
       {
-        "name": "start",
-        "description": "The start event of the MediaRecorder interface is fired when MediaRecorder.start() is called. At this point, the data starts being gathered into a Blob.",
-        "url": "/en-US/docs/Web/API/MediaRecorder/start_event"
-      },
-      {
         "name": "pause",
         "description": "The pause event of the MediaRecorder interface is fired when MediaRecorder.pause() is called.",
         "url": "/en-US/docs/Web/API/MediaRecorder/pause_event"
@@ -4377,6 +4403,11 @@
         "name": "resume",
         "description": "The resume event of the MediaRecorder interface is fired when MediaRecorder.resume() is called.",
         "url": "/en-US/docs/Web/API/MediaRecorder/resume_event"
+      },
+      {
+        "name": "start",
+        "description": "The start event of the MediaRecorder interface is fired when MediaRecorder.start() is called. At this point, the data starts being gathered into a Blob.",
+        "url": "/en-US/docs/Web/API/MediaRecorder/start_event"
       }
     ]
   },
@@ -4450,12 +4481,12 @@
         "url": "/en-US/docs/Web/API/MessagePort/message_event"
       },
       {
+        "name": "close"
+      },
+      {
         "name": "messageerror",
         "description": "The messageerror event is fired on a MessagePort object when it receives a message that can't be deserialized.",
         "url": "/en-US/docs/Web/API/MessagePort/messageerror_event"
-      },
-      {
-        "name": "close"
       }
     ]
   },
@@ -4760,14 +4791,14 @@
     "name": "RTCDataChannel",
     "events": [
       {
-        "name": "message",
-        "description": "The WebRTC message event is sent to the onmessage event handler on an RTCDataChannel object when a message has been received from the remote peer.",
-        "url": "/en-US/docs/Web/API/RTCDataChannel/message_event"
-      },
-      {
         "name": "bufferedamountlow",
         "description": "A bufferedamountlow event is sent to an RTCDataChannel when the number of bytes currently in the outbound data transfer buffer (bufferedAmount) falls from above to below or equal the threshold specified in bufferedAmountLowThreshold.",
         "url": "/en-US/docs/Web/API/RTCDataChannel/bufferedamountlow_event"
+      },
+      {
+        "name": "message",
+        "description": "The WebRTC message event is sent to the onmessage event handler on an RTCDataChannel object when a message has been received from the remote peer.",
+        "url": "/en-US/docs/Web/API/RTCDataChannel/message_event"
       },
       {
         "name": "close",
@@ -4775,14 +4806,14 @@
         "url": "/en-US/docs/Web/API/RTCDataChannel/close_event"
       },
       {
-        "name": "closing",
-        "description": "The closing event is sent to an RTCDataChannel just before the channel begins the process of shutting down its underlying data transport.",
-        "url": "/en-US/docs/Web/API/RTCDataChannel/closing_event"
-      },
-      {
         "name": "error",
         "description": "A WebRTC error event is sent to an RTCDataChannel object's onerror event handler when an error occurs on the data channel.",
         "url": "/en-US/docs/Web/API/RTCDataChannel/error_event"
+      },
+      {
+        "name": "closing",
+        "description": "The closing event is sent to an RTCDataChannel just before the channel begins the process of shutting down its underlying data transport.",
+        "url": "/en-US/docs/Web/API/RTCDataChannel/closing_event"
       },
       {
         "name": "open",
@@ -4800,7 +4831,9 @@
         "url": "/en-US/docs/Web/API/RTCDtlsTransport/error_event"
       },
       {
-        "name": "statechange"
+        "name": "statechange",
+        "description": "A statechange event occurs when the RTCDtlsTransport changes state. The state property can be used to determine the current state of the underlying Datagram Transport Layer Security (DTLS) transport.",
+        "url": "/en-US/docs/Web/API/RTCDtlsTransport/statechange_event"
       }
     ]
   },
@@ -4869,6 +4902,11 @@
         "url": "/en-US/docs/Web/API/RTCPeerConnection/iceconnectionstatechange_event"
       },
       {
+        "name": "signalingstatechange",
+        "description": "A signalingstatechange event is sent to an RTCPeerConnection to notify it that its signaling state, as indicated by the signalingState property, has changed.",
+        "url": "/en-US/docs/Web/API/RTCPeerConnection/signalingstatechange_event"
+      },
+      {
         "name": "datachannel",
         "description": "A datachannel event is sent to an RTCPeerConnection instance when an RTCDataChannel has been added to the connection, as a result of the remote peer calling RTCPeerConnection.createDataChannel().",
         "url": "/en-US/docs/Web/API/RTCPeerConnection/datachannel_event"
@@ -4882,11 +4920,6 @@
         "name": "icegatheringstatechange",
         "description": "The icegatheringstatechange event is sent to the onicegatheringstatechange event handler on an RTCPeerConnection when the state of the ICE candidate gathering process changes. This signifies that the value of the connection's iceGatheringState property has changed.",
         "url": "/en-US/docs/Web/API/RTCPeerConnection/icegatheringstatechange_event"
-      },
-      {
-        "name": "signalingstatechange",
-        "description": "A signalingstatechange event is sent to an RTCPeerConnection to notify it that its signaling state, as indicated by the signalingState property, has changed.",
-        "url": "/en-US/docs/Web/API/RTCPeerConnection/signalingstatechange_event"
       }
     ]
   },
@@ -5000,14 +5033,14 @@
     "name": "ServiceWorker",
     "events": [
       {
-        "name": "statechange",
-        "description": "The statechange event fires anytime the ServiceWorker.state changes.",
-        "url": "/en-US/docs/Web/API/ServiceWorker/statechange_event"
-      },
-      {
         "name": "error",
         "description": "The error event fires whenever an error occurs in the service worker.",
         "url": "/en-US/docs/Web/API/ServiceWorker/error_event"
+      },
+      {
+        "name": "statechange",
+        "description": "The statechange event fires anytime the ServiceWorker.state changes.",
+        "url": "/en-US/docs/Web/API/ServiceWorker/statechange_event"
       }
     ]
   },
@@ -5045,14 +5078,14 @@
     "name": "ServiceWorkerGlobalScope",
     "events": [
       {
-        "name": "notificationclick",
-        "description": "The notificationclick event of the ServiceWorkerGlobalScope interface is fired to indicate that a system notification spawned by ServiceWorkerRegistration.showNotification() has been clicked.",
-        "url": "/en-US/docs/Web/API/ServiceWorkerGlobalScope/notificationclick_event"
-      },
-      {
         "name": "fetch",
         "description": "The fetch event of the ServiceWorkerGlobalScope interface is fired in the service worker's global scope when the main app thread makes a network request. It enables the service worker to intercept network requests and send customized responses (for example, from a local cache).",
         "url": "/en-US/docs/Web/API/ServiceWorkerGlobalScope/fetch_event"
+      },
+      {
+        "name": "notificationclick",
+        "description": "The notificationclick event of the ServiceWorkerGlobalScope interface is fired to indicate that a system notification spawned by ServiceWorkerRegistration.showNotification() has been clicked.",
+        "url": "/en-US/docs/Web/API/ServiceWorkerGlobalScope/notificationclick_event"
       },
       {
         "name": "install",
@@ -5168,7 +5201,15 @@
     ]
   },
   {
-    "name": "SFrameTransform",
+    "name": "SFrameReceiverTransform",
+    "events": [
+      {
+        "name": "error"
+      }
+    ]
+  },
+  {
+    "name": "SFrameSenderTransform",
     "events": [
       {
         "name": "error"
@@ -5250,14 +5291,14 @@
         "url": "/en-US/docs/Web/API/SpeechRecognition/result_event"
       },
       {
-        "name": "error",
-        "description": "The error event of the Web Speech API SpeechRecognition object is fired when a speech recognition error occurs.",
-        "url": "/en-US/docs/Web/API/SpeechRecognition/error_event"
-      },
-      {
         "name": "speechend",
         "description": "The speechend event of the Web Speech API is fired when speech recognized by the speech recognition service has stopped being detected.",
         "url": "/en-US/docs/Web/API/SpeechRecognition/speechend_event"
+      },
+      {
+        "name": "error",
+        "description": "The error event of the Web Speech API SpeechRecognition object is fired when a speech recognition error occurs.",
+        "url": "/en-US/docs/Web/API/SpeechRecognition/error_event"
       },
       {
         "name": "end",
@@ -5375,6 +5416,21 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/target"
       },
       {
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
+      },
+      {
+        "name": "xlink:title",
+        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/xlink:title"
+      },
+      {
         "name": "download",
         "description": "The download property of the SVGAElement interface returns a string indicating that the browser should treat the linked URL as a download.",
         "url": "/en-US/docs/Web/API/SVGAElement/download"
@@ -5398,27 +5454,22 @@
         "name": "rel",
         "description": "The rel property of the SVGAElement returns a string reflecting the value of the rel attribute of the SVG <a> element.",
         "url": "/en-US/docs/Web/API/SVGAElement/rel"
-      },
-      {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
-        "name": "systemLanguage",
-        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
-      },
-      {
-        "name": "xlink:title",
-        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/xlink:title"
       }
     ]
   },
   {
     "name": "SVGAnimateElement",
     "attributes": [
+      {
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
+      },
       {
         "name": "onbegin"
       },
@@ -5427,16 +5478,6 @@
       },
       {
         "name": "onrepeat"
-      },
-      {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
-        "name": "systemLanguage",
-        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
       }
     ],
     "events": [
@@ -5455,13 +5496,9 @@
     "name": "SVGAnimateMotionElement",
     "attributes": [
       {
-        "name": "onbegin"
-      },
-      {
-        "name": "onend"
-      },
-      {
-        "name": "onrepeat"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
       },
       {
         "name": "requiredExtensions",
@@ -5469,9 +5506,13 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       },
       {
-        "name": "systemLanguage",
-        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+        "name": "onbegin"
+      },
+      {
+        "name": "onend"
+      },
+      {
+        "name": "onrepeat"
       }
     ]
   },
@@ -5479,13 +5520,9 @@
     "name": "SVGAnimateTransformElement",
     "attributes": [
       {
-        "name": "onbegin"
-      },
-      {
-        "name": "onend"
-      },
-      {
-        "name": "onrepeat"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
       },
       {
         "name": "requiredExtensions",
@@ -5493,9 +5530,13 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       },
       {
-        "name": "systemLanguage",
-        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+        "name": "onbegin"
+      },
+      {
+        "name": "onend"
+      },
+      {
+        "name": "onrepeat"
       }
     ]
   },
@@ -5522,24 +5563,24 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/cx"
       },
       {
-        "name": "r",
-        "description": "The r attribute defines the radius of a circle.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/r"
-      },
-      {
         "name": "cy",
         "description": "The cy attribute defines the y-axis coordinate of a center point.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/cy"
       },
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
+        "name": "r",
+        "description": "The r attribute defines the radius of a circle.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/r"
       },
       {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -5547,14 +5588,14 @@
     "name": "SVGClipPathElement",
     "attributes": [
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -5592,14 +5633,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/y"
       },
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ],
     "events": [
@@ -5649,19 +5690,9 @@
         "url": "/en-US/docs/Web/API/Element/pointercancel_event"
       },
       {
-        "name": "pointerover",
-        "description": "The pointerover event is fired when a pointing device is moved into an element's hit test boundaries.",
-        "url": "/en-US/docs/Web/API/Element/pointerover_event"
-      },
-      {
         "name": "animationstart",
         "description": "The animationstart event is fired when a CSS Animation has started. If there is an animation-delay, this event will fire once the delay period has expired. A negative delay will cause the event to fire with an elapsedTime equal to the absolute value of the delay (and, correspondingly, the animation will begin playing at that time index into the sequence).",
         "url": "/en-US/docs/Web/API/Element/animationstart_event"
-      },
-      {
-        "name": "selectstart",
-        "description": "The selectstart event of the Selection API is fired when a user starts a new selection.",
-        "url": "/en-US/docs/Web/API/Node/selectstart_event"
       },
       {
         "name": "pointerleave",
@@ -5669,9 +5700,9 @@
         "url": "/en-US/docs/Web/API/Element/pointerleave_event"
       },
       {
-        "name": "transitionstart",
-        "description": "The transitionstart event is fired when a CSS transition has actually started, i.e., after any transition-delay has ended.",
-        "url": "/en-US/docs/Web/API/Element/transitionstart_event"
+        "name": "pointerover",
+        "description": "The pointerover event is fired when a pointing device is moved into an element's hit test boundaries.",
+        "url": "/en-US/docs/Web/API/Element/pointerover_event"
       },
       {
         "name": "pointerout",
@@ -5684,24 +5715,9 @@
         "url": "/en-US/docs/Web/API/Element/animationiteration_event"
       },
       {
-        "name": "transitionrun",
-        "description": "The transitionrun event is fired when a CSS transition is first created, i.e., before any transition-delay has begun.",
-        "url": "/en-US/docs/Web/API/Element/transitionrun_event"
-      },
-      {
-        "name": "pointerrawupdate",
-        "description": "The pointerrawupdate event is fired when a pointer changes any properties that don't fire pointerdown or pointerup events. See pointermove for a list of these properties.",
-        "url": "/en-US/docs/Web/API/Element/pointerrawupdate_event"
-      },
-      {
-        "name": "lostpointercapture",
-        "description": "The lostpointercapture event is fired when a captured pointer is released.",
-        "url": "/en-US/docs/Web/API/Element/lostpointercapture_event"
-      },
-      {
-        "name": "cut",
-        "description": "The cut event of the Clipboard API is fired when the user has initiated a \"cut\" action through the browser's user interface.",
-        "url": "/en-US/docs/Web/API/Element/cut_event"
+        "name": "transitionstart",
+        "description": "The transitionstart event is fired when a CSS transition has actually started, i.e., after any transition-delay has ended.",
+        "url": "/en-US/docs/Web/API/Element/transitionstart_event"
       },
       {
         "name": "animationcancel",
@@ -5709,14 +5725,39 @@
         "url": "/en-US/docs/Web/API/Element/animationcancel_event"
       },
       {
-        "name": "gotpointercapture",
-        "description": "The gotpointercapture event is fired when an element captures a pointer using setPointerCapture().",
-        "url": "/en-US/docs/Web/API/Element/gotpointercapture_event"
+        "name": "cut",
+        "description": "The cut event of the Clipboard API is fired when the user has initiated a \"cut\" action through the browser's user interface.",
+        "url": "/en-US/docs/Web/API/Element/cut_event"
+      },
+      {
+        "name": "pointerrawupdate",
+        "description": "The pointerrawupdate event is fired when a pointer changes any properties that don't fire pointerdown or pointerup events. See pointermove for a list of these properties.",
+        "url": "/en-US/docs/Web/API/Element/pointerrawupdate_event"
+      },
+      {
+        "name": "selectstart",
+        "description": "The selectstart event of the Selection API is fired when a user starts a new selection.",
+        "url": "/en-US/docs/Web/API/Node/selectstart_event"
+      },
+      {
+        "name": "lostpointercapture",
+        "description": "The lostpointercapture event is fired when a captured pointer is released.",
+        "url": "/en-US/docs/Web/API/Element/lostpointercapture_event"
+      },
+      {
+        "name": "transitionrun",
+        "description": "The transitionrun event is fired when a CSS transition is first created, i.e., before any transition-delay has begun.",
+        "url": "/en-US/docs/Web/API/Element/transitionrun_event"
       },
       {
         "name": "securitypolicyviolation",
         "description": "The securitypolicyviolation event is fired when a Content Security Policy is violated.",
         "url": "/en-US/docs/Web/API/Element/securitypolicyviolation_event"
+      },
+      {
+        "name": "gotpointercapture",
+        "description": "The gotpointercapture event is fired when an element captures a pointer using setPointerCapture().",
+        "url": "/en-US/docs/Web/API/Element/gotpointercapture_event"
       },
       {
         "name": "transitioncancel",
@@ -5781,14 +5822,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/ry"
       },
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -5829,6 +5870,11 @@
     "name": "SVGFEComponentTransferElement",
     "attributes": [
       {
+        "name": "exponent",
+        "description": "The exponent attribute defines the exponent of the gamma function.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/exponent"
+      },
+      {
         "name": "type",
         "description": "The type attribute is a generic attribute and it has different meaning based on the context in which it's used.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/type"
@@ -5839,27 +5885,22 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/slope"
       },
       {
-        "name": "amplitude",
-        "description": "The amplitude attribute controls the amplitude of the gamma function of a component transfer element when its type attribute is gamma.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/amplitude"
-      },
-      {
-        "name": "exponent",
-        "description": "The exponent attribute defines the exponent of the gamma function.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/exponent"
-      },
-      {
         "name": "intercept",
         "description": "The intercept attribute defines the intercept of the linear function of color component transfers when the type attribute is set to linear.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/intercept"
       },
       {
-        "name": "offset"
-      },
-      {
         "name": "tableValues",
         "description": "The tableValues attribute defines a list of numbers defining a lookup table of values for a color component transfer function.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/tableValues"
+      },
+      {
+        "name": "amplitude",
+        "description": "The amplitude attribute controls the amplitude of the gamma function of a component transfer element when its type attribute is gamma.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/amplitude"
+      },
+      {
+        "name": "offset"
       }
     ]
   },
@@ -5867,15 +5908,15 @@
     "name": "SVGFECompositeElement",
     "attributes": [
       {
-        "name": "in2",
-        "description": "The in2 attribute identifies the second input for the given filter primitive. It works exactly like the in attribute.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/in2"
-      },
-      {
         "name": "operator",
         "description": "The operator attribute has two meanings based on the context it's used in. Either it defines the compositing or morphing operation to be performed.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/operator",
         "options": ["over", "in", "out", "atop", "xor", "lighter", "arithmetic"]
+      },
+      {
+        "name": "in2",
+        "description": "The in2 attribute identifies the second input for the given filter primitive. It works exactly like the in attribute.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/in2"
       },
       {
         "name": "k1",
@@ -5883,14 +5924,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/k1"
       },
       {
-        "name": "k2",
-        "description": "The k2 attribute defines one of the values to be used within the arithmetic operation of the <feComposite> filter primitive.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/k2"
-      },
-      {
         "name": "k3",
         "description": "The k3 attribute defines one of the values to be used within the arithmetic operation of the <feComposite> filter primitive.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/k3"
+      },
+      {
+        "name": "k2",
+        "description": "The k2 attribute defines one of the values to be used within the arithmetic operation of the <feComposite> filter primitive.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/k2"
       },
       {
         "name": "k4",
@@ -5903,34 +5944,14 @@
     "name": "SVGFEConvolveMatrixElement",
     "attributes": [
       {
+        "name": "targetX",
+        "description": "The targetX attribute determines the positioning in horizontal direction of the convolution matrix relative to a given target pixel in the input image. The leftmost column of the matrix is column number zero. The value must be such that: 0 <= targetX < x of order.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/targetX"
+      },
+      {
         "name": "edgeMode",
         "description": "The edgeMode attribute determines how to extend the input image as necessary with color values so that the matrix operations can be applied when the kernel is positioned at or near the edge of the input image.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/edgeMode"
-      },
-      {
-        "name": "order",
-        "description": "The order attribute indicates the size of the matrix to be used by a <feConvolveMatrix> element.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/order"
-      },
-      {
-        "name": "kernelMatrix",
-        "description": "The kernelMatrix attribute defines the list of numbers that make up the kernel matrix for the <feConvolveMatrix> element.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/kernelMatrix"
-      },
-      {
-        "name": "bias",
-        "description": "The bias attribute shifts the range of the filter. After applying the kernelMatrix of the <feConvolveMatrix> element to the input image to yield a number and applied the divisor attribute, the bias attribute is added to each component. This allows representation of values that would otherwise be clamped to 0 or 1.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/bias"
-      },
-      {
-        "name": "divisor",
-        "description": "The divisor attribute specifies the value by which the resulting number of applying the kernelMatrix of a <feConvolveMatrix> element to the input image color value is divided to yield the destination color value.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/divisor"
-      },
-      {
-        "name": "kernelUnitLength",
-        "description": "The kernelUnitLength attribute has two meanings based on the context it's used in. For lighting filter primitives, it indicates the intended distance for the x and y coordinates, for <feConvolveMatrix>, it indicates the intended distance between successive columns and rows in the kernel matrix.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/kernelUnitLength"
       },
       {
         "name": "preserveAlpha",
@@ -5938,14 +5959,34 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/preserveAlpha"
       },
       {
-        "name": "targetX",
-        "description": "The targetX attribute determines the positioning in horizontal direction of the convolution matrix relative to a given target pixel in the input image. The leftmost column of the matrix is column number zero. The value must be such that: 0 <= targetX < x of order.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/targetX"
+        "name": "divisor",
+        "description": "The divisor attribute specifies the value by which the resulting number of applying the kernelMatrix of a <feConvolveMatrix> element to the input image color value is divided to yield the destination color value.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/divisor"
+      },
+      {
+        "name": "order",
+        "description": "The order attribute indicates the size of the matrix to be used by a <feConvolveMatrix> element.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/order"
+      },
+      {
+        "name": "kernelUnitLength",
+        "description": "The kernelUnitLength attribute has two meanings based on the context it's used in. For lighting filter primitives, it indicates the intended distance for the x and y coordinates, for <feConvolveMatrix>, it indicates the intended distance between successive columns and rows in the kernel matrix.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/kernelUnitLength"
+      },
+      {
+        "name": "bias",
+        "description": "The bias attribute shifts the range of the filter. After applying the kernelMatrix of the <feConvolveMatrix> element to the input image to yield a number and applied the divisor attribute, the bias attribute is added to each component. This allows representation of values that would otherwise be clamped to 0 or 1.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/bias"
       },
       {
         "name": "targetY",
         "description": "The targetY attribute determines the positioning in vertical direction of the convolution matrix relative to a given target pixel in the input image. The topmost row of the matrix is row number zero. The value must be such that: 0 <= targetY < y of order.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/targetY"
+      },
+      {
+        "name": "kernelMatrix",
+        "description": "The kernelMatrix attribute defines the list of numbers that make up the kernel matrix for the <feConvolveMatrix> element.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/kernelMatrix"
       }
     ]
   },
@@ -6013,14 +6054,14 @@
     "name": "SVGFEDropShadowElement",
     "attributes": [
       {
-        "name": "dx",
-        "description": "The dx attribute indicates a shift along the x-axis on the position of an element or its content.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/dx"
-      },
-      {
         "name": "dy",
         "description": "The dy attribute indicates a shift along the y-axis on the position of an element or its content.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/dy"
+      },
+      {
+        "name": "dx",
+        "description": "The dx attribute indicates a shift along the x-axis on the position of an element or its content.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/dx"
       },
       {
         "name": "stdDeviation",
@@ -6074,14 +6115,14 @@
     "name": "SVGFEMorphologyElement",
     "attributes": [
       {
-        "name": "radius",
-        "description": "The radius attribute represents the radius (or radii) for the operation on a given <feMorphology> filter primitive.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/radius"
-      },
-      {
         "name": "operator",
         "description": "The operator attribute has two meanings based on the context it's used in. Either it defines the compositing or morphing operation to be performed.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/operator"
+      },
+      {
+        "name": "radius",
+        "description": "The radius attribute represents the radius (or radii) for the operation on a given <feMorphology> filter primitive.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/radius"
       }
     ]
   },
@@ -6089,14 +6130,14 @@
     "name": "SVGFEOffsetElement",
     "attributes": [
       {
-        "name": "dx",
-        "description": "The dx attribute indicates a shift along the x-axis on the position of an element or its content.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/dx"
-      },
-      {
         "name": "dy",
         "description": "The dy attribute indicates a shift along the y-axis on the position of an element or its content.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/dy"
+      },
+      {
+        "name": "dx",
+        "description": "The dx attribute indicates a shift along the x-axis on the position of an element or its content.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/dx"
       }
     ]
   },
@@ -6129,6 +6170,11 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/surfaceScale"
       },
       {
+        "name": "specularExponent",
+        "description": "The specularExponent attribute controls the focus for the light source. The bigger the value the brighter the light.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/specularExponent"
+      },
+      {
         "name": "kernelUnitLength",
         "description": "The kernelUnitLength attribute has two meanings based on the context it's used in. For lighting filter primitives, it indicates the intended distance for the x and y coordinates, for <feConvolveMatrix>, it indicates the intended distance between successive columns and rows in the kernel matrix.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/kernelUnitLength"
@@ -6137,11 +6183,6 @@
         "name": "specularConstant",
         "description": "The specularConstant attribute controls the ratio of reflection of the specular lighting. It represents the ks value in the Phong lighting model. The bigger the value the stronger the reflection.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/specularConstant"
-      },
-      {
-        "name": "specularExponent",
-        "description": "The specularExponent attribute controls the focus for the light source. The bigger the value the brighter the light.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/specularExponent"
       }
     ]
   },
@@ -6154,6 +6195,11 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/x"
       },
       {
+        "name": "pointsAtZ",
+        "description": "The pointsAtZ attribute represents the z location in the coordinate system established by attribute primitiveUnits on the <filter> element of the point at which the light source is pointing, assuming that, in the initial local coordinate system, the positive z-axis comes out towards the person viewing the content and assuming that one unit along the z-axis equals one unit in x and y.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/pointsAtZ"
+      },
+      {
         "name": "y",
         "description": "The y attribute defines a y-axis coordinate in the user coordinate system.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/y"
@@ -6164,29 +6210,24 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/z"
       },
       {
-        "name": "limitingConeAngle",
-        "description": "The limitingConeAngle attribute represents the angle in degrees between the spot light axis (i.e., the axis between the light source and the point to which it is pointing at) and the spot light cone. So it defines a limiting cone which restricts the region where the light is projected. No light is projected outside the cone.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/limitingConeAngle"
-      },
-      {
         "name": "pointsAtX",
         "description": "The pointsAtX attribute represents the x location in the coordinate system established by attribute primitiveUnits on the <filter> element of the point at which the light source is pointing.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/pointsAtX"
       },
       {
-        "name": "pointsAtY",
-        "description": "The pointsAtY attribute represents the y location in the coordinate system established by attribute primitiveUnits on the <filter> element of the point at which the light source is pointing.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/pointsAtY"
-      },
-      {
-        "name": "pointsAtZ",
-        "description": "The pointsAtZ attribute represents the z location in the coordinate system established by attribute primitiveUnits on the <filter> element of the point at which the light source is pointing, assuming that, in the initial local coordinate system, the positive z-axis comes out towards the person viewing the content and assuming that one unit along the z-axis equals one unit in x and y.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/pointsAtZ"
-      },
-      {
         "name": "specularExponent",
         "description": "The specularExponent attribute controls the focus for the light source. The bigger the value the brighter the light.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/specularExponent"
+      },
+      {
+        "name": "limitingConeAngle",
+        "description": "The limitingConeAngle attribute represents the angle in degrees between the spot light axis (i.e., the axis between the light source and the point to which it is pointing at) and the spot light cone. So it defines a limiting cone which restricts the region where the light is projected. No light is projected outside the cone.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/limitingConeAngle"
+      },
+      {
+        "name": "pointsAtY",
+        "description": "The pointsAtY attribute represents the y location in the coordinate system established by attribute primitiveUnits on the <filter> element of the point at which the light source is pointing.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/pointsAtY"
       }
     ]
   },
@@ -6282,14 +6323,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/y"
       },
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -6297,14 +6338,14 @@
     "name": "SVGGElement",
     "attributes": [
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -6352,14 +6393,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/crossorigin"
       },
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       },
       {
         "name": "xlink:title",
@@ -6392,6 +6433,11 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/gradientTransform"
       },
       {
+        "name": "y1",
+        "description": "The y1 attribute is used to specify the first y-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the y attribute instead.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/y1"
+      },
+      {
         "name": "x1",
         "description": "The x1 attribute is used to specify the first x-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the x attribute instead.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/x1"
@@ -6407,19 +6453,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/x2"
       },
       {
-        "name": "xlink:title",
-        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/xlink:title"
-      },
-      {
-        "name": "y1",
-        "description": "The y1 attribute is used to specify the first y-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the y attribute instead.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/y1"
-      },
-      {
         "name": "y2",
         "description": "The y2 attribute is used to specify the second y-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the y attribute instead.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/y2"
+      },
+      {
+        "name": "xlink:title",
+        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/xlink:title"
       }
     ]
   },
@@ -6427,19 +6468,14 @@
     "name": "SVGLineElement",
     "attributes": [
       {
+        "name": "y1",
+        "description": "The y1 attribute is used to specify the first y-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the y attribute instead.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/y1"
+      },
+      {
         "name": "x1",
         "description": "The x1 attribute is used to specify the first x-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the x attribute instead.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/x1"
-      },
-      {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
-        "name": "systemLanguage",
-        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
       },
       {
         "name": "x2",
@@ -6447,9 +6483,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/x2"
       },
       {
-        "name": "y1",
-        "description": "The y1 attribute is used to specify the first y-coordinate for drawing an SVG element that requires more than one coordinate. Elements that only need one coordinate use the y attribute instead.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/y1"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       },
       {
         "name": "y2",
@@ -6467,24 +6508,24 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/orient"
       },
       {
-        "name": "markerUnits",
-        "description": "The markerUnits attribute defines the coordinate system for the markerWidth and markerHeight attributes and the contents of the <marker>.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/markerUnits"
-      },
-      {
         "name": "refX",
         "description": "The refX attribute defines the x coordinate of an element's reference point.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/refX"
       },
       {
-        "name": "markerHeight",
-        "description": "The markerHeight attribute represents the height of the viewport into which the <marker> is to be fitted when it is rendered according to the viewBox and preserveAspectRatio attributes.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/markerHeight"
+        "name": "markerUnits",
+        "description": "The markerUnits attribute defines the coordinate system for the markerWidth and markerHeight attributes and the contents of the <marker>.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/markerUnits"
       },
       {
         "name": "markerWidth",
         "description": "The markerWidth attribute represents the width of the viewport into which the <marker> is to be fitted when it is rendered according to the viewBox and preserveAspectRatio attributes.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/markerWidth"
+      },
+      {
+        "name": "markerHeight",
+        "description": "The markerHeight attribute represents the height of the viewport into which the <marker> is to be fitted when it is rendered according to the viewBox and preserveAspectRatio attributes.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/markerHeight"
       },
       {
         "name": "refY",
@@ -6497,14 +6538,14 @@
     "name": "SVGMaskElement",
     "attributes": [
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -6512,14 +6553,14 @@
     "name": "SVGPathElement",
     "attributes": [
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -6547,14 +6588,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/height"
       },
       {
-        "name": "x",
-        "description": "The x attribute defines an x-axis coordinate in the user coordinate system.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/x"
-      },
-      {
         "name": "patternUnits",
         "description": "The patternUnits attribute indicates which coordinate system to use for the geometry properties of the <pattern> element.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/patternUnits"
+      },
+      {
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/x"
       },
       {
         "name": "y",
@@ -6587,14 +6628,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/points"
       },
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -6607,14 +6648,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/points"
       },
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -6647,14 +6688,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/cx"
       },
       {
-        "name": "r",
-        "description": "The r attribute defines the radius of a circle.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/r"
-      },
-      {
         "name": "cy",
         "description": "The cy attribute defines the y-axis coordinate of a center point.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/cy"
+      },
+      {
+        "name": "r",
+        "description": "The r attribute defines the radius of a circle.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/r"
       },
       {
         "name": "fr",
@@ -6667,11 +6708,6 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/spreadMethod"
       },
       {
-        "name": "fy",
-        "description": "The fy attribute defines the y-axis coordinate of the focal point for a radial gradient.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/fy"
-      },
-      {
         "name": "fx",
         "description": "The fx attribute defines the x-axis coordinate of the focal point for a radial gradient.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/fx"
@@ -6680,6 +6716,11 @@
         "name": "xlink:title",
         "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/xlink:title"
+      },
+      {
+        "name": "fy",
+        "description": "The fy attribute defines the y-axis coordinate of the focal point for a radial gradient.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/fy"
       }
     ]
   },
@@ -6692,14 +6733,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/width"
       },
       {
-        "name": "height",
-        "description": "The height attribute defines the vertical length of an element in the user coordinate system.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/height"
-      },
-      {
         "name": "rx",
         "description": "The rx attribute defines a radius on the x-axis.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/rx"
+      },
+      {
+        "name": "height",
+        "description": "The height attribute defines the vertical length of an element in the user coordinate system.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/height"
       },
       {
         "name": "x",
@@ -6717,14 +6758,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/ry"
       },
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -6762,13 +6803,9 @@
     "name": "SVGSetElement",
     "attributes": [
       {
-        "name": "onbegin"
-      },
-      {
-        "name": "onend"
-      },
-      {
-        "name": "onrepeat"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
       },
       {
         "name": "requiredExtensions",
@@ -6776,9 +6813,13 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       },
       {
-        "name": "systemLanguage",
-        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+        "name": "onbegin"
+      },
+      {
+        "name": "onend"
+      },
+      {
+        "name": "onrepeat"
       }
     ]
   },
@@ -6814,14 +6855,14 @@
     "name": "SVGSwitchElement",
     "attributes": [
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -6844,29 +6885,14 @@
     "name": "SVGTextElement",
     "attributes": [
       {
-        "name": "textLength",
-        "description": "The textLength attribute, available on SVG <text> and <tspan> elements, lets you specify the width of the space into which the text will draw. The user agent will ensure that the text does not extend farther than that distance, using the method or methods specified by the lengthAdjust attribute. By default, only the spacing between characters is adjusted, but the glyph size can also be adjusted if you change lengthAdjust.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/textLength"
-      },
-      {
         "name": "rotate",
         "description": "The rotate attribute specifies how the animated element rotates as it travels along a path specified in an <animateMotion> element.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/rotate"
       },
       {
-        "name": "lengthAdjust",
-        "description": "The lengthAdjust attribute controls how the text is stretched into the length defined by the textLength attribute.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/lengthAdjust"
-      },
-      {
-        "name": "dx",
-        "description": "The dx attribute indicates a shift along the x-axis on the position of an element or its content.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/dx"
-      },
-      {
-        "name": "x",
-        "description": "The x attribute defines an x-axis coordinate in the user coordinate system.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/x"
+        "name": "textLength",
+        "description": "The textLength attribute, available on SVG <text> and <tspan> elements, lets you specify the width of the space into which the text will draw. The user agent will ensure that the text does not extend farther than that distance, using the method or methods specified by the lengthAdjust attribute. By default, only the spacing between characters is adjusted, but the glyph size can also be adjusted if you change lengthAdjust.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/textLength"
       },
       {
         "name": "dy",
@@ -6874,19 +6900,34 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/dy"
       },
       {
+        "name": "lengthAdjust",
+        "description": "The lengthAdjust attribute controls how the text is stretched into the length defined by the textLength attribute.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/lengthAdjust"
+      },
+      {
+        "name": "x",
+        "description": "The x attribute defines an x-axis coordinate in the user coordinate system.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/x"
+      },
+      {
+        "name": "dx",
+        "description": "The dx attribute indicates a shift along the x-axis on the position of an element or its content.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/dx"
+      },
+      {
         "name": "y",
         "description": "The y attribute defines a y-axis coordinate in the user coordinate system.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/y"
       },
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -6904,6 +6945,11 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/href"
       },
       {
+        "name": "spacing",
+        "description": "The spacing attribute indicates how the user agent should determine the spacing between typographic characters that are to be rendered along a path.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/spacing"
+      },
+      {
         "name": "path",
         "description": "The path attribute has two different meanings, either it defines a text path along which the characters of a text are rendered, or a motion path along which a referenced element is animated.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/path"
@@ -6914,9 +6960,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/startOffset"
       },
       {
-        "name": "spacing",
-        "description": "The spacing attribute indicates how the user agent should determine the spacing between typographic characters that are to be rendered along a path.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/spacing"
+        "name": "systemLanguage",
+        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       },
       {
         "name": "method",
@@ -6924,24 +6975,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/method"
       },
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
+        "name": "xlink:title",
+        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/xlink:title"
       },
       {
         "name": "side",
         "description": "The side attribute determines the side of a path the text is placed on (relative to the path direction).",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/side"
-      },
-      {
-        "name": "systemLanguage",
-        "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
-      },
-      {
-        "name": "xlink:title",
-        "description": "The xlink:title attribute is used to describe the meaning of a link or resource in a human-readable fashion.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/xlink:title"
       }
     ]
   },
@@ -6949,14 +6990,14 @@
     "name": "SVGTSpanElement",
     "attributes": [
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       }
     ]
   },
@@ -6994,14 +7035,14 @@
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/y"
       },
       {
-        "name": "requiredExtensions",
-        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
-        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
-      },
-      {
         "name": "systemLanguage",
         "description": "The systemLanguage attribute represents a list of supported language tags. This list is matched against the language defined in the user preferences.",
         "url": "/en-US/docs/Web/SVG/Reference/Attribute/systemLanguage"
+      },
+      {
+        "name": "requiredExtensions",
+        "description": "The requiredExtensions SVG conditional processing attribute is a list of space-separated URL values each referencing a language extension. Language extensions are extended capabilities that go beyond those defined by standard browser specifications.",
+        "url": "/en-US/docs/Web/SVG/Reference/Attribute/requiredExtensions"
       },
       {
         "name": "xlink:title",
@@ -7191,14 +7232,14 @@
         "url": "/en-US/docs/Web/API/WebSocket/error_event"
       },
       {
-        "name": "close",
-        "description": "The close event is fired when a connection with a WebSocket is closed.",
-        "url": "/en-US/docs/Web/API/WebSocket/close_event"
-      },
-      {
         "name": "open",
         "description": "The open event is fired when a connection with a WebSocket is opened.",
         "url": "/en-US/docs/Web/API/WebSocket/open_event"
+      },
+      {
+        "name": "close",
+        "description": "The close event is fired when a connection with a WebSocket is closed.",
+        "url": "/en-US/docs/Web/API/WebSocket/close_event"
       }
     ]
   },
@@ -7236,34 +7277,34 @@
         "url": "/en-US/docs/Web/API/Window/beforeinstallprompt_event"
       },
       {
+        "name": "error",
+        "description": "The error event is fired on a Window object when a resource failed to load or couldn't be used — for example if a script has an execution error.",
+        "url": "/en-US/docs/Web/API/Window/error_event"
+      },
+      {
+        "name": "error",
+        "description": "The error event is fired on a Window object when a resource failed to load or couldn't be used — for example if a script has an execution error.",
+        "url": "/en-US/docs/Web/API/Window/error_event"
+      },
+      {
+        "name": "unload",
+        "description": "The unload event is fired when the document or a child resource is being unloaded.",
+        "url": "/en-US/docs/Web/API/Window/unload_event"
+      },
+      {
+        "name": "unload",
+        "description": "The unload event is fired when the document or a child resource is being unloaded.",
+        "url": "/en-US/docs/Web/API/Window/unload_event"
+      },
+      {
         "name": "storage",
         "description": "The storage event of the Window interface fires when another document that shares the same storage area (either localStorage or sessionStorage) as the current window updates that storage area. The event is not fired on the window that made the change.",
         "url": "/en-US/docs/Web/API/Window/storage_event"
       },
       {
-        "name": "unload",
-        "description": "The unload event is fired when the document or a child resource is being unloaded.",
-        "url": "/en-US/docs/Web/API/Window/unload_event"
-      },
-      {
-        "name": "unload",
-        "description": "The unload event is fired when the document or a child resource is being unloaded.",
-        "url": "/en-US/docs/Web/API/Window/unload_event"
-      },
-      {
         "name": "hashchange",
         "description": "The hashchange event is fired when the fragment identifier of the URL has changed (the part of the URL beginning with and following the # symbol).",
         "url": "/en-US/docs/Web/API/Window/hashchange_event"
-      },
-      {
-        "name": "error",
-        "description": "The error event is fired on a Window object when a resource failed to load or couldn't be used — for example if a script has an execution error.",
-        "url": "/en-US/docs/Web/API/Window/error_event"
-      },
-      {
-        "name": "error",
-        "description": "The error event is fired on a Window object when a resource failed to load or couldn't be used — for example if a script has an execution error.",
-        "url": "/en-US/docs/Web/API/Window/error_event"
       },
       {
         "name": "pagehide",
@@ -7291,24 +7332,14 @@
         "url": "/en-US/docs/Web/API/Window/online_event"
       },
       {
-        "name": "beforeprint",
-        "description": "The beforeprint event is fired when the associated document is about to be printed or previewed for printing.",
-        "url": "/en-US/docs/Web/API/Window/beforeprint_event"
-      },
-      {
-        "name": "focus",
-        "description": "The focus event fires when an element has received focus.",
-        "url": "/en-US/docs/Web/API/Window/focus_event"
-      },
-      {
-        "name": "focus",
-        "description": "The focus event fires when an element has received focus.",
-        "url": "/en-US/docs/Web/API/Window/focus_event"
-      },
-      {
         "name": "afterprint",
         "description": "The afterprint event is fired after the associated document has started printing or the print preview has been closed.",
         "url": "/en-US/docs/Web/API/Window/afterprint_event"
+      },
+      {
+        "name": "beforeprint",
+        "description": "The beforeprint event is fired when the associated document is about to be printed or previewed for printing.",
+        "url": "/en-US/docs/Web/API/Window/beforeprint_event"
       },
       {
         "name": "offline",
@@ -7316,9 +7347,14 @@
         "url": "/en-US/docs/Web/API/Window/offline_event"
       },
       {
-        "name": "blur",
-        "description": "The blur event fires when an element has lost focus.",
-        "url": "/en-US/docs/Web/API/Window/blur_event"
+        "name": "focus",
+        "description": "The focus event fires when an element has received focus.",
+        "url": "/en-US/docs/Web/API/Window/focus_event"
+      },
+      {
+        "name": "focus",
+        "description": "The focus event fires when an element has received focus.",
+        "url": "/en-US/docs/Web/API/Window/focus_event"
       },
       {
         "name": "blur",
@@ -7326,9 +7362,9 @@
         "url": "/en-US/docs/Web/API/Window/blur_event"
       },
       {
-        "name": "deviceorientation",
-        "description": "The deviceorientation event is fired when fresh data is available from an orientation sensor about the current orientation of the device as compared to the Earth coordinate frame. This data is gathered from a magnetometer inside the device.",
-        "url": "/en-US/docs/Web/API/Window/deviceorientation_event"
+        "name": "blur",
+        "description": "The blur event fires when an element has lost focus.",
+        "url": "/en-US/docs/Web/API/Window/blur_event"
       },
       {
         "name": "orientationchange",
@@ -7336,14 +7372,14 @@
         "url": "/en-US/docs/Web/API/Window/orientationchange_event"
       },
       {
+        "name": "deviceorientation",
+        "description": "The deviceorientation event is fired when fresh data is available from an orientation sensor about the current orientation of the device as compared to the Earth coordinate frame. This data is gathered from a magnetometer inside the device.",
+        "url": "/en-US/docs/Web/API/Window/deviceorientation_event"
+      },
+      {
         "name": "pageswap",
         "description": "The pageswap event is fired when you navigate across documents, when the previous document is about to unload.",
         "url": "/en-US/docs/Web/API/Window/pageswap_event"
-      },
-      {
-        "name": "pagereveal",
-        "description": "The pagereveal event is fired when a document is first rendered, either when loading a fresh document from the network or activating a document (either from back/forward cache (bfcache) or prerender).",
-        "url": "/en-US/docs/Web/API/Window/pagereveal_event"
       },
       {
         "name": "devicemotion",
@@ -7351,14 +7387,14 @@
         "url": "/en-US/docs/Web/API/Window/devicemotion_event"
       },
       {
+        "name": "pagereveal",
+        "description": "The pagereveal event is fired when a document is first rendered, either when loading a fresh document from the network or activating a document (either from back/forward cache (bfcache) or prerender).",
+        "url": "/en-US/docs/Web/API/Window/pagereveal_event"
+      },
+      {
         "name": "appinstalled",
         "description": "The appinstalled event of the Web Manifest API is fired when the browser has successfully installed a page as an application.",
         "url": "/en-US/docs/Web/API/Window/appinstalled_event"
-      },
-      {
-        "name": "languagechange",
-        "description": "The languagechange event is fired at the global scope object when the user's preferred language changes.",
-        "url": "/en-US/docs/Web/API/Window/languagechange_event"
       },
       {
         "name": "gamepadconnected",
@@ -7366,19 +7402,24 @@
         "url": "/en-US/docs/Web/API/Window/gamepadconnected_event"
       },
       {
+        "name": "languagechange",
+        "description": "The languagechange event is fired at the global scope object when the user's preferred language changes.",
+        "url": "/en-US/docs/Web/API/Window/languagechange_event"
+      },
+      {
         "name": "messageerror",
         "description": "The messageerror event is fired on a Window object when it receives a message that can't be deserialized.",
         "url": "/en-US/docs/Web/API/Window/messageerror_event"
       },
       {
-        "name": "deviceorientationabsolute",
-        "description": "The deviceorientationabsolute event is fired when absolute device orientation changes.",
-        "url": "/en-US/docs/Web/API/Window/deviceorientationabsolute_event"
-      },
-      {
         "name": "rejectionhandled",
         "description": "The rejectionhandled event is sent to the script's global scope (usually window but also Worker) whenever a rejected JavaScript Promise is handled late, i.e., when a handler is attached to the promise after its rejection had caused an unhandledrejection event.",
         "url": "/en-US/docs/Web/API/Window/rejectionhandled_event"
+      },
+      {
+        "name": "deviceorientationabsolute",
+        "description": "The deviceorientationabsolute event is fired when absolute device orientation changes.",
+        "url": "/en-US/docs/Web/API/Window/deviceorientationabsolute_event"
       },
       {
         "name": "gamepaddisconnected",
@@ -7509,14 +7550,14 @@
         "url": "/en-US/docs/Web/API/XMLHttpRequestEventTarget/loadend_event"
       },
       {
-        "name": "loadstart",
-        "description": "The loadstart event is fired when a request has started to load data.",
-        "url": "/en-US/docs/Web/API/XMLHttpRequestEventTarget/loadstart_event"
-      },
-      {
         "name": "timeout",
         "description": "The timeout event is fired when progression is terminated due to preset time expiring.",
         "url": "/en-US/docs/Web/API/XMLHttpRequestEventTarget/timeout_event"
+      },
+      {
+        "name": "loadstart",
+        "description": "The loadstart event is fired when a request has started to load data.",
+        "url": "/en-US/docs/Web/API/XMLHttpRequestEventTarget/loadstart_event"
       },
       {
         "name": "abort",
@@ -7549,14 +7590,14 @@
         "url": "/en-US/docs/Web/API/XMLHttpRequestEventTarget/loadend_event"
       },
       {
-        "name": "loadstart",
-        "description": "The loadstart event is fired when a request has started to load data.",
-        "url": "/en-US/docs/Web/API/XMLHttpRequestEventTarget/loadstart_event"
-      },
-      {
         "name": "timeout",
         "description": "The timeout event is fired when progression is terminated due to preset time expiring.",
         "url": "/en-US/docs/Web/API/XMLHttpRequestEventTarget/timeout_event"
+      },
+      {
+        "name": "loadstart",
+        "description": "The loadstart event is fired when a request has started to load data.",
+        "url": "/en-US/docs/Web/API/XMLHttpRequestEventTarget/loadstart_event"
       },
       {
         "name": "abort",
