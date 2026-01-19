@@ -32,6 +32,7 @@ import type { UnknownActionEventRuleFix } from './rules/issues/actions/unknownAc
 import type { NoReferenceApiRuleFix } from './rules/issues/apis/noReferenceApiRule'
 import type { NoReferenceApiServiceRuleFix } from './rules/issues/apis/noReferenceApiServiceRule'
 import type { UnknownApiServiceRuleFix } from './rules/issues/apis/unknownApiServiceRule'
+import type { DeleteFetchInputFix } from './rules/issues/apis/unknownFetchInputRule'
 import type { NoReferenceAttributeRuleFix } from './rules/issues/attributes/noReferenceAttributeRule'
 import type { UnknownComponentAttributeRuleFix } from './rules/issues/attributes/unknownComponentAttributeRule'
 import type { ChangeDataTypeFix } from './rules/issues/components/invalidComponentStructureRule'
@@ -406,6 +407,7 @@ type NodeType =
 
 type FixType =
   | ChangeDataTypeFix
+  | DeleteFetchInputFix
   | InvalidStyleSyntaxRuleFix
   | LegacyActionRuleFix
   | LegacyFormulaRuleFix
