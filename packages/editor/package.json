@@ -12,9 +12,9 @@
   "devDependencies": {
     "@nordcraft/core": "workspace:*",
     "@types/css-tree": "2.3.11",
-    "@webref/elements": "2.5.1",
-    "@webref/events": "1.19.2",
+    "@webref/elements": "2.6.0",
+    "@webref/events": "1.20.0",
     "css-tree": "3.1.0",
-    "mdn-data": "2.25.0"
+    "mdn-data": "2.26.0"
   }
 }
