@@ -5,7 +5,7 @@ import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'
 import { unknownFetchInputRule } from './unknownFetchInputRule'
 
-describe('find unknownFetchInput', () => {
+describe('find unknownFetchInputRule', () => {
   test('should report unknown api input overrides', () => {
     const problems = Array.from(
       searchProject({
@@ -119,10 +119,10 @@ describe('find unknownFetchInput', () => {
         rules: [unknownFetchInputRule],
       }),
     )
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })
-describe('fix unknownFetchInput', () => {
+describe('fix unknownFetchInputRule', () => {
   test('should remove unknown api input overrides', () => {
     const project: ProjectFiles = {
       formulas: {},
