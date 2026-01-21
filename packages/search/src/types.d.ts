@@ -70,6 +70,7 @@ type Code =
   | 'no-reference api'
   | 'no-reference api service'
   | 'no-reference attribute'
+  | 'no-reference attribute in instance'
   | 'no-reference component formula'
   | 'no-reference component workflow'
   | 'no-reference component'
@@ -176,7 +177,7 @@ interface ApplicationState {
   projectDetails?: ToddleProject
 }
 
-type MemoFn = <T>(key: string, fn: () => T) => T
+export type MemoFn = <T>(key: string, fn: () => T) => T
 
 type Base = {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
