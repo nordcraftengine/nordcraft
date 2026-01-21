@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "alwaysStrict": true,
+    "declaration": true,
     "esModuleInterop": true,
-    "jsx": "react",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -15,5 +15,6 @@
     "target": "ESNext",
     "verbatimModuleSyntax": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", "**/*.test.ts"]
 }

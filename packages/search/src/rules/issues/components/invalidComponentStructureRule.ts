@@ -4,7 +4,7 @@ import { coerce } from 'zod'
 import type { $ZodIssue, $ZodTypeDef } from 'zod/v4/core'
 import type { ComponentNode, FixFunction, FixType, Rule } from '../../../types'
 
-interface InvalidComponentData {
+export interface InvalidComponentData {
   message: string
   issue?: $ZodIssue
 }
