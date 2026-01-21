@@ -565,4 +565,8 @@ export class ToddleComponent<Handler> {
   get exported() {
     return this.component.exported
   }
+
+  get customElement() {
+    return this.component.customElement
+  }
 }
