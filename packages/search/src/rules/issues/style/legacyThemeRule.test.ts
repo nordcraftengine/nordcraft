@@ -19,7 +19,7 @@ describe('legacyThemeRule', () => {
     )
 
     expect(problems).toHaveLength(1)
-    expect(problems[0].code).toBe('legacy style variable')
+    expect(problems[0].code).toBe('legacy theme')
   })
 
   test('should not report when propertyDefinitions has values', () => {
