@@ -7,7 +7,7 @@ import type { MemoFn, Rule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceComponentRule: Rule<unknown> = {
+export const noReferenceComponentRule: Rule<void> = {
   code: 'no-reference component',
   level: 'warning',
   category: 'No References',

@@ -381,7 +381,7 @@ export type StyleVariantNode = {
   }
 } & Base
 
-type StyleVariableNode = {
+export type StyleVariableNode = {
   nodeType: 'style-variable'
   value: {
     styleVariable: StyleVariable
@@ -389,7 +389,7 @@ type StyleVariableNode = {
   }
 } & Base
 
-type CustomPropertyNode = {
+export type CustomPropertyNode = {
   nodeType: 'custom-property'
   value: {
     key: CustomPropertyName
@@ -399,7 +399,7 @@ type CustomPropertyNode = {
   }
 } & Base
 
-type StyleNode = {
+export type StyleNode = {
   nodeType: 'style-declaration'
   value: {
     styleProperty: string

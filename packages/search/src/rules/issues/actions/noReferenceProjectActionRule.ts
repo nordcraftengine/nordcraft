@@ -4,7 +4,7 @@ import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { Rule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceProjectActionRule: Rule<unknown> = {
+export const noReferenceProjectActionRule: Rule<void> = {
   code: 'no-reference project action',
   level: 'warning',
   category: 'No References',
