@@ -1,6 +1,9 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type {
+  Component,
+  ComponentNodeModel,
+} from '@nordcraft/core/dist/component/component.types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { MemoFn, Rule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
@@ -15,24 +18,12 @@ export const noReferenceComponentRule: Rule<unknown> = {
       (state?.projectDetails?.type === 'package' &&
         data.value.exported === true) ||
       contextlessEvaluateFormula(data.value.customElement?.enabled).result ===
-        true
+        true ||
+      componentIsReferenced(data.files.components, data.memo)(data.value.name)
     ) {
       return
     }
-    for (const component of Object.values(data.files.components)) {
-      // Enforce that the component is not undefined since we're iterating
-      for (const node of Object.values(component!.nodes ?? {})) {
-        if (
-          node.type === 'component' &&
-          node.name === data.value.name &&
-          // Circular references from a component to itself should
-          // not count as a reference
-          node.name !== component!.name
-        ) {
-          return
-        }
-      }
-    }
+
     report(data.path, undefined, ['delete-component'])
   },
   fixes: {
@@ -41,6 +32,32 @@ export const noReferenceComponentRule: Rule<unknown> = {
 }
 
 export type NoReferenceComponentRuleFix = 'delete-component'
+
+export const componentIsReferenced = (
+  components: Partial<Record<string, Component>>,
+  memo: MemoFn,
+) => {
+  const usedComponents = memo('all-used-components', () => {
+    const used = new Set<string>()
+    Object.values(components).forEach((component) => {
+      Object.values(component?.nodes ?? {})
+        .filter(
+          (node) =>
+            node.type === 'component' &&
+            // Do not add cyclical references
+            node.name !== component?.name,
+        )
+        .forEach((instance) => {
+          used.add((instance as ComponentNodeModel).name)
+        })
+    })
+    return used
+  })
+
+  return (componentName: string) => {
+    return usedComponents.has(componentName)
+  }
+}
 
 const isPage = (
   value: Component,

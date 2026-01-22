@@ -12,17 +12,17 @@ import type {
   ComponentVariable,
   CustomActionArgument,
   CustomActionModel,
+  CustomProperty,
   CustomPropertyName,
   ElementNodeModel,
   NodeModel,
+  StyleVariable,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import type {
-  CustomPropertyDefinition,
-  Theme,
-} from '@nordcraft/core/dist/styling/theme'
+import type { Theme } from '@nordcraft/core/dist/styling/theme'
+import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme.ts'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type { Nullable, PluginAction } from '@nordcraft/core/dist/types'
 import type {
@@ -51,6 +51,7 @@ import type { NoReferenceProjectFormulaRuleFix } from './rules/issues/formulas/n
 import type { NoStaticNodeConditionRuleFix } from './rules/issues/logic/noStaticNodeCondition'
 import type { NoReferenceNodeRuleFix } from './rules/issues/miscellaneous/noReferenceNodeRule'
 import type { InvalidStyleSyntaxRuleFix } from './rules/issues/style/invalidStyleSyntaxRule'
+import type { LegacyStyleVariableRuleFix } from './rules/issues/style/legacyStyleVariableRule'
 import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noReferenceVariableRule'
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
 
@@ -70,6 +71,8 @@ export type Code =
   | 'legacy action'
   | 'legacy api'
   | 'legacy formula'
+  | 'legacy style variable'
+  | 'legacy theme'
   | 'no context consumers'
   | 'no post navigate action'
   | 'no-console'
@@ -77,6 +80,7 @@ export type Code =
   | 'no-reference api'
   | 'no-reference api service'
   | 'no-reference attribute'
+  | 'no-reference attribute in instance'
   | 'no-reference component formula'
   | 'no-reference component workflow'
   | 'no-reference component'
@@ -377,7 +381,25 @@ export type StyleVariantNode = {
   }
 } & Base
 
-export type StyleNode = {
+type StyleVariableNode = {
+  nodeType: 'style-variable'
+  value: {
+    styleVariable: StyleVariable
+    element: ElementNodeModel | ComponentNodeModel
+  }
+} & Base
+
+type CustomPropertyNode = {
+  nodeType: 'custom-property'
+  value: {
+    key: CustomPropertyName
+    value: CustomProperty
+    element: ElementNodeModel | ComponentNodeModel
+    variant?: StyleVariant
+  }
+} & Base
+
+type StyleNode = {
   nodeType: 'style-declaration'
   value: {
     styleProperty: string
@@ -401,6 +423,7 @@ export type NodeType =
   | ComponentWorkflowNode
   | CustomActionModelArgumentNode
   | CustomActionModelEventNode
+  | CustomPropertyNode
   | FormulaNode
   | ProjectActionNode
   | ProjectApiService
@@ -410,6 +433,7 @@ export type NodeType =
   | ProjectThemeNode
   | ProjectThemePropertyNode
   | StyleNode
+  | StyleVariableNode
   | StyleVariantNode
 
 export type FixType =
@@ -418,6 +442,7 @@ export type FixType =
   | InvalidStyleSyntaxRuleFix
   | LegacyActionRuleFix
   | LegacyFormulaRuleFix
+  | LegacyStyleVariableRuleFix
   | NoPostNavigateActionRuleFix
   | NoReferenceApiRuleFix
   | NoReferenceApiServiceRuleFix

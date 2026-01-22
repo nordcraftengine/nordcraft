@@ -337,12 +337,14 @@ function* visitNode({
     case 'component-node-attribute':
     case 'component-variable':
     case 'component-workflow':
+    case 'custom-property':
     case 'formula':
     case 'project-action':
     case 'project-config':
     case 'project-theme':
     case 'project-theme-property':
     case 'style-declaration':
+    case 'style-variable':
     case 'style-variant':
       break
     case 'component': {
@@ -696,6 +698,56 @@ function* visitNode({
             fixOptions: fixOptions as any,
           })
         }
+
+        // Legacy style-variables only exist on element nodes
+        if (value.type === 'element') {
+          const styleVariables = value['style-variables']
+          if (styleVariables) {
+            for (let i = 0; i < styleVariables.length; i++) {
+              const styleVariable = styleVariables[i]
+              yield* visitNode({
+                args: {
+                  nodeType: 'style-variable',
+                  value: { styleVariable, element: value },
+                  path: [...path, 'style-variables', i],
+                  rules,
+                  files,
+                  pathsToVisit,
+                  useExactPaths,
+                  memo,
+                },
+                state,
+                fixOptions: fixOptions as any,
+              })
+            }
+          }
+        }
+
+        if (value.customProperties) {
+          for (const [customPropertyKey, customProperty] of Object.entries(
+            value.customProperties,
+          )) {
+            yield* visitNode({
+              args: {
+                nodeType: 'custom-property',
+                value: {
+                  key: customPropertyKey as CustomPropertyName,
+                  value: customProperty,
+                  element: value,
+                },
+                path: [...path, 'customProperties', customPropertyKey],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
+          }
+        }
+
         const variants = value.variants
         if (variants) {
           for (let i = 0; i < variants.length; i++) {
@@ -736,6 +788,37 @@ function* visitNode({
                 state,
                 fixOptions: fixOptions as any,
               })
+            }
+            if (variant.customProperties) {
+              for (const [customPropertyKey, customProperty] of Object.entries(
+                variant.customProperties,
+              )) {
+                yield* visitNode({
+                  args: {
+                    nodeType: 'custom-property',
+                    value: {
+                      key: customPropertyKey as CustomPropertyName,
+                      value: customProperty,
+                      element: value,
+                      variant,
+                    },
+                    path: [
+                      ...path,
+                      'variants',
+                      i,
+                      'customProperties',
+                      customPropertyKey,
+                    ],
+                    rules,
+                    files,
+                    pathsToVisit,
+                    useExactPaths,
+                    memo,
+                  },
+                  state,
+                  fixOptions: fixOptions as any,
+                })
+              }
             }
           }
         }
