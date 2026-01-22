@@ -1,7 +1,16 @@
 import { get, set } from '@nordcraft/core/dist/utils/collections'
-import type { ActionModelNode, FixFunctionArgs, Rule } from '../../../types'
+import type {
+  ActionModelNode,
+  FixFunctionArgs,
+  NodeType,
+  Rule,
+} from '../../../types'
 
-export const noPostNavigateAction: Rule<{ parameter: string }> = {
+export const noPostNavigateAction: Rule<
+  { parameter: string },
+  NodeType,
+  ActionModelNode
+> = {
   code: 'no post navigate action',
   level: 'warning',
   category: 'Quality',

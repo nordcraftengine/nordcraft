@@ -7,7 +7,9 @@ import type {
   ActionModel,
   ActionModelActions,
   Component,
+  ComponentAttribute,
   ComponentNodeModel,
+  ComponentVariable,
   CustomActionArgument,
   CustomActionModel,
   CustomProperty,
@@ -15,13 +17,13 @@ import type {
   ElementNodeModel,
   NodeModel,
   StyleVariable,
-  StyleVariant,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Theme } from '@nordcraft/core/dist/styling/theme'
 import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme.ts'
+import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type { Nullable, PluginAction } from '@nordcraft/core/dist/types'
 import type {
   ApiService,
@@ -29,6 +31,7 @@ import type {
   Route,
   ToddleProject,
 } from '@nordcraft/ssr/dist/ssr.types'
+import type { Delta } from 'jsondiffpatch'
 import type { LegacyActionRuleFix } from './rules/issues/actions/legacyActionRule'
 import type { NoReferenceProjectActionRuleFix } from './rules/issues/actions/noReferenceProjectActionRule'
 import type { UnknownActionArgumentRuleFix } from './rules/issues/actions/unknownActionArgumentRule'
@@ -48,10 +51,11 @@ import type { NoReferenceProjectFormulaRuleFix } from './rules/issues/formulas/n
 import type { NoStaticNodeConditionRuleFix } from './rules/issues/logic/noStaticNodeCondition'
 import type { NoReferenceNodeRuleFix } from './rules/issues/miscellaneous/noReferenceNodeRule'
 import type { InvalidStyleSyntaxRuleFix } from './rules/issues/style/invalidStyleSyntaxRule'
+import type { LegacyStyleVariableRuleFix } from './rules/issues/style/legacyStyleVariableRule'
 import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noReferenceVariableRule'
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
 
-type Code =
+export type Code =
   | 'duplicate action argument name'
   | 'duplicate event trigger'
   | 'duplicate formula argument name'
@@ -133,7 +137,7 @@ type Code =
   | 'unknown trigger workflow parameter'
   | 'unknown workflow parameter'
 
-type Category =
+export type Category =
   | 'Unknown Reference'
   | 'No References'
   | 'SEO'
@@ -144,9 +148,9 @@ type Category =
   | 'Quality'
   | 'Other'
 
-type Level = 'error' | 'warning' | 'info'
+export type Level = 'error' | 'warning' | 'info'
 
-type Result = {
+export type Result = {
   path: (string | number)[]
   code: Code
   category: Category
@@ -155,7 +159,7 @@ type Result = {
   fixes?: FixType[]
 }
 
-interface ApplicationCookie {
+export interface ApplicationCookie {
   url: string
   name: string
   domain: string
@@ -167,17 +171,17 @@ interface ApplicationCookie {
   expirationDate?: number
 }
 
-type HttpOnlyCookie = ApplicationCookie & {
+export type HttpOnlyCookie = ApplicationCookie & {
   httpOnly: true
   value: never
 }
 
-type NonHttpOnlyCookie = ApplicationCookie & {
+export type NonHttpOnlyCookie = ApplicationCookie & {
   httpOnly: false
   value: string
 }
 
-interface ApplicationState {
+export interface ApplicationState {
   cookiesAvailable?: Array<HttpOnlyCookie | NonHttpOnlyCookie>
   isBrowserExtensionAvailable?: boolean
   projectDetails?: ToddleProject
@@ -185,7 +189,7 @@ interface ApplicationState {
 
 export type MemoFn = <T>(key: string, fn: () => T) => T
 
-type Base = {
+export type Base = {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   /**
    * The JSON-path
@@ -202,46 +206,46 @@ type Base = {
   memo: MemoFn
 }
 
-type ProjectFormulaNode = {
+export type ProjectFormulaNode = {
   nodeType: 'project-formula'
   value: PluginFormula<string>
 } & Base
 
-type ProjectActionNode = {
+export type ProjectActionNode = {
   nodeType: 'project-action'
   value: PluginAction
 } & Base
 
-type ProjectApiService = {
+export type ProjectApiService = {
   nodeType: 'api-service'
   value: ApiService
 } & Base
 
-type ProjectRoute = {
+export type ProjectRoute = {
   nodeType: 'project-route'
   value: Route
   routeName: string
 } & Base
 
-type ComponentNode = {
+export type ComponentNode = {
   nodeType: 'component'
   value: Component
 } & Base
 
-type ComponentAPINode = {
+export type ComponentAPINode = {
   nodeType: 'component-api'
   value: ComponentAPI
   component: ToddleComponent<Function>
 } & Base
 
-type ComponentAPIInputNode = {
+export type ComponentAPIInputNode = {
   nodeType: 'component-api-input'
   value: ApiRequest['inputs'][0]
   api: ApiRequest
   component: ToddleComponent<Function>
 } & Base
 
-type ComponentWorkflowNode = {
+export type ComponentWorkflowNode = {
   nodeType: 'component-workflow'
   value: {
     name: string
@@ -263,7 +267,7 @@ type ComponentWorkflowNode = {
   component: ToddleComponent<Function>
 } & Base
 
-type ComponentFormulaNode = {
+export type ComponentFormulaNode = {
   nodeType: 'component-formula'
   value: {
     name: string
@@ -280,37 +284,37 @@ type ComponentFormulaNode = {
   component: ToddleComponent<Function>
 } & Base
 
-type ComponentVariableNode = {
+export type ComponentVariableNode = {
   nodeType: 'component-variable'
-  value: Component['variables'][0]
+  value: ComponentVariable
   component: ToddleComponent<Function>
 } & Base
 
-type ComponentNodeAttributeNode = {
+export type ComponentNodeAttributeNode = {
   nodeType: 'component-node-attribute'
   value: { key: string; value?: Formula }
   node: ComponentNodeModel | ElementNodeModel
 } & Base
 
-type ComponentAttributeNode = {
+export type ComponentAttributeNode = {
   nodeType: 'component-attribute'
-  value: Component['attributes'][0]
+  value: ComponentAttribute
   component: ToddleComponent<Function>
 } & Base
 
-type FormulaNode<F = Formula> = {
+export type FormulaNode<F extends Formula = Formula> = {
   nodeType: 'formula'
   value: F
   component?: ToddleComponent<Function>
 } & Base
 
-type ActionModelNode<A = ActionModel> = {
+export type ActionModelNode<A extends ActionModel = ActionModel> = {
   nodeType: 'action-model'
   value: A
   component: ToddleComponent<Function>
 } & Base
 
-type CustomActionModelArgumentNode = {
+export type CustomActionModelArgumentNode = {
   nodeType: 'action-custom-model-argument'
   value: {
     action: CustomActionModel
@@ -320,7 +324,7 @@ type CustomActionModelArgumentNode = {
   component: ToddleComponent<Function>
 } & Base
 
-type CustomActionModelEventNode = {
+export type CustomActionModelEventNode = {
   nodeType: 'action-custom-model-event'
   value: {
     action: CustomActionModel
@@ -330,7 +334,7 @@ type CustomActionModelEventNode = {
   component: ToddleComponent<Function>
 } & Base
 
-type ComponentContext = {
+export type ComponentContext = {
   nodeType: 'component-context'
   value: {
     formulas: string[]
@@ -340,23 +344,23 @@ type ComponentContext = {
   }
 } & Base
 
-type ComponentEvent = {
+export type ComponentEvent = {
   nodeType: 'component-event'
   value: { component: ToddleComponent<Function>; event: _ComponentEvent }
 } & Base
 
-type ComponentNodeNode = {
+export type ComponentNodeNode = {
   nodeType: 'component-node'
   value: NodeModel
   component: ToddleComponent<Function>
 } & Base
 
-type ProjectThemeNode = {
+export type ProjectThemeNode = {
   nodeType: 'project-theme'
   value: Theme
 } & Base
 
-type ProjectThemePropertyNode = {
+export type ProjectThemePropertyNode = {
   nodeType: 'project-theme-property'
   value: {
     key: CustomPropertyName
@@ -364,12 +368,12 @@ type ProjectThemePropertyNode = {
   }
 } & Base
 
-type ProjectConfigNode = {
+export type ProjectConfigNode = {
   nodeType: 'project-config'
   value: unknown
 } & Base
 
-type StyleVariantNode = {
+export type StyleVariantNode = {
   nodeType: 'style-variant'
   value: {
     variant: StyleVariant
@@ -377,7 +381,7 @@ type StyleVariantNode = {
   }
 } & Base
 
-type StyleVariableNode = {
+export type StyleVariableNode = {
   nodeType: 'style-variable'
   value: {
     styleVariable: StyleVariable
@@ -385,7 +389,7 @@ type StyleVariableNode = {
   }
 } & Base
 
-type CustomPropertyNode = {
+export type CustomPropertyNode = {
   nodeType: 'custom-property'
   value: {
     key: CustomPropertyName
@@ -395,7 +399,7 @@ type CustomPropertyNode = {
   }
 } & Base
 
-type StyleNode = {
+export type StyleNode = {
   nodeType: 'style-declaration'
   value: {
     styleProperty: string
@@ -404,7 +408,7 @@ type StyleNode = {
   }
 } & Base
 
-type NodeType =
+export type NodeType =
   | ActionModelNode
   | ComponentAPIInputNode
   | ComponentAPINode
@@ -432,7 +436,7 @@ type NodeType =
   | StyleVariableNode
   | StyleVariantNode
 
-type FixType =
+export type FixType =
   | ChangeDataTypeFix
   | DeleteFetchInputFix
   | InvalidStyleSyntaxRuleFix
@@ -456,7 +460,11 @@ type FixType =
   | UnknownApiServiceRuleFix
   | UnknownComponentAttributeRuleFix
 
-interface Rule<T = unknown, V = NodeType> {
+export interface Rule<
+  T = unknown,
+  V extends NodeType = NodeType,
+  N extends NodeType = V,
+> {
   category: Category
   code: Code
   level: Level
@@ -465,20 +473,20 @@ interface Rule<T = unknown, V = NodeType> {
     data: V,
     state?: ApplicationState | undefined,
   ) => void
-  fixes?: Partial<Record<FixType, FixFunction>>
+  fixes?: Partial<Record<FixType, FixFunction<N, T>>>
 }
 
-interface FixFunctionArgs<Data extends NodeType, Details = unknown> {
+export interface FixFunctionArgs<Data extends NodeType, Details = unknown> {
   data: Data
   details?: Details
   state?: ApplicationState
 }
 
-type FixFunction<Data extends NodeType, Details = unknown> = (
+export type FixFunction<Data extends NodeType, Details = unknown> = (
   args: FixFunctionArgs<Data, Details>,
 ) => ProjectFiles | void
 
-type Options = {
+export type Options = {
   /**
    * Useful for running search on a subset or a single file.
    */
@@ -510,18 +518,18 @@ type Options = {
   rulesToExclude?: Code[]
 }
 
-interface FindProblemsArgs {
+export interface FindProblemsArgs {
   id: string
   files: ProjectFiles
   options?: Options
 }
 
-interface FindProblemsResponse {
+export interface FindProblemsResponse {
   id: string
   results: Result[]
 }
 
-interface FixProblemsArgs {
+export interface FixProblemsArgs {
   id: string
   files: ProjectFiles
   options?: Options
@@ -529,7 +537,7 @@ interface FixProblemsArgs {
   fixType: FixType
 }
 
-interface FixProblemsResponse {
+export interface FixProblemsResponse {
   id: string
   patch: Delta
   fixRule: Code

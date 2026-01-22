@@ -6,12 +6,21 @@ import type { CssSyntax } from '@nordcraft/core/dist/styling/customProperty'
 import type { StyleTokenCategory } from '@nordcraft/core/dist/styling/theme'
 import type { Nullable } from '@nordcraft/core/dist/types'
 import { get, set } from '@nordcraft/core/dist/utils/collections'
-import type { FixFunction, Rule, StyleVariableNode } from '../../../types'
+import type {
+  FixFunction,
+  NodeType,
+  Rule,
+  StyleVariableNode,
+} from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const legacyStyleVariableRule: Rule<{
-  name: string
-}> = {
+export const legacyStyleVariableRule: Rule<
+  {
+    name: string
+  },
+  NodeType,
+  StyleVariableNode
+> = {
   code: 'legacy style variable',
   level: 'warning',
   category: 'Deprecation',

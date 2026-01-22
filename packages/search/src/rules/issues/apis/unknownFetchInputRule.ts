@@ -1,10 +1,19 @@
 import { get } from '@nordcraft/core/dist/utils/collections'
-import type { ActionModelNode, FixFunction, Rule } from '../../../types'
+import type {
+  ActionModelNode,
+  FixFunction,
+  NodeType,
+  Rule,
+} from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const unknownFetchInputRule: Rule<{
-  name: string
-}> = {
+export const unknownFetchInputRule: Rule<
+  {
+    name: string
+  },
+  NodeType,
+  ActionModelNode
+> = {
   code: 'unknown fetch input',
   level: 'warning',
   category: 'Unknown Reference',

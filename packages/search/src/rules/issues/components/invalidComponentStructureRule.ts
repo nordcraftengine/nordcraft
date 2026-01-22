@@ -2,9 +2,15 @@ import { ShallowComponentSchema } from '@nordcraft/core/dist/component/schemas/c
 import { get, set } from '@nordcraft/core/dist/utils/collections'
 import { coerce } from 'zod'
 import type { $ZodIssue, $ZodTypeDef } from 'zod/v4/core'
-import type { ComponentNode, FixFunction, FixType, Rule } from '../../../types'
+import type {
+  ComponentNode,
+  FixFunction,
+  FixType,
+  NodeType,
+  Rule,
+} from '../../../types'
 
-interface InvalidComponentData {
+export interface InvalidComponentData {
   message: string
   issue?: $ZodIssue
 }
@@ -85,7 +91,11 @@ const changeDataTypeFix: FixFunction<ComponentNode, InvalidComponentData> = ({
 const convertIssuePath = (path: PropertyKey[]) =>
   path.map((p) => (typeof p === 'number' ? p : String(p)))
 
-export const invalidComponentStructureRule: Rule<InvalidComponentData> = {
+export const invalidComponentStructureRule: Rule<
+  InvalidComponentData,
+  NodeType,
+  ComponentNode
+> = {
   code: 'invalid component structure',
   level: 'warning',
   category: 'Quality',
