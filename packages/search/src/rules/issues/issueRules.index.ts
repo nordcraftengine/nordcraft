@@ -1,4 +1,3 @@
-import type { Rule } from '../../types'
 import actionRules from './actions/actionRules.index'
 import apiRules from './apis/apiRules.index'
 import attributeRules from './attributes/attributeRules.index'
@@ -15,7 +14,24 @@ import styleRules from './style/styleRules.index'
 import variableRules from './variables/variableRules.index'
 import workflowRules from './workflows/workflowRules.index'
 
-export const ISSUE_RULES: Rule<any, any>[] = [
+export type AllRuleTypes =
+  | (typeof actionRules)[number]
+  | (typeof apiRules)[number]
+  | (typeof attributeRules)[number]
+  | (typeof componentRules)[number]
+  | (typeof contextRules)[number]
+  | (typeof domRules)[number]
+  | (typeof eventRules)[number]
+  | (typeof formulaRules)[number]
+  | (typeof logicRules)[number]
+  | (typeof miscRules)[number]
+  | (typeof routingRules)[number]
+  | (typeof slotRules)[number]
+  | (typeof styleRules)[number]
+  | (typeof variableRules)[number]
+  | (typeof workflowRules)[number]
+
+export const ISSUE_RULES: AllRuleTypes[] = [
   ...actionRules,
   ...apiRules,
   ...attributeRules,

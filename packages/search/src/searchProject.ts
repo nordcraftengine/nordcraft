@@ -6,6 +6,7 @@ import { ToddleFormula } from '@nordcraft/core/dist/formula/ToddleFormula'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
+import type { AllRuleTypes } from './rules/issues/issueRules.index'
 import type { ApplicationState, FixType, NodeType, Result, Rule } from './types'
 import { shouldSearchExactPath, shouldVisitTree } from './util/helpers'
 
@@ -26,14 +27,14 @@ interface FixOptions {
  */
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: Rule<any, any>[]
+  rules: AllRuleTypes[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
 }): Generator<Result>
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: Rule<any, any>[]
+  rules: AllRuleTypes[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
@@ -48,7 +49,7 @@ export function* searchProject({
   fixOptions,
 }: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: Rule<any, any>[]
+  rules: AllRuleTypes[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
