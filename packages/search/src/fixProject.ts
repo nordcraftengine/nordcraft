@@ -16,7 +16,7 @@ export const fixProject = ({
   state,
 }: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rule: Rule
+  rule: Rule<any, any>
   fixType: FixType
   pathsToVisit?: string[][]
   useExactPaths?: boolean

@@ -1,16 +1,15 @@
 import { get, set } from '@nordcraft/core/dist/utils/collections'
 import type { ActionModelNode, FixFunctionArgs, Rule } from '../../../types'
 
-export const noPostNavigateAction: Rule<{ parameter: string }> = {
+export const noPostNavigateAction: Rule<
+  { parameter: string },
+  ActionModelNode
+> = {
   code: 'no post navigate action',
   level: 'warning',
   category: 'Quality',
-  visit: (report, { nodeType, path, value, files }) => {
-    if (
-      nodeType !== 'action-model' ||
-      value.type !== undefined ||
-      value.name !== '@toddle/gotToURL'
-    ) {
+  visit: (report, { path, value, files }) => {
+    if (value.type !== undefined || value.name !== '@toddle/gotToURL') {
       return
     }
     const actionsArrayPath = path.slice(0, -1)

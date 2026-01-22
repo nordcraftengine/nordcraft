@@ -1,4 +1,5 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import type { CustomPropertyName } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
 import { ToddleFormula } from '@nordcraft/core/dist/formula/ToddleFormula'
@@ -25,14 +26,14 @@ interface FixOptions {
  */
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: Rule[]
+  rules: Rule<any, any>[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
 }): Generator<Result>
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: Rule[]
+  rules: Rule<any, any>[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
@@ -47,7 +48,7 @@ export function* searchProject({
   fixOptions,
 }: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: Rule[]
+  rules: Rule<any, any>[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
@@ -140,7 +141,7 @@ export function* searchProject({
         yield* visitNode({
           args: {
             nodeType: 'project-theme-property',
-            value: { key: propKey, value: propDef },
+            value: { key: propKey as CustomPropertyName, value: propDef },
             path: ['themes', key, 'propertyDefinitions', propKey],
             rules,
             files,
@@ -213,7 +214,7 @@ export function* searchProject({
 function visitNode(args: {
   args: {
     path: (string | number)[]
-    rules: Rule[]
+    rules: Rule<any, any>[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean
@@ -224,7 +225,7 @@ function visitNode(args: {
 function visitNode(args: {
   args: {
     path: (string | number)[]
-    rules: Rule[]
+    rules: Rule<any, any>[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean
@@ -239,7 +240,7 @@ function* visitNode({
 }: {
   args: {
     path: (string | number)[]
-    rules: Rule[]
+    rules: Rule<any, any>[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean

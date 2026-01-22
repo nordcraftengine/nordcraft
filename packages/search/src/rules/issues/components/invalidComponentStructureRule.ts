@@ -85,14 +85,14 @@ const changeDataTypeFix: FixFunction<ComponentNode, InvalidComponentData> = ({
 const convertIssuePath = (path: PropertyKey[]) =>
   path.map((p) => (typeof p === 'number' ? p : String(p)))
 
-export const invalidComponentStructureRule: Rule<InvalidComponentData> = {
+export const invalidComponentStructureRule: Rule<
+  InvalidComponentData,
+  ComponentNode
+> = {
   code: 'invalid component structure',
   level: 'warning',
   category: 'Quality',
   visit: (report, data) => {
-    if (data.nodeType !== 'component') {
-      return
-    }
     const component = data.value
     const validation = ShallowComponentSchema.safeParse(component, {
       reportInput: false,

@@ -15,7 +15,7 @@ import styleRules from './style/styleRules.index'
 import variableRules from './variables/variableRules.index'
 import workflowRules from './workflows/workflowRules.index'
 
-export const ISSUE_RULES: Rule[] = [
+export const ISSUE_RULES: Rule<any, any>[] = [
   ...actionRules,
   ...apiRules,
   ...attributeRules,

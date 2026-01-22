@@ -2,7 +2,7 @@ import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Rule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceApiRule: Rule<void> = {
+export const noReferenceApiRule: Rule<unknown> = {
   code: 'no-reference api',
   level: 'warning',
   category: 'No References',

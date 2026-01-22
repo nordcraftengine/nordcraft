@@ -6,7 +6,7 @@ import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
 import type { Rule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceProjectFormulaRule: Rule<void> = {
+export const noReferenceProjectFormulaRule: Rule<unknown> = {
   code: 'no-reference project formula',
   level: 'warning',
   category: 'No References',

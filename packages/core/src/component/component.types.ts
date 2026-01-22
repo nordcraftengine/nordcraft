@@ -4,7 +4,7 @@ import type { StyleTokenCategory } from '../styling/theme'
 import type { StyleVariant } from '../styling/variantSelector'
 import type { NordcraftMetadata, Nullable, RequireFields } from '../types'
 
-interface ListItem {
+export interface ListItem {
   Item: unknown
   Index: number
   Parent?: Nullable<ListItem>

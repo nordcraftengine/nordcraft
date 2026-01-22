@@ -1,7 +1,7 @@
 import type { Rule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceVariableRule: Rule<void> = {
+export const noReferenceVariableRule: Rule<unknown> = {
   code: 'no-reference variable',
   level: 'warning',
   category: 'No References',

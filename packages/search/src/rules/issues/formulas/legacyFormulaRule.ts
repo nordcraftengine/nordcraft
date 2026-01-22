@@ -2,21 +2,20 @@ import type { FunctionOperation } from '@nordcraft/core/dist/formula/formula'
 import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-import type { Rule } from '../../../types'
+import type { FormulaNode, Rule } from '../../../types'
 import { replaceLegacyFormula } from './legacyFormulaRule.fix'
 
-export const legacyFormulaRule: Rule<{
-  name: string
-}> = {
+export const legacyFormulaRule: Rule<
+  {
+    name: string
+  },
+  FormulaNode<FunctionOperation>
+> = {
   code: 'legacy formula',
   level: 'warning',
   category: 'Deprecation',
   visit: (report, data) => {
-    if (
-      data.nodeType !== 'formula' ||
-      data.value.type !== 'function' ||
-      !isLegacyFormula(data.value, data.files)
-    ) {
+    if (!isLegacyFormula(data.value, data.files)) {
       return
     }
     report(
@@ -40,7 +39,6 @@ const isLegacyFormula = (
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>,
 ) => {
   const pluginFormula = files.formulas?.[formula.name]
-
   if (
     isUpperCase(formula.name) &&
     isDefined(pluginFormula) &&
