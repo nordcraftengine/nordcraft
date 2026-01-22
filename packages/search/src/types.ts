@@ -435,7 +435,11 @@ export type FixType =
   | UnknownApiServiceRuleFix
   | UnknownComponentAttributeRuleFix
 
-export interface Rule<T = unknown, V extends NodeType = NodeType> {
+export interface Rule<
+  T = unknown,
+  V extends NodeType = NodeType,
+  N extends NodeType = V,
+> {
   category: Category
   code: Code
   level: Level
@@ -444,7 +448,7 @@ export interface Rule<T = unknown, V extends NodeType = NodeType> {
     data: V,
     state?: ApplicationState | undefined,
   ) => void
-  fixes?: Partial<Record<FixType, FixFunction<V, T>>>
+  fixes?: Partial<Record<FixType, FixFunction<N, T>>>
 }
 
 export interface FixFunctionArgs<Data extends NodeType, Details = unknown> {
