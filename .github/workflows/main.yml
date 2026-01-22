@@ -37,16 +37,16 @@ jobs:
           echo '${{ fromJson(env.PACKAGE_JSON_OLD).version }}'
       - name: Version changed
         id: version_changed
-        if: ${{ fromJson(env.PACKAGE_JSON).version != fromJson(env.PACKAGE_JSON_OLD).version }}
+        # if: ${{ fromJson(env.PACKAGE_JSON).version != fromJson(env.PACKAGE_JSON_OLD).version }}
         run: echo "version=${{ fromJson(env.PACKAGE_JSON).version }}" >> $GITHUB_OUTPUT
-      - name: Version didn't change
-        if: ${{ fromJson(env.PACKAGE_JSON).version == fromJson(env.PACKAGE_JSON_OLD).version }}
-        run: |
-          echo "Version was not changed! No release needed."
+      #- name: Version didn't change
+      # if: ${{ fromJson(env.PACKAGE_JSON).version == fromJson(env.PACKAGE_JSON_OLD).version }}
+      #  run: |
+      #  echo "Version was not changed! No release needed."
   create_release:
     needs: version_check
     # Only run this job if the version has changed
-    if: ${{needs.version_check.outputs.version}}
+    # if: ${{needs.version_check.outputs.version}}
     uses: nordcraftengine/nordcraft/.github/workflows/create_release.yml@main
     with:
       version: ${{needs.version_check.outputs.version}}
@@ -54,7 +54,7 @@ jobs:
   start_publish:
     needs: [version_check, create_release]
     # Only run this job if the version has changed
-    if: ${{needs.version_check.outputs.version}}
+    # if: ${{needs.version_check.outputs.version}}
     uses: nordcraftengine/nordcraft/.github/workflows/deploy_to_npm.yml@main
     with:
       version: ${{needs.version_check.outputs.version}}
