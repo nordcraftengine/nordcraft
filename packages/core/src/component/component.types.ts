@@ -1,5 +1,6 @@
 import type { ApiStatus, ComponentAPI, LegacyApiStatus } from '../api/apiTypes'
 import type { Formula } from '../formula/formula'
+import type { CssSyntaxNode } from '../styling/customProperty'
 import type { StyleTokenCategory } from '../styling/theme'
 import type { StyleVariant } from '../styling/variantSelector'
 import type { NordcraftMetadata, Nullable, RequireFields } from '../types'
@@ -69,6 +70,7 @@ export type CustomPropertyName = `--${string}`
 export type CustomProperty = {
   formula: Formula
   unit?: Nullable<string>
+  syntax?: CssSyntaxNode
 }
 
 /**

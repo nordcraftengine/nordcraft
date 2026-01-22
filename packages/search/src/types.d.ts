@@ -10,14 +10,18 @@ import type {
   ComponentNodeModel,
   CustomActionArgument,
   CustomActionModel,
+  CustomProperty,
+  CustomPropertyName,
   ElementNodeModel,
   NodeModel,
+  StyleVariable,
   StyleVariant,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Theme } from '@nordcraft/core/dist/styling/theme'
+import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme.ts'
 import type { Nullable, PluginAction } from '@nordcraft/core/dist/types'
 import type {
   ApiService,
@@ -63,6 +67,8 @@ type Code =
   | 'legacy action'
   | 'legacy api'
   | 'legacy formula'
+  | 'legacy style variable'
+  | 'legacy theme'
   | 'no context consumers'
   | 'no post navigate action'
   | 'no-console'
@@ -371,6 +377,24 @@ type StyleVariantNode = {
   }
 } & Base
 
+type StyleVariableNode = {
+  nodeType: 'style-variable'
+  value: {
+    styleVariable: StyleVariable
+    element: ElementNodeModel | ComponentNodeModel
+  }
+} & Base
+
+type CustomPropertyNode = {
+  nodeType: 'custom-property'
+  value: {
+    key: CustomPropertyName
+    value: CustomProperty
+    element: ElementNodeModel | ComponentNodeModel
+    variant?: StyleVariant
+  }
+} & Base
+
 type StyleNode = {
   nodeType: 'style-declaration'
   value: {
@@ -395,6 +419,7 @@ type NodeType =
   | ComponentWorkflowNode
   | CustomActionModelArgumentNode
   | CustomActionModelEventNode
+  | CustomPropertyNode
   | FormulaNode
   | ProjectActionNode
   | ProjectApiService
@@ -404,6 +429,7 @@ type NodeType =
   | ProjectThemeNode
   | ProjectThemePropertyNode
   | StyleNode
+  | StyleVariableNode
   | StyleVariantNode
 
 type FixType =
@@ -412,6 +438,7 @@ type FixType =
   | InvalidStyleSyntaxRuleFix
   | LegacyActionRuleFix
   | LegacyFormulaRuleFix
+  | LegacyStyleVariableRuleFix
   | NoPostNavigateActionRuleFix
   | NoReferenceApiRuleFix
   | NoReferenceApiServiceRuleFix
