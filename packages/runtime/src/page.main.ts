@@ -271,6 +271,14 @@ export const createRoot = (domNode: HTMLElement) => {
   }
 
   ctx.stores.theme.subscribe((newTheme) => {
+    // The page's dataSignal also needs to be updated so that `Page.Theme` formulas works on page components
+    dataSignal.update((data) => ({
+      ...data,
+      Page: {
+        ...(data.Page ?? {}),
+        Theme: newTheme,
+      },
+    }))
     if (isDefined(newTheme)) {
       document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
     } else {

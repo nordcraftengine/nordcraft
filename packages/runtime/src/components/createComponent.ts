@@ -311,12 +311,12 @@ export function createComponent({
   }
 
   // Subscribe to global stores (currently only theme)
-  ctx.stores.theme.subscribe((value) => {
+  ctx.stores.theme.subscribe((newTheme) => {
     componentDataSignal.update((data) => ({
       ...data,
       Page: {
         ...data.Page,
-        Theme: value,
+        Theme: newTheme,
       },
     }))
   })

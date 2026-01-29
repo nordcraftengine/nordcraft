@@ -1402,13 +1402,11 @@ export const createRoot = (
         ctx?.component.route?.info?.theme,
       ) === false
     ) {
-      setupThemeSubscription(
-        newCtx.component,
-        newCtx.dataSignal,
-        env,
-      ).subscribe((theme) => {
-        newCtx.stores.theme.set(theme)
-      })
+      setupThemeSubscription(newCtx.component, dataSignal, env).subscribe(
+        (theme) => {
+          newCtx.stores.theme.set(theme)
+        },
+      )
     }
 
     for (const api in newCtx.component.apis) {
