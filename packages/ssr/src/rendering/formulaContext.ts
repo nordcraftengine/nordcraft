@@ -69,6 +69,9 @@ export const getPageFormulaContext = ({
       return applyFormula(initialValue, formulaContext)
     },
   )
+  formulaContext.data.Page = {
+    Theme: getThemeInitialValue(component, formulaContext, env),
+  }
   return formulaContext
 }
 
@@ -191,3 +194,18 @@ export const serverEnv = ({
     },
     logErrors,
   }) as ToddleServerEnv
+
+export const getThemeInitialValue = (
+  component: PageComponent,
+  formulaContext: FormulaContext,
+  env: ToddleServerEnv,
+): string | null => {
+  const themeFormula = component.route.info?.theme?.formula
+  if (themeFormula) {
+    return applyFormula(themeFormula, formulaContext)
+  } else {
+    // No theme set explicitly will default to system preference
+    // Default theme (or initial value) is handled in CSS
+    return env.request.cookies['nc-theme'] || null
+  }
+}
