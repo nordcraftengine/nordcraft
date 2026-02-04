@@ -38,7 +38,7 @@ export function* getFormulasInFormula<Handler>({
   globalFormulas,
   path: _path,
   visitedFormulas: _visitedFormulas,
-  packageName: _packageName,
+  packageName,
 }: {
   formula: Nullable<Formula>
   globalFormulas: GlobalFormulas<Handler>
@@ -54,14 +54,14 @@ export function* getFormulasInFormula<Handler>({
     return
   }
   const path = _path ?? []
-  let packageName = _packageName ?? undefined
   const visitedFormulas = _visitedFormulas ?? new Set<string>()
 
   yield {
     path,
     formula,
-    packageName,
+    packageName: packageName ?? undefined,
   }
+
   switch (formula.type) {
     case 'path':
     case 'value':
@@ -78,12 +78,14 @@ export function* getFormulasInFormula<Handler>({
       }
       break
     case 'function': {
-      packageName = formula.package ?? packageName
-      const formulaKey = [packageName, formula.name].filter(isDefined).join('/')
+      const innerPackage = formula.package ?? packageName
+      const formulaKey = [innerPackage, formula.name]
+        .filter(isDefined)
+        .join('/')
       const shouldVisitFormula = !visitedFormulas.has(formulaKey)
       visitedFormulas.add(formulaKey)
-      const globalFormula = packageName
-        ? globalFormulas.packages?.[packageName]?.formulas?.[formula.name]
+      const globalFormula = innerPackage
+        ? globalFormulas.packages?.[innerPackage]?.formulas?.[formula.name]
         : globalFormulas.formulas?.[formula.name]
       for (const [key, arg] of (
         (formula.arguments as typeof formula.arguments | undefined) ?? []
@@ -96,6 +98,7 @@ export function* getFormulasInFormula<Handler>({
           packageName,
         })
       }
+
       // Lookup the actual function and traverse its potential formula references
       // if this formula wasn't already visited
       if (
@@ -106,11 +109,11 @@ export function* getFormulasInFormula<Handler>({
         yield* getFormulasInFormula({
           formula: globalFormula.formula,
           globalFormulas,
-          path: packageName
-            ? ['packages', packageName, 'formulas', formula.name]
+          path: innerPackage
+            ? ['packages', innerPackage, 'formulas', formula.name]
             : ['formulas', formula.name],
           visitedFormulas,
-          packageName,
+          packageName: innerPackage,
         })
       }
       break
@@ -176,7 +179,7 @@ export function* getFormulasInAction<Handler>({
   globalFormulas,
   path: _path,
   visitedFormulas = new Set<string>(),
-  packageName: _packageName,
+  packageName,
 }: {
   action: Nullable<ActionModel>
   globalFormulas: GlobalFormulas<Handler>
@@ -192,7 +195,6 @@ export function* getFormulasInAction<Handler>({
     return
   }
   const path = _path ?? []
-  let packageName = _packageName ?? undefined
 
   switch (action.type) {
     case 'AbortFetch':
@@ -238,15 +240,15 @@ export function* getFormulasInAction<Handler>({
       break
     case 'Custom':
     case undefined:
-    case null:
-      packageName = action.package ?? packageName
+    case null: {
+      const innerPackage = action.package ?? packageName
       if (isFormula(action.data)) {
         yield* getFormulasInFormula({
           formula: action.data,
           globalFormulas,
           path: [...path, 'data'],
           visitedFormulas,
-          packageName,
+          packageName: innerPackage,
         })
       }
       for (const [key, a] of Object.entries(action.arguments ?? {})) {
@@ -256,11 +258,10 @@ export function* getFormulasInAction<Handler>({
             globalFormulas,
             path: [...path, 'arguments', key, 'formula'],
             visitedFormulas,
-            packageName,
+            packageName: innerPackage,
           })
         }
       }
-
       for (const [eventKey, event] of Object.entries(action.events ?? {})) {
         for (const [key, a] of Object.entries(event.actions ?? {})) {
           yield* getFormulasInAction({
@@ -268,11 +269,12 @@ export function* getFormulasInAction<Handler>({
             globalFormulas,
             path: [...path, 'events', eventKey, 'actions', key],
             visitedFormulas,
-            packageName,
+            packageName: innerPackage,
           })
         }
       }
       break
+    }
     case 'SetVariable':
     case 'TriggerEvent':
     case 'TriggerWorkflowCallback':
@@ -290,6 +292,7 @@ export function* getFormulasInAction<Handler>({
         globalFormulas,
         path: [...path, 'data'],
         visitedFormulas,
+        packageName,
       })
       break
     case 'SetURLParameters':
@@ -300,6 +303,7 @@ export function* getFormulasInAction<Handler>({
           globalFormulas,
           path: [...path, 'parameters', key],
           visitedFormulas,
+          packageName,
         })
       }
       break
