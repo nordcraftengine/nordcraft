@@ -155,7 +155,6 @@ export class ToddleComponent extends HTMLElement {
     this.#ctx.providers = providers
 
     this.#ctx.stores.theme.subscribe((newTheme) => {
-      // The page's dataSignal also needs to be updated so that `Page.Theme` formulas works on page components
       this.#signal.update((data) => ({
         ...data,
         Page: {
