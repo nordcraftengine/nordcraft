@@ -241,14 +241,13 @@ export function* getFormulasInAction<Handler>({
     case 'Custom':
     case undefined:
     case null: {
-      const innerPackage = action.package ?? packageName
       if (isFormula(action.data)) {
         yield* getFormulasInFormula({
           formula: action.data,
           globalFormulas,
           path: [...path, 'data'],
           visitedFormulas,
-          packageName: innerPackage,
+          packageName,
         })
       }
       for (const [key, a] of Object.entries(action.arguments ?? {})) {
@@ -258,7 +257,7 @@ export function* getFormulasInAction<Handler>({
             globalFormulas,
             path: [...path, 'arguments', key, 'formula'],
             visitedFormulas,
-            packageName: innerPackage,
+            packageName,
           })
         }
       }
@@ -269,7 +268,7 @@ export function* getFormulasInAction<Handler>({
             globalFormulas,
             path: [...path, 'events', eventKey, 'actions', key],
             visitedFormulas,
-            packageName: innerPackage,
+            packageName,
           })
         }
       }
