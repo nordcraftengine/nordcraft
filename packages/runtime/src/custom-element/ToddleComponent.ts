@@ -7,9 +7,13 @@ import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
 import type { Theme } from '@nordcraft/core/dist/styling/theme'
-import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
+import {
+  theme as defaultTheme,
+  THEME_DATA_ATTRIBUTE,
+} from '@nordcraft/core/dist/styling/theme.const'
 import type { Toddle } from '@nordcraft/core/dist/types'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
@@ -18,6 +22,7 @@ import { isContextProvider } from '../context/isContextProvider'
 import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentContext, LocationSignal } from '../types'
+import { getThemeSignal } from '../utils/getThemeSignal'
 
 /**
  * Base class for all toddle components
@@ -87,9 +92,7 @@ export class ToddleComponent extends HTMLElement {
       children: {},
       providers: {},
       stores: {
-        // Note: Theme store is a page-level store, and cannot be used in custom-elements in a meaningful way at the moment.
-        // Users can implement theming by setting data-nc-theme attribute themselves.
-        theme: signal<string | null>(null),
+        theme: getThemeSignal(component, this.#signal, env),
       },
       package: undefined,
       toddle,
@@ -150,6 +153,21 @@ export class ToddleComponent extends HTMLElement {
     }
 
     this.#ctx.providers = providers
+
+    this.#ctx.stores.theme.subscribe((newTheme) => {
+      this.#signal.update((data) => ({
+        ...data,
+        Page: {
+          ...(data.Page ?? {}),
+          Theme: newTheme,
+        },
+      }))
+      if (isDefined(newTheme)) {
+        this.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
+      } else {
+        this.removeAttribute(THEME_DATA_ATTRIBUTE)
+      }
+    })
     this.render()
   }
 
