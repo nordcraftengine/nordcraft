@@ -1,5 +1,6 @@
 import { functionFormula, valueFormula } from '../formula/formulaUtils'
 import { ToddleComponent } from './ToddleComponent'
+import type { Component } from './component.types'
 
 describe('ToddleComponent.formulasInComponent', () => {
   test('it return formulas used in parameters of TriggerWorkflow actions', () => {
@@ -229,6 +230,176 @@ describe('ToddleComponent.formulasInComponent', () => {
       name: 'otherGlobalFunction',
       type: 'function',
       arguments: [],
+    })
+  })
+
+  test('it returns package formulas that use other formulas from the same package', () => {
+    const demo = new ToddleComponent({
+      component: {
+        name: 'demo',
+        apis: {},
+        attributes: {},
+        nodes: {
+          node1: {
+            type: 'component',
+            name: 'MyComponent',
+            package: 'my-pkg',
+            tag: 'div',
+            attrs: {
+              attr1: functionFormula('outer', { package: 'my-pkg' }),
+            },
+            events: {},
+            children: [],
+          } as any,
+        },
+        variables: {},
+        workflows: {},
+      },
+      getComponent: () => {
+        return {
+          name: 'MyComponent',
+          apis: {},
+          attributes: {
+            attr1: { name: 'attr1', testValue: '' },
+          },
+          nodes: {},
+          variables: {},
+        } as Component
+      },
+      packageName: undefined,
+      globalFormulas: {
+        formulas: {},
+        packages: {
+          'my-pkg': {
+            formulas: {
+              outer: {
+                name: 'outer',
+                arguments: [],
+                formula: functionFormula('inner'), // No package explicitly set
+              },
+              inner: {
+                name: 'inner',
+                arguments: [],
+                formula: valueFormula('inner-val'),
+              },
+            },
+          },
+        },
+      },
+    })
+    const formulas = Array.from(demo.formulasInComponent())
+
+    expect(formulas.find((f) => f.formula.name === 'outer')).toBeDefined()
+    expect(formulas.find((f) => f.formula.name === 'inner')).toBeDefined()
+    expect(formulas.find((f) => f.formula.name === 'inner')?.packageName).toBe(
+      'my-pkg',
+    )
+    expect(formulas).toEqual([
+      {
+        formula: {
+          arguments: [],
+          name: 'outer',
+          package: 'my-pkg',
+          type: 'function',
+          variableArguments: undefined,
+        },
+        packageName: undefined,
+        path: ['nodes', 'node1', 'attrs', 'attr1'],
+      },
+      {
+        formula: {
+          arguments: [],
+          name: 'inner',
+          package: undefined,
+          type: 'function',
+          variableArguments: undefined,
+        },
+        packageName: 'my-pkg',
+        path: ['packages', 'my-pkg', 'formulas', 'outer'],
+      },
+      {
+        formula: {
+          type: 'value',
+          value: 'inner-val',
+        },
+        packageName: 'my-pkg',
+        path: ['packages', 'my-pkg', 'formulas', 'inner'],
+      },
+    ])
+  })
+
+  test('it should take both package formulas and project formulas when both exist with same name', () => {
+    const demo = new ToddleComponent({
+      component: {
+        name: 'demo',
+        apis: {},
+        attributes: {},
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            attrs: {
+              attr1: functionFormula('my-formula'),
+              attr2: functionFormula('my-formula', { package: 'my-pkg' }),
+            },
+            events: {},
+            children: [],
+          } as any,
+        },
+        variables: {},
+        workflows: {},
+      },
+      getComponent: () => undefined,
+      packageName: undefined,
+      globalFormulas: {
+        formulas: {
+          'my-formula': {
+            name: 'my-formula',
+            arguments: [],
+            formula: valueFormula('project-value'),
+          },
+        },
+        packages: {
+          'my-pkg': {
+            formulas: {
+              'my-formula': {
+                name: 'my-formula',
+                arguments: [],
+                formula: valueFormula('package-value'),
+              },
+            },
+          },
+        },
+      },
+    })
+    const formulas = Array.from(demo.formulasInComponent())
+
+    expect(
+      formulas.find(
+        (f) =>
+          f.formula.type === 'function' &&
+          f.formula.name === 'my-formula' &&
+          f.formula.package === undefined,
+      ),
+    ).toBeDefined()
+    expect(
+      formulas.find(
+        (f) =>
+          f.formula.type === 'function' &&
+          f.formula.name === 'my-formula' &&
+          f.formula.package === 'my-pkg',
+      ),
+    ).toBeDefined()
+
+    expect(formulas).toContainEqual({
+      formula: valueFormula('project-value'),
+      packageName: undefined,
+      path: ['formulas', 'my-formula'],
+    })
+    expect(formulas).toContainEqual({
+      formula: valueFormula('package-value'),
+      packageName: 'my-pkg',
+      path: ['packages', 'my-pkg', 'formulas', 'my-formula'],
     })
   })
 })
