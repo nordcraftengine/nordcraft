@@ -30,70 +30,60 @@ export const unknownCSSVariableRule: Rule<{
       return
     }
 
-    const themeCssVariables = theme.propertyDefinitions
-    const [_fileType, componentName, _nodes, nodeName] = path
-    const localCssVariables = memo(
-      `component-css-variables-${componentName}-${nodeName}`,
+    const allCssVariableDeclarations = memo(
+      `all-css-variables-declarations`,
       () => {
-        const vars = new Set<string>()
-        const component = files.components[componentName]
-        if (!component) {
-          return vars
-        }
-
-        const visitVars = (nodeName: string) => {
-          const node = component?.nodes?.[nodeName]
-          if (!node) {
-            return
-          }
-
-          if (node.type === 'component' || node.type === 'element') {
-            Object.keys(node.customProperties ?? {}).forEach((varName) => {
-              vars.add(varName)
-            })
-            Object.values(node.variants ?? {}).forEach((variant) => {
-              Object.keys(variant.customProperties ?? {}).forEach((varName) => {
-                vars.add(varName)
-              })
-            })
-
-            // Also add legacy style variables
-            if (node.type === 'element' && node['style-variables']) {
-              node['style-variables'].forEach((styleVar) => {
-                vars.add(`--${styleVar.name}`)
-              })
+        const cssVariableKeys = new Set(
+          Object.keys(theme.propertyDefinitions ?? {}),
+        )
+        Object.values(files.components ?? {}).forEach((component) => {
+          Object.keys(component?.nodes ?? {}).forEach((nodeKey) => {
+            const node = component?.nodes?.[nodeKey]
+            if (!node) {
+              return
             }
 
-            // Add if declared in any parent styles object
-            Object.keys(node.style ?? {}).forEach((styleKey) => {
-              if (styleKey.startsWith('--')) {
-                vars.add(styleKey)
+            if (node.type === 'component' || node.type === 'element') {
+              Object.keys(node.customProperties ?? {}).forEach((varName) => {
+                cssVariableKeys.add(varName)
+              })
+              Object.values(node.variants ?? {}).forEach((variant) => {
+                Object.keys(variant.customProperties ?? {}).forEach(
+                  (varName) => {
+                    cssVariableKeys.add(varName)
+                  },
+                )
+              })
+
+              // Also add legacy style variables
+              if (node.type === 'element' && node['style-variables']) {
+                node['style-variables'].forEach((styleVar) => {
+                  cssVariableKeys.add(`--${styleVar.name}`)
+                })
               }
-            })
-            Object.values(node.variants ?? {}).forEach((variant) => {
-              Object.keys(variant.style ?? {}).forEach((styleKey) => {
+
+              // Add if declared in any parent styles object
+              Object.keys(node.style ?? {}).forEach((styleKey) => {
                 if (styleKey.startsWith('--')) {
-                  vars.add(styleKey)
+                  cssVariableKeys.add(styleKey)
                 }
               })
-            })
-          }
-
-          const parent = Object.entries(component.nodes ?? {}).find(([_, n]) =>
-            n.children?.includes(nodeName),
-          )
-          if (parent) {
-            visitVars(parent[0])
-          }
-        }
-
-        visitVars(nodeName.toString())
-        return vars
+              Object.values(node.variants ?? {}).forEach((variant) => {
+                Object.keys(variant.style ?? {}).forEach((styleKey) => {
+                  if (styleKey.startsWith('--')) {
+                    cssVariableKeys.add(styleKey)
+                  }
+                })
+              })
+            }
+          })
+        })
+        return cssVariableKeys
       },
     )
 
     for (const varName of vars) {
-      if (!(varName in themeCssVariables) && !localCssVariables.has(varName)) {
+      if (allCssVariableDeclarations.has(varName) === false) {
         report(path, { name: varName })
       }
     }

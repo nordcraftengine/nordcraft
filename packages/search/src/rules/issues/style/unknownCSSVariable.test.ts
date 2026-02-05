@@ -171,64 +171,6 @@ describe('unknownCSSVariableRule', () => {
     expect(problems[1].details).toEqual({ name: '--undefined-local' })
   })
 
-  test('should report problem if local variable is used in parent but only defined in child', () => {
-    const problems = Array.from(
-      searchProject({
-        files: {
-          themes: {
-            Default: {
-              fonts: [],
-              propertyDefinitions: {},
-            },
-          },
-          formulas: {},
-          components: {
-            test: {
-              name: 'test',
-              nodes: {
-                root: {
-                  tag: 'div',
-                  type: 'element',
-                  attrs: {},
-                  style: {
-                    color: 'var(--child-only-variable)',
-                  },
-                  events: {},
-                  classes: {},
-                  children: ['child'],
-                },
-                child: {
-                  tag: 'div',
-                  type: 'element',
-                  attrs: {},
-                  customProperties: {
-                    '--child-only-variable': {
-                      formula: {
-                        type: 'value',
-                        value: 'red',
-                      },
-                    },
-                  },
-                  style: {},
-                  events: {},
-                  classes: {},
-                  children: [],
-                },
-              },
-              formulas: {},
-              apis: {},
-              attributes: {},
-              variables: {},
-            },
-          },
-        },
-        rules: [unknownCSSVariableRule],
-      }),
-    )
-
-    expect(problems).toHaveLength(1)
-  })
-
   test('should not report when legacy style variables are used', () => {
     const problems = Array.from(
       searchProject({
@@ -342,6 +284,72 @@ describe('unknownCSSVariableRule', () => {
                   attrs: {},
                   style: {
                     color: 'var(--legacy-theme-variable)',
+                  },
+                  events: {},
+                  classes: {},
+                  children: [],
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [unknownCSSVariableRule],
+      }),
+    )
+
+    expect(problems).toBeEmpty()
+  })
+
+  test('should not report if CSS variable is defined in any other component or self', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          themes: {
+            Default: {
+              fonts: [],
+              propertyDefinitions: {},
+            },
+          },
+          formulas: {},
+          components: {
+            componentA: {
+              name: 'componentA',
+              nodes: {
+                root: {
+                  tag: 'div',
+                  type: 'element',
+                  customProperties: {
+                    '--variable-in-a': {
+                      formula: { type: 'value', value: 'red' },
+                    },
+                  },
+                  attrs: {},
+                  style: {
+                    color: 'var(--variable-in-a)',
+                  },
+                  events: {},
+                  classes: {},
+                  children: [],
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+            componentB: {
+              name: 'componentB',
+              nodes: {
+                root: {
+                  tag: 'div',
+                  type: 'element',
+                  attrs: {},
+                  style: {
+                    color: 'var(--variable-in-a)',
                   },
                   events: {},
                   classes: {},
