@@ -5,7 +5,7 @@ import { componentIsReferenced } from '../components/noReferenceComponentRule'
 
 export const noReferenceAttributeInInstanceRule: Rule<void> = {
   code: 'no-reference attribute in instance',
-  level: 'warning',
+  level: 'info',
   category: 'No References',
   visit: (report, args, state) => {
     if (
