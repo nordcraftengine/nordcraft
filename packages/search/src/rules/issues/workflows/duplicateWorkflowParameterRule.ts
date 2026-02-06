@@ -15,7 +15,14 @@ export const duplicateWorkflowParameterRule: Rule<{ parameter: string }> = {
     const parameterNames = new Set<string>()
     value.parameters.forEach((p, i) => {
       if (parameterNames.has(p.name)) {
-        report([...path, 'parameters', i], { parameter: p.name })
+        report({
+          path: [...path, 'parameters', i],
+          info: {
+            title: 'Duplicate workflow parameter',
+            description: `Multiple parameters with the name **${p.name}** exist. Ensure parameter names are unique.`,
+          },
+          details: { parameter: p.name },
+        })
       }
       parameterNames.add(p.name)
     })

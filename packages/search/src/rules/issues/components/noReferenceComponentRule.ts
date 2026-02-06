@@ -24,7 +24,15 @@ export const noReferenceComponentRule: Rule<void> = {
       return
     }
 
-    report(data.path, undefined, ['delete-component'])
+    report({
+      path: data.path,
+      info: {
+        title: 'Unused component',
+        description:
+          '**Component** is never used by any page or component. Consider removing it.',
+      },
+      fixes: ['delete-component'],
+    })
   },
   fixes: {
     'delete-component': removeFromPathFix,

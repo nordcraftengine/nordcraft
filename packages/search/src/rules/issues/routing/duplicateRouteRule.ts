@@ -40,12 +40,24 @@ export const duplicateRouteRule: Rule<{
     })
     const match = allRoutes.get(getRouteKey(value.route?.path))
     if (match && match.length > 1) {
-      report([...path, 'route', 'path'], {
-        name: value.name,
-        type: 'page',
-        duplicates: match
-          .filter((m) => m !== value.name)
-          .map((name) => ({ name, type: 'page' })),
+      const duplicates = match
+        .filter((m) => m !== value.name)
+        .map((name) => ({ name, type: 'page' as const }))
+      report({
+        path: [...path, 'route', 'path'],
+        info: {
+          title: 'Duplicate route declaration',
+          description: `The page **${
+            value.name
+          }** has the same route/path declared as the pages/routes below. Route declarations must be unique.${duplicates
+            .map((d) => `\n- ${d.name} (${d.type})`)
+            .join('')}`,
+        },
+        details: {
+          name: value.name,
+          type: 'page',
+          duplicates,
+        },
       })
     }
   },

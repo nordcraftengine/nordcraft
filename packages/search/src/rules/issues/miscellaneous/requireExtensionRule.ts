@@ -16,6 +16,13 @@ export const requireExtensionRule: Rule<{
     ) {
       return
     }
-    report(path)
+    report({
+      path,
+      info: {
+        title: 'Browser plugin recommended',
+        description:
+          '**Toddle browser plugin** is recommended for working with cookies. [Install extension](https://chromewebstore.google.com/detail/toddle/hfhgjncckomifajhndceigiaiojhlllp?hl=en)',
+      },
+    })
   },
 }

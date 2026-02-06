@@ -14,6 +14,12 @@ export const legacyThemeRule: Rule = {
       return
     }
 
-    report(data.path, undefined, [])
+    report({
+      path: data.path,
+      info: {
+        title: `Legacy theme`,
+        description: `You are using an older Nordcraft theme system. Migrate your theme to the newest version to enable multi-theme support and more.`,
+      },
+    })
   },
 }

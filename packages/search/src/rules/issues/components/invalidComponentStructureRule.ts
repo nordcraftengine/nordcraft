@@ -145,14 +145,18 @@ export const invalidComponentStructureRule: Rule<
         case 'custom':
           break
       }
-      report(
-        [...data.path, ...issuePath],
-        {
+      report({
+        path: [...data.path, ...issuePath],
+        info: {
+          title: 'Invalid component structure',
+          description: issue.message,
+        },
+        details: {
           message: issue.message,
           issue,
         },
-        fixes.size > 0 ? Array.from(fixes) : undefined,
-      )
+        fixes: fixes.size > 0 ? Array.from(fixes) : undefined,
+      })
     })
   },
   fixes: {

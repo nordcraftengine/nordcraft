@@ -21,6 +21,13 @@ export const invalidApiParserModeRule: Rule<{ api: string }> = {
       return
     }
 
-    report(path, { api: value.name })
+    report({
+      path,
+      info: {
+        title: 'Invalid API parser mode',
+        description: `The API **${value.name}** uses a parser mode has SSR enabled while it uses a parser mode that is not supported during SSR. Consider disabling SSR.`,
+      },
+      details: { api: value.name },
+    })
   },
 }

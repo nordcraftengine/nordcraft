@@ -46,7 +46,14 @@ export const noReferenceProjectActionRule: Rule<void> = {
     })
 
     if (!projectActionReferences.has(value.name)) {
-      report(path, undefined, ['delete-project-action'])
+      report({
+        path,
+        info: {
+          title: 'Unused global action',
+          description: `Action is never used by any workflow. Consider removing it.`,
+        },
+        fixes: ['delete-project-action'],
+      })
     }
   },
   fixes: {

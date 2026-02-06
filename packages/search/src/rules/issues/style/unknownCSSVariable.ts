@@ -84,7 +84,14 @@ export const unknownCSSVariableRule: Rule<{
 
     for (const varName of vars) {
       if (allCssVariableDeclarations.has(varName) === false) {
-        report(path, { name: varName })
+        report({
+          path,
+          info: {
+            title: `Unknown CSS variable`,
+            description: `The CSS variable **${varName}** is not declared in any parent element or in your theme. The CSS variable must be declared in an ancestor element in its component or in your global theme.`,
+          },
+          details: { name: varName },
+        })
       }
     }
   },

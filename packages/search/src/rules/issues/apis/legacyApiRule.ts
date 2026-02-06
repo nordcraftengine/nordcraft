@@ -11,6 +11,13 @@ export const legacyApiRule: Rule<{
     if (nodeType !== 'component-api' || !isLegacyApi(value)) {
       return
     }
-    report(path, { name: value.name })
+    report({
+      path,
+      info: {
+        title: 'Legacy API',
+        description: `The API **${value.name}** could be upgraded to the new API format.`,
+      },
+      details: { name: value.name },
+    })
   },
 }

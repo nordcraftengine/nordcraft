@@ -22,9 +22,16 @@ export const unknownContextFormulaRule: Rule<{
       return
     }
 
-    report(path, {
-      providerName: value.path[1],
-      formulaName: value.path[2],
+    report({
+      path,
+      info: {
+        title: 'Unknown context formula',
+        description: `**${value.path[2]}** is not subscribed. Make sure to subscribe to it in the component context section before using it.`,
+      },
+      details: {
+        providerName: value.path[1],
+        formulaName: value.path[2],
+      },
     })
   },
 }

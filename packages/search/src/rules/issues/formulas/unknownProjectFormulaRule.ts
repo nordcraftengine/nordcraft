@@ -18,6 +18,13 @@ export const unknownProjectFormulaRule: Rule<{ name: string }> = {
     if (formula) {
       return
     }
-    report(path, { name: value.name })
+    report({
+      path,
+      info: {
+        title: 'Unknown global formula',
+        description: `**${value.name}** does not exist. Using an unknown formula will always return *Null*`,
+      },
+      details: { name: value.name },
+    })
   },
 }

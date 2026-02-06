@@ -33,7 +33,15 @@ export const noReferenceApiServiceRule: Rule<{ serviceName: string }> = {
     if (apiServiceReferences.has(value.name)) {
       return
     }
-    report(args.path, { serviceName }, ['delete-api-service'])
+    report({
+      path: args.path,
+      info: {
+        title: 'Unused API Service',
+        description: `**${serviceName}** is never used by any API. Consider removing it.`,
+      },
+      details: { serviceName },
+      fixes: ['delete-api-service'],
+    })
   },
   fixes: {
     'delete-api-service': removeFromPathFix,

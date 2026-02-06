@@ -16,7 +16,14 @@ export const duplicateEventTriggerRule: Rule<{ trigger: string }> = {
         return
       }
       if (eventTriggers.has(event.trigger)) {
-        report([...path, 'events', key], { trigger: event.trigger })
+        report({
+          path: [...path, 'events', key],
+          info: {
+            title: 'Duplicate event trigger',
+            description: `**${event.trigger}** is used as a trigger in multiple events. Consider consolidating them into a single event.`,
+          },
+          details: { trigger: event.trigger },
+        })
       }
       eventTriggers.add(event.trigger)
     })

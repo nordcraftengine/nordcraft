@@ -30,10 +30,17 @@ export function createRequiredDirectChildRule(
           childNode?.type === 'element' &&
           !childTags.includes(childNode.tag)
         ) {
-          report([...path.slice(0, 3), childId], {
-            parentTag: value.tag,
-            childTag: childNode.tag,
-            allowedChildTags: childTags,
+          report({
+            path: [...path.slice(0, 3), childId],
+            info: {
+              title: 'Invalid child element',
+              description: `**${childNode.tag}** should not be a direct first decedent of **${value.tag}**. Valid children are: *${childTags.join('*, *')}*.`,
+            },
+            details: {
+              parentTag: value.tag,
+              childTag: childNode.tag,
+              allowedChildTags: childTags,
+            },
           })
         }
       })

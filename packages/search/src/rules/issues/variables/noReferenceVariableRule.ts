@@ -32,7 +32,14 @@ export const noReferenceVariableRule: Rule<void> = {
       return
     }
 
-    report(path, undefined, ['delete-variable'])
+    report({
+      path,
+      info: {
+        title: 'Unused variable',
+        description: `**${variableKey}** is set but never used by any formula. Consider removing it.`,
+      },
+      fixes: ['delete-variable'],
+    })
   },
   fixes: {
     'delete-variable': removeFromPathFix,

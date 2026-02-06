@@ -43,7 +43,14 @@ export const unknownComponentSlotRule: Rule<{ slotName: string }> = {
       const usedSlot = childNode?.slot ?? 'default'
 
       if (!usableSlots.includes(usedSlot)) {
-        report([path[0], path[1], path[2], child], { slotName: usedSlot })
+        report({
+          path: [path[0], path[1], path[2], child],
+          info: {
+            title: 'Unknown component slot',
+            description: `**${usedSlot}** slot name does not exist as a slot on the parent component.`,
+          },
+          details: { slotName: usedSlot },
+        })
       }
     })
   },

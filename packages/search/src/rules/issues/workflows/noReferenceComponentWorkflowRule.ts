@@ -77,6 +77,13 @@ export const noReferenceComponentWorkflowRule: Rule<{
       }
     }
 
-    report(path, { contextSubscribers, name: value.name })
+    report({
+      path,
+      info: {
+        title: 'Unused component workflow',
+        description: `**${value.name}** is never used by any workflow. Consider removing it.`,
+      },
+      details: { contextSubscribers, name: value.name },
+    })
   },
 }

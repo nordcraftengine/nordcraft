@@ -272,7 +272,7 @@ function* visitNode({
       console.timeStamp(`Visiting rule ${rule.code}`)
       rule.visit(
         // Report callback used to report issues
-        (path, details, fixes) => {
+        ({ path, details, fixes }) => {
           if (fixOptions) {
             // We're in "fix mode"
             if (

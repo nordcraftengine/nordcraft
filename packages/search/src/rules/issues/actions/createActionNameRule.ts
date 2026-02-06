@@ -9,11 +9,16 @@ import type { Category, Code, Level, Rule } from '../../../types'
 export function createActionNameRule({
   name,
   code,
+  info,
   category = 'Other',
   level = 'info',
 }: {
   name: string
   code: Code
+  info: {
+    title: string
+    description: string
+  }
   category?: Category
   level?: Level
 }): Rule<{
@@ -32,7 +37,11 @@ export function createActionNameRule({
         return
       }
 
-      report(path, { name: value.name })
+      report({
+        path,
+        details: { name: value.name },
+        info,
+      })
     },
   }
 }

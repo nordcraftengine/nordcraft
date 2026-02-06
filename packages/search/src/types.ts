@@ -469,7 +469,12 @@ export interface Rule<
   code: Code
   level: Level
   visit: (
-    report: (path: (string | number)[], details?: T, fixes?: FixType[]) => void,
+    report: (args: {
+      path: (string | number)[]
+      info: { title: string; description: string }
+      details?: T
+      fixes?: FixType[]
+    }) => void,
     data: V,
     state?: ApplicationState | undefined,
   ) => void

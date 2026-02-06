@@ -24,7 +24,15 @@ export const invalidStyleSyntaxRule: Rule<{
       },
     )
     if (!valid) {
-      report(path, { property: value.styleProperty }, ['delete-style-property'])
+      report({
+        path,
+        info: {
+          title: `Invalid style declaration`,
+          description: `The style declaration for the property "${value.styleProperty}" is invalid. This can lead to unforeseen styling behavior across other elements. Please fix the style declaration or remove it.`,
+        },
+        details: { property: value.styleProperty },
+        fixes: ['delete-style-property'],
+      })
     }
   },
   fixes: {
