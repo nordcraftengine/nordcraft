@@ -157,6 +157,7 @@ export type Result = {
   level: Level
   details?: any
   fixes?: FixType[]
+  info: ReportedIssueInfo
 }
 
 export interface ApplicationCookie {
@@ -460,6 +461,11 @@ export type FixType =
   | UnknownApiServiceRuleFix
   | UnknownComponentAttributeRuleFix
 
+interface ReportedIssueInfo {
+  title: string
+  description: string
+}
+
 export interface Rule<
   T = unknown,
   V extends NodeType = NodeType,
@@ -471,7 +477,7 @@ export interface Rule<
   visit: (
     report: (args: {
       path: (string | number)[]
-      info: { title: string; description: string }
+      info: ReportedIssueInfo
       details?: T
       fixes?: FixType[]
     }) => void,
