@@ -1,4 +1,8 @@
-import type { SlotNodeModel } from '@nordcraft/core/dist/component/component.types'
+import type {
+  NodeModel,
+  SlotNodeModel,
+} from '@nordcraft/core/dist/component/component.types'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
 
@@ -20,6 +24,12 @@ export function createSlot({
       dataSignal.subscribe((data) => data, {
         destroy: () => childDataSignal.destroy(),
       })
+      const slotComponentIndex = getSlotComponentIndex(
+        slotName,
+        node,
+        ctx.component.nodes,
+      )
+
       return createNode({
         ...child,
         dataSignal: childDataSignal,
@@ -30,6 +40,10 @@ export function createSlot({
         },
         instance,
         namespace,
+        path:
+          slotComponentIndex > 0
+            ? `${child.path}(${slotComponentIndex})`
+            : child.path,
       })
     })
   } else {
@@ -58,4 +72,27 @@ export function createSlot({
   }
 
   return children
+}
+
+/**
+ * When multiple slots have the same name, we need to ensure that their path still remains unique.
+ */
+function getSlotComponentIndex(
+  nodeName: string,
+  node: NodeModel,
+  componentNodes: Nullable<Record<string, NodeModel>>,
+) {
+  let slotsWithSameNameIndex = 0
+  if (componentNodes) {
+    for (const n in componentNodes) {
+      const currentNode = componentNodes[n]
+      if (currentNode.type === 'slot' && currentNode.name === nodeName) {
+        if (currentNode === node) {
+          break
+        }
+        slotsWithSameNameIndex++
+      }
+    }
+  }
+  return slotsWithSameNameIndex
 }
