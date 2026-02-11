@@ -376,10 +376,15 @@ const renderComponent = async ({
         })
 
         const childNodes = await Promise.all(
-          node.children.map((child, i) =>
-            renderNode({
+          node.children.map((child, i) => {
+            const slotName =
+              typeof child === 'string'
+                ? (component.nodes?.[child]?.slot ?? 'default')
+                : 'default'
+
+            return renderNode({
               id: child,
-              path: `${path}.${i}`,
+              path: `${path}.${i}[${slotName}]`,
               namespace,
               node: component.nodes?.[child],
               data: {
@@ -443,8 +448,8 @@ const renderComponent = async ({
               },
               // pass package name to child component if it's defined
               packageName: node.package ?? packageName,
-            }),
-          ),
+            })
+          }),
         )
 
         const children: Record<string, string> = {}

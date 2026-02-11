@@ -194,23 +194,18 @@ export function createNode({
 
     repeatSignal.subscribe(
       (list) => {
-        const newRepeatItems = new Map<
-          string | number,
-          {
-            dataSignal: Signal<ComponentData>
-            cleanup: () => void
-            elements: ReadonlyArray<Element | Text>
-          }
-        >()
-
-        for (let i = 0; i < list.length; i++) {
-          const [Key, Item] = list[i]
+        const data = dataSignal.get()
+        const parentListItem = data.ListItem
+        const parentListItemInfo = parentListItem
+          ? { Parent: parentListItem }
+          : {}
+        // Pre-calculate all keys and data for the new list
+        const seenKeys = new Set<string | number>()
+        const itemsToRender = list.map(([Key, Item], i) => {
           const childData = {
-            ...dataSignal.get(),
+            ...data,
             ListItem: {
-              ...(dataSignal.get().ListItem
-                ? { Parent: dataSignal.get().ListItem }
-                : {}),
+              ...parentListItemInfo,
               Item,
               Index: Number(i),
               Key,
@@ -228,19 +223,36 @@ export function createNode({
               })
             : Key
 
-          // Can't we just use the Item reference as key as we have fine-grained reactivity at this point?
-          // That way we won't need repeatKey at all as everything will be optimized by reference?!?
-          // https://github.com/solidjs/solid/discussions/366#discussioncomment-1220239
-          // childKey = Item
-          // Do fallback to Key(index) if repeatKey has duplicate values.
-          // This will essentially disable the optimization for repeatKey and will always re-render the children on every change.
-          if (newRepeatItems.has(childKey)) {
+          if (seenKeys.has(childKey)) {
             console.warn(
               `Duplicate key "${childKey}" found in repeat. Fallback to index as key. This will cause a re-render of the duplicated children on every change.`,
             )
             childKey = Key
           }
+          seenKeys.add(childKey)
 
+          return { Key, Item, i, childData, childKey }
+        })
+
+        // Cleanup removed items' before rendering new items to ensure clean state
+        repeatItems.forEach((item, key) => {
+          if (!seenKeys.has(key)) {
+            item.cleanup()
+            item.dataSignal.destroy()
+            item.elements.forEach((e) => e.remove())
+          }
+        })
+
+        const newRepeatItems = new Map<
+          string | number,
+          {
+            dataSignal: Signal<ComponentData>
+            cleanup: () => void
+            elements: ReadonlyArray<Element | Text>
+          }
+        >()
+
+        for (const { Key, Item, i, childData, childKey } of itemsToRender) {
           const existingItem = repeatItems.get(childKey)
           if (existingItem) {
             newRepeatItems.set(childKey, existingItem)
@@ -248,9 +260,7 @@ export function createNode({
               return {
                 ...data,
                 ListItem: {
-                  ...(dataSignal.get().ListItem
-                    ? { Parent: dataSignal.get().ListItem }
-                    : {}),
+                  ...parentListItemInfo,
                   Item,
                   Index: Number(i),
                   Key,
@@ -295,15 +305,6 @@ export function createNode({
             })
           }
         }
-
-        // Cleanup removed items' data
-        Array.from(repeatItems.entries()).forEach(([key, item]) => {
-          if (!newRepeatItems.has(key)) {
-            item.cleanup()
-            item.dataSignal.destroy()
-            item.elements.forEach((e) => e.remove())
-          }
-        })
         repeatItems = newRepeatItems
 
         // No reason to continue if we are on first run, as the render-phase for the parent
