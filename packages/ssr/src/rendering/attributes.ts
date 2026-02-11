@@ -111,8 +111,8 @@ export function getNodeAttrs({
     .map(String)
     .join('; ')
   if (styles.length > 0) {
-    return [...nodeAttrs, `style="${escapeAttrValue(styles)};"`].join(' ')
+    return [...nodeAttrs, `style="${escapeAttrValue(styles)};"`]
   }
 
-  return nodeAttrs.join(' ')
+  return nodeAttrs
 }

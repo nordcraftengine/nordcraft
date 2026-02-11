@@ -271,14 +271,16 @@ const renderComponent = async ({
           component.version === 2 && isComponentRootNode
             ? `${packageName ?? projectId}-${node.tag}`
             : node.tag
+        const attributes = [
+          ...nodeAttrs,
+          `data-id="${path}"`,
+          `data-node-id="${escapeAttrValue(id)}"`,
+          `class="${escapeAttrValue(classList.join(' '))}"`,
+        ]
         if (!VOID_HTML_ELEMENTS.includes(tag)) {
-          return `<${tag} ${nodeAttrs} data-id="${path}" data-node-id="${escapeAttrValue(
-            id,
-          )}" class="${escapeAttrValue(classList.join(' '))}">${innerHTML}</${tag}>`
+          return `<${tag} ${attributes.join(' ')}>${innerHTML}</${tag}>`
         } else {
-          return `<${tag} ${nodeAttrs} data-id="${path}" data-node-id="${escapeAttrValue(
-            id,
-          )}" class="${escapeAttrValue(classList.join(' '))}" />`
+          return `<${tag} ${attributes.join(' ')} />`
         }
       }
       case 'component': {
@@ -447,7 +449,7 @@ const renderComponent = async ({
                 },
               },
               // pass package name to child component if it's defined
-              packageName: node.package ?? packageName,
+              packageName,
             })
           }),
         )
