@@ -271,16 +271,16 @@ const renderComponent = async ({
           component.version === 2 && isComponentRootNode
             ? `${packageName ?? projectId}-${node.tag}`
             : node.tag
-        // Avoid an extra space when there are no node attributes
-        const optionalAttrs = nodeAttrs ? `${nodeAttrs} ` : ''
+        const attributes = [
+          ...nodeAttrs,
+          `data-id="${path}"`,
+          `data-node-id="${escapeAttrValue(id)}"`,
+          `class="${escapeAttrValue(classList.join(' '))}"`,
+        ]
         if (!VOID_HTML_ELEMENTS.includes(tag)) {
-          return `<${tag} ${optionalAttrs}data-id="${path}" data-node-id="${escapeAttrValue(
-            id,
-          )}" class="${escapeAttrValue(classList.join(' '))}">${innerHTML}</${tag}>`
+          return `<${tag} ${attributes.join(' ')}>${innerHTML}</${tag}>`
         } else {
-          return `<${tag} ${optionalAttrs}data-id="${path}" data-node-id="${escapeAttrValue(
-            id,
-          )}" class="${escapeAttrValue(classList.join(' '))}" />`
+          return `<${tag} ${attributes.join(' ')} />`
         }
       }
       case 'component': {
