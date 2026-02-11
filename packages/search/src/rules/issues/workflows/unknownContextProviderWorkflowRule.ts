@@ -25,9 +25,16 @@ export const unknownContextProviderWorkflowRule: Rule<{
     }
     for (const workflowName of value.workflows) {
       if (component.workflows?.[workflowName]?.exposeInContext !== true) {
-        report(path, {
-          providerName: value.componentName,
-          workflowName,
+        report({
+          path,
+          info: {
+            title: 'Unknown context provider workflow',
+            description: `**${workflowName}** does not exist on the context provider **${value.componentName}**. Calling an unknown workflow will have no effect. Make sure to define it before using it.`,
+          },
+          details: {
+            providerName: value.componentName,
+            workflowName,
+          },
         })
       }
     }

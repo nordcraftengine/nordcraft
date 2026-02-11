@@ -34,7 +34,14 @@ export const noPostNavigateAction: Rule<
     const actionIndex = Number(_actionIndex)
     if (actionIndex < actions.length - 1) {
       // If the action is not the last one in the array, report it
-      report(path, undefined, ['delete-following-actions'])
+      report({
+        path,
+        info: {
+          title: 'Avoid actions after "Go to URL" action',
+          description: `The "Go to URL" action should be the last action in a workflow, as subsequent actions might not be evaluated before the browser navigates to the new URL.`,
+        },
+        fixes: ['delete-following-actions'],
+      })
     }
   },
   fixes: {

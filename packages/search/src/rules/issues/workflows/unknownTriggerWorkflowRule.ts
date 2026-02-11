@@ -16,7 +16,13 @@ export const unknownTriggerWorkflowRule: Rule<void> = {
 
     const workflow = args.component.workflows?.[value.workflow]
     if (!workflow) {
-      report(path)
+      report({
+        path,
+        info: {
+          title: 'Unknown workflow trigger',
+          description: `This workflow does not exist and cannot be triggered.`,
+        },
+      })
     }
   },
 }

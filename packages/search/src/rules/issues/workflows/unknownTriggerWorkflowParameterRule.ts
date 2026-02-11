@@ -45,8 +45,15 @@ export const unknownTriggerWorkflowParameterRule: Rule<{ parameter: string }> =
       )
       Object.keys(value.parameters ?? {}).forEach((parameterKey) => {
         if (!workflowParameters.has(parameterKey)) {
-          report([...path, 'parameters', parameterKey], {
-            parameter: parameterKey,
+          report({
+            path: [...path, 'parameters', parameterKey],
+            info: {
+              title: `Unknown parameter in workflow`,
+              description: `The workflow parameter "${parameterKey}" is not a valid. It may have been removed from the workflow after it was set. This parameter can safely be removed.`,
+            },
+            details: {
+              parameter: parameterKey,
+            },
           })
         }
       })

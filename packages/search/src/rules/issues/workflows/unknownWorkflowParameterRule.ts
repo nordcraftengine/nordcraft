@@ -30,8 +30,15 @@ export const unknownWorkflowParameterRule: Rule<{ parameter: string }> = {
       ),
     )
     if (!workflowParameters.has(parameterName)) {
-      report(path, {
-        parameter: parameterName,
+      report({
+        path,
+        info: {
+          title: 'Unknown workflow parameter',
+          description: `**${parameterName}** does not exist in this workflow.`,
+        },
+        details: {
+          parameter: parameterName,
+        },
       })
     }
   },

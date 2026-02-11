@@ -32,7 +32,14 @@ export const noReferenceAttributeRule: Rule<void> = {
     if (attrs.has(attributeKey)) {
       return
     }
-    report(args.path, undefined, ['delete-attribute'])
+    report({
+      path: args.path,
+      info: {
+        title: 'Unused attribute',
+        description: `**${attributeKey}** is never used in any formula. Consider removing it.`,
+      },
+      fixes: ['delete-attribute'],
+    })
   },
   fixes: {
     'delete-attribute': removeFromPathFix,

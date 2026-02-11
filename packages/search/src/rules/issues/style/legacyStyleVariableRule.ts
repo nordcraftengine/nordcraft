@@ -29,9 +29,15 @@ export const legacyStyleVariableRule: Rule<
       return
     }
 
-    report(data.path, { name: data.value.styleVariable.name }, [
-      'replace-legacy-style-variable',
-    ])
+    report({
+      path: data.path,
+      info: {
+        title: `Legacy style variable`,
+        description: `Style variable **--${data.value.styleVariable.name}** can be replaced with the newer CSS variable system. Consider removing the style variable and create a new CSS variable with the same name.`,
+      },
+      details: { name: data.value.styleVariable.name },
+      fixes: ['replace-legacy-style-variable'],
+    })
   },
   fixes: {
     'replace-legacy-style-variable': replaceLegacyStyleVariable,

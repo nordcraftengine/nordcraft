@@ -85,7 +85,14 @@ export const noReferenceProjectFormulaRule: Rule<void> = {
         return
       }
     }
-    report(path, undefined, ['delete-project-formula'])
+    report({
+      path,
+      info: {
+        title: 'Unused global formula',
+        description: `Global formula is never used by any formula. Consider removing it.`,
+      },
+      fixes: ['delete-project-formula'],
+    })
   },
   fixes: {
     'delete-project-formula': removeFromPathFix,

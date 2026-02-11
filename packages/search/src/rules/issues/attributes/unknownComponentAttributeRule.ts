@@ -24,9 +24,15 @@ export const unknownComponentAttributeRule: Rule<{
       return
     }
     if (!isDefined(component.attributes?.[value.key])) {
-      report(path, { name: value.key, componentName: node.name }, [
-        'delete-component-attribute',
-      ])
+      report({
+        path,
+        info: {
+          title: 'Unknown component attribute',
+          description: `**${value.key}** is not a valid attribute for the "${node.name}" component.`,
+        },
+        details: { name: value.key, componentName: node.name },
+        fixes: ['delete-component-attribute'],
+      })
     }
   },
   fixes: {

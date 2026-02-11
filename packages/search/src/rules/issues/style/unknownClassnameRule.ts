@@ -16,6 +16,13 @@ export const unknownClassnameRule: Rule<{
     ) {
       return
     }
-    report(path, { name: value.variant.className })
+    report({
+      path,
+      info: {
+        title: 'Unknown classname',
+        description: `**${value.variant.className}** is not defined. Using an unknown classname will have no effect.`,
+      },
+      details: { name: value.variant.className },
+    })
   },
 }

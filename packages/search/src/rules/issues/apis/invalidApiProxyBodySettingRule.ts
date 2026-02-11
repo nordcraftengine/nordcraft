@@ -20,6 +20,13 @@ export const invalidApiProxyBodySettingRule: Rule<{ api: string }> = {
       return
     }
     // Report an issue if useTemplatesInBody is set to true while the API is not set to be proxied
-    report(path, { api: value.name })
+    report({
+      path,
+      info: {
+        title: 'Invalid API setting for cookies in body',
+        description: `The API **${value.name}** has enabled the setting for injecting cookies in the proxied API body, but the API does not have proxying enabled.`,
+      },
+      details: { api: value.name },
+    })
   },
 }

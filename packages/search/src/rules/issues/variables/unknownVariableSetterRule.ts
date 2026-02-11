@@ -14,7 +14,14 @@ export const unknownVariableSetterRule: Rule<{
     const [, componentName] = path
     const component = files.components[componentName]
     if (!component?.variables?.[value.variable]) {
-      report(path, { name: value.variable })
+      report({
+        path,
+        info: {
+          title: 'Unknown variable setter',
+          description: `**${value.variable}** does not exist. Make sure to define it before setting.`,
+        },
+        details: { name: value.variable },
+      })
     }
   },
 }

@@ -22,11 +22,25 @@ export const unknownApiRule: Rule<{
     if (isApiFormula) {
       const [, apiKey] = value.path
       if (!component?.apis?.[apiKey]) {
-        report(path, { name: apiKey })
+        report({
+          path,
+          info: {
+            title: 'Unknown API',
+            description: `**${apiKey}** does not exist. Using an unknown API will have no effect. Define the API before calling it.`,
+          },
+          details: { name: apiKey },
+        })
       }
     } else if (isApiAction) {
       if (!component?.apis?.[value.api]) {
-        report(path, { name: value.api })
+        report({
+          path,
+          info: {
+            title: 'Unknown API',
+            description: `**${value.api}** does not exist. Using an unknown API will have no effect. Define the API before calling it.`,
+          },
+          details: { name: value.api },
+        })
       }
     }
   },

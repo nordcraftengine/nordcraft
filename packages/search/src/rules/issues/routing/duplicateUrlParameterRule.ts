@@ -17,13 +17,27 @@ export const duplicateUrlParameterRule: Rule<{ name: string }> = {
     const pathNames = new Set<string>()
     value.route.path.forEach((p, i) => {
       if (pathNames.has(p.name)) {
-        report([...path, 'route', 'path', i], { name: p.name })
+        report({
+          path: [...path, 'route', 'path', i],
+          info: {
+            title: 'Duplicate URL parameter',
+            description: `**${p.name}** appears multiple times in the path/query parameters. This may lead to unexpected behavior. Consider consolidating them into a single parameter or renaming them.`,
+          },
+          details: { name: p.name },
+        })
       }
       pathNames.add(p.name)
     })
     Object.keys(value.route.query).forEach((key) => {
       if (pathNames.has(key)) {
-        report([...path, 'route', 'query', key], { name: key })
+        report({
+          path: [...path, 'route', 'query', key],
+          info: {
+            title: 'Duplicate URL parameter',
+            description: `**${key}** appears multiple times in the path/query parameters. This may lead to unexpected behavior. Consider consolidating them into a single parameter or renaming them.`,
+          },
+          details: { name: key },
+        })
       }
     })
   },

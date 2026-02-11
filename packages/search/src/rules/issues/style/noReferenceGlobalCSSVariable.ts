@@ -99,6 +99,13 @@ export const noReferenceGlobalCSSVariableRule: Rule<{
     ) {
       return
     }
-    report(path, { name: value.key })
+    report({
+      path,
+      info: {
+        title: `Unused CSS variable`,
+        description: `**${value.key}** is never used in any style or other CSS variable. Consider removing it.`,
+      },
+      details: { name: value.key },
+    })
   },
 }

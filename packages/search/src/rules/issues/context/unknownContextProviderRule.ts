@@ -25,6 +25,13 @@ export const unknownContextProviderRule: Rule<{ componentName: string }> = {
       }
     }
 
-    report(path, { componentName: value.componentName })
+    report({
+      path,
+      info: {
+        title: 'Unknown context provider',
+        description: `**${value.componentName}** component or page does not exist and cannot be subscribed. Make sure to define it before using it.`,
+      },
+      details: { componentName: value.componentName },
+    })
   },
 }

@@ -25,7 +25,15 @@ export const noReferenceNodeRule: Rule<{ node: string }> = {
     )
 
     if (nodeId !== 'root' && !referencedNodesInComponent.has(nodeId)) {
-      report(path, { node: nodeId }, ['delete-orphan-node'])
+      report({
+        path,
+        info: {
+          title: `Orphan node/element was found`,
+          description: `A node is declared, but it is not included in any other element, including the root element. This node can safely be removed.`,
+        },
+        details: { node: nodeId },
+        fixes: ['delete-orphan-node'],
+      })
     }
   },
   fixes: {

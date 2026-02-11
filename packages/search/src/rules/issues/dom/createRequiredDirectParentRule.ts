@@ -26,10 +26,17 @@ export function createRequiredDirectParentRule(
         (node) => node.type === 'element' && node.children.includes(nodeId),
       )
       if (parent?.type === 'element' && !parentTags.includes(parent.tag)) {
-        report(path, {
-          parentTag: parent.tag,
-          childTag: value.tag,
-          allowedParentTags: parentTags,
+        report({
+          path,
+          info: {
+            title: 'Invalid parent element',
+            description: `**${value.tag}** should not have a direct parent of type **${parent.tag}**. Valid parents are: *${parentTags.join('*, *')}*.`,
+          },
+          details: {
+            parentTag: parent.tag,
+            childTag: value.tag,
+            allowedParentTags: parentTags,
+          },
         })
       }
     },

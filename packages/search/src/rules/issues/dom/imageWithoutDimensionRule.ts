@@ -54,7 +54,14 @@ export const imageWithoutDimensionRule: Rule = {
       return
     }
 
-    report(path)
+    report({
+      path,
+      info: {
+        title: 'Image dimension missing',
+        description:
+          '**Image elements** should have explicit width and height to prevent layout shifts.\n[Learn more](https://web.dev/articles/serve-images-with-correct-dimensions#avoid_layout_shifts_by_specifying_dimensions)',
+      },
+    })
   },
 }
 

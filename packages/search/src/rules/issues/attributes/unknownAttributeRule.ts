@@ -19,7 +19,14 @@ export const unknownAttributeRule: Rule<{
     const [, attributeKey] = value.path
     const component = files.components[componentName]
     if (!component?.attributes?.[attributeKey]) {
-      report(path, { name: attributeKey })
+      report({
+        path,
+        info: {
+          title: 'Unknown attribute',
+          description: `**${attributeKey}** does not exist. Using an unknown attribute will always return *Null*.`,
+        },
+        details: { name: attributeKey },
+      })
     }
   },
 }

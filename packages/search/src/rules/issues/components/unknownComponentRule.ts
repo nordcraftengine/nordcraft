@@ -19,6 +19,13 @@ export const unknownComponentRule: Rule<{
     ) {
       return
     }
-    report(path, { name: value.name })
+    report({
+      path,
+      info: {
+        title: 'Unknown component',
+        description: `**${value.name}** does not exist in this project.`,
+      },
+      details: { name: value.name },
+    })
   },
 }

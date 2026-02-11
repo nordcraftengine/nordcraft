@@ -33,7 +33,15 @@ export const unknownFetchInputRule: Rule<
     const validInputs = new Set(Object.keys(targetApi.inputs ?? {}))
     for (const inputName of Object.keys(value.inputs ?? {})) {
       if (!validInputs.has(inputName)) {
-        report(path, { name: inputName }, ['delete-fetch-input'])
+        report({
+          path,
+          info: {
+            title: 'Unknown API input override',
+            description: `**${inputName}** does not exist as an input on the API. Either add the input on the API, or delete the override.`,
+          },
+          details: { name: inputName },
+          fixes: ['delete-fetch-input'],
+        })
       }
     }
   },

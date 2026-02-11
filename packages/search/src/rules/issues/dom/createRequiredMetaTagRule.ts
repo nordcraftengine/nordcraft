@@ -26,7 +26,20 @@ export function createRequiredMetaTagRule(
         !formula ||
         (formula.type === 'value' && !formula.value)
       ) {
-        report(path, { tag: tag })
+        report({
+          path,
+          info: {
+            title: 'Missing meta tag',
+            description: `**${tag}** is a required tag on page **${
+              path[1]
+            }**. Missing tags may impact SEO performance. \n[Learn more](${
+              tag === 'title'
+                ? 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/title'
+                : 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta'
+            })`,
+          },
+          details: { tag: tag },
+        })
       }
     },
   }

@@ -16,7 +16,13 @@ export const unknownRepeatIndexFormulaRule: Rule = {
     }
     if (path[0] !== 'components' || path[2] !== 'nodes') {
       // Any use outside of a component node is invalid
-      return report(path)
+      return report({
+        path,
+        info: {
+          title: 'Unknown repeat index reference',
+          description: `The formula references a repeat index, but no repeat formula exist in any of its parent elements.`,
+        },
+      })
     }
     const [_components, componentName, _nodes, nodeId] = path as string[]
     const component = files.components[componentName]
@@ -44,7 +50,13 @@ export const unknownRepeatIndexFormulaRule: Rule = {
     }
     const parentWithRepeat = findParentWithRepeat([nodeId, node])
     if (!parentWithRepeat) {
-      report(path)
+      report({
+        path,
+        info: {
+          title: 'Unknown repeat index reference',
+          description: `The formula references a repeat index, but no repeat formula exist in any of its parent elements.`,
+        },
+      })
     }
   },
 }

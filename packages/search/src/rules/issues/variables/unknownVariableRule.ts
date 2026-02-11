@@ -19,7 +19,14 @@ export const unknownVariableRule: Rule<{
     const [, variableKey] = value.path
     const component = files.components[componentName]
     if (!component?.variables?.[variableKey]) {
-      report(path, { name: variableKey })
+      report({
+        path,
+        info: {
+          title: 'Unknown variable',
+          description: `**${variableKey}** does not exist. Make sure to define it before usage.`,
+        },
+        details: { name: variableKey },
+      })
     }
   },
 }

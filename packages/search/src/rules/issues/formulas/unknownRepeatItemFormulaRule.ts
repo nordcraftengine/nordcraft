@@ -17,7 +17,13 @@ export const unknownRepeatItemFormulaRule: Rule = {
     if (path[0] !== 'components' || path[2] !== 'nodes') {
       // Any use outside of a component node is invalid
       // For instance in global formulas or in workflows
-      return report(path)
+      return report({
+        path,
+        info: {
+          title: 'Unknown repeat item reference',
+          description: `The formula references a repeat item, but no repeat formula exist in any of its parent elements.`,
+        },
+      })
     }
     const [_components, componentName, _nodes, nodeId] = path as string[]
     const component = files.components[componentName]
@@ -45,7 +51,13 @@ export const unknownRepeatItemFormulaRule: Rule = {
     }
     const parentWithRepeat = findParentWithRepeat([nodeId, node])
     if (!parentWithRepeat) {
-      report(path)
+      report({
+        path,
+        info: {
+          title: 'Unknown repeat item reference',
+          description: `The formula references a repeat item, but no repeat formula exist in any of its parent elements.`,
+        },
+      })
     }
   },
 }

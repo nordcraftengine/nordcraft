@@ -36,6 +36,13 @@ export const noContextConsumersRule: Rule<{
     if (hasComponents) {
       return
     }
-    report(path)
+    report({
+      path,
+      info: {
+        title: 'No context consumers',
+        description:
+          'Component has no child components or slots, but exposes formulas or workflows in context. Exposed formulas and workflows can only be consumed by child components or slots. Consider unchecking the "Expose in context" option or adding a child component or slot.',
+      },
+    })
   },
 }

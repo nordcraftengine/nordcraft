@@ -46,7 +46,14 @@ export const noReferenceAttributeInInstanceRule: Rule<void> = {
     if (attrs.has([component.name, attributeKey].join('/'))) {
       return
     }
-    report(args.path, undefined, ['delete-attribute'])
+    report({
+      path: args.path,
+      info: {
+        title: 'Attribute is never set on any instance',
+        description: `The attribute **${attributeKey}** is never set on any component instance. Consider removing the attribute as any usage will always be *null*.`,
+      },
+      fixes: ['delete-attribute'],
+    })
   },
   fixes: {
     'delete-attribute': removeFromPathFix,

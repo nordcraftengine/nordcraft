@@ -23,14 +23,19 @@ export const legacyFormulaRule: Rule<
     ) {
       return
     }
-    report(
-      data.path,
-      { name: data.value.name },
+    report({
+      path: data.path,
+      info: {
+        title: 'Legacy formula',
+        description: `**${data.value.name}** is deprecated. Replace it with the corresponding core formula.`,
+      },
+      details: { name: data.value.name },
       // The TYPE and BOOLEAN formulas cannot be autofixed since the logic has changed between the 2 implementations
-      data.value.name !== 'TYPE' && data.value.name !== 'BOOLEAN'
-        ? ['replace-legacy-formula']
-        : undefined,
-    )
+      fixes:
+        data.value.name !== 'TYPE' && data.value.name !== 'BOOLEAN'
+          ? ['replace-legacy-formula']
+          : undefined,
+    })
   },
   fixes: {
     'replace-legacy-formula': replaceLegacyFormula,

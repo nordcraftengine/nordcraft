@@ -27,7 +27,14 @@ export const unknownCookieRule: Rule<{
     }
     const cookie = state.cookiesAvailable?.find((c) => c.name === formula.value)
     if (!cookie) {
-      report(path, { name: formula.value })
+      report({
+        path,
+        info: {
+          title: 'Unknown cookie',
+          description: `**${formula.value}** is not found in the browser extension cookies.`,
+        },
+        details: { name: formula.value },
+      })
     }
   },
 }

@@ -41,7 +41,15 @@ export const noReferenceEventRule: Rule<{ name: string }> = {
     if (events.has(event.name)) {
       return
     }
-    report(args.path, { name: args.value.event.name }, ['delete-event'])
+    report({
+      path: args.path,
+      info: {
+        title: 'Unused event',
+        description: `**${event.name}** is never triggered. Consider removing it and clean up any usages.`,
+      },
+      details: { name: event.name },
+      fixes: ['delete-event'],
+    })
   },
   fixes: {
     'delete-event': removeFromPathFix,

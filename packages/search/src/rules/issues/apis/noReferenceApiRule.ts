@@ -67,7 +67,14 @@ export const noReferenceApiRule: Rule<void> = {
     if (componentApiReferences.has(value.name)) {
       return
     }
-    report(args.path, undefined, ['delete-api'])
+    report({
+      path: args.path,
+      info: {
+        title: 'Unused API',
+        description: `**${value.name}** is never used in any formulas and is not called in any workflows. Consider removing it.`,
+      },
+      fixes: ['delete-api'],
+    })
   },
   fixes: {
     'delete-api': removeFromPathFix,

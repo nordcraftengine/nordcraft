@@ -16,7 +16,14 @@ export const noUnnecessaryConditionFalsy: Rule = {
         return isStatic && Boolean(result) === false
       })
     ) {
-      report(path)
+      report({
+        path,
+        info: {
+          title: 'Unnecessary condition',
+          description:
+            '**And condition** is always falsy. Consider replacing it with a single *false* node.',
+        },
+      })
     }
   },
 }

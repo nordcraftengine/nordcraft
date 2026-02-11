@@ -32,7 +32,14 @@ export const unknownComponentFormulaInputRule: Rule<{
     const args = formula.arguments ?? []
     const argName = value.path[1]
     if (!isDefined(argName) || !args.some((arg) => arg.name === argName)) {
-      report(path, { name: argName })
+      report({
+        path,
+        info: {
+          title: 'Unknown component formula input',
+          description: `The formula input ${argName ?? ''} doesn't exist as an input for this formula.`,
+        },
+        details: { name: argName },
+      })
     }
   },
 }

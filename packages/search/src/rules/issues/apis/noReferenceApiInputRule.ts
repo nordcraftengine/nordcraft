@@ -37,6 +37,13 @@ export const noReferenceApiInputRule: Rule<{ inputName: string }> = {
     if (referencedApiInputs.has(inputKey)) {
       return
     }
-    report(path, { inputName: inputKey })
+    report({
+      path,
+      info: {
+        title: 'Unused API input',
+        description: `**${inputKey}** is never used by any formulas in the API. Consider removing it.`,
+      },
+      details: { inputName: inputKey },
+    })
   },
 }

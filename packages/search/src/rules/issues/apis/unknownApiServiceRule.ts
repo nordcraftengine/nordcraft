@@ -19,11 +19,15 @@ export const unknownApiServiceRule: Rule<{
     ) {
       return
     }
-    report(
-      [...args.path, 'service'],
-      { apiName: args.value.name, serviceName: args.value.service },
-      ['delete-api-service-reference'],
-    )
+    report({
+      path: [...args.path, 'service'],
+      info: {
+        title: 'Unknown Service',
+        description: `**${args.value.service}** does not exist. The "${args.value.name}" API will not benefit from any information provided by the service. The service might have been deleted.`,
+      },
+      details: { apiName: args.value.name, serviceName: args.value.service },
+      fixes: ['delete-api-service-reference'],
+    })
   },
   fixes: {
     'delete-api-service-reference': removeFromPathFix,

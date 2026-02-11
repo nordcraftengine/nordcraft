@@ -56,7 +56,14 @@ export function createRequiredElementAttributeRule({
           return
         }
 
-        report(path, { tag, attribute: mainAttribute })
+        report({
+          path,
+          info: {
+            title: 'Missing required attribute',
+            description: `**${mainAttribute}** is a required attribute on **${tag}** elements.\n[Learn more](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes)`,
+          },
+          details: { tag, attribute: mainAttribute },
+        })
       }
     },
   }

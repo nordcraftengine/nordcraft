@@ -70,9 +70,32 @@ export const elementWithoutInteractiveContentRule: Rule<{
     const childTags = searchChildren(component, value.children)
     if (childTags.length > 0) {
       childTags.forEach((ic) =>
-        report(path, {
-          parentTag: value.tag,
-          invalidChild: ic,
+        report({
+          path,
+          info: {
+            title: `${value.tag} includes interactive content element(s)`,
+            description: `\`${
+              value.tag
+            }\` elements are not allowed to include [interactive content](https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Content_categories#interactive_content) elements.
+This ${value.tag} element could potentially include a \`${ic.tag}\` element${
+              'whenAttributeIsPresent' in ic
+                ? ` with the \`${ic.whenAttributeIsPresent}\` attribute present`
+                : ''
+            }${
+              'whenAttributeIsNot' in ic
+                ? ` where the \`${ic.whenAttributeIsNot.attribute}\` attribute is not \`${ic.whenAttributeIsNot.value}\``
+                : ''
+            }.
+Learn more about permitted content for the \`${
+              value.tag
+            }\` element on [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/${
+              value.tag
+            }#technical_summary)`,
+          },
+          details: {
+            parentTag: value.tag,
+            invalidChild: ic,
+          },
         }),
       )
     }

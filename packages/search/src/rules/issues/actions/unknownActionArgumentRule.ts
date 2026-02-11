@@ -23,24 +23,33 @@ export const unknownActionArgumentRule: Rule<{ name: string }> = {
     const referencedActionArguments = referencedAction.arguments ?? []
     if (isLegacyPluginAction(referencedAction)) {
       if (argumentIndex >= referencedActionArguments.length) {
-        report(
+        const name = argument.name ?? `argument at position ${argumentIndex}`
+        report({
           path,
-          {
-            name: argument.name ?? `argument at position ${argumentIndex}`,
+          info: {
+            title: 'Unknown action argument',
+            description: `The argument **${name}** does not exist in the referenced action.`,
           },
-          ['delete-unknown-action-argument'],
-        )
+          details: {
+            name,
+          },
+          fixes: ['delete-unknown-action-argument'],
+        })
       }
     } else if (
       !referencedAction.arguments?.some((a) => a.name === argument.name)
     ) {
-      report(
+      report({
         path,
-        {
+        info: {
+          title: 'Unknown action argument',
+          description: `The argument **${argument.name}** does not exist in the referenced action.`,
+        },
+        details: {
           name: argument.name,
         },
-        ['delete-unknown-action-argument'],
-      )
+        fixes: ['delete-unknown-action-argument'],
+      })
     }
   },
   fixes: {

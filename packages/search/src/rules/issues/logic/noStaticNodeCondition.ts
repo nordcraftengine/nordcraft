@@ -28,13 +28,24 @@ export const noStaticNodeCondition: Rule<{
     if (isStatic) {
       // - if truthy: "Condition is always true, you can safely remove the condition as it will always be rendered."
       // - if falsy: "Condition is always false, you can safely remove the entire node as it will never be rendered."
-      report(
+      report({
         path,
-        {
+        info: {
+          title:
+            Boolean(result) === true
+              ? `Unnecessary show/hide, value is always truthy`
+              : `Unnecessary show/hide, value is always falsy`,
+          description:
+            Boolean(result) === true
+              ? `Condition always evaluates to **show** the element. Consider removing the show/hide formula.`
+              : `Condition always evaluates to **hide** the element. Consider removing the element node.`,
+        },
+        details: {
           result,
         },
-        Boolean(result) === true ? ['remove-condition'] : ['remove-node'],
-      )
+        fixes:
+          Boolean(result) === true ? ['remove-condition'] : ['remove-node'],
+      })
     }
   },
   fixes: {
