@@ -1,5 +1,15 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type {
+  Component,
+  PageComponent,
+} from '@nordcraft/core/dist/component/component.types'
+import {
+  functionFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { describe, expect, test } from 'bun:test'
+import type { ProjectFiles } from '../ssr.types'
 import { renderPageBody } from './components'
+import { getPageFormulaContext } from './formulaContext'
 
 describe('renderPageBody', () => {
   test('should render a simple page', async () => {
@@ -241,6 +251,117 @@ describe('renderPageBody', () => {
     expect(html).toContain('PageComponent:root')
     // Package component styling override
     expect(html).toContain('test-package/ButtonWrapperComponent:root')
+  })
+
+  // Bug: https://discord.com/channels/972416966683926538/1471073500520386760
+  test('should evaluate project formulas correctly inside package components', async () => {
+    const packageWrapperComponent: Component = {
+      name: 'PackageWrapperComponent',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'span',
+          attrs: {},
+          children: ['childText'],
+          events: {},
+        },
+        childText: {
+          type: 'slot',
+          children: [],
+        },
+      },
+    }
+
+    const pageComponent: PageComponent = {
+      name: 'PageComponent',
+      route: {
+        path: [],
+        query: {},
+      },
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          attrs: {},
+          children: ['firstChild', 'secondChild'],
+          events: {},
+          style: {},
+        },
+        firstChild: {
+          type: 'text',
+          value: functionFormula('test-formula'),
+        },
+        secondChild: {
+          type: 'component',
+          name: 'PackageWrapperComponent',
+          package: 'test-package',
+          attrs: {},
+          children: ['nestedChild'],
+          events: {},
+        },
+        nestedChild: {
+          type: 'text',
+          value: functionFormula('test-formula'),
+        },
+      },
+      formulas: {},
+      apis: {},
+      attributes: {},
+      variables: {},
+      events: [],
+    }
+
+    const files = {
+      components: {
+        PageComponent: pageComponent,
+      },
+      formulas: {
+        'test-formula': {
+          name: 'test-formula',
+          formula: valueFormula('output-from-test-formula'),
+          version: 2,
+          arguments: [],
+        },
+      },
+      packages: {
+        'test-package': {
+          manifest: {
+            name: 'test-package',
+            commit: '123',
+          },
+          components: {
+            PackageWrapperComponent: packageWrapperComponent,
+          },
+        },
+      },
+    } as Pick<ProjectFiles, 'components' | 'formulas' | 'packages'>
+    const formulaContext = getPageFormulaContext({
+      component: pageComponent,
+      branchName: 'main',
+      req: new Request('http://localhost'),
+      logErrors: true,
+      files,
+    })
+
+    const { html } = await renderPageBody({
+      evaluateComponentApis: () => ({}) as any,
+      component: pageComponent as any,
+      formulaContext,
+      env: formulaContext.env,
+      files,
+      includedComponents: [pageComponent, packageWrapperComponent],
+      projectId: 'test-project',
+      req: {} as any,
+    })
+    // Expect the first child text node to render the formula value
+    expect(html).toInclude(
+      '<span data-node-type="text" data-node-id="firstChild">output-from-test-formula</span>',
+    )
+    // Expect the nested child text node inside the package component to also render the formula value,
+    // proving that the formula is evaluated correctly even when used inside a package component
+    expect(html).toInclude(
+      '<span data-id="0.1" data-node-id="root" class="cYXIdv PageComponent:secondChild"><span data-node-type="text" data-node-id="nestedChild">output-from-test-formula</span></span>',
+    )
   })
 
   // Disabled test
