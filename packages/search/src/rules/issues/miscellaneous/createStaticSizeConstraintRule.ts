@@ -1,4 +1,6 @@
 import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { VOID_HTML_ELEMENTS } from '@nordcraft/ssr/dist/const'
 import type { Level, Rule } from '../../../types'
 
 export function createStaticSizeConstraintRule(
@@ -33,7 +35,27 @@ export function createStaticSizeConstraintRule(
             evaluateElement(component.nodes?.[child]),
           )
           const tag = element.type === 'element' ? element.tag : 'span'
-          return `<${tag}>${children.join('')}</${tag}>`
+          const attributes: Record<string, string> = {}
+          if (element.type === 'element' || element.type === 'component') {
+            Object.entries(element.attrs ?? {}).forEach(([key, value]) => {
+              if (value?.type === 'value' && isDefined(value.value)) {
+                attributes[key] = String(value.value)
+              }
+            })
+          }
+          const attributeString = Object.entries(attributes)
+            .map(([key, value]) => `${key}="${value}"`)
+            .join(' ')
+          if (VOID_HTML_ELEMENTS.includes(tag)) {
+            return attributeString
+              ? `<${tag} ${attributeString} />`
+              : `<${tag} />`
+          } else {
+            const openingTag = attributeString
+              ? `<${tag} ${attributeString}>`
+              : `<${tag}>`
+            return `${openingTag}${children.join('')}</${tag}>`
+          }
         }
         const staticElement = evaluateElement(args.value)
         size = new Blob([staticElement]).size
