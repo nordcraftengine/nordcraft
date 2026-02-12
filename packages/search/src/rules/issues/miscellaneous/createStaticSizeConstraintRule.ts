@@ -60,12 +60,11 @@ export function createStaticSizeConstraintRule(
         const staticElement = evaluateElement(args.value)
         size = new Blob([staticElement]).size
         if (size > maxSize) {
-          const formatNumber = (num: number) => Intl.NumberFormat().format(num)
           report({
             path: args.path,
             info: {
-              title: `Element size exceeds the suggested maximum allowed size of ${formatNumber(maxSize)} bytes`,
-              description: `The <${tag}> element has a size of ${formatNumber(size)} bytes, which exceeds the suggested limit of ${formatNumber(maxSize)} bytes. Consider simplifying the content or structure of this element to reduce its size and improve performance.`,
+              title: `Element size exceeds the suggested maximum allowed size of ${sizeFormatter(maxSize)}`,
+              description: `The <${tag}> element has a size of ${sizeFormatter(size)}, which exceeds the suggested limit of ${sizeFormatter(maxSize)}. Consider simplifying the content or structure of this element to reduce its size and improve performance.`,
             },
             details: { tag, size },
           })
@@ -73,4 +72,19 @@ export function createStaticSizeConstraintRule(
       }
     },
   }
+}
+
+const sizeFormatter = (sizeInBytes: number) => {
+  const units = ['byte', 'KB', 'MB', 'GB', 'TB']
+  let unitIndex = 0
+  let size = sizeInBytes
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024
+    unitIndex++
+  }
+  const unit = unitIndex === 0 && size !== 1 ? 'bytes' : units[unitIndex]
+  return `${new Intl.NumberFormat(undefined, {
+    maximumFractionDigits: unitIndex === 0 ? 0 : 2,
+  }).format(size)} ${unit}`
 }
