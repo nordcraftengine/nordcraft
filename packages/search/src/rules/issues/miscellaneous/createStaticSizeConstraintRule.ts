@@ -15,7 +15,6 @@ export function createStaticSizeConstraintRule(
     level: level,
     visit: (report, args) => {
       if (
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         args.nodeType === 'component-node' &&
         args.value.type === 'element' &&
         args.value.tag === tag
@@ -38,15 +37,6 @@ export function createStaticSizeConstraintRule(
         }
         const staticElement = evaluateElement(args.value)
         size = new Blob([staticElement]).size
-        console.log(
-          'Visited ',
-          tag,
-          ' element with static size of ',
-          size,
-          ' bytes. Max size is ',
-          maxSize,
-          ' bytes.',
-        )
         if (size > maxSize) {
           const formatNumber = (num: number) => Intl.NumberFormat().format(num)
           report({
