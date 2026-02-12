@@ -12,7 +12,7 @@ export const unknownComponentSlotRule: Rule<{ slotName: string }> = {
     }
 
     // We only want to check the immediate children of a "sub component"
-    if (value.type !== 'component' || value.children.length === 0) {
+    if (value.type !== 'component' || (value?.children ?? []).length === 0) {
       return
     }
 
