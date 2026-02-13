@@ -66,7 +66,6 @@ describe('unknownEvent', () => {
               events: [
                 {
                   name: 'known-event',
-                  // eslint-disable-next-line inclusive-language/use-inclusive-words
                   dummyEvent: {
                     name: 'Name',
                   },
@@ -94,7 +93,6 @@ describe('unknownEvent', () => {
                   events: [
                     {
                       name: 'known-event',
-                      // eslint-disable-next-line inclusive-language/use-inclusive-words
                       dummyEvent: {
                         name: 'Name',
                       },
@@ -187,7 +185,6 @@ describe('unknownEvent', () => {
               events: [
                 {
                   name: 'known-event',
-                  // eslint-disable-next-line inclusive-language/use-inclusive-words
                   dummyEvent: {
                     name: 'Name',
                   },
@@ -215,7 +212,6 @@ describe('unknownEvent', () => {
                   events: [
                     {
                       name: 'known-event',
-                      // eslint-disable-next-line inclusive-language/use-inclusive-words
                       dummyEvent: {
                         name: 'Name',
                       },

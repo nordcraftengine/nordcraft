@@ -1,4 +1,3 @@
-/* eslint-disable inclusive-language/use-inclusive-words */
 import { z } from 'zod'
 import type { ComponentEvent, EventModel } from '../component.types'
 import { ActionModelSchema } from './action-schema'

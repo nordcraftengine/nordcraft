@@ -42,7 +42,6 @@ describe('find noReferenceEventRule', () => {
               events: [
                 {
                   name: 'unused-event',
-                  // eslint-disable-next-line inclusive-language/use-inclusive-words
                   dummyEvent: {
                     name: 'Name',
                   },
@@ -120,7 +119,6 @@ describe('find noReferenceEventRule', () => {
               events: [
                 {
                   name: 'known-event',
-                  // eslint-disable-next-line inclusive-language/use-inclusive-words
                   dummyEvent: {
                     name: 'Name',
                   },
@@ -130,7 +128,6 @@ describe('find noReferenceEventRule', () => {
                 },
                 {
                   name: 'used-event',
-                  // eslint-disable-next-line inclusive-language/use-inclusive-words
                   dummyEvent: {
                     name: 'Name',
                   },
@@ -184,7 +181,6 @@ describe('fix noReferenceEventRule', () => {
           events: [
             {
               name: 'unused-event',
-              // eslint-disable-next-line inclusive-language/use-inclusive-words
               dummyEvent: {
                 name: 'Name',
               },

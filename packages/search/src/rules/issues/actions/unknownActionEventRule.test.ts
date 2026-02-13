@@ -1,4 +1,3 @@
-/* eslint-disable inclusive-language/use-inclusive-words */
 import type { CustomActionModel } from '@nordcraft/core/dist/component/component.types'
 import { describe, expect, test } from 'bun:test'
 import { fixProject } from '../../../fixProject'

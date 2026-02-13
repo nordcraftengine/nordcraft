@@ -394,7 +394,6 @@ export type ActionModel =
 
 export interface ComponentEvent extends NordcraftMetadata {
   name: string
-  // eslint-disable-next-line inclusive-language/use-inclusive-words
   dummyEvent: any
 }
 
