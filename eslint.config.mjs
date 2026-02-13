@@ -43,7 +43,6 @@ export default defineConfig([
   {
     plugins: {
       '@typescript-eslint': typescriptEslint,
-      'inclusive-language': inclusiveLanguage,
     },
 
     languageOptions: {
