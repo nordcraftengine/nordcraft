@@ -15,6 +15,6 @@
     "@webref/elements": "2.6.0",
     "@webref/events": "1.20.0",
     "css-tree": "3.1.0",
-    "mdn-data": "2.26.0"
+    "mdn-data": "2.27.0"
   }
 }
