@@ -18,7 +18,6 @@
     "@typescript-eslint/eslint-plugin": "8.55.0",
     "@typescript-eslint/parser": "8.55.0",
     "esbuild": "0.27.2",
-    "eslint-plugin-inclusive-language": "2.2.1",
     "eslint": "10.0.0",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier": "3.8.1",

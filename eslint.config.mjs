@@ -79,10 +79,7 @@ export default defineConfig([
       'max-params': ['error', 3],
       'no-return-await': 'off',
       'no-unused-vars': 'off',
-      'inclusive-language/use-inclusive-words': [
-        'error',
-        './lint/inclusive-words.json',
-      ],
+      'no-useless-assignment': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

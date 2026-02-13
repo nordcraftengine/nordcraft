@@ -60,7 +60,6 @@ interface PluginActionBase {
       formula: Formula
     }>
   >
-  // eslint-disable-next-line inclusive-language/use-inclusive-words
   events?: Nullable<Record<string, { dummyEvent?: any }>>
   variableArguments: Nullable<boolean>
 }

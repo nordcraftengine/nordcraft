@@ -215,7 +215,6 @@ const fetchApiV2 = async ({
   originalRequest: Request
   componentName: string
 }): Promise<ApiStatus> => {
-  let isError = false
   let response: Response
   const performance: ApiPerformance = {
     requestStart: Date.now(),
@@ -249,7 +248,7 @@ const fetchApiV2 = async ({
   }
   // Figure out if the response should be treated as an error
   const errorFormula = api.isError
-  isError = isApiError({
+  const isError = isApiError({
     apiName: api.name,
     response: {
       body: responseBody,
