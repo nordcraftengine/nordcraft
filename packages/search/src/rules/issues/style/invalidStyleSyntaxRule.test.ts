@@ -203,6 +203,298 @@ describe('find invalidStyleSyntaxRule', () => {
   })
 })
 
+describe('find formulas in style syntax', () => {
+  test('should find Variables. references in style syntax', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  tag: 'div',
+                  type: 'element',
+                  attrs: {},
+                  style: {
+                    transform: 'translateX(Variables.offsetX)',
+                    width: '100px',
+                    height: 'Variables.height',
+                  },
+                  events: {},
+                  classes: {},
+                  children: [],
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [invalidStyleSyntaxRule],
+      }),
+    )
+
+    expect(problems).toMatchObject([
+      {
+        code: 'invalid style syntax',
+        path: ['components', 'test', 'nodes', 'root', 'style', 'transform'],
+        details: { property: 'transform' },
+      },
+      {
+        code: 'invalid style syntax',
+        path: ['components', 'test', 'nodes', 'root', 'style', 'height'],
+        details: { property: 'height' },
+      },
+    ])
+  })
+
+  test('should find Formulas., Event., Attributes., Apis., Parameters., ListItem., URLParameters. references', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  tag: 'div',
+                  type: 'element',
+                  attrs: {},
+                  style: {
+                    color: 'Formulas.getColor()',
+                    top: 'Event.clientY',
+                    margin: 'Attributes.margin',
+                    background: 'Apis.getBackground()',
+                    fontSize: 'Parameters.size',
+                    backgroundColor: 'ListItem.color',
+                    width: 'URLParameters.width',
+                  },
+                  events: {},
+                  classes: {},
+                  children: [],
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [invalidStyleSyntaxRule],
+      }),
+    )
+
+    expect(problems).toHaveLength(7)
+    expect(problems.map((p) => p.details.property)).toEqual([
+      'color',
+      'top',
+      'margin',
+      'background',
+      'fontSize',
+      'backgroundColor',
+      'width',
+    ])
+  })
+
+  test('should not find formulas in valid CSS values', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  tag: 'div',
+                  type: 'element',
+                  attrs: {},
+                  style: {
+                    width: '100px',
+                    height: '50%',
+                    color: '#ffffff',
+                    backgroundColor: 'var(--my-var)',
+                    transform: 'translateX(10px)',
+                    margin: '10px 20px',
+                  },
+                  events: {},
+                  classes: {},
+                  children: [],
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [invalidStyleSyntaxRule],
+      }),
+    )
+
+    expect(problems).toHaveLength(0)
+  })
+
+  test('should not find formulas in numeric style values', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  tag: 'div',
+                  type: 'element',
+                  attrs: {},
+                  style: {
+                    opacity: 0.5,
+                    zIndex: 10,
+                    flex: 1,
+                  },
+                  events: {},
+                  classes: {},
+                  children: [],
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [invalidStyleSyntaxRule],
+      }),
+    )
+
+    expect(problems).toHaveLength(0)
+  })
+
+  test('should find formulas in variant styles', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  tag: 'div',
+                  type: 'element',
+                  attrs: {},
+                  style: {
+                    width: '100px',
+                  },
+                  events: {},
+                  classes: {},
+                  children: [],
+                  variants: [
+                    {
+                      style: {
+                        transform: 'translateX(Variables.offsetX)',
+                        color: 'Event.color',
+                      },
+                      hover: true,
+                    },
+                  ],
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [invalidStyleSyntaxRule],
+      }),
+    )
+
+    expect(problems).toMatchObject([
+      {
+        code: 'invalid style syntax',
+        path: [
+          'components',
+          'test',
+          'nodes',
+          'root',
+          'variants',
+          0,
+          'style',
+          'transform',
+        ],
+        details: { property: 'transform' },
+      },
+      {
+        code: 'invalid style syntax',
+        path: [
+          'components',
+          'test',
+          'nodes',
+          'root',
+          'variants',
+          0,
+          'style',
+          'color',
+        ],
+        details: { property: 'color' },
+      },
+    ])
+  })
+
+  test('should handle case-insensitive matching for formulas', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  tag: 'div',
+                  type: 'element',
+                  attrs: {},
+                  style: {
+                    width: 'VARIABLES.offsetX',
+                    height: 'variables.height',
+                    color: 'FORMULAS.getColor()',
+                  },
+                  events: {},
+                  classes: {},
+                  children: [],
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [invalidStyleSyntaxRule],
+      }),
+    )
+
+    expect(problems).toHaveLength(3)
+    expect(problems.map((p) => p.details.property)).toEqual([
+      'width',
+      'height',
+      'color',
+    ])
+  })
+})
+
 describe('fix invalidStyleSyntaxRule', () => {
   test('should remove an invalid style property', () => {
     const files: ProjectFiles = {
@@ -248,6 +540,49 @@ describe('fix invalidStyleSyntaxRule', () => {
       }
     `)
   })
+  test('should remove a style property with formula syntax', () => {
+    const files: ProjectFiles = {
+      formulas: {},
+      components: {
+        test: {
+          name: 'test',
+          nodes: {
+            root: {
+              tag: 'div',
+              type: 'element',
+              attrs: {},
+              style: {
+                width: '100px',
+                transform: 'translateX(Variables.offsetX)',
+                height: '50px',
+                color: 'Variables.color',
+              },
+              events: {},
+              classes: {},
+              children: [],
+            },
+          },
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
+        },
+      },
+    }
+    const fixedFiles = fixProject({
+      files,
+      rule: invalidStyleSyntaxRule,
+      fixType: 'delete-style-property',
+    })
+    expect((fixedFiles.components.test!.nodes?.root as ElementNodeModel).style)
+      .toMatchInlineSnapshot(`
+      {
+        "height": "50px",
+        "width": "100px",
+      }
+    `)
+  })
+
   test('should remove an invalid style variant style property', () => {
     const files: ProjectFiles = {
       formulas: {},
@@ -297,6 +632,57 @@ describe('fix invalidStyleSyntaxRule', () => {
         "gap": "8px",
         "height": "/* 100px */ 22px",
         "width": "100%",
+      }
+    `)
+  })
+
+  test('should remove a variant style property with formula syntax', () => {
+    const files: ProjectFiles = {
+      formulas: {},
+      components: {
+        test: {
+          name: 'test',
+          nodes: {
+            root: {
+              tag: 'div',
+              type: 'element',
+              attrs: {},
+              style: {},
+              events: {},
+              classes: {},
+              children: [],
+              variants: [
+                {
+                  style: {
+                    width: '100px',
+                    transform: 'translateX(Variables.offsetX)',
+                    height: '50px',
+                    color: 'Event.color',
+                  },
+                  hover: true,
+                },
+              ],
+            },
+          },
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
+        },
+      },
+    }
+    const fixedFiles = fixProject({
+      files,
+      rule: invalidStyleSyntaxRule,
+      fixType: 'delete-style-property',
+    })
+    expect(
+      (fixedFiles.components.test!.nodes?.root as ElementNodeModel)
+        .variants?.[0].style,
+    ).toMatchInlineSnapshot(`
+      {
+        "height": "50px",
+        "width": "100px",
       }
     `)
   })
