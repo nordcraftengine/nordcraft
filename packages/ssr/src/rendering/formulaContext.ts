@@ -63,15 +63,15 @@ export const getPageFormulaContext = ({
     env,
     toddle: getServerToddleObject(files),
   }
+  formulaContext.data.Page = {
+    Theme: getThemeInitialValue(component, formulaContext, env),
+  }
   formulaContext.data.Variables = mapValues(
     component.variables ?? {},
     ({ initialValue }) => {
       return applyFormula(initialValue, formulaContext)
     },
   )
-  formulaContext.data.Page = {
-    Theme: getThemeInitialValue(component, formulaContext, env),
-  }
   return formulaContext
 }
 

@@ -506,4 +506,147 @@ describe('renderPageBody', () => {
       )
     },
   )
+
+  test('should render a component where a variable initial value references Page.Theme', async () => {
+    const component: Component = {
+      name: 'ThemeVariableComponent',
+      route: {
+        path: [{ name: 'home', type: 'static' }],
+        query: {},
+      },
+      variables: {
+        themeVar: {
+          name: 'themeVar',
+          initialValue: {
+            type: 'path',
+            path: ['Page', 'Theme'],
+          },
+        },
+      },
+      nodes: {
+        root: {
+          type: 'text',
+          value: {
+            type: 'path',
+            path: ['Variables', 'themeVar'],
+          },
+        },
+      },
+      formulas: {},
+      apis: {},
+      attributes: {},
+      events: [],
+    }
+
+    const { html } = await renderPageBody({
+      evaluateComponentApis: () => ({}) as any,
+      component: component as any,
+      formulaContext: {
+        data: {
+          Attributes: {},
+          Page: {
+            Theme: 'dark',
+          },
+          Variables: {
+            themeVar: 'dark',
+          },
+        },
+        component,
+        env: {} as any,
+        package: undefined,
+        toddle: {} as any,
+      },
+      env: {} as any,
+      files: { components: { ThemeVariableComponent: component } } as any,
+      includedComponents: [component],
+      projectId: 'test-project',
+      req: {} as any,
+    })
+
+    expect(html).toBe(
+      '<span data-node-type="text" data-node-id="root">dark</span>',
+    )
+  })
+
+  test('should render a child component where a variable initial value references Page.Theme from the parent', async () => {
+    const childComponent: Component = {
+      name: 'ChildComponent',
+      variables: {
+        childThemeVar: {
+          name: 'childThemeVar',
+          initialValue: {
+            type: 'path',
+            path: ['Page', 'Theme'],
+          },
+        },
+      },
+      nodes: {
+        root: {
+          type: 'text',
+          value: {
+            type: 'path',
+            path: ['Variables', 'childThemeVar'],
+          },
+        },
+      },
+      formulas: {},
+      apis: {},
+      attributes: {},
+      events: [],
+    }
+
+    const parentComponent: Component = {
+      name: 'ParentComponent',
+      route: {
+        path: [{ name: 'home', type: 'static' }],
+        query: {},
+      },
+      nodes: {
+        root: {
+          type: 'component',
+          name: 'ChildComponent',
+          attrs: {},
+          children: [],
+          events: {},
+          style: {},
+        },
+      },
+      formulas: {},
+      apis: {},
+      attributes: {},
+      variables: {},
+      events: [],
+    }
+
+    const { html } = await renderPageBody({
+      evaluateComponentApis: () => ({}) as any,
+      component: parentComponent as any,
+      formulaContext: {
+        data: {
+          Attributes: {},
+          Page: {
+            Theme: 'light',
+          },
+        },
+        component: parentComponent,
+        env: {} as any,
+        package: undefined,
+        toddle: {} as any,
+      },
+      env: {} as any,
+      files: {
+        components: {
+          ParentComponent: parentComponent,
+          ChildComponent: childComponent,
+        },
+      } as any,
+      includedComponents: [parentComponent, childComponent],
+      projectId: 'test-project',
+      req: {} as any,
+    })
+
+    expect(html).toBe(
+      '<span data-node-type="text" data-node-id="root">light</span>',
+    )
+  })
 })
