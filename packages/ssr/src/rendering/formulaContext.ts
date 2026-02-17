@@ -72,6 +72,10 @@ export const getPageFormulaContext = ({
       return applyFormula(initialValue, formulaContext)
     },
   )
+  // Re-apply theme after variables have been initialized to ensure it has access to any variables if needed
+  formulaContext.data.Page = {
+    Theme: getThemeInitialValue(component, formulaContext, env),
+  }
   return formulaContext
 }
 

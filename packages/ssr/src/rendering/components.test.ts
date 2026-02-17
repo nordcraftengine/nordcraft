@@ -513,10 +513,17 @@ describe('renderPageBody', () => {
       route: {
         path: [{ name: 'home', type: 'static' }],
         query: {},
+        info: {
+          theme: {
+            formula: {
+              type: 'value',
+              value: 'dark',
+            },
+          },
+        },
       },
       variables: {
         themeVar: {
-          name: 'themeVar',
           initialValue: {
             type: 'path',
             path: ['Page', 'Theme'],
@@ -541,21 +548,15 @@ describe('renderPageBody', () => {
     const { html } = await renderPageBody({
       evaluateComponentApis: () => ({}) as any,
       component: component as any,
-      formulaContext: {
-        data: {
-          Attributes: {},
-          Page: {
-            Theme: 'dark',
-          },
-          Variables: {
-            themeVar: 'dark',
-          },
+      formulaContext: getPageFormulaContext({
+        component: component as any,
+        branchName: 'main',
+        req: new Request('http://localhost'),
+        logErrors: true,
+        files: {
+          components: { ThemeVariableComponent: component },
         },
-        component,
-        env: {} as any,
-        package: undefined,
-        toddle: {} as any,
-      },
+      }),
       env: {} as any,
       files: { components: { ThemeVariableComponent: component } } as any,
       includedComponents: [component],
@@ -568,12 +569,73 @@ describe('renderPageBody', () => {
     )
   })
 
+  test('should render a component where Page.Theme references a variables initial value', async () => {
+    const component: Component = {
+      name: 'ThemeVariableComponent',
+      route: {
+        path: [{ name: 'home', type: 'static' }],
+        query: {},
+        info: {
+          theme: {
+            formula: {
+              type: 'path',
+              path: ['Variables', 'themeVar'],
+            },
+          },
+        },
+      },
+      variables: {
+        themeVar: {
+          initialValue: {
+            type: 'value',
+            value: 'hotdog',
+          },
+        },
+      },
+      nodes: {
+        root: {
+          type: 'text',
+          value: {
+            type: 'path',
+            path: ['Page', 'Theme'],
+          },
+        },
+      },
+      formulas: {},
+      apis: {},
+      attributes: {},
+      events: [],
+    }
+
+    const { html } = await renderPageBody({
+      evaluateComponentApis: () => ({}) as any,
+      component: component as any,
+      formulaContext: getPageFormulaContext({
+        component: component as any,
+        branchName: 'main',
+        req: new Request('http://localhost'),
+        logErrors: true,
+        files: {
+          components: { ThemeVariableComponent: component },
+        },
+      }),
+      env: {} as any,
+      files: { components: { ThemeVariableComponent: component } } as any,
+      includedComponents: [component],
+      projectId: 'test-project',
+      req: {} as any,
+    })
+
+    expect(html).toBe(
+      '<span data-node-type="text" data-node-id="root">hotdog</span>',
+    )
+  })
+
   test('should render a child component where a variable initial value references Page.Theme from the parent', async () => {
     const childComponent: Component = {
       name: 'ChildComponent',
       variables: {
         childThemeVar: {
-          name: 'childThemeVar',
           initialValue: {
             type: 'path',
             path: ['Page', 'Theme'],
