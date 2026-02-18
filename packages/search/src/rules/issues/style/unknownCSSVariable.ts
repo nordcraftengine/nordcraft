@@ -1,10 +1,14 @@
-import type { Rule } from '../../../types'
+import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme'
+import type { FixFunction, Rule, StyleNode } from '../../../types'
 
 const REGEX = /var\(\s*(--[\w-]+)/g
 
-export const unknownCSSVariableRule: Rule<{
-  name: string
-}> = {
+export const unknownCSSVariableRule: Rule<
+  {
+    name: string
+  },
+  StyleNode
+> = {
   code: 'unknown css variable',
   level: 'warning',
   category: 'Unknown Reference',
@@ -30,69 +34,120 @@ export const unknownCSSVariableRule: Rule<{
       return
     }
 
-    const allCssVariableDeclarations = memo(
-      `all-css-variables-declarations`,
+    const themeCssVariables = theme.propertyDefinitions
+    const [_fileType, componentName, _nodes, nodeName] = path
+    const localCssVariables = memo(
+      `component-css-variables-${componentName}-${nodeName}`,
       () => {
-        const cssVariableKeys = new Set(
-          Object.keys(theme.propertyDefinitions ?? {}),
-        )
-        Object.values(files.components ?? {}).forEach((component) => {
-          Object.keys(component?.nodes ?? {}).forEach((nodeKey) => {
-            const node = component?.nodes?.[nodeKey]
-            if (!node) {
-              return
+        const vars = new Set<string>()
+        const component = files.components[componentName]
+        if (!component) {
+          return vars
+        }
+
+        const visitVars = (nodeName: string) => {
+          const node = component?.nodes?.[nodeName]
+          if (!node) {
+            return
+          }
+
+          if (node.type === 'component' || node.type === 'element') {
+            Object.keys(node.customProperties ?? {}).forEach((varName) => {
+              vars.add(varName)
+            })
+            Object.values(node.variants ?? {}).forEach((variant) => {
+              Object.keys(variant.customProperties ?? {}).forEach((varName) => {
+                vars.add(varName)
+              })
+            })
+
+            // Also add legacy style variables
+            if (node.type === 'element' && node['style-variables']) {
+              node['style-variables'].forEach((styleVar) => {
+                vars.add(`--${styleVar.name}`)
+              })
             }
 
-            if (node.type === 'component' || node.type === 'element') {
-              Object.keys(node.customProperties ?? {}).forEach((varName) => {
-                cssVariableKeys.add(varName)
-              })
-              Object.values(node.variants ?? {}).forEach((variant) => {
-                Object.keys(variant.customProperties ?? {}).forEach(
-                  (varName) => {
-                    cssVariableKeys.add(varName)
-                  },
-                )
-              })
-
-              // Also add legacy style variables
-              if (node.type === 'element' && node['style-variables']) {
-                node['style-variables'].forEach((styleVar) => {
-                  cssVariableKeys.add(`--${styleVar.name}`)
-                })
+            // Add if declared in any parent styles object
+            Object.keys(node.style ?? {}).forEach((styleKey) => {
+              if (styleKey.startsWith('--')) {
+                vars.add(styleKey)
               }
-
-              // Add if declared in any parent styles object
-              Object.keys(node.style ?? {}).forEach((styleKey) => {
+            })
+            Object.values(node.variants ?? {}).forEach((variant) => {
+              Object.keys(variant.style ?? {}).forEach((styleKey) => {
                 if (styleKey.startsWith('--')) {
-                  cssVariableKeys.add(styleKey)
+                  vars.add(styleKey)
                 }
               })
-              Object.values(node.variants ?? {}).forEach((variant) => {
-                Object.keys(variant.style ?? {}).forEach((styleKey) => {
-                  if (styleKey.startsWith('--')) {
-                    cssVariableKeys.add(styleKey)
-                  }
-                })
-              })
-            }
-          })
-        })
-        return cssVariableKeys
+            })
+          }
+
+          const parent = Object.entries(component.nodes ?? {}).find(([_, n]) =>
+            n.children?.includes(nodeName),
+          )
+          if (parent) {
+            visitVars(parent[0])
+          }
+        }
+
+        visitVars(nodeName.toString())
+        return vars
       },
     )
 
     for (const varName of vars) {
-      if (allCssVariableDeclarations.has(varName) === false) {
+      if (!(varName in themeCssVariables) && !localCssVariables.has(varName)) {
         report({
           path,
           info: {
             title: `Unknown CSS variable`,
-            description: `The CSS variable **${varName}** is not declared in any parent element or in your theme. The CSS variable must be declared in an ancestor element in its component or in your global theme.`,
+            description: `The CSS variable **${varName}** is not declared in any parent element or theme. CSS variables must be declared in an ancestor element or in your global theme.`,
           },
           details: { name: varName },
+          fixes: ['add-to-theme'],
         })
       }
     }
   },
+  fixes: {
+    'add-to-theme': addToThemeFix,
+  },
+}
+
+export type AddToThemeFix = 'add-to-theme'
+
+function addToThemeFix(
+  args: Parameters<FixFunction<StyleNode, { name: string }>>[0],
+): ReturnType<FixFunction<StyleNode, { name: string }>> {
+  const varName = args.details?.name
+  if (typeof varName !== 'string' || !args.data.files.themes?.Default) {
+    return args.data.files
+  }
+
+  const definition: CustomPropertyDefinition = {
+    syntax: {
+      type: 'primitive',
+      name: '*',
+    },
+    inherits: true,
+    initialValue: '',
+    values: {},
+    description: '',
+  } as const
+
+  // Add the variable to the theme with Any (*) syntax type
+  return {
+    ...args.data.files,
+    themes: {
+      ...args.data.files.themes,
+      Default: {
+        ...args.data.files.themes.Default,
+        propertyDefinitions: {
+          ...args.data.files.themes.Default.propertyDefinitions,
+          [varName]: definition,
+        },
+      },
+    },
+  }
 }
