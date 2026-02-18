@@ -15,6 +15,7 @@ import type { ComponentData } from '@nordcraft/core/src/component/component.type
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
+import { formulaHasValue } from '../utils/formulaHasValue'
 import { getDragData } from '../utils/getDragData'
 import { getElementTagName } from '../utils/getElementTagName'
 import { setAttribute } from '../utils/setAttribute'
@@ -52,6 +53,15 @@ export function createElement({
     ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
     : document.createElement(tag)
 
+  const formulaCtx = {
+    component: ctx.component,
+    formulaCache: ctx.formulaCache,
+    root: ctx.root,
+    package: ctx.package,
+    toddle: ctx.toddle,
+    env: ctx.env,
+  }
+
   elem.setAttribute('data-node-id', id)
   if (path) {
     elem.setAttribute('data-id', path)
@@ -72,13 +82,8 @@ export function createElement({
         const classSignal = dataSignal.map((data) =>
           toBoolean(
             applyFormula(formula, {
+              ...formulaCtx,
               data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
             }),
           ),
         )
@@ -104,13 +109,8 @@ export function createElement({
       } else {
         o = dataSignal.map((data) =>
           applyFormula(value, {
+            ...formulaCtx,
             data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
           }),
         )
         o.subscribe((val) => {
@@ -139,13 +139,8 @@ export function createElement({
     const { name, formula, unit } = styleVariable
     const signal = dataSignal.map((data) => {
       const value = applyFormula(formula, {
+        ...formulaCtx,
         data,
-        component: ctx.component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
       })
       return unit ? value + unit : value
     })
@@ -153,8 +148,9 @@ export function createElement({
     signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
   })
 
-  Object.entries(node.customProperties ?? {}).forEach(
-    ([customPropertyName, { formula, unit }]) =>
+  Object.entries(node.customProperties ?? {})
+    .filter(([_, { formula }]) => formulaHasValue(formula))
+    .forEach(([customPropertyName, { formula, unit }]) => {
       subscribeCustomProperty({
         customPropertyName,
         selector:
@@ -166,25 +162,21 @@ export function createElement({
         signal: dataSignal.map((data) =>
           appendUnit(
             applyFormula(formula, {
+              ...formulaCtx,
               data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
             }),
             unit,
           ),
         ),
         root: ctx.root,
         runtime: ctx.env.runtime,
-      }),
-  )
+      })
+    })
 
   node.variants?.forEach((variant) => {
-    Object.entries(variant.customProperties ?? {}).forEach(
-      ([customPropertyName, { formula, unit }]) => {
+    Object.entries(variant.customProperties ?? {})
+      .filter(([_, { formula }]) => formulaHasValue(formula))
+      .forEach(([customPropertyName, { formula, unit }]) => {
         subscribeCustomProperty({
           customPropertyName,
           selector: getNodeSelector(path, {
@@ -194,13 +186,8 @@ export function createElement({
           signal: dataSignal.map((data) =>
             appendUnit(
               applyFormula(formula, {
+                ...formulaCtx,
                 data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
               }),
               unit,
             ),
@@ -208,8 +195,7 @@ export function createElement({
           root: ctx.root,
           runtime: ctx.env.runtime,
         })
-      },
-    )
+      })
   })
 
   const eventHandlers: [string, (e: Event) => boolean][] = []
@@ -243,13 +229,8 @@ export function createElement({
           const textSignal = dataSignal.map((data) => {
             return String(
               applyFormula(node.value, {
+                ...formulaCtx,
                 data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
               }),
             )
           })
