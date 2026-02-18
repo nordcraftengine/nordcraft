@@ -50,14 +50,14 @@ export class Signal<T> {
     }
 
     this.destroying = true
-    for (const subscriber of this.subscribers) {
-      subscriber.destroy?.()
-    }
-    this.subscribers.clear()
     for (const subscription of this.subscriptions) {
       subscription()
     }
     this.subscriptions.splice(0, this.subscriptions.length)
+    for (const subscriber of this.subscribers) {
+      subscriber.destroy?.()
+    }
+    this.subscribers.clear()
     this.destroying = false
   }
   cleanSubscribers() {

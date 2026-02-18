@@ -55,24 +55,33 @@ export function createComponent({
     )
     return []
   }
+  const formulaCtx = {
+    component: ctx.component,
+    formulaCache: ctx.formulaCache,
+    root: ctx.root,
+    package: ctx.package,
+    toddle: ctx.toddle,
+    env: ctx.env,
+  }
   const attributesSignal = dataSignal.map((data) => {
     return mapObject(node.attrs, ([attr, value]) => [
       attr,
       value?.type !== 'value'
         ? applyFormula(value, {
+            ...formulaCtx,
             data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
           })
         : value?.value,
     ])
   })
-  Object.entries(node.customProperties ?? {}).forEach(
-    ([customPropertyName, customProperty]) =>
+
+  Object.entries(node.customProperties ?? {})
+    .filter(
+      ([_, { formula }]) =>
+        isDefined(formula) &&
+        !(formula.type === 'value' && !isDefined(formula.value)),
+    )
+    .forEach(([customPropertyName, customProperty]) =>
       subscribeCustomProperty({
         selector: getNodeSelector(path, {
           componentName: ctx.component.name,
@@ -81,13 +90,8 @@ export function createComponent({
         signal: dataSignal.map((data) =>
           appendUnit(
             applyFormula(customProperty.formula, {
+              ...formulaCtx,
               data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
             }),
             customProperty.unit,
           ),
@@ -96,10 +100,15 @@ export function createComponent({
         root: ctx.root,
         runtime: ctx.env.runtime,
       }),
-  )
+    )
   node.variants?.forEach((variant) => {
-    Object.entries(variant.customProperties ?? {}).forEach(
-      ([customPropertyName, customProperty]) =>
+    Object.entries(variant.customProperties ?? {})
+      .filter(
+        ([_, { formula }]) =>
+          isDefined(formula) &&
+          !(formula.type === 'value' && !isDefined(formula.value)),
+      )
+      .forEach(([customPropertyName, customProperty]) =>
         subscribeCustomProperty({
           selector: getNodeSelector(path, {
             componentName: ctx.component.name,
@@ -109,13 +118,8 @@ export function createComponent({
           signal: dataSignal.map((data) =>
             appendUnit(
               applyFormula(customProperty.formula, {
+                ...formulaCtx,
                 data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
               }),
               customProperty.unit,
             ),
@@ -125,7 +129,7 @@ export function createComponent({
           root: ctx.root,
           runtime: ctx.env.runtime,
         }),
-    )
+      )
   })
 
   const componentDataSignal = signal<ComponentData>({
@@ -138,13 +142,9 @@ export function createComponent({
         isLoading:
           api.autoFetch &&
           applyFormula(api.autoFetch, {
-            data: dataSignal.get(),
+            ...formulaCtx,
             component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
+            data: dataSignal.get(),
           })
             ? true
             : false,
@@ -152,6 +152,19 @@ export function createComponent({
       },
     ]),
   })
+
+  // Subscribe to global stores (currently only theme)
+  // We subscribe before calculating variable initial values to ensure they can reference global store values
+  ctx.stores.theme.subscribe((newTheme) => {
+    componentDataSignal.update((data) => ({
+      ...data,
+      Page: {
+        ...data.Page,
+        Theme: newTheme,
+      },
+    }))
+  })
+
   // Subscribe context before calculating variable initial values to ensure they can reference context values
   subscribeToContext(componentDataSignal, component, ctx)
   componentDataSignal.update((data) => ({
@@ -160,13 +173,9 @@ export function createComponent({
       name,
       applyFormula(variable.initialValue, {
         // Initial value
-        data: componentDataSignal.get(),
+        ...formulaCtx,
         component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
+        data: componentDataSignal.get(),
       }),
     ]),
   }))
@@ -309,17 +318,6 @@ export function createComponent({
       },
     })
   }
-
-  // Subscribe to global stores (currently only theme)
-  ctx.stores.theme.subscribe((newTheme) => {
-    componentDataSignal.update((data) => ({
-      ...data,
-      Page: {
-        ...data.Page,
-        Theme: newTheme,
-      },
-    }))
-  })
 
   attributesSignal.subscribe(
     (Attributes) =>
