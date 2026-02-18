@@ -15,6 +15,7 @@ import type { ComponentData } from '@nordcraft/core/src/component/component.type
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
+import { formulaHasValue } from '../utils/formulaHasValue'
 import { getDragData } from '../utils/getDragData'
 import { getElementTagName } from '../utils/getElementTagName'
 import { setAttribute } from '../utils/setAttribute'
@@ -148,11 +149,7 @@ export function createElement({
   })
 
   Object.entries(node.customProperties ?? {})
-    .filter(
-      ([_, { formula }]) =>
-        isDefined(formula) &&
-        !(formula.type === 'value' && !isDefined(formula.value)),
-    )
+    .filter(([_, { formula }]) => formulaHasValue(formula))
     .forEach(([customPropertyName, { formula, unit }]) => {
       subscribeCustomProperty({
         customPropertyName,
@@ -178,11 +175,7 @@ export function createElement({
 
   node.variants?.forEach((variant) => {
     Object.entries(variant.customProperties ?? {})
-      .filter(
-        ([_, { formula }]) =>
-          isDefined(formula) &&
-          !(formula.type === 'value' && !isDefined(formula.value)),
-      )
+      .filter(([_, { formula }]) => formulaHasValue(formula))
       .forEach(([customPropertyName, { formula, unit }]) => {
         subscribeCustomProperty({
           customPropertyName,

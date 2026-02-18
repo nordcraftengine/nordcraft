@@ -20,6 +20,7 @@ import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentChild, ComponentContext, ContextApi } from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
+import { formulaHasValue } from '../utils/formulaHasValue'
 import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
 import { renderComponent } from './renderComponent'
 
@@ -76,11 +77,7 @@ export function createComponent({
   })
 
   Object.entries(node.customProperties ?? {})
-    .filter(
-      ([_, { formula }]) =>
-        isDefined(formula) &&
-        !(formula.type === 'value' && !isDefined(formula.value)),
-    )
+    .filter(([_, { formula }]) => formulaHasValue(formula))
     .forEach(([customPropertyName, customProperty]) =>
       subscribeCustomProperty({
         selector: getNodeSelector(path, {
@@ -103,11 +100,7 @@ export function createComponent({
     )
   node.variants?.forEach((variant) => {
     Object.entries(variant.customProperties ?? {})
-      .filter(
-        ([_, { formula }]) =>
-          isDefined(formula) &&
-          !(formula.type === 'value' && !isDefined(formula.value)),
-      )
+      .filter(([_, { formula }]) => formulaHasValue(formula))
       .forEach(([customPropertyName, customProperty]) =>
         subscribeCustomProperty({
           selector: getNodeSelector(path, {
