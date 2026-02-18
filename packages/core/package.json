@@ -19,7 +19,7 @@
     "src"
   ],
   "dependencies": {
-    "zod": "4.2.1"
+    "zod": "4.3.6"
   },
   "main": "dist/index.js"
 }
