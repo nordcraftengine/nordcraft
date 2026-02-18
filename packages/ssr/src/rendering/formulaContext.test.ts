@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { getParameters } from './formulaContext'
+import { getPageFormulaContext, getParameters } from './formulaContext'
 
 describe('formulaContext', () => {
   describe('getParameters', () => {
@@ -52,6 +52,49 @@ describe('formulaContext', () => {
           'https://toddle.dev/param-value/test2?embed=notenabled&power-lifting=on',
         ),
       })
+    })
+  })
+
+  describe('getPageFormulaContext', () => {
+    test('it initializes theme before variables so variables can reference Page.Theme', () => {
+      const component = {
+        name: 'TestPage',
+        route: {
+          path: [],
+          query: {},
+          info: {
+            theme: {
+              formula: { type: 'value', value: 'dark' },
+            },
+          },
+        },
+        variables: {
+          myVar: {
+            name: 'myVar',
+            initialValue: {
+              type: 'path',
+              path: ['Page', 'Theme'],
+            },
+          },
+        },
+      }
+
+      const result = getPageFormulaContext({
+        branchName: 'main',
+        component: component as any,
+        req: {
+          url: 'https://toddle.dev/',
+          headers: new Headers(),
+        } as any,
+        logErrors: false,
+        files: {
+          formulas: {},
+          packages: {},
+        } as any,
+      })
+
+      expect(result.data.Page?.Theme).toBe('dark')
+      expect(result.data.Variables?.myVar).toBe('dark')
     })
   })
 })

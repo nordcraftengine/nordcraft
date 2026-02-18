@@ -358,6 +358,7 @@ const renderComponent = async ({
               Location: formulaContext.data.Location,
               Attributes: attrs,
               Contexts: contexts,
+              Page: formulaContext.data.Page,
               Variables: mapValues(
                 childComponent.variables ?? {},
                 ({ initialValue }) => {
@@ -415,6 +416,8 @@ const renderComponent = async ({
                                       data: {
                                         Attributes: attrs,
                                         Apis: { ...data.Apis, ...apis },
+                                        Location: data.Location,
+                                        Page: data.Page,
                                       },
                                       component,
                                       package: _packageName,
@@ -432,6 +435,8 @@ const renderComponent = async ({
                                 return applyFormula(initialValue, {
                                   data: {
                                     Attributes: attrs,
+                                    Location: data.Location,
+                                    Page: data.Page,
                                   },
                                   component,
                                   package: _packageName,
@@ -611,6 +616,7 @@ const createComponent = async ({
     Location: formulaContext.data.Location,
     Attributes: attrs,
     Contexts: contexts,
+    Page: formulaContext.data.Page,
     Apis: apis,
   }
 
