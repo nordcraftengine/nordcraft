@@ -1,4 +1,6 @@
+import type { ProjectFiles } from '@nordcraft/ssr/dist/src/ssr.types'
 import { describe, expect, test } from 'bun:test'
+import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'
 import { unknownCSSVariableRule } from './unknownCSSVariable'
 
@@ -171,6 +173,64 @@ describe('unknownCSSVariableRule', () => {
     expect(problems[1].details).toEqual({ name: '--undefined-local' })
   })
 
+  test('should report problem if local variable is used in parent but only defined in child', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          themes: {
+            Default: {
+              fonts: [],
+              propertyDefinitions: {},
+            },
+          },
+          formulas: {},
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  tag: 'div',
+                  type: 'element',
+                  attrs: {},
+                  style: {
+                    color: 'var(--child-only-variable)',
+                  },
+                  events: {},
+                  classes: {},
+                  children: ['child'],
+                },
+                child: {
+                  tag: 'div',
+                  type: 'element',
+                  attrs: {},
+                  customProperties: {
+                    '--child-only-variable': {
+                      formula: {
+                        type: 'value',
+                        value: 'red',
+                      },
+                    },
+                  },
+                  style: {},
+                  events: {},
+                  classes: {},
+                  children: [],
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [unknownCSSVariableRule],
+      }),
+    )
+
+    expect(problems).toHaveLength(1)
+  })
+
   test('should not report when legacy style variables are used', () => {
     const problems = Array.from(
       searchProject({
@@ -304,69 +364,72 @@ describe('unknownCSSVariableRule', () => {
     expect(problems).toBeEmpty()
   })
 
-  test('should not report if CSS variable is defined in any other component or self', () => {
-    const problems = Array.from(
-      searchProject({
-        files: {
-          themes: {
-            Default: {
-              fonts: [],
-              propertyDefinitions: {},
+  test('fix should add variable to theme', () => {
+    const files: ProjectFiles = {
+      themes: {
+        Default: {
+          fonts: [],
+          propertyDefinitions: {},
+        },
+      },
+      formulas: {},
+      components: {
+        test: {
+          name: 'test',
+          nodes: {
+            root: {
+              tag: 'div',
+              type: 'element',
+              attrs: {},
+              style: {
+                color: 'var(--new-theme-variable)',
+              },
+              events: {},
+              classes: {},
+              children: [],
             },
           },
           formulas: {},
-          components: {
-            componentA: {
-              name: 'componentA',
-              nodes: {
-                root: {
-                  tag: 'div',
-                  type: 'element',
-                  customProperties: {
-                    '--variable-in-a': {
-                      formula: { type: 'value', value: 'red' },
-                    },
-                  },
-                  attrs: {},
-                  style: {
-                    color: 'var(--variable-in-a)',
-                  },
-                  events: {},
-                  classes: {},
-                  children: [],
-                },
-              },
-              formulas: {},
-              apis: {},
-              attributes: {},
-              variables: {},
-            },
-            componentB: {
-              name: 'componentB',
-              nodes: {
-                root: {
-                  tag: 'div',
-                  type: 'element',
-                  attrs: {},
-                  style: {
-                    color: 'var(--variable-in-a)',
-                  },
-                  events: {},
-                  classes: {},
-                  children: [],
-                },
-              },
-              formulas: {},
-              apis: {},
-              attributes: {},
-              variables: {},
-            },
-          },
+          apis: {},
+          attributes: {},
+          variables: {},
         },
+      },
+    }
+    const problems = Array.from(
+      searchProject({
+        files,
         rules: [unknownCSSVariableRule],
       }),
     )
 
-    expect(problems).toBeEmpty()
+    expect(problems).toHaveLength(1)
+
+    const fixedProject = fixProject({
+      files,
+      rule: unknownCSSVariableRule,
+      fixType: 'add-to-theme',
+    })
+
+    expect(
+      Object.keys(fixedProject.themes?.Default.propertyDefinitions ?? {}),
+    ).toHaveLength(1)
+    expect(fixedProject.themes?.Default.propertyDefinitions).toHaveProperty(
+      '--new-theme-variable',
+    )
+    expect(
+      fixedProject.themes?.Default.propertyDefinitions?.[
+        '--new-theme-variable'
+      ],
+    ).toEqual({
+      syntax: {
+        type: 'primitive',
+        name: '*',
+      },
+      inherits: true,
+      initialValue: '',
+      values: {},
+      description: '',
+    })
   })
 })

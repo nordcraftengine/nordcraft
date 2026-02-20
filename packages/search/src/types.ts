@@ -52,6 +52,7 @@ import type { NoStaticNodeConditionRuleFix } from './rules/issues/logic/noStatic
 import type { NoReferenceNodeRuleFix } from './rules/issues/miscellaneous/noReferenceNodeRule'
 import type { InvalidStyleSyntaxRuleFix } from './rules/issues/style/invalidStyleSyntaxRule'
 import type { LegacyStyleVariableRuleFix } from './rules/issues/style/legacyStyleVariableRule'
+import type { AddToThemeFix } from './rules/issues/style/unknownCSSVariable'
 import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noReferenceVariableRule'
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
 
@@ -439,6 +440,7 @@ export type NodeType =
   | StyleVariantNode
 
 export type FixType =
+  | AddToThemeFix
   | ChangeDataTypeFix
   | DeleteFetchInputFix
   | InvalidStyleSyntaxRuleFix
