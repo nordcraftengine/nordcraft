@@ -169,7 +169,6 @@ export function createElement({
           ),
         ),
         root: ctx.root,
-        runtime: ctx.env.runtime,
       })
     })
 
@@ -193,7 +192,6 @@ export function createElement({
             ),
           ),
           root: ctx.root,
-          runtime: ctx.env.runtime,
         })
       })
   })
