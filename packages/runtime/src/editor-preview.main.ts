@@ -1710,7 +1710,7 @@ const insertHeadTags = (
           document.createRange().createContextualFragment(`
           <link
             data-meta-id="${id}"
-            ${Object.entries(entry.attrs)
+            ${Object.entries(entry.attrs ?? {})
               .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
               .join(' ')}
           />
@@ -1722,10 +1722,10 @@ const insertHeadTags = (
           document.createRange().createContextualFragment(`
           <script
             data-meta-id="${id}"
-            ${Object.entries(entry.attrs)
+            ${Object.entries(entry.attrs ?? {})
               .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
               .join(' ')}
-          ></script>
+          >${applyFormula(entry.content ?? '', context)}</script>
         `),
         )
       case HeadTagTypes.Style:
@@ -1734,7 +1734,7 @@ const insertHeadTags = (
           document.createRange().createContextualFragment(`
           <style
             data-meta-id="${id}"
-            ${Object.entries(entry.attrs)
+            ${Object.entries(entry.attrs ?? {})
               .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
               .join(' ')}
           >

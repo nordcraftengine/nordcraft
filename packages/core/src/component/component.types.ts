@@ -138,7 +138,7 @@ export type NodeModel =
 
 export interface MetaEntry {
   tag: HeadTagTypes
-  attrs: Record<string, Formula>
+  attrs?: Nullable<Record<string, Formula>>
   content?: Nullable<Formula>
   index?: Nullable<number>
 }

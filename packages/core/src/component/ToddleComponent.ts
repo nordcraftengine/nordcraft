@@ -375,7 +375,7 @@ export class ToddleComponent<Handler> {
         path: ['route', 'info', 'meta', metaKey, 'content'],
         packageName,
       })
-      for (const [attrKey, a] of Object.entries(meta.attrs)) {
+      for (const [attrKey, a] of Object.entries(meta.attrs ?? {})) {
         yield* getFormulasInFormula({
           formula: a,
           globalFormulas,
