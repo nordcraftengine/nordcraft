@@ -1,4 +1,4 @@
-import { VOID_HTML_ELEMENTS } from '@nordcraft/ssr/dist/const'
+import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import type { Rule } from '../../../types'
 /**
  * See full list here

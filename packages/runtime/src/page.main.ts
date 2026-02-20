@@ -16,6 +16,7 @@ import type {
   Toddle,
 } from '@nordcraft/core/dist/types'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
@@ -359,22 +360,21 @@ const setupMetaUpdates = (
   component: Component,
   dataSignal: Signal<ComponentData>,
 ) => {
+  const getFormulaContext = (data: ComponentData) => ({
+    data,
+    component,
+    root: document,
+    package: undefined,
+    toddle: window.toddle,
+    env,
+  })
   // Handle dynamic updates of the document language
   const langFormula = component.route?.info?.language?.formula
   const dynamicLang = langFormula && langFormula.type !== 'value'
   if (dynamicLang) {
     dataSignal
-      .map<string | null>(() =>
-        component
-          ? applyFormula(langFormula, {
-              data: dataSignal.get(),
-              component,
-              root: document,
-              package: undefined,
-              toddle: window.toddle,
-              env,
-            })
-          : null,
+      .map((data) =>
+        component ? applyFormula(langFormula, getFormulaContext(data)) : null,
       )
       .subscribe((newLang) => {
         if (isDefined(newLang) && document.documentElement.lang !== newLang) {
@@ -388,17 +388,8 @@ const setupMetaUpdates = (
   const dynamicTitle = titleFormula && titleFormula.type !== 'value'
   if (dynamicTitle) {
     dataSignal
-      .map<string | null>(() =>
-        component
-          ? applyFormula(titleFormula, {
-              data: dataSignal.get(),
-              component,
-              root: document,
-              package: undefined,
-              toddle: window.toddle,
-              env,
-            })
-          : null,
+      .map((data) =>
+        component ? applyFormula(titleFormula, getFormulaContext(data)) : null,
       )
       .subscribe((newTitle) => {
         if (isDefined(newTitle) && document.title !== newTitle) {
@@ -411,10 +402,12 @@ const setupMetaUpdates = (
   const meta = component.route?.info?.meta
   const dynamicDescription =
     descriptionFormula && descriptionFormula.type !== 'value'
-  const dynamicMetaFormulas = Object.values(meta ?? {}).some((r) =>
-    Object.values(
-      r.attrs ?? {}, // fallback to make sure we don't crash on legacy values
-    ).some((a) => a.type !== 'value'),
+  const dynamicMetaFormulas = Object.values(meta ?? {}).some(
+    (r) =>
+      r.content?.type !== 'value' ||
+      Object.values(
+        r.attrs ?? {}, // fallback to make sure we don't crash on legacy values
+      ).some((a) => a.type !== 'value'),
   )
   if (dynamicDescription || dynamicMetaFormulas) {
     const findMetaElement = (name: string) =>
@@ -423,7 +416,11 @@ const setupMetaUpdates = (
       ) ?? null
 
     const updateMetaElement = (
-      entry: { tag: string; attrs: Record<string, string> },
+      entry: {
+        tag: string
+        attrs: Record<string, string>
+        content: string | undefined
+      },
       id?: string,
     ) => {
       let existingElement: HTMLElement | null = null
@@ -452,19 +449,18 @@ const setupMetaUpdates = (
         }
         existingElement!.setAttribute(key, value)
       })
+      if (
+        typeof entry.content === 'string' &&
+        !VOID_HTML_ELEMENTS.includes(entry.tag.toLowerCase())
+      ) {
+        existingElement.textContent = entry.content
+      }
     }
     if (dynamicDescription) {
       dataSignal
-        .map<string | null>((data) =>
+        .map((data) =>
           component
-            ? applyFormula(descriptionFormula, {
-                data,
-                component,
-                root: document,
-                package: undefined,
-                toddle: window.toddle,
-                env,
-              })
+            ? applyFormula(descriptionFormula, getFormulaContext(data))
             : null,
         )
         .subscribe((newDescription) => {
@@ -501,6 +497,7 @@ const setupMetaUpdates = (
                   property: 'og:description',
                   content: newDescription,
                 },
+                content: undefined,
               })
             }
           }
@@ -509,36 +506,37 @@ const setupMetaUpdates = (
     if (dynamicMetaFormulas) {
       Object.entries(meta ?? {})
         // Filter out meta tags that have no dynamic formulas
-        .filter(([_, entry]) =>
-          // fallback to make sure we don't crash on legacy values.
-          Object.values(entry.attrs ?? {}).some((a) => a.type !== 'value'),
+        .filter(
+          ([_, entry]) =>
+            // fallback to make sure we don't crash on legacy values.
+            entry.content?.type !== 'value' ||
+            Object.values(entry.attrs ?? {}).some((a) => a.type !== 'value'),
         )
         .forEach(([id, entry]) => {
           dataSignal
-            .map<Record<string, string>>((data) => {
+            .map((data) => {
+              const context = getFormulaContext(data)
               // Return the new values for all attributes (we assume they're strings)
               const values = Object.entries(entry.attrs ?? {}).reduce(
                 (agg, [key, formula]) =>
                   component
                     ? {
                         ...agg,
-                        [key]: applyFormula(formula, {
-                          data,
-                          component,
-                          root: document,
-                          package: undefined,
-                          toddle: window.toddle,
-                          env,
-                        }),
+                        [key]: applyFormula(formula, context),
                       }
                     : agg,
                 {},
               )
-              return values
+              return {
+                attrs: values,
+                content: entry.content
+                  ? applyFormula(entry.content, context)
+                  : undefined,
+              }
             })
-            .subscribe((attrs) =>
+            .subscribe(({ attrs, content }) =>
               // Update the meta tags with the new values
-              updateMetaElement({ tag: entry.tag, attrs }, id),
+              updateMetaElement({ tag: entry.tag, attrs, content }, id),
             )
         })
     }
