@@ -76,7 +76,6 @@ export class CustomPropertyStyleSheet {
     options?: Nullable<{
       mediaQuery?: Nullable<MediaQuery>
       startingStyle?: Nullable<boolean>
-      deepClean?: Nullable<boolean>
     }>,
   ): void {
     if (!this.ruleMap) {
@@ -97,7 +96,7 @@ export class CustomPropertyStyleSheet {
 
     // Cleaning up empty selectors is probably not necessary in production and may have performance implications.
     // However, it is required for the editor-preview as it is a dynamic environment and things may get reordered and canvas reused.
-    if (options?.deepClean && rule.style.length === 0) {
+    if (rule.style.length === 0) {
       this.styleSheet.deleteRule(
         Array.from(this.ruleMap.keys()).indexOf(fullSelector),
       )

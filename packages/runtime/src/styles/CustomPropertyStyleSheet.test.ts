@@ -121,7 +121,7 @@ describe('CustomPropertyStyleSheet', () => {
       '.my-class { --my-other-property: 512px; }',
     )
     instance.unregisterProperty('.my-class', '--my-other-property')
-    expect(instance.getStyleSheet().cssRules[0].cssText).toBe('.my-class {  }')
+    expect(instance.getStyleSheet().cssRules).toBeEmpty()
   })
 
   test('it unregisters a property with media queries', () => {
@@ -149,11 +149,6 @@ describe('CustomPropertyStyleSheet', () => {
         mediaQuery: { 'max-width': '600px' },
       },
     )
-    expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
-      `\
-@media (max-width: 600px) {
-  .my-class-with-media {  }
-}`,
-    )
+    expect(instance.getStyleSheet().cssRules).toBeEmpty()
   })
 })
