@@ -76,53 +76,6 @@ export function createComponent({
     ])
   })
 
-  Object.entries(node.customProperties ?? {})
-    .filter(([_, { formula }]) => formulaHasValue(formula))
-    .forEach(([customPropertyName, customProperty]) =>
-      subscribeCustomProperty({
-        selector: getNodeSelector(path, {
-          componentName: ctx.component.name,
-          nodeId: node.id,
-        }),
-        signal: dataSignal.map((data) =>
-          appendUnit(
-            applyFormula(customProperty.formula, {
-              ...formulaCtx,
-              data,
-            }),
-            customProperty.unit,
-          ),
-        ),
-        customPropertyName,
-        root: ctx.root,
-      }),
-    )
-  node.variants?.forEach((variant) => {
-    Object.entries(variant.customProperties ?? {})
-      .filter(([_, { formula }]) => formulaHasValue(formula))
-      .forEach(([customPropertyName, customProperty]) =>
-        subscribeCustomProperty({
-          selector: getNodeSelector(path, {
-            componentName: ctx.component.name,
-            nodeId: node.id,
-            variant,
-          }),
-          signal: dataSignal.map((data) =>
-            appendUnit(
-              applyFormula(customProperty.formula, {
-                ...formulaCtx,
-                data,
-              }),
-              customProperty.unit,
-            ),
-          ),
-          customPropertyName,
-          variant,
-          root: ctx.root,
-        }),
-      )
-  })
-
   const componentDataSignal = signal<ComponentData>({
     Location: dataSignal.get().Location,
     Attributes: attributesSignal.get(),
@@ -319,7 +272,7 @@ export function createComponent({
     { destroy: () => componentDataSignal.destroy() },
   )
 
-  return renderComponent({
+  const renderedComponent = renderComponent({
     dataSignal: componentDataSignal,
     component,
     components: ctx.components,
@@ -344,4 +297,54 @@ export function createComponent({
         ? { ...instance, [ctx.component.name]: 'root' }
         : { [ctx.component.name]: node.id ?? '' },
   })
+
+  // Custom properties instance overrides are added after the child tree is rendered to ensure correct order
+  Object.entries(node.customProperties ?? {})
+    .filter(([_, { formula }]) => formulaHasValue(formula))
+    .forEach(([customPropertyName, customProperty]) =>
+      subscribeCustomProperty({
+        selector: getNodeSelector(path, {
+          componentName: ctx.component.name,
+          nodeId: node.id,
+        }),
+        signal: dataSignal.map((data) =>
+          appendUnit(
+            applyFormula(customProperty.formula, {
+              ...formulaCtx,
+              data,
+            }),
+            customProperty.unit,
+          ),
+        ),
+        customPropertyName,
+        root: ctx.root,
+      }),
+    )
+  node.variants?.forEach((variant) => {
+    Object.entries(variant.customProperties ?? {})
+      .filter(([_, { formula }]) => formulaHasValue(formula))
+      .forEach(([customPropertyName, customProperty]) =>
+        subscribeCustomProperty({
+          selector: getNodeSelector(path, {
+            componentName: ctx.component.name,
+            nodeId: node.id,
+            variant,
+          }),
+          signal: dataSignal.map((data) =>
+            appendUnit(
+              applyFormula(customProperty.formula, {
+                ...formulaCtx,
+                data,
+              }),
+              customProperty.unit,
+            ),
+          ),
+          customPropertyName,
+          variant,
+          root: ctx.root,
+        }),
+      )
+  })
+
+  return renderedComponent
 }

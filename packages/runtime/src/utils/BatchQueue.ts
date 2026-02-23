@@ -3,19 +3,33 @@
  * This is more efficient than processing each callback in a separate requestAnimationFrame due to the overhead.
  */
 export class BatchQueue {
+  constructor(type?: 'sync' | 'async') {
+    this.type = type ?? 'async'
+  }
+  private type: 'sync' | 'async'
   private batchQueue: Array<() => void> = []
   private isProcessing = false
   private processBatch() {
     if (this.isProcessing) return
     this.isProcessing = true
 
-    requestAnimationFrame(() => {
-      while (this.batchQueue.length > 0) {
-        const callback = this.batchQueue.shift()
-        callback?.()
-      }
-      this.isProcessing = false
-    })
+    if (this.type === 'sync') {
+      queueMicrotask(() => {
+        while (this.batchQueue.length > 0) {
+          const callback = this.batchQueue.shift()
+          callback?.()
+        }
+        this.isProcessing = false
+      })
+    } else {
+      requestAnimationFrame(() => {
+        while (this.batchQueue.length > 0) {
+          const callback = this.batchQueue.shift()
+          callback?.()
+        }
+        this.isProcessing = false
+      })
+    }
   }
   public add(callback: () => void) {
     this.batchQueue.push(callback)
