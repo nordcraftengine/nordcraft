@@ -2,10 +2,9 @@ import type { Signal } from '../signal/signal'
 
 import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core/dist/styling/theme.const'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
-import type { Runtime } from '@nordcraft/core/dist/types'
 import { CustomPropertyStyleSheet } from '../styles/CustomPropertyStyleSheet'
 
-let customPropertiesStylesheet: CustomPropertyStyleSheet | undefined
+export let customPropertiesStylesheet: CustomPropertyStyleSheet | undefined
 
 export function subscribeCustomProperty({
   selector,
@@ -13,14 +12,12 @@ export function subscribeCustomProperty({
   signal,
   variant,
   root,
-  runtime,
 }: {
   selector: string
   customPropertyName: string
   signal: Signal<string>
   variant?: StyleVariant
   root: Document | ShadowRoot
-  runtime: Runtime
 }) {
   customPropertiesStylesheet ??= new CustomPropertyStyleSheet(
     root,
@@ -43,7 +40,6 @@ export function subscribeCustomProperty({
           selector,
           customPropertyName,
           {
-            deepClean: runtime === 'preview',
             mediaQuery: variant?.mediaQuery,
             startingStyle: variant?.startingStyle,
           },

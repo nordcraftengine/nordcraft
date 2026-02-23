@@ -168,6 +168,7 @@ export function createNode({
 
   function repeat(): ReadonlyArray<Element | Text> {
     let firstRun = true
+    let lifetimeSize = 0
     let repeatItems = new Map<
       string | number,
       {
@@ -291,7 +292,13 @@ export function createNode({
               node: node!,
               id,
               dataSignal: childDataSignal,
-              path: Key === '0' ? path : `${path}(${Key})`,
+              // Note that we use the lifetimeSize to ensure that no two items can ever get the same path.
+              // Consider a list [A, B, C]:
+              // - Update list to [B]
+              // - Update list to [A, C, B]
+              // Now C and B would have the same path `(1)` if we only used the index or Key, as B would have kept its reference, but the others would be recreated.
+              // With lifetimeSize, the keys would be A(3), B(1), C(4) - all unique.
+              path: Key === '0' ? path : `${path}(${++lifetimeSize})`,
               ctx,
               namespace,
               parentElement,
