@@ -567,8 +567,6 @@ describe('createNode()', () => {
   })
 
   test('it should have correct order of custom properties overrides if a component root has deep instance styling', () => {
-    // In this test, we update the signal to change the order of the content in the repeat.
-    // We use repeatKey, so the nodes should simply be moved in the DOM instead of recreated.
     const parentElement = document.createElement('div')
     document.body.appendChild(parentElement)
 
