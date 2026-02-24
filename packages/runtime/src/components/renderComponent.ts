@@ -50,7 +50,7 @@ interface RenderComponentProps {
   env: ToddleEnv
 }
 
-const BATCH_QUEUE = new BatchQueue('sync')
+const BATCH_QUEUE = new BatchQueue()
 
 export function renderComponent({
   component,
