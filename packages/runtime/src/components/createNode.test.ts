@@ -1,4 +1,5 @@
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
+import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { describe, expect, test } from 'bun:test'
 import '../../happydom'
 import { signal } from '../signal/signal'
@@ -98,12 +99,9 @@ describe('createNode()', () => {
         },
       },
       root: document,
-      env: { runtime: 'page' },
       formulaCache: {},
-      toddle: {
-        getCustomFormula: () => undefined,
-      },
-    } as any as ComponentContext
+      env: { runtime: 'page' } as ToddleEnv,
+    } as Partial<ComponentContext> as ComponentContext
 
     const nodes = createNode({
       ctx,
@@ -219,6 +217,10 @@ describe('createNode()', () => {
       ).toBeFalsy()
       dataIds.add(dataId!)
     }
+
+    // Custom properties stylesheet should be cleaned up after all nodes are removed
+    dataSignal.destroy()
+    expect(sheet?.cssRules.length).toBe(0)
   })
 
   test('conditional nodes should remove and recreate elements on toggle', () => {
@@ -562,5 +564,123 @@ describe('createNode()', () => {
     expect(parentElement.children[0].getAttribute('data-id')).toBe('0')
     expect(parentElement.children[1].getAttribute('data-id')).toBe('0(1)')
     expect(parentElement.children[2].getAttribute('data-id')).toBe('0(2)')
+  })
+
+  test('it should have correct order of custom properties overrides if a component root has deep instance styling', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const outermostColor = 'red'
+    const middleColor = 'blue'
+    const innermostColor = 'green'
+
+    const ctx: ComponentContext = {
+      isRootComponent: false,
+      component: {
+        name: 'My_Component',
+        nodes: {
+          root: {
+            type: 'component',
+            attrs: {},
+            events: {},
+            children: [],
+            name: 'first_wrapper',
+            customProperties: {
+              '--color': {
+                syntax: {
+                  type: 'primitive',
+                  name: 'color',
+                },
+                formula: {
+                  type: 'value',
+                  value: 'red',
+                },
+              },
+            },
+          },
+        },
+      },
+      root: document,
+      formulaCache: {},
+      env: { runtime: 'preview' } as ToddleEnv,
+      stores: {
+        theme: signal(null),
+      },
+      components: [
+        {
+          name: 'first_wrapper',
+          nodes: {
+            root: {
+              type: 'component',
+              attrs: {},
+              events: {},
+              children: [],
+              name: 'second_wrapper',
+              customProperties: {
+                '--color': {
+                  syntax: {
+                    type: 'primitive',
+                    name: 'color',
+                  },
+                  formula: {
+                    type: 'value',
+                    value: 'blue',
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          name: 'second_wrapper',
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'div',
+              children: ['text-node'],
+              attrs: {},
+              events: {},
+              customProperties: {
+                '--color': {
+                  syntax: {
+                    type: 'primitive',
+                    name: 'color',
+                  },
+                  formula: {
+                    type: 'value',
+                    value: 'green',
+                  },
+                },
+              },
+            },
+            'text-node': {
+              type: 'text',
+              value: { type: 'value', value: 'Hello' },
+            },
+          },
+        },
+      ],
+    } as Partial<ComponentContext> as ComponentContext
+
+    createNode({
+      ctx,
+      namespace: 'http://www.w3.org/1999/xhtml',
+      dataSignal: signal<ComponentData>({
+        Attributes: {},
+        Variables: {},
+      }),
+      path: '0',
+      id: 'root',
+      parentElement,
+      instance: {},
+    })
+
+    const sheet = customPropertiesStylesheet?.getStyleSheet()
+    // Test that the order makes sense
+    expect(Array.from(sheet?.cssRules ?? []).map((r) => r.cssText)).toEqual([
+      `[data-id="0"] { --color: ${innermostColor}; }`,
+      `[data-id="0"].first_wrapper\\:root { --color: ${middleColor}; }`,
+      `[data-id="0"].My_Component\\:root { --color: ${outermostColor}; }`,
+    ])
   })
 })
