@@ -21,6 +21,7 @@ import { signal } from '../signal/signal'
 import type { ComponentChild, ComponentContext, ContextApi } from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
 import { formulaHasValue } from '../utils/formulaHasValue'
+import { getComponent } from '../utils/getComponent'
 import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
 import { renderComponent } from './renderComponent'
 
@@ -44,7 +45,7 @@ export function createComponent({
   namespace,
 }: RenderComponentNodeProps): ReadonlyArray<Element | Text> {
   const nodeLookupKey = [ctx.package, node.name].filter(isDefined).join('/')
-  const component = ctx.components?.find((comp) => comp.name === nodeLookupKey)
+  const component = getComponent(nodeLookupKey, ctx.components)
   if (!component) {
     // eslint-disable-next-line no-console
     console.warn(
