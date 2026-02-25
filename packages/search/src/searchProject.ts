@@ -211,24 +211,26 @@ export function* searchProject({
     fixOptions: fixOptions as any,
   })
 
-  for (const key in files.packages) {
-    const pkg = files.packages[key]
-    if (pkg) {
-      yield* visitNode({
-        args: {
-          nodeType: 'project-package',
-          value: pkg,
-          packageName: key,
-          path: ['packages', key],
-          rules,
-          files,
-          pathsToVisit,
-          useExactPaths,
-          memo,
-        },
-        state,
-        fixOptions: fixOptions as any,
-      })
+  if (files.packages) {
+    for (const key in files.packages) {
+      const pkg = files.packages[key]
+      if (pkg) {
+        yield* visitNode({
+          args: {
+            nodeType: 'project-package',
+            value: pkg,
+            packageName: key,
+            path: ['packages', key],
+            rules,
+            files,
+            pathsToVisit,
+            useExactPaths,
+            memo,
+          },
+          state,
+          fixOptions: fixOptions as any,
+        })
+      }
     }
   }
 }
