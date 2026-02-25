@@ -51,7 +51,11 @@ export function createNode({
         ]
       case 'component': {
         const isLocalComponent =
-          getComponent(node.name, ctx.components) !== undefined
+          getComponent(
+            node.name,
+            ctx.components,
+            ctx.env.runtime !== 'preview',
+          ) !== undefined
         return createComponent({
           node: { ...node, id }, // we need the node id for instance classes
           ...props,

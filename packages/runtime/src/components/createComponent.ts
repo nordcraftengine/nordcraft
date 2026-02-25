@@ -45,7 +45,11 @@ export function createComponent({
   namespace,
 }: RenderComponentNodeProps): ReadonlyArray<Element | Text> {
   const nodeLookupKey = [ctx.package, node.name].filter(isDefined).join('/')
-  const component = getComponent(nodeLookupKey, ctx.components)
+  const component = getComponent(
+    nodeLookupKey,
+    ctx.components,
+    ctx.env.runtime !== 'preview',
+  )
   if (!component) {
     // eslint-disable-next-line no-console
     console.warn(
