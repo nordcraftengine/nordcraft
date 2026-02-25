@@ -381,10 +381,8 @@ export type ProjectConfigNode = {
 
 export type ProjectPackageNode = {
   nodeType: 'project-package'
-  value: {
-    key: string
-    value: InstalledPackage
-  }
+  value: InstalledPackage
+  packageName: string
 } & Base
 
 export type StyleVariantNode = {

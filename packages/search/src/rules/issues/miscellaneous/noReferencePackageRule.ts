@@ -9,12 +9,14 @@ export const noReferenceProjectPackageRule: Rule<{ node: string }> = {
   code: 'no-reference project package',
   level: 'info',
   category: 'No References',
-  visit: (report, { files, memo, nodeType, path, value }) => {
-    if (nodeType !== 'project-package') {
+  visit: (report, info) => {
+    if (info.nodeType !== 'project-package') {
       return
     }
 
-    const exportedFormulas = Object.entries(value.value.formulas ?? {}).filter(
+    const { files, memo, path, value, packageName } = info
+
+    const exportedFormulas = Object.entries(value.formulas ?? {}).filter(
       ([, formula]) => formula.exported,
     )
     if (exportedFormulas.length > 0) {
@@ -23,31 +25,31 @@ export const noReferenceProjectPackageRule: Rule<{ node: string }> = {
         memo,
       )
       for (const [, formula] of exportedFormulas) {
-        if (projectFormulaIsReferencedFn(formula.name, value.key)) {
+        if (projectFormulaIsReferencedFn(formula.name, packageName)) {
           return
         }
       }
     }
 
-    const exportedActions = Object.entries(value.value.actions ?? {}).filter(
+    const exportedActions = Object.entries(value.actions ?? {}).filter(
       ([, action]) => (action as PluginActionV2).exported,
     )
     if (exportedActions.length > 0) {
       const projectActionIsReferencedFn = projectActionIsReferenced(files, memo)
       for (const [, action] of exportedActions) {
-        if (projectActionIsReferencedFn(action.name, value.key)) {
+        if (projectActionIsReferencedFn(action.name, packageName)) {
           return
         }
       }
     }
 
-    const exportedComponents = Object.entries(
-      value.value.components ?? {},
-    ).filter(([, component]) => component?.exported)
+    const exportedComponents = Object.entries(value.components ?? {}).filter(
+      ([, component]) => component?.exported,
+    )
     if (exportedComponents.length > 0) {
       const componentIsReferencedFn = componentIsReferenced(files, memo)
       for (const [, component] of exportedComponents) {
-        if (component && componentIsReferencedFn(component.name, value.key)) {
+        if (component && componentIsReferencedFn(component.name, packageName)) {
           return
         }
       }

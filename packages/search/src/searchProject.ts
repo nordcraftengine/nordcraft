@@ -217,10 +217,8 @@ export function* searchProject({
       yield* visitNode({
         args: {
           nodeType: 'project-package',
-          value: {
-            key,
-            value: pkg,
-          },
+          value: pkg,
+          packageName: key,
           path: ['packages', key],
           rules,
           files,
