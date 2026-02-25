@@ -1,6 +1,6 @@
 import type { ComponentNodeModel } from '@nordcraft/core/dist/component/component.types'
-import { isDefined } from '@nordcraft/core/dist/src/utils/util'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/src/ssr.types'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { MemoFn } from '../../../types'
 
 export const componentIsReferenced = (

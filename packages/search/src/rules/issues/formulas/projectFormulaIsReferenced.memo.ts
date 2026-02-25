@@ -2,11 +2,11 @@ import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import {
   isToddleFormula,
   type Formula,
-} from '@nordcraft/core/dist/src/formula/formula'
+} from '@nordcraft/core/dist/formula/formula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/src/ssr.types'
-import { ToddleApiService } from '@nordcraft/ssr/dist/src/ToddleApiService'
-import { ToddleRoute } from '@nordcraft/ssr/dist/src/ToddleRoute'
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
+import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
 import type { MemoFn } from '../../../types'
 
 export const projectFormulaIsReferenced = (
