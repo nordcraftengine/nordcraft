@@ -63,10 +63,10 @@ import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
 import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
+import { postMessageToEditor } from './editor/postMessageToEditor'
 import {
   TextNodeComputedStyles,
   type DragState,
-  type EditorPostMessageType,
   type NordcraftPreviewEvent,
 } from './editor/types'
 import { handleAction } from './events/handleAction'
@@ -81,6 +81,7 @@ import type {
 } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
 import { getThemeSignal } from './utils/getThemeSignal'
+import { markSelectedElement } from './utils/markSelectedElement'
 import { getNodeAndAncestors, isNodeOrAncestorConditional } from './utils/nodes'
 import { rectHasPoint } from './utils/rectHasPoint'
 import {
@@ -457,14 +458,7 @@ export const createRoot = (
             updateConditionalElements()
 
             const node = getDOMNodeFromNodeId(selectedNodeId)
-            if (!node?.hasAttribute('data-selected')) {
-              domNode
-                .querySelectorAll('[data-selected="true"]')
-                .forEach((el) => {
-                  el.removeAttribute('data-selected')
-                })
-              node?.setAttribute('data-selected', 'true')
-            }
+            markSelectedElement(node)
             const element =
               component?.nodes?.[node?.getAttribute('data-node-id') ?? '']
             if (
@@ -1553,14 +1547,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
     scrollStateRestorer((nodeId) =>
       document.querySelector(`[data-id="${nodeId}"]`),
     )
-
-    const node = getDOMNodeFromNodeId(selectedNodeId)
-    if (node && !node.hasAttribute('data-selected')) {
-      domNode.querySelectorAll('[data-selected="true"]').forEach((el) => {
-        el.removeAttribute('data-selected')
-      })
-      node.setAttribute('data-selected', 'true')
-    }
+    markSelectedElement(getDOMNodeFromNodeId(selectedNodeId))
   }
 
   const createContext = (
@@ -1925,10 +1912,6 @@ const registerFormulas = (
     formulas[name] = formula as PluginFormula<FormulaHandlerV2>
   })
   window.toddle.formulas[packageName ?? window.__toddle.project] = formulas
-}
-
-const postMessageToEditor = (message: EditorPostMessageType) => {
-  window.parent?.postMessage(message, '*')
 }
 
 let _themeRootSignal = null as Signal<string | null> | null
