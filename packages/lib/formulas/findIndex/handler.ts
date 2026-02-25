@@ -4,15 +4,31 @@ import type { FormulaHandler } from '@nordcraft/core/dist/types'
  * Similar to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
  * but this implementation also supports objects
  */
-export const handler: FormulaHandler<number> = ([items, fx]: unknown[]) => {
+export const handler: FormulaHandler<number> = ([items, fx]:
+  | unknown[]
+  | any) => {
   if (typeof fx !== 'function') {
     return null
   }
   if (Array.isArray(items)) {
-    return items.findIndex((item, index) => fx({ item, index }))
+    for (let i = 0; i < items.length; i++) {
+      if (fx({ item: items[i], index: i })) {
+        return i
+      }
+    }
+    return -1
   }
   if (items && typeof items === 'object') {
-    return Object.entries(items).findIndex(([key, value]) => fx({ key, value }))
+    let i = 0
+    for (const key in items) {
+      if (Object.prototype.hasOwnProperty.call(items, key)) {
+        if (fx({ key, value: items[key] })) {
+          return i
+        }
+        i++
+      }
+    }
+    return -1
   }
   return null
 }
@@ -32,9 +48,10 @@ export const getArgumentInputData = (
     return { ...input, Args: { item: items[0], index: 0 } }
   }
   if (items && typeof items === 'object') {
-    const [first] = Object.entries(items)
-    if (first) {
-      return { ...input, Args: { key: first[0], value: first[1] } }
+    for (const key in items) {
+      if (Object.prototype.hasOwnProperty.call(items, key)) {
+        return { ...input, Args: { key, value: (items as any)[key] } }
+      }
     }
   }
   return input

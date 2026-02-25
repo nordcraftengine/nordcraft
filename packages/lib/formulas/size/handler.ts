@@ -6,7 +6,13 @@ const handler: FormulaHandler<number> = ([collection]) => {
     return collection.length
   }
   if (isObject(collection)) {
-    return Object.keys(collection).length
+    let count = 0
+    for (const key in collection) {
+      if (Object.prototype.hasOwnProperty.call(collection, key)) {
+        count++
+      }
+    }
+    return count
   }
   if (typeof collection === 'string') {
     return collection.length

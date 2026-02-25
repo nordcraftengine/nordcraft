@@ -7,8 +7,11 @@ import type { FormulaHandler } from '@nordcraft/core/dist/types'
 const handler: FormulaHandler<Record<string, unknown>> = ([list]) => {
   if (Array.isArray(list)) {
     const object: Record<string, any> = {}
-    for (const { key, value } of list) {
-      object[key] = value
+    for (let i = 0; i < list.length; i++) {
+      const entry = list[i]
+      if (entry && typeof entry === 'object' && 'key' in entry) {
+        object[String(entry.key)] = (entry as any).value
+      }
     }
     return object
   }

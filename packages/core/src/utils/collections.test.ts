@@ -1,4 +1,14 @@
-import { omit, omitPaths, sortObjectEntries } from './collections'
+import {
+  deepSortObject,
+  filterObject,
+  get,
+  groupBy,
+  mapValues,
+  omit,
+  omitPaths,
+  set,
+  sortObjectEntries,
+} from './collections'
 
 describe('omit()', () => {
   test('it should omit paths from an array and resize the array to the new size', () => {
@@ -75,5 +85,69 @@ describe('omitPaths()', () => {
         h: 'bar',
       },
     })
+  })
+})
+
+describe('mapValues()', () => {
+  test('it maps values of an object', () => {
+    expect(mapValues({ a: 1, b: 2 }, (v: number) => v * 2)).toEqual({
+      a: 2,
+      b: 4,
+    })
+  })
+})
+
+describe('groupBy()', () => {
+  test('it groups items by key', () => {
+    const items = [
+      { id: 1, type: 'a' },
+      { id: 2, type: 'b' },
+      { id: 3, type: 'a' },
+    ]
+    expect(groupBy(items, (i: any) => i.type)).toEqual({
+      a: [
+        { id: 1, type: 'a' },
+        { id: 3, type: 'a' },
+      ],
+      b: [{ id: 2, type: 'b' }],
+    })
+  })
+})
+
+describe('filterObject()', () => {
+  test('it filters object entries', () => {
+    expect(
+      filterObject({ a: 1, b: 2, c: 3 }, ([_, v]: [any, number]) => v > 1),
+    ).toEqual({
+      b: 2,
+      c: 3,
+    })
+  })
+})
+
+describe('get()', () => {
+  test('it gets a nested value', () => {
+    expect(get({ a: { b: 1 } }, ['a', 'b'])).toBe(1)
+  })
+  test('it returns undefined if path not found', () => {
+    expect(get({ a: { b: 1 } }, ['a', 'c'])).toBeUndefined()
+  })
+})
+
+describe('set()', () => {
+  test('it sets a nested value', () => {
+    expect(set({ a: { b: 1 } }, ['a', 'c'], 2)).toEqual({ a: { b: 1, c: 2 } })
+  })
+  test('it creates objects if needed', () => {
+    expect(set({}, ['a', 'b'], 1)).toEqual({ a: { b: 1 } })
+  })
+})
+
+describe('deepSortObject()', () => {
+  test('it sorts keys recursively', () => {
+    const obj = { b: 1, a: { d: 2, c: 3 } }
+    const sorted = deepSortObject(obj)
+    expect(Object.keys(sorted as any)).toEqual(['a', 'b'])
+    expect(Object.keys((sorted as any).a)).toEqual(['c', 'd'])
   })
 })

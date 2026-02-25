@@ -12,18 +12,29 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = ([
     return null
   }
   if (Array.isArray(items)) {
-    return items.map((item, index) => fx({ item, index }))
+    const res = new Array(items.length)
+    for (let i = 0; i < items.length; i++) {
+      res[i] = fx({ item: items[i], index: i })
+    }
+    return res
   }
   if (items && typeof items === 'object') {
-    return Object.fromEntries(
-      Object.entries(items).map<any>(([key, value]) => {
-        const res = fx({ key, value })
-        if ('key' in res && 'value' in res) {
-          return [res.key, res.value]
+    const res: Record<string, any> = {}
+    for (const key in items) {
+      if (Object.prototype.hasOwnProperty.call(items, key)) {
+        const value = (items as any)[key]
+        const mapped = fx({ key, value })
+        if (
+          mapped &&
+          typeof mapped === 'object' &&
+          'key' in mapped &&
+          'value' in mapped
+        ) {
+          res[String(mapped.key)] = mapped.value
         }
-        return null
-      }),
-    )
+      }
+    }
+    return res
   }
   return null
 }
@@ -37,12 +48,14 @@ export const getArgumentInputData = (
     return input
   }
   if (Array.isArray(items)) {
-    return { ...input, Args: { item: items[0], index: 0 } }
-  }
-  if (items && typeof items === 'object') {
-    const [first] = Object.entries(items)
-    if (first) {
-      return { ...input, Args: { key: first[0], value: first[1] } }
+    if (items.length > 0) {
+      return { ...input, Args: { item: items[0], index: 0 } }
+    }
+  } else if (items && typeof items === 'object') {
+    for (const key in items) {
+      if (Object.prototype.hasOwnProperty.call(items, key)) {
+        return { ...input, Args: { key, value: (items as any)[key] } }
+      }
     }
   }
   return input
