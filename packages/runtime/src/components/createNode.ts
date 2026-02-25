@@ -9,6 +9,7 @@ import { toBoolean } from '@nordcraft/core/dist/utils/util'
 import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
+import { getComponent } from '../utils/getComponent'
 import { ensureEfficientOrdering, getNextSiblingElement } from '../utils/nodes'
 import { createComponent } from './createComponent'
 import { createElement } from './createElement'
@@ -48,11 +49,13 @@ export function createNode({
             ...props,
           }),
         ]
-      case 'component':
-        // eslint-disable-next-line no-case-declarations
-        const isLocalComponent = ctx.components.some(
-          (c) => c.name === node.name,
-        )
+      case 'component': {
+        const isLocalComponent =
+          getComponent(
+            node.name,
+            ctx.components,
+            ctx.env.runtime !== 'preview',
+          ) !== undefined
         return createComponent({
           node: { ...node, id }, // we need the node id for instance classes
           ...props,
@@ -63,6 +66,7 @@ export function createNode({
           },
           parentElement,
         })
+      }
       case 'text':
         return [createText({ ...props, node })]
       case 'slot':

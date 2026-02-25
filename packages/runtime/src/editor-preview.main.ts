@@ -63,10 +63,10 @@ import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
 import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
+import { postMessageToEditor } from './editor/postMessageToEditor'
 import {
   TextNodeComputedStyles,
   type DragState,
-  type EditorPostMessageType,
   type NordcraftPreviewEvent,
 } from './editor/types'
 import { handleAction } from './events/handleAction'
@@ -81,6 +81,7 @@ import type {
 } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
 import { getThemeSignal } from './utils/getThemeSignal'
+import { markSelectedElement } from './utils/markSelectedElement'
 import { getNodeAndAncestors, isNodeOrAncestorConditional } from './utils/nodes'
 import { rectHasPoint } from './utils/rectHasPoint'
 import {
@@ -457,6 +458,7 @@ export const createRoot = (
             updateConditionalElements()
 
             const node = getDOMNodeFromNodeId(selectedNodeId)
+            markSelectedElement(node)
             const element =
               component?.nodes?.[node?.getAttribute('data-node-id') ?? '']
             if (
@@ -875,10 +877,12 @@ export const createRoot = (
                 '--editor-timeline-timing-function',
               )
               document.body.style.removeProperty('--editor-timeline-fill-mode')
+              document.body.removeAttribute('data-animating')
               update()
               return
             }
 
+            document.body.setAttribute('data-animating', 'true')
             document.body.style.setProperty(
               '--editor-timeline-position',
               `${time}s`,
@@ -902,17 +906,13 @@ export const createRoot = (
                 document.head.appendChild(styleTag)
               }
 
-              // Set the animation styles for self and repeated nodes, but pause for all others
-              // TODO: Consider if we should set all other animations to follow the current timeline time, by setting animation-delay with paused
               styleTag.innerHTML = `
-[data-id] {
-  animation-play-state: paused !important;
-}
-[data-id="${animationState.animatedElementId}"], [data-id="${animationState.animatedElementId}"] ~ [data-id^="${animationState.animatedElementId}("] {
+body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[data-mode="design"] [data-id="${animationState.animatedElementId}"] ~ [data-id^="${animationState.animatedElementId}("] {
   animation: preview_timeline 1s paused normal !important;
   animation-fill-mode: var(--editor-timeline-fill-mode) !important;
   animation-timing-function: var(--editor-timeline-timing-function) !important;
   animation-delay: calc(0s - var(--editor-timeline-position)) !important;
+  animation-play-state: paused !important;
 }`
             }
           })
@@ -1547,6 +1547,7 @@ export const createRoot = (
     scrollStateRestorer((nodeId) =>
       document.querySelector(`[data-id="${nodeId}"]`),
     )
+    markSelectedElement(getDOMNodeFromNodeId(selectedNodeId))
   }
 
   const createContext = (
@@ -1911,10 +1912,6 @@ const registerFormulas = (
     formulas[name] = formula as PluginFormula<FormulaHandlerV2>
   })
   window.toddle.formulas[packageName ?? window.__toddle.project] = formulas
-}
-
-const postMessageToEditor = (message: EditorPostMessageType) => {
-  window.parent?.postMessage(message, '*')
 }
 
 let _themeRootSignal = null as Signal<string | null> | null
