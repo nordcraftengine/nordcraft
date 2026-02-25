@@ -27,6 +27,7 @@ import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type { Nullable, PluginAction } from '@nordcraft/core/dist/types'
 import type {
   ApiService,
+  InstalledPackage,
   ProjectFiles,
   Route,
   ToddleProject,
@@ -50,6 +51,7 @@ import type { NoReferenceComponentFormulaRuleFix } from './rules/issues/formulas
 import type { NoReferenceProjectFormulaRuleFix } from './rules/issues/formulas/noReferenceProjectFormulaRule'
 import type { NoStaticNodeConditionRuleFix } from './rules/issues/logic/noStaticNodeCondition'
 import type { NoReferenceNodeRuleFix } from './rules/issues/miscellaneous/noReferenceNodeRule'
+import type { NoReferenceProjectPackageRuleFix } from './rules/issues/miscellaneous/noReferencePackageRule'
 import type { InvalidStyleSyntaxRuleFix } from './rules/issues/style/invalidStyleSyntaxRule'
 import type { LegacyStyleVariableRuleFix } from './rules/issues/style/legacyStyleVariableRule'
 import type { AddToThemeFix } from './rules/issues/style/unknownCSSVariable'
@@ -91,6 +93,7 @@ export type Code =
   | 'no-reference node'
   | 'no-reference project action'
   | 'no-reference project formula'
+  | 'no-reference project package'
   | 'no-reference variable'
   | 'no-static-node-condition'
   | 'no-unnecessary-condition-falsy'
@@ -376,6 +379,12 @@ export type ProjectConfigNode = {
   value: unknown
 } & Base
 
+export type ProjectPackageNode = {
+  nodeType: 'project-package'
+  value: InstalledPackage
+  packageName: string
+} & Base
+
 export type StyleVariantNode = {
   nodeType: 'style-variant'
   value: {
@@ -435,6 +444,7 @@ export type NodeType =
   | ProjectRoute
   | ProjectThemeNode
   | ProjectThemePropertyNode
+  | ProjectPackageNode
   | StyleNode
   | StyleVariableNode
   | StyleVariantNode
@@ -463,6 +473,7 @@ export type FixType =
   | UnknownActionEventRuleFix
   | UnknownApiServiceRuleFix
   | UnknownComponentAttributeRuleFix
+  | NoReferenceProjectPackageRuleFix
 
 interface ReportedIssueInfo {
   title: string
