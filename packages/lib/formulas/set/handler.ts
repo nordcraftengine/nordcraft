@@ -20,6 +20,7 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = (
   return _set(collection, [key], 0, value, ctx)
 }
 
+// eslint-disable-next-line max-params
 function _set(
   collection: any,
   path: unknown[],
