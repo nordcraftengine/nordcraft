@@ -1,7 +1,7 @@
 import type { Rule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
-import { componentIsReferenced } from '../components/noReferenceComponentRule'
+import { componentIsReferenced } from '../components/componentIsReferenced.memo'
 
 export const noReferenceAttributeInInstanceRule: Rule<void> = {
   code: 'no-reference attribute in instance',
@@ -24,7 +24,7 @@ export const noReferenceAttributeInInstanceRule: Rule<void> = {
     }
 
     // If component is never used, skip this rule as we have another rule to find unused components (no-reference component)
-    if (!componentIsReferenced(args.files.components, memo)(component.name)) {
+    if (!componentIsReferenced(args.files, memo)(component.name)) {
       return
     }
 

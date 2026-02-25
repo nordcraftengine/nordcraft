@@ -290,6 +290,39 @@ describe('find noReferenceFormulaRule', () => {
 
     expect(problems).toBeEmpty()
   })
+
+  test('should report if formula is only used by itself', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {
+            'self-referencing-formula': {
+              name: 'self-referencing-formula',
+              arguments: [],
+              formula: {
+                type: 'and',
+                arguments: [
+                  {
+                    formula: {
+                      type: 'function',
+                      name: 'self-referencing-formula',
+                      arguments: [],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+          components: {},
+        },
+        rules: [noReferenceProjectFormulaRule],
+      }),
+    )
+
+    expect(problems).toHaveLength(1)
+    expect(problems[0].code).toBe('no-reference project formula')
+    expect(problems[0].path).toEqual(['formulas', 'self-referencing-formula'])
+  })
 })
 
 describe('fix noReferenceFormulaRule', () => {
