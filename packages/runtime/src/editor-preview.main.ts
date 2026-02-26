@@ -78,6 +78,7 @@ import type {
   ContextApiV2,
   LocationSignal,
   PreviewShowSignal,
+  PreviewShowSignalData,
 } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
 import { getThemeSignal } from './utils/getThemeSignal'
@@ -216,7 +217,7 @@ export const createRoot = (
   // Signal for overriding conditional elements when they're
   // selected in design mode and for reverting back to normal
   // in test mode
-  const showSignal = signal<{ displayedNodes: string[]; testMode: boolean }>({
+  const showSignal = signal<PreviewShowSignalData>({
     displayedNodes: [],
     testMode: false,
   })

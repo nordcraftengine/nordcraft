@@ -156,7 +156,7 @@ export function createNode({
     if (ctx.env.runtime === 'preview' && ctx.toddle._preview) {
       ctx.toddle._preview.showSignal.subscribe(
         ({ displayedNodes, testMode }) => {
-          if (displayedNodes.includes(path) && !testMode) {
+          if (displayedNodes?.includes(path) && !testMode) {
             // only override the default show if we are in design mode (not test mode)
             toggle(true)
           } else {

@@ -36,10 +36,12 @@ export interface Location {
   hash?: string
 }
 
-export type PreviewShowSignal = Signal<{
-  displayedNodes: string[]
+export interface PreviewShowSignalData {
+  displayedNodes?: string[] | null
   testMode: boolean
-}>
+}
+
+export type PreviewShowSignal = Signal<PreviewShowSignalData>
 
 interface ListItem {
   Item: unknown
