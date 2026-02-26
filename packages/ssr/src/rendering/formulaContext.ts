@@ -32,19 +32,19 @@ export const getPageFormulaContext = ({
   files,
 }: {
   branchName: string
-  component: PageComponent
+  component: PageComponent | undefined
   req: Request
   logErrors: boolean
   files: ProjectFiles
 }): FormulaContext & { env: ToddleServerEnv } => {
   const env = serverEnv({ req, branchName, logErrors })
   const { searchParamsWithDefaults, hash, combinedParams, url } = getParameters(
-    { route: component.route, req },
+    { route: component?.route, req },
   )
   const formulaContext: FormulaContext & { env: ToddleServerEnv } = {
     data: {
       Location: {
-        page: component.page ?? '',
+        page: component?.page ?? '',
         path: url.pathname,
         params: combinedParams,
         query: searchParamsWithDefaults,
@@ -54,7 +54,9 @@ export const getPageFormulaContext = ({
       // Path and query parameters are referenced in a flat structure in formulas
       // hence, we need to merge them. We prefer path parameters over query parameters
       // in case of naming collisions
-      'URL parameters': getDataUrlParameters({ route: component.route, req }),
+      'URL parameters': component?.route
+        ? getDataUrlParameters({ route: component.route, req })
+        : {},
       Apis: {} as Record<string, any>,
     },
     component,
@@ -64,17 +66,21 @@ export const getPageFormulaContext = ({
     toddle: getServerToddleObject(files),
   }
   formulaContext.data.Page = {
-    Theme: getThemeInitialValue(component, formulaContext, env),
+    Theme: component
+      ? getThemeInitialValue(component, formulaContext, env)
+      : null,
   }
   formulaContext.data.Variables = mapValues(
-    component.variables ?? {},
+    component?.variables ?? {},
     ({ initialValue }) => {
       return applyFormula(initialValue, formulaContext)
     },
   )
   // Re-apply theme after variables have been initialized to ensure it has access to any variables if needed
   formulaContext.data.Page = {
-    Theme: getThemeInitialValue(component, formulaContext, env),
+    Theme: component
+      ? getThemeInitialValue(component, formulaContext, env)
+      : null,
   }
   return formulaContext
 }
