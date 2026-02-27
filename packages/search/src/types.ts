@@ -6,6 +6,7 @@ import type {
   ComponentEvent as _ComponentEvent,
   ActionModel,
   ActionModelActions,
+  AnimationKeyframe,
   Component,
   ComponentAttribute,
   ComponentNodeModel,
@@ -54,6 +55,7 @@ import type { NoReferenceNodeRuleFix } from './rules/issues/miscellaneous/noRefe
 import type { NoReferenceProjectPackageRuleFix } from './rules/issues/miscellaneous/noReferencePackageRule'
 import type { InvalidStyleSyntaxRuleFix } from './rules/issues/style/invalidStyleSyntaxRule'
 import type { LegacyStyleVariableRuleFix } from './rules/issues/style/legacyStyleVariableRule'
+import type { NoReferenceAnimationRuleFix } from './rules/issues/style/noReferenceAnimationRule'
 import type { AddToThemeFix } from './rules/issues/style/unknownCSSVariable'
 import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noReferenceVariableRule'
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
@@ -80,6 +82,7 @@ export type Code =
   | 'no context consumers'
   | 'no post navigate action'
   | 'no-console'
+  | 'no-reference animation'
   | 'no-reference api input'
   | 'no-reference api service'
   | 'no-reference api'
@@ -420,8 +423,18 @@ export type StyleNode = {
   }
 } & Base
 
+export type AnimationNode = {
+  nodeType: 'animation'
+  value: {
+    key: string
+    value: Record<string, AnimationKeyframe>
+  }
+  node: ComponentNodeModel | ElementNodeModel
+} & Base
+
 export type NodeType =
   | ActionModelNode
+  | AnimationNode
   | ComponentAPIInputNode
   | ComponentAPINode
   | ComponentAttributeNode
@@ -458,6 +471,7 @@ export type FixType =
   | LegacyFormulaRuleFix
   | LegacyStyleVariableRuleFix
   | NoPostNavigateActionRuleFix
+  | NoReferenceAnimationRuleFix
   | NoReferenceApiRuleFix
   | NoReferenceApiServiceRuleFix
   | NoReferenceAttributeRuleFix

@@ -774,6 +774,31 @@ function* visitNode({
           }
         }
 
+        if (value.animations) {
+          for (const [animationKey, animation] of Object.entries(
+            value.animations,
+          )) {
+            yield* visitNode({
+              args: {
+                nodeType: 'animation',
+                node: value,
+                value: {
+                  key: animationKey,
+                  value: animation,
+                },
+                path: [...path, 'animations', animationKey],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
+          }
+        }
+
         const variants = value.variants
         if (variants) {
           for (let i = 0; i < variants.length; i++) {
