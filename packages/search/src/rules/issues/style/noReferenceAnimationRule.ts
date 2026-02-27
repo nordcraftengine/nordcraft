@@ -1,5 +1,5 @@
-import type { NodeStyleModel } from '@nordcraft/core/dist/src/component/component.types'
-import type { Nullable } from '@nordcraft/core/dist/src/types'
+import type { NodeStyleModel } from '@nordcraft/core/dist/component/component.types'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import type { Rule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
