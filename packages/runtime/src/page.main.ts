@@ -25,6 +25,7 @@ import { match } from 'path-to-regexp'
 import { isContextApiV2 } from './api/apiUtils'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
+import { getDynamicMetaEntries } from './components/meta'
 import { renderComponent } from './components/renderComponent'
 import { isContextProvider } from './context/isContextProvider'
 import { initLogState, registerComponentToLogState } from './debug/logState'
@@ -402,14 +403,8 @@ const setupMetaUpdates = (
   const meta = component.route?.info?.meta
   const dynamicDescription =
     descriptionFormula && descriptionFormula.type !== 'value'
-  const dynamicMetaFormulas = Object.values(meta ?? {}).some(
-    (r) =>
-      r.content?.type !== 'value' ||
-      Object.values(
-        r.attrs ?? {}, // fallback to make sure we don't crash on legacy values
-      ).some((a) => a.type !== 'value'),
-  )
-  if (dynamicDescription || dynamicMetaFormulas) {
+  const dynamicMetaFormulas = getDynamicMetaEntries(meta)
+  if (dynamicDescription || Object.keys(dynamicMetaFormulas).length > 0) {
     const findMetaElement = (name: string) =>
       [...document.getElementsByTagName('meta')].find(
         (el) => el.name === name || el.getAttribute('property') === name,
@@ -503,16 +498,10 @@ const setupMetaUpdates = (
           }
         })
     }
-    if (dynamicMetaFormulas) {
-      Object.entries(meta ?? {})
-        // Filter out meta tags that have no dynamic formulas
-        .filter(
-          ([_, entry]) =>
-            // fallback to make sure we don't crash on legacy values.
-            entry.content?.type !== 'value' ||
-            Object.values(entry.attrs ?? {}).some((a) => a.type !== 'value'),
-        )
-        .forEach(([id, entry]) => {
+    if (Object.keys(dynamicMetaFormulas).length > 0) {
+      for (const id in dynamicMetaFormulas) {
+        const entry = dynamicMetaFormulas[id]
+        if (entry) {
           dataSignal
             .map((data) => {
               const context = getFormulaContext(data)
@@ -538,7 +527,8 @@ const setupMetaUpdates = (
               // Update the meta tags with the new values
               updateMetaElement({ tag: entry.tag, attrs, content }, id),
             )
-        })
+        }
+      }
     }
   }
 }
