@@ -71,11 +71,29 @@ interface XanoApiService extends BaseApiService {
   type: 'xano'
 }
 
+interface DatoCmsApiService extends BaseApiService {
+  type: 'datocms'
+}
+
+interface UmbracoApiService extends BaseApiService {
+  type: 'umbraco'
+}
+
+interface ContentfulApiService extends BaseApiService {
+  type: 'contentful'
+}
+
 interface CustomApiService extends BaseApiService {
   type: 'custom'
 }
 
-export type ApiService = SupabaseApiService | XanoApiService | CustomApiService
+export type ApiService =
+  | SupabaseApiService
+  | XanoApiService
+  | DatoCmsApiService
+  | UmbracoApiService
+  | ContentfulApiService
+  | CustomApiService
 
 export type InstalledPackage = Pick<
   ProjectFiles,
