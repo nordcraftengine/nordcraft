@@ -147,23 +147,22 @@ export type ToddleEnv =
       logErrors: boolean
     }
 
-const FORMULA_TYPES = [
-  'path',
-  'function',
-  'record',
-  'object',
-  'array',
-  'or',
-  'and',
-  'apply',
-  'value',
-  'switch',
-] as Formula['type'][]
 export function isFormula(f: any): f is Formula {
   if (!f || typeof f !== 'object') {
     return false
   }
-  return FORMULA_TYPES.includes(f.type)
+  return (
+    f.type === 'path' ||
+    f.type === 'function' ||
+    f.type === 'record' ||
+    f.type === 'object' ||
+    f.type === 'array' ||
+    f.type === 'or' ||
+    f.type === 'and' ||
+    f.type === 'apply' ||
+    f.type === 'value' ||
+    f.type === 'switch'
+  )
 }
 export function isFormulaApplyOperation(
   formula: Formula,
@@ -298,6 +297,11 @@ export function applyFormula(
                 }
               } else {
                 args[i] = applyFormula(arg.formula, ctx)
+              }
+
+              // defaultTo can short circuit when first argument is truthy.
+              if (formula.name === '@toddle/defaultTo' && toBoolean(args[i])) {
+                break
               }
             }
             try {
