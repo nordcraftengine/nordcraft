@@ -1,6 +1,6 @@
 import type { Rule } from '../../../types'
 
-export const unknownTriggerWorkflowRule: Rule<void> = {
+export const unknownTriggerWorkflowRule: Rule<{ workflow: string }> = {
   code: 'unknown trigger workflow',
   level: 'error',
   category: 'Unknown Reference',
@@ -18,6 +18,9 @@ export const unknownTriggerWorkflowRule: Rule<void> = {
     if (!workflow) {
       report({
         path,
+        details: {
+          workflow: value.workflow,
+        },
         info: {
           title: 'Unknown workflow trigger',
           description: `This workflow does not exist and cannot be triggered.`,
