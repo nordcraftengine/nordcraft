@@ -88,12 +88,12 @@ interface CustomApiService extends BaseApiService {
 }
 
 export type ApiService =
-  | SupabaseApiService
-  | XanoApiService
-  | DatoCmsApiService
-  | UmbracoApiService
   | ContentfulApiService
   | CustomApiService
+  | DatoCmsApiService
+  | SupabaseApiService
+  | UmbracoApiService
+  | XanoApiService
 
 export type InstalledPackage = Pick<
   ProjectFiles,
