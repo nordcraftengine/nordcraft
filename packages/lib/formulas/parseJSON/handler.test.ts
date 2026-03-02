@@ -23,4 +23,30 @@ describe('Formula: Parse JSON', () => {
   test('Should return null on invalid JSON', () => {
     expect(handler(['["hello", "world"'], undefined as any)).toBe(null)
   })
+  test('Should return dates as string if parseDate is false', () => {
+    expect(
+      handler(['{"date":"2023-06-28T13:27:53.264Z"}', false], undefined as any),
+    ).toEqual({
+      date: '2023-06-28T13:27:53.264Z',
+    })
+  })
+  test('Should return dates as Date if parseDate is true', () => {
+    expect(
+      handler(['{"date":"2023-06-28T13:27:53.264Z"}', true], undefined as any),
+    ).toEqual({
+      date: new Date('2023-06-28T13:27:53.264Z'),
+    })
+  })
+  test('Should return dates as Date if parseDate is null or undefined', () => {
+    expect(
+      handler(['{"date":"2023-06-28T13:27:53.264Z"}', null], undefined as any),
+    ).toEqual({
+      date: new Date('2023-06-28T13:27:53.264Z'),
+    })
+    expect(
+      handler(['{"date":"2023-06-28T13:27:53.264Z"}'], undefined as any),
+    ).toEqual({
+      date: new Date('2023-06-28T13:27:53.264Z'),
+    })
+  })
 })
