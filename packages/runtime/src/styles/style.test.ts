@@ -211,4 +211,41 @@ describe('insertStyles() - prefers-reduced-motion', () => {
     // max-width should still be present
     expect(styleText).toContain('max-width: 768px')
   })
+
+  test('it converts viewport units to container units', () => {
+    const component: Component = {
+      name: 'TestComponent',
+      nodes: {
+        '0': {
+          type: 'element',
+          tag: 'div',
+          style: {},
+          variants: [
+            {
+              style: { height: '100vh' },
+              mediaQuery: {
+                'prefers-reduced-motion': 'no-preference',
+              },
+            },
+          ],
+          children: [],
+          attrs: {},
+          events: {},
+        },
+      },
+    }
+
+    const parent = document.createElement('div')
+    insertStyles(parent, component, [])
+
+    const styleElement = parent.querySelector('[data-hash]')
+    expect(styleElement).toBeTruthy()
+
+    const styleText = styleElement?.textContent ?? ''
+
+    // Check that viewport units are converted to a scaled version
+    expect(styleText).toContain(
+      'height:calc(100vh * var(--nc-viewport-height-px, var(--nc-scroll-height-px, 740)) / var(--nc-scroll-height-px, 740));',
+    )
+  })
 })

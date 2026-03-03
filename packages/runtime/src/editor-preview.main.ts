@@ -64,6 +64,7 @@ import { isInputTarget } from './editor/input'
 import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
+import { requestResizeCanvas } from './editor/resizeCanvas'
 import {
   TextNodeComputedStyles,
   type DragState,
@@ -72,7 +73,11 @@ import {
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
-import { insertStyles, styleToCss } from './styles/style'
+import {
+  convertViewportUnitsToEmulatedViewportUnits,
+  insertStyles,
+  styleToCss,
+} from './styles/style'
 import type {
   ComponentContext,
   ContextApiV2,
@@ -221,6 +226,10 @@ export const createRoot = (
     testMode: false,
   })
   const themeSignal = signal<string | null>(null)
+  const resizeCanvasOptions: {
+    viewport?: { height: number | null }
+    enabled?: boolean
+  } = {}
   window.toddle._preview = { showSignal }
   document.body.setAttribute('data-mode', 'design')
   let components: Component[] | null = null
@@ -636,15 +645,31 @@ export const createRoot = (
           const { variantIndex } = message.data
           updateSelectedStyleVariant(variantIndex)
           break
-        // We request manually instead of automatic to avoid mutation observer spam.
-        // Also, reporting automatically proved unreliable when elements' height was in %
         case 'report_document_scroll_size':
-          postMessageToEditor({
-            type: 'documentScrollSize',
-            scrollHeight: domNode.scrollHeight,
-            scrollWidth: domNode.scrollWidth,
+          requestResizeCanvas({
+            force: true,
           })
           break
+        case 'viewport_size': {
+          if (message.data.enabled) {
+            resizeCanvasOptions.enabled = true
+            resizeCanvasOptions.viewport = { height: message.data.height }
+            document.body.setAttribute(
+              'data-viewport-height',
+              String(resizeCanvasOptions.viewport.height),
+            )
+            domNode.style.setProperty(
+              '--nc-viewport-height-px',
+              String(resizeCanvasOptions.viewport.height),
+            )
+            requestResizeCanvas(resizeCanvasOptions)
+          } else {
+            resizeCanvasOptions.enabled = false
+            domNode.style.removeProperty('--nc-viewport-height-px')
+            document.body.removeAttribute('data-viewport-height')
+          }
+          break
+        }
         case 'reload':
           window.location.reload()
           break
@@ -1014,13 +1039,17 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               styleElement.innerHTML = cssBlocks.join('\n')
             } else {
               const previewStyles = Object.entries(previewStyleStyles)
-                .map(([key, value]) => `${key}: ${value} !important;`)
+                .map(
+                  ([key, value]) =>
+                    `${key}: ${convertViewportUnitsToEmulatedViewportUnits(value)} !important;`,
+                )
                 .join('\n')
               styleElement.innerHTML = `[data-id="${selectedNodeId}"]${pseudoElement}, [data-id="${selectedNodeId}"] ~ [data-id^="${selectedNodeId}("]${pseudoElement} {
     ${previewStyles}
     transition: none !important;
   }`
             }
+            requestResizeCanvas(resizeCanvasOptions)
           })
           break
         case 'preview_resources': {
@@ -1052,6 +1081,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               resourceElement.href = resource.href
               document.head.appendChild(resourceElement)
             })
+          requestResizeCanvas(resizeCanvasOptions)
           break
         }
         case 'preview_theme': {
@@ -1061,13 +1091,22 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
           } else {
             document.body.removeAttribute(THEME_DATA_ATTRIBUTE)
           }
+          requestResizeCanvas(resizeCanvasOptions)
+          break
         }
       }
     },
   )
 
+  const resizeObserver = new ResizeObserver(() =>
+    requestResizeCanvas(resizeCanvasOptions),
+  )
+  resizeObserver.observe(domNode)
+  requestResizeCanvas(resizeCanvasOptions)
+
   window.addEventListener('beforeunload', () => {
     storeScrollState(component?.name)
+    resizeObserver.disconnect()
   })
 
   const updateStyle = (component: Component | null) => {
@@ -1548,6 +1587,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       document.querySelector(`[data-id="${nodeId}"]`),
     )
     markSelectedElement(getDOMNodeFromNodeId(selectedNodeId))
+    requestResizeCanvas(resizeCanvasOptions)
   }
 
   const createContext = (

@@ -248,7 +248,19 @@ export const styleToCss = (style: NodeStyleModel) => {
         SIZE_PROPERTIES.has(propertyName)
           ? `${Number(value) * 4}px`
           : value
-      return `${propertyName}:${propertyValue};`
+      return `${propertyName}:${convertViewportUnitsToEmulatedViewportUnits(propertyValue)};`
     })
     .join('\n')
+}
+
+/**
+ * Converts viewport units (vh) to emulated viewport units so the canvas can override
+ * the viewport size independent from the canvas iframe size.
+ */
+export const convertViewportUnitsToEmulatedViewportUnits = (
+  value: string | number | undefined,
+) => {
+  return value?.toString().replace(/([\d.]+)vh/g, (_, num) => {
+    return `calc(${Number(num)}vh * var(--nc-viewport-height-px, var(--nc-scroll-height-px, 740)) / var(--nc-scroll-height-px, 740))`
+  })
 }
