@@ -1,10 +1,12 @@
 import {
   createApiRequest,
+  HttpMethodsWithAllowedBody,
   isApiError,
   requestHash,
   sortApiEntries,
 } from '@nordcraft/core/dist/api/api'
 import type {
+  ApiMethod,
   ApiParserMode,
   ApiPerformance,
   ApiStatus,
@@ -182,6 +184,24 @@ const fetchApi = async ({
       applyTemplateValues(value, newFormulaContext.env?.request?.cookies ?? {}),
     )
   })
+
+  if (
+    HttpMethodsWithAllowedBody.includes(requestSettings.method as ApiMethod) &&
+    toBoolean(
+      applyFormula(
+        api.server?.proxy?.useTemplatesInBody?.formula,
+        newFormulaContext,
+      ),
+    )
+  ) {
+    // Adjust the body of the request
+    if (typeof requestSettings.body === 'string') {
+      requestSettings.body = applyTemplateValues(
+        requestSettings.body,
+        newFormulaContext.env?.request?.cookies ?? {},
+      )
+    }
+  }
 
   const request = new Request(requestUrl.href, {
     ...requestSettings,
