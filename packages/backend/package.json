@@ -30,7 +30,7 @@
   "dependencies": {
     "@nordcraft/core": "workspace:*",
     "@nordcraft/ssr": "workspace:*",
-    "hono": "4.10.2",
+    "hono": "4.12.5",
     "@hono/node-server": "1.19.6"
   },
   "devDependencies": {

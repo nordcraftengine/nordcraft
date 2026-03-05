@@ -7,7 +7,7 @@
     "watch": "tsgo --noEmit -w"
   },
   "dependencies": {
-    "hono": "4.7.11"
+    "hono": "4.12.5"
   },
   "devDependencies": {
     "@types/node": "24.0.3",
