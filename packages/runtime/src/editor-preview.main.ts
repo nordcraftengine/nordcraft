@@ -55,6 +55,10 @@ import { createNode } from './components/createNode'
 import { isContextProvider } from './context/isContextProvider'
 import { createPanicScreen } from './debug/panicScreen'
 import { sendEditorToast } from './debug/sendEditorToast'
+import {
+  CSS_VAR_VIEWPORT_HEIGHT,
+  DATA_ATTR_VIEWPORT_HEIGHT,
+} from './editor/const'
 import { dragEnded } from './editor/drag-drop/dragEnded'
 import { dragMove } from './editor/drag-drop/dragMove'
 import { dragReorder } from './editor/drag-drop/dragReorder'
@@ -655,18 +659,18 @@ export const createRoot = (
             resizeCanvasOptions.enabled = true
             resizeCanvasOptions.viewport = { height: message.data.height }
             document.body.setAttribute(
-              'data-viewport-height',
-              String(resizeCanvasOptions.viewport.height),
+              DATA_ATTR_VIEWPORT_HEIGHT,
+              String(Math.round(Number(resizeCanvasOptions.viewport.height))),
             )
             domNode.style.setProperty(
-              '--nc-viewport-height-px',
-              String(resizeCanvasOptions.viewport.height),
+              CSS_VAR_VIEWPORT_HEIGHT,
+              String(Math.round(Number(resizeCanvasOptions.viewport.height))),
             )
             requestResizeCanvas(resizeCanvasOptions)
           } else {
             resizeCanvasOptions.enabled = false
-            domNode.style.removeProperty('--nc-viewport-height-px')
-            document.body.removeAttribute('data-viewport-height')
+            domNode.style.removeProperty(CSS_VAR_VIEWPORT_HEIGHT)
+            document.body.removeAttribute(DATA_ATTR_VIEWPORT_HEIGHT)
           }
           break
         }

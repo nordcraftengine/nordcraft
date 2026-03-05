@@ -1,3 +1,4 @@
+import { CSS_VAR_SCROLL_HEIGHT } from './const'
 import { postMessageToEditor } from './postMessageToEditor'
 
 let _lastScrollHeight = 0
@@ -20,7 +21,7 @@ function resizeCanvas({
   const scrollHeight = Math.max(domNode.scrollHeight, viewport.height)
 
   // Update viewport height ratio for vh to work inside the canvas
-  domNode.style.setProperty('--nc-scroll-height-px', String(scrollHeight))
+  domNode.style.setProperty(CSS_VAR_SCROLL_HEIGHT, String(scrollHeight))
 
   // Restore original styles
   domNode.style.removeProperty('max-height')
@@ -36,8 +37,6 @@ function resizeCanvas({
   })
 }
 
-// Start main-loop to update canvas height if needed every time idle
-// Listen to when the size of the iframe changes
 let cancelRequestResizeCanvas: number | null = null
 export const requestResizeCanvas = (
   options: {
@@ -47,14 +46,14 @@ export const requestResizeCanvas = (
   } = {},
 ) => {
   if (cancelRequestResizeCanvas) {
-    cancelIdleCallback(cancelRequestResizeCanvas)
+    cancelAnimationFrame(cancelRequestResizeCanvas)
   }
 
   if (options.enabled === false) {
     return
   }
 
-  requestIdleCallback(() => {
+  requestAnimationFrame(() => {
     resizeCanvas({
       force: options.force ?? false,
       viewport: {

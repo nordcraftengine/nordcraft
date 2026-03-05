@@ -12,6 +12,7 @@ import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
 import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { omitKeys } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { CSS_VAR_SCROLL_HEIGHT, CSS_VAR_VIEWPORT_HEIGHT } from '../editor/const'
 
 const LEGACY_BREAKPOINTS = {
   large: 1440,
@@ -261,6 +262,6 @@ export const convertViewportUnitsToEmulatedViewportUnits = (
   value: string | number | undefined,
 ) => {
   return value?.toString().replace(/([\d.]+)vh/g, (_, num) => {
-    return `calc(${Number(num)}vh * var(--nc-viewport-height-px, var(--nc-scroll-height-px, 740)) / var(--nc-scroll-height-px, 740))`
+    return `calc(${Number(num)}vh * var(${CSS_VAR_VIEWPORT_HEIGHT}, var(${CSS_VAR_SCROLL_HEIGHT}, 740)) / var(${CSS_VAR_SCROLL_HEIGHT}, 740))`
   })
 }
