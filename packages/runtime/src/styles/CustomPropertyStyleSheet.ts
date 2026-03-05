@@ -41,7 +41,7 @@ export class CustomPropertyStyleSheet {
   ): (newValue: string) => void {
     this.ruleMap ??= this.hydrateFromBase()
     const fullSelector = CustomPropertyStyleSheet.getFullSelector(
-      selector,
+      CustomPropertyStyleSheet.escapeSelector(selector),
       options,
     )
 
@@ -83,7 +83,7 @@ export class CustomPropertyStyleSheet {
     }
 
     const fullSelector = CustomPropertyStyleSheet.getFullSelector(
-      selector,
+      CustomPropertyStyleSheet.escapeSelector(selector),
       options,
     )
 
@@ -179,5 +179,10 @@ export class CustomPropertyStyleSheet {
     }
 
     return result
+  }
+
+  private static escapeSelector(selector: string): string {
+    // Prefix forward slashes with double backslashes (if not already prefixed) to escape them in CSS selectors
+    return selector.replace(/(^|[^\\])\//g, '$1\\/') // Escape forward slashes
   }
 }
