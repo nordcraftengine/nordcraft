@@ -353,6 +353,7 @@ function* visitNode({
     case 'action-model':
     case 'action-custom-model-argument':
     case 'action-custom-model-event':
+    case 'animation':
     case 'component-api-input':
     case 'component-api':
     case 'component-attribute':
@@ -762,6 +763,31 @@ function* visitNode({
                   element: value,
                 },
                 path: [...path, 'customProperties', customPropertyKey],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
+          }
+        }
+
+        if (value.animations) {
+          for (const [animationKey, animation] of Object.entries(
+            value.animations,
+          )) {
+            yield* visitNode({
+              args: {
+                nodeType: 'animation',
+                node: value,
+                value: {
+                  key: animationKey,
+                  value: animation,
+                },
+                path: [...path, 'animations', animationKey],
                 rules,
                 files,
                 pathsToVisit,
