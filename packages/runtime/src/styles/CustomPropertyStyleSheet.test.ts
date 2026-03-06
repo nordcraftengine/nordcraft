@@ -151,4 +151,28 @@ describe('CustomPropertyStyleSheet', () => {
     )
     expect(instance.getStyleSheet().cssRules).toBeEmpty()
   })
+
+  test('it escapes backslashes in selectors', () => {
+    const instance = new CustomPropertyStyleSheet(document)
+    instance.registerProperty(
+      '[data-id].my-package/my-component:hover',
+      '--my-property',
+    )('value')
+    expect(instance.getStyleSheet().cssRules.length).toBe(1)
+    expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
+      '[data-id].my-package\\/my-component:hover { --my-property: value; }',
+    )
+  })
+
+  test('it does not escape backslashes that are already escaped in selectors', () => {
+    const instance = new CustomPropertyStyleSheet(document)
+    instance.registerProperty(
+      '[data-id].my-package\\/my-component:hover',
+      '--my-property',
+    )('value')
+    expect(instance.getStyleSheet().cssRules.length).toBe(1)
+    expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
+      '[data-id].my-package\\/my-component:hover { --my-property: value; }',
+    )
+  })
 })
