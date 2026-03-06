@@ -353,6 +353,7 @@ function* visitNode({
     case 'action-model':
     case 'action-custom-model-argument':
     case 'action-custom-model-event':
+    case 'animation':
     case 'component-api-input':
     case 'component-api':
     case 'component-attribute':
