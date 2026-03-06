@@ -12,32 +12,36 @@ export const noReferenceAnimationRule: Rule = {
       return
     }
 
-    const usedAnimations = new Set<string>()
-    const visitStyle = (style: Nullable<NodeStyleModel>) =>
-      Object.entries(style ?? {})
-        .flatMap(([_, value]) =>
-          String(value)
-            .split(',')
-            .map((animation) => animation.trim().split(' ')[0]),
-        )
-        .forEach((animation) => {
-          usedAnimations.add(animation)
-        })
+    const { value, node, path, memo } = args
+    const nodePath = path.slice(0, -1).join('.')
+    const usedAnimation = memo(`animations-${nodePath}`, () => {
+      const animations = new Set<string>()
+      const visitStyle = (style: Nullable<NodeStyleModel>) =>
+        Object.values(style ?? {})
+          .filter((value) => typeof value === 'string')
+          .flatMap((value) =>
+            value.split(',').map((animation) => animation.trim().split(' ')[0]),
+          )
+          .forEach((animation) => {
+            animations.add(animation)
+          })
 
-    visitStyle(args.node.style)
-    Object.values(args.node.variants ?? {}).forEach((variant) =>
-      visitStyle(variant.style),
-    )
+      visitStyle(node.style)
+      Object.values(node.variants ?? {}).forEach((variant) =>
+        visitStyle(variant.style),
+      )
+      return animations
+    })
 
-    if (usedAnimations.has(args.value.key)) {
+    if (usedAnimation.has(value.key)) {
       return
     }
 
     report({
-      path: args.path,
+      path: path,
       info: {
         title: `Unused animation`,
-        description: `The animation "${args.value.key}" is defined but never used. Edit the element to clean unused animations.`,
+        description: `The animation "${value.key}" is defined but never used. Edit the element to clean unused animations.`,
       },
       fixes: ['delete-animation'],
     })
