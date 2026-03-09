@@ -36,23 +36,23 @@ bun run preview
 
 ## Docker
 
-The [Dockerfile](/Dockerfile) uses a distroless Node.js (24) image to run the backend in a lightweight container. To summarize its steps:
+The [Dockerfile](/Dockerfile) uses a distroless Debian 12 image to run the backend in a lightweight container. To summarize its steps:
 
 - **Build Stage**
-  - Use [oven/bun:1.3.2-debian](https://hub.docker.com/r/oven/bun/tags) as the base image.
+  - Use [oven/bun:1.3.3-debian](https://hub.docker.com/r/oven/bun/tags) as the base image.
   - Set working directory to `/app`.
   - Copy lockfiles and package manifests.
   - Copy package-specific package.json files and dist folder.
   - Install dependencies with `bun install`.
   - Copy the full source code.
-  - Build the backend entrypoint (`node.index.ts`) with `bun build`.
+  - Build the backend entrypoint (`bun.index.ts`) with `bun build`.
 
 - **Run Stage**
-  - Use [gcr.io/distroless/nodejs24-debian12](https://github.com/GoogleContainerTools/distroless) as the base image.
+  - Use [gcr.io/distroless/base-debian12](https://github.com/GoogleContainerTools/distroless) as the base image.
   - Set environment variables and expose the app port.
   - Set working directory to `/app/dist`.
   - Copy node_modules and built files from the build stage.
-  - Set the container command to run `node.index.js`.
+  - Set the container command to run the `./nordcraft-backend` executable.
 
 To build and run the backend in a Docker container, use the following commands:
 

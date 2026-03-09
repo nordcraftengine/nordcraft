@@ -25,7 +25,7 @@
     "packages/backend": {
       "name": "nordcraft-backend",
       "dependencies": {
-        "@hono/node-server": "1.19.6",
+        "@hono/node-server": "1.19.11",
         "@nordcraft/core": "workspace:*",
         "@nordcraft/ssr": "workspace:*",
         "hono": "4.12.5",
@@ -192,7 +192,7 @@
 
     "@happy-dom/global-registrator": ["@happy-dom/global-registrator@20.0.11", "", { "dependencies": { "@types/node": "^20.0.0", "happy-dom": "^20.0.11" } }, "sha512-GqNqiShBT/lzkHTMC/slKBrvN0DsD4Di8ssBk4aDaVgEn+2WMzE6DXxq701ndSXj7/0cJ8mNT71pM7Bnrr6JRw=="],
 
-    "@hono/node-server": ["@hono/node-server@1.19.6", "", { "peerDependencies": { "hono": "^4" } }, "sha512-Shz/KjlIeAhfiuE93NDKVdZ7HdBVLQAfdbaXEaoAVO3ic9ibRSLGIQGkcBbFyuLr+7/1D5ZCINM8B+6IvXeMtw=="],
+    "@hono/node-server": ["@hono/node-server@1.19.11", "", { "peerDependencies": { "hono": "^4" } }, "sha512-dr8/3zEaB+p0D2n/IUrlPF1HZm586qgJNXK1a9fhg/PzdtkK7Ksd5l312tJX2yBuALqDYBlG20QEbayqPyxn+g=="],
 
     "@html-eslint/core": ["@html-eslint/core@0.57.0", "", { "dependencies": { "@html-eslint/types": "^0.57.0", "eslint": "^9.39.1", "html-standard": "^0.0.13" } }, "sha512-X/cKrOmXrxZSdgyKwtbaCuuJ1k/u82MK58Q6p1TzfwPatwIYx+icfBv1Vp1dLui0L0y1fwBW4H+TKhBf7mMKmg=="],
 

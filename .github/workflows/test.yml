@@ -119,6 +119,9 @@ jobs:
           cd packages/search
           bun test
   test-backend:
+    defaults:
+      run:
+        working-directory: packages/backend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout backend
@@ -132,22 +135,53 @@ jobs:
       - name: Build
         run: bun run build
       - name: Test backend
+        run: bun test
+      - name: Test nodejs version
         run: |
-          cd packages/backend
-          bun test
+          bun run noderun &
+          NODE_PID=$!
+          for i in {1..20}; do
+            if curl --fail http://localhost:3000/; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail http://localhost:3000/
+          kill $NODE_PID
+          wait $NODE_PID || true
+      - name: Test bun version
+        run: |
+          bun run bunrun &
+          BUN_PID=$!
+          for i in {1..20}; do
+            if curl --fail http://localhost:3000/; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail http://localhost:3000/
+          kill $BUN_PID
+          wait $BUN_PID || true
       - name: Build docker image
-        run: |
-          cd packages/backend
-          bun run docker:build
+        run: bun run docker:build
       - name: Run docker container
         run: |
-          cd packages/backend
           bun run docker:run:debug &
-          sleep 10
+          for i in {1..20}; do
+            if curl --fail http://localhost:3000/; then
+              break
+            fi
+            sleep 1
+          done
+          if ! curl --fail http://localhost:3000/; then
+            echo "Error: Docker app not ready after 20 seconds" >&2
+            exit 1
+          fi
       - name: Test backend docker container
         run: |
           curl --fail http://localhost:3000/
           curl --fail http://localhost:3000/otherpage
+
   test-release:
     runs-on: ubuntu-latest
     steps:
