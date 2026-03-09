@@ -119,6 +119,9 @@ jobs:
           cd packages/search
           bun test
   test-backend:
+    defaults:
+      run:
+        working-directory: packages/backend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout backend
@@ -132,22 +135,21 @@ jobs:
       - name: Build
         run: bun run build
       - name: Test backend
-        run: |
-          cd packages/backend
-          bun test
+        run: bun test
+      - name: Test nodejs version
+        run: bun run noderun && curl --fail http://localhost:3000/
+      - name: Test bun version
+        run: bun run bunrun && curl --fail http://localhost:3000/
       - name: Build docker image
-        run: |
-          cd packages/backend
-          bun run docker:build
+        run: bun run docker:build
       - name: Run docker container
-        run: |
-          cd packages/backend
-          bun run docker:run:debug &
+        run: bun run docker:run:debug &
           sleep 10
       - name: Test backend docker container
         run: |
           curl --fail http://localhost:3000/
           curl --fail http://localhost:3000/otherpage
+
   test-release:
     runs-on: ubuntu-latest
     steps:
