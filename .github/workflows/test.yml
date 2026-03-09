@@ -137,9 +137,31 @@ jobs:
       - name: Test backend
         run: bun test
       - name: Test nodejs version
-        run: bun run noderun && curl --fail http://localhost:3000/
+        run: |
+          bun run noderun &
+          NODE_PID=$!
+          for i in {1..20}; do
+            if curl --fail http://localhost:3000/; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail http://localhost:3000/
+          kill $NODE_PID
+          wait $NODE_PID || true
       - name: Test bun version
-        run: bun run bunrun && curl --fail http://localhost:3000/
+        run: |
+          bun run bunrun &
+          BUN_PID=$!
+          for i in {1..20}; do
+            if curl --fail http://localhost:3000/; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail http://localhost:3000/
+          kill $BUN_PID
+          wait $BUN_PID || true
       - name: Build docker image
         run: bun run docker:build
       - name: Run docker container
