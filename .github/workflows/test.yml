@@ -165,8 +165,18 @@ jobs:
       - name: Build docker image
         run: bun run docker:build
       - name: Run docker container
-        run: bun run docker:run:debug &
-          sleep 10
+        run: |
+          bun run docker:run:debug &
+          for i in {1..20}; do
+            if curl --fail http://localhost:3000/; then
+              break
+            fi
+            sleep 1
+          done
+          if ! curl --fail http://localhost:3000/; then
+            echo "Error: Docker app not ready after 20 seconds" >&2
+            exit 1
+          fi
       - name: Test backend docker container
         run: |
           curl --fail http://localhost:3000/
