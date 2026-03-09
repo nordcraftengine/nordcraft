@@ -359,12 +359,11 @@ export class RedirectError extends Error {
 
 const executeFetchCall = async (request: Request) => {
   try {
-    // Remove the cf-connecting-ip header if the request is from localhost
-    // This is to prevent cf to throw an error when the requester ip is ::1
-    if ((request.headers.get('host') ?? '').startsWith('localhost')) {
-      request.headers.delete('cf-connecting-ip')
-      request.headers.delete('host')
-    }
+    // Always remove the host and cf-connecting-ip headers to prevent
+    // host mismatches on the outgoing request. fetch() will set the
+    // correct Host header based on the target URL automatically.
+    request.headers.delete('cf-connecting-ip')
+    request.headers.delete('host')
     const response = await fetch(request)
     return response
   } catch (e: any) {
