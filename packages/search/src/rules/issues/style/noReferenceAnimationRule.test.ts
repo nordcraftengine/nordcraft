@@ -280,4 +280,45 @@ describe('noReferenceAnimationRule fixes', () => {
       (fixedFiles.components['my-component']?.nodes as any).root.animations,
     ).toEqual({})
   })
+
+  test('should work even when syntax is shuffled, but valid', () => {
+    const files: ProjectFiles = {
+      components: {
+        'my-component': {
+          name: 'my-component',
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'div',
+              attrs: {},
+              children: [],
+              events: {},
+              style: {
+                animation:
+                  '2s ease 0ms 1 normal forwards running animation-diMMIZ',
+              },
+              animations: {
+                'animation-diMMIZ': {
+                  a: {
+                    key: 'opacity',
+                    value: '1',
+                    position: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const problems = Array.from(
+      searchProject({
+        files,
+        rules: [noReferenceAnimationRule],
+      }),
+    )
+
+    expect(problems).toBeEmpty()
+  })
 })

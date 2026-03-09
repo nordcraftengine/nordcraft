@@ -20,7 +20,9 @@ export const noReferenceAnimationRule: Rule = {
         Object.values(style ?? {})
           .filter((value) => typeof value === 'string')
           .flatMap((value) =>
-            value.split(',').map((animation) => animation.trim().split(' ')[0]),
+            value
+              .split(',')
+              .flatMap((animation) => animation.trim().split(' ')),
           )
           .forEach((animation) => {
             animations.add(animation)
