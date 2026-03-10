@@ -364,148 +364,143 @@ describe('renderPageBody', () => {
     )
   })
 
-  // Disabled test
-
   // Bug: https://discord.com/channels/972416966683926538/1458387768504746068/1458387768504746068
   // TODO: Fix rendering so that context is properly passed through slots. Rendering should go through inner components before slotted content.
-  test.failing(
-    'should render context value when consumer is through multiple slots of a wrapped provider',
-    async () => {
-      // Four components required for test setup:
-      // PageComponent - uses WrappedProviderComponent with a slotted ConsumerComponent
-      // WrappedProviderComponent - uses ProviderComponent and passes slot to it
-      // ProviderComponent - provides context value to its children through a slot
-      // ConsumerComponent - consumes context value and renders it
-      const pageComponent: Component = {
-        name: 'PageComponent',
-        nodes: {
-          root: {
-            type: 'component',
-            name: 'WrappedProviderComponent',
-            attrs: {},
-            children: ['consumerSlot'],
-            events: {},
-            style: {},
-          },
-          consumerSlot: {
-            type: 'component',
-            name: 'ConsumerComponent',
-            attrs: {},
-            children: [],
-            events: {},
-            style: {},
-          },
+  test('should render context value when consumer is through multiple slots of a wrapped provider', async () => {
+    // Four components required for test setup:
+    // PageComponent - uses WrappedProviderComponent with a slotted ConsumerComponent
+    // WrappedProviderComponent - uses ProviderComponent and passes slot to it
+    // ProviderComponent - provides context value to its children through a slot
+    // ConsumerComponent - consumes context value and renders it
+    const pageComponent: Component = {
+      name: 'PageComponent',
+      nodes: {
+        root: {
+          type: 'component',
+          name: 'WrappedProviderComponent',
+          attrs: {},
+          children: ['consumerSlot'],
+          events: {},
+          style: {},
         },
-        formulas: {},
-        apis: {},
-        attributes: {},
-        variables: {},
-        events: [],
-      }
+        consumerSlot: {
+          type: 'component',
+          name: 'ConsumerComponent',
+          attrs: {},
+          children: [],
+          events: {},
+          style: {},
+        },
+      },
+      formulas: {},
+      apis: {},
+      attributes: {},
+      variables: {},
+      events: [],
+    }
 
-      const wrappedProviderComponent: Component = {
-        name: 'WrappedProviderComponent',
-        nodes: {
-          root: {
-            type: 'component',
-            name: 'ProviderComponent',
-            attrs: {},
-            children: ['slot'],
-            events: {},
-            style: {},
-          },
-          slot: {
-            type: 'slot',
-            children: [],
-          },
+    const wrappedProviderComponent: Component = {
+      name: 'WrappedProviderComponent',
+      nodes: {
+        root: {
+          type: 'component',
+          name: 'ProviderComponent',
+          attrs: {},
+          children: ['slot'],
+          events: {},
+          style: {},
         },
-        formulas: {},
-        apis: {},
-        attributes: {},
-        variables: {},
-        events: [],
-      }
+        slot: {
+          type: 'slot',
+          children: [],
+        },
+      },
+      formulas: {},
+      apis: {},
+      attributes: {},
+      variables: {},
+      events: [],
+    }
 
-      const providerComponent: Component = {
-        name: 'ProviderComponent',
-        formulas: {
-          contextValue: {
-            name: 'contextValue',
-            exposeInContext: true,
-            formula: {
-              type: 'value',
-              value: 'provided-value',
-            },
+    const providerComponent: Component = {
+      name: 'ProviderComponent',
+      formulas: {
+        contextValue: {
+          name: 'contextValue',
+          exposeInContext: true,
+          formula: {
+            type: 'value',
+            value: 'provided-value',
           },
         },
-        nodes: {
-          root: {
-            type: 'slot',
-            children: [],
-          },
+      },
+      nodes: {
+        root: {
+          type: 'slot',
+          children: [],
         },
-      }
+      },
+    }
 
-      const consumerComponent: Component = {
-        name: 'ConsumerComponent',
-        contexts: {
-          ProviderComponent: {
-            formulas: ['contextValue'],
-            workflows: [],
+    const consumerComponent: Component = {
+      name: 'ConsumerComponent',
+      contexts: {
+        ProviderComponent: {
+          formulas: ['contextValue'],
+          workflows: [],
+        },
+      },
+      nodes: {
+        root: {
+          type: 'text',
+          value: {
+            type: 'path',
+            path: ['Contexts', 'ProviderComponent', 'contextValue'],
           },
         },
-        nodes: {
-          root: {
-            type: 'text',
-            value: {
-              type: 'path',
-              path: ['Contexts', 'ProviderComponent', 'contextValue'],
-            },
-          },
-        },
-        formulas: {},
-        apis: {},
-        attributes: {},
-        variables: {},
-        events: [],
-      }
+      },
+      formulas: {},
+      apis: {},
+      attributes: {},
+      variables: {},
+      events: [],
+    }
 
-      const { html } = await renderPageBody({
-        evaluateComponentApis: () => ({}) as any,
-        component: pageComponent as any,
-        formulaContext: {
-          data: {
-            Attributes: {},
-          },
-          component: pageComponent,
-          env: {} as any,
-          package: undefined,
-          toddle: {} as any,
+    const { html } = await renderPageBody({
+      evaluateComponentApis: () => ({}) as any,
+      component: pageComponent as any,
+      formulaContext: {
+        data: {
+          Attributes: {},
         },
+        component: pageComponent,
         env: {} as any,
-        files: {
-          components: {
-            PageComponent: pageComponent,
-            WrappedProviderComponent: wrappedProviderComponent,
-            ProviderComponent: providerComponent,
-            ConsumerComponent: consumerComponent,
-          },
-        } as any,
-        includedComponents: [
-          pageComponent,
-          wrappedProviderComponent,
-          providerComponent,
-          consumerComponent,
-        ],
-        projectId: 'test-project',
-        req: {} as any,
-      })
+        package: undefined,
+        toddle: {} as any,
+      },
+      env: {} as any,
+      files: {
+        components: {
+          PageComponent: pageComponent,
+          WrappedProviderComponent: wrappedProviderComponent,
+          ProviderComponent: providerComponent,
+          ConsumerComponent: consumerComponent,
+        },
+      } as any,
+      includedComponents: [
+        pageComponent,
+        wrappedProviderComponent,
+        providerComponent,
+        consumerComponent,
+      ],
+      projectId: 'test-project',
+      req: {} as any,
+    })
 
-      expect(html).toBe(
-        `"<span data-node-type="text" data-node-id="root">provided-value</span>"`,
-      )
-    },
-  )
+    expect(html).toBe(
+      `<span data-node-type="text" data-node-id="root">provided-value</span>`,
+    )
+  })
 
   test('should render a component where a variable initial value references Page.Theme', async () => {
     const component: Component = {
@@ -709,6 +704,264 @@ describe('renderPageBody', () => {
 
     expect(html).toBe(
       '<span data-node-type="text" data-node-id="root">light</span>',
+    )
+  })
+
+  test('Component C should see the context value from Component A when Component B forwards its attribute using slots', async () => {
+    // Component A: Provider
+    // Accepts 'value' as attribute and provides it in context
+    const componentA: Component = {
+      name: 'ComponentA',
+      attributes: {
+        value: {
+          name: 'value',
+          testValue: 'test',
+        },
+      },
+      formulas: {
+        exposedValue: {
+          name: 'exposedValue',
+          exposeInContext: true,
+          formula: {
+            type: 'path',
+            path: ['Attributes', 'value'],
+          },
+        },
+      },
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          attrs: {},
+          children: ['slot_node'],
+          events: {},
+          style: {},
+        },
+        slot_node: {
+          type: 'slot',
+          name: 'default',
+          children: [],
+        },
+      },
+      contexts: {},
+      apis: {},
+      variables: {},
+      events: [],
+    }
+
+    // Component B: Intermediary
+    // Accepts 'val' as attribute and forwards it to Component A's 'value' attribute
+    const componentB: Component = {
+      name: 'ComponentB',
+      attributes: {
+        val: {
+          name: 'val',
+          testValue: 'test',
+        },
+      },
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          attrs: {},
+          children: ['provider_node'],
+          events: {},
+          style: {},
+        },
+        provider_node: {
+          type: 'component',
+          name: 'ComponentA',
+          attrs: {
+            value: {
+              type: 'path',
+              path: ['Attributes', 'val'],
+            },
+          },
+          children: ['slot_forwarder'],
+          events: {},
+          style: {},
+        },
+        slot_forwarder: {
+          type: 'slot',
+          name: 'default',
+          children: [],
+        },
+      },
+      contexts: {},
+      formulas: {},
+      apis: {},
+      variables: {},
+      events: [],
+    }
+
+    // Component C: Consumer
+    // Consumes Component A's context 'exposedValue'
+    const componentC: Component = {
+      name: 'ComponentC',
+      contexts: {
+        ComponentA: {
+          formulas: ['exposedValue'],
+          workflows: [],
+        },
+      },
+      nodes: {
+        root: {
+          type: 'text',
+          value: {
+            type: 'path',
+            path: ['Contexts', 'ComponentA', 'exposedValue'],
+          },
+        },
+      },
+      formulas: {},
+      apis: {},
+      attributes: {},
+      variables: {},
+      events: [],
+    }
+
+    // Root component that renders B with a specific value and C in its slot
+    const rootComponent: any = {
+      name: 'RootComponent',
+      route: {
+        path: [],
+        query: {},
+        info: {
+          theme: {
+            formula: { type: 'value', value: 'light' },
+          },
+        },
+      },
+      nodes: {
+        root: {
+          type: 'component',
+          name: 'ComponentB',
+          attrs: {
+            val: {
+              type: 'value',
+              value: 'expected-value',
+            },
+          },
+          children: ['consumer_node'],
+          events: {},
+          style: {},
+        },
+        consumer_node: {
+          type: 'component',
+          name: 'ComponentC',
+          attrs: {},
+          children: [],
+          events: {},
+          style: {},
+          slot: 'default',
+        },
+      },
+      contexts: {},
+      formulas: {},
+      apis: {},
+      attributes: {},
+      variables: {},
+      events: [],
+    }
+
+    const files = {
+      components: {
+        RootComponent: rootComponent,
+        ComponentB: componentB,
+        ComponentA: componentA,
+        ComponentC: componentC,
+      },
+    } as any
+
+    const { html } = await renderPageBody({
+      evaluateComponentApis: () => ({}) as any,
+      component: rootComponent as any,
+      formulaContext: getPageFormulaContext({
+        component: rootComponent as any,
+        branchName: 'main',
+        req: new Request('http://localhost'),
+        logErrors: true,
+        files,
+      }),
+      env: {} as any,
+      files,
+      includedComponents: [rootComponent, componentB, componentA, componentC],
+      projectId: 'test-project',
+      req: {} as any,
+    })
+
+    // Component C should render 'expected-value'
+    expect(html).toContain('expected-value')
+  })
+
+  test('should render ID formula with the expected order', async () => {
+    const component: Component = {
+      name: 'IdTestComponent',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          attrs: {
+            'data-custom-id': {
+              type: 'function',
+              name: '@toddle/concatenate',
+              arguments: [
+                {
+                  name: '0',
+                  formula: { type: 'value', value: 'custom' },
+                  type: { type: 'Array \\| String \\| Object' },
+                },
+                {
+                  name: '0',
+                  formula: {
+                    type: 'function',
+                    name: '@toddle/Id',
+                    arguments: [],
+                    display_name: 'Id',
+                  },
+                  type: { type: 'Array \\| String \\| Object' },
+                },
+              ],
+            },
+          },
+          children: [],
+          events: {},
+          style: {},
+        },
+      },
+      formulas: {},
+      apis: {},
+      attributes: {},
+      variables: {},
+      events: [],
+      route: {
+        path: [],
+        query: {},
+      },
+    }
+
+    const { html } = await renderPageBody({
+      evaluateComponentApis: () => ({}) as any,
+      component: component as any,
+      formulaContext: getPageFormulaContext({
+        component: component as any,
+        branchName: 'main',
+        req: new Request('http://localhost'),
+        logErrors: true,
+        files: {
+          components: { IdTestComponent: component },
+        },
+      }),
+      env: {} as any,
+      files: { components: { IdTestComponent: component } } as any,
+      includedComponents: [component],
+      projectId: 'test-project',
+      req: {} as any,
+    })
+
+    // Expect the ID formula to render with the correct order (0 in this case since it's the first formula rendered)
+    expect(html).toBe(
+      `<div data-custom-id="custom_id_0_" data-id="0" data-node-id="root" class="ftaNwg"></div>`,
     )
   })
 })

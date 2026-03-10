@@ -31,6 +31,9 @@ import type { ApiCache, ApiEvaluator } from './api'
 import { getNodeAttrs, toEncodedText } from './attributes'
 
 type CustomPropertyRule = `--${string}: ${string}`
+type SlottedContent =
+  | string
+  | ((contexts: Record<string, Record<string, any>>) => Promise<string>)
 
 const renderComponent = async ({
   path,
@@ -53,7 +56,7 @@ const renderComponent = async ({
 }: {
   path: string
   apiCache: ApiCache
-  children?: Record<string, string>
+  children?: Record<string, SlottedContent>
   component: Component
   data: ComponentData
   env: ToddleServerEnv
@@ -149,7 +152,11 @@ const renderComponent = async ({
       case 'slot': {
         const defaultChild = children?.[node.name ?? 'default']
         if (defaultChild) {
-          return defaultChild
+          const content =
+            typeof defaultChild === 'function'
+              ? await defaultChild(data.Contexts ?? {})
+              : defaultChild
+          return content
         } else {
           const slotChildren = await Promise.all(
             node.children.map((child) =>
@@ -379,95 +386,111 @@ const renderComponent = async ({
         })
 
         const childNodes = await Promise.all(
-          node.children.map((child, i) => {
+          node.children.map(async (child, i) => {
             const slotName =
               typeof child === 'string'
                 ? (component.nodes?.[child]?.slot ?? 'default')
                 : 'default'
 
-            return renderNode({
-              id: child,
-              path: `${path}.${i}[${slotName}]`,
-              namespace,
-              node: component.nodes?.[child],
-              data: {
-                ...data,
-                Contexts: {
-                  ...contexts,
-                  [childComponent.name]: Object.fromEntries(
-                    Object.entries(childComponent.formulas ?? {})
-                      .filter(([, formula]) => formula.exposeInContext)
-                      .map(([key, formula]) => [
-                        key,
-                        applyFormula(formula.formula, {
-                          component: childComponent,
-                          package: _packageName,
-                          data: {
-                            Contexts: {
-                              ...data.Contexts,
-                              ...Object.fromEntries(
-                                Object.entries(childComponent.formulas ?? {})
-                                  .filter(
-                                    ([, formula]) => formula.exposeInContext,
-                                  )
-                                  .map(([key, formula]) => [
-                                    key,
-                                    applyFormula(formula.formula, {
-                                      data: {
-                                        Attributes: attrs,
-                                        Apis: { ...data.Apis, ...apis },
-                                        Location: data.Location,
-                                        Page: data.Page,
-                                      },
-                                      component,
-                                      package: _packageName,
-                                      env,
-                                      toddle,
-                                    }),
-                                  ]),
+            return (contexts: Record<string, Record<string, any>>) => {
+              return renderNode({
+                id: child,
+                path: `${path}.${i}[${slotName}]`,
+                namespace,
+                node: component.nodes?.[child],
+                data: {
+                  ...data,
+                  Contexts: {
+                    ...data.Contexts,
+                    ...contexts,
+                    [childComponent.name]: Object.fromEntries(
+                      Object.entries(childComponent.formulas ?? {})
+                        .filter(([, formula]) => formula.exposeInContext)
+                        .map(([key, formula]) => [
+                          key,
+                          applyFormula(formula.formula, {
+                            component: childComponent,
+                            package: _packageName,
+                            data: {
+                              Contexts: {
+                                ...data.Contexts,
+                                ...Object.fromEntries(
+                                  Object.entries(childComponent.formulas ?? {})
+                                    .filter(
+                                      ([, formula]) => formula.exposeInContext,
+                                    )
+                                    .map(([key, formula]) => [
+                                      key,
+                                      applyFormula(formula.formula, {
+                                        data: {
+                                          Attributes: attrs,
+                                          Apis: { ...data.Apis, ...apis },
+                                          Location: data.Location,
+                                          Page: data.Page,
+                                        },
+                                        component,
+                                        package: _packageName,
+                                        env,
+                                        toddle,
+                                      }),
+                                    ]),
+                                ),
+                              },
+                              Apis: apis,
+                              Attributes: attrs,
+                              Variables: mapValues(
+                                childComponent.variables ?? {},
+                                ({ initialValue }) => {
+                                  return applyFormula(initialValue, {
+                                    data: {
+                                      Attributes: attrs,
+                                      Location: data.Location,
+                                      Page: data.Page,
+                                    },
+                                    component,
+                                    package: _packageName,
+                                    env,
+                                    toddle,
+                                  })
+                                },
                               ),
                             },
-                            Apis: apis,
-                            Attributes: attrs,
-                            Variables: mapValues(
-                              childComponent.variables ?? {},
-                              ({ initialValue }) => {
-                                return applyFormula(initialValue, {
-                                  data: {
-                                    Attributes: attrs,
-                                    Location: data.Location,
-                                    Page: data.Page,
-                                  },
-                                  component,
-                                  package: _packageName,
-                                  env,
-                                  toddle,
-                                })
-                              },
-                            ),
-                          },
-                          env,
-                          toddle,
-                        }),
-                      ]),
-                  ),
+                            env,
+                            toddle,
+                          }),
+                        ]),
+                    ),
+                  },
                 },
-              },
-              // pass package name to child component if it's defined
-              packageName,
-            })
+                // pass package name to child component if it's defined
+                packageName,
+              })
+            }
           }),
         )
 
-        const children: Record<string, string> = {}
-        childNodes.forEach((childNode, i) => {
+        const children: Record<string, SlottedContent> = {}
+        childNodes.forEach((renderFn, i) => {
           const childNodeId = node.children[i]
           // Add children to the correct slot in the right order
           const slotName =
             typeof childNodeId === 'string'
               ? (component.nodes?.[childNodeId]?.slot ?? 'default')
               : 'default'
-          children[slotName] = `${children[slotName] ?? ''}${childNode}`
+
+          const existing = children[slotName]
+          if (existing) {
+            const previous =
+              typeof existing === 'function'
+                ? existing
+                : async () => existing as string
+            // Handle multiple elements in the same slot by appending
+            children[slotName] = async (contexts) => {
+              return (await previous(contexts)) + (await renderFn(contexts))
+            }
+          } else {
+            children[slotName] = renderFn
+          }
         })
 
         // Add extra instance styling for each style-variable
@@ -589,7 +612,7 @@ const createComponent = async ({
       })
   >
   attrs: Record<string, any>
-  children?: Record<string, string>
+  children?: Record<string, SlottedContent>
   component: Component
   contexts?: Record<string, Record<string, any>>
   env: ToddleServerEnv
@@ -631,17 +654,20 @@ const createComponent = async ({
   // Own context formulas has access to all other data in the component (attributes, variables, apis etc.) so is applied last
   data.Contexts = {
     ...data.Contexts,
-    ...Object.fromEntries(
-      Object.entries(component.formulas ?? {})
-        .filter(([, formula]) => formula.exposeInContext)
-        .map(([key, formula]) => [
-          key,
-          applyFormula(formula.formula, {
-            ...formulaContext,
-            data,
-          }),
-        ]),
-    ),
+    [component.name]: {
+      ...data.Contexts?.[component.name],
+      ...Object.fromEntries(
+        Object.entries(component.formulas ?? {})
+          .filter(([, formula]) => formula.exposeInContext)
+          .map(([key, formula]) => [
+            key,
+            applyFormula(formula.formula, {
+              ...formulaContext,
+              data,
+            }),
+          ]),
+      ),
+    },
   }
 
   return renderComponent({
