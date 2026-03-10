@@ -152,11 +152,9 @@ const renderComponent = async ({
       case 'slot': {
         const defaultChild = children?.[node.name ?? 'default']
         if (defaultChild) {
-          const content =
-            typeof defaultChild === 'function'
-              ? await defaultChild(data.Contexts ?? {})
-              : defaultChild
-          return content
+          return typeof defaultChild === 'function'
+            ? await defaultChild(data.Contexts ?? {})
+            : defaultChild
         } else {
           const slotChildren = await Promise.all(
             node.children.map((child) =>
@@ -392,7 +390,7 @@ const renderComponent = async ({
                 ? (component.nodes?.[child]?.slot ?? 'default')
                 : 'default'
 
-            return (contexts: Record<string, Record<string, any>>) => {
+            return (contexts: Record<string, Record<string, unknown>>) => {
               return renderNode({
                 id: child,
                 path: `${path}.${i}[${slotName}]`,
@@ -614,7 +612,7 @@ const createComponent = async ({
   attrs: Record<string, any>
   children?: Record<string, SlottedContent>
   component: Component
-  contexts?: Record<string, Record<string, any>>
+  contexts?: Record<string, Record<string, unknown>>
   env: ToddleServerEnv
   evaluateComponentApis: ApiEvaluator
   files: ProjectFiles
