@@ -9,10 +9,22 @@ export const handler: FormulaHandler<boolean> = ([items, fx]: unknown[]) => {
     return null
   }
   if (Array.isArray(items)) {
-    return items.every((item, index) => fx({ item, index }))
+    for (let i = 0; i < items.length; i++) {
+      if (!fx({ item: items[i], index: i })) {
+        return false
+      }
+    }
+    return true
   }
   if (items && typeof items === 'object') {
-    return Object.entries(items).every(([key, value]) => fx({ key, value }))
+    for (const key in items) {
+      if (Object.prototype.hasOwnProperty.call(items, key)) {
+        if (!fx({ key, value: (items as any)[key] })) {
+          return false
+        }
+      }
+    }
+    return true
   }
   return null
 }
@@ -29,12 +41,14 @@ export const getArgumentInputData = (
   }
 
   if (Array.isArray(items)) {
-    return { ...input, Args: { item: items[0], index: 0 } }
-  }
-  if (items && typeof items === 'object') {
-    const [first] = Object.entries(items)
-    if (first) {
-      return { ...input, Args: { key: first[0], value: first[1] } }
+    if (items.length > 0) {
+      return { ...input, Args: { item: items[0], index: 0 } }
+    }
+  } else if (items && typeof items === 'object') {
+    for (const key in items) {
+      if (Object.prototype.hasOwnProperty.call(items, key)) {
+        return { ...input, Args: { key, value: (items as any)[key] } }
+      }
     }
   }
   return input

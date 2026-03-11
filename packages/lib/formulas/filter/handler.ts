@@ -14,12 +14,16 @@ export const handler: FormulaHandler<
     return items.filter((item, index) => func({ item, index }))
   }
   if (items && typeof items === 'object') {
-    return Object.fromEntries(
-      Object.entries(items).filter(([key, value]) => func({ key, value })),
-    )
-  }
-  if (Array.isArray(items)) {
-    return items.filter((item, index) => func({ item, index }))
+    const res: Record<string, any> = {}
+    for (const key in items) {
+      if (Object.prototype.hasOwnProperty.call(items, key)) {
+        const value = (items as any)[key]
+        if (func({ key, value })) {
+          res[key] = value
+        }
+      }
+    }
+    return res
   }
   return null
 }
@@ -36,12 +40,14 @@ export const getArgumentInputData = (
   }
 
   if (Array.isArray(items)) {
-    return { ...input, Args: { item: items[0], index: 0 } }
-  }
-  if (items && typeof items === 'object') {
-    const [first] = Object.entries(items)
-    if (first) {
-      return { ...input, Args: { value: first[1], key: first[0] } }
+    if (items.length > 0) {
+      return { ...input, Args: { item: items[0], index: 0 } }
+    }
+  } else if (items && typeof items === 'object') {
+    for (const key in items) {
+      if (Object.prototype.hasOwnProperty.call(items, key)) {
+        return { ...input, Args: { value: (items as any)[key], key } }
+      }
     }
   }
   return input

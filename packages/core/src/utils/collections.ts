@@ -10,8 +10,8 @@ export const mapObject = <T, T2>(
 ): Record<string, T2> => {
   const result: Record<string, T2> = {}
   for (const key in object) {
-    const [k, v] = f([key, object[key] as T])
-    result[k] = v
+    const entry = f([key, object[key] as T])
+    result[entry[0]] = entry[1]
   }
   return result
 }
@@ -19,7 +19,13 @@ export const mapObject = <T, T2>(
 export const mapValues = <T, T2>(
   object: Record<string, T>,
   f: (value: T) => T2,
-): Record<string, T2> => mapObject(object, ([key, value]) => [key, f(value)])
+): Record<string, T2> => {
+  const result: Record<string, T2> = {}
+  for (const key in object) {
+    result[key] = f(object[key] as T)
+  }
+  return result
+}
 
 /**
  * Deletes potentially nested keys from an object
@@ -29,52 +35,92 @@ export const mapValues = <T, T2>(
  */
 export const omit = <T = object>(
   collection: T,
-  [key, ...rest]: Array<string | number>,
+  path: Array<string | number>,
 ): T => {
-  if (rest.length > 0) {
+  if (path.length === 0) {
+    return collection
+  }
+  return _omit(collection, path, 0)
+}
+
+const _omit = <T = object>(
+  collection: T,
+  path: Array<string | number>,
+  index: number,
+): T => {
+  const key = path[index]
+  const isLast = index === path.length - 1
+
+  if (!isLast) {
     const clone: any = Array.isArray(collection)
       ? [...collection]
-      : { ...collection }
+      : isObject(collection)
+        ? { ...collection }
+        : {}
+
     if (isDefined(key)) {
-      clone[key] = omit(clone[key], rest)
+      clone[key] = _omit(clone[key], path, index + 1)
     }
     return clone
   }
 
   if (Array.isArray(collection)) {
-    return collection.toSpliced(Number(key), 1) as T
+    return (collection as any[]).toSpliced(Number(key), 1) as T
   }
 
-  const clone: any = { ...collection }
+  const clone: any = isObject(collection) ? { ...collection } : {}
   if (isDefined(key)) {
     delete clone[key]
   }
-  return clone
+  return clone as T
 }
 
 export const omitKeys = <T extends Record<string, any>>(
   object: T,
   keys: Array<keyof T>,
-): T =>
-  Object.fromEntries(
-    Object.entries(object).filter(([k]) => !keys.includes(k)),
-  ) as T
+): T => {
+  const result = { ...object }
+  for (let i = 0; i < keys.length; i++) {
+    delete result[keys[i]!]
+  }
+  return result
+}
 
-export const omitPaths = (object: Record<string, any>, keys: string[][]) =>
-  keys.reduce((acc, key) => omit(acc, key), { ...object })
+export const omitPaths = (object: Record<string, any>, keys: string[][]) => {
+  let result = object
+  for (let i = 0; i < keys.length; i++) {
+    result = omit(result, keys[i]!)
+  }
+  return result
+}
 
-export const groupBy = <T>(items: T[], f: (t: T) => string) =>
-  items.reduce<Record<string, T[]>>((acc, item) => {
+export const groupBy = <T>(items: T[], f: (t: T) => string) => {
+  const result: Record<string, T[]> = {}
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]!
     const key = f(item)
-    acc[key] = acc[key] ?? []
-    acc[key].push(item)
-    return acc
-  }, {})
+    if (result[key]) {
+      result[key].push(item)
+    } else {
+      result[key] = [item]
+    }
+  }
+  return result
+}
 
 export const filterObject = <T>(
   object: Record<string, T>,
   f: (kv: [string, T]) => boolean,
-): Record<string, T> => Object.fromEntries(Object.entries(object).filter(f))
+): Record<string, T> => {
+  const result: Record<string, T> = {}
+  for (const key in object) {
+    const value = object[key]!
+    if (f([key, value])) {
+      result[key] = value
+    }
+  }
+  return result
+}
 
 export function get<T = any>(
   collection: T,
@@ -92,7 +138,21 @@ export const set = <T = unknown>(
   key: Array<string | number>,
   value: any,
 ): T => {
-  const [head, ...rest] = key
+  if (key.length === 0) {
+    return collection
+  }
+  return _set(collection, key, 0, value)
+}
+
+const _set = <T = unknown>(
+  collection: T,
+  path: Array<string | number>,
+  index: number,
+  value: any,
+  // eslint-disable-next-line max-params
+): T => {
+  const head = path[index]
+  const isLast = index === path.length - 1
 
   const clone: any = Array.isArray(collection)
     ? [...collection]
@@ -102,8 +162,9 @@ export const set = <T = unknown>(
 
   // Cast to any, since it's actually possible to set a property with an undefined key on an object in Javascript
   // and we don't want to introduce a breaking change
-  clone[head as any] =
-    rest.length === 0 ? value : set(clone[head as any], rest, value)
+  clone[head as any] = isLast
+    ? value
+    : _set(clone[head as any], path, index + 1, value)
   return clone as T
 }
 

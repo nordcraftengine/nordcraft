@@ -4,14 +4,19 @@ const handler: FormulaHandler<unknown> = ([collection, key]) => {
   if (typeof collection === 'string') {
     return collection[Number(key)]
   }
-  const resolve = (collection: any, path: unknown[]): unknown => {
-    if (path.length === 0) {
-      return collection
+
+  if (Array.isArray(key)) {
+    let current: any = collection
+    for (let i = 0; i < key.length; i++) {
+      if (current === null || current === undefined) {
+        return undefined
+      }
+      current = current[String(key[i])]
     }
-    const [head, ...rest] = path
-    return resolve(collection?.[String(head)], rest)
+    return current
   }
-  return resolve(collection, Array.isArray(key) ? key : [key])
+
+  return (collection as any)?.[String(key)]
 }
 
 export default handler

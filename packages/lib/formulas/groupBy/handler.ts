@@ -15,11 +15,14 @@ export const handler: FormulaHandler<Record<string, Array<unknown>>> = ([
   }
 
   const res: Record<string, any> = {}
-  for (const index in items) {
-    const item = items[index]
-    const key = String(func({ item, index }))
-    res[key] = res[key] ?? []
-    res[key].push(item)
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]
+    const key = String(func({ item, index: i }))
+    if (res[key]) {
+      res[key].push(item)
+    } else {
+      res[key] = [item]
+    }
   }
   return res
 }
@@ -31,7 +34,7 @@ export const getArgumentInputData = (
   argIndex: number,
   input: any,
 ) => {
-  if (argIndex === 1 && Array.isArray(items)) {
+  if (argIndex === 1 && Array.isArray(items) && items.length > 0) {
     return { ...input, Args: { item: items[0], index: 0 } }
   }
   return input
