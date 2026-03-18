@@ -1,13 +1,13 @@
 import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Level, Rule } from '../../../types'
+import type { IssueRule, Level } from '../../../types'
 
 export function createStaticSizeConstraintRule(
   tag: string,
   maxSize: number,
   level: Level = 'info',
-): Rule<{
+): IssueRule<{
   tag: string
   size: number
 }> {

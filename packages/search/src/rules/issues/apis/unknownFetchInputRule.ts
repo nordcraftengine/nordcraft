@@ -2,12 +2,12 @@ import { get } from '@nordcraft/core/dist/utils/collections'
 import type {
   ActionModelNode,
   FixFunction,
+  IssueRule,
   NodeType,
-  Rule,
 } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const unknownFetchInputRule: Rule<
+export const unknownFetchInputRule: IssueRule<
   {
     name: string
   },

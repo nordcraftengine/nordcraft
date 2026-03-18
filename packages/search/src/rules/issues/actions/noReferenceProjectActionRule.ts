@@ -1,9 +1,9 @@
 import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 import { projectActionIsReferenced } from './projectActionIsReferenced.memo'
 
-export const noReferenceProjectActionRule: Rule<void> = {
+export const noReferenceProjectActionRule: IssueRule<void> = {
   code: 'no-reference project action',
   level: 'warning',
   category: 'No References',

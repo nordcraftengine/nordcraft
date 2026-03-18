@@ -1,8 +1,8 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { SlotNodeModel } from '@nordcraft/core/dist/component/component.types'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownComponentSlotRule: Rule<{ slotName: string }> = {
+export const unknownComponentSlotRule: IssueRule<{ slotName: string }> = {
   code: 'unknown component slot',
   level: 'error',
   category: 'Unknown Reference',

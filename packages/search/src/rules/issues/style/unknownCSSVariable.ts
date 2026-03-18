@@ -1,9 +1,9 @@
 import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme'
-import type { FixFunction, Rule, StyleNode } from '../../../types'
+import type { FixFunction, IssueRule, StyleNode } from '../../../types'
 
 const REGEX = /var\(\s*(--[\w-]+)/g
 
-export const unknownCSSVariableRule: Rule<
+export const unknownCSSVariableRule: IssueRule<
   {
     name: string
   },

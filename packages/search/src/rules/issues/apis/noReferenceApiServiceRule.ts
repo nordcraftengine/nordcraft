@@ -1,8 +1,8 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceApiServiceRule: Rule<{ serviceName: string }> = {
+export const noReferenceApiServiceRule: IssueRule<{ serviceName: string }> = {
   code: 'no-reference api service',
   level: 'warning',
   category: 'No References',

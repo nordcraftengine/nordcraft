@@ -1,7 +1,7 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownEventRule: Rule<{
+export const unknownEventRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown event',

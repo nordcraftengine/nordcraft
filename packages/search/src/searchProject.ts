@@ -6,8 +6,16 @@ import { ToddleFormula } from '@nordcraft/core/dist/formula/ToddleFormula'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
-import type { AllRuleTypes } from './rules/issues/issueRules.index'
-import type { ApplicationState, FixType, NodeType, Result, Rule } from './types'
+import type {
+  ApplicationState,
+  FixType,
+  IssueRule,
+  NodeType,
+  Result,
+  Rule,
+  SearchResult,
+  SearchRule,
+} from './types'
 import { shouldSearchExactPath, shouldVisitTree } from './util/helpers'
 
 interface FixOptions {
@@ -27,14 +35,21 @@ interface FixOptions {
  */
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: AllRuleTypes[]
+  rules: SearchRule<any, any>[]
+  pathsToVisit?: string[][]
+  useExactPaths?: boolean
+  withDetails?: boolean
+}): Generator<SearchResult>
+export function searchProject(args: {
+  files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
+  rules: IssueRule<any, any>[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
 }): Generator<Result>
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: AllRuleTypes[]
+  rules: IssueRule<any, any>[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
@@ -49,12 +64,12 @@ export function* searchProject({
   fixOptions,
 }: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: AllRuleTypes[]
+  rules: Rule[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
   fixOptions?: FixOptions
-}): Generator<Result | ProjectFiles | void> {
+}): Generator<SearchResult | Result | ProjectFiles | void> {
   const memos = new Map<string, any>()
   const memo = (key: string | string[], fn: () => any) => {
     const stringKey = Array.isArray(key) ? key.join('/') : key
@@ -238,7 +253,7 @@ export function* searchProject({
 function visitNode(args: {
   args: {
     path: (string | number)[]
-    rules: Rule<any, any>[]
+    rules: Rule[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean
@@ -249,7 +264,7 @@ function visitNode(args: {
 function visitNode(args: {
   args: {
     path: (string | number)[]
-    rules: Rule<any, any>[]
+    rules: Rule[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean
@@ -264,7 +279,7 @@ function* visitNode({
 }: {
   args: {
     path: (string | number)[]
-    rules: Rule<any, any>[]
+    rules: Rule[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean
@@ -288,9 +303,9 @@ function* visitNode({
     !useExactPaths ||
     shouldSearchExactPath({ path: data.path, pathsToVisit })
   ) {
-    const results: Result[] = []
+    const results: Result[] | SearchResult[] = []
     let fixedFiles: ProjectFiles | undefined
-    for (const rule of rules) {
+    for (const rule of rules as (IssueRule & SearchRule)[]) {
       // eslint-disable-next-line no-console
       console.timeStamp(`Visiting rule ${rule.code}`)
       rule.visit(
@@ -316,16 +331,20 @@ function* visitNode({
               }
             }
           } else {
-            // We're in "report mode"
-            results.push({
-              code: rule.code,
-              category: rule.category,
-              level: rule.level,
-              path,
-              details,
-              fixes,
-              info,
-            })
+            // Optional filtering to remove undefined entries as different rule types have only subset of fields
+            results.push(
+              Object.fromEntries(
+                [
+                  ['code', rule.code],
+                  ['category', rule.category],
+                  ['level', rule.level],
+                  ['path', path],
+                  ['details', details],
+                  ['fixes', fixes],
+                  ['info', info],
+                ].filter(([, value]) => value !== undefined && value !== null),
+              ),
+            )
           }
         },
         data,
@@ -343,7 +362,7 @@ function* visitNode({
       }
     } else {
       for (const result of results) {
-        yield result
+        yield result as Result & SearchResult
       }
     }
   }

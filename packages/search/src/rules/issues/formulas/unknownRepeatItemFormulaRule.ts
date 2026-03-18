@@ -1,7 +1,7 @@
 import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownRepeatItemFormulaRule: Rule = {
+export const unknownRepeatItemFormulaRule: IssueRule = {
   code: 'unknown repeat item formula',
   level: 'error',
   category: 'Unknown Reference',

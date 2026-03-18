@@ -1,7 +1,7 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const noReferenceComponentWorkflowRule: Rule<{
+export const noReferenceComponentWorkflowRule: IssueRule<{
   name: string
   contextSubscribers: string[]
 }> = {

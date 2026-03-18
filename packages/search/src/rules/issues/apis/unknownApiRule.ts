@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownApiRule: Rule<{
+export const unknownApiRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown api',

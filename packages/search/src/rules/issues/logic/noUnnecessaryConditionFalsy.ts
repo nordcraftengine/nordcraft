@@ -1,7 +1,7 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
-export const noUnnecessaryConditionFalsy: Rule = {
+export const noUnnecessaryConditionFalsy: IssueRule = {
   code: 'no-unnecessary-condition-falsy',
   level: 'info',
   category: 'Quality',

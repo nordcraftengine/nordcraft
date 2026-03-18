@@ -1,7 +1,7 @@
 import type { ApiRequest } from '@nordcraft/core/dist/api/apiTypes'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownApiInputRule: Rule<{
+export const unknownApiInputRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown api input',

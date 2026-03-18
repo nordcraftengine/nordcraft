@@ -1,7 +1,7 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const invalidApiProxyBodySettingRule: Rule<{ api: string }> = {
+export const invalidApiProxyBodySettingRule: IssueRule<{ api: string }> = {
   code: 'invalid api proxy body setting',
   level: 'warning',
   category: 'Quality',

@@ -6,8 +6,8 @@ import type {
   ComponentNode,
   FixFunction,
   FixType,
+  IssueRule,
   NodeType,
-  Rule,
 } from '../../../types'
 
 export interface InvalidComponentData {
@@ -91,7 +91,7 @@ const changeDataTypeFix: FixFunction<ComponentNode, InvalidComponentData> = ({
 const convertIssuePath = (path: PropertyKey[]) =>
   path.map((p) => (typeof p === 'number' ? p : String(p)))
 
-export const invalidComponentStructureRule: Rule<
+export const invalidComponentStructureRule: IssueRule<
   InvalidComponentData,
   NodeType,
   ComponentNode

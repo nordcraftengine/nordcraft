@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const duplicateEventTriggerRule: Rule<{ trigger: string }> = {
+export const duplicateEventTriggerRule: IssueRule<{ trigger: string }> = {
   code: 'duplicate event trigger',
   level: 'warning',
   category: 'Quality',

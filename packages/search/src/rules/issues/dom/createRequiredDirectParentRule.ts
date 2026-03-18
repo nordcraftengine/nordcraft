@@ -1,10 +1,10 @@
-import type { Level, Rule } from '../../../types'
+import type { IssueRule, Level } from '../../../types'
 
 export function createRequiredDirectParentRule(
   parentTags: string[],
   childTags: string[],
   level: Level = 'warning',
-): Rule<{
+): IssueRule<{
   parentTag: string
   childTag: string
   allowedParentTags: string[]
