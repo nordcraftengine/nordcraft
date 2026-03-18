@@ -1,7 +1,7 @@
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { describe, expect, test } from 'bun:test'
-import '../../happydom'
+import '../happydom'
 import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { customPropertiesStylesheet } from '../utils/subscribeCustomProperty'
