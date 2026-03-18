@@ -1,6 +1,6 @@
 import equal from 'fast-deep-equal'
-import type { NodeType, SearchRule } from '../../../types'
-import { parseSearchQuery } from '../../../util/parseSearchQuery'
+import type { NodeType, SearchRule } from '../../types'
+import { parseSearchQuery } from '../../util/parseSearchQuery'
 
 type MatchResult =
   | {

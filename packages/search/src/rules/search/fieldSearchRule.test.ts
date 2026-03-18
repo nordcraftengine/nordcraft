@@ -1,6 +1,6 @@
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
-import { searchProject } from '../../../searchProject'
+import { searchProject } from '../../searchProject'
 import { createFieldSearchRule } from './fieldSearchRule'
 
 describe('fieldSearchRule', () => {

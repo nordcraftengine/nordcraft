@@ -1,5 +1,5 @@
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-import { createFieldSearchRule } from './rules/search/formulas/fieldSearchRule'
+import { createFieldSearchRule } from './rules/search/fieldSearchRule'
 import { searchProject } from './searchProject'
 import type {
   SearchArgs,
