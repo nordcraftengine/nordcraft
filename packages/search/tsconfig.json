@@ -8,7 +8,7 @@
     "moduleResolution": "bundler",
     "outDir": "./dist",
     "preserveConstEnums": true,
-    "rootDir": ".",
+    "rootDir": "src",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
