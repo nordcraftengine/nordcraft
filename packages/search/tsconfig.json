@@ -8,11 +8,13 @@
     "moduleResolution": "bundler",
     "outDir": "./dist",
     "preserveConstEnums": true,
+    "rootDir": ".",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "strictBuiltinIteratorReturn": true,
     "target": "ESNext",
+    "types": ["bun"],
     "verbatimModuleSyntax": true
   },
   "include": ["src"],
