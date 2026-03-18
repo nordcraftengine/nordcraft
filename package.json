@@ -18,7 +18,7 @@
     "@types/bun": "1.3.3",
     "@typescript-eslint/eslint-plugin": "8.56.1",
     "@typescript-eslint/parser": "8.56.1",
-    "@typescript/native-preview": "7.0.0-dev.20251208.1",
+    "@typescript/native-preview": "7.0.0-dev.20260318.1",
     "esbuild": "0.27.2",
     "eslint": "10.0.3",
     "happy-dom": "20.8.4",
@@ -27,7 +27,7 @@
   },
   "scripts": {
     "build": "cd packages/core && bun run build && cd ../lib && bun run build && cd ../ssr && bun run build && cd ../search && bun run build && cd ../runtime && bun run build",
-    "clean": "rm -rf node_modules && rm bun.lock && rm -rf packages/core/node_modules && rm -rf packages/lib/node_modules && rm -rf packages/runtime/node_modules && rm -rf packages/ssr/node_modules && rm -rf packages/search/node_modules && bun i",
+    "clean": "rm -rf node_modules && rm bun.lock && rm -rf packages/core/node_modules && rm -rf packages/lib/node_modules && rm -rf packages/runtime/node_modules && rm -rf packages/ssr/node_modules && rm -rf packages/search/node_modules && bun i && rm -rf packages/backend/dist && rm -rf packages/core/dist && rm -rf packages/lib/dist && rm -rf packages/runtime/dist && rm -rf packages/search/dist && rm -rf packages/ssr/dist",
     "link": "cd packages/core && bun link && cd ../lib && bun link && cd ../ssr && bun link && cd ../search && bun link && cd ../runtime && bun link",
     "lint": "eslint --quiet --report-unused-disable-directives .",
     "prettier": "prettier --check '*.{json,js,ts}' '**/*.{json,js,ts}' 'packages/editor/elements/**/*.json'",

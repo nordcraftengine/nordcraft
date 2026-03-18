@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import '../../happydom'
+import '../happydom'
 import { CustomPropertyStyleSheet } from './CustomPropertyStyleSheet'
 
 describe('CustomPropertyStyleSheet', () => {
