@@ -11,19 +11,19 @@
   "devDependencies": {
     "@eslint/eslintrc": "3.3.5",
     "@eslint/js": "10.0.1",
+    "@happy-dom/global-registrator": "20.8.4",
     "@html-eslint/eslint-plugin": "0.58.1",
     "@html-eslint/parser": "0.58.1",
     "@octokit/core": "7.0.6",
     "@types/bun": "1.3.3",
     "@typescript-eslint/eslint-plugin": "8.56.1",
     "@typescript-eslint/parser": "8.56.1",
+    "@typescript/native-preview": "7.0.0-dev.20251208.1",
     "esbuild": "0.27.2",
     "eslint": "10.0.3",
+    "happy-dom": "20.8.4",
     "prettier-plugin-organize-imports": "4.3.0",
-    "prettier": "3.8.1",
-    "@typescript/native-preview": "7.0.0-dev.20251208.1",
-    "@happy-dom/global-registrator": "20.0.11",
-    "happy-dom": "20.0.10"
+    "prettier": "3.8.1"
   },
   "scripts": {
     "build": "cd packages/core && bun run build && cd ../lib && bun run build && cd ../ssr && bun run build && cd ../search && bun run build && cd ../runtime && bun run build",
