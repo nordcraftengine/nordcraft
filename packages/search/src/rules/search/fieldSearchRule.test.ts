@@ -217,60 +217,6 @@ describe('fieldSearchRule', () => {
     ])
   })
 
-  // Programmatic search requires more work
-  test.failing(
-    'it should be able to precisely find path formulas with array match and exact match quotes',
-    () => {
-      const results = Array.from(
-        searchProject({
-          withDetails: true,
-          files: {
-            components: {
-              test: {
-                name: 'test',
-                nodes: {},
-                formulas: {
-                  myFormula: {
-                    name: 'myFormula',
-                    formula: {
-                      type: 'path',
-                      path: ['Variables', 'my-var', 'field'],
-                    } as any,
-                  },
-                  myOtherFormula: {
-                    name: 'myOtherFormula',
-                    formula: {
-                      type: 'path',
-                      path: ['Variables', 'my-var-other', 'field'],
-                    } as any,
-                  },
-                },
-                apis: {},
-                attributes: {},
-                variables: {},
-              },
-            },
-          } as any,
-          rules: [
-            createFieldSearchRule({
-              // It should only match the formula where the path starts with the exact values "Variables" and "my-var", not include other formulas that stringified include those values but aren't an exact match on the array
-              query: '<formula>type:"path" path:["Variables", "my-var"]',
-            }),
-          ],
-        }),
-      )
-
-      expect(results).toHaveLength(1)
-      expect(results[0].path).toEqual([
-        'components',
-        'test',
-        'formulas',
-        'myFormula',
-        'formula',
-      ])
-    },
-  )
-
   test('it should find nodes with plain text search (includes)', () => {
     const results = Array.from(
       searchProject({
@@ -419,5 +365,100 @@ describe('fieldSearchRule', () => {
       }),
     )
     expect(results).toBeEmpty()
+  })
+
+  test('regex "value.*person" search should match combined from key and values', () => {
+    const filesWithCombinedField: ProjectFiles = {
+      ...files,
+      components: {
+        test: {
+          ...files.components.test,
+          name: 'test',
+          nodes: {
+            ...files.components.test?.nodes,
+            myNode: {
+              ...files.components.test?.nodes?.myNode,
+              type: 'element',
+              tag: 'img',
+              attrs: {
+                alt: {
+                  type: 'value',
+                  value: 'a person',
+                },
+              },
+              events: {},
+              children: [],
+            },
+          },
+        },
+      },
+    }
+    const results = Array.from(
+      searchProject({
+        withDetails: true,
+        files: filesWithCombinedField as any,
+        rules: [
+          createFieldSearchRule({
+            query: '/value.*person/',
+          }),
+        ],
+      }),
+    )
+
+    expect(results).toHaveLength(1)
+    expect(results[0].path).toEqual([
+      'components',
+      'test',
+      'nodes',
+      'myNode',
+      'attrs',
+      'alt',
+    ])
+  })
+
+  test('match on a key should append the value to the context "after" field', () => {
+    const filesWithCombinedField: ProjectFiles = {
+      ...files,
+      components: {
+        test: {
+          ...files.components.test,
+          name: 'test',
+          nodes: {
+            ...files.components.test?.nodes,
+            myNode: {
+              ...files.components.test?.nodes?.myNode,
+              type: 'element',
+              tag: 'img',
+              events: {},
+              children: [],
+              attrs: {},
+              style: {
+                'background:': 'var(--dark-blue)',
+              },
+            },
+          },
+        },
+      },
+    }
+    const results = Array.from(
+      searchProject({
+        withDetails: true,
+        files: filesWithCombinedField as any,
+        rules: [
+          createFieldSearchRule({
+            query: '/ag/',
+          }),
+        ],
+      }),
+    )
+
+    expect(results).toHaveLength(1)
+    expect(results[0].details.nodeType).toBe('component-node')
+    expect(results[0].details.field).toBe('tag')
+    expect(results[0].details.context).toEqual({
+      before: 't',
+      matched: 'ag',
+      after: ': img',
+    })
   })
 })

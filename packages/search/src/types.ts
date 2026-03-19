@@ -158,7 +158,7 @@ export type Category =
 
 export type Level = 'error' | 'warning' | 'info'
 
-export type Result = {
+export type IssueResult = {
   path: (string | number)[]
   code: Code
   category: Category
@@ -580,7 +580,7 @@ export interface FindProblemsArgs {
 
 export interface FindProblemsResponse {
   id: string
-  results: Result[]
+  results: IssueResult[]
   complete?: true
 }
 
@@ -602,7 +602,7 @@ export interface FixProblemsResponse {
 export interface SearchArgs {
   id: string
   query: string
-  // Files are optional, to allow for updating the query without resending the files in case where they have not changed
+  // Files are optional, to allow for updating the query without resending the files in cases where they have not changed
   files?: ProjectFiles
   options?: {
     pathsToVisit?: string[][]

@@ -3,15 +3,16 @@ import type { CustomPropertyName } from '@nordcraft/core/dist/component/componen
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
 import { ToddleFormula } from '@nordcraft/core/dist/formula/ToddleFormula'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
 import type {
   ApplicationState,
   FixType,
+  IssueResult,
   IssueRule,
   NodeType,
-  Result,
   Rule,
   SearchResult,
   SearchRule,
@@ -46,7 +47,7 @@ export function searchProject(args: {
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
-}): Generator<Result>
+}): Generator<IssueResult>
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   rules: IssueRule<any, any>[]
@@ -69,7 +70,7 @@ export function* searchProject({
   useExactPaths?: boolean
   state?: ApplicationState
   fixOptions?: FixOptions
-}): Generator<SearchResult | Result | ProjectFiles | void> {
+}): Generator<SearchResult | IssueResult | ProjectFiles | void> {
   const memos = new Map<string, any>()
   const memo = (key: string | string[], fn: () => any) => {
     const stringKey = Array.isArray(key) ? key.join('/') : key
@@ -260,7 +261,7 @@ function visitNode(args: {
   } & NodeType
   state: ApplicationState | undefined
   fixOptions: never
-}): Generator<Result>
+}): Generator<IssueResult>
 function visitNode(args: {
   args: {
     path: (string | number)[]
@@ -286,7 +287,7 @@ function* visitNode({
   } & NodeType
   state: ApplicationState | undefined
   fixOptions?: FixOptions
-}): Generator<Result | ProjectFiles | void> {
+}): Generator<IssueResult | ProjectFiles | void> {
   const { rules, pathsToVisit, useExactPaths, ...data } = args
   const { files, value, path, memo, nodeType } = data
   if (
@@ -303,11 +304,9 @@ function* visitNode({
     !useExactPaths ||
     shouldSearchExactPath({ path: data.path, pathsToVisit })
   ) {
-    const results: Result[] | SearchResult[] = []
+    const results: IssueResult[] | SearchResult[] = []
     let fixedFiles: ProjectFiles | undefined
     for (const rule of rules as (IssueRule & SearchRule)[]) {
-      // eslint-disable-next-line no-console
-      console.timeStamp(`Visiting rule ${rule.code}`)
       rule.visit(
         // Report callback used to report issues
         ({ path, details, fixes, info }) => {
@@ -342,7 +341,7 @@ function* visitNode({
                   ['details', details],
                   ['fixes', fixes],
                   ['info', info],
-                ].filter(([, value]) => value !== undefined && value !== null),
+                ].filter(([, value]) => isDefined(value)),
               ),
             )
           }
@@ -362,7 +361,7 @@ function* visitNode({
       }
     } else {
       for (const result of results) {
-        yield result as Result & SearchResult
+        yield result as IssueResult & SearchResult
       }
     }
   }

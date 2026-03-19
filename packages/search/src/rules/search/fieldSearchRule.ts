@@ -9,19 +9,6 @@ type MatchResult =
     }
   | boolean
 
-function unwrapValue(v: any): any {
-  if (
-    typeof v === 'object' &&
-    v !== null &&
-    'type' in v &&
-    (v.type === 'value' || v.type === 'formula') &&
-    'value' in v
-  ) {
-    return v.value
-  }
-  return v
-}
-
 function makeMatch(str: string, index: number, length: number): MatchResult {
   return {
     hasMatch: true,
@@ -74,31 +61,47 @@ function checkStringMatch(
   return index !== -1 ? makeMatch(stringVal, index, targetValue.length) : false
 }
 
-function matchRegex(value: any, matcher: RegExp): MatchResult {
+function matchRegex(value: any, matcher: RegExp, key?: string): MatchResult {
   const check = (v: any): MatchResult => {
-    const str = String(unwrapValue(v))
+    const str = String(v)
     const m = str.match(matcher)
-    if (!m) return false
+    if (!m) {
+      if (key) {
+        const combined = `${key}: ${str}`
+        const mCombined = combined.match(matcher)
+        if (mCombined) {
+          return {
+            hasMatch: true,
+            context: {
+              before: combined.slice(0, mCombined.index),
+              matched: combined.slice(
+                mCombined.index ?? 0,
+                (mCombined.index ?? 0) + mCombined[0].length,
+              ),
+              after: combined.slice(
+                (mCombined.index ?? 0) + mCombined[0].length,
+              ),
+            },
+          }
+        }
+      }
+      return false
+    }
+
     return makeMatch(str, m.index ?? 0, m[0].length)
   }
 
-  if (!Array.isArray(value)) return check(value)
-
-  const joined = value.join(', ')
-  const m = joined.match(matcher)
-  if (m) return makeMatch(joined, m.index ?? 0, m[0].length)
-
-  for (const v of value) {
-    const res = check(v)
-    if (res) return res
+  if (!Array.isArray(value)) {
+    return check(value)
   }
+
   return false
 }
 
-function matchString(value: any, matcher: string): MatchResult {
+function matchString(value: any, matcher: string, key?: string): MatchResult {
   const isExact = matcher.startsWith('"') && matcher.endsWith('"')
   const targetValue = isExact ? matcher.slice(1, -1) : matcher
-  const valToCheck = unwrapValue(value)
+  const valToCheck = value
 
   if (Array.isArray(valToCheck)) {
     const isExactStructural =
@@ -111,17 +114,23 @@ function matchString(value: any, matcher: string): MatchResult {
         if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
           if (v.type === 'value' || v.type === 'formula') {
             const inner = matchString(v.value, matcher)
-            if (typeof inner === 'object' && inner.hasMatch) return inner
+            if (typeof inner === 'object' && inner.hasMatch) {
+              return inner
+            }
           }
           continue
         }
         const m = matchString(v, matcher)
-        if (typeof m === 'object' && m.hasMatch) return m
+        if (typeof m === 'object' && m.hasMatch) {
+          return m
+        }
       }
 
       for (const sep of [',', ', ']) {
         const res = checkStringMatch(valToCheck.join(sep), targetValue, isExact)
-        if (res) return res
+        if (res) {
+          return res
+        }
       }
       return false
     }
@@ -152,19 +161,34 @@ function matchString(value: any, matcher: string): MatchResult {
     ) {
       return false
     }
+
     return checkStringMatch(stringified, targetValue, isExact)
   }
 
-  return checkStringMatch(String(valToCheck), targetValue, isExact)
+  const matchRes = checkStringMatch(String(valToCheck), targetValue, isExact)
+  if (
+    typeof matchRes === 'object' &&
+    matchRes.hasMatch &&
+    key?.toLowerCase().includes(targetValue.toLowerCase())
+  ) {
+    return matchRes
+  }
+
+  return matchRes
 }
 
 function isMatch(
   value: any,
   matcher: string | RegExp | object | null,
+  key?: string,
 ): MatchResult {
-  if (matcher instanceof RegExp) return matchRegex(value, matcher)
+  if (matcher instanceof RegExp) {
+    return matchRegex(value, matcher, key)
+  }
 
-  if (typeof matcher === 'string') return matchString(value, matcher)
+  if (typeof matcher === 'string') {
+    return matchString(value, matcher, key)
+  }
 
   if (Array.isArray(matcher)) {
     return (
@@ -175,9 +199,13 @@ function isMatch(
   }
 
   if (typeof matcher === 'object' && matcher !== null) {
-    if (typeof value !== 'object' || value === null) return false
+    if (typeof value !== 'object' || value === null) {
+      return false
+    }
     for (const key in matcher) {
-      if (!equal(value[key], (matcher as any)[key])) return false
+      if (!equal(value[key], (matcher as any)[key])) {
+        return false
+      }
     }
     return true
   }
@@ -205,9 +233,14 @@ function getValueByPath(
         results.push(curr)
         return
       }
-      if (curr === null || typeof curr !== 'object') return
-      if (parts[i] === '*') for (const k in curr) walk(curr[k], i + 1)
-      else if (parts[i] in curr) walk(curr[parts[i]], i + 1)
+      if (curr === null || typeof curr !== 'object') {
+        return
+      }
+      if (parts[i] === '*') {
+        for (const k in curr) walk(curr[k], i + 1)
+      } else if (parts[i] in curr) {
+        walk(curr[parts[i]], i + 1)
+      }
     }
     walk(obj, 0)
     return { value: results, found: results.length > 0 }
@@ -241,20 +274,18 @@ export function createFieldSearchRule({
     fieldsObj: Record<string, string | RegExp>,
   ): MatchResult {
     let lastMatch: MatchResult = true
-
     for (const f in fieldsObj) {
       const m = fieldsObj[f]
 
-      if (f === '_exists_') {
-        if (!getValueByPath(val, String(m)).found) return false
-        continue
+      const { value: fv, found } = getValueByPath(val, f)
+      if (!found) {
+        return false
       }
 
-      const { value: fv, found } = getValueByPath(val, f)
-      if (!found) return false
-
-      const matchResult = isMatch(fv, m)
-      if (!matchResult) return false
+      const matchResult = isMatch(fv, m, f)
+      if (!matchResult) {
+        return false
+      }
 
       if (typeof matchResult === 'object' && matchResult.hasMatch) {
         lastMatch = { ...matchResult, field: f } as any
@@ -264,10 +295,12 @@ export function createFieldSearchRule({
     return lastMatch
   }
 
-  function evaluateValue(val: any, part: any): MatchResult {
+  function evaluateValue(val: any, part: any, key: string): MatchResult {
     const { fields, exclude } = part
 
-    if (!fields) return !exclude
+    if (!fields) {
+      return !exclude
+    }
 
     let matched: MatchResult = false
 
@@ -281,7 +314,7 @@ export function createFieldSearchRule({
         fields as Record<string, string | RegExp>,
       )
     } else {
-      const matchResult = isMatch(val, fields)
+      const matchResult = isMatch(val, fields, key)
       matched =
         typeof matchResult === 'object' && matchResult.hasMatch
           ? matchResult
@@ -304,15 +337,19 @@ export function createFieldSearchRule({
       let matchedFieldName: string | null = null
 
       const allMatched = parsedQuery.every((p) => {
-        if (p.nodeType && nodeType !== p.nodeType) return false
+        if (p.nodeType && nodeType !== p.nodeType) {
+          return false
+        }
 
-        const evalRes = evaluateValue(value, p)
+        const evalRes = evaluateValue(value, p, '')
         if (evalRes) {
           if (typeof evalRes === 'object' && evalRes.hasMatch) {
             matchContext = evalRes.context
             matchedFieldName = (evalRes as any).field ?? matchedFieldName
           }
-          return true
+          {
+            return true
+          }
         }
 
         return Object.entries(value).some(([k, v]) => {
@@ -320,17 +357,19 @@ export function createFieldSearchRule({
             (skippedFields?.[nodeType] as Array<string> | undefined)?.includes(
               k,
             )
-          )
+          ) {
             return false
+          }
 
-          const res = evaluateValue(v, p)
-          if (res) {
-            if (typeof res === 'object' && res.hasMatch) {
-              matchContext = res.context
-              matchedFieldName = (res as any).field ?? k
+          const resValue = evaluateValue(v, p, k)
+          if (resValue) {
+            if (typeof resValue === 'object' && resValue.hasMatch) {
+              matchContext = resValue.context
+              matchedFieldName = (resValue as any).field ?? k
             }
             return true
           }
+
           return false
         })
       })
@@ -341,7 +380,11 @@ export function createFieldSearchRule({
           reportedPaths.add(pk)
           report({
             path,
-            details: { context: matchContext, field: matchedFieldName },
+            details: {
+              context: matchContext,
+              field: matchedFieldName,
+              nodeType,
+            },
           })
         }
       }
