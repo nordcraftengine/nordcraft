@@ -76,7 +76,7 @@ export async function findSearch(
 
     // Every 10ms we yield to the event loop to allow new messages to be processed
     if (performance.now() - lastYield > 10) {
-      await new Promise((resolve) => setTimeout(resolve as any))
+      await new Promise((resolve) => setTimeout(resolve))
       lastYield = performance.now()
       if (task.cancelled) {
         // eslint-disable-next-line no-console
