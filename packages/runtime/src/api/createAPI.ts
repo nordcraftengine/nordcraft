@@ -323,7 +323,7 @@ export function createLegacyAPI(
         if (firstRun && ctx.isRootComponent) {
           firstRun = false
           const cached = ctx.toddle?.pageState?.Apis?.[api.name]
-          if (cached && cached.data) {
+          if (cached?.data) {
             if (typeof cached.data === 'string') {
               // Mimic the behavior from getBody and parse
               // the response to JSON if possible
