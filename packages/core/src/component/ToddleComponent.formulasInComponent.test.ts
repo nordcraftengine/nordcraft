@@ -1,6 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { functionFormula, valueFormula } from '../formula/formulaUtils'
 import { ToddleComponent } from './ToddleComponent'
-import type { Component } from './component.types'
+import { HeadTagTypes, type Component } from './component.types'
 
 describe('ToddleComponent.formulasInComponent', () => {
   test('it return formulas used in parameters of TriggerWorkflow actions', () => {
@@ -289,11 +290,15 @@ describe('ToddleComponent.formulasInComponent', () => {
     })
     const formulas = Array.from(demo.formulasInComponent())
 
-    expect(formulas.find((f) => f.formula.name === 'outer')).toBeDefined()
-    expect(formulas.find((f) => f.formula.name === 'inner')).toBeDefined()
-    expect(formulas.find((f) => f.formula.name === 'inner')?.packageName).toBe(
-      'my-pkg',
-    )
+    expect(
+      formulas.find((f) => (f.formula as any).name === 'outer'),
+    ).toBeDefined()
+    expect(
+      formulas.find((f) => (f.formula as any).name === 'inner'),
+    ).toBeDefined()
+    expect(
+      formulas.find((f) => (f.formula as any).name === 'inner')?.packageName,
+    ).toBe('my-pkg')
     expect(formulas).toEqual([
       {
         formula: {
@@ -401,5 +406,42 @@ describe('ToddleComponent.formulasInComponent', () => {
       packageName: 'my-pkg',
       path: ['packages', 'my-pkg', 'formulas', 'my-formula'],
     })
+  })
+
+  test('it visits formulas in route info', () => {
+    const demo = new ToddleComponent({
+      component: {
+        name: 'demo',
+        route: {
+          path: [],
+          query: {},
+          info: {
+            language: { formula: valueFormula('en') },
+            charset: { formula: valueFormula('utf-8') },
+            theme: { formula: valueFormula('themeFunction') },
+            title: { formula: valueFormula('My Page') },
+            description: { formula: valueFormula('Page description') },
+            meta: {
+              'og:title': {
+                content: valueFormula('OG Title'),
+                tag: HeadTagTypes.Meta,
+              },
+            },
+          },
+        },
+      },
+      getComponent: () => undefined,
+      packageName: undefined,
+      globalFormulas: {},
+    })
+    const formulas = Array.from(demo.formulasInComponent()).map(
+      ({ formula }) => (formula.type === 'value' ? formula.value : undefined),
+    )
+    expect(formulas).toContain('en')
+    expect(formulas).toContain('utf-8')
+    expect(formulas).toContain('themeFunction')
+    expect(formulas).toContain('My Page')
+    expect(formulas).toContain('Page description')
+    expect(formulas).toContain('OG Title')
   })
 })

@@ -8,11 +8,12 @@
     "noEmit": true,
     "noUncheckedIndexedAccess": true,
     "preserveConstEnums": true,
-    "sourceMap": true,
     "skipLibCheck": true,
+    "sourceMap": true,
     "strict": true,
     "strictBuiltinIteratorReturn": true,
     "target": "ESNext",
+    "types": ["bun"],
     "verbatimModuleSyntax": true
   },
   "include": ["actions", "formulas", "./actions.ts", "./formulas.ts"],
