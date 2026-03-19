@@ -6,7 +6,10 @@ const stack: {
   start: number
 }[] = []
 export const measure = (key: string, details: Record<string, unknown>) => {
-  if (sessionStorage.getItem('__nc_measure') !== 'true') {
+  if (
+    typeof sessionStorage === 'undefined' ||
+    sessionStorage.getItem('__nc_measure') !== 'true'
+  ) {
     return () => {}
   }
 
