@@ -366,6 +366,12 @@ export class ToddleComponent<Handler> {
       path: ['route', 'info', 'charset', 'formula'],
       packageName,
     })
+    yield* getFormulasInFormula({
+      formula: this.route?.info?.theme?.formula,
+      globalFormulas,
+      path: ['route', 'info', 'theme', 'formula'],
+      packageName,
+    })
     for (const [metaKey, meta] of Object.entries(
       this.route?.info?.meta ?? {},
     )) {
