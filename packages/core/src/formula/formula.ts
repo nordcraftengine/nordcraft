@@ -9,6 +9,7 @@ import type {
   Runtime,
   Toddle,
 } from '../types'
+import { measure } from '../utils/measure'
 import { isDefined, toBoolean } from '../utils/util'
 import { type PluginFormula, type ToddleFormula } from './formulaTypes'
 
@@ -228,6 +229,10 @@ export function applyFormula(
         return true
       }
       case 'function': {
+        const stopMeasure = measure(`Formula: ${formula.name}`, {
+          formula,
+          component: ctx.component?.name,
+        })
         const packageName = formula.package ?? ctx.package ?? undefined
         const newFunc = (
           ctx.toddle ??
@@ -271,6 +276,8 @@ export function applyFormula(
               console.error(e)
             }
             return null
+          } finally {
+            stopMeasure()
           }
         } else {
           // Lookup legacy formula
@@ -301,6 +308,8 @@ export function applyFormula(
                 console.error(e)
               }
               return null
+            } finally {
+              stopMeasure()
             }
           }
         }
@@ -343,6 +352,10 @@ export function applyFormula(
           }
           return null
         }
+        const stopMeasure = measure(`Formula: ${componentFormula.name}`, {
+          formula,
+          component: ctx.component?.name,
+        })
         const Input = Object.fromEntries(
           formula.arguments.map((arg) =>
             arg.isFunction
@@ -371,6 +384,7 @@ export function applyFormula(
         const cache = ctx.formulaCache?.[formula.name]?.get(data)
 
         if (cache?.hit) {
+          stopMeasure({ cache: 'hit' })
           return cache.data
         } else {
           const result = applyFormula(componentFormula.formula, {
@@ -378,6 +392,7 @@ export function applyFormula(
             data,
           })
           ctx.formulaCache?.[formula.name]?.set(data, result)
+          stopMeasure({ cache: 'miss' })
           return result
         }
       }

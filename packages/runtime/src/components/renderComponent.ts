@@ -5,6 +5,7 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import type { Toddle } from '@nordcraft/core/dist/types'
+import { measure } from '@nordcraft/core/dist/utils/measure'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
@@ -73,6 +74,10 @@ export function renderComponent({
   namespace,
   env,
 }: RenderComponentProps): ReadonlyArray<Element | Text> {
+  const stopMeasure = measure(`Render component: ${component.name}`, {
+    component: component.name,
+    path,
+  })
   const ctx: ComponentContext = {
     triggerEvent: onEvent,
     component,
@@ -145,5 +150,6 @@ export function renderComponent({
       void handleAction(action, dataSignal.get(), ctx)
     })
   })
+  stopMeasure()
   return rootElem
 }
