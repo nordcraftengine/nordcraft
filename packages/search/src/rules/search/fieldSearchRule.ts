@@ -40,10 +40,7 @@ function checkStringMatch(
 
   if (isExact) {
     // Attempt JSON structural match for bracket/brace targets
-    if (
-      (targetValue.startsWith('[') && targetValue.endsWith(']')) ||
-      (targetValue.startsWith('{') && targetValue.endsWith('}'))
-    ) {
+    if (isJsonStructuralTarget(targetValue)) {
       try {
         // JSON parse only used for structural equality — not reproduced as output
         const parsed = JSON.parse(targetValue)
@@ -104,10 +101,7 @@ function matchString(value: any, matcher: string, key?: string): MatchResult {
   const valToCheck = value
 
   if (Array.isArray(valToCheck)) {
-    const isExactStructural =
-      isExact &&
-      ((targetValue.startsWith('[') && targetValue.endsWith(']')) ||
-        (targetValue.startsWith('{') && targetValue.endsWith('}')))
+    const isExactStructural = isExact && isJsonStructuralTarget(targetValue)
 
     if (!isExactStructural) {
       for (const v of valToCheck) {
@@ -140,10 +134,7 @@ function matchString(value: any, matcher: string, key?: string): MatchResult {
 
   if (typeof valToCheck === 'object' && valToCheck !== null) {
     if (isExact) {
-      if (
-        (targetValue.startsWith('[') && targetValue.endsWith(']')) ||
-        (targetValue.startsWith('{') && targetValue.endsWith('}'))
-      ) {
+      if (isJsonStructuralTarget(targetValue)) {
         try {
           if (equal(valToCheck, JSON.parse(targetValue)))
             return fullMatch(targetValue)
@@ -390,4 +381,11 @@ export function createFieldSearchRule({
       }
     },
   }
+}
+
+function isJsonStructuralTarget(targetValue: string): boolean {
+  return (
+    (targetValue.startsWith('[') && targetValue.endsWith(']')) ||
+    (targetValue.startsWith('{') && targetValue.endsWith('}'))
+  )
 }

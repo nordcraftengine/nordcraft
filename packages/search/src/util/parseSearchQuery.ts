@@ -28,8 +28,10 @@ export function parseSearchQuery(query: string): SearchQueryPart[] {
   if (!trimmed) return []
 
   // Check for programmatic search: <nodeType>field:"value" ...
-  if (trimmed.startsWith('<') && trimmed.includes('>')) {
-    const closingBracketIndex = trimmed.indexOf('>')
+  const closingBracketIndex = trimmed.startsWith('<')
+    ? trimmed.indexOf('>')
+    : -1
+  if (closingBracketIndex > 0) {
     const nodeTypeStr = trimmed.slice(1, closingBracketIndex).trim()
     const fieldsPart = trimmed.slice(closingBracketIndex + 1).trim()
 
