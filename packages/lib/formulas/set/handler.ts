@@ -12,15 +12,39 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = (
   ) {
     return null
   }
-  const [head, ...rest] = Array.isArray(key) ? key : [key]
-  if (isObject(collection)) {
-    const clone: Record<string, any> = Array.isArray(collection)
-      ? [...collection]
-      : { ...collection }
-    clone[head] =
-      rest.length === 0 ? value : handler([clone[head], rest, value], ctx)
-    return clone
+
+  if (Array.isArray(key)) {
+    return _set(collection, key, 0, value, ctx)
   }
-  return null
+
+  return _set(collection, [key], 0, value, ctx)
+}
+
+// eslint-disable-next-line max-params
+function _set(
+  collection: any,
+  path: unknown[],
+  index: number,
+  value: any,
+  ctx: any,
+): any {
+  const head = String(path[index])
+  const isLast = index === path.length - 1
+
+  if (!isObject(collection)) {
+    return null
+  }
+
+  const clone: Record<string, any> = Array.isArray(collection)
+    ? [...collection]
+    : { ...collection }
+
+  if (isLast) {
+    clone[head] = value
+  } else {
+    clone[head] = _set(clone[head], path, index + 1, value, ctx)
+  }
+
+  return clone
 }
 export default handler
