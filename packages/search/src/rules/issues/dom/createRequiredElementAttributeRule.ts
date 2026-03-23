@@ -1,5 +1,5 @@
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import type { Level, Rule } from '../../../types'
+import type { IssueRule, Level } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 /**
@@ -19,7 +19,7 @@ export function createRequiredElementAttributeRule({
   attribute: string | string[]
   level?: Level
   allowEmptyString?: boolean
-}): Rule<{
+}): IssueRule<{
   tag: string
   attribute: string
 }> {

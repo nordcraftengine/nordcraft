@@ -1,7 +1,7 @@
 import { isFormulaApplyOperation } from '@nordcraft/core/dist/formula/formula'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownFormulaRule: Rule<{
+export const unknownFormulaRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown formula',

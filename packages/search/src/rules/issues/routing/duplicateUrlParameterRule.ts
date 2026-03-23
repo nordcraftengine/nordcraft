@@ -1,7 +1,7 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const duplicateUrlParameterRule: Rule<{ name: string }> = {
+export const duplicateUrlParameterRule: IssueRule<{ name: string }> = {
   code: 'duplicate url parameter',
   level: 'warning',
   category: 'Quality',

@@ -1,49 +1,22 @@
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-
-type Query =
-  | {
-      type: 'freeform'
-      value: string
-    }
-  | {
-      type: 'component'
-      name: string
-      references?: boolean
-    }
-  | {
-      type: 'formula'
-      name: string
-      references?: boolean
-    }
-  | {
-      type: 'action'
-      name: string
-      references?: boolean
-    }
-
-export type Options = {
-  /**
-   * Useful for running search on a subset or a single file.
-   */
-  pathsToVisit?: string[][]
-  /**
-   * The number of reports to send per message.
-   * @default 1
-   */
-  batchSize?: number | 'all' | 'per-file'
-}
-
+/* eslint-disable no-console */
 /**
- * Similar to problems with using rules and returning paths, but for searching the toddle file format instead of searching for problems.
- *
- * Great for finding freeform text anywhere in a project, or references, dependencies etc.
+ * This function is a web worker that checks for problems in the files.
  */
-onmessage = (
-  _event: MessageEvent<{
-    files: ProjectFiles
-    query: Query
-    options?: unknown
-  }>,
-) => {
-  throw new Error('Not yet implemented')
+import { findSearch } from './findSearch'
+import type { SearchArgs } from './types'
+
+onmessage = (event: MessageEvent<SearchArgs>) => {
+  console.time('search:' + event.data.id)
+  findSearch(event.data, (results) => postMessage(results))
+    .then(() => {
+      console.timeEnd('search:' + event.data.id)
+    })
+    .catch((error) => {
+      postMessage({
+        id: event.data.id,
+        complete: true,
+        cancelled: true,
+        cancelReason: `Search failed with error: ${error instanceof Error ? error.message : String(error)}`,
+      })
+    })
 }

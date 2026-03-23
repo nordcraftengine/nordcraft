@@ -158,7 +158,7 @@ export type Category =
 
 export type Level = 'error' | 'warning' | 'info'
 
-export type Result = {
+export type IssueResult = {
   path: (string | number)[]
   code: Code
   category: Category
@@ -166,6 +166,11 @@ export type Result = {
   details?: any
   fixes?: FixType[]
   info: ReportedIssueInfo
+}
+
+export type SearchResult = {
+  path: (string | number)[]
+  details?: any
 }
 
 export interface ApplicationCookie {
@@ -494,7 +499,7 @@ interface ReportedIssueInfo {
   description: string
 }
 
-export interface Rule<
+export interface IssueRule<
   T = unknown,
   V extends NodeType = NodeType,
   N extends NodeType = V,
@@ -514,6 +519,16 @@ export interface Rule<
   ) => void
   fixes?: Partial<Record<FixType, FixFunction<N, T>>>
 }
+
+export interface SearchRule<T = unknown, V extends NodeType = NodeType> {
+  visit: (
+    report: (args: { path: (string | number)[]; details?: T }) => void,
+    data: V,
+    state?: ApplicationState | undefined,
+  ) => void
+}
+
+export type Rule = IssueRule | SearchRule
 
 export interface FixFunctionArgs<Data extends NodeType, Details = unknown> {
   data: Data
@@ -565,7 +580,8 @@ export interface FindProblemsArgs {
 
 export interface FindProblemsResponse {
   id: string
-  results: Result[]
+  results: IssueResult[]
+  complete?: true
 }
 
 export interface FixProblemsArgs {
@@ -581,4 +597,26 @@ export interface FixProblemsResponse {
   patch: Delta
   fixRule: Code
   fixType: FixType
+}
+
+export interface SearchArgs {
+  id: string
+  query: string
+  // Files are optional, to allow for updating the query without resending the files in cases where they have not changed
+  files?: ProjectFiles
+  options?: {
+    pathsToVisit?: string[][]
+    useExactPaths?: boolean
+    batchSize?: number | 'all' | 'per-file'
+    // disabling details can improve performance as they sometimes require extra computation
+    withDetails?: boolean
+  }
+}
+
+export interface SearchResponse {
+  id: string
+  results: SearchResult[]
+  complete?: boolean
+  cancelled?: boolean
+  cancelReason?: string
 }

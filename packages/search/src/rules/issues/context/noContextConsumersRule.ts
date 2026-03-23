@@ -1,10 +1,10 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
 /**
  * Rule for checking if a component exposes formulas or workflows
  * in context but has no slots or components that could consume them
  */
-export const noContextConsumersRule: Rule<{
+export const noContextConsumersRule: IssueRule<{
   providerName: string
   formulaName: string
 }> = {

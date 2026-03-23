@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const duplicateFormulaArgumentNameRule: Rule<{
+export const duplicateFormulaArgumentNameRule: IssueRule<{
   name: string
 }> = {
   code: 'duplicate formula argument name',

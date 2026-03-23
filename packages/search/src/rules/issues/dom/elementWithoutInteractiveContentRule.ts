@@ -1,7 +1,7 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import {
   interactiveContentElementDefinition,
   type InteractiveContent,
@@ -9,7 +9,7 @@ import {
 
 const ELEMENTS_WITHOUT_INTERACTIVE_CONTENT = ['button', 'a']
 
-export const elementWithoutInteractiveContentRule: Rule<{
+export const elementWithoutInteractiveContentRule: IssueRule<{
   parentTag: string
   invalidChild: InteractiveContent
 }> = {

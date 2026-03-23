@@ -1,10 +1,10 @@
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 /**
  * See full list here
  * https://developer.mozilla.org/en-US/docs/Glossary/Void_element
  */
-export const nonEmptyVoidElementRule: Rule<{ tag: string }> = {
+export const nonEmptyVoidElementRule: IssueRule<{ tag: string }> = {
   code: 'non-empty void element',
   level: 'warning',
   category: 'Quality',

@@ -1,7 +1,7 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownCookieRule: Rule<{
+export const unknownCookieRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown cookie',

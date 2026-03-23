@@ -1,8 +1,8 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceComponentFormulaRule: Rule<{
+export const noReferenceComponentFormulaRule: IssueRule<{
   name: string
   contextSubscribers: string[]
 }> = {

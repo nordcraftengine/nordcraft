@@ -1,9 +1,9 @@
 import type { ComponentFormula } from '@nordcraft/core/dist/component/component.types'
 import { get } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownProjectFormulaInputRule: Rule<{
+export const unknownProjectFormulaInputRule: IssueRule<{
   name?: string | null
 }> = {
   code: 'unknown project formula input',

@@ -1,7 +1,7 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const invalidApiParserModeRule: Rule<{ api: string }> = {
+export const invalidApiParserModeRule: IssueRule<{ api: string }> = {
   code: 'invalid api parser mode',
   level: 'warning',
   category: 'Quality',

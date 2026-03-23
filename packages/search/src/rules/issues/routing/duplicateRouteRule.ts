@@ -1,8 +1,8 @@
 import type { RouteDeclaration } from '@nordcraft/core/dist/component/component.types'
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const duplicateRouteRule: Rule<{
+export const duplicateRouteRule: IssueRule<{
   name: string
   type: 'route' | 'page'
   duplicates: Array<{ name: string; type: 'route' | 'page' }>

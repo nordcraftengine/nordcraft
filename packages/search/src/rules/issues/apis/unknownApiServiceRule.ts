@@ -1,9 +1,9 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const unknownApiServiceRule: Rule<{
+export const unknownApiServiceRule: IssueRule<{
   apiName: string
   serviceName: string
 }> = {

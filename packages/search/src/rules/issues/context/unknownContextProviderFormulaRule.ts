@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownContextProviderFormulaRule: Rule<{
+export const unknownContextProviderFormulaRule: IssueRule<{
   providerName: string
   formulaName: string
 }> = {

@@ -1,13 +1,17 @@
 import { ISSUE_RULES } from './rules/issues/issueRules.index'
 import { searchProject } from './searchProject'
-import type { FindProblemsArgs, FindProblemsResponse, Result } from './types'
+import type {
+  FindProblemsArgs,
+  FindProblemsResponse,
+  IssueResult,
+} from './types'
 
 export const findProblems = (
   data: FindProblemsArgs,
   reportResults: (results: FindProblemsResponse) => void,
 ) => {
   const { files, options = {} } = data
-  const idRespond = (results: Result[]) =>
+  const idRespond = (results: IssueResult[]) =>
     reportResults({
       id: data.id,
       results,
@@ -19,7 +23,7 @@ export const findProblems = (
       !options.rulesToExclude?.includes(rule.code),
   )
 
-  let batch: Result[] = []
+  let batch: IssueResult[] = []
   let fileType: string | number | undefined
   let fileName: string | number | undefined
   for (const problem of searchProject({

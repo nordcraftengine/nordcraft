@@ -1,5 +1,5 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 const nonStaticDimensionKeywords = ['', 'auto']
@@ -7,7 +7,7 @@ const nonStaticDimensionKeywords = ['', 'auto']
  * Lighthouse reports a similar issue:
  * https://web.dev/articles/optimize-cls?utm_source=lighthouse&utm_medium=devtools#images_without_dimensions
  */
-export const imageWithoutDimensionRule: Rule = {
+export const imageWithoutDimensionRule: IssueRule = {
   code: 'image without dimension',
   level: 'warning',
   category: 'Performance',

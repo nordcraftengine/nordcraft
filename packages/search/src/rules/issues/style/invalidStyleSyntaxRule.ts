@@ -1,8 +1,8 @@
 import { parse } from 'postcss'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const invalidStyleSyntaxRule: Rule<{
+export const invalidStyleSyntaxRule: IssueRule<{
   property: string
 }> = {
   code: 'invalid style syntax',

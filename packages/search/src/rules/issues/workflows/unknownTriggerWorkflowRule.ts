@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownTriggerWorkflowRule: Rule<{ workflow: string }> = {
+export const unknownTriggerWorkflowRule: IssueRule<{ workflow: string }> = {
   code: 'unknown trigger workflow',
   level: 'error',
   category: 'Unknown Reference',

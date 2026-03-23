@@ -1,8 +1,8 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const unknownActionEventRule: Rule<{ name: string }> = {
+export const unknownActionEventRule: IssueRule<{ name: string }> = {
   code: 'unknown action event',
   level: 'warning',
   category: 'Unknown Reference',

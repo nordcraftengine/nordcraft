@@ -1,4 +1,4 @@
-import type { Category, Code, Level, Rule } from '../../../types'
+import type { Category, Code, IssueRule, Level } from '../../../types'
 
 /**
  * Generic rule factory for creating a rule that checks for a specific action name.
@@ -21,7 +21,7 @@ export function createActionNameRule({
   }
   category?: Category
   level?: Level
-}): Rule<{
+}): IssueRule<{
   name: string
 }> {
   return {

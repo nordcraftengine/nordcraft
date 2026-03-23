@@ -1,7 +1,7 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const legacyApiRule: Rule<{
+export const legacyApiRule: IssueRule<{
   name: string
 }> = {
   code: 'legacy api',

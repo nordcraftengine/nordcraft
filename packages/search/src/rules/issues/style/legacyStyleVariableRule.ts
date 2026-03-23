@@ -8,13 +8,13 @@ import type { Nullable } from '@nordcraft/core/dist/types'
 import { get, set } from '@nordcraft/core/dist/utils/collections'
 import type {
   FixFunction,
+  IssueRule,
   NodeType,
-  Rule,
   StyleVariableNode,
 } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const legacyStyleVariableRule: Rule<
+export const legacyStyleVariableRule: IssueRule<
   {
     name: string
   },

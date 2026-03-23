@@ -1,8 +1,8 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const unknownComponentAttributeRule: Rule<{
+export const unknownComponentAttributeRule: IssueRule<{
   name: string
   componentName: string
 }> = {

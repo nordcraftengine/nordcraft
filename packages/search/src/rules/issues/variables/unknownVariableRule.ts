@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownVariableRule: Rule<{
+export const unknownVariableRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown variable',

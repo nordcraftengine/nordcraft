@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownTriggerEventRule: Rule<{
+export const unknownTriggerEventRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown trigger event',
