@@ -256,19 +256,19 @@ export const getHeadItems = ({
     }
     headItems.set(
       'link:mask-icon',
-      '<link rel="mask-icon" href="https://raw.githubusercontent.com/nordcraftengine/resources/main/icons/safari-pinned-tab.svg" color="#171717">',
+      '<link rel="mask-icon" href="https://raw.githubusercontent.com/toddledev/resources/main/icons/safari-pinned-tab.svg" color="#171717">',
     )
     headItems.set(
       'link:apple-touch-icon',
-      '<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/nordcraftengine/resources/main/icons/apple-touch-icon.png">',
+      '<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/toddledev/resources/main/icons/apple-touch-icon.png">',
     )
     headItems.set(
       'link:icon:16',
-      '<link rel="icon" type="image/png" sizes="16x16" href="https://raw.githubusercontent.com/nordcraftengine/resources/main/icons/favicon-16x16.png">',
+      '<link rel="icon" type="image/png" sizes="16x16" href="https://raw.githubusercontent.com/toddledev/resources/main/icons/favicon-16x16.png">',
     )
     headItems.set(
       'link:icon:32',
-      '<link rel="icon" type="image/png" sizes="32x32" href="https://raw.githubusercontent.com/nordcraftengine/resources/main/icons/favicon-32x32.png">',
+      '<link rel="icon" type="image/png" sizes="32x32" href="https://raw.githubusercontent.com/toddledev/resources/main/icons/favicon-32x32.png">',
     )
   }
   // Handle custom meta tags last to allow overriding defaults
