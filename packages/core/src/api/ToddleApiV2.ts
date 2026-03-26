@@ -49,7 +49,7 @@ export class ToddleApiV2<Handler> implements ApiRequest {
         case 'value':
           break
         case 'record':
-          formula.entries.forEach((entry) =>
+          formula.entries?.forEach((entry) =>
             visitFormulaReference(entry.formula),
           )
           break
@@ -64,7 +64,7 @@ export class ToddleApiV2<Handler> implements ApiRequest {
           )
           break
         case 'switch':
-          formula.cases.forEach((c) => {
+          formula.cases?.forEach((c) => {
             visitFormulaReference(c.condition)
             visitFormulaReference(c.formula)
           })

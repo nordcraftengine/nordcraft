@@ -57,7 +57,7 @@ function getFormulaCacheConfig(formula: Formula, component: Component) {
       paths.push(op.path)
     }
     if (Array.isArray((op as any)?.arguments)) {
-      ;(op as FunctionOperation)?.arguments.forEach((arg) =>
+      ;(op as FunctionOperation)?.arguments?.forEach((arg) =>
         visitOperation(arg.formula),
       )
     }
