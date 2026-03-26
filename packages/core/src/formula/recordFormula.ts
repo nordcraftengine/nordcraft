@@ -9,7 +9,7 @@ export const applyRecordFormula = (
   ctx: FormulaContext,
 ) => {
   return Object.fromEntries(
-    formula.entries.map((entry, i) => [
+    (formula.entries ?? []).map((entry, i) => [
       entry.name,
       applyFormula(entry.formula, ctx, ['entries', i, 'formula']),
     ]),

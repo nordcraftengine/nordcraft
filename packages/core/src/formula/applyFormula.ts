@@ -20,7 +20,7 @@ export const applyApplyFormula = (
     return null
   }
   const Input = Object.fromEntries(
-    formula.arguments.map((arg, i) =>
+    (formula.arguments ?? []).map((arg, i) =>
       arg.isFunction
         ? [
             arg.name,

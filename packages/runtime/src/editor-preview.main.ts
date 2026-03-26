@@ -531,7 +531,13 @@ export const createRoot = (
           return
         }
         case 'highlight': {
-          highlightedNodeId = message.data.highlightedNodeId ?? null
+          const highlightId = message.data.highlightedNodeId
+          highlightedNodeId = highlightId
+            ? highlightId
+                .split('.')
+                .map((part) => part.split('(')[0])
+                .join('.')
+            : null
           return
         }
         case 'mousemove':
@@ -631,9 +637,15 @@ export const createRoot = (
               })
             }
           } else if (type === 'mousemove' && id !== highlightedNodeId) {
+            const idWithoutRepeatIndices = id
+              ? id
+                  .split('.')
+                  .map((part) => part.split('(')[0])
+                  .join('.')
+              : id
             postMessageToEditor({
               type: 'highlight',
-              highlightedNodeId: id,
+              highlightedNodeId: idWithoutRepeatIndices,
             })
           } else if (
             type === 'dblclick' &&
@@ -1868,8 +1880,13 @@ export function getDOMNodeFromNodeId(
     return null
   }
 
+  const idWithoutRepeatIndices = selectedNodeId
+    .split('.')
+    .map((part) => part.split('(')[0])
+    .join('.')
+
   return document.querySelector(
-    `[data-id="${selectedNodeId}"]:not([data-component])`,
+    `[data-id="${idWithoutRepeatIndices}"]:not([data-component])`,
   )
 }
 
@@ -1883,11 +1900,6 @@ function getNodeId(component: Component, path: string[]) {
     }
     const currentNode = component.nodes?.[currentId]
     if (!currentNode?.children) {
-      return null
-    }
-
-    // We only allow selecting the first element in a repeat (which does not have a repeat-index "()")
-    if (nextChild.endsWith(')')) {
       return null
     }
 

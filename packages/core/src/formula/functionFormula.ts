@@ -18,7 +18,7 @@ export const applyFunctionFormula = (
   )?.getCustomFormula(formula.name, packageName)
   if (isDefined(newFunc)) {
     ctx.package = packageName
-    const args = formula.arguments.reduce<Record<string, unknown>>(
+    const args = (formula.arguments ?? []).reduce<Record<string, unknown>>(
       (args, arg, i) => ({
         ...args,
         [arg.name ?? `${i}`]: arg.isFunction
