@@ -3,13 +3,9 @@ import { toBoolean } from '@nordcraft/core/dist/utils/util'
 
 const handler: ActionHandler = ([elem, preventScroll]) => {
   if (elem instanceof HTMLElement) {
-    if (preventScroll) {
-      elem.focus({
-        preventScroll: toBoolean(preventScroll),
-      })
-    } else {
-      elem.focus()
-    }
+    elem.focus({
+      preventScroll: toBoolean(preventScroll),
+    })
   }
 }
 
