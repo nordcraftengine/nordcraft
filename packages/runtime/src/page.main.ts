@@ -226,20 +226,22 @@ export const createRoot = (domNode: HTMLElement) => {
   }
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
-  sortApiObjects(Object.entries(component.apis ?? {})).forEach(([name, api]) => {
-    if (isLegacyApi(api)) {
-      ctx.apis[name] = createLegacyAPI(api, {
-        ...ctx,
-        jsonPath: ['apis', name],
-      })
-    } else {
-      ctx.apis[name] = createAPI({
-        apiRequest: api,
-        ctx: { ...ctx, jsonPath: ['apis', name] },
-        componentData: dataSignal.get(),
-      })
-    }
-  })
+  sortApiObjects(Object.entries(component.apis ?? {})).forEach(
+    ([name, api]) => {
+      if (isLegacyApi(api)) {
+        ctx.apis[name] = createLegacyAPI(api, {
+          ...ctx,
+          jsonPath: ['apis', name],
+        })
+      } else {
+        ctx.apis[name] = createAPI({
+          apiRequest: api,
+          ctx: { ...ctx, jsonPath: ['apis', name] },
+          componentData: dataSignal.get(),
+        })
+      }
+    },
+  )
   // Trigger actions for all APIs after all of them are created.
   Object.values(ctx.apis)
     .filter(isContextApiV2)
@@ -382,7 +384,13 @@ const setupMetaUpdates = (
   if (dynamicLang) {
     dataSignal
       .map((data) =>
-        component ? applyFormula(langFormula, getFormulaContext(data), ['route', 'info', 'language']) : null,
+        component
+          ? applyFormula(langFormula, getFormulaContext(data), [
+              'route',
+              'info',
+              'language',
+            ])
+          : null,
       )
       .subscribe((newLang) => {
         if (isDefined(newLang) && document.documentElement.lang !== newLang) {
@@ -397,7 +405,13 @@ const setupMetaUpdates = (
   if (dynamicTitle) {
     dataSignal
       .map((data) =>
-        component ? applyFormula(titleFormula, getFormulaContext(data), ['route', 'info', 'title']) : null,
+        component
+          ? applyFormula(titleFormula, getFormulaContext(data), [
+              'route',
+              'info',
+              'title',
+            ])
+          : null,
       )
       .subscribe((newTitle) => {
         if (isDefined(newTitle) && document.title !== newTitle) {
@@ -462,7 +476,11 @@ const setupMetaUpdates = (
       dataSignal
         .map((data) =>
           component
-            ? applyFormula(descriptionFormula, getFormulaContext(data), ['route', 'info', 'description'])
+            ? applyFormula(descriptionFormula, getFormulaContext(data), [
+                'route',
+                'info',
+                'description',
+              ])
             : null,
         )
         .subscribe((newDescription) => {
@@ -518,7 +536,14 @@ const setupMetaUpdates = (
                   component
                     ? {
                         ...agg,
-                        [key]: applyFormula(formula, context, ['route', 'info', 'meta', id, 'attrs', key]),
+                        [key]: applyFormula(formula, context, [
+                          'route',
+                          'info',
+                          'meta',
+                          id,
+                          'attrs',
+                          key,
+                        ]),
                       }
                     : agg,
                 {},

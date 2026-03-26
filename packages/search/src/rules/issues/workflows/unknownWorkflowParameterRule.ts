@@ -1,6 +1,8 @@
 import type { IssueRule } from '../../../types'
 
-export const unknownWorkflowParameterRule: IssueRule<{ parameter: string | number }> = {
+export const unknownWorkflowParameterRule: IssueRule<{
+  parameter: string | number
+}> = {
   code: 'unknown workflow parameter',
   level: 'error',
   category: 'Unknown Reference',

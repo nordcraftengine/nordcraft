@@ -4,7 +4,7 @@ import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { IssueRule } from '../../../types'
 
 export const unknownProjectFormulaInputRule: IssueRule<{
-  name?: string | number| null
+  name?: string | number | null
 }> = {
   code: 'unknown project formula input',
   level: 'error',

@@ -25,9 +25,6 @@ import {
   applyEvaluateAllSwitchFormula,
   applySwitchFormula,
 } from './switchFormula'
-import { measure } from '../utils/measure'
-import { isDefined, toBoolean } from '../utils/util'
-import { type PluginFormula, type ToddleFormula } from './formulaTypes'
 
 // Define the some objects types as union of ServerSide and ClientSide runtime types as applyFormula is used in both
 type ShadowRoot = DocumentFragment
