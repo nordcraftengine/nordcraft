@@ -308,7 +308,7 @@ const removeFormulaTestData = (formula: Formula): Formula => {
     case 'switch':
       return {
         ...formula,
-        cases: formula.cases.map((c) => ({
+        cases: (formula.cases ?? []).map((c) => ({
           ...c,
           condition: removeFormulaTestData(c.condition),
         })),

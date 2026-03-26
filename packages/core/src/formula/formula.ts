@@ -45,7 +45,7 @@ export interface FunctionOperation extends BaseOperation {
 
 export interface RecordOperation extends BaseOperation {
   type: 'record'
-  entries: Nullable<FunctionArgument[]>
+  entries?: Nullable<FunctionArgument[]>
 }
 
 export interface ObjectOperation extends BaseOperation {
@@ -83,10 +83,12 @@ export type ValueOperationValue = string | number | boolean | null | object
 
 export interface SwitchOperation extends BaseOperation {
   type: 'switch'
-  cases: Array<{
-    condition: Formula
-    formula: Formula
-  }>
+  cases?: Nullable<
+    Array<{
+      condition: Formula
+      formula: Formula
+    }>
+  >
   default: Formula
 }
 
@@ -205,7 +207,7 @@ export function applyFormula(
         return input
       }
       case 'switch': {
-        for (const branch of formula.cases) {
+        for (const branch of formula.cases ?? []) {
           if (toBoolean(applyFormula(branch.condition, ctx))) {
             return applyFormula(branch.formula, ctx)
           }

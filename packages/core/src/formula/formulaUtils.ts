@@ -148,7 +148,7 @@ export function* getFormulasInFormula<Handler>({
       }
       break
     case 'switch':
-      for (const [key, c] of formula.cases.entries()) {
+      for (const [key, c] of formula.cases?.entries() ?? []) {
         yield* getFormulasInFormula({
           formula: c.condition,
           globalFormulas,

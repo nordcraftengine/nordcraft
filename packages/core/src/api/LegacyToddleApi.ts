@@ -61,7 +61,7 @@ export class LegacyToddleApi<Handler> {
           )
           break
         case 'switch':
-          formula.cases.forEach((c) => {
+          formula.cases?.forEach((c) => {
             visitFormulaReference(c.condition)
             visitFormulaReference(c.formula)
           })
