@@ -1,7 +1,15 @@
 import { generateAlphabeticName, hash } from './hash'
 
+// Classnames are reused a lot, and JS hashing is expensive, so there is benefit in caching them in a native hashmap.
+const CLASSNAME_LOOKUP = new Map<string, string>()
 export const getClassName = (object: any) => {
-  return generateAlphabeticName(hash(JSON.stringify(object)))
+  const stringified = JSON.stringify(object)
+  if (CLASSNAME_LOOKUP.has(stringified)) {
+    return CLASSNAME_LOOKUP.get(stringified)!
+  }
+  const className = generateAlphabeticName(hash(stringified))
+  CLASSNAME_LOOKUP.set(stringified, className)
+  return className
 }
 
 export const toValidClassName = (

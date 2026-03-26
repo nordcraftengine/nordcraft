@@ -1,4 +1,4 @@
 [test]
-preload = "./happydom.ts"
+preload = "./src/happydom.ts"
 # To ensure bun doesn't test in our dist folder
 root = "./src"

@@ -15,7 +15,7 @@ import {
 
 export const replaceLegacyFormula: FixFunction<
   FormulaNode<FunctionOperation>
-> = (data) => {
+> = ({ data }) => {
   switch (data.value.name) {
     // Known legacy formulas first
     case 'AND': {
@@ -23,7 +23,7 @@ export const replaceLegacyFormula: FixFunction<
       const andFormula: AndOperation = {
         ...legacyAndFormula,
         type: 'and',
-        arguments: legacyAndFormula.arguments.map((a) => {
+        arguments: (legacyAndFormula.arguments ?? []).map((a) => {
           const { name, ...argument } = a
           return argument
         }),
@@ -240,7 +240,7 @@ export const replaceLegacyFormula: FixFunction<
       const andFormula: OrOperation = {
         ...legacyOrFormula,
         type: 'or',
-        arguments: legacyOrFormula.arguments.map((a) => {
+        arguments: (legacyOrFormula.arguments ?? []).map((a) => {
           const { name, ...argument } = a
           return argument
         }),

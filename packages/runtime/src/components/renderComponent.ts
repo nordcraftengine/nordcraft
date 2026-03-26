@@ -6,6 +6,7 @@ import type {
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Toddle } from '@nordcraft/core/dist/types'
+import { measure } from '@nordcraft/core/dist/utils/measure'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
@@ -40,6 +41,9 @@ interface RenderComponentProps {
       ctx: ComponentContext
     }
   >
+  stores: {
+    theme: Signal<string | null>
+  }
   package: string | undefined
   parentElement: Element | ShadowRoot
   instance: Record<string, string>
@@ -66,6 +70,7 @@ export function renderComponent({
   root,
   providers,
   package: packageName,
+  stores,
   parentElement,
   instance,
   toddle,
@@ -74,6 +79,10 @@ export function renderComponent({
   jsonPath,
   reportFormulaEvaluation,
 }: RenderComponentProps): ReadonlyArray<Element | Text> {
+  const stopMeasure = measure(`Render component: ${component.name}`, {
+    component: component.name,
+    path,
+  })
   const ctx: ComponentContext = {
     triggerEvent: onEvent,
     component,
@@ -86,6 +95,7 @@ export function renderComponent({
     abortSignal,
     root,
     providers,
+    stores,
     package: packageName,
     toddle,
     env,
@@ -112,9 +122,8 @@ export function renderComponent({
         .map((data) => data.Attributes)
         .subscribe((props) => {
           if (prev) {
-            component.onAttributeChange?.actions.forEach((action) => {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              handleAction(
+            component.onAttributeChange?.actions?.forEach((action) => {
+              void handleAction(
                 action,
                 dataSignal.get(),
                 ctx,
@@ -126,9 +135,9 @@ export function renderComponent({
                     ) => {
                       if (
                         fastDeepEqual(value, prev![key]) === false &&
-                        component.attributes[key]?.name
+                        component.attributes?.[key]?.name
                       ) {
-                        changes[component.attributes[key]?.name] = {
+                        changes[component.attributes?.[key]?.name] = {
                           current: prev![key],
                           new: value,
                         }
@@ -144,10 +153,10 @@ export function renderComponent({
           prev = props
         })
     }
-    component.onLoad?.actions.forEach((action) => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      handleAction(action, dataSignal.get(), ctx)
+    component.onLoad?.actions?.forEach((action) => {
+      void handleAction(action, dataSignal.get(), ctx)
     })
   })
+  stopMeasure()
   return rootElem
 }

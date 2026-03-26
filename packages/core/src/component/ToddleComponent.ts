@@ -69,11 +69,11 @@ export class ToddleComponent<Handler> {
           globalFormulas: this.globalFormulas,
         }),
       )
-      Object.values(component.nodes).forEach(
+      Object.values(component.nodes ?? {}).forEach(
         visitNode(node.package ?? packageName),
       )
     }
-    Object.values(this.nodes).forEach(visitNode())
+    Object.values(this.nodes ?? {}).forEach(visitNode())
     return [...components.values()]
   }
 
@@ -128,6 +128,7 @@ export class ToddleComponent<Handler> {
     packageName?: string
   }> {
     const globalFormulas = this.globalFormulas
+    const packageName = this.packageName
     function* visitNode(
       node: NodeModel,
       path: (string | number)[] = [],
@@ -142,21 +143,25 @@ export class ToddleComponent<Handler> {
             formula: node.condition,
             globalFormulas,
             path: [...path, 'condition'],
+            packageName,
           })
           yield* getFormulasInFormula({
             formula: node.repeat,
             globalFormulas,
             path: [...path, 'repeat'],
+            packageName,
           })
           yield* getFormulasInFormula({
             formula: node.repeatKey,
             globalFormulas,
             path: [...path, 'repeatKey'],
+            packageName,
           })
           yield* getFormulasInFormula({
             formula: node.value,
             globalFormulas,
             path: [...path, 'value'],
+            packageName,
           })
           break
         case 'slot':
@@ -164,6 +169,7 @@ export class ToddleComponent<Handler> {
             formula: node.condition,
             globalFormulas,
             path: [...path, 'condition'],
+            packageName,
           })
           break
         case 'component':
@@ -171,22 +177,26 @@ export class ToddleComponent<Handler> {
             formula: node.condition,
             globalFormulas,
             path: [...path, 'condition'],
+            packageName,
           })
           yield* getFormulasInFormula({
             formula: node.repeat,
             globalFormulas,
             path: [...path, 'repeat'],
+            packageName,
           })
           yield* getFormulasInFormula({
             formula: node.repeatKey,
             globalFormulas,
             path: [...path, 'repeatKey'],
+            packageName,
           })
           for (const [attrKey, attr] of Object.entries(node.attrs ?? {})) {
             yield* getFormulasInFormula({
               formula: attr,
               globalFormulas,
               path: [...path, 'attrs', attrKey],
+              packageName,
             })
           }
           for (const [eventKey, event] of Object.entries(node.events ?? {})) {
@@ -197,6 +207,7 @@ export class ToddleComponent<Handler> {
                 action,
                 globalFormulas,
                 path: [...path, 'events', eventKey, 'actions', actionKey],
+                packageName,
               })
             }
           }
@@ -207,6 +218,7 @@ export class ToddleComponent<Handler> {
               formula: customProperty.formula,
               globalFormulas,
               path: [...path, 'customProperties', customPropertyKey, 'formula'],
+              packageName,
             })
           }
           for (const [variantKey, variant] of Object.entries(
@@ -226,6 +238,7 @@ export class ToddleComponent<Handler> {
                   customPropertyKey,
                   'formula',
                 ],
+                packageName,
               })
             }
           }
@@ -235,22 +248,26 @@ export class ToddleComponent<Handler> {
             formula: node.condition,
             globalFormulas,
             path: [...path, 'condition'],
+            packageName,
           })
           yield* getFormulasInFormula({
             formula: node.repeat,
             globalFormulas,
             path: [...path, 'repeat'],
+            packageName,
           })
           yield* getFormulasInFormula({
             formula: node.repeatKey,
             globalFormulas,
             path: [...path, 'repeatKey'],
+            packageName,
           })
           for (const [attrKey, attr] of Object.entries(node.attrs ?? {})) {
             yield* getFormulasInFormula({
               formula: attr,
               globalFormulas,
               path: [...path, 'attrs', attrKey],
+              packageName,
             })
           }
           for (const [eventKey, event] of Object.entries(node.events ?? {})) {
@@ -259,6 +276,7 @@ export class ToddleComponent<Handler> {
                 action: a,
                 globalFormulas,
                 path: [...path, 'events', eventKey, 'actions', actionKey],
+                packageName,
               })
             }
           }
@@ -267,6 +285,7 @@ export class ToddleComponent<Handler> {
               formula: c.formula,
               globalFormulas,
               path: [...path, 'classes', classKey, 'formula'],
+              packageName,
             })
           }
 
@@ -277,6 +296,7 @@ export class ToddleComponent<Handler> {
               formula: styleVariable.formula,
               globalFormulas,
               path: [...path, 'style-variables', styleVariableKey, 'formula'],
+              packageName,
             })
           }
 
@@ -287,6 +307,7 @@ export class ToddleComponent<Handler> {
               formula: customProperty.formula,
               globalFormulas,
               path: [...path, 'customProperties', customPropertyKey, 'formula'],
+              packageName,
             })
           }
 
@@ -307,6 +328,7 @@ export class ToddleComponent<Handler> {
                   customPropertyKey,
                   'formula',
                 ],
+                packageName,
               })
             }
           }
@@ -318,26 +340,37 @@ export class ToddleComponent<Handler> {
       formula: this.route?.info?.language?.formula,
       globalFormulas,
       path: ['route', 'info', 'language', 'formula'],
+      packageName,
     })
     yield* getFormulasInFormula({
       formula: this.route?.info?.title?.formula,
       globalFormulas,
       path: ['route', 'info', 'title', 'formula'],
+      packageName,
     })
     yield* getFormulasInFormula({
       formula: this.route?.info?.description?.formula,
       globalFormulas,
       path: ['route', 'info', 'description', 'formula'],
+      packageName,
     })
     yield* getFormulasInFormula({
       formula: this.route?.info?.icon?.formula,
       globalFormulas,
       path: ['route', 'info', 'icon', 'formula'],
+      packageName,
     })
     yield* getFormulasInFormula({
       formula: this.route?.info?.charset?.formula,
       globalFormulas,
       path: ['route', 'info', 'charset', 'formula'],
+      packageName,
+    })
+    yield* getFormulasInFormula({
+      formula: this.route?.info?.theme?.formula,
+      globalFormulas,
+      path: ['route', 'info', 'theme', 'formula'],
+      packageName,
     })
     for (const [metaKey, meta] of Object.entries(
       this.route?.info?.meta ?? {},
@@ -346,12 +379,14 @@ export class ToddleComponent<Handler> {
         formula: meta.content,
         globalFormulas,
         path: ['route', 'info', 'meta', metaKey, 'content'],
+        packageName,
       })
-      for (const [attrKey, a] of Object.entries(meta.attrs)) {
+      for (const [attrKey, a] of Object.entries(meta.attrs ?? {})) {
         yield* getFormulasInFormula({
           formula: a,
           globalFormulas,
           path: ['route', 'info', 'meta', metaKey, 'attrs', attrKey],
+          packageName,
         })
       }
     }
@@ -360,6 +395,7 @@ export class ToddleComponent<Handler> {
         formula: formula.formula,
         globalFormulas,
         path: ['formulas', formulaKey, 'formula'],
+        packageName,
       })
     }
     for (const [variableKey, variable] of Object.entries(
@@ -369,6 +405,7 @@ export class ToddleComponent<Handler> {
         formula: variable.initialValue,
         globalFormulas,
         path: ['variables', variableKey, 'initialValue'],
+        packageName,
       })
     }
     for (const [workflowKey, workflow] of Object.entries(
@@ -379,6 +416,7 @@ export class ToddleComponent<Handler> {
           action,
           globalFormulas,
           path: ['workflows', workflowKey, 'actions', actionKey],
+          packageName,
         })
       }
     }
@@ -392,6 +430,7 @@ export class ToddleComponent<Handler> {
         action,
         globalFormulas,
         path: ['onLoad', 'actions', actionKey],
+        packageName,
       })
     }
     for (const [actionKey, action] of Object.entries(
@@ -401,6 +440,7 @@ export class ToddleComponent<Handler> {
         action,
         globalFormulas,
         path: ['onAttributeChange', 'actions', actionKey],
+        packageName,
       })
     }
     for (const [nodeKey, node] of Object.entries(this.nodes ?? {})) {
@@ -557,5 +597,9 @@ export class ToddleComponent<Handler> {
 
   get exported() {
     return this.component.exported
+  }
+
+  get customElement() {
+    return this.component.customElement
   }
 }

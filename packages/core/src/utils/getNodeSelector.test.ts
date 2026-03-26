@@ -42,4 +42,16 @@ describe('getNodeSelector', () => {
       '[data-id="0.1.2"].test-component\\:test-node.test-class:active',
     )
   })
+
+  test('should escape unescaped slashes in the path', () => {
+    const path = '0.1/2'
+    const selector = getNodeSelector(path)
+    expect(selector).toBe('[data-id="0.1\\/2"]')
+  })
+
+  test('should not escape already escaped slashes in the path', () => {
+    const path = '0.1\\/2'
+    const selector = getNodeSelector(path)
+    expect(selector).toBe('[data-id="0.1\\/2"]')
+  })
 })

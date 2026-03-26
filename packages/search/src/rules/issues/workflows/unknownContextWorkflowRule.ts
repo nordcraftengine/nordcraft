@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownContextWorkflowRule: Rule<{
+export const unknownContextWorkflowRule: IssueRule<{
   providerName: string
   workflowName: string
 }> = {
@@ -22,9 +22,16 @@ export const unknownContextWorkflowRule: Rule<{
       return
     }
 
-    report(path, {
-      providerName: value.contextProvider,
-      workflowName: value.workflow,
+    report({
+      path,
+      info: {
+        title: 'Unknown context workflow',
+        description: `**${value.workflow}** is not subscribed. Make sure to subscribe to it in the component context section before using it.`,
+      },
+      details: {
+        providerName: value.contextProvider,
+        workflowName: value.workflow,
+      },
     })
   },
 }

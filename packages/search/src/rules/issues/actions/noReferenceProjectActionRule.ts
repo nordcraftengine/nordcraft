@@ -1,10 +1,9 @@
 import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
-import type { CustomActionModel } from '@nordcraft/core/dist/component/component.types'
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
+import { projectActionIsReferenced } from './projectActionIsReferenced.memo'
 
-export const noReferenceProjectActionRule: Rule<void> = {
+export const noReferenceProjectActionRule: IssueRule<void> = {
   code: 'no-reference project action',
   level: 'warning',
   category: 'No References',
@@ -16,37 +15,15 @@ export const noReferenceProjectActionRule: Rule<void> = {
       return
     }
 
-    const projectActionReferences = memo('projectActionReferences', () => {
-      const usedActions = new Set<string>()
-      for (const component of Object.values(files.components)) {
-        const c = new ToddleComponent({
-          // Enforce that the component is not undefined since we're iterating
-          component: component!,
-          getComponent: (name, packageName) =>
-            packageName
-              ? files.packages?.[packageName]?.components[name]
-              : files.components[name],
-          packageName: undefined,
-          globalFormulas: {
-            formulas: files.formulas,
-            packages: files.packages,
-          },
-        })
-        for (const [, action] of c.actionModelsInComponent()) {
-          if (
-            action.type === 'Custom' ||
-            action.type === ('function' as any) ||
-            action.type === undefined
-          ) {
-            usedActions.add((action as CustomActionModel).name)
-          }
-        }
-      }
-      return usedActions
-    })
-
-    if (!projectActionReferences.has(value.name)) {
-      report(path, undefined, ['delete-project-action'])
+    if (!projectActionIsReferenced(files, memo)(value.name)) {
+      report({
+        path,
+        info: {
+          title: 'Unused global action',
+          description: `Action is never used by any workflow. Consider removing it.`,
+        },
+        fixes: ['delete-project-action'],
+      })
     }
   },
   fixes: {

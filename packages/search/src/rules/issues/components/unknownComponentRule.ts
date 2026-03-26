@@ -1,7 +1,7 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownComponentRule: Rule<{
+export const unknownComponentRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown component',
@@ -19,6 +19,13 @@ export const unknownComponentRule: Rule<{
     ) {
       return
     }
-    report(path, { name: value.name })
+    report({
+      path,
+      info: {
+        title: 'Unknown component',
+        description: `**${value.name}** does not exist in this project.`,
+      },
+      details: { name: value.name },
+    })
   },
 }

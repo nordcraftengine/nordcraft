@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownTriggerEventRule: Rule<{
+export const unknownTriggerEventRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown trigger event',
@@ -14,7 +14,14 @@ export const unknownTriggerEventRule: Rule<{
     const [, componentName] = path
     const component = files.components[componentName]
     if (!component?.events?.some((e) => e.name === value.event)) {
-      report(path, { name: value.event })
+      report({
+        path,
+        info: {
+          title: 'Unknown event trigger',
+          description: `Event **${value.event}** does not exist. Make sure to define it before triggering it.`,
+        },
+        details: { name: value.event },
+      })
     }
   },
 }

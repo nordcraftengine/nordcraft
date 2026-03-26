@@ -3,13 +3,13 @@
  * This is more efficient than processing each callback in a separate requestAnimationFrame due to the overhead.
  */
 export class BatchQueue {
+  constructor() {}
   private batchQueue: Array<() => void> = []
   private isProcessing = false
   private processBatch() {
     if (this.isProcessing) return
     this.isProcessing = true
-
-    requestAnimationFrame(() => {
+    queueMicrotask(() => {
       while (this.batchQueue.length > 0) {
         const callback = this.batchQueue.shift()
         callback?.()

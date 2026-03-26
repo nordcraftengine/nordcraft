@@ -1,11 +1,11 @@
 import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
-import type { Level, Rule } from '../../../types'
+import type { IssueRule, Level } from '../../../types'
 
 export function createRequiredDirectChildRule(
   parentTags: string[],
   childTags: string[],
   level: Level = 'warning',
-): Rule<{
+): IssueRule<{
   parentTag: string
   childTag: string
   allowedChildTags: string[]
@@ -23,17 +23,24 @@ export function createRequiredDirectChildRule(
         return
       }
       const getElement = (id: string): NodeModel | undefined =>
-        component.nodes[id]
+        component.nodes?.[id]
       value.children.forEach((childId) => {
         const childNode = getElement(childId)
         if (
           childNode?.type === 'element' &&
           !childTags.includes(childNode.tag)
         ) {
-          report([...path.slice(0, 3), childId], {
-            parentTag: value.tag,
-            childTag: childNode.tag,
-            allowedChildTags: childTags,
+          report({
+            path: [...path.slice(0, 3), childId],
+            info: {
+              title: 'Invalid child element',
+              description: `**${childNode.tag}** should not be a direct first decedent of **${value.tag}**. Valid children are: *${childTags.join('*, *')}*.`,
+            },
+            details: {
+              parentTag: value.tag,
+              childTag: childNode.tag,
+              allowedChildTags: childTags,
+            },
           })
         }
       })

@@ -14,6 +14,17 @@
         "type": "value",
         "value": null
       }
+    },
+    {
+      "name": "Prevent scroll",
+      "description": "Prevent scrolling to the focused element.",
+      "type": {
+        "type": "String"
+      },
+      "formula": {
+        "type": "value",
+        "value": null
+      }
     }
   ]
 }

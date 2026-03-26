@@ -11,7 +11,7 @@ import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 export const removeTestData = (component: Component): Component => ({
   ...component,
-  attributes: mapObject(component.attributes, ([key, value]) => [
+  attributes: mapObject(component.attributes ?? {}, ([key, value]) => [
     key,
     omitKeys(value, ['testValue']),
   ]),
@@ -22,7 +22,7 @@ export const removeTestData = (component: Component): Component => ({
         ),
       }
     : undefined),
-  nodes: mapObject(component.nodes, ([key, value]) => {
+  nodes: mapObject(component.nodes ?? {}, ([key, value]) => {
     if (value.type === 'element') {
       const updatedNode: NodeModel = {
         ...value,
@@ -31,7 +31,7 @@ export const removeTestData = (component: Component): Component => ({
           eventValue
             ? {
                 ...eventValue,
-                actions: eventValue.actions.map(removeActionTestData),
+                actions: eventValue.actions?.map(removeActionTestData),
               }
             : null,
         ]),
@@ -61,6 +61,7 @@ export const removeTestData = (component: Component): Component => ({
             arguments: (value.arguments ?? []).map((a) =>
               omitKeys(a, ['testValue']),
             ),
+            formula: removeFormulaTestData(value.formula),
           },
         ]),
       }
@@ -74,8 +75,7 @@ export const removeTestData = (component: Component): Component => ({
             // We should find all actions (also nested actions and non-workflow actions) and remove
             // the description from them. This is a start though
             actions: value.actions.map(removeActionTestData),
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            parameters: (value.parameters || []).map((p) =>
+            parameters: (value.parameters ?? []).map((p) =>
               omitKeys(p, ['testValue']),
             ),
             callbacks: value.callbacks?.map((c) => omitKeys(c, ['testValue'])),
@@ -94,7 +94,7 @@ export const removeTestData = (component: Component): Component => ({
     ? {
         onLoad: {
           ...component.onLoad,
-          actions: component.onLoad.actions.map(removeActionTestData),
+          actions: component.onLoad.actions?.map(removeActionTestData),
         },
       }
     : undefined),
@@ -103,7 +103,7 @@ export const removeTestData = (component: Component): Component => ({
         onAttributeChange: {
           ...component.onAttributeChange,
           actions:
-            component.onAttributeChange.actions.map(removeActionTestData),
+            component.onAttributeChange.actions?.map(removeActionTestData),
         },
       }
     : undefined),
@@ -133,7 +133,7 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
     case 'Switch':
       return {
         ...action,
-        cases: action.cases.map((c) => ({
+        cases: (action.cases ?? []).map((c) => ({
           ...c,
           ...(c.condition
             ? { condition: removeFormulaTestData(c.condition) }
@@ -142,7 +142,7 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
         })),
         default: {
           ...action.default,
-          actions: action.default.actions.map(removeActionTestData),
+          actions: (action.default?.actions ?? []).map(removeActionTestData),
         },
       }
     case 'Fetch':
@@ -160,22 +160,25 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
             ])
           : action.inputs,
         onSuccess: {
-          ...action,
-          actions: action.onSuccess.actions.map(removeActionTestData),
+          ...action.onSuccess,
+          actions: (action.onSuccess?.actions ?? []).map(removeActionTestData),
         },
         onError: {
           ...action.onError,
-          actions: action.onError.actions.map(removeActionTestData),
+          actions: (action.onError?.actions ?? []).map(removeActionTestData),
         },
         onMessage: action.onMessage
           ? {
               ...action.onMessage,
-              actions: action.onMessage.actions.map(removeActionTestData),
+              actions: (action.onMessage?.actions ?? []).map(
+                removeActionTestData,
+              ),
             }
           : undefined,
       }
     case 'Custom':
     case undefined:
+    case null:
       return {
         // The 'group' property was used for categorizing actions and should
         // not have been persisted in projects. But since it's there (for some actions)
@@ -198,7 +201,9 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
                   eventValue
                     ? {
                         ...eventValue,
-                        actions: eventValue.actions.map(removeActionTestData),
+                        actions: (eventValue.actions ?? []).map(
+                          removeActionTestData,
+                        ),
                       }
                     : eventValue,
                 ],
@@ -245,6 +250,9 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
             }
           : undefined),
       }
+    case 'AbortFetch':
+      // Fetch aborts have no test data
+      return action
   }
 }
 
@@ -272,7 +280,7 @@ const removeFormulaTestData = (formula: Formula): Formula => {
     case 'record':
       return {
         ...formula,
-        entries: formula.entries.map((entry) => ({
+        entries: (formula.entries ?? []).map((entry) => ({
           ...entry,
           formula: removeFormulaTestData(entry.formula),
         })),
@@ -292,7 +300,7 @@ const removeFormulaTestData = (formula: Formula): Formula => {
     case 'apply':
       return {
         ...formula,
-        arguments: formula.arguments.map((a) => ({
+        arguments: (formula.arguments ?? []).map((a) => ({
           ...omitKeys(a, ['testValue']),
           formula: removeFormulaTestData(a.formula),
         })),
@@ -300,7 +308,7 @@ const removeFormulaTestData = (formula: Formula): Formula => {
     case 'switch':
       return {
         ...formula,
-        cases: formula.cases.map((c) => ({
+        cases: (formula.cases ?? []).map((c) => ({
           ...c,
           condition: removeFormulaTestData(c.condition),
         })),

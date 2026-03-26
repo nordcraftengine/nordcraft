@@ -1,9 +1,9 @@
 import type { ComponentFormula } from '@nordcraft/core/dist/component/component.types'
 import { get } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownComponentFormulaInputRule: Rule<{
+export const unknownComponentFormulaInputRule: IssueRule<{
   name?: string | number | null
 }> = {
   code: 'unknown component formula input',
@@ -32,7 +32,14 @@ export const unknownComponentFormulaInputRule: Rule<{
     const args = formula.arguments ?? []
     const argName = value.path[1]
     if (!isDefined(argName) || !args.some((arg) => arg.name === argName)) {
-      report(path, { name: argName })
+      report({
+        path,
+        info: {
+          title: 'Unknown component formula input',
+          description: `The formula input ${argName ?? ''} doesn't exist as an input for this formula.`,
+        },
+        details: { name: argName },
+      })
     }
   },
 }

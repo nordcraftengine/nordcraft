@@ -1,10 +1,10 @@
-import type { Level, Rule } from '../../../types'
+import type { IssueRule, Level } from '../../../types'
 
 export function createRequiredDirectParentRule(
   parentTags: string[],
   childTags: string[],
   level: Level = 'warning',
-): Rule<{
+): IssueRule<{
   parentTag: string
   childTag: string
   allowedParentTags: string[]
@@ -22,14 +22,21 @@ export function createRequiredDirectParentRule(
         return
       }
       const nodeId = String(args.path[args.path.length - 1])
-      const parent = Object.values(component.nodes).find(
+      const parent = Object.values(component.nodes ?? {}).find(
         (node) => node.type === 'element' && node.children.includes(nodeId),
       )
       if (parent?.type === 'element' && !parentTags.includes(parent.tag)) {
-        report(path, {
-          parentTag: parent.tag,
-          childTag: value.tag,
-          allowedParentTags: parentTags,
+        report({
+          path,
+          info: {
+            title: 'Invalid parent element',
+            description: `**${value.tag}** should not have a direct parent of type **${parent.tag}**. Valid parents are: *${parentTags.join('*, *')}*.`,
+          },
+          details: {
+            parentTag: parent.tag,
+            childTag: value.tag,
+            allowedParentTags: parentTags,
+          },
         })
       }
     },

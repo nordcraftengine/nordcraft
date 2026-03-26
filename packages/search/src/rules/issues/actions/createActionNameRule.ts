@@ -1,4 +1,4 @@
-import type { Category, Code, Level, Rule } from '../../../types'
+import type { Category, Code, IssueRule, Level } from '../../../types'
 
 /**
  * Generic rule factory for creating a rule that checks for a specific action name.
@@ -9,14 +9,19 @@ import type { Category, Code, Level, Rule } from '../../../types'
 export function createActionNameRule({
   name,
   code,
+  info,
   category = 'Other',
   level = 'info',
 }: {
   name: string
   code: Code
+  info: {
+    title: string
+    description: string
+  }
   category?: Category
   level?: Level
-}): Rule<{
+}): IssueRule<{
   name: string
 }> {
   return {
@@ -32,7 +37,11 @@ export function createActionNameRule({
         return
       }
 
-      report(path, { name: value.name })
+      report({
+        path,
+        details: { name: value.name },
+        info,
+      })
     },
   }
 }

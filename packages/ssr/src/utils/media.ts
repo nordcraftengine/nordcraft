@@ -12,7 +12,7 @@ export const isCloudflareImagePath = (path?: string | null): path is string =>
 export const transformRelativePaths =
   (urlOrigin: string) => (component: Component) => ({
     ...component,
-    nodes: Object.entries(component.nodes).reduce((acc, [key, node]) => {
+    nodes: Object.entries(component.nodes ?? {}).reduce((acc, [key, node]) => {
       return {
         ...acc,
         [key]: {

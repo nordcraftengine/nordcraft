@@ -6,6 +6,12 @@ const handler: FormulaHandler<number> = ([collection, item]) => {
   }
 
   if (Array.isArray(collection)) {
+    // Short-circuit for primitive types and references
+    const fastIndex = collection.lastIndexOf(item)
+    if (fastIndex !== -1) {
+      return fastIndex
+    }
+
     return collection.findLastIndex((i) =>
       (globalThis as any).toddle.isEqual(i, item),
     )

@@ -1,11 +1,22 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import type { CustomPropertyName } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
 import { ToddleFormula } from '@nordcraft/core/dist/formula/ToddleFormula'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
-import type { ApplicationState, FixType, NodeType, Result, Rule } from './types'
+import type {
+  ApplicationState,
+  FixType,
+  IssueResult,
+  IssueRule,
+  NodeType,
+  Rule,
+  SearchResult,
+  SearchRule,
+} from './types'
 import { shouldSearchExactPath, shouldVisitTree } from './util/helpers'
 
 interface FixOptions {
@@ -25,14 +36,21 @@ interface FixOptions {
  */
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: Rule[]
+  rules: SearchRule<any, any>[]
+  pathsToVisit?: string[][]
+  useExactPaths?: boolean
+  withDetails?: boolean
+}): Generator<SearchResult>
+export function searchProject(args: {
+  files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
+  rules: IssueRule<any, any>[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
-}): Generator<Result>
+}): Generator<IssueResult>
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: Rule[]
+  rules: IssueRule<any, any>[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
@@ -52,7 +70,7 @@ export function* searchProject({
   useExactPaths?: boolean
   state?: ApplicationState
   fixOptions?: FixOptions
-}): Generator<Result | ProjectFiles | void> {
+}): Generator<SearchResult | IssueResult | ProjectFiles | void> {
   const memos = new Map<string, any>()
   const memo = (key: string | string[], fn: () => any) => {
     const stringKey = Array.isArray(key) ? key.join('/') : key
@@ -140,7 +158,7 @@ export function* searchProject({
         yield* visitNode({
           args: {
             nodeType: 'project-theme-property',
-            value: { key: propKey, value: propDef },
+            value: { key: propKey as CustomPropertyName, value: propDef },
             path: ['themes', key, 'propertyDefinitions', propKey],
             rules,
             files,
@@ -208,6 +226,29 @@ export function* searchProject({
     state,
     fixOptions: fixOptions as any,
   })
+
+  if (files.packages) {
+    for (const key in files.packages) {
+      const pkg = files.packages[key]
+      if (pkg) {
+        yield* visitNode({
+          args: {
+            nodeType: 'project-package',
+            value: pkg,
+            packageName: key,
+            path: ['packages', key],
+            rules,
+            files,
+            pathsToVisit,
+            useExactPaths,
+            memo,
+          },
+          state,
+          fixOptions: fixOptions as any,
+        })
+      }
+    }
+  }
 }
 
 function visitNode(args: {
@@ -220,7 +261,7 @@ function visitNode(args: {
   } & NodeType
   state: ApplicationState | undefined
   fixOptions: never
-}): Generator<Result>
+}): Generator<IssueResult>
 function visitNode(args: {
   args: {
     path: (string | number)[]
@@ -246,7 +287,7 @@ function* visitNode({
   } & NodeType
   state: ApplicationState | undefined
   fixOptions?: FixOptions
-}): Generator<Result | ProjectFiles | void> {
+}): Generator<IssueResult | ProjectFiles | void> {
   const { rules, pathsToVisit, useExactPaths, ...data } = args
   const { files, value, path, memo, nodeType } = data
   if (
@@ -263,14 +304,12 @@ function* visitNode({
     !useExactPaths ||
     shouldSearchExactPath({ path: data.path, pathsToVisit })
   ) {
-    const results: Result[] = []
+    const results: IssueResult[] | SearchResult[] = []
     let fixedFiles: ProjectFiles | undefined
-    for (const rule of rules) {
-      // eslint-disable-next-line no-console
-      console.timeStamp(`Visiting rule ${rule.code}`)
+    for (const rule of rules as (IssueRule & SearchRule)[]) {
       rule.visit(
         // Report callback used to report issues
-        (path, details, fixes) => {
+        ({ path, details, fixes, info }) => {
           if (fixOptions) {
             // We're in "fix mode"
             if (
@@ -284,23 +323,27 @@ function* visitNode({
               const ruleFixes = rule.fixes[fixOptions.fixType]?.(
                 // We must use the path from the report, not the original path
                 // because the report might be for a subpath
-                { ...data, path },
-                state,
+                { data: { ...data, path }, details, state },
               )
               if (ruleFixes) {
                 fixedFiles = ruleFixes
               }
             }
           } else {
-            // We're in "report mode"
-            results.push({
-              code: rule.code,
-              category: rule.category,
-              level: rule.level,
-              path,
-              details,
-              fixes,
-            })
+            // Optional filtering to remove undefined entries as different rule types have only subset of fields
+            results.push(
+              Object.fromEntries(
+                [
+                  ['code', rule.code],
+                  ['category', rule.category],
+                  ['level', rule.level],
+                  ['path', path],
+                  ['details', details],
+                  ['fixes', fixes],
+                  ['info', info],
+                ].filter(([, value]) => isDefined(value)),
+              ),
+            )
           }
         },
         data,
@@ -318,7 +361,7 @@ function* visitNode({
       }
     } else {
       for (const result of results) {
-        yield result
+        yield result as IssueResult & SearchResult
       }
     }
   }
@@ -328,6 +371,7 @@ function* visitNode({
     case 'action-model':
     case 'action-custom-model-argument':
     case 'action-custom-model-event':
+    case 'animation':
     case 'component-api-input':
     case 'component-api':
     case 'component-attribute':
@@ -337,12 +381,15 @@ function* visitNode({
     case 'component-node-attribute':
     case 'component-variable':
     case 'component-workflow':
+    case 'custom-property':
     case 'formula':
     case 'project-action':
     case 'project-config':
     case 'project-theme':
     case 'project-theme-property':
+    case 'project-package':
     case 'style-declaration':
+    case 'style-variable':
     case 'style-variant':
       break
     case 'component': {
@@ -549,7 +596,13 @@ function* visitNode({
       for (const {
         path: formulaPath,
         formula,
+        packageName,
       } of component.formulasInComponent()) {
+        if (packageName && packageName !== 'root') {
+          // Skip reporting issues from inside package formulas
+          continue
+        }
+
         yield* visitNode({
           args: {
             nodeType: 'formula',
@@ -645,7 +698,13 @@ function* visitNode({
         for (const {
           path: formulaPath,
           formula: f,
+          packageName,
         } of formula.formulasInFormula()) {
+          if (packageName && packageName !== 'root') {
+            // Skip reporting issues from inside package formulas
+            continue
+          }
+
           yield* visitNode({
             args: {
               nodeType: 'formula',
@@ -684,6 +743,81 @@ function* visitNode({
             fixOptions: fixOptions as any,
           })
         }
+
+        // Legacy style-variables only exist on element nodes
+        if (value.type === 'element') {
+          const styleVariables = value['style-variables']
+          if (styleVariables) {
+            for (let i = 0; i < styleVariables.length; i++) {
+              const styleVariable = styleVariables[i]
+              yield* visitNode({
+                args: {
+                  nodeType: 'style-variable',
+                  value: { styleVariable, element: value },
+                  path: [...path, 'style-variables', i],
+                  rules,
+                  files,
+                  pathsToVisit,
+                  useExactPaths,
+                  memo,
+                },
+                state,
+                fixOptions: fixOptions as any,
+              })
+            }
+          }
+        }
+
+        if (value.customProperties) {
+          for (const [customPropertyKey, customProperty] of Object.entries(
+            value.customProperties,
+          )) {
+            yield* visitNode({
+              args: {
+                nodeType: 'custom-property',
+                value: {
+                  key: customPropertyKey as CustomPropertyName,
+                  value: customProperty,
+                  element: value,
+                },
+                path: [...path, 'customProperties', customPropertyKey],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
+          }
+        }
+
+        if (value.animations) {
+          for (const [animationKey, animation] of Object.entries(
+            value.animations,
+          )) {
+            yield* visitNode({
+              args: {
+                nodeType: 'animation',
+                node: value,
+                value: {
+                  key: animationKey,
+                  value: animation,
+                },
+                path: [...path, 'animations', animationKey],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
+          }
+        }
+
         const variants = value.variants
         if (variants) {
           for (let i = 0; i < variants.length; i++) {
@@ -724,6 +858,37 @@ function* visitNode({
                 state,
                 fixOptions: fixOptions as any,
               })
+            }
+            if (variant.customProperties) {
+              for (const [customPropertyKey, customProperty] of Object.entries(
+                variant.customProperties,
+              )) {
+                yield* visitNode({
+                  args: {
+                    nodeType: 'custom-property',
+                    value: {
+                      key: customPropertyKey as CustomPropertyName,
+                      value: customProperty,
+                      element: value,
+                      variant,
+                    },
+                    path: [
+                      ...path,
+                      'variants',
+                      i,
+                      'customProperties',
+                      customPropertyKey,
+                    ],
+                    rules,
+                    files,
+                    pathsToVisit,
+                    useExactPaths,
+                    memo,
+                  },
+                  state,
+                  fixOptions: fixOptions as any,
+                })
+              }
             }
           }
         }

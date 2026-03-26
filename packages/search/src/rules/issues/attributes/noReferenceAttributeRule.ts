@@ -1,7 +1,7 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceAttributeRule: Rule<void> = {
+export const noReferenceAttributeRule: IssueRule<void> = {
   code: 'no-reference attribute',
   level: 'warning',
   category: 'No References',
@@ -10,7 +10,7 @@ export const noReferenceAttributeRule: Rule<void> = {
       args.nodeType !== 'component-attribute' ||
       // Don't report unused attributes if the component has onAttributeChange actions.
       // The attribute might be used to trigger some logic there.
-      (args.component.onAttributeChange?.actions.length ?? 0) > 0
+      (args.component.onAttributeChange?.actions?.length ?? 0) > 0
     ) {
       return
     }
@@ -32,7 +32,14 @@ export const noReferenceAttributeRule: Rule<void> = {
     if (attrs.has(attributeKey)) {
       return
     }
-    report(args.path, undefined, ['delete-attribute'])
+    report({
+      path: args.path,
+      info: {
+        title: 'Unused attribute',
+        description: `**${attributeKey}** is never used in any formula. Consider removing it.`,
+      },
+      fixes: ['delete-attribute'],
+    })
   },
   fixes: {
     'delete-attribute': removeFromPathFix,

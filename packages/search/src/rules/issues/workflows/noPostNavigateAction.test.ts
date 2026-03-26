@@ -457,7 +457,7 @@ describe('find noPostNavigateAction', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })
 
@@ -560,7 +560,7 @@ describe('fix noPostNavigateAction', () => {
     })
     expect(
       (
-        fixedProject.components.nav?.nodes[
+        fixedProject.components.nav?.nodes?.[
           'wkPXF99C3qdRgZmUcnHO_'
         ] as ElementNodeModel
       )?.events?.click?.actions,

@@ -1,8 +1,8 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import { get } from '@nordcraft/core/dist/utils/collections'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const invalidApiProxyCookieSettingRule: Rule<{ api: string }> = {
+export const invalidApiProxyCookieSettingRule: IssueRule<{ api: string }> = {
   code: 'invalid api proxy cookie setting',
   level: 'warning',
   category: 'Quality',
@@ -32,6 +32,13 @@ export const invalidApiProxyCookieSettingRule: Rule<{ api: string }> = {
       return
     }
     // Report an issue if the 'Get Http-Only Cookie' formula is used in a non-proxied API
-    report(path, { api: api.name })
+    report({
+      path,
+      info: {
+        title: 'Proxy specific formula used in non-proxied API',
+        description: `The **"Get Http-Only Cookie"** formula is used in the **${api.name}** API, but the API is not proxied. This will often lead to issues with the API when [the template value for the cookie](https://docs.nordcraft.com/connecting-data/authentication#adding-authentication-to-api-requests) is not replaced correctly.`,
+      },
+      details: { api: api.name },
+    })
   },
 }

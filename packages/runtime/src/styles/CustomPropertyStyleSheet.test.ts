@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test'
+import '../happydom'
 import { CustomPropertyStyleSheet } from './CustomPropertyStyleSheet'
 
 describe('CustomPropertyStyleSheet', () => {
@@ -57,6 +58,51 @@ describe('CustomPropertyStyleSheet', () => {
     )
   })
 
+  test('it works with prefers-reduced-motion: reduce', () => {
+    const instance = new CustomPropertyStyleSheet(document)
+    instance.registerProperty('.my-class', '--my-property', {
+      mediaQuery: { 'prefers-reduced-motion': 'reduce' },
+    })('256px')
+    expect(instance.getStyleSheet().cssRules.length).toBe(1)
+    expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
+      `\
+@media (prefers-reduced-motion: reduce) {
+  .my-class { --my-property: 256px; }
+}`,
+    )
+  })
+
+  test('it works with prefers-reduced-motion: no-preference', () => {
+    const instance = new CustomPropertyStyleSheet(document)
+    instance.registerProperty('.my-class', '--my-property', {
+      mediaQuery: { 'prefers-reduced-motion': 'no-preference' },
+    })('256px')
+    expect(instance.getStyleSheet().cssRules.length).toBe(1)
+    expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
+      `\
+@media (prefers-reduced-motion: no-preference) {
+  .my-class { --my-property: 256px; }
+}`,
+    )
+  })
+
+  test('it combines prefers-reduced-motion with other media queries', () => {
+    const instance = new CustomPropertyStyleSheet(document)
+    instance.registerProperty('.my-class', '--my-property', {
+      mediaQuery: {
+        'prefers-reduced-motion': 'reduce',
+        'max-width': '768px',
+      },
+    })('256px')
+    expect(instance.getStyleSheet().cssRules.length).toBe(1)
+    expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
+      `\
+@media (prefers-reduced-motion: reduce) and (max-width: 768px) {
+  .my-class { --my-property: 256px; }
+}`,
+    )
+  })
+
   test('it unregisters a property', () => {
     const instance = new CustomPropertyStyleSheet(document)
     const setter = instance.registerProperty('.my-class', '--my-property')
@@ -75,7 +121,7 @@ describe('CustomPropertyStyleSheet', () => {
       '.my-class { --my-other-property: 512px; }',
     )
     instance.unregisterProperty('.my-class', '--my-other-property')
-    expect(instance.getStyleSheet().cssRules[0].cssText).toBe('.my-class {  }')
+    expect(instance.getStyleSheet().cssRules).toBeEmpty()
   })
 
   test('it unregisters a property with media queries', () => {
@@ -103,11 +149,30 @@ describe('CustomPropertyStyleSheet', () => {
         mediaQuery: { 'max-width': '600px' },
       },
     )
+    expect(instance.getStyleSheet().cssRules).toBeEmpty()
+  })
+
+  test('it escapes backslashes in selectors', () => {
+    const instance = new CustomPropertyStyleSheet(document)
+    instance.registerProperty(
+      '[data-id].my-package/my-component:hover',
+      '--my-property',
+    )('value')
+    expect(instance.getStyleSheet().cssRules.length).toBe(1)
     expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
-      `\
-@media (max-width: 600px) {
-  .my-class-with-media {  }
-}`,
+      '[data-id].my-package\\/my-component:hover { --my-property: value; }',
+    )
+  })
+
+  test('it does not escape backslashes that are already escaped in selectors', () => {
+    const instance = new CustomPropertyStyleSheet(document)
+    instance.registerProperty(
+      '[data-id].my-package\\/my-component:hover',
+      '--my-property',
+    )('value')
+    expect(instance.getStyleSheet().cssRules.length).toBe(1)
+    expect(instance.getStyleSheet().cssRules[0].cssText).toBe(
+      '[data-id].my-package\\/my-component:hover { --my-property: value; }',
     )
   })
 })

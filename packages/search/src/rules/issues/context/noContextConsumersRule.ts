@@ -1,10 +1,10 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
 /**
  * Rule for checking if a component exposes formulas or workflows
  * in context but has no slots or components that could consume them
  */
-export const noContextConsumersRule: Rule<{
+export const noContextConsumersRule: IssueRule<{
   providerName: string
   formulaName: string
 }> = {
@@ -24,16 +24,25 @@ export const noContextConsumersRule: Rule<{
     if (!exposesFormulas && !exposesWorkflows) {
       return
     }
-    const hasSlots = Object.values(value.nodes).some((n) => n.type === 'slot')
+    const hasSlots = Object.values(value.nodes ?? {}).some(
+      (n) => n.type === 'slot',
+    )
     if (hasSlots) {
       return
     }
-    const hasComponents = Object.values(value.nodes).some(
+    const hasComponents = Object.values(value.nodes ?? {}).some(
       (n) => n.type === 'component',
     )
     if (hasComponents) {
       return
     }
-    report(path)
+    report({
+      path,
+      info: {
+        title: 'No context consumers',
+        description:
+          'Component has no child components or slots, but exposes formulas or workflows in context. Exposed formulas and workflows can only be consumed by child components or slots. Consider unchecking the "Expose in context" option or adding a child component or slot.',
+      },
+    })
   },
 }

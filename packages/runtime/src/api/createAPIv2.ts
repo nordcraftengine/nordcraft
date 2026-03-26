@@ -25,7 +25,7 @@ import type {
   FormulaContext,
 } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import type { NestedOmit } from '@nordcraft/core/dist/types'
+import type { NestedOmit, Nullable } from '@nordcraft/core/dist/types'
 import {
   omitPaths,
   sortObjectEntries,
@@ -39,6 +39,7 @@ import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
+import { ApiAbortHandler } from './apiUtils'
 
 /**
  * Set up an api v2 for a component.
@@ -188,8 +189,8 @@ export function createAPI({
     api: ApiRequest
     data: {
       body: unknown
-      status?: number
-      headers?: Record<string, string>
+      status?: Nullable<number>
+      headers?: Nullable<Record<string, string>>
     }
     componentData: ComponentData
     workflowCallback?: (event: string, data: unknown) => void
@@ -259,8 +260,8 @@ export function createAPI({
     componentData: ComponentData
     data: {
       body: unknown
-      status?: number
-      headers?: Record<string, string>
+      status?: Nullable<number>
+      headers?: Nullable<Record<string, string>>
     }
     performance: ApiPerformance
   }) {
@@ -323,8 +324,8 @@ export function createAPI({
     componentData: ComponentData
     data: {
       body: unknown
-      status?: number
-      headers?: Record<string, string>
+      status?: Nullable<number>
+      headers?: Nullable<Record<string, string>>
     }
     performance: ApiPerformance
   }) {
@@ -376,7 +377,7 @@ export function createAPI({
     }
   }
 
-  // Execute the request - potentially to the cloudflare Query proxy
+  // Execute the request - potentially to the Nordcraft Query proxy
   async function execute({
     api,
     url,
@@ -418,6 +419,8 @@ export function createAPI({
             ) ?? false)
           : false
 
+        // Ensure we can cancel the request
+        requestSettings = abortHandler.applyAbortSignal(requestSettings)
         if (proxy === false) {
           response = await fetch(url, requestSettings)
         } else {
@@ -454,10 +457,19 @@ export function createAPI({
           workflowCallback,
         })
         return
-      } catch (error: any) {
-        const body = error.cause
-          ? { message: error.message, data: error.cause }
-          : error.message
+      } catch (error: unknown) {
+        let body: string | { message: string; data?: any } = 'Unknown error'
+        if (error instanceof Error) {
+          body = error.cause
+            ? { message: error.message, data: error.cause }
+            : error.message
+          if (error.name === 'TimeoutError') {
+            // Later we might want to add a timeout specific message, but that would currently
+            // be a breaking change. The "body" for a timeout will currently be: "signal timed out"
+          } else if (error.name === 'AbortError') {
+            body = 'Request was aborted'
+          }
+        }
         apiError({
           api,
           componentData,
@@ -977,6 +989,8 @@ export function createAPI({
       }>
     | undefined
 
+  const abortHandler = new ApiAbortHandler()
+
   // eslint-disable-next-line prefer-const
   payloadSignal = ctx.dataSignal.map((data) => {
     const payloadContext = getFormulaContext(api, data)
@@ -1150,6 +1164,7 @@ export function createAPI({
         workflowCallback,
       })
     },
+    cancel: abortHandler.abort,
     update: (newApi, componentData) => {
       api = newApi
       const updateContext = getFormulaContext(api, componentData)

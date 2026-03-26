@@ -1,3 +1,4 @@
+import type { Nullable } from '../types'
 import { isDefined } from './util'
 
 export const isObject = (input: any): input is Record<string, any> =>
@@ -6,7 +7,14 @@ export const isObject = (input: any): input is Record<string, any> =>
 export const mapObject = <T, T2>(
   object: Record<string, T>,
   f: (kv: [string, T]) => [string, T2],
-): Record<string, T2> => Object.fromEntries(Object.entries(object).map(f))
+): Record<string, T2> => {
+  const result: Record<string, T2> = {}
+  for (const key in object) {
+    const [k, v] = f([key, object[key] as T])
+    result[k] = v
+  }
+  return result
+}
 
 export const mapValues = <T, T2>(
   object: Record<string, T>,
@@ -121,7 +129,7 @@ export const easySort = <T>(
 
 export const deepSortObject = (
   obj: any,
-): Record<string, any> | Array<any> | undefined | null => {
+): Nullable<Record<string, any> | Array<any>> => {
   if (!isDefined(obj)) {
     return obj
   }

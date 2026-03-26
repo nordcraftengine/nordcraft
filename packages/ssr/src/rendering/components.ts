@@ -20,16 +20,20 @@ import {
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import { mapValues } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
+import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { escapeAttrValue } from 'xss'
-import { VOID_HTML_ELEMENTS } from '../const'
 import type { ProjectFiles } from '../ssr.types'
 import type { ApiCache, ApiEvaluator } from './api'
 import { getNodeAttrs, toEncodedText } from './attributes'
 
 type CustomPropertyRule = `--${string}: ${string}`
+type SlottedContent =
+  | string
+  | ((contexts: Record<string, Record<string, any>>) => Promise<string>)
 
 const renderComponent = async ({
   path,
@@ -52,7 +56,7 @@ const renderComponent = async ({
 }: {
   path: string
   apiCache: ApiCache
-  children?: Record<string, string>
+  children?: Record<string, SlottedContent>
   component: Component
   data: ComponentData
   env: ToddleServerEnv
@@ -68,10 +72,10 @@ const renderComponent = async ({
   addCustomProperty: (
     selector: string,
     rule: CustomPropertyRule,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+    }>,
   ) => void
   namespace?: SupportedNamespaces
 }): Promise<string> => {
@@ -148,14 +152,16 @@ const renderComponent = async ({
       case 'slot': {
         const defaultChild = children?.[node.name ?? 'default']
         if (defaultChild) {
-          return defaultChild
+          return typeof defaultChild === 'function'
+            ? await defaultChild(data.Contexts ?? {})
+            : defaultChild
         } else {
           const slotChildren = await Promise.all(
             node.children.map((child) =>
               renderNode({
                 id: child,
                 path: `${path}[${node.name ?? 'default'}]`,
-                node: component.nodes[child],
+                node: component.nodes?.[child],
                 data,
                 packageName,
                 namespace,
@@ -189,17 +195,20 @@ const renderComponent = async ({
           env,
           toddle,
         })
-        const classHash = getClassName([node.style, node.variants])
-        let classList = Object.entries(node.classes ?? {})
-          .filter(([_, { formula }]) =>
-            toBoolean(applyFormula(formula, formulaContext)),
-          )
-          .map(([className]) => className)
-          .join(' ')
+        const classList = [getClassName([node.style, node.variants])]
+        classList.push(
+          ...Object.entries(node.classes ?? {})
+            .filter(([_, { formula }]) =>
+              toBoolean(applyFormula(formula, formulaContext)),
+            )
+            .map(([className]) => className),
+        )
         if (instance && id === 'root') {
-          Object.entries(instance).forEach(([key, value]) => {
-            classList += ' ' + toValidClassName(`${key}:${value}`)
-          })
+          classList.push(
+            ...Object.entries(instance).map(([key, value]) =>
+              toValidClassName(`${key}:${value}`),
+            ),
+          )
         }
         Object.entries(node.customProperties ?? {}).forEach(
           ([customPropertyName, customProperty]) => {
@@ -246,7 +255,7 @@ const renderComponent = async ({
                 id: child,
                 path: `${path}.${i}`,
                 namespace,
-                node: component.nodes[child],
+                node: component.nodes?.[child],
                 data,
                 packageName,
               }),
@@ -257,7 +266,7 @@ const renderComponent = async ({
         if (node.tag.toLocaleLowerCase() === 'style') {
           // render style content as text
           const textNode = node.children[0]
-            ? component.nodes[node.children[0]]
+            ? component.nodes?.[node.children[0]]
             : undefined
           if (textNode?.type === 'text') {
             innerHTML = String(applyFormula(textNode.value, formulaContext))
@@ -267,15 +276,16 @@ const renderComponent = async ({
           component.version === 2 && isComponentRootNode
             ? `${packageName ?? projectId}-${node.tag}`
             : node.tag
-        const nodeClasses = `${classHash} ${classList}`.trim()
+        const attributes = [
+          ...nodeAttrs,
+          `data-id="${path}"`,
+          `data-node-id="${escapeAttrValue(id)}"`,
+          `class="${escapeAttrValue(classList.join(' '))}"`,
+        ]
         if (!VOID_HTML_ELEMENTS.includes(tag)) {
-          return `<${tag} ${nodeAttrs} data-id="${path}" data-node-id="${escapeAttrValue(
-            id,
-          )}" class="${escapeAttrValue(nodeClasses)}">${innerHTML}</${tag}>`
+          return `<${tag} ${attributes.join(' ')}>${innerHTML}</${tag}>`
         } else {
-          return `<${tag} ${nodeAttrs} data-id="${path}" data-node-id="${escapeAttrValue(
-            id,
-          )}" class="${escapeAttrValue(nodeClasses)}" />`
+          return `<${tag} ${attributes.join(' ')} />`
         }
       }
       case 'component': {
@@ -353,8 +363,9 @@ const renderComponent = async ({
               Location: formulaContext.data.Location,
               Attributes: attrs,
               Contexts: contexts,
+              Page: formulaContext.data.Page,
               Variables: mapValues(
-                childComponent.variables,
+                childComponent.variables ?? {},
                 ({ initialValue }) => {
                   return applyFormula(initialValue, formulaContext)
                 },
@@ -373,87 +384,111 @@ const renderComponent = async ({
         })
 
         const childNodes = await Promise.all(
-          node.children.map((child, i) =>
-            renderNode({
-              id: child,
-              path: `${path}.${i}`,
-              namespace,
-              node: component.nodes[child],
-              data: {
-                ...data,
-                Contexts: {
-                  ...contexts,
-                  [childComponent.name]: Object.fromEntries(
-                    Object.entries(childComponent.formulas ?? {})
-                      .filter(([, formula]) => formula.exposeInContext)
-                      .map(([key, formula]) => [
-                        key,
-                        applyFormula(formula.formula, {
-                          component: childComponent,
-                          package: _packageName,
-                          data: {
-                            Contexts: {
-                              ...data.Contexts,
-                              ...Object.fromEntries(
-                                Object.entries(childComponent.formulas ?? {})
-                                  .filter(
-                                    ([, formula]) => formula.exposeInContext,
-                                  )
-                                  .map(([key, formula]) => [
-                                    key,
-                                    applyFormula(formula.formula, {
-                                      data: {
-                                        Attributes: attrs,
-                                        Apis: { ...data.Apis, ...apis },
-                                      },
-                                      component,
-                                      package: _packageName,
-                                      env,
-                                      toddle,
-                                    }),
-                                  ]),
+          node.children.map(async (child, i) => {
+            const slotName =
+              typeof child === 'string'
+                ? (component.nodes?.[child]?.slot ?? 'default')
+                : 'default'
+
+            return (contexts: Record<string, Record<string, unknown>>) => {
+              return renderNode({
+                id: child,
+                path: `${path}.${i}[${slotName}]`,
+                namespace,
+                node: component.nodes?.[child],
+                data: {
+                  ...data,
+                  Contexts: {
+                    ...data.Contexts,
+                    ...contexts,
+                    [childComponent.name]: Object.fromEntries(
+                      Object.entries(childComponent.formulas ?? {})
+                        .filter(([, formula]) => formula.exposeInContext)
+                        .map(([key, formula]) => [
+                          key,
+                          applyFormula(formula.formula, {
+                            component: childComponent,
+                            package: _packageName,
+                            data: {
+                              Contexts: {
+                                ...data.Contexts,
+                                ...Object.fromEntries(
+                                  Object.entries(childComponent.formulas ?? {})
+                                    .filter(
+                                      ([, formula]) => formula.exposeInContext,
+                                    )
+                                    .map(([key, formula]) => [
+                                      key,
+                                      applyFormula(formula.formula, {
+                                        data: {
+                                          Attributes: attrs,
+                                          Apis: { ...data.Apis, ...apis },
+                                          Location: data.Location,
+                                          Page: data.Page,
+                                        },
+                                        component,
+                                        package: _packageName,
+                                        env,
+                                        toddle,
+                                      }),
+                                    ]),
+                                ),
+                              },
+                              Apis: apis,
+                              Attributes: attrs,
+                              Variables: mapValues(
+                                childComponent.variables ?? {},
+                                ({ initialValue }) => {
+                                  return applyFormula(initialValue, {
+                                    data: {
+                                      Attributes: attrs,
+                                      Location: data.Location,
+                                      Page: data.Page,
+                                    },
+                                    component,
+                                    package: _packageName,
+                                    env,
+                                    toddle,
+                                  })
+                                },
                               ),
                             },
-                            Apis: apis,
-                            Attributes: attrs,
-                            Variables: mapValues(
-                              childComponent.variables,
-                              ({ initialValue }) => {
-                                return applyFormula(initialValue, {
-                                  data: {
-                                    Attributes: attrs,
-                                  },
-                                  component,
-                                  package: _packageName,
-                                  env,
-                                  toddle,
-                                })
-                              },
-                            ),
-                          },
-                          env,
-                          toddle,
-                        }),
-                      ]),
-                  ),
+                            env,
+                            toddle,
+                          }),
+                        ]),
+                    ),
+                  },
                 },
-              },
-              // pass package name to child component if it's defined
-              packageName: node.package ?? packageName,
-            }),
-          ),
+                // pass package name to child component if it's defined
+                packageName,
+              })
+            }
+          }),
         )
 
-        const children: Record<string, string> = {}
-        childNodes.forEach((childNode, i) => {
+        const children: Record<string, SlottedContent> = {}
+        childNodes.forEach((renderFn, i) => {
           const childNodeId = node.children[i]
           // Add children to the correct slot in the right order
           const slotName =
             typeof childNodeId === 'string'
-              ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                (component.nodes[childNodeId]?.slot ?? 'default')
+              ? (component.nodes?.[childNodeId]?.slot ?? 'default')
               : 'default'
-          children[slotName] = `${children[slotName] ?? ''} ${childNode}`
+
+          const existing = children[slotName]
+          if (existing) {
+            const previous =
+              typeof existing === 'function'
+                ? existing
+                : async () => existing as string
+            // Handle multiple elements in the same slot by appending
+            children[slotName] = async (contexts) => {
+              return (await previous(contexts)) + (await renderFn(contexts))
+            }
+          } else {
+            children[slotName] = renderFn
+          }
         })
 
         // Add extra instance styling for each style-variable
@@ -508,8 +543,15 @@ const renderComponent = async ({
           // If the root node is another component, then append and forward previous instance
           instance:
             id === 'root'
-              ? { ...instance, [component.name]: 'root' }
-              : { [component.name]: id },
+              ? {
+                  ...instance,
+                  [[packageName, component.name].filter(isDefined).join('/')]:
+                    'root',
+                }
+              : {
+                  [[packageName, component.name].filter(isDefined).join('/')]:
+                    id,
+                },
           apis,
           env,
           includedComponents,
@@ -529,7 +571,7 @@ const renderComponent = async ({
   return renderNode({
     id: 'root',
     path,
-    node: component.nodes.root,
+    node: component.nodes?.root,
     data,
     packageName,
     isComponentRootNode: true,
@@ -568,9 +610,9 @@ const createComponent = async ({
       })
   >
   attrs: Record<string, any>
-  children?: Record<string, string>
+  children?: Record<string, SlottedContent>
   component: Component
-  contexts?: Record<string, Record<string, any>>
+  contexts?: Record<string, Record<string, unknown>>
   env: ToddleServerEnv
   evaluateComponentApis: ApiEvaluator
   files: ProjectFiles
@@ -585,40 +627,45 @@ const createComponent = async ({
   addCustomProperty: (
     selector: string,
     rule: CustomPropertyRule,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+    }>,
   ) => void
 }): Promise<string> => {
   const data: ComponentData = {
     Location: formulaContext.data.Location,
     Attributes: attrs,
     Contexts: contexts,
-    Variables: mapValues(component.variables, ({ initialValue }) => {
-      return applyFormula(initialValue, {
-        ...formulaContext,
-        data: {
-          ...formulaContext.data,
-          Contexts: contexts,
-        },
-      })
-    }),
+    Page: formulaContext.data.Page,
     Apis: apis,
   }
+
+  // Variables initial value has access to component data like attributes, so must be applied after formulaContext is somewhat populated
+  data.Variables = mapValues(component.variables ?? {}, ({ initialValue }) => {
+    return applyFormula(initialValue, {
+      ...formulaContext,
+      data,
+    })
+  })
+
+  // Own context formulas has access to all other data in the component (attributes, variables, apis etc.) so is applied last
   data.Contexts = {
     ...data.Contexts,
-    ...Object.fromEntries(
-      Object.entries(component.formulas ?? {})
-        .filter(([, formula]) => formula.exposeInContext)
-        .map(([key, formula]) => [
-          key,
-          applyFormula(formula.formula, {
-            ...formulaContext,
-            data,
-          }),
-        ]),
-    ),
+    [component.name]: {
+      ...data.Contexts?.[component.name],
+      ...Object.fromEntries(
+        Object.entries(component.formulas ?? {})
+          .filter(([, formula]) => formula.exposeInContext)
+          .map(([key, formula]) => [
+            key,
+            applyFormula(formula.formula, {
+              ...formulaContext,
+              data,
+            }),
+          ]),
+      ),
+    },
   }
 
   return renderComponent({
@@ -671,10 +718,10 @@ export const renderPageBody = async ({
   const addCustomProperty = (
     selector: string,
     rule: CustomPropertyRule,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+    }>,
   ) => {
     selector = options?.startingStyle
       ? `${selector} { @starting-style { __RULES__ } }`

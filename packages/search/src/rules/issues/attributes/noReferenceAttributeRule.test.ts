@@ -4,7 +4,7 @@ import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'
 import { noReferenceAttributeRule } from './noReferenceAttributeRule'
 
-describe('find noReferenceAttributeRule', () => {
+describe('noReferenceAttributeRule', () => {
   test('should detect attributes with no references', () => {
     const problems = Array.from(
       searchProject({

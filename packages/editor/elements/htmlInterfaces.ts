@@ -32,14 +32,14 @@ interface HtmlAttributeDefinition {
   description?: string
   options?: string[]
   popularity?: number
-  mdnUrl?: string
+  url?: string
 }
 
 interface HtmlEventDefinition {
   name: string
   description?: string
   popularity?: number
-  mdnUrl?: string
+  url?: string
 }
 
 interface HtmlInterfaceDefinition {
@@ -159,29 +159,6 @@ export const getHtmlInterfaces = async () => {
     })
   })
 
-  // Inject commonly used Nordcraft data-* attributes
-  const nordcraftProperties = [
-    // Used to disable Nordcraft's default styles
-    // See https://docs.nordcraft.com/styling/default-styles#custom-styles
-    'data-unset-toddle-styles',
-    'data-theme', // Used for theming
-  ]
-  nordcraftProperties.forEach((property) => {
-    definitions.dfns.push({
-      id: `nordcraft-property-${property}`,
-      href: 'https://docs.nordcraft.com',
-      linkingText: [property],
-      localLinkingText: [property],
-      type: 'element-attr',
-      for: ['html-global'],
-      access: 'public',
-      informative: true,
-      heading: null,
-      definedIn: 'Nordcraft Documentation',
-      links: [],
-    })
-  })
-
   // Initialize additional MDN metadata
   await initMdnMetadata()
 
@@ -239,7 +216,7 @@ export const getHtmlInterfaces = async () => {
                       name: 'href',
                       description: attributeInfo?.summary,
                       popularity: 1,
-                      mdnUrl: '/en-US/docs/Web/API/HTMLAnchorElement/href',
+                      url: '/en-US/docs/Web/API/HTMLAnchorElement/href',
                     },
                   ]
                 : []
@@ -254,7 +231,7 @@ export const getHtmlInterfaces = async () => {
                 name: attrName,
                 description: attributeInfo?.summary,
                 popularity: attributeInfo?.popularity ?? undefined,
-                mdnUrl: attributeInfo?.mdn_url,
+                url: attributeInfo?.mdn_url,
               })
             }
           } else {
@@ -306,7 +283,7 @@ export const getHtmlInterfaces = async () => {
                   name: attributePart,
                   description: attributeInfo?.summary,
                   popularity: attributeInfo?.popularity ?? undefined,
-                  mdnUrl: attributeInfo?.mdn_url,
+                  url: attributeInfo?.mdn_url,
                 },
               ],
             }
@@ -331,7 +308,7 @@ export const getHtmlInterfaces = async () => {
               description: attributeInfo?.summary,
               options: [value],
               popularity: attributeInfo?.popularity ?? undefined,
-              mdnUrl: attributeInfo?.mdn_url,
+              url: attributeInfo?.mdn_url,
             })
           }
         } else {
@@ -340,6 +317,77 @@ export const getHtmlInterfaces = async () => {
         }
       })
     })
+
+  // Inject commonly used Nordcraft data-* attributes
+  const additionalInterfaceInfo: Array<{
+    attribute: string
+    interface: string
+    description: string
+    url?: string
+    options?: string[]
+    popularity?: number
+  }> = [
+    // Used to disable Nordcraft's default styles
+    // See https://docs.nordcraft.com/styling/default-styles#custom-styles
+    {
+      attribute: 'data-unset-toddle-styles',
+      interface: 'global',
+      description:
+        'Special Nordcraft data attribute that disables the default Nordcraft styles for an element and its children.',
+      url: 'https://docs.nordcraft.com/styling/default-styles#custom-styles',
+      popularity: 1,
+    },
+    // Used for theming
+    {
+      attribute: 'data-nc-theme',
+      interface: 'global',
+      description:
+        'Special Nordcraft data attribute that specifies the theme to be applied to an element and its children.',
+      // TODO: Link to theming docs when available
+      popularity: 1,
+    },
+    // Add missing options for the target attribute on anchor and form elements
+    {
+      attribute: 'target',
+      interface: 'HTMLAnchorElement',
+      description: 'Specifies where to open the linked document.',
+      options: ['_self', '_blank', '_parent', '_top'],
+      url: '/en-US/docs/Web/API/HTMLAnchorElement/target',
+    },
+    {
+      attribute: 'target',
+      interface: 'HTMLFormElement',
+      description:
+        'Specifies where to display the response after submitting the form.',
+      options: ['_self', '_blank', '_parent', '_top'],
+      url: '/en-US/docs/Web/API/HTMLFormElement/target',
+    },
+  ]
+  additionalInterfaceInfo.forEach((info) => {
+    groupedAttributes[info.interface] ??= {}
+    groupedAttributes[info.interface]!.attributes ??= []
+    let attribute = groupedAttributes[info.interface]!.attributes?.find(
+      (attr) =>
+        attr.name.toLocaleLowerCase() === info.attribute.toLocaleLowerCase(),
+    )
+    if (!attribute) {
+      attribute = {
+        name: info.attribute,
+        description: info.description,
+        url: info.url,
+        popularity: info.popularity,
+      }
+      groupedAttributes[info.interface]!.attributes!.push(attribute)
+    }
+    if (info.options) {
+      attribute.options ??= []
+      info.options.forEach((option) => {
+        if (!attribute!.options!.includes(option)) {
+          attribute!.options!.push(option)
+        }
+      })
+    }
+  })
 
   // Add events
   const events = await listAllEvents()
@@ -374,7 +422,7 @@ export const getHtmlInterfaces = async () => {
         name: e.type,
         description: eventInfo?.summary,
         popularity: eventInfo?.popularity ?? undefined,
-        mdnUrl: eventInfo?.mdn_url,
+        url: eventInfo?.mdn_url,
       })
     })
   })

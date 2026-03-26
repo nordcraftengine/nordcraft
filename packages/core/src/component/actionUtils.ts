@@ -1,9 +1,9 @@
-import type { LegacyPluginAction, PluginActionV2 } from '../types'
+import type { LegacyPluginAction, Nullable, PluginActionV2 } from '../types'
 import { isDefined } from '../utils/util'
 import type { ActionModel } from './component.types'
 
 export function* getActionsInAction(
-  action: ActionModel | null,
+  action: Nullable<ActionModel>,
   path: (string | number)[] = [],
 ): Generator<[(string | number)[], ActionModel]> {
   if (!isDefined(action)) {
@@ -12,9 +12,10 @@ export function* getActionsInAction(
 
   yield [path, action]
   switch (action.type) {
-    case 'SetVariable':
+    case 'AbortFetch':
     case 'SetURLParameter':
     case 'SetURLParameters':
+    case 'SetVariable':
     case 'TriggerEvent':
     case 'TriggerWorkflow':
     case 'TriggerWorkflowCallback':
@@ -32,6 +33,7 @@ export function* getActionsInAction(
       break
     case 'Custom':
     case undefined:
+    case null:
       for (const [eventKey, event] of Object.entries(action.events ?? {})) {
         for (const [key, a] of Object.entries(event?.actions ?? {})) {
           yield* getActionsInAction(a, [
@@ -45,7 +47,7 @@ export function* getActionsInAction(
       }
       break
     case 'Switch':
-      for (const [key, c] of action.cases.entries()) {
+      for (const [key, c] of (action.cases ?? []).entries()) {
         for (const [actionKey, a] of Object.entries(c?.actions ?? {})) {
           yield* getActionsInAction(a, [
             ...path,
@@ -56,7 +58,9 @@ export function* getActionsInAction(
           ])
         }
       }
-      for (const [actionKey, a] of Object.entries(action.default.actions)) {
+      for (const [actionKey, a] of Object.entries(
+        action.default?.actions ?? [],
+      )) {
         yield* getActionsInAction(a, [...path, 'default', 'actions', actionKey])
       }
       break

@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownProjectActionRule: Rule<{ name: string }> = {
+export const unknownProjectActionRule: IssueRule<{ name: string }> = {
   code: 'unknown project action',
   level: 'warning',
   category: 'Unknown Reference',
@@ -18,6 +18,13 @@ export const unknownProjectActionRule: Rule<{ name: string }> = {
     if (action) {
       return
     }
-    report(path, { name: value.name })
+    report({
+      path,
+      info: {
+        title: 'Unknown global action',
+        description: `**${value.name}** does not exist as a global action. Using an unknown action will have no effect. Make sure to define it before calling it.`,
+      },
+      details: { name: value.name },
+    })
   },
 }

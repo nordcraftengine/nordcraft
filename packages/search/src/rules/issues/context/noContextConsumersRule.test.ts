@@ -122,7 +122,7 @@ describe('noContextConsumersRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
   test('should not detect component with exposed workflows/formulas when a slot exists', () => {
     const problems = Array.from(
@@ -177,7 +177,7 @@ describe('noContextConsumersRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
   test('should not detect component with exposed workflows/formulas when a child component exists', () => {
     const problems = Array.from(
@@ -235,6 +235,6 @@ describe('noContextConsumersRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(0)
+    expect(problems).toBeEmpty()
   })
 })

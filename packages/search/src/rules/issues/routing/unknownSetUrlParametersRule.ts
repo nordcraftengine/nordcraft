@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownSetUrlParametersRule: Rule<{
+export const unknownSetUrlParametersRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown set url parameters',
@@ -27,7 +27,14 @@ export const unknownSetUrlParametersRule: Rule<{
       )
     for (const key of Object.keys(args.value.parameters ?? {})) {
       if (!isValidParameter(key)) {
-        report([...args.path, 'parameters', key], { name: key })
+        report({
+          path: [...args.path, 'parameters', key],
+          info: {
+            title: 'Unknown URL parameter update',
+            description: `**${key}** does not exist as a path- or query-parameter and cannot be set/updated.`,
+          },
+          details: { name: key },
+        })
       }
     }
   },

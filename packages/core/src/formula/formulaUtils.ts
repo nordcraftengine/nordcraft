@@ -1,4 +1,5 @@
 import type { ActionModel } from '../component/component.types'
+import type { Nullable } from '../types'
 import { isDefined } from '../utils/util'
 import type {
   Formula,
@@ -35,15 +36,15 @@ export const functionFormula = (
 export function* getFormulasInFormula<Handler>({
   formula,
   globalFormulas,
-  path = [],
-  visitedFormulas = new Set<string>(),
+  path: _path,
+  visitedFormulas: _visitedFormulas,
   packageName,
 }: {
-  formula: Formula | undefined | null
+  formula: Nullable<Formula>
   globalFormulas: GlobalFormulas<Handler>
-  path?: (string | number)[]
-  visitedFormulas?: Set<string>
-  packageName?: string
+  path?: Nullable<(string | number)[]>
+  visitedFormulas?: Nullable<Set<string>>
+  packageName?: Nullable<string>
 }): Generator<{
   path: (string | number)[]
   formula: Formula
@@ -52,18 +53,21 @@ export function* getFormulasInFormula<Handler>({
   if (!isDefined(formula)) {
     return
   }
+  const path = _path ?? []
+  const visitedFormulas = _visitedFormulas ?? new Set<string>()
 
   yield {
     path,
     formula,
-    packageName,
+    packageName: packageName ?? undefined,
   }
+
   switch (formula.type) {
     case 'path':
     case 'value':
       break
     case 'record':
-      for (const [key, entry] of formula.entries.entries()) {
+      for (const [key, entry] of (formula.entries ?? []).entries()) {
         yield* getFormulasInFormula({
           formula: entry.formula,
           globalFormulas,
@@ -74,12 +78,14 @@ export function* getFormulasInFormula<Handler>({
       }
       break
     case 'function': {
-      packageName = formula.package ?? packageName
-      const formulaKey = [packageName, formula.name].filter(isDefined).join('/')
+      const innerPackage = formula.package ?? packageName
+      const formulaKey = [innerPackage, formula.name]
+        .filter(isDefined)
+        .join('/')
       const shouldVisitFormula = !visitedFormulas.has(formulaKey)
       visitedFormulas.add(formulaKey)
-      const globalFormula = packageName
-        ? globalFormulas.packages?.[packageName]?.formulas?.[formula.name]
+      const globalFormula = innerPackage
+        ? globalFormulas.packages?.[innerPackage]?.formulas?.[formula.name]
         : globalFormulas.formulas?.[formula.name]
       for (const [key, arg] of (
         (formula.arguments as typeof formula.arguments | undefined) ?? []
@@ -92,6 +98,7 @@ export function* getFormulasInFormula<Handler>({
           packageName,
         })
       }
+
       // Lookup the actual function and traverse its potential formula references
       // if this formula wasn't already visited
       if (
@@ -102,9 +109,11 @@ export function* getFormulasInFormula<Handler>({
         yield* getFormulasInFormula({
           formula: globalFormula.formula,
           globalFormulas,
-          path: [...path, 'formula'],
+          path: innerPackage
+            ? ['packages', innerPackage, 'formulas', formula.name]
+            : ['formulas', formula.name],
           visitedFormulas,
-          packageName,
+          packageName: innerPackage,
         })
       }
       break
@@ -139,7 +148,7 @@ export function* getFormulasInFormula<Handler>({
       }
       break
     case 'switch':
-      for (const [key, c] of formula.cases.entries()) {
+      for (const [key, c] of formula.cases?.entries() ?? []) {
         yield* getFormulasInFormula({
           formula: c.condition,
           globalFormulas,
@@ -168,15 +177,15 @@ export function* getFormulasInFormula<Handler>({
 export function* getFormulasInAction<Handler>({
   action,
   globalFormulas,
-  path = [],
+  path: _path,
   visitedFormulas = new Set<string>(),
   packageName,
 }: {
-  action: ActionModel | null
+  action: Nullable<ActionModel>
   globalFormulas: GlobalFormulas<Handler>
-  path?: (string | number)[]
-  visitedFormulas?: Set<string>
-  packageName?: string
+  path?: Nullable<(string | number)[]>
+  visitedFormulas?: Nullable<Set<string>>
+  packageName?: Nullable<string>
 }): Generator<{
   path: (string | number)[]
   formula: Formula
@@ -185,8 +194,12 @@ export function* getFormulasInAction<Handler>({
   if (!isDefined(action)) {
     return
   }
+  const path = _path ?? []
 
   switch (action.type) {
+    case 'AbortFetch':
+      // AbortFetch has no formulas
+      break
     case 'Fetch':
       for (const [inputKey, input] of Object.entries(action.inputs ?? {})) {
         yield* getFormulasInFormula({
@@ -227,7 +240,7 @@ export function* getFormulasInAction<Handler>({
       break
     case 'Custom':
     case undefined:
-      packageName = action.package ?? packageName
+    case null: {
       if (isFormula(action.data)) {
         yield* getFormulasInFormula({
           formula: action.data,
@@ -248,7 +261,6 @@ export function* getFormulasInAction<Handler>({
           })
         }
       }
-
       for (const [eventKey, event] of Object.entries(action.events ?? {})) {
         for (const [key, a] of Object.entries(event.actions ?? {})) {
           yield* getFormulasInAction({
@@ -261,6 +273,7 @@ export function* getFormulasInAction<Handler>({
         }
       }
       break
+    }
     case 'SetVariable':
     case 'TriggerEvent':
     case 'TriggerWorkflowCallback':
@@ -278,6 +291,7 @@ export function* getFormulasInAction<Handler>({
         globalFormulas,
         path: [...path, 'data'],
         visitedFormulas,
+        packageName,
       })
       break
     case 'SetURLParameters':
@@ -288,6 +302,7 @@ export function* getFormulasInAction<Handler>({
           globalFormulas,
           path: [...path, 'parameters', key],
           visitedFormulas,
+          packageName,
         })
       }
       break
@@ -315,7 +330,7 @@ export function* getFormulasInAction<Handler>({
           packageName,
         })
       }
-      for (const [key, c] of action.cases.entries()) {
+      for (const [key, c] of (action.cases ?? []).entries()) {
         yield* getFormulasInFormula({
           formula: c.condition,
           globalFormulas,
@@ -333,7 +348,9 @@ export function* getFormulasInAction<Handler>({
           })
         }
       }
-      for (const [actionKey, a] of Object.entries(action.default.actions)) {
+      for (const [actionKey, a] of Object.entries(
+        action.default?.actions ?? [],
+      )) {
         yield* getFormulasInAction({
           action: a,
           globalFormulas,

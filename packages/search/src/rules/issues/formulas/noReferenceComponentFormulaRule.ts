@@ -1,8 +1,8 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceComponentFormulaRule: Rule<{
+export const noReferenceComponentFormulaRule: IssueRule<{
   name: string
   contextSubscribers: string[]
 }> = {
@@ -75,14 +75,21 @@ export const noReferenceComponentFormulaRule: Rule<{
         }
       }
     }
-    report(
-      args.path,
-      {
+    report({
+      path: args.path,
+      info: {
+        title: 'Unused component formula',
+        description:
+          contextSubscribers.length > 0
+            ? `**${value.name}** is never used but is subscribed to by: *${contextSubscribers.join('*, *')}*. Consider removing it and clean up the unused context subscriptions.`
+            : `**${value.name}** is never used. Consider removing it.`,
+      },
+      details: {
         contextSubscribers,
         name: value.name,
       },
-      ['delete-component-formula'],
-    )
+      fixes: ['delete-component-formula'],
+    })
   },
   fixes: {
     'delete-component-formula': removeFromPathFix,

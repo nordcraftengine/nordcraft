@@ -8,6 +8,9 @@ import {
   type FormulaContext,
 } from '@nordcraft/core/dist/formula/formula'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import { applyFormula, isFormula } from '@nordcraft/core/dist/formula/formula'
+import type { Nullable } from '@nordcraft/core/dist/types'
+import { mapValues } from '@nordcraft/core/dist/utils/collections'
 import { parseJSONWithDate } from '@nordcraft/core/dist/utils/json'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
@@ -16,7 +19,7 @@ import type { ComponentContext } from '../types'
 export type ApiRequest = {
   url: string
   method: 'GET' | 'POST' | 'DELETE' | 'PUT' | 'OPTION' | 'HEAD'
-  auth: { type: string } | undefined
+  auth: Nullable<{ type: string }>
   headers: Record<string, string>
   body: any
 }
@@ -366,7 +369,7 @@ export function createLegacyAPI(
         if (firstRun && ctx.isRootComponent) {
           firstRun = false
           const cached = ctx.toddle?.pageState?.Apis?.[api.name]
-          if (cached && cached.data) {
+          if (cached?.data) {
             if (typeof cached.data === 'string') {
               // Mimic the behavior from getBody and parse
               // the response to JSON if possible

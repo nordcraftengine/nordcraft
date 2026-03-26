@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownProjectFormulaRule: Rule<{ name: string }> = {
+export const unknownProjectFormulaRule: IssueRule<{ name: string }> = {
   code: 'unknown project formula',
   level: 'warning',
   category: 'Unknown Reference',
@@ -18,6 +18,13 @@ export const unknownProjectFormulaRule: Rule<{ name: string }> = {
     if (formula) {
       return
     }
-    report(path, { name: value.name })
+    report({
+      path,
+      info: {
+        title: 'Unknown global formula',
+        description: `**${value.name}** does not exist. Using an unknown formula will always return *Null*`,
+      },
+      details: { name: value.name },
+    })
   },
 }

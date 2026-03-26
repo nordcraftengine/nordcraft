@@ -1,7 +1,7 @@
 import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownRepeatIndexFormulaRule: Rule = {
+export const unknownRepeatIndexFormulaRule: IssueRule = {
   code: 'unknown repeat index formula',
   level: 'error',
   category: 'Unknown Reference',
@@ -16,7 +16,13 @@ export const unknownRepeatIndexFormulaRule: Rule = {
     }
     if (path[0] !== 'components' || path[2] !== 'nodes') {
       // Any use outside of a component node is invalid
-      return report(path)
+      return report({
+        path,
+        info: {
+          title: 'Unknown repeat index reference',
+          description: `The formula references a repeat index, but no repeat formula exist in any of its parent elements.`,
+        },
+      })
     }
     const [_components, componentName, _nodes, nodeId] = path as string[]
     const component = files.components[componentName]
@@ -33,15 +39,24 @@ export const unknownRepeatIndexFormulaRule: Rule = {
       if (node.repeat) {
         return node
       }
-      const parent = Object.entries(component.nodes).find(([_, node]) =>
+      const parent = Object.entries(component.nodes ?? {}).find(([_, node]) =>
         node.children?.includes(id),
       )
       return findParentWithRepeat(parent)
     }
-    const node = component.nodes[nodeId]
+    const node = component.nodes?.[nodeId]
+    if (!node) {
+      return
+    }
     const parentWithRepeat = findParentWithRepeat([nodeId, node])
     if (!parentWithRepeat) {
-      report(path)
+      report({
+        path,
+        info: {
+          title: 'Unknown repeat index reference',
+          description: `The formula references a repeat index, but no repeat formula exist in any of its parent elements.`,
+        },
+      })
     }
   },
 }

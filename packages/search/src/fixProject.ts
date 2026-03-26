@@ -1,6 +1,7 @@
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { AllRuleTypes } from './rules/issues/issueRules.index'
 import { searchProject } from './searchProject'
-import type { ApplicationState, FixType, Rule } from './types'
+import type { ApplicationState, FixType } from './types'
 
 /**
  * Uses searchProject to apply 1 fix at a time. Finally ends up with the resulting
@@ -16,7 +17,7 @@ export const fixProject = ({
   state,
 }: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rule: Rule
+  rule: AllRuleTypes
   fixType: FixType
   pathsToVisit?: string[][]
   useExactPaths?: boolean

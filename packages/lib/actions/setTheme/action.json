@@ -1,0 +1,27 @@
+{
+  "$schema": "../../schemas/libAction.schema.json",
+  "name": "Set theme",
+  "description": "Sets the application theme. Call with null to reset. This action automatically sets a theme-cookie so the theme persists across sessions. Note: This action is currently only supported when the \"style-variables-v2\" feature flag is enabled.",
+  "group": "theming",
+  "arguments": [
+    {
+      "name": "Name",
+      "description": "The name of the theme.",
+      "type": { "type": "String" },
+      "formula": {
+        "type": "value",
+        "value": ""
+      }
+    }
+  ],
+  "events": {
+    "Success": {
+      "description": "This event is triggered once the theme has been set.",
+      "actions": []
+    },
+    "Error": {
+      "description": "This event is triggered if the theme could not be set. Usually due to an invalid theme name or a cookie issue.",
+      "actions": []
+    }
+  }
+}

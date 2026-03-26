@@ -4,6 +4,7 @@ import {
   getFormulasInAction,
   getFormulasInFormula,
 } from '../formula/formulaUtils'
+import type { Nullable } from '../types'
 import { isDefined } from '../utils/util'
 import { type LegacyComponentAPI } from './apiTypes'
 
@@ -29,7 +30,7 @@ export class LegacyToddleApi<Handler> {
       return this._apiReferences
     }
     const apis = new Set<string>()
-    const visitFormulaReference = (formula?: Formula | null) => {
+    const visitFormulaReference = (formula?: Nullable<Formula>) => {
       if (!isDefined(formula)) {
         return
       }
@@ -45,7 +46,7 @@ export class LegacyToddleApi<Handler> {
         case 'value':
           break
         case 'record':
-          formula.entries.forEach((entry) =>
+          formula.entries?.forEach((entry) =>
             visitFormulaReference(entry.formula),
           )
           break
@@ -60,7 +61,7 @@ export class LegacyToddleApi<Handler> {
           )
           break
         case 'switch':
-          formula.cases.forEach((c) => {
+          formula.cases?.forEach((c) => {
             visitFormulaReference(c.condition)
             visitFormulaReference(c.formula)
           })

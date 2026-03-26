@@ -1,10 +1,15 @@
-import type { Rule } from '../../../types'
+import type { CustomActionModel } from '@nordcraft/core/dist/component/component.types'
+import type { ActionModelNode, IssueRule, NodeType } from '../../../types'
 import { isLegacyAction } from '../../../util/helpers'
 import { replaceLegacyAction } from './legacyActionRule.fix'
 
-export const legacyActionRule: Rule<{
-  name: string
-}> = {
+export const legacyActionRule: IssueRule<
+  {
+    name: string
+  },
+  NodeType,
+  ActionModelNode<CustomActionModel>
+> = {
   code: 'legacy action',
   level: 'warning',
   category: 'Deprecation',
@@ -19,10 +24,17 @@ export const legacyActionRule: Rule<{
           name: value.name,
         }
       }
-      report(
+      report({
         path,
+        info: {
+          title: 'Legacy action',
+          description:
+            value.name === '@toddle/setSessionCookies'
+              ? `**Set session cookies** is deprecated. We recommend using the [Set HttpOnly cookie action](https://docs.nordcraft.com/references/actions#set-http-only-cookie) instead.`
+              : `**${value.name}** is deprecated. Replace it with the corresponding core action.`,
+        },
         details,
-        unfixableLegacyActions.has(value.name)
+        fixes: unfixableLegacyActions.has(value.name)
           ? undefined
           : !formulaNamedActions.includes(value.name) ||
               // Check if the first argument is a value formula with a string value
@@ -30,7 +42,7 @@ export const legacyActionRule: Rule<{
                 typeof value.arguments[0].formula.value === 'string')
             ? ['replace-legacy-action']
             : undefined,
-      )
+      })
     }
   },
   fixes: {

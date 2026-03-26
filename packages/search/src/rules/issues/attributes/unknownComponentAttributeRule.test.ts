@@ -151,7 +151,7 @@ describe('fix unknownComponentAttribute', () => {
       fixType: 'delete-component-attribute',
     })
     expect(
-      (fixedProject.components.test!.nodes.root as ComponentNodeModel).attrs,
+      (fixedProject.components.test!.nodes?.root as ComponentNodeModel).attrs,
     ).toEqual({
       first: valueFormula('exists'),
     })

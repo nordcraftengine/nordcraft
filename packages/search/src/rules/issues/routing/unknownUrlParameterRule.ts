@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownUrlParameterRule: Rule<{
+export const unknownUrlParameterRule: IssueRule<{
   name: string | number
 }> = {
   code: 'unknown url parameter',
@@ -22,7 +22,14 @@ export const unknownUrlParameterRule: Rule<{
       !component?.route?.query?.[parameterKey] &&
       !component?.route?.path?.some((p) => p.name === parameterKey)
     ) {
-      report(path, { name: parameterKey })
+      report({
+        path,
+        info: {
+          title: 'Unknown URL parameter',
+          description: `**${parameterKey}** does not exist as a path- or query-parameter. Using an unknown URL parameter will always return *Null*.`,
+        },
+        details: { name: parameterKey },
+      })
     }
   },
 }

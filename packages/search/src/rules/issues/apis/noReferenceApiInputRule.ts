@@ -1,7 +1,7 @@
 import { ToddleApiV2 } from '@nordcraft/core/dist/api/ToddleApiV2'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const noReferenceApiInputRule: Rule<{ inputName: string }> = {
+export const noReferenceApiInputRule: IssueRule<{ inputName: string }> = {
   code: 'no-reference api input',
   level: 'warning',
   category: 'No References',
@@ -37,6 +37,13 @@ export const noReferenceApiInputRule: Rule<{ inputName: string }> = {
     if (referencedApiInputs.has(inputKey)) {
       return
     }
-    report(path, { inputName: inputKey })
+    report({
+      path,
+      info: {
+        title: 'Unused API input',
+        description: `**${inputKey}** is never used by any formulas in the API. Consider removing it.`,
+      },
+      details: { inputName: inputKey },
+    })
   },
 }

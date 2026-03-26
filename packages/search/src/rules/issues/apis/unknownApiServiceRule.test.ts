@@ -117,7 +117,7 @@ describe('fix unknownApiServiceRule', () => {
     })
     expect(
       (
-        fixedProject.components['apiComponent']?.apis[
+        fixedProject.components['apiComponent']?.apis?.[
           'my-other-api'
         ] as ApiRequest
       ).service,

@@ -32,6 +32,7 @@ import {
   getThemeEntries,
   renderThemeValues,
 } from '@nordcraft/core/dist/styling/theme'
+import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/theme.const'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type {
   ActionHandler,
@@ -55,6 +56,10 @@ import { createNode } from './components/createNode'
 import { isContextProvider } from './context/isContextProvider'
 import { createPanicScreen } from './debug/panicScreen'
 import { sendEditorToast } from './debug/sendEditorToast'
+import {
+  CSS_VAR_VIEWPORT_HEIGHT,
+  DATA_ATTR_VIEWPORT_HEIGHT,
+} from './editor/const'
 import { dragEnded } from './editor/drag-drop/dragEnded'
 import { dragMove } from './editor/drag-drop/dragMove'
 import { dragReorder } from './editor/drag-drop/dragReorder'
@@ -64,16 +69,21 @@ import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
 import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
+import { postMessageToEditor } from './editor/postMessageToEditor'
+import { requestResizeCanvas } from './editor/resizeCanvas'
 import {
   TextNodeComputedStyles,
   type DragState,
-  type EditorPostMessageType,
   type NordcraftPreviewEvent,
 } from './editor/types'
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
-import { insertStyles, styleToCss } from './styles/style'
+import {
+  convertViewportUnitsToEmulatedViewportUnits,
+  insertStyles,
+  styleToCss,
+} from './styles/style'
 import type {
   ComponentContext,
   ContextApiV2,
@@ -81,6 +91,8 @@ import type {
   PreviewShowSignal,
 } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
+import { getThemeSignal } from './utils/getThemeSignal'
+import { markSelectedElement } from './utils/markSelectedElement'
 import { getNodeAndAncestors, isNodeOrAncestorConditional } from './utils/nodes'
 import { rectHasPoint } from './utils/rectHasPoint'
 import {
@@ -219,6 +231,11 @@ export const createRoot = (
     displayedNodes: [],
     testMode: false,
   })
+  const themeSignal = signal<string | null>(null)
+  const resizeCanvasOptions: {
+    viewport?: { height: number | null }
+    enabled?: boolean
+  } = {}
   window.toddle._preview = { showSignal }
   document.body.setAttribute('data-mode', 'design')
   let components: Component[] | null = null
@@ -384,7 +401,9 @@ export const createRoot = (
             }
 
             updateStyle(component)
-            update()
+            // Since changes to other components might affect the current component
+            // (if context was changed or a component node should be re-rendered)
+            update({ forceRerender: true })
           }
 
           break
@@ -471,8 +490,9 @@ export const createRoot = (
             updateConditionalElements()
 
             const node = getDOMNodeFromNodeId(selectedNodeId)
+            markSelectedElement(node)
             const element =
-              component?.nodes[node?.getAttribute('data-node-id') ?? '']
+              component?.nodes?.[node?.getAttribute('data-node-id') ?? '']
             if (
               node &&
               element &&
@@ -563,7 +583,7 @@ export const createRoot = (
               return false
             }
             const nodeId = getNodeId(component, id.split('.').slice(1))
-            const node = nodeId ? component?.nodes[nodeId] : undefined
+            const node = nodeId ? component?.nodes?.[nodeId] : undefined
             if (!node) {
               return false
             }
@@ -581,7 +601,7 @@ export const createRoot = (
             if (message.data.metaKey) {
               // Figure out if the clicked element is a text element
               // or if one of its descendants is a text element
-              const root = component.nodes.root
+              const root = component.nodes?.root
               if (root && id) {
                 const nodeLookup = getNodeAndAncestors(component, root, id)
                 if (nodeLookup?.node.type === 'text') {
@@ -593,7 +613,7 @@ export const createRoot = (
                   const firstTextChild =
                     nodeLookup?.node.type === 'element'
                       ? nodeLookup.node.children.find(
-                          (c) => component?.nodes[c]?.type === 'text',
+                          (c) => component?.nodes?.[c]?.type === 'text',
                         )
                       : undefined
                   if (firstTextChild) {
@@ -622,7 +642,7 @@ export const createRoot = (
             mode === 'design'
           ) {
             // Figure out if the clicked element is a component
-            const root = component.nodes.root
+            const root = component.nodes?.root
             if (root) {
               const nodeLookup = getNodeAndAncestors(component, root, id)
               if (
@@ -648,15 +668,31 @@ export const createRoot = (
           const { variantIndex } = message.data
           updateSelectedStyleVariant(variantIndex)
           break
-        // We request manually instead of automatic to avoid mutation observer spam.
-        // Also, reporting automatically proved unreliable when elements' height was in %
         case 'report_document_scroll_size':
-          postMessageToEditor({
-            type: 'documentScrollSize',
-            scrollHeight: domNode.scrollHeight,
-            scrollWidth: domNode.scrollWidth,
+          requestResizeCanvas({
+            force: true,
           })
           break
+        case 'viewport_size': {
+          if (message.data.enabled) {
+            resizeCanvasOptions.enabled = true
+            resizeCanvasOptions.viewport = { height: message.data.height }
+            document.body.setAttribute(
+              DATA_ATTR_VIEWPORT_HEIGHT,
+              String(Math.round(Number(resizeCanvasOptions.viewport.height))),
+            )
+            domNode.style.setProperty(
+              CSS_VAR_VIEWPORT_HEIGHT,
+              String(Math.round(Number(resizeCanvasOptions.viewport.height))),
+            )
+            requestResizeCanvas(resizeCanvasOptions)
+          } else {
+            resizeCanvasOptions.enabled = false
+            domNode.style.removeProperty(CSS_VAR_VIEWPORT_HEIGHT)
+            document.body.removeAttribute(DATA_ATTR_VIEWPORT_HEIGHT)
+          }
+          break
+        }
         case 'reload':
           window.location.reload()
           break
@@ -678,7 +714,7 @@ export const createRoot = (
         }
         case 'introspect_qraphql_api': {
           const { apiKey } = message.data
-          const api = component?.apis[apiKey]
+          const api = component?.apis?.[apiKey]
           if (api && !isLegacyApi(api) && component) {
             const formulaContext: FormulaContext = {
               component,
@@ -757,7 +793,7 @@ export const createRoot = (
                     parent: parentDataId,
                     index: !isNaN(nextSiblingId)
                       ? nextSiblingId
-                      : component?.nodes[parentNodeId]?.children?.length,
+                      : component?.nodes?.[parentNodeId]?.children?.length,
                   })
                   dragState = null
                 })
@@ -890,10 +926,12 @@ export const createRoot = (
                 '--editor-timeline-timing-function',
               )
               document.body.style.removeProperty('--editor-timeline-fill-mode')
+              document.body.removeAttribute('data-animating')
               update()
               return
             }
 
+            document.body.setAttribute('data-animating', 'true')
             document.body.style.setProperty(
               '--editor-timeline-position',
               `${time}s`,
@@ -917,17 +955,13 @@ export const createRoot = (
                 document.head.appendChild(styleTag)
               }
 
-              // Set the animation styles for self and repeated nodes, but pause for all others
-              // TODO: Consider if we should set all other animations to follow the current timeline time, by setting animation-delay with paused
               styleTag.innerHTML = `
-[data-id] {
-  animation-play-state: paused !important;
-}
-[data-id="${animationState.animatedElementId}"], [data-id="${animationState.animatedElementId}"] ~ [data-id^="${animationState.animatedElementId}("] {
+body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[data-mode="design"] [data-id="${animationState.animatedElementId}"] ~ [data-id^="${animationState.animatedElementId}("] {
   animation: preview_timeline 1s paused normal !important;
   animation-fill-mode: var(--editor-timeline-fill-mode) !important;
   animation-timing-function: var(--editor-timeline-timing-function) !important;
   animation-delay: calc(0s - var(--editor-timeline-position)) !important;
+  animation-play-state: paused !important;
 }`
             }
           })
@@ -937,39 +971,42 @@ export const createRoot = (
           cancelAnimationFrame(previewStyleAnimationFrame)
           previewStyleAnimationFrame = requestAnimationFrame(() => {
             // Update or create a new style tag and set the given styles with important priority
-            let styleTag = document.head.querySelector(
+            let styleElement = document.head.querySelector(
               '[data-id="selected-node-styles"]',
             )
 
             // Cleanup when null styles are sent
             if (!previewStyleStyles) {
-              styleTag?.remove()
+              styleElement?.remove()
               return
             }
 
-            if (!styleTag) {
-              styleTag = document.createElement('style')
-              styleTag.setAttribute('data-id', 'selected-node-styles')
-              document.head.appendChild(styleTag)
+            if (!styleElement) {
+              styleElement = document.createElement('style')
+              styleElement.setAttribute('data-id', 'selected-node-styles')
+              document.head.appendChild(styleElement)
             }
 
             // If style variant targets a pseudo-element, apply styles to it instead
             let pseudoElement = ''
             if (component && styleVariantSelection) {
-              const nodeLookup = getNodeAndAncestors(
-                component,
-                component.nodes.root,
-                styleVariantSelection.nodeId,
-              )
+              const rootNode = component.nodes?.root
+              if (rootNode) {
+                const nodeLookup = getNodeAndAncestors(
+                  component,
+                  rootNode,
+                  styleVariantSelection.nodeId,
+                )
 
-              if (
-                (nodeLookup?.node.type === 'element' ||
-                  nodeLookup?.node.type === 'component') &&
-                nodeLookup.node.variants?.[
-                  styleVariantSelection.styleVariantIndex
-                ].pseudoElement
-              ) {
-                pseudoElement = `::${nodeLookup.node.variants[styleVariantSelection.styleVariantIndex].pseudoElement}`
+                if (
+                  (nodeLookup?.node.type === 'element' ||
+                    nodeLookup?.node.type === 'component') &&
+                  nodeLookup.node.variants?.[
+                    styleVariantSelection.styleVariantIndex
+                  ].pseudoElement
+                ) {
+                  pseudoElement = `::${nodeLookup.node.variants[styleVariantSelection.styleVariantIndex].pseudoElement}`
+                }
               }
             }
 
@@ -1019,36 +1056,81 @@ export const createRoot = (
               }
               cssBlocks.push(
                 renderThemeValues(
-                  `[data-theme~="${theme.key}"]`,
+                  `[${THEME_DATA_ATTRIBUTE}~="${theme.key}"]`,
                   getThemeEntries(theme.value, theme.key),
                 ),
               )
-              styleTag.innerHTML = cssBlocks.join('\n')
+              styleElement.innerHTML = cssBlocks.join('\n')
             } else {
               const previewStyles = Object.entries(previewStyleStyles)
-                .map(([key, value]) => `${key}: ${value} !important;`)
+                .map(
+                  ([key, value]) =>
+                    `${key}: ${convertViewportUnitsToEmulatedViewportUnits(value)} !important;`,
+                )
                 .join('\n')
-              styleTag.innerHTML = `[data-id="${selectedNodeId}"]${pseudoElement}, [data-id="${selectedNodeId}"] ~ [data-id^="${selectedNodeId}("]${pseudoElement} {
+              styleElement.innerHTML = `[data-id="${selectedNodeId}"]${pseudoElement}, [data-id="${selectedNodeId}"] ~ [data-id^="${selectedNodeId}("]${pseudoElement} {
     ${previewStyles}
     transition: none !important;
   }`
             }
+            requestResizeCanvas(resizeCanvasOptions)
           })
           break
+        case 'preview_resources': {
+          const { resources } = message.data
+          // Allow for temporarily adding preview resources (e.g. fonts).
+          const resourceElements = Array.from(
+            document.head.querySelectorAll('[data-id="preview-resource"]'),
+          )
+          // Remove any resources that are no longer needed
+          resourceElements.forEach((el) => {
+            if (
+              resources.length === 0 ||
+              !resources.some((res) => res.href === el.getAttribute('href'))
+            ) {
+              el.remove()
+            }
+          })
+          resources
+            .filter(
+              (resource) =>
+                !resourceElements.some(
+                  (el) => el.getAttribute('href') === resource.href,
+                ),
+            )
+            .forEach((resource) => {
+              const resourceElement = document.createElement('link')
+              resourceElement.setAttribute('data-id', 'preview-resource')
+              resourceElement.rel = 'stylesheet'
+              resourceElement.href = resource.href
+              document.head.appendChild(resourceElement)
+            })
+          requestResizeCanvas(resizeCanvasOptions)
+          break
+        }
         case 'preview_theme': {
           const { theme } = message.data
           if (theme) {
-            document.body.setAttribute('data-theme', theme)
+            document.body.setAttribute(THEME_DATA_ATTRIBUTE, theme)
           } else {
-            document.body.removeAttribute('data-theme')
+            document.body.removeAttribute(THEME_DATA_ATTRIBUTE)
           }
+          requestResizeCanvas(resizeCanvasOptions)
+          break
         }
       }
     },
   )
 
+  const resizeObserver = new ResizeObserver(() =>
+    requestResizeCanvas(resizeCanvasOptions),
+  )
+  resizeObserver.observe(domNode)
+  requestResizeCanvas(resizeCanvasOptions)
+
   window.addEventListener('beforeunload', () => {
     storeScrollState(component?.name)
+    resizeObserver.disconnect()
   })
 
   const updateStyle = (component: Component | null) => {
@@ -1069,7 +1151,7 @@ export const createRoot = (
     }
     if (mode === 'design') {
       if (selectedNodeId !== null) {
-        const root = _component?.nodes.root
+        const root = _component?.nodes?.root
         if (root) {
           const nodeLookup = getNodeAndAncestors(
             _component,
@@ -1097,7 +1179,7 @@ export const createRoot = (
         nodeId: selectedNodeId,
         styleVariantIndex: variantIndex,
       }
-      const root = component?.nodes.root
+      const root = component?.nodes?.root
       if (root && component) {
         const nodeLookup = getNodeAndAncestors(component, root, selectedNodeId)
         if (nodeLookup) {
@@ -1180,7 +1262,7 @@ export const createRoot = (
     }
   }
 
-  const update = () => {
+  const update = ({ forceRerender }: { forceRerender?: boolean } = {}) => {
     const _component = getCurrentComponent()
     if (!_component || !components || !packageComponents) {
       return
@@ -1191,10 +1273,10 @@ export const createRoot = (
     if (
       fastDeepEqual(ctx?.component.attributes, _component.attributes) === false
     ) {
-      Attributes = mapObject(_component.attributes, ([name, { testValue }]) => [
-        name,
-        testValue,
-      ])
+      Attributes = mapObject(
+        _component.attributes ?? {},
+        ([name, { testValue }]) => [name, testValue],
+      )
     }
     if (
       _component.route &&
@@ -1238,16 +1320,17 @@ export const createRoot = (
         )
       }
 
-      Attributes = mapObject(_component.attributes, ([name, { testValue }]) => [
-        name,
-        testValue,
-      ])
+      Attributes = mapObject(
+        _component.attributes ?? {},
+        ([name, { testValue }]) => [name, testValue],
+      )
     }
     if (
       fastDeepEqual(
         ctx?.component.route?.info?.meta,
         _component.route?.info?.meta,
-      ) === false
+      ) === false ||
+      !ctx
     ) {
       insertHeadTags(_component.route?.info?.meta ?? {}, {
         component: _component,
@@ -1288,7 +1371,7 @@ export const createRoot = (
             const formulaContext: FormulaContext = {
               data: {
                 Attributes: mapObject(
-                  providerComponent.attributes,
+                  providerComponent.attributes ?? {},
                   ([name, attr]) => [name, attr.testValue],
                 ),
                 // Recursively resolve contexts providers before their children to build up the fake context tree in preview mode
@@ -1325,7 +1408,7 @@ export const createRoot = (
               }
             }
             formulaContext.data.Variables = mapObject(
-              providerComponent.variables,
+              providerComponent.variables ?? {},
               ([name, variable]) => [
                 name,
                 applyFormula(variable.initialValue, formulaContext, [
@@ -1366,7 +1449,7 @@ export const createRoot = (
       fastDeepEqual(_component.variables, ctx?.component.variables) === false
     ) {
       Variables = mapObject(
-        _component.variables,
+        _component.variables ?? {},
         ([name, { initialValue }]) => [
           name,
           applyFormula(
@@ -1407,10 +1490,23 @@ export const createRoot = (
       component: _component,
     }
 
+    if (
+      fastDeepEqual(
+        newCtx.component.route?.info?.theme,
+        ctx?.component.route?.info?.theme,
+      ) === false
+    ) {
+      setupThemeSubscription(newCtx.component, dataSignal, env).subscribe(
+        (theme) => {
+          newCtx.stores.theme.set(theme)
+        },
+      )
+    }
+
     for (const api in newCtx.component.apis) {
       // check if the api has changed (ignoring onCompleted and onFailed).
       const apiInstance = newCtx.component.apis[api]
-      const previousApiInstance = ctx?.component.apis[api]
+      const previousApiInstance = ctx?.component.apis?.[api]
       if (isLegacyApi(apiInstance)) {
         if (
           fastDeepEqual(
@@ -1427,7 +1523,7 @@ export const createRoot = (
               Apis: omitKeys(data.Apis ?? {}, [
                 ...Object.keys(data.Apis ?? {}).filter(
                   // remove any data from an api that is not part of the component
-                  (key) => !newCtx.component.apis[key],
+                  (key) => !newCtx.component.apis?.[key],
                 ),
                 api,
               ]),
@@ -1454,6 +1550,7 @@ export const createRoot = (
     }
 
     if (
+      forceRerender ||
       fastDeepEqual(newCtx.component.nodes, ctx?.component?.nodes) === false ||
       fastDeepEqual(newCtx.component.formulas, ctx?.component?.formulas) ===
         false
@@ -1481,7 +1578,7 @@ export const createRoot = (
           parentElement: domNode,
           instance: { [newCtx.component.name]: 'root' },
         })
-        newCtx.component.onLoad?.actions.forEach((action) => {
+        newCtx.component.onLoad?.actions?.forEach((action) => {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           handleAction(action, dataSignal.get(), newCtx)
         })
@@ -1547,6 +1644,8 @@ export const createRoot = (
     scrollStateRestorer((nodeId) =>
       document.querySelector(`[data-id="${nodeId}"]`),
     )
+    markSelectedElement(getDOMNodeFromNodeId(selectedNodeId))
+    requestResizeCanvas(resizeCanvasOptions)
   }
 
   const createContext = (
@@ -1574,12 +1673,21 @@ export const createRoot = (
       abortSignal: new AbortController().signal,
       formulaCache: createFormulaCache(component),
       providers: {},
+      stores: {
+        theme: themeSignal,
+      },
       package: undefined,
       toddle: window.toddle,
       env,
       jsonPath: [], // TODO: decide if the component path is needed here
       reportFormulaEvaluation,
     }
+
+    setupThemeSubscription(ctx.component, ctx.dataSignal, env).subscribe(
+      (theme) => {
+        ctx.stores.theme.set(theme)
+      },
+    )
 
     if (isContextProvider(component)) {
       // Subscribe to exposed formulas and update the component's data signal
@@ -1638,7 +1746,7 @@ export const createRoot = (
   const updateConditionalElements = () => {
     const displayedNodes: string[] = []
     if (selectedNodeId && component) {
-      const root = component.nodes.root
+      const root = component.nodes?.root
       if (root) {
         const nodeLookup = getNodeAndAncestors(component, root, selectedNodeId)
         if (isNodeOrAncestorConditional(nodeLookup)) {
@@ -1700,7 +1808,7 @@ const insertHeadTags = (
     .filter((elem) => !entries[elem.getAttribute('data-meta-id')!])
     .forEach((elem) => elem.remove())
 
-  // Skip anything that is not <link> or <script> tags, as they don't have any influence on the preview
+  // Skip anything that is not <link>, <style> or <script> tags, as they don't have any influence on the preview
   Object.entries(entries).forEach(([id, entry]) => {
     switch (entry.tag) {
       case HeadTagTypes.Link:
@@ -1709,7 +1817,7 @@ const insertHeadTags = (
           document.createRange().createContextualFragment(`
           <link
             data-meta-id="${id}"
-            ${Object.entries(entry.attrs)
+            ${Object.entries(entry.attrs ?? {})
               .map(
                 ([key, value]) =>
                   `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
@@ -1724,18 +1832,31 @@ const insertHeadTags = (
           document.createRange().createContextualFragment(`
           <script
             data-meta-id="${id}"
-            ${Object.entries(entry.attrs)
+            ${Object.entries(entry.attrs ?? {})
               .map(
                 ([key, value]) =>
                   `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
               )
               .join(' ')}
-          ></script>
+          >${applyFormula(entry.content ?? '', context)}</script>
+        `),
+        )
+      case HeadTagTypes.Style:
+        return insertOrReplaceHeadNode(
+          id,
+          document.createRange().createContextualFragment(`
+          <style
+            data-meta-id="${id}"
+            ${Object.entries(entry.attrs ?? {})
+              .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
+              .join(' ')}
+          >
+            ${applyFormula(entry.content ?? '', context)}
+          </style>
         `),
         )
       default:
-        // TODO: handle style meta tags?
-        break
+        return
     }
   })
 }
@@ -1760,7 +1881,7 @@ function getNodeId(component: Component, path: string[]) {
     if (nextChild === undefined || currentId === undefined) {
       return currentId ?? null
     }
-    const currentNode = component.nodes[currentId]
+    const currentNode = component.nodes?.[currentId]
     if (!currentNode?.children) {
       return null
     }
@@ -1905,6 +2026,27 @@ const registerFormulas = (
   window.toddle.formulas[packageName ?? window.__toddle.project] = formulas
 }
 
-const postMessageToEditor = (message: EditorPostMessageType) => {
-  window.parent?.postMessage(message, '*')
+let _themeRootSignal = null as Signal<string | null> | null
+function setupThemeSubscription(
+  component: Component,
+  dataSignal: Signal<ComponentData>,
+  env: ToddleEnv,
+) {
+  _themeRootSignal?.destroy()
+  _themeRootSignal = getThemeSignal(component, dataSignal, env)
+  _themeRootSignal.subscribe((theme) => {
+    if (isDefined(theme)) {
+      document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, theme)
+    } else {
+      document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE)
+    }
+    dataSignal.update((data) => ({
+      ...data,
+      Page: {
+        Theme: theme ?? null,
+      },
+    }))
+  })
+
+  return _themeRootSignal
 }

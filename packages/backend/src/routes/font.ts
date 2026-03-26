@@ -5,9 +5,14 @@ import { endTime, startTime } from 'hono/timing'
 import type { HonoEnv } from '../../hono'
 
 export const fontRouter = new Hono<HonoEnv, any, '/.toddle/fonts/'>()
+
 // TODO: We need to support CORS for custom-elements that need to fetch fonts
 // Eventually, we should allow specifying which origins are allowed to fetch fonts (and custom elements)
-fontRouter.use(cors())
+fontRouter.use(
+  cors({
+    origin: '*', // Restrict this to relevant origins in production if needed
+  }),
+)
 
 // Proxy endpoint for Google Fonts stylesheet
 // Font references are replaced with ./toddle/fonts/font

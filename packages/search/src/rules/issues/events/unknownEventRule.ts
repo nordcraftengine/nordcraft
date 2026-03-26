@@ -1,7 +1,7 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownEventRule: Rule<{
+export const unknownEventRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown event',
@@ -25,7 +25,14 @@ export const unknownEventRule: Rule<{
     )
     Object.entries(value.events).forEach(([eventKey, event]) => {
       if (isDefined(event) && !componentEvents.has(event.trigger)) {
-        report([...path, 'events', eventKey], { name: event.trigger })
+        report({
+          path: [...path, 'events', eventKey],
+          info: {
+            title: 'Unknown event',
+            description: `**${event.trigger}** does not exist. Calling an unknown event will have no effect.`,
+          },
+          details: { name: event.trigger },
+        })
       }
     })
   },

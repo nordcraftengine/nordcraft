@@ -146,16 +146,21 @@ let mdnMetadata:
 
 export const initMdnMetadata = async () => {
   mdnMetadata = await fetch(MDN_METADATA_URL).then((res) => res.json())
-  mdnMetadata = mdnMetadata!.filter(
-    (entry) =>
-      [
-        'html-attribute',
-        'svg-attribute',
-        'web-api-instance-property',
-        'web-api-event',
-      ].includes(entry.pageType) &&
-      entry.summary.includes('read-only property') === false,
-  )
+  mdnMetadata = mdnMetadata!
+    .filter(
+      (entry) =>
+        [
+          'html-attribute',
+          'svg-attribute',
+          'web-api-instance-property',
+          'web-api-event',
+        ].includes(entry.pageType) &&
+        entry.summary.includes('read-only property') === false,
+    )
+    .map((entry) => ({
+      ...entry,
+      summary: stripNewlines(entry.summary),
+    }))
 }
 
 export const getAttributeInfo = ({
@@ -176,16 +181,18 @@ export const getAttributeInfo = ({
   const entry = mdnMetadata.find((entry) => {
     if (namespace === 'SVG') {
       return (
-        entry.mdn_url === `/en-US/docs/Web/SVG/Reference/Attribute/${attribute}`
+        entry.mdn_url.toLocaleLowerCase() ===
+        `/en-US/docs/Web/SVG/Reference/Attribute/${attribute}`.toLocaleLowerCase()
       )
     } else if (interfaceName === 'global') {
       return (
-        entry.mdn_url ===
-        `/en-US/docs/Web/HTML/Reference/Global_attributes/${attribute}`
+        entry.mdn_url.toLocaleLowerCase() ===
+        `/en-US/docs/Web/HTML/Reference/Global_attributes/${attribute}`.toLocaleLowerCase()
       )
     }
     return (
-      entry.mdn_url === `/en-US/docs/Web/HTML/Reference/Attributes/${attribute}`
+      entry.mdn_url.toLocaleLowerCase() ===
+      `/en-US/docs/Web/HTML/Reference/Attributes/${attribute}`.toLocaleLowerCase()
     )
   })
   if (entry) {
@@ -193,7 +200,8 @@ export const getAttributeInfo = ({
   }
   return mdnMetadata.find(
     (entry) =>
-      entry.mdn_url === `/en-US/docs/Web/API/${interfaceName}/${attribute}`,
+      entry.mdn_url.toLocaleLowerCase() ===
+      `/en-US/docs/Web/API/${interfaceName}/${attribute}`.toLocaleLowerCase(),
   )
 }
 
@@ -210,20 +218,34 @@ export const getEventInfo = ({
   const entry = mdnMetadata.find(
     (entry) =>
       entry.pageType === 'web-api-event' &&
-      entry.mdn_url ===
-        `/en-US/docs/Web/API/${interfaceName}/${eventName}_event`,
+      entry.mdn_url.toLocaleLowerCase() ===
+        `/en-US/docs/Web/API/${interfaceName}/${eventName}_event`.toLocaleLowerCase(),
   )
   return entry
 }
 
+/**
+ * Sorting utility function that sorts by popularity if available (higher is more popular),
+ * otherwise falls back to alphabetical sorting by name.
+ */
 export const sortByPopularityOrAlphabetical = <
   T extends { popularity?: number; name: string },
 >(
   a: T,
   b: T,
 ) => {
-  if (typeof a.popularity === 'number' || typeof b.popularity === 'number') {
-    return (b.popularity ?? 0) - (a.popularity ?? 0)
+  if (typeof a.popularity === 'number' && typeof b.popularity === 'number') {
+    return b.popularity - a.popularity
   }
+  // Prefer items with defined popularity
+  if (typeof a.popularity === 'number') {
+    return -1
+  }
+  if (typeof b.popularity === 'number') {
+    return 1
+  }
+  // Fallback to alphabetical sorting
   return a.name.localeCompare(b.name)
 }
+
+export const stripNewlines = (str: string) => str.replace(/(\r\n|\n|\r)/gm, ' ')

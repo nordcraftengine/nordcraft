@@ -11,6 +11,8 @@ import {
 import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
 import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { omitKeys } from '@nordcraft/core/dist/utils/collections'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { CSS_VAR_SCROLL_HEIGHT, CSS_VAR_VIEWPORT_HEIGHT } from '../editor/const'
 
 const LEGACY_BREAKPOINTS = {
   large: 1440,
@@ -89,8 +91,8 @@ ${
           return variant.mediaQuery
             ? `
                 @media (${Object.entries(variant.mediaQuery)
+                  .filter(([_, value]) => isDefined(value))
                   .map(([key, value]) => `${key}: ${value}`)
-                  .filter(Boolean)
                   .join(') and (')}) {
                 ${renderedVariant}
                 }
@@ -247,7 +249,19 @@ export const styleToCss = (style: NodeStyleModel) => {
         SIZE_PROPERTIES.has(propertyName)
           ? `${Number(value) * 4}px`
           : value
-      return `${propertyName}:${propertyValue};`
+      return `${propertyName}:${convertViewportUnitsToEmulatedViewportUnits(propertyValue)};`
     })
     .join('\n')
+}
+
+/**
+ * Converts viewport units (vh) to emulated viewport units so the canvas can override
+ * the viewport size independent from the canvas iframe size.
+ */
+export const convertViewportUnitsToEmulatedViewportUnits = (
+  value: string | number | undefined,
+) => {
+  return value?.toString().replace(/([\d.]+)vh/g, (_, num) => {
+    return `calc(${Number(num)}vh * var(${CSS_VAR_VIEWPORT_HEIGHT}, var(${CSS_VAR_SCROLL_HEIGHT}, 740)) / var(${CSS_VAR_SCROLL_HEIGHT}, 740))`
+  })
 }

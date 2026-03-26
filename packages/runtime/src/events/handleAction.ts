@@ -33,7 +33,7 @@ export function handleAction(
         // find the first case that resolves to true.
         // Only one case in a switch will be executed.
         const actionList =
-          action.cases.find(({ condition }) =>
+          action.cases?.find(({ condition }) =>
             toBoolean(
               applyFormula(
                 condition,
@@ -52,11 +52,8 @@ export function handleAction(
               ),
             ),
           ) ?? action.default
-        if (!actionList) {
-          return
-        }
         // handle all actions for the case
-        for (const action of actionList.actions) {
+        for (const action of actionList?.actions ?? []) {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           handleAction(
             action,
@@ -351,14 +348,30 @@ export function handleAction(
           }
           api.fetch().then(
             () => {
-              triggerActions(action.onSuccess.actions)
+              triggerActions(action.onSuccess?.actions ?? [])
             },
             () => {
-              triggerActions(action.onError.actions)
+              triggerActions(action.onError?.actions ?? [])
             },
           )
         }
 
+        break
+      }
+      case 'AbortFetch': {
+        const api = ctx.apis[action.api]
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!api) {
+          console.error('The api ', action.api, 'does not exist')
+          return
+        }
+        if (isContextApiV2(api)) {
+          api.cancel()
+        } else {
+          console.warn(
+            `AbortFetch action is not supported for API "${action.api}" as it is not a v2 API.`,
+          )
+        }
         break
       }
       case 'TriggerWorkflow': {
@@ -476,7 +489,7 @@ export function handleAction(
           const triggerActionEvent = (trigger: string, eventData: any) => {
             const subEvent = action.events?.[trigger]
             if (subEvent) {
-              subEvent.actions.forEach((action) =>
+              subEvent.actions?.forEach((action) =>
                 handleAction(
                   action,
                   eventData

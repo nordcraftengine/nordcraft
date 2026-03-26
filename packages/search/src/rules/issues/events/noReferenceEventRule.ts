@@ -1,8 +1,8 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { isLegacyAction } from '../../../util/helpers'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceEventRule: Rule<{ name: string }> = {
+export const noReferenceEventRule: IssueRule<{ name: string }> = {
   code: 'no-reference event',
   level: 'warning',
   category: 'No References',
@@ -41,7 +41,15 @@ export const noReferenceEventRule: Rule<{ name: string }> = {
     if (events.has(event.name)) {
       return
     }
-    report(args.path, { name: args.value.event.name }, ['delete-event'])
+    report({
+      path: args.path,
+      info: {
+        title: 'Unused event',
+        description: `**${event.name}** is never triggered. Consider removing it and clean up any usages.`,
+      },
+      details: { name: event.name },
+      fixes: ['delete-event'],
+    })
   },
   fixes: {
     'delete-event': removeFromPathFix,

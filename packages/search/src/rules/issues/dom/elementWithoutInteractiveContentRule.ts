@@ -1,7 +1,7 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import {
   interactiveContentElementDefinition,
   type InteractiveContent,
@@ -9,7 +9,7 @@ import {
 
 const ELEMENTS_WITHOUT_INTERACTIVE_CONTENT = ['button', 'a']
 
-export const elementWithoutInteractiveContentRule: Rule<{
+export const elementWithoutInteractiveContentRule: IssueRule<{
   parentTag: string
   invalidChild: InteractiveContent
 }> = {
@@ -34,7 +34,7 @@ export const elementWithoutInteractiveContentRule: Rule<{
       results: Array<InteractiveContent> = [],
     ): Array<InteractiveContent> => {
       return children.reduce((acc, childId) => {
-        const child = container.nodes[childId]
+        const child = container.nodes?.[childId]
         if (!isDefined(child) || child.type === 'text') {
           return acc
         }
@@ -58,7 +58,7 @@ export const elementWithoutInteractiveContentRule: Rule<{
           allResults.push(
             ...searchChildren(
               component,
-              component.nodes['root']?.children ?? [],
+              component.nodes?.['root']?.children ?? [],
               acc,
             ),
           )
@@ -70,9 +70,32 @@ export const elementWithoutInteractiveContentRule: Rule<{
     const childTags = searchChildren(component, value.children)
     if (childTags.length > 0) {
       childTags.forEach((ic) =>
-        report(path, {
-          parentTag: value.tag,
-          invalidChild: ic,
+        report({
+          path,
+          info: {
+            title: `${value.tag} includes interactive content element(s)`,
+            description: `\`${
+              value.tag
+            }\` elements are not allowed to include [interactive content](https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Content_categories#interactive_content) elements.
+This ${value.tag} element could potentially include a \`${ic.tag}\` element${
+              'whenAttributeIsPresent' in ic
+                ? ` with the \`${ic.whenAttributeIsPresent}\` attribute present`
+                : ''
+            }${
+              'whenAttributeIsNot' in ic
+                ? ` where the \`${ic.whenAttributeIsNot.attribute}\` attribute is not \`${ic.whenAttributeIsNot.value}\``
+                : ''
+            }.
+Learn more about permitted content for the \`${
+              value.tag
+            }\` element on [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/${
+              value.tag
+            }#technical_summary)`,
+          },
+          details: {
+            parentTag: value.tag,
+            invalidChild: ic,
+          },
         }),
       )
     }

@@ -38,7 +38,7 @@ export const getNodeAndAncestors = (
             nodeId: path.slice(0, i + 1).join('.'),
           })
         }
-        return component.nodes[node.children[childIndex]]
+        return component.nodes?.[node.children[childIndex]]
       default:
         return undefined
     }

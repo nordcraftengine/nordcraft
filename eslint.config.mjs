@@ -3,7 +3,6 @@ import js from '@eslint/js'
 import html from '@html-eslint/eslint-plugin'
 import typescriptEslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
-import inclusiveLanguage from 'eslint-plugin-inclusive-language'
 import { defineConfig } from 'eslint/config'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -44,7 +43,6 @@ export default defineConfig([
   {
     plugins: {
       '@typescript-eslint': typescriptEslint,
-      'inclusive-language': inclusiveLanguage,
     },
 
     languageOptions: {
@@ -79,10 +77,7 @@ export default defineConfig([
       'max-params': ['error', 3],
       'no-return-await': 'off',
       'no-unused-vars': 'off',
-      'inclusive-language/use-inclusive-words': [
-        'error',
-        './lint/inclusive-words.json',
-      ],
+      'no-useless-assignment': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

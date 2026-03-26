@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/libFormula.schema.json",
+  "name": "Id",
+  "description": "Generate a unique, consistent identifier.",
+  "arguments": [],
+  "cache": false,
+  "output": {
+    "description": "A unique identifier.",
+    "type": {
+      "type": "String"
+    }
+  }
+}

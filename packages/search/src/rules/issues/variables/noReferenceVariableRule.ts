@@ -1,7 +1,7 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceVariableRule: Rule<void> = {
+export const noReferenceVariableRule: IssueRule<void> = {
   code: 'no-reference variable',
   level: 'warning',
   category: 'No References',
@@ -32,7 +32,14 @@ export const noReferenceVariableRule: Rule<void> = {
       return
     }
 
-    report(path, undefined, ['delete-variable'])
+    report({
+      path,
+      info: {
+        title: 'Unused variable',
+        description: `**${variableKey}** is set but never used by any formula. Consider removing it.`,
+      },
+      fixes: ['delete-variable'],
+    })
   },
   fixes: {
     'delete-variable': removeFromPathFix,

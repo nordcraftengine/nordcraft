@@ -1,10 +1,10 @@
 import { isFormula } from '@nordcraft/core/dist/formula/formula'
-import type { Level, Rule } from '../../../types'
+import type { IssueRule, Level } from '../../../types'
 
 export function createRequiredMetaTagRule(
   tag: string,
   level: Level = 'warning',
-): Rule<{
+): IssueRule<{
   tag: string
 }> {
   return {
@@ -26,7 +26,20 @@ export function createRequiredMetaTagRule(
         !formula ||
         (formula.type === 'value' && !formula.value)
       ) {
-        report(path, { tag: tag })
+        report({
+          path,
+          info: {
+            title: 'Missing meta tag',
+            description: `**${tag}** is a required tag on page **${
+              path[1]
+            }**. Missing tags may impact SEO performance. \n[Learn more](${
+              tag === 'title'
+                ? 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/title'
+                : 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta'
+            })`,
+          },
+          details: { tag: tag },
+        })
       }
     },
   }

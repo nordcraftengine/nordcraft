@@ -1,7 +1,7 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
-export const noUnnecessaryConditionFalsy: Rule = {
+export const noUnnecessaryConditionFalsy: IssueRule = {
   code: 'no-unnecessary-condition-falsy',
   level: 'info',
   category: 'Quality',
@@ -11,12 +11,19 @@ export const noUnnecessaryConditionFalsy: Rule = {
     }
 
     if (
-      value.arguments.some((arg) => {
+      (value.arguments ?? []).some((arg) => {
         const { result, isStatic } = contextlessEvaluateFormula(arg.formula)
         return isStatic && Boolean(result) === false
       })
     ) {
-      report(path)
+      report({
+        path,
+        info: {
+          title: 'Unnecessary condition',
+          description:
+            '**And condition** is always falsy. Consider replacing it with a single *false* node.',
+        },
+      })
     }
   },
 }

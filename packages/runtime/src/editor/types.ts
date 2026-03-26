@@ -104,8 +104,20 @@ export type NordcraftPreviewEvent =
       }
     }
   | {
+      type: 'preview_resources'
+      resources: ReadonlyArray<{
+        type: 'link'
+        href: string
+      }>
+    }
+  | {
       type: 'preview_theme'
       theme: string | null
+    }
+  | {
+      type: 'viewport_size'
+      height: number
+      enabled: boolean
     }
 
 export type EditorPostMessageType =
@@ -128,7 +140,6 @@ export type EditorPostMessageType =
   | {
       type: 'documentScrollSize'
       scrollHeight: number
-      scrollWidth: number
     }
   | {
       type: 'nodeMoved'

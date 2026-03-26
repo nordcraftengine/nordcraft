@@ -13,7 +13,7 @@ jobs:
   create_release:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Debug
         run: echo ${{ inputs.version }}
@@ -44,7 +44,7 @@ jobs:
       - name: Upload
         run: gh release upload ${{ inputs.version }} ./dist/*
     env:
-      GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   announce_release:
     needs:
       - create_release
@@ -62,5 +62,5 @@ jobs:
       - name: Send release announcement
         run: bun bin/sendReleaseAnnouncement.ts ${{ inputs.version }}
     env:
-      GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       MAKE_WEBHOOK_URL: ${{ secrets.MAKE_WEBHOOK_URL }}

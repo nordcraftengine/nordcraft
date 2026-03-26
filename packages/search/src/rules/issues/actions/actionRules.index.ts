@@ -10,6 +10,11 @@ export default [
   createActionNameRule({
     name: '@toddle/logToConsole',
     code: 'no-console',
+    info: {
+      title: 'Debug action',
+      description:
+        '**Log to console** is designed as debug action. It is suggested to remove it before merging to a main branch.',
+    },
   }),
   duplicateActionArgumentNameRule,
   legacyActionRule,

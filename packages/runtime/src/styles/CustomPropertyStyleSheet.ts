@@ -1,4 +1,5 @@
 import type { MediaQuery } from '@nordcraft/core/dist/component/component.types'
+import type { Nullable } from '@nordcraft/core/dist/types'
 
 /**
  * CustomPropertyStyleSheet is a utility class that manages CSS custom properties
@@ -15,7 +16,10 @@ export class CustomPropertyStyleSheet {
   // Selector to rule index mapping
   private ruleMap: Map<string, CSSStyleRule | CSSNestedDeclarations> | undefined
 
-  constructor(root: Document | ShadowRoot, styleSheet?: CSSStyleSheet | null) {
+  constructor(
+    root: Document | ShadowRoot,
+    styleSheet?: Nullable<CSSStyleSheet>,
+  ) {
     if (styleSheet) {
       this.styleSheet = styleSheet
     } else {
@@ -30,14 +34,14 @@ export class CustomPropertyStyleSheet {
   public registerProperty(
     selector: string,
     name: string,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+    }>,
   ): (newValue: string) => void {
     this.ruleMap ??= this.hydrateFromBase()
     const fullSelector = CustomPropertyStyleSheet.getFullSelector(
-      selector,
+      CustomPropertyStyleSheet.escapeSelector(selector),
       options,
     )
 
@@ -69,18 +73,17 @@ export class CustomPropertyStyleSheet {
   public unregisterProperty(
     selector: string,
     name: string,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-      deepClean?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+    }>,
   ): void {
     if (!this.ruleMap) {
       return
     }
 
     const fullSelector = CustomPropertyStyleSheet.getFullSelector(
-      selector,
+      CustomPropertyStyleSheet.escapeSelector(selector),
       options,
     )
 
@@ -93,7 +96,7 @@ export class CustomPropertyStyleSheet {
 
     // Cleaning up empty selectors is probably not necessary in production and may have performance implications.
     // However, it is required for the editor-preview as it is a dynamic environment and things may get reordered and canvas reused.
-    if (options?.deepClean && rule.style.length === 0) {
+    if (rule.style.length === 0) {
       this.styleSheet.deleteRule(
         Array.from(this.ruleMap.keys()).indexOf(fullSelector),
       )
@@ -161,10 +164,10 @@ export class CustomPropertyStyleSheet {
 
   private static getFullSelector(
     selector: string,
-    options?: {
-      mediaQuery?: MediaQuery
-      startingStyle?: boolean
-    },
+    options?: Nullable<{
+      mediaQuery?: Nullable<MediaQuery>
+      startingStyle?: Nullable<boolean>
+    }>,
   ) {
     let result =
       selector + (options?.startingStyle ? ' { @starting-style { }}' : ' { }')
@@ -176,5 +179,10 @@ export class CustomPropertyStyleSheet {
     }
 
     return result
+  }
+
+  private static escapeSelector(selector: string): string {
+    // Prefix forward slashes with double backslashes (if not already prefixed) to escape them in CSS selectors
+    return selector.replace(/(^|[^\\])\//g, '$1\\/') // Escape forward slashes
   }
 }

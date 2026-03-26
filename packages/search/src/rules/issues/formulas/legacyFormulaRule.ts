@@ -2,12 +2,16 @@ import type { FunctionOperation } from '@nordcraft/core/dist/formula/formula'
 import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-import type { Rule } from '../../../types'
+import type { FormulaNode, IssueRule, NodeType } from '../../../types'
 import { replaceLegacyFormula } from './legacyFormulaRule.fix'
 
-export const legacyFormulaRule: Rule<{
-  name: string
-}> = {
+export const legacyFormulaRule: IssueRule<
+  {
+    name: string
+  },
+  NodeType,
+  FormulaNode<FunctionOperation>
+> = {
   code: 'legacy formula',
   level: 'warning',
   category: 'Deprecation',
@@ -19,14 +23,19 @@ export const legacyFormulaRule: Rule<{
     ) {
       return
     }
-    report(
-      data.path,
-      { name: data.value.name },
+    report({
+      path: data.path,
+      info: {
+        title: 'Legacy formula',
+        description: `**${data.value.name}** is deprecated. Replace it with the corresponding core formula.`,
+      },
+      details: { name: data.value.name },
       // The TYPE and BOOLEAN formulas cannot be autofixed since the logic has changed between the 2 implementations
-      data.value.name !== 'TYPE' && data.value.name !== 'BOOLEAN'
-        ? ['replace-legacy-formula']
-        : undefined,
-    )
+      fixes:
+        data.value.name !== 'TYPE' && data.value.name !== 'BOOLEAN'
+          ? ['replace-legacy-formula']
+          : undefined,
+    })
   },
   fixes: {
     'replace-legacy-formula': replaceLegacyFormula,
@@ -40,7 +49,6 @@ const isLegacyFormula = (
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>,
 ) => {
   const pluginFormula = files.formulas?.[formula.name]
-
   if (
     isUpperCase(formula.name) &&
     isDefined(pluginFormula) &&

@@ -1,7 +1,7 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownCookieRule: Rule<{
+export const unknownCookieRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown cookie',
@@ -12,12 +12,15 @@ export const unknownCookieRule: Rule<{
       nodeType !== 'formula' ||
       value.type !== 'function' ||
       value.name !== '@toddle/getHttpOnlyCookie' ||
-      value.arguments.length !== 1 ||
       state?.isBrowserExtensionAvailable !== true
     ) {
       return
     }
-    const formula = value.arguments[0]?.formula
+    const args = value.arguments ?? []
+    if (args.length !== 1) {
+      return
+    }
+    const formula = args[0]?.formula
     if (
       !isDefined(formula) ||
       formula.type !== 'value' ||
@@ -27,7 +30,14 @@ export const unknownCookieRule: Rule<{
     }
     const cookie = state.cookiesAvailable?.find((c) => c.name === formula.value)
     if (!cookie) {
-      report(path, { name: formula.value })
+      report({
+        path,
+        info: {
+          title: 'Unknown cookie',
+          description: `**${formula.value}** is not found in the browser extension cookies.`,
+        },
+        details: { name: formula.value },
+      })
     }
   },
 }

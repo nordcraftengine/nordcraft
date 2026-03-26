@@ -1,7 +1,7 @@
 import type { ApiRequest } from '@nordcraft/core/dist/api/apiTypes'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownApiInputRule: Rule<{
+export const unknownApiInputRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown api input',
@@ -27,7 +27,14 @@ export const unknownApiInputRule: Rule<{
         | undefined
     )?.inputs?.[value.path[1]]
     if (!apiInput) {
-      report(path, { name: value.path[1] })
+      report({
+        path,
+        info: {
+          title: 'Unknown API input',
+          description: `**${value.path[1]}** does not exist as an input on the API. Using an unknown input will always return *Null*. Make sure to define it before using it.`,
+        },
+        details: { name: value.path[1] },
+      })
     }
   },
 }

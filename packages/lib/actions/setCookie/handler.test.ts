@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Window } from 'happy-dom'
 import handler from './handler'
 
+// eslint-disable-next-line no-unassigned-vars
 let window: Window | undefined
 
 describe('set cookie', async () => {

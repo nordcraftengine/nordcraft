@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write # Required for OIDC - see https://docs.npmjs.com/trusted-publishers
+  contents: write # Required to create releases
+
 jobs:
   version_check:
     runs-on: ubuntu-latest

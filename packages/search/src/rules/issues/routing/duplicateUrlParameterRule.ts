@@ -1,7 +1,7 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const duplicateUrlParameterRule: Rule<{ name: string }> = {
+export const duplicateUrlParameterRule: IssueRule<{ name: string }> = {
   code: 'duplicate url parameter',
   level: 'warning',
   category: 'Quality',
@@ -17,13 +17,27 @@ export const duplicateUrlParameterRule: Rule<{ name: string }> = {
     const pathNames = new Set<string>()
     value.route.path.forEach((p, i) => {
       if (pathNames.has(p.name)) {
-        report([...path, 'route', 'path', i], { name: p.name })
+        report({
+          path: [...path, 'route', 'path', i],
+          info: {
+            title: 'Duplicate URL parameter',
+            description: `**${p.name}** appears multiple times in the path/query parameters. This may lead to unexpected behavior. Consider consolidating them into a single parameter or renaming them.`,
+          },
+          details: { name: p.name },
+        })
       }
       pathNames.add(p.name)
     })
     Object.keys(value.route.query).forEach((key) => {
       if (pathNames.has(key)) {
-        report([...path, 'route', 'query', key], { name: key })
+        report({
+          path: [...path, 'route', 'query', key],
+          info: {
+            title: 'Duplicate URL parameter',
+            description: `**${key}** appears multiple times in the path/query parameters. This may lead to unexpected behavior. Consider consolidating them into a single parameter or renaming them.`,
+          },
+          details: { name: key },
+        })
       }
     })
   },

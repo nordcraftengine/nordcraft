@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownApiRule: Rule<{
+export const unknownApiRule: IssueRule<{
   name: string | number
 }> = {
   code: 'unknown api',
@@ -11,7 +11,9 @@ export const unknownApiRule: Rule<{
       nodeType === 'formula' &&
       value.type === 'path' &&
       value.path[0] === 'Apis'
-    const isApiAction = nodeType === 'action-model' && value.type === 'Fetch'
+    const isApiAction =
+      nodeType === 'action-model' &&
+      (value.type === 'Fetch' || value.type === 'AbortFetch')
     if (!isApiFormula && !isApiAction) {
       return
     }
@@ -20,11 +22,25 @@ export const unknownApiRule: Rule<{
     if (isApiFormula) {
       const [, apiKey] = value.path
       if (!component?.apis?.[apiKey]) {
-        report(path, { name: apiKey })
+        report({
+          path,
+          info: {
+            title: 'Unknown API',
+            description: `**${apiKey}** does not exist. Using an unknown API will have no effect. Define the API before calling it.`,
+          },
+          details: { name: apiKey },
+        })
       }
     } else if (isApiAction) {
       if (!component?.apis?.[value.api]) {
-        report(path, { name: value.api })
+        report({
+          path,
+          info: {
+            title: 'Unknown API',
+            description: `**${value.api}** does not exist. Using an unknown API will have no effect. Define the API before calling it.`,
+          },
+          details: { name: value.api },
+        })
       }
     }
   },

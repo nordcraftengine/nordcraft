@@ -4,6 +4,7 @@ import type {
   CustomFormulaHandler,
   FormulaLookup,
   NordcraftMetadata,
+  Nullable,
   Runtime,
 } from '../types'
 import { isDefined } from '../utils/util'
@@ -24,12 +25,15 @@ import {
   applyEvaluateAllSwitchFormula,
   applySwitchFormula,
 } from './switchFormula'
+import { measure } from '../utils/measure'
+import { isDefined, toBoolean } from '../utils/util'
+import { type PluginFormula, type ToddleFormula } from './formulaTypes'
 
 // Define the some objects types as union of ServerSide and ClientSide runtime types as applyFormula is used in both
 type ShadowRoot = DocumentFragment
 
 interface BaseOperation extends NordcraftMetadata {
-  label?: string
+  label?: Nullable<string>
 }
 
 export interface PathOperation extends BaseOperation {
@@ -38,51 +42,51 @@ export interface PathOperation extends BaseOperation {
 }
 
 export interface FunctionArgument {
-  name?: string
-  isFunction?: boolean
+  name?: Nullable<string>
+  isFunction?: Nullable<boolean>
   formula: Formula
-  type?: any
-  testValue?: any
+  type?: Nullable<any>
+  testValue?: Nullable<any>
 }
 
 export interface FunctionOperation extends BaseOperation {
   type: 'function'
   name: string
-  display_name?: string | null
-  package?: string
-  arguments: FunctionArgument[]
-  variableArguments?: boolean
+  display_name?: Nullable<string>
+  package?: Nullable<string>
+  arguments?: Nullable<FunctionArgument[]>
+  variableArguments?: Nullable<boolean>
 }
 
 export interface RecordOperation extends BaseOperation {
   type: 'record'
-  entries: FunctionArgument[]
+  entries?: Nullable<FunctionArgument[]>
 }
 
 export interface ObjectOperation extends BaseOperation {
   type: 'object'
-  arguments?: FunctionArgument[]
+  arguments?: Nullable<FunctionArgument[]>
 }
 
 export interface ArrayOperation extends BaseOperation {
   type: 'array'
-  arguments: Array<{ formula: Formula }>
+  arguments?: Nullable<Array<{ formula: Formula }>>
 }
 
 export interface OrOperation extends BaseOperation {
   type: 'or'
-  arguments: Array<{ formula: Formula }>
+  arguments?: Nullable<Array<{ formula: Formula }>>
 }
 
 export interface AndOperation extends BaseOperation {
   type: 'and'
-  arguments: Array<{ formula: Formula }>
+  arguments?: Nullable<Array<{ formula: Formula }>>
 }
 
 export interface ApplyOperation extends BaseOperation {
   type: 'apply'
   name: string
-  arguments: FunctionArgument[]
+  arguments?: Nullable<FunctionArgument[]>
 }
 
 export interface ValueOperation extends BaseOperation {
@@ -100,10 +104,12 @@ export type ValueOperationValue =
 
 export interface SwitchOperation extends BaseOperation {
   type: 'switch'
-  cases: Array<{
-    condition: Formula
-    formula: Formula
-  }>
+  cases?: Nullable<
+    Array<{
+      condition: Formula
+      formula: Formula
+    }>
+  >
   default: Formula
 }
 
@@ -121,16 +127,18 @@ export type Formula =
 
 export interface FormulaContext {
   component: Component | undefined
-  formulaCache?: Record<
-    string,
-    {
-      get: (data: ComponentData) => any
-      set: (data: ComponentData, result: any) => void
-    }
+  formulaCache?: Nullable<
+    Record<
+      string,
+      {
+        get: (data: ComponentData) => any
+        set: (data: ComponentData, result: any) => void
+      }
+    >
   >
   data: ComponentData
-  root?: Document | ShadowRoot | null
-  package: string | undefined
+  root?: Nullable<Document | ShadowRoot>
+  package: Nullable<string>
   toddle: {
     getFormula: FormulaLookup
     getCustomFormula: CustomFormulaHandler

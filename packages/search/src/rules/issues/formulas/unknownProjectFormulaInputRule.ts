@@ -1,10 +1,10 @@
 import type { ComponentFormula } from '@nordcraft/core/dist/component/component.types'
 import { get } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownProjectFormulaInputRule: Rule<{
-  name?: string | number | null
+export const unknownProjectFormulaInputRule: IssueRule<{
+  name?: string | number| null
 }> = {
   code: 'unknown project formula input',
   level: 'error',
@@ -26,7 +26,14 @@ export const unknownProjectFormulaInputRule: Rule<{
     const args = formula.arguments ?? []
     const argName = value.path[1]
     if (!isDefined(argName) || !args.some((arg) => arg.name === argName)) {
-      report(path, { name: argName })
+      report({
+        path,
+        info: {
+          title: 'Unknown project formula input',
+          description: `The formula input ${argName ?? ''} doesn't exist as an input for this formula.`,
+        },
+        details: { name: argName },
+      })
     }
   },
 }

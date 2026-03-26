@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownContextProviderFormulaRule: Rule<{
+export const unknownContextProviderFormulaRule: IssueRule<{
   providerName: string
   formulaName: string
 }> = {
@@ -25,9 +25,16 @@ export const unknownContextProviderFormulaRule: Rule<{
     }
     for (const formulaName of value.formulas) {
       if (component.formulas?.[formulaName]?.exposeInContext !== true) {
-        report(path, {
-          providerName: value.componentName,
-          formulaName,
+        report({
+          path,
+          info: {
+            title: 'Unknown context provider formula',
+            description: `**${formulaName}** does not exist on the context provider **${value.componentName}**. Using an unknown formula will always return *Null*. Make sure to define it before using it.`,
+          },
+          details: {
+            providerName: value.componentName,
+            formulaName,
+          },
         })
       }
     }

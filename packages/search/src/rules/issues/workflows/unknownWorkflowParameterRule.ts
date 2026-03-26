@@ -1,8 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownWorkflowParameterRule: Rule<{
-  parameter: string | number
-}> = {
+export const unknownWorkflowParameterRule: IssueRule<{ parameter: string | number }> = {
   code: 'unknown workflow parameter',
   level: 'error',
   category: 'Unknown Reference',
@@ -32,8 +30,15 @@ export const unknownWorkflowParameterRule: Rule<{
       ),
     )
     if (!workflowParameters.has(parameterName)) {
-      report(path, {
-        parameter: parameterName,
+      report({
+        path,
+        info: {
+          title: 'Unknown workflow parameter',
+          description: `**${parameterName}** does not exist in this workflow.`,
+        },
+        details: {
+          parameter: parameterName,
+        },
       })
     }
   },

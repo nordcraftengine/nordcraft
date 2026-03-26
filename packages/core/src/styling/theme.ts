@@ -1,7 +1,8 @@
 import type { CustomPropertyName } from '../component/component.types'
+import type { Nullable } from '../types'
 import { isDefined } from '../utils/util'
 import { renderSyntaxDefinition, type CssSyntaxNode } from './customProperty'
-import { RESET_STYLES } from './theme.const'
+import { RESET_STYLES, THEME_DATA_ATTRIBUTE } from './theme.const'
 
 export interface ThemeOptions {
   includeResetStyle: boolean
@@ -33,7 +34,7 @@ export type FontFamily = {
   family: string
   provider: 'google' | 'upload'
   type: 'serif' | 'sans-serif' | 'monospace' | 'cursive'
-  variants: Array<{
+  variants?: Array<{
     name: string
     weight:
       | '100'
@@ -99,11 +100,11 @@ export type Theme = {
 export type CustomPropertyDefinition = {
   syntax: CssSyntaxNode
   inherits: boolean
-  initialValue: string | null // Required by CSS specs for default-theme, but we can do a fallback so null is allowed
+  initialValue: Nullable<string> // Required by CSS specs for default-theme, but we can do a fallback so null is allowed
   description: string
   // Values mapped to theme names.
   // Values are not required, if left out, the default theme value will be used. If no default theme value exists, initialValue will be used.
-  values: Record<string, string | null>
+  values: Record<string, Nullable<string>>
 }
 
 export const getThemeCss = (
@@ -131,6 +132,7 @@ export const getThemeCss = (
     .map((themeV2) => {
       return `
   ${Object.entries(themeV2.propertyDefinitions ?? {})
+    .filter(([, property]) => isDefined(property))
     .map(([propertyName, property]) =>
       renderSyntaxDefinition(
         propertyName as CustomPropertyName,
@@ -146,7 +148,7 @@ export const getThemeCss = (
   ${Object.entries(themeV2.themes ?? {})
     .map(([key, _t]) =>
       renderThemeValues(
-        `[data-theme~="${key}"]`,
+        `[${THEME_DATA_ATTRIBUTE}~="${key}"]`,
         getThemeEntries(themeV2, key),
       ),
     )
@@ -164,7 +166,7 @@ ${options.includeResetStyle ? RESET_STYLES : ''}
           .flat()
           .map(
             (font) => `
-    ${font.variants
+    ${(font.variants ?? [])
       .map(
         (variant) => `
     @font-face {

@@ -1,10 +1,12 @@
 import {
   createApiRequest,
+  HttpMethodsWithAllowedBody,
   isApiError,
   requestHash,
   sortApiEntries,
 } from '@nordcraft/core/dist/api/api'
 import type {
+  ApiMethod,
   ApiParserMode,
   ApiPerformance,
   ApiStatus,
@@ -183,6 +185,24 @@ const fetchApi = async ({
     )
   })
 
+  if (
+    HttpMethodsWithAllowedBody.includes(requestSettings.method as ApiMethod) &&
+    toBoolean(
+      applyFormula(
+        api.server?.proxy?.useTemplatesInBody?.formula,
+        newFormulaContext,
+      ),
+    )
+  ) {
+    // Adjust the body of the request
+    if (typeof requestSettings.body === 'string') {
+      requestSettings.body = applyTemplateValues(
+        requestSettings.body,
+        newFormulaContext.env?.request?.cookies ?? {},
+      )
+    }
+  }
+
   const request = new Request(requestUrl.href, {
     ...requestSettings,
     headers: sanitizeProxyHeaders({
@@ -215,7 +235,6 @@ const fetchApiV2 = async ({
   originalRequest: Request
   componentName: string
 }): Promise<ApiStatus> => {
-  let isError = false
   let response: Response
   const performance: ApiPerformance = {
     requestStart: Date.now(),
@@ -234,7 +253,7 @@ const fetchApiV2 = async ({
   let responseBody: unknown
   try {
     performance.responseStart = Date.now()
-    responseBody = await getBody(response, api.client?.parserMode)
+    responseBody = await getBody(response, api.client?.parserMode ?? undefined)
     performance.responseEnd = Date.now()
   } catch (e: any) {
     return {
@@ -249,7 +268,7 @@ const fetchApiV2 = async ({
   }
   // Figure out if the response should be treated as an error
   const errorFormula = api.isError
-  isError = isApiError({
+  const isError = isApiError({
     apiName: api.name,
     response: {
       body: responseBody,
@@ -340,12 +359,11 @@ export class RedirectError extends Error {
 
 const executeFetchCall = async (request: Request) => {
   try {
-    // Remove the cf-connecting-ip header if the request is from localhost
-    // This is to prevent cf to throw an error when the requester ip is ::1
-    if ((request.headers.get('host') ?? '').startsWith('localhost')) {
-      request.headers.delete('cf-connecting-ip')
-      request.headers.delete('host')
-    }
+    // Always remove the host and cf-connecting-ip headers to prevent
+    // host mismatches on the outgoing request. fetch() will set the
+    // correct Host header based on the target URL automatically.
+    request.headers.delete('cf-connecting-ip')
+    request.headers.delete('host')
     const response = await fetch(request)
     return response
   } catch (e: any) {

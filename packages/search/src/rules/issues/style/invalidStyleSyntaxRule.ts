@@ -1,8 +1,8 @@
 import { parse } from 'postcss'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const invalidStyleSyntaxRule: Rule<{
+export const invalidStyleSyntaxRule: IssueRule<{
   property: string
 }> = {
   code: 'invalid style syntax',
@@ -12,6 +12,27 @@ export const invalidStyleSyntaxRule: Rule<{
     if (nodeType !== 'style-declaration') {
       return
     }
+
+    // Check for variable/formula references: Variables., Formulas., Event., Attributes., Apis., Parameters., ListItem., URLParameters.
+    if (typeof value.styleValue === 'string') {
+      const hasVariableReference =
+        /\b(Variables|Formulas|Event|Attributes|Apis|Parameters|ListItem|URLParameters)\.\w+/i.test(
+          value.styleValue,
+        )
+      if (hasVariableReference) {
+        report({
+          path,
+          info: {
+            title: `Formulas detected in style declaration`,
+            description: `The style declaration for the property "${value.styleProperty}" contains Nordcraft formula syntax (e.g., references like "Variables.xxx", "Event.xxx", "Attributes.xxx", etc.). Formulas should not be used directly in CSS style values. Use style-variables or computed styles instead.`,
+          },
+          details: { property: value.styleProperty },
+          fixes: ['delete-style-property'],
+        })
+        return
+      }
+    }
+
     const valid = memo(
       `valid-style-${value.styleProperty}:${value.styleValue}`,
       () => {
@@ -24,7 +45,15 @@ export const invalidStyleSyntaxRule: Rule<{
       },
     )
     if (!valid) {
-      report(path, { property: value.styleProperty }, ['delete-style-property'])
+      report({
+        path,
+        info: {
+          title: `Invalid style declaration`,
+          description: `The style declaration for the property "${value.styleProperty}" is invalid. This can lead to unforeseen styling behavior across other elements. Please fix the style declaration or remove it.`,
+        },
+        details: { property: value.styleProperty },
+        fixes: ['delete-style-property'],
+      })
     }
   },
   fixes: {

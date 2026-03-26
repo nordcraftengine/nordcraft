@@ -1,5 +1,5 @@
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import type { Level, Rule } from '../../../types'
+import type { IssueRule, Level } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 /**
@@ -19,7 +19,7 @@ export function createRequiredElementAttributeRule({
   attribute: string | string[]
   level?: Level
   allowEmptyString?: boolean
-}): Rule<{
+}): IssueRule<{
   tag: string
   attribute: string
 }> {
@@ -56,7 +56,14 @@ export function createRequiredElementAttributeRule({
           return
         }
 
-        report(path, { tag, attribute: mainAttribute })
+        report({
+          path,
+          info: {
+            title: 'Missing required attribute',
+            description: `**${mainAttribute}** is a required attribute on **${tag}** elements.\n[Learn more](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes)`,
+          },
+          details: { tag, attribute: mainAttribute },
+        })
       }
     },
   }

@@ -1,7 +1,7 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownClassnameRule: Rule<{
+export const unknownClassnameRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown classname',
@@ -16,6 +16,13 @@ export const unknownClassnameRule: Rule<{
     ) {
       return
     }
-    report(path, { name: value.variant.className })
+    report({
+      path,
+      info: {
+        title: 'Unknown classname',
+        description: `**${value.variant.className}** is not defined. Using an unknown classname will have no effect.`,
+      },
+      details: { name: value.variant.className },
+    })
   },
 }

@@ -7,9 +7,13 @@ import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
 import type { Theme } from '@nordcraft/core/dist/styling/theme'
-import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
+import {
+  theme as defaultTheme,
+  THEME_DATA_ATTRIBUTE,
+} from '@nordcraft/core/dist/styling/theme.const'
 import type { Toddle } from '@nordcraft/core/dist/types'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
@@ -18,6 +22,7 @@ import { isContextProvider } from '../context/isContextProvider'
 import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentContext, LocationSignal } from '../types'
+import { getThemeSignal } from '../utils/getThemeSignal'
 
 /**
  * Base class for all toddle components
@@ -86,6 +91,9 @@ export class ToddleComponent extends HTMLElement {
       abortSignal: abortController.signal,
       children: {},
       providers: {},
+      stores: {
+        theme: getThemeSignal(component, this.#signal, env),
+      },
       package: undefined,
       toddle,
       env,
@@ -94,7 +102,7 @@ export class ToddleComponent extends HTMLElement {
   }
 
   connectedCallback() {
-    sortApiObjects(Object.entries(this.#component.apis)).forEach(
+    sortApiObjects(Object.entries(this.#component.apis ?? {})).forEach(
       ([name, api]) => {
         if (isLegacyApi(api)) {
           this.#ctx.apis[name] = createLegacyAPI(api, {
@@ -157,6 +165,21 @@ export class ToddleComponent extends HTMLElement {
     }
 
     this.#ctx.providers = providers
+
+    this.#ctx.stores.theme.subscribe((newTheme) => {
+      this.#signal.update((data) => ({
+        ...data,
+        Page: {
+          ...(data.Page ?? {}),
+          Theme: newTheme,
+        },
+      }))
+      if (isDefined(newTheme)) {
+        this.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
+      } else {
+        this.removeAttribute(THEME_DATA_ATTRIBUTE)
+      }
+    })
     this.render()
   }
 
@@ -300,15 +323,15 @@ export const createSignal = ({
   return signal<ComponentData>({
     // Pages are not supported as custom elements, so no need to add location signal
     Location: undefined,
-    Variables: mapObject(component.variables, ([name, { initialValue }]) => {
-      if (!component) {
-        throw new Error(`Component not found`)
-      }
-      return [
-        name,
-        applyFormula(
-          initialValue,
-          {
+    Variables: mapObject(
+      component.variables ?? {},
+      ([name, { initialValue }]) => {
+        if (!component) {
+          throw new Error(`Component not found`)
+        }
+        return [
+          name,
+          applyFormula(initialValue, {
             data: {
               Attributes: {},
             },
@@ -317,18 +340,16 @@ export const createSignal = ({
             package: undefined,
             toddle,
             env,
-            jsonPath: [],
-          },
-          ['variables', name],
-        ),
-      ]
-    }),
-    Attributes: mapObject(component.attributes, ([name]) => [
+          }),
+        ]
+      },
+    ),
+    Attributes: mapObject(component.attributes ?? {}, ([name]) => [
       name,
       // TODO: Perhaps we can get it from the DOM already and set initial attributes already?
       undefined,
     ]),
-    Apis: mapObject(component.apis, ([name]) => [
+    Apis: mapObject(component.apis ?? {}, ([name]) => [
       name,
       { data: null, isLoading: false, error: null },
     ]),
