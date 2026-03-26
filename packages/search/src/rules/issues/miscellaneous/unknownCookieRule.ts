@@ -12,12 +12,15 @@ export const unknownCookieRule: IssueRule<{
       nodeType !== 'formula' ||
       value.type !== 'function' ||
       value.name !== '@toddle/getHttpOnlyCookie' ||
-      value.arguments.length !== 1 ||
       state?.isBrowserExtensionAvailable !== true
     ) {
       return
     }
-    const formula = value.arguments[0]?.formula
+    const args = value.arguments ?? []
+    if (args.length !== 1) {
+      return
+    }
+    const formula = args[0]?.formula
     if (
       !isDefined(formula) ||
       formula.type !== 'value' ||

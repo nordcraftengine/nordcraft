@@ -67,7 +67,7 @@ export function* getFormulasInFormula<Handler>({
     case 'value':
       break
     case 'record':
-      for (const [key, entry] of formula.entries.entries()) {
+      for (const [key, entry] of (formula.entries ?? []).entries()) {
         yield* getFormulasInFormula({
           formula: entry.formula,
           globalFormulas,

@@ -280,7 +280,7 @@ const removeFormulaTestData = (formula: Formula): Formula => {
     case 'record':
       return {
         ...formula,
-        entries: formula.entries.map((entry) => ({
+        entries: (formula.entries ?? []).map((entry) => ({
           ...entry,
           formula: removeFormulaTestData(entry.formula),
         })),
@@ -300,7 +300,7 @@ const removeFormulaTestData = (formula: Formula): Formula => {
     case 'apply':
       return {
         ...formula,
-        arguments: formula.arguments.map((a) => ({
+        arguments: (formula.arguments ?? []).map((a) => ({
           ...omitKeys(a, ['testValue']),
           formula: removeFormulaTestData(a.formula),
         })),

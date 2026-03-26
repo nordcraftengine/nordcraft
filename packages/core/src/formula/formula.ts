@@ -39,13 +39,13 @@ export interface FunctionOperation extends BaseOperation {
   name: string
   display_name?: Nullable<string>
   package?: Nullable<string>
-  arguments: FunctionArgument[]
+  arguments?: Nullable<FunctionArgument[]>
   variableArguments?: Nullable<boolean>
 }
 
 export interface RecordOperation extends BaseOperation {
   type: 'record'
-  entries: FunctionArgument[]
+  entries: Nullable<FunctionArgument[]>
 }
 
 export interface ObjectOperation extends BaseOperation {
@@ -55,23 +55,23 @@ export interface ObjectOperation extends BaseOperation {
 
 export interface ArrayOperation extends BaseOperation {
   type: 'array'
-  arguments: Array<{ formula: Formula }>
+  arguments?: Nullable<Array<{ formula: Formula }>>
 }
 
 export interface OrOperation extends BaseOperation {
   type: 'or'
-  arguments: Array<{ formula: Formula }>
+  arguments?: Nullable<Array<{ formula: Formula }>>
 }
 
 export interface AndOperation extends BaseOperation {
   type: 'and'
-  arguments: Array<{ formula: Formula }>
+  arguments?: Nullable<Array<{ formula: Formula }>>
 }
 
 export interface ApplyOperation extends BaseOperation {
   type: 'apply'
   name: string
-  arguments: FunctionArgument[]
+  arguments?: Nullable<FunctionArgument[]>
 }
 
 export interface ValueOperation extends BaseOperation {
@@ -213,7 +213,7 @@ export function applyFormula(
         return applyFormula(formula.default, ctx)
       }
       case 'or': {
-        for (const entry of formula.arguments) {
+        for (const entry of formula.arguments ?? []) {
           if (toBoolean(applyFormula(entry.formula, ctx))) {
             return true
           }
@@ -221,7 +221,7 @@ export function applyFormula(
         return false
       }
       case 'and': {
-        for (const entry of formula.arguments) {
+        for (const entry of formula.arguments ?? []) {
           if (!toBoolean(applyFormula(entry.formula, ctx))) {
             return false
           }
@@ -240,7 +240,9 @@ export function applyFormula(
         )?.getCustomFormula(formula.name, packageName)
         if (isDefined(newFunc)) {
           ctx.package = packageName
-          const args = formula.arguments.reduce<Record<string, unknown>>(
+          const args = (formula.arguments ?? []).reduce<
+            Record<string, unknown>
+          >(
             (args, arg, i) => ({
               ...args,
               [arg.name ?? `${i}`]: arg.isFunction
@@ -332,13 +334,13 @@ export function applyFormula(
         )
       case 'record': // object used to be called record, there are still examples in the wild.
         return Object.fromEntries(
-          formula.entries.map((entry) => [
+          (formula.entries ?? []).map((entry) => [
             entry.name,
             applyFormula(entry.formula, ctx),
           ]),
         )
       case 'array':
-        return formula.arguments.map((entry) =>
+        return (formula.arguments ?? []).map((entry) =>
           applyFormula(entry.formula, ctx),
         )
       case 'apply': {
@@ -357,7 +359,7 @@ export function applyFormula(
           component: ctx.component?.name,
         })
         const Input = Object.fromEntries(
-          formula.arguments.map((arg) =>
+          (formula.arguments ?? []).map((arg) =>
             arg.isFunction
               ? [
                   arg.name,

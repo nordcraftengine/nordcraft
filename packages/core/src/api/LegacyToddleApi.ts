@@ -46,7 +46,7 @@ export class LegacyToddleApi<Handler> {
         case 'value':
           break
         case 'record':
-          formula.entries.forEach((entry) =>
+          formula.entries?.forEach((entry) =>
             visitFormulaReference(entry.formula),
           )
           break

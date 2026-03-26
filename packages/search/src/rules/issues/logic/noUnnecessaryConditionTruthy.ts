@@ -11,7 +11,7 @@ export const noUnnecessaryConditionTruthy: IssueRule = {
     }
 
     if (
-      value.arguments.some((arg) => {
+      (value.arguments ?? []).some((arg) => {
         // Objects and arrays, even empty ones, are always truthy
         if (arg.formula.type === 'object' || arg.formula.type === 'array') {
           return true
