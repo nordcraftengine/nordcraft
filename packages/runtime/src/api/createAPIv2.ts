@@ -290,6 +290,18 @@ export function createAPI({
         },
       },
     })
+
+    ctx.reportFormulaEvaluation?.(['apis', api.name], {
+      isLoading: false,
+      data: data.body,
+      error: null,
+      response: {
+        status: data.status,
+        headers: data.headers,
+        performance,
+      },
+    })
+
     const appliedRedirectRule = handleRedirectRules(api, componentData)
     if (appliedRedirectRule) {
       ctx.dataSignal.set({
@@ -353,6 +365,18 @@ export function createAPI({
         },
       },
     })
+
+    ctx.reportFormulaEvaluation?.(['apis', api.name], {
+      isLoading: false,
+      data: null,
+      error: data.body,
+      response: {
+        status: data.status,
+        headers: data.headers,
+        performance,
+      },
+    })
+
     const appliedRedirectRule = handleRedirectRules(api, componentData)
     if (appliedRedirectRule) {
       ctx.dataSignal.set({
@@ -408,6 +432,13 @@ export function createAPI({
           },
         },
       })
+
+      ctx.reportFormulaEvaluation?.(['apis', api.name], {
+        isLoading: true,
+        data: ctx.dataSignal.get().Apis?.[api.name]?.data ?? null,
+        error: null,
+      })
+
       let response
 
       try {

@@ -60,6 +60,7 @@ export function createElement({
     package: ctx.package,
     toddle: ctx.toddle,
     env: ctx.env,
+    reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
 
   elem.setAttribute('data-node-id', id)
@@ -107,12 +108,19 @@ export function createElement({
       if (value.type === 'value') {
         setAttribute(elem, attr, value?.value)
       } else {
-        o = dataSignal.map((data) =>
-          applyFormula(value, {
-            ...formulaCtx,
-            data,
-          }),
-        )
+        const attrPath = ['nodes', id, 'attrs', attr]
+        o = dataSignal.map((data) => {
+          const val = applyFormula(
+            value,
+            {
+              ...formulaCtx,
+              data,
+            },
+            attrPath,
+          )
+          ctx.reportFormulaEvaluation?.(attrPath, val)
+          return val
+        })
         o.subscribe((val) => {
           setAttribute(elem, attr, val)
         })
@@ -137,11 +145,17 @@ export function createElement({
   })
   node['style-variables']?.forEach((styleVariable, i) => {
     const { name, formula, unit } = styleVariable
+    const styleVarPath = ['nodes', id, 'style-variables', i, 'formula']
     const signal = dataSignal.map((data) => {
-      const value = applyFormula(formula, {
-        ...formulaCtx,
-        data,
-      })
+      const value = applyFormula(
+        formula,
+        {
+          ...formulaCtx,
+          data,
+        },
+        styleVarPath,
+      )
+      ctx.reportFormulaEvaluation?.(styleVarPath, value)
       return unit ? value + unit : value
     })
 
@@ -151,6 +165,13 @@ export function createElement({
   Object.entries(node.customProperties ?? {})
     .filter(([_, { formula }]) => formulaHasValue(formula))
     .forEach(([customPropertyName, { formula, unit }]) => {
+      const cpPath = [
+        'nodes',
+        id,
+        'customProperties',
+        customPropertyName,
+        'formula',
+      ]
       subscribeCustomProperty({
         customPropertyName,
         selector:
@@ -159,38 +180,53 @@ export function createElement({
           path === '0'
             ? `${getNodeSelector(path)}, :host`
             : getNodeSelector(path),
-        signal: dataSignal.map((data) =>
-          appendUnit(
-            applyFormula(formula, {
+        signal: dataSignal.map((data) => {
+          const val = applyFormula(
+            formula,
+            {
               ...formulaCtx,
               data,
-            }),
-            unit,
-          ),
-        ),
+            },
+            cpPath,
+          )
+          ctx.reportFormulaEvaluation?.(cpPath, val)
+          return appendUnit(val, unit)
+        }),
         root: ctx.root,
       })
     })
 
-  node.variants?.forEach((variant) => {
+  node.variants?.forEach((variant, variantIndex) => {
     Object.entries(variant.customProperties ?? {})
       .filter(([_, { formula }]) => formulaHasValue(formula))
       .forEach(([customPropertyName, { formula, unit }]) => {
+        const variantCpPath = [
+          'nodes',
+          id,
+          'variants',
+          variantIndex,
+          'customProperties',
+          customPropertyName,
+          'formula',
+        ]
         subscribeCustomProperty({
           customPropertyName,
           selector: getNodeSelector(path, {
             variant,
           }),
           variant,
-          signal: dataSignal.map((data) =>
-            appendUnit(
-              applyFormula(formula, {
+          signal: dataSignal.map((data) => {
+            const val = applyFormula(
+              formula,
+              {
                 ...formulaCtx,
                 data,
-              }),
-              unit,
-            ),
-          ),
+              },
+              variantCpPath,
+            )
+            ctx.reportFormulaEvaluation?.(variantCpPath, val)
+            return appendUnit(val, unit)
+          }),
           root: ctx.root,
         })
       })

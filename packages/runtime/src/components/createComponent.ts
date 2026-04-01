@@ -68,6 +68,7 @@ export function createComponent({
     package: ctx.package,
     toddle: ctx.toddle,
     env: ctx.env,
+    reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
   const attributesSignal = dataSignal.map((data) => {
     return mapObject(node.attrs, ([attr, value]) => [
@@ -132,10 +133,17 @@ export function createComponent({
 
   // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
   const abortController = new AbortController()
-  componentDataSignal.subscribe(() => {}, {
-    destroy: () =>
-      abortController.abort(`Component ${component.name} unmounted`),
-  })
+  componentDataSignal.subscribe(
+    (data) => {
+      Object.entries(data.Variables ?? {}).forEach(([name, value]) => {
+        ctx.reportFormulaEvaluation?.(['variables', name], value)
+      })
+    },
+    {
+      destroy: () =>
+        abortController.abort(`Component ${component.name} unmounted`),
+    },
+  )
   const formulaCache = createFormulaCache(component)
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other

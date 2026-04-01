@@ -1,4 +1,4 @@
-import type { FormulaHandler, Toddle } from '../types'
+import type { FormulaHandler, FormulaHandlerV2, Toddle } from '../types'
 import { isDefined } from '../utils/util'
 import {
   applyFormula,
@@ -51,11 +51,13 @@ export const applyFunctionFormula = (
           },
           ['formula'],
         )
-      } else {
-        return newFunc.handler(args, {
+      } else if (typeof newFunc.handler === 'function') {
+        return (newFunc.handler as FormulaHandlerV2)(args, {
           root: ctx.root ?? document,
           env: ctx.env,
         } as any)
+      } else {
+        return null
       }
     } catch (e) {
       ctx.toddle.errors.push(e as Error)

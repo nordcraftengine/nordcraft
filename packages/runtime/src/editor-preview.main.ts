@@ -252,11 +252,14 @@ export const createRoot = (
     reportComponentFormulaData()
   }
   const reportComponentFormulaData = debounce(
-    () =>
+    () => {
       postMessageToEditor({
         type: 'componentFormulaData',
         data: componentFormulaData,
-      }),
+        component: component?.name,
+      })
+      componentFormulaData = {}
+    },
     5, // 5ms debounce to batch multiple rapid updates
     true,
   )

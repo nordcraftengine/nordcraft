@@ -4,7 +4,9 @@ import { applyFormula, type FormulaContext, type OrOperation } from './formula'
 export const applyOrFormula = (formula: OrOperation, ctx: FormulaContext) => {
   for (let i = 0; i < (formula.arguments ?? []).length; i++) {
     const arg = (formula.arguments ?? [])[i]
-    if (toBoolean(applyFormula(arg?.formula, ctx, ['arguments', i]))) {
+    if (
+      toBoolean(applyFormula(arg?.formula, ctx, ['arguments', i, 'formula']))
+    ) {
       return true
     }
   }

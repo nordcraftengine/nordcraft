@@ -189,7 +189,11 @@ export type EditorPostMessageType =
       }
     }
   | { type: 'data'; data: ComponentData }
-  | { type: 'componentFormulaData'; data: Record<string, any> }
+  | {
+      type: 'componentFormulaData'
+      data: Record<string, any>
+      component?: string
+    }
   | {
       type: 'selectionRect'
       rect: ReturnType<typeof getRectData>

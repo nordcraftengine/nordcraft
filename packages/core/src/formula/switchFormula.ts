@@ -14,13 +14,23 @@ export const applySwitchFormula = (
     const switchCase = (formula.cases ?? [])[i]
     if (
       toBoolean(
-        applyFormula(switchCase?.condition, ctx, ['cases', i, 'condition']),
+        applyFormula(switchCase?.condition, ctx, [
+          'cases',
+          i,
+          'condition',
+          'formula',
+        ]),
       )
     ) {
-      return applyFormula(switchCase?.formula, ctx, ['cases', i, 'formula'])
+      return applyFormula(switchCase?.formula, ctx, [
+        'cases',
+        i,
+        'formula',
+        'formula',
+      ])
     }
   }
-  return applyFormula(formula.default, ctx, ['default'])
+  return applyFormula(formula.default, ctx, ['default', 'formula'])
 }
 
 export const applyEvaluateAllSwitchFormula = (
@@ -35,17 +45,22 @@ export const applyEvaluateAllSwitchFormula = (
       'cases',
       i,
       'condition',
+      'formula',
     ])
     const formulaValue = applyFormula(switchCase?.formula, ctx, [
       'cases',
       i,
+      'formula',
       'formula',
     ])
     if (toBoolean(conditionValue) && switchResult === null) {
       switchResult = { match: true, value: formulaValue }
     }
   }
-  const defaultValue = applyFormula(formula.default, ctx, ['default'])
+  const defaultValue = applyFormula(formula.default, ctx, [
+    'default',
+    'formula',
+  ])
   if (switchResult !== null) {
     return switchResult.value
   } else {
