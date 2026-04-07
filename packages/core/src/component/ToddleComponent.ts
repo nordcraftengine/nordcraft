@@ -1,4 +1,5 @@
 import { isLegacyApi } from '../api/api'
+import type { ComponentAPI } from '../api/apiTypes'
 import { LegacyToddleApi } from '../api/LegacyToddleApi'
 import { ToddleApiV2 } from '../api/ToddleApiV2'
 import type { Formula, FunctionOperation } from '../formula/formula'
@@ -561,13 +562,14 @@ export class ToddleComponent<Handler> {
 
   get apis() {
     return Object.fromEntries(
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      Object.entries(this.component.apis ?? {}).map(([key, api]) => [
-        key,
-        isLegacyApi(api)
-          ? new LegacyToddleApi(api, key, this.globalFormulas)
-          : new ToddleApiV2(api, key, this.globalFormulas),
-      ]),
+      Object.entries(this.component.apis ?? {})
+        .filter((entry): entry is [string, ComponentAPI] => isDefined(entry[1]))
+        .map(([key, api]) => [
+          key,
+          isLegacyApi(api)
+            ? new LegacyToddleApi(api, key, this.globalFormulas)
+            : new ToddleApiV2(api, key, this.globalFormulas),
+        ]),
     )
   }
 

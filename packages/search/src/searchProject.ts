@@ -441,6 +441,9 @@ function* visitNode({
 
       for (const key in value.apis) {
         const api = value.apis[key]
+        if (!api) {
+          continue
+        }
         yield* visitNode({
           args: {
             nodeType: 'component-api',

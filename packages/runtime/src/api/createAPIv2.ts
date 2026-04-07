@@ -1174,7 +1174,7 @@ export function createAPI({
     triggerActions: (componentData) => {
       const apiData = ctx.dataSignal.get().Apis?.[api.name]
       if (
-        apiData === undefined ||
+        !isDefined(apiData) ||
         (apiData.data === null && apiData.error === null)
       ) {
         return

@@ -14,6 +14,7 @@ import {
 import type { Toddle } from '@nordcraft/core/dist/types'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { ComponentAPI } from '@nordcraft/core/src/api/apiTypes'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
@@ -101,19 +102,21 @@ export class ToddleComponent extends HTMLElement {
   }
 
   connectedCallback() {
-    sortApiObjects(Object.entries(this.#component.apis ?? {})).forEach(
-      ([name, api]) => {
-        if (isLegacyApi(api)) {
-          this.#ctx.apis[name] = createLegacyAPI(api, this.#ctx)
-        } else {
-          this.#ctx.apis[name] = createAPI({
-            apiRequest: api,
-            ctx: this.#ctx,
-            componentData: this.#signal.get(),
-          })
-        }
-      },
-    )
+    sortApiObjects(
+      Object.entries(this.#component.apis ?? {}).filter(
+        (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
+      ),
+    ).forEach(([name, api]) => {
+      if (isLegacyApi(api)) {
+        this.#ctx.apis[name] = createLegacyAPI(api, this.#ctx)
+      } else {
+        this.#ctx.apis[name] = createAPI({
+          apiRequest: api,
+          ctx: this.#ctx,
+          componentData: this.#signal.get(),
+        })
+      }
+    })
     Object.values(this.#ctx.apis)
       .filter(isContextApiV2)
       .forEach((api) => {
