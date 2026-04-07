@@ -1455,6 +1455,9 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
     for (const api in newCtx.component.apis) {
       // check if the api has changed (ignoring onCompleted and onFailed).
       const apiInstance = newCtx.component.apis[api]
+      if (!apiInstance) {
+        continue
+      }
       const previousApiInstance = ctx?.component.apis?.[api]
       if (isLegacyApi(apiInstance)) {
         if (

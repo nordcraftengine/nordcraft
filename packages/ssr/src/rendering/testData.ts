@@ -83,13 +83,18 @@ export const removeTestData = (component: Component): Component => ({
         ]),
       }
     : {}),
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  apis: mapObject(component.apis ?? {}, ([key, api]) => [
-    key,
-    // service and servicePath are only necessary in the editor. All information about an API
-    // request is available on the api object itself
-    isLegacyApi(api) ? api : omitKeys(api, ['service', 'servicePath']),
-  ]),
+  apis: mapObject(component.apis ?? {}, ([key, api]) => {
+    if (!isDefined(api)) {
+      // Keep null APIs although they're not valid/used
+      return [key, api]
+    }
+    return [
+      key,
+      // service and servicePath are only necessary in the editor. All information about an API
+      // request is available on the api object itself
+      isLegacyApi(api) ? api : omitKeys(api, ['service', 'servicePath']),
+    ]
+  }),
   ...(component.onLoad
     ? {
         onLoad: {

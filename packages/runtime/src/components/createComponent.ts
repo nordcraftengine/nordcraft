@@ -6,9 +6,10 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { ComponentAPI } from '@nordcraft/core/src/api/apiTypes'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
@@ -84,22 +85,25 @@ export function createComponent({
   const componentDataSignal = signal<ComponentData>({
     Location: dataSignal.get().Location,
     Attributes: attributesSignal.get(),
-    Apis: mapObject(component.apis ?? {}, ([name, api]) => [
-      name,
-      {
-        data: null,
-        isLoading:
-          api.autoFetch &&
-          applyFormula(api.autoFetch, {
-            ...formulaCtx,
-            component,
-            data: dataSignal.get(),
-          })
-            ? true
-            : false,
-        error: null,
-      },
-    ]),
+    Apis: mapObject(
+      filterObject(component.apis ?? {}, ([_, api]) => isDefined(api)),
+      ([name, api]) => [
+        name,
+        {
+          data: null,
+          isLoading:
+            api!.autoFetch &&
+            applyFormula(api!.autoFetch, {
+              ...formulaCtx,
+              component,
+              data: dataSignal.get(),
+            })
+              ? true
+              : false,
+          error: null,
+        },
+      ],
+    ),
   })
 
   // Subscribe to global stores (currently only theme)
@@ -140,10 +144,36 @@ export function createComponent({
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
   const apis: Record<string, ContextApi> = {}
-  sortApiObjects(Object.entries(component.apis ?? {})).forEach(
-    ([name, api]) => {
-      if (isLegacyApi(api)) {
-        apis[name] = createLegacyAPI(api, {
+  sortApiObjects(
+    Object.entries(component.apis ?? {}).filter(
+      (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
+    ),
+  ).forEach(([name, api]) => {
+    if (isLegacyApi(api)) {
+      apis[name] = createLegacyAPI(api, {
+        ...ctx,
+        apis,
+        component,
+        dataSignal: componentDataSignal,
+        abortSignal: abortController.signal,
+        isRootComponent: false,
+        formulaCache,
+        package: node.package ?? ctx.package,
+        triggerEvent: (eventTrigger, data) => {
+          const eventHandler = Object.values(node.events).find(
+            (e) => e.trigger === eventTrigger,
+          )
+          if (eventHandler) {
+            eventHandler.actions?.forEach((action) =>
+              handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
+            )
+          }
+        },
+      })
+    } else {
+      apis[name] = createAPI({
+        apiRequest: api,
+        ctx: {
           ...ctx,
           apis,
           component,
@@ -162,39 +192,11 @@ export function createComponent({
               )
             }
           },
-        })
-      } else {
-        apis[name] = createAPI({
-          apiRequest: api,
-          ctx: {
-            ...ctx,
-            apis,
-            component,
-            dataSignal: componentDataSignal,
-            abortSignal: abortController.signal,
-            isRootComponent: false,
-            formulaCache,
-            package: node.package ?? ctx.package,
-            triggerEvent: (eventTrigger, data) => {
-              const eventHandler = Object.values(node.events).find(
-                (e) => e.trigger === eventTrigger,
-              )
-              if (eventHandler) {
-                eventHandler.actions?.forEach((action) =>
-                  handleAction(
-                    action,
-                    { ...dataSignal.get(), Event: data },
-                    ctx,
-                  ),
-                )
-              }
-            },
-          },
-          componentData: componentDataSignal.get(),
-        })
-      }
-    },
-  )
+        },
+        componentData: componentDataSignal.get(),
+      })
+    }
+  })
   Object.values(apis)
     .filter(isContextApiV2)
     .forEach((api) => {

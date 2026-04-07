@@ -32,8 +32,10 @@ export interface ComponentData {
   Apis?: Nullable<
     Record<
       string,
-      | LegacyApiStatus
-      | (ApiStatus & { inputs?: Nullable<Record<string, unknown>> })
+      Nullable<
+        | LegacyApiStatus
+        | (ApiStatus & { inputs?: Nullable<Record<string, unknown>> })
+      >
     >
   >
   Args?: Nullable<unknown>
@@ -188,7 +190,7 @@ export interface Component {
     >
   >
   workflows?: Nullable<Record<string, ComponentWorkflow>>
-  apis?: Nullable<Record<string, ComponentAPI>>
+  apis?: Nullable<Record<string, Nullable<ComponentAPI>>>
   nodes?: Nullable<Record<string, NodeModel>>
   events?: Nullable<ComponentEvent[]>
   onLoad?: Nullable<EventModel>
