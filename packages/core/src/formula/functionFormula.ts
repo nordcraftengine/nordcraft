@@ -11,7 +11,7 @@ export const applyFunctionFormula = (
   formula: FunctionOperation,
   ctx: FormulaContext,
 ) => {
-  const packageName = formula.package ?? ctx.package
+  const packageName = formula.package ?? ctx.package ?? undefined
   const newFunc = (
     ctx.toddle ??
     ((globalThis as any).toddle as Toddle<unknown, unknown> | undefined)

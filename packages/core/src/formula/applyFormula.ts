@@ -1,3 +1,4 @@
+import { measure } from '../utils/measure'
 import {
   applyFormula,
   type ApplyOperation,
@@ -11,7 +12,6 @@ export const applyApplyFormula = (
   const componentFormula = ctx.component?.formulas?.[formula.name]
   if (!componentFormula) {
     if (ctx.env?.logErrors) {
-      // eslint-disable-next-line no-console
       console.log(
         'Component does not have a formula with the name ',
         formula.name,
@@ -19,30 +19,27 @@ export const applyApplyFormula = (
     }
     return null
   }
+  const stopMeasure = measure(`Formula: ${componentFormula.name}`, {
+    formula,
+    component: ctx.component?.name,
+  })
   const Input = Object.fromEntries(
-    (formula.arguments ?? []).map((arg, i) =>
+    (formula.arguments ?? []).map((arg) =>
       arg.isFunction
         ? [
             arg.name,
             (Args: any) =>
-              applyFormula(
-                arg.formula,
-                {
-                  ...ctx,
-                  data: {
-                    ...ctx.data,
-                    Args: ctx.data.Args
-                      ? { ...Args, '@toddle.parent': ctx.data.Args }
-                      : Args,
-                  },
+              applyFormula(arg.formula, {
+                ...ctx,
+                data: {
+                  ...ctx.data,
+                  Args: ctx.data.Args
+                    ? { ...Args, '@toddle.parent': ctx.data.Args }
+                    : Args,
                 },
-                ['arguments', i],
-              ),
+              }),
           ]
-        : [
-            arg.name,
-            applyFormula(arg.formula, ctx, ['arguments', i, 'formula']),
-          ],
+        : [arg.name, applyFormula(arg.formula, ctx)],
     ),
   )
   const data = {
@@ -52,17 +49,15 @@ export const applyApplyFormula = (
   const cache = ctx.formulaCache?.[formula.name]?.get(data)
 
   if (cache?.hit) {
+    stopMeasure({ cache: 'hit' })
     return cache.data
   } else {
-    const result = applyFormula(
-      componentFormula.formula,
-      {
-        ...ctx,
-        data,
-      },
-      [],
-    )
+    const result = applyFormula(componentFormula.formula, {
+      ...ctx,
+      data,
+    })
     ctx.formulaCache?.[formula.name]?.set(data, result)
+    stopMeasure({ cache: 'miss' })
     return result
   }
 }

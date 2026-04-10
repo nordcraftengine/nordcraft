@@ -1026,6 +1026,13 @@ export function createAPI({
   payloadSignal = ctx.dataSignal.map((data) => {
     const payloadContext = getFormulaContext(api, data)
     const request = constructRequest(api, data)
+
+    if (ctx.reportFormulaEvaluation) {
+      const apiStatus = data.Apis?.[api.name]
+      if (apiStatus) {
+        ctx.reportFormulaEvaluation(['apis', api.name], apiStatus)
+      }
+    }
     return {
       request,
       api: getApiForComparison(api),

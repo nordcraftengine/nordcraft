@@ -5,7 +5,7 @@ import * as libFormulas from '../lib/dist/formulas'
   ;(globalThis as any).__CORE_FORMULAS__ = Object.fromEntries(
     Object.entries(libFormulas).map(([name, module]) => [
       '@toddle/' + name,
-      (module as any).default as any,
+      ((module as any).default ?? module) as any,
     ]),
   )
 }

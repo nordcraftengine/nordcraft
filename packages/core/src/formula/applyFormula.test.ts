@@ -126,4 +126,26 @@ describe('applyApplyFormula', () => {
     }
     expect(applyApplyFormula(formula, ctx)).toBe('from-cache')
   })
+
+  it('can use built in formulas', () => {
+    const formula = {
+      type: 'function',
+      name: '@toddle/string',
+      arguments: [
+        {
+          name: 'Input',
+          formula: { type: 'value', value: 'test' },
+          type: { type: 'Any' },
+        },
+      ],
+      display_name: 'String',
+    }
+    const ctx: FormulaContext = {
+      ...createTestFormulaContext(),
+      component: {
+        formulas: {},
+      } as any,
+    }
+    expect(applyFormula(formula as any, ctx)).toBe('test')
+  })
 })
