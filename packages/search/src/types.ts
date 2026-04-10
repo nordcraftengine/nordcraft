@@ -82,6 +82,7 @@ export type Code =
   | 'no context consumers'
   | 'no post navigate action'
   | 'no-console'
+  | 'no-empty url parameter name'
   | 'no-reference animation'
   | 'no-reference api input'
   | 'no-reference api service'
