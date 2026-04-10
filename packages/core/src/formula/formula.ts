@@ -220,8 +220,9 @@ export function applyFormula(
   }
   try {
     switch (formula.type) {
-      case 'value':
+      case 'value': {
         return report(formula.value)
+      }
       case 'path': {
         return report(applyPathFormula(formula, ctx.data))
       }
@@ -243,12 +244,16 @@ export function applyFormula(
         }
         return applyAndFormula(formula, ctx)
       }
-      case 'object':
+      case 'object': {
         return report(applyObjectFormula(formula, ctx))
-      case 'record': // object used to be called record, there are still examples in the wild.
+      }
+      case 'record': {
+        // object used to be called record, there are still examples in the wild.
         return report(applyRecordFormula(formula, ctx))
-      case 'array':
+      }
+      case 'array': {
         return report(applyArrayFormula(formula, ctx))
+      }
       case 'function': {
         return report(applyFunctionFormula(formula, ctx))
       }
@@ -266,5 +271,6 @@ export function applyFormula(
     }
     return report(null)
   }
+
   return report(undefined)
 }

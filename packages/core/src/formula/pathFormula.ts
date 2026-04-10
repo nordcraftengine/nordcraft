@@ -12,5 +12,6 @@ export const applyPathFormula = (
       return null
     }
   }
+
   return input
 }

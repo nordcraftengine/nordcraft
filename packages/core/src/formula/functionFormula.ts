@@ -1,4 +1,6 @@
-import type { FormulaHandler, FormulaHandlerV2, Toddle } from '../types'
+/* eslint-disable no-console */
+import type { FormulaHandler, Toddle } from '../types'
+import { measure } from '../utils/measure'
 import { isDefined } from '../utils/util'
 import {
   applyFormula,
@@ -11,6 +13,10 @@ export const applyFunctionFormula = (
   formula: FunctionOperation,
   ctx: FormulaContext,
 ) => {
+  const stopMeasure = measure(`Formula: ${formula.name}`, {
+    formula,
+    component: ctx.component?.name,
+  })
   const packageName = formula.package ?? ctx.package ?? undefined
   const newFunc = (
     ctx.toddle ??
@@ -22,8 +28,8 @@ export const applyFunctionFormula = (
       (args, arg, i) => ({
         ...args,
         [arg.name ?? `${i}`]: arg.isFunction
-          ? (Args: any) => {
-              return applyFormula(
+          ? (Args: any) =>
+              applyFormula(
                 arg.formula,
                 {
                   ...ctx,
@@ -36,8 +42,7 @@ export const applyFunctionFormula = (
                 },
                 ['arguments', i],
               )
-            }
-          : applyFormula(arg.formula, ctx, ['arguments', i, 'formula']),
+          : applyFormula(arg.formula, ctx, ['arguments', i]),
       }),
       {},
     )
@@ -51,21 +56,20 @@ export const applyFunctionFormula = (
           },
           ['formula'],
         )
-      } else if (typeof newFunc.handler === 'function') {
-        return (newFunc.handler as FormulaHandlerV2)(args, {
+      } else {
+        return newFunc.handler(args, {
           root: ctx.root ?? document,
           env: ctx.env,
         } as any)
-      } else {
-        return null
       }
     } catch (e) {
       ctx.toddle.errors.push(e as Error)
       if (ctx.env?.logErrors) {
-        // eslint-disable-next-line no-console
         console.error(e)
       }
       return null
+    } finally {
+      stopMeasure()
     }
   } else {
     // Lookup legacy formula
@@ -89,22 +93,22 @@ export const applyFunctionFormula = (
                 },
                 ['arguments', i],
               )
-          : applyFormula(arg.formula, ctx, ['arguments', i, 'formula']),
+          : applyFormula(arg.formula, ctx, ['arguments', i]),
       )
       try {
         return legacyFunc(args, ctx as any)
       } catch (e) {
         ctx.toddle.errors.push(e as Error)
         if (ctx.env?.logErrors) {
-          // eslint-disable-next-line no-console
           console.error(e)
         }
         return null
+      } finally {
+        stopMeasure()
       }
     }
   }
   if (ctx.env?.logErrors) {
-    // eslint-disable-next-line no-console
     console.error(
       `Could not find formula ${formula.name} in package ${packageName ?? ''}`,
       formula,

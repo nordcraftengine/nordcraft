@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { measure } from '../utils/measure'
 import {
   applyFormula,
@@ -24,22 +25,26 @@ export const applyApplyFormula = (
     component: ctx.component?.name,
   })
   const Input = Object.fromEntries(
-    (formula.arguments ?? []).map((arg) =>
+    (formula.arguments ?? []).map((arg, i) =>
       arg.isFunction
         ? [
             arg.name,
             (Args: any) =>
-              applyFormula(arg.formula, {
-                ...ctx,
-                data: {
-                  ...ctx.data,
-                  Args: ctx.data.Args
-                    ? { ...Args, '@toddle.parent': ctx.data.Args }
-                    : Args,
+              applyFormula(
+                arg.formula,
+                {
+                  ...ctx,
+                  data: {
+                    ...ctx.data,
+                    Args: ctx.data.Args
+                      ? { ...Args, '@toddle.parent': ctx.data.Args }
+                      : Args,
+                  },
                 },
-              }),
+                ['arguments', i],
+              ),
           ]
-        : [arg.name, applyFormula(arg.formula, ctx)],
+        : [arg.name, applyFormula(arg.formula, ctx, ['arguments', i])],
     ),
   )
   const data = {
@@ -52,10 +57,14 @@ export const applyApplyFormula = (
     stopMeasure({ cache: 'hit' })
     return cache.data
   } else {
-    const result = applyFormula(componentFormula.formula, {
-      ...ctx,
-      data,
-    })
+    const result = applyFormula(
+      componentFormula.formula,
+      {
+        ...ctx,
+        data,
+      },
+      ['formula'],
+    )
     ctx.formulaCache?.[formula.name]?.set(data, result)
     stopMeasure({ cache: 'miss' })
     return result
