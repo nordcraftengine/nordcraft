@@ -234,13 +234,13 @@ export const createRoot = (domNode: HTMLElement) => {
   ).forEach(([name, api]) => {
     if (isLegacyApi(api)) {
       ctx.apis[name] = createLegacyAPI(api, {
-          ...ctx,
-          jsonPath: ['apis', name],
-        })
+        ...ctx,
+        jsonPath: ['apis', name],
+      })
     } else {
       ctx.apis[name] = createAPI({
         apiRequest: api,
-        {
+        ctx: {
           ...ctx,
           jsonPath: ['apis', name],
         },
