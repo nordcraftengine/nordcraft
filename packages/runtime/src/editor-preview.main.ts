@@ -93,7 +93,11 @@ import type {
 import { createFormulaCache } from './utils/createFormulaCache'
 import { getThemeSignal } from './utils/getThemeSignal'
 import { markSelectedElement } from './utils/markSelectedElement'
-import { getNodeAndAncestors, isNodeOrAncestorConditional } from './utils/nodes'
+import {
+  getNodeAndAncestors,
+  isNodeOrAncestorConditional,
+  stripNodeIdRepeatIndices,
+} from './utils/nodes'
 import { rectHasPoint } from './utils/rectHasPoint'
 import {
   getScrollStateRestorer,
@@ -640,15 +644,9 @@ export const createRoot = (
               })
             }
           } else if (type === 'mousemove' && id !== highlightedNodeId) {
-            const idWithoutRepeatIndices = id
-              ? id
-                  .split('.')
-                  .map((part) => part.split('(')[0])
-                  .join('.')
-              : id
             postMessageToEditor({
               type: 'highlight',
-              highlightedNodeId: idWithoutRepeatIndices,
+              highlightedNodeId: stripNodeIdRepeatIndices(id),
             })
           } else if (
             type === 'dblclick' &&
