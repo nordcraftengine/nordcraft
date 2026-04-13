@@ -23,8 +23,9 @@ export const unknownContextProviderWorkflowRule: IssueRule<{
     if (!component) {
       return
     }
-    for (const workflowName of value.workflows) {
-      if (component.workflows?.[workflowName]?.exposeInContext !== true) {
+    for (const key of value.workflows) {
+      if (component.workflows?.[key]?.exposeInContext !== true) {
+        const workflowName = component.workflows?.[key]?.name ?? key
         report({
           path,
           info: {
