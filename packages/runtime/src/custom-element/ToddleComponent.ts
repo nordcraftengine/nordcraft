@@ -110,9 +110,9 @@ export class ToddleComponent extends HTMLElement {
     ).forEach(([name, api]) => {
       if (isLegacyApi(api)) {
         this.#ctx.apis[name] = createLegacyAPI(api, {
-            ...this.#ctx,
-            jsonPath: ['apis', name],
-          })
+          ...this.#ctx,
+          jsonPath: ['apis', name],
+        })
       } else {
         this.#ctx.apis[name] = createAPI({
           apiRequest: api,
