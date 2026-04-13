@@ -33,6 +33,7 @@ export const elementWithoutInteractiveContentRule: IssueRule<{
       children: string[],
       results: Array<InteractiveContent> = [],
       visitedComponents: Set<string> = new Set(),
+      // eslint-disable-next-line max-params
     ): Array<InteractiveContent> => {
       return children.reduce((acc, childId) => {
         const child = container.nodes?.[childId]
