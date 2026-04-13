@@ -4,7 +4,7 @@ import { describe, expect, test } from 'bun:test'
 import '../happydom'
 import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
-import { customPropertiesStylesheet } from '../utils/subscribeCustomProperty'
+import { customPropertiesStylesheets } from '../utils/subscribeCustomProperty'
 import { createNode } from './createNode'
 
 describe('createNode()', () => {
@@ -114,7 +114,7 @@ describe('createNode()', () => {
     })
 
     // Custom properties stylesheet should be created and have the custom property from the node
-    const sheet = customPropertiesStylesheet?.getStyleSheet()
+    const sheet = customPropertiesStylesheets.get(document)?.getStyleSheet()
     expect(sheet).toBeTruthy()
     expect(sheet?.cssRules.length).toBe(3)
     expect(sheet?.cssRules[0].cssText).toBe(
@@ -675,7 +675,7 @@ describe('createNode()', () => {
       instance: {},
     })
 
-    const sheet = customPropertiesStylesheet?.getStyleSheet()
+    const sheet = customPropertiesStylesheets.get(ctx.root)?.getStyleSheet()
     // Test that the order makes sense
     expect(Array.from(sheet?.cssRules ?? []).map((r) => r.cssText)).toEqual([
       `[data-id="0"] { --color: ${innermostColor}; }`,

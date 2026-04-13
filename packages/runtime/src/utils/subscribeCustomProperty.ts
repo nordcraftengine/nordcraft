@@ -4,7 +4,10 @@ import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core/dist/styling/th
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import { CustomPropertyStyleSheet } from '../styles/CustomPropertyStyleSheet'
 
-export let customPropertiesStylesheet: CustomPropertyStyleSheet | undefined
+export const customPropertiesStylesheets = new WeakMap<
+  Document | ShadowRoot,
+  CustomPropertyStyleSheet
+>()
 
 export function subscribeCustomProperty({
   selector,
@@ -19,31 +22,27 @@ export function subscribeCustomProperty({
   variant?: StyleVariant
   root: Document | ShadowRoot
 }) {
-  customPropertiesStylesheet ??= new CustomPropertyStyleSheet(
-    root,
-    (
-      root.getElementById(CUSTOM_PROPERTIES_STYLESHEET_ID) as
-        | HTMLStyleElement
-        | undefined
-    )?.sheet,
-  )
+  let stylesheet = customPropertiesStylesheets.get(root)
+  if (!stylesheet) {
+    stylesheet = new CustomPropertyStyleSheet(
+      root,
+      (
+        root.getElementById(CUSTOM_PROPERTIES_STYLESHEET_ID) as
+          | HTMLStyleElement
+          | undefined
+      )?.sheet,
+    )
+    customPropertiesStylesheets.set(root, stylesheet)
+  }
 
   signal.subscribe(
-    customPropertiesStylesheet.registerProperty(
-      selector,
-      customPropertyName,
-      variant,
-    ),
+    stylesheet.registerProperty(selector, customPropertyName, variant),
     {
       destroy: () => {
-        customPropertiesStylesheet?.unregisterProperty(
-          selector,
-          customPropertyName,
-          {
-            mediaQuery: variant?.mediaQuery,
-            startingStyle: variant?.startingStyle,
-          },
-        )
+        stylesheet?.unregisterProperty(selector, customPropertyName, {
+          mediaQuery: variant?.mediaQuery,
+          startingStyle: variant?.startingStyle,
+        })
       },
     },
   )
