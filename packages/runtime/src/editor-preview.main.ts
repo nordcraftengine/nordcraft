@@ -1884,13 +1884,8 @@ export function getDOMNodeFromNodeId(
     return null
   }
 
-  const idWithoutRepeatIndices = selectedNodeId
-    .split('.')
-    .map((part) => part.split('(')[0])
-    .join('.')
-
   return document.querySelector(
-    `[data-id="${idWithoutRepeatIndices}"]:not([data-component])`,
+    `[data-id="${stripNodeIdRepeatIndices(selectedNodeId)}"]:not([data-component])`,
   )
 }
 

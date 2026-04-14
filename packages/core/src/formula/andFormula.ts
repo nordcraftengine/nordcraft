@@ -4,7 +4,9 @@ import { applyFormula, type AndOperation, type FormulaContext } from './formula'
 export const applyAndFormula = (formula: AndOperation, ctx: FormulaContext) => {
   for (let i = 0; i < (formula.arguments ?? []).length; i++) {
     const arg = (formula.arguments ?? [])[i]
-    if (!toBoolean(applyFormula(arg?.formula, ctx, ['arguments', i]))) {
+    if (
+      !toBoolean(applyFormula(arg?.formula, ctx, ['arguments', i, 'formula']))
+    ) {
       return false
     }
   }
@@ -21,7 +23,9 @@ export const applyEvaluateAllAndFormula = (
   }
   for (let i = 0; i < (formula.arguments ?? []).length; i++) {
     const arg = (formula.arguments ?? [])[i]
-    if (!toBoolean(applyFormula(arg?.formula, ctx, ['arguments', i]))) {
+    if (
+      !toBoolean(applyFormula(arg?.formula, ctx, ['arguments', i, 'formula']))
+    ) {
       andResult = false
     }
   }
