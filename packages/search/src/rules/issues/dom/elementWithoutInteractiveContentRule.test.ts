@@ -398,4 +398,44 @@ describe('elementWithoutInteractiveContentRule', () => {
 
     expect(problems).toBeEmpty()
   })
+  test('should handle circular component references without infinite recursion', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            recursive: {
+              name: 'recursive',
+              nodes: {
+                root: {
+                  type: 'element',
+                  tag: 'button',
+                  children: ['child1'],
+                  attrs: {},
+                  classes: {},
+                  events: {},
+                  style: {},
+                },
+                child1: {
+                  type: 'component',
+                  name: 'recursive',
+                  children: [],
+                  attrs: {},
+                  events: {},
+                  style: {},
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [elementWithoutInteractiveContentRule],
+      }),
+    )
+    // Should not throw and should not find anything as there is no interactive content
+    expect(problems).toBeEmpty()
+  })
 })

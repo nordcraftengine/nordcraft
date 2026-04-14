@@ -32,6 +32,8 @@ export const elementWithoutInteractiveContentRule: IssueRule<{
       container: ToddleComponent<Function> | Component,
       children: string[],
       results: Array<InteractiveContent> = [],
+      visitedComponents: Set<string> = new Set(),
+      // eslint-disable-next-line max-params
     ): Array<InteractiveContent> => {
       return children.reduce((acc, childId) => {
         const child = container.nodes?.[childId]
@@ -48,23 +50,39 @@ export const elementWithoutInteractiveContentRule: IssueRule<{
         }
         const allResults = [...acc]
         if (child.type === 'component') {
+          const componentName = child.package
+            ? `${child.package}/${child.name}`
+            : child.name
+          if (visitedComponents.has(componentName)) {
+            return allResults
+          }
           const component = child.package
             ? files.packages?.[child.package]?.components?.[child.name]
             : files.components?.[child.name]
           if (!component) {
             return results
           }
+
+          const newVisited = new Set(visitedComponents)
+          newVisited.add(componentName)
+
           // Search children in the component's own nodes
           allResults.push(
             ...searchChildren(
               component,
               component.nodes?.['root']?.children ?? [],
-              acc,
+              [],
+              newVisited,
             ),
           )
         }
         // Search children in slot/component/element:
-        return searchChildren(container, child.children, allResults)
+        return searchChildren(
+          container,
+          child.children,
+          allResults,
+          visitedComponents,
+        )
       }, results)
     }
     const childTags = searchChildren(component, value.children)
