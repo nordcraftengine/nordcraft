@@ -65,9 +65,9 @@ describe('applyEvaluateAllAndFormula', () => {
     )
     expect(applyFormula(formula, ctx, [])).toBe(false)
     expect(results).toMatchObject({
-      'arguments/0': false,
-      'arguments/1': 'hello',
-      'arguments/2': true,
+      'arguments/0/formula': false,
+      'arguments/1/formula': 'hello',
+      'arguments/2/formula': true,
     })
   })
 
