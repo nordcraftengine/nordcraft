@@ -1,7 +1,7 @@
 import type { IssueRule } from '../../../types'
 
 export const unknownAttributeRule: IssueRule<{
-  name: string
+  name: string | number
 }> = {
   code: 'unknown attribute',
   level: 'error',

@@ -123,3 +123,14 @@ export function ensureEfficientOrdering(
     insertBeforeElement = item
   }
 }
+
+export function stripNodeIdRepeatIndices(nodeId: string | null): string | null {
+  if (!nodeId) {
+    return null
+  }
+
+  return nodeId
+    .split('.')
+    .map((part) => part.split('(')[0])
+    .join('.')
+}

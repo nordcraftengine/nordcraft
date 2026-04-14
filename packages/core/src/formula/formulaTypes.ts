@@ -38,3 +38,8 @@ export interface GlobalFormulas<Handler = string | Function> {
     >
   >
 }
+
+export type FormulaEvaluationReporter = (
+  path: Array<string | number>,
+  result: any,
+) => void

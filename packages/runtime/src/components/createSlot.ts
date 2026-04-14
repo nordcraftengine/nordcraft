@@ -37,6 +37,7 @@ export function createSlot({
         ctx: {
           ...child.ctx,
           providers: ctx.providers,
+          jsonPath: ['nodes', child.id],
         },
         instance,
         namespace,
@@ -53,7 +54,7 @@ export function createSlot({
         id: child,
         path: path + '.' + i,
         dataSignal,
-        ctx,
+        ctx: { ...ctx, jsonPath: ['nodes', child] },
         parentElement,
         instance,
         namespace,

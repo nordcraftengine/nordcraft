@@ -18,7 +18,7 @@ export const unknownContextFormulaRule: IssueRule<{
     }
 
     const contexts = files.components[path[1]]?.contexts ?? {}
-    if (contexts[value.path[1]]?.formulas.includes(value.path[2])) {
+    if (contexts[value.path[1]]?.formulas.includes(value.path[2] as string)) {
       return
     }
 
@@ -26,11 +26,11 @@ export const unknownContextFormulaRule: IssueRule<{
       path,
       info: {
         title: 'Unknown context formula',
-        description: `**${value.path[2]}** is not subscribed. Make sure to subscribe to it in the component context section before using it.`,
+        description: `**${value.path[2] as string}** is not subscribed. Make sure to subscribe to it in the component context section before using it.`,
       },
       details: {
-        providerName: value.path[1],
-        formulaName: value.path[2],
+        providerName: value.path[1] as string,
+        formulaName: value.path[2] as string,
       },
     })
   },

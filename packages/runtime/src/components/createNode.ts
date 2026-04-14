@@ -86,19 +86,30 @@ export function createNode({
   }: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
     let firstRun = true
     let childDataSignal: Signal<ComponentData> | null = null
-    const showSignal = dataSignal.map((data) =>
-      toBoolean(
-        applyFormula(node.condition, {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        }),
-      ),
-    )
+    const showSignal = dataSignal.map((data) => {
+      const conditionPath = ['nodes', id, 'condition']
+      const show = toBoolean(
+        applyFormula(
+          node.condition,
+          {
+            data,
+            component: ctx.component,
+            formulaCache: ctx.formulaCache,
+            root: ctx.root,
+            package: ctx.package,
+            toddle: ctx.toddle,
+            env: ctx.env,
+            jsonPath: ctx.jsonPath,
+            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+          },
+          conditionPath,
+        ),
+      )
+
+      ctx.reportFormulaEvaluation?.(conditionPath, show)
+
+      return show
+    })
 
     const elements: Array<Element | Text> = []
     const toggle = (show: boolean) => {
@@ -182,15 +193,23 @@ export function createNode({
       }
     >()
     const repeatSignal = dataSignal.map((data) => {
-      const list = applyFormula(node?.repeat, {
-        data,
-        component: ctx.component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
-      })
+      const listPath = ['nodes', id, 'repeat']
+      const list = applyFormula(
+        node?.repeat,
+        {
+          data,
+          component: ctx.component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+        },
+        listPath,
+      )
+
+      ctx.reportFormulaEvaluation?.(listPath, list)
+
       if (typeof list !== 'object') {
         return []
       }
@@ -216,6 +235,7 @@ export function createNode({
               Key,
             },
           }
+          const repeatKeyPath = ['nodes', id, 'repeatKey']
           let childKey = node?.repeatKey
             ? applyFormula(node.repeatKey, {
                 data: childData,
@@ -227,6 +247,10 @@ export function createNode({
                 env: ctx.env,
               })
             : Key
+
+          if (node?.repeatKey) {
+            ctx.reportFormulaEvaluation?.(repeatKeyPath, childKey)
+          }
 
           if (seenKeys.has(childKey)) {
             console.warn(
@@ -380,6 +404,7 @@ export function createNode({
     instance,
   })
 }
+
 export type NodeRenderer<NodeType> = {
   node: NodeType
   dataSignal: Signal<ComponentData>

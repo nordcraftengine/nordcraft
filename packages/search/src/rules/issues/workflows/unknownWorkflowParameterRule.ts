@@ -1,6 +1,8 @@
 import type { IssueRule } from '../../../types'
 
-export const unknownWorkflowParameterRule: IssueRule<{ parameter: string }> = {
+export const unknownWorkflowParameterRule: IssueRule<{
+  parameter: string | number
+}> = {
   code: 'unknown workflow parameter',
   level: 'error',
   category: 'Unknown Reference',
@@ -24,7 +26,7 @@ export const unknownWorkflowParameterRule: IssueRule<{ parameter: string }> = {
     }
     const [_components, _componentName, _workflows, workflowName] = path
     const [_Parameters, parameterName] = value.path
-    const workflowParameters = new Set(
+    const workflowParameters = new Set<string | number>(
       Object.values(component.workflows?.[workflowName]?.parameters ?? {}).map(
         (p) => p.name,
       ),

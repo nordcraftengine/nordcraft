@@ -85,7 +85,7 @@ export type ArgumentInputDataFunction = (
 
 export type CustomFormulaHandler = (
   name: string,
-  packageName: string | undefined,
+  packageName: string | null | undefined,
 ) => PluginFormula<FormulaHandlerV2> | undefined
 
 export type FormulaLookup = (name: string) => FormulaHandler | undefined

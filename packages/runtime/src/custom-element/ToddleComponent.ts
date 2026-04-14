@@ -98,6 +98,7 @@ export class ToddleComponent extends HTMLElement {
       package: undefined,
       toddle,
       env,
+      jsonPath: [],
     }
   }
 
@@ -108,11 +109,17 @@ export class ToddleComponent extends HTMLElement {
       ),
     ).forEach(([name, api]) => {
       if (isLegacyApi(api)) {
-        this.#ctx.apis[name] = createLegacyAPI(api, this.#ctx)
+        this.#ctx.apis[name] = createLegacyAPI(api, {
+          ...this.#ctx,
+          jsonPath: ['apis', name],
+        })
       } else {
         this.#ctx.apis[name] = createAPI({
           apiRequest: api,
-          ctx: this.#ctx,
+          ctx: {
+            ...this.#ctx,
+            jsonPath: ['apis', name],
+          },
           componentData: this.#signal.get(),
         })
       }
@@ -132,15 +139,20 @@ export class ToddleComponent extends HTMLElement {
           .map(([name, formula]) => [
             name,
             this.#signal.map((data) =>
-              applyFormula(formula.formula, {
-                data,
-                component: this.#component,
-                formulaCache: this.#ctx.formulaCache,
-                root: this.#ctx.root,
-                package: this.#ctx.package,
-                toddle: this.#ctx.toddle,
-                env: this.#ctx.env,
-              }),
+              applyFormula(
+                formula.formula,
+                {
+                  data,
+                  component: this.#component,
+                  formulaCache: this.#ctx.formulaCache,
+                  root: this.#ctx.root,
+                  package: this.#ctx.package,
+                  toddle: this.#ctx.toddle,
+                  env: this.#ctx.env,
+                  jsonPath: [],
+                },
+                ['formulas', name],
+              ),
             ),
           ]),
       )

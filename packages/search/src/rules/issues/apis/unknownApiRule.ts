@@ -1,7 +1,7 @@
 import type { IssueRule } from '../../../types'
 
 export const unknownApiRule: IssueRule<{
-  name: string
+  name: string | number
 }> = {
   code: 'unknown api',
   level: 'error',

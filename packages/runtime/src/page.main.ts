@@ -169,15 +169,20 @@ export const createRoot = (domNode: HTMLElement) => {
     // state (e.g. localStorage, sensors etc.)
     Variables: mapObject(component.variables ?? {}, ([name, variable]) => [
       name,
-      applyFormula(variable.initialValue, {
-        data: window.toddle.pageState,
-        component,
-        formulaCache: {},
-        root: document,
-        package: undefined,
-        toddle: window.toddle,
-        env,
-      }),
+      applyFormula(
+        variable.initialValue,
+        {
+          data: window.toddle.pageState,
+          component,
+          formulaCache: {},
+          root: document,
+          package: undefined,
+          toddle: window.toddle,
+          env,
+          jsonPath: [],
+        },
+        ['variables', name],
+      ),
     ]),
   })
 
@@ -218,6 +223,7 @@ export const createRoot = (domNode: HTMLElement) => {
       console.info('EVENT FIRED', event, data),
     package: undefined,
     env,
+    jsonPath: [],
   }
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
@@ -227,11 +233,17 @@ export const createRoot = (domNode: HTMLElement) => {
     ),
   ).forEach(([name, api]) => {
     if (isLegacyApi(api)) {
-      ctx.apis[name] = createLegacyAPI(api, ctx)
+      ctx.apis[name] = createLegacyAPI(api, {
+        ...ctx,
+        jsonPath: ['apis', name],
+      })
     } else {
       ctx.apis[name] = createAPI({
         apiRequest: api,
-        ctx,
+        ctx: {
+          ...ctx,
+          jsonPath: ['apis', name],
+        },
         componentData: dataSignal.get(),
       })
     }
@@ -378,7 +390,13 @@ const setupMetaUpdates = (
   if (dynamicLang) {
     dataSignal
       .map((data) =>
-        component ? applyFormula(langFormula, getFormulaContext(data)) : null,
+        component
+          ? applyFormula(langFormula, getFormulaContext(data), [
+              'route',
+              'info',
+              'language',
+            ])
+          : null,
       )
       .subscribe((newLang) => {
         if (isDefined(newLang) && document.documentElement.lang !== newLang) {
@@ -393,7 +411,13 @@ const setupMetaUpdates = (
   if (dynamicTitle) {
     dataSignal
       .map((data) =>
-        component ? applyFormula(titleFormula, getFormulaContext(data)) : null,
+        component
+          ? applyFormula(titleFormula, getFormulaContext(data), [
+              'route',
+              'info',
+              'title',
+            ])
+          : null,
       )
       .subscribe((newTitle) => {
         if (isDefined(newTitle) && document.title !== newTitle) {
@@ -458,7 +482,11 @@ const setupMetaUpdates = (
       dataSignal
         .map((data) =>
           component
-            ? applyFormula(descriptionFormula, getFormulaContext(data))
+            ? applyFormula(descriptionFormula, getFormulaContext(data), [
+                'route',
+                'info',
+                'description',
+              ])
             : null,
         )
         .subscribe((newDescription) => {
@@ -514,7 +542,14 @@ const setupMetaUpdates = (
                   component
                     ? {
                         ...agg,
-                        [key]: applyFormula(formula, context),
+                        [key]: applyFormula(formula, context, [
+                          'route',
+                          'info',
+                          'meta',
+                          id,
+                          'attrs',
+                          key,
+                        ]),
                       }
                     : agg,
                 {},

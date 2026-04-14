@@ -31,7 +31,13 @@ export const measure = (key: string, details: Record<string, unknown>) => {
   const start = performance.now()
   STACK.push(key)
 
+  let _stopped = false
   return (extraDetails?: Record<string, unknown>) => {
+    if (_stopped) {
+      return
+    }
+
+    _stopped = true
     const end = performance.now()
     const mergedDetails = extraDetails
       ? { ...details, ...extraDetails }

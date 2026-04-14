@@ -1,7 +1,7 @@
 import type { IssueRule } from '../../../types'
 
 export const unknownUrlParameterRule: IssueRule<{
-  name: string
+  name: string | number
 }> = {
   code: 'unknown url parameter',
   level: 'error',

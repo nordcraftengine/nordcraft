@@ -202,19 +202,19 @@ jobs:
       - name: Check runtime file size
         run: |
           FILE=./dist/page.main.esm.js
-          MAX_SIZE=122880
+          MAX_SIZE=128000
           ACTUAL_SIZE=$(stat -c%s "$FILE")
           if [ "$ACTUAL_SIZE" -gt "$MAX_SIZE" ]; then
-            echo "Error: $FILE is larger than 120KB ($ACTUAL_SIZE bytes)" >&2
+            echo "Error: $FILE is larger than 128KB ($ACTUAL_SIZE bytes)" >&2
             exit 1
           fi
       - name: Check custom element runtime file size
         run: |
           FILE=./dist/custom-element.main.esm.js
-          MAX_SIZE=122880
+          MAX_SIZE=128000
           ACTUAL_SIZE=$(stat -c%s "$FILE")
           if [ "$ACTUAL_SIZE" -gt "$MAX_SIZE" ]; then
-            echo "Error: $FILE is larger than 120KB ($ACTUAL_SIZE bytes)" >&2
+            echo "Error: $FILE is larger than 128KB ($ACTUAL_SIZE bytes)" >&2
             exit 1
           fi
   test-assets-server:

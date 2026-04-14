@@ -98,7 +98,10 @@ export const getServerToddleObject = (
   )
   return {
     getFormula: (name: string) => coreFormulas[name],
-    getCustomFormula: (name: string, packageName: string | undefined) => {
+    getCustomFormula: (
+      name: string,
+      packageName: string | null | undefined,
+    ) => {
       let formula: PluginFormula<string> | undefined
 
       if (isDefined(packageName)) {

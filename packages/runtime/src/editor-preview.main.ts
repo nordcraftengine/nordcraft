@@ -21,6 +21,7 @@ import {
 } from '@nordcraft/core/dist/formula/formula'
 import {
   type CodeFormula,
+  type FormulaEvaluationReporter,
   type PluginFormula,
   type ToddleFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
@@ -63,6 +64,7 @@ import { dragEnded } from './editor/drag-drop/dragEnded'
 import { dragMove } from './editor/drag-drop/dragMove'
 import { dragReorder } from './editor/drag-drop/dragReorder'
 import { dragStarted } from './editor/drag-drop/dragStarted'
+import { debounce } from './editor/editorUtils'
 import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
 import { updateComponentLinks } from './editor/links'
@@ -91,7 +93,11 @@ import type {
 import { createFormulaCache } from './utils/createFormulaCache'
 import { getThemeSignal } from './utils/getThemeSignal'
 import { markSelectedElement } from './utils/markSelectedElement'
-import { getNodeAndAncestors, isNodeOrAncestorConditional } from './utils/nodes'
+import {
+  getNodeAndAncestors,
+  isNodeOrAncestorConditional,
+  stripNodeIdRepeatIndices,
+} from './utils/nodes'
 import { rectHasPoint } from './utils/rectHasPoint'
 import {
   getScrollStateRestorer,
@@ -243,6 +249,24 @@ export const createRoot = (
     ...(packageComponents ?? []),
   ]
   let component: Component | null = null
+  let componentFormulaData: Record<string, any> = {}
+
+  const reportFormulaEvaluation: FormulaEvaluationReporter = (path, data) => {
+    componentFormulaData[path.join('/')] = data
+    reportComponentFormulaData()
+  }
+  const reportComponentFormulaData = debounce(
+    () => {
+      postMessageToEditor({
+        type: 'componentFormulaData',
+        data: componentFormulaData,
+        component: component?.name,
+      })
+      componentFormulaData = {}
+    },
+    5, // 5ms debounce to batch multiple rapid updates
+    true,
+  )
   let selectedNodeId: string | null = null
   let highlightedNodeId: string | null = null
   let styleVariantSelection: {
@@ -311,6 +335,8 @@ export const createRoot = (
             )
             // Destroy the dataSignal (including subscribers) for the previous component
             dataSignal.destroy()
+            // Reset all evaluated formula data
+            componentFormulaData = {}
             // Re-subscribe all dataSignal subscribers
             setupDataSignalSubscribers()
             // Re-initialize the data signal for the new component
@@ -512,7 +538,13 @@ export const createRoot = (
           return
         }
         case 'highlight': {
-          highlightedNodeId = message.data.highlightedNodeId ?? null
+          const highlightId = message.data.highlightedNodeId
+          highlightedNodeId = highlightId
+            ? highlightId
+                .split('.')
+                .map((part) => part.split('(')[0])
+                .join('.')
+            : null
           return
         }
         case 'mousemove':
@@ -614,7 +646,7 @@ export const createRoot = (
           } else if (type === 'mousemove' && id !== highlightedNodeId) {
             postMessageToEditor({
               type: 'highlight',
-              highlightedNodeId: id,
+              highlightedNodeId: stripNodeIdRepeatIndices(id),
             })
           } else if (
             type === 'dblclick' &&
@@ -704,6 +736,7 @@ export const createRoot = (
               package: ctx?.package,
               toddle: window.toddle,
               env,
+              jsonPath: [],
             }
             const introspectionResult = await introspectApiRequest({
               api,
@@ -1181,19 +1214,32 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
                 .map(([customPropertyName, customProperty]) => [
                   customPropertyName,
                   appendUnit(
-                    applyFormula(customProperty.formula, {
-                      data: {
-                        Attributes: dataSignal.get().Attributes,
-                        Variables: dataSignal.get().Variables,
-                        Contexts: ctxDataSignal?.get().Contexts ?? {},
-                      },
-                      component: getCurrentComponent(),
-                      root: ctx?.root,
-                      formulaCache: {},
-                      package: ctx?.package,
-                      toddle: window.toddle,
-                      env,
-                    } as FormulaContext),
+                    applyFormula(
+                      customProperty.formula,
+                      {
+                        data: {
+                          Attributes: dataSignal.get().Attributes,
+                          Variables: dataSignal.get().Variables,
+                          Contexts: ctxDataSignal?.get().Contexts ?? {},
+                        },
+                        component: getCurrentComponent(),
+                        root: ctx?.root,
+                        formulaCache: {},
+                        package: ctx?.package,
+                        toddle: window.toddle,
+                        env,
+                        // TODO: Ensure we have the node id here
+                        jsonPath: [
+                          'nodes',
+                          '<random id>',
+                          'variants',
+                          styleVariantSelection?.styleVariantIndex ?? 0,
+                          customPropertyName,
+                        ],
+                        reportFormulaEvaluation,
+                      } as FormulaContext,
+                      [],
+                    ),
                     customProperty.unit,
                   ),
                 ])
@@ -1306,6 +1352,8 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
         package: ctx?.package,
         toddle: window.toddle,
         env,
+        jsonPath: ['route', 'info', 'meta'],
+        reportFormulaEvaluation,
       })
     }
     if (fastDeepEqual(_component.contexts, ctx?.component.contexts) === false) {
@@ -1351,6 +1399,9 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               package: ctx?.package,
               toddle: window.toddle,
               env,
+              jsonPath: [],
+              // We don't evaluate formulas in context providers in preview mode currently
+              reportFormulaEvaluation: undefined,
             }
 
             // Pages can also be context-providers!
@@ -1373,7 +1424,11 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               providerComponent.variables ?? {},
               ([name, variable]) => [
                 name,
-                applyFormula(variable.initialValue, formulaContext),
+                applyFormula(variable.initialValue, formulaContext, [
+                  'variables',
+                  name,
+                  'initialValue',
+                ]),
               ],
             )
 
@@ -1391,7 +1446,10 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
 
                   return [
                     formulaName,
-                    applyFormula(formula.formula, formulaContext),
+                    applyFormula(formula.formula, formulaContext, [
+                      'formulas',
+                      formulaName,
+                    ]),
                   ]
                 }),
               ),
@@ -1407,14 +1465,20 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
         _component.variables ?? {},
         ([name, { initialValue }]) => [
           name,
-          applyFormula(initialValue, {
-            data: { Attributes, Contexts },
-            component: _component!,
-            root: document,
-            package: ctx?.package,
-            toddle: window.toddle,
-            env,
-          }),
+          applyFormula(
+            initialValue,
+            {
+              data: { Attributes, Contexts },
+              component: _component!,
+              root: document,
+              package: ctx?.package,
+              toddle: window.toddle,
+              env,
+              jsonPath: ctx?.jsonPath,
+              reportFormulaEvaluation,
+            },
+            ['variables', name, 'initialValue'],
+          ),
         ],
       )
     }
@@ -1481,14 +1545,17 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               ]),
             }
           })
-          newCtx.apis[api] = createLegacyAPI(apiInstance, newCtx)
+          newCtx.apis[api] = createLegacyAPI(apiInstance, {
+            ...newCtx,
+            jsonPath: ['apis', api],
+          })
         }
       } else {
         const existingApi = newCtx.apis[api] as ContextApiV2 | undefined
         if (!existingApi) {
           newCtx.apis[api] = createAPI({
             apiRequest: apiInstance,
-            ctx: newCtx,
+            ctx: { ...newCtx, jsonPath: ['apis', api] },
             componentData: dataSignal.get(),
           })
         } else {
@@ -1523,7 +1590,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
           id: 'root',
           path: '0',
           dataSignal: ctxDataSignal,
-          ctx: newCtx,
+          ctx: { ...newCtx, jsonPath: ['nodes', 'root'] },
           parentElement: domNode,
           instance: { [newCtx.component.name]: 'root' },
         })
@@ -1628,6 +1695,8 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       package: undefined,
       toddle: window.toddle,
       env,
+      jsonPath: [], // TODO: decide if the component path is needed here
+      reportFormulaEvaluation,
     }
 
     setupThemeSubscription(ctx.component, ctx.dataSignal, env).subscribe(
@@ -1644,15 +1713,21 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
           .map(([name, formula]) => [
             name,
             dataSignal.map((data) =>
-              applyFormula(formula.formula, {
-                data,
-                component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: window.toddle,
-                env,
-              }),
+              applyFormula(
+                formula.formula,
+                {
+                  data,
+                  component,
+                  formulaCache: ctx.formulaCache,
+                  root: ctx.root,
+                  package: ctx.package,
+                  toddle: window.toddle,
+                  env,
+                  jsonPath: ctx.jsonPath,
+                  reportFormulaEvaluation,
+                },
+                ['formulas', name],
+              ),
             ),
           ]),
       )
@@ -1759,7 +1834,10 @@ const insertHeadTags = (
           <link
             data-meta-id="${id}"
             ${Object.entries(entry.attrs ?? {})
-              .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
+              .map(
+                ([key, value]) =>
+                  `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
+              )
               .join(' ')}
           />
         `),
@@ -1771,7 +1849,10 @@ const insertHeadTags = (
           <script
             data-meta-id="${id}"
             ${Object.entries(entry.attrs ?? {})
-              .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
+              .map(
+                ([key, value]) =>
+                  `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
+              )
               .join(' ')}
           >${applyFormula(entry.content ?? '', context)}</script>
         `),
@@ -1804,7 +1885,7 @@ export function getDOMNodeFromNodeId(
   }
 
   return document.querySelector(
-    `[data-id="${selectedNodeId}"]:not([data-component])`,
+    `[data-id="${stripNodeIdRepeatIndices(selectedNodeId)}"]:not([data-component])`,
   )
 }
 
@@ -1818,11 +1899,6 @@ function getNodeId(component: Component, path: string[]) {
     }
     const currentNode = component.nodes?.[currentId]
     if (!currentNode?.children) {
-      return null
-    }
-
-    // We only allow selecting the first element in a repeat (which does not have a repeat-index "()")
-    if (nextChild.endsWith(')')) {
       return null
     }
 
