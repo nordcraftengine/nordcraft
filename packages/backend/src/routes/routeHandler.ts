@@ -96,7 +96,7 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
       } catch {
         // In tests, the execution context might not be available
       }
-      response = hono.fetch(
+      response = await hono.fetch(
         new Request(destination, {
           method: c.req.raw.method,
           body: HttpMethodsWithAllowedBody.includes(
