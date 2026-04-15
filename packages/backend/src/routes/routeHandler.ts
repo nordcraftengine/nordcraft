@@ -18,7 +18,7 @@ import {
   skipCookieHeader,
   skipHopByHopHeaders,
 } from '@nordcraft/ssr/src/utils/headers'
-import type { Handler } from 'hono'
+import type { ExecutionContext, Handler } from 'hono'
 import { endTime, startTime } from 'hono/timing'
 import type { StatusCode } from 'hono/utils/http-status'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
@@ -87,13 +87,37 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
 
     const timingKey = 'proxyRequest'
     startTime(c, timingKey)
-    const response = await fetch(destination, {
-      headers,
-      method: c.req.raw.method,
-      body: HttpMethodsWithAllowedBody.includes(c.req.raw.method as ApiMethod)
-        ? c.req.raw.body
-        : undefined,
-    })
+    let response: Response
+    if (destination.origin === url.origin) {
+      const hono = c.get('app')
+      let executionCtx: ExecutionContext | undefined
+      try {
+        executionCtx = c.executionCtx
+      } catch {
+        // In tests, the execution context might not be available
+      }
+      response = hono.fetch(
+        new Request(destination, {
+          method: c.req.raw.method,
+          body: HttpMethodsWithAllowedBody.includes(
+            c.req.raw.method as ApiMethod,
+          )
+            ? c.req.raw.body
+            : undefined,
+          headers,
+        }),
+        c.env,
+        executionCtx,
+      )
+    } else {
+      response = await fetch(destination, {
+        headers,
+        method: c.req.raw.method,
+        body: HttpMethodsWithAllowedBody.includes(c.req.raw.method as ApiMethod)
+          ? c.req.raw.body
+          : undefined,
+      })
+    }
     endTime(c, timingKey)
     // Pass the stream into a new response so we can write the headers
     const body = NON_BODY_RESPONSE_CODES.includes(response.status)
