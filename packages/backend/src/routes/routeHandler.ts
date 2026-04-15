@@ -18,8 +18,9 @@ import {
   skipCookieHeader,
   skipHopByHopHeaders,
 } from '@nordcraft/ssr/src/utils/headers'
-import type { ExecutionContext, Handler } from 'hono'
+import type { ExecutionContext, Handler, Hono } from 'hono'
 import { endTime, startTime } from 'hono/timing'
+import type { BlankSchema } from 'hono/types'
 import type { StatusCode } from 'hono/utils/http-status'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 
@@ -89,7 +90,8 @@ export const routeHandler: Handler<HonoEnv<HonoRoutes & HonoProject>> = async (
     startTime(c, timingKey)
     let response: Response
     if (destination.origin === url.origin) {
-      const hono = c.get('app')
+      // hono.fetch below is treated as any if we don't specify the type of hono explicitly here
+      const hono: Hono<HonoEnv<unknown>, BlankSchema, '/'> = c.get('app')
       let executionCtx: ExecutionContext | undefined
       try {
         executionCtx = c.executionCtx

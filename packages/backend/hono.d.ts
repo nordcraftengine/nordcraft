@@ -3,7 +3,7 @@ import type { DurableObject } from 'cloudflare:workers'
 import type { Routes } from './src/middleware/routesLoader'
 
 export interface HonoEnv<T = unknown> {
-  Variables: T & { app: Hono<HonoEnv<T>, BlankSchema> }
+  Variables: T & { app: Hono<HonoEnv<T>, BlankSchema, '/'> }
 }
 
 export interface PreviewHonoEnv<T = never> extends HonoEnv<T> {
