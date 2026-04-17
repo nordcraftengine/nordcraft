@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../../searchProject'
-import { IssueResult } from '../../../types'
+import type { IssueResult } from '../../../types'
 import { unknownVariableRule } from './unknownVariableRule'
 
 describe('unknownVariable', () => {
