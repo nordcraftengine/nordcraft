@@ -118,7 +118,7 @@ export function createElement({
             },
             attrPath,
           )
-          ctx.reportFormulaEvaluation?.(attrPath, val)
+          ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
           return val
         })
         o.subscribe((val) => {
@@ -155,7 +155,7 @@ export function createElement({
         },
         styleVarPath,
       )
-      ctx.reportFormulaEvaluation?.(styleVarPath, value)
+      ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
       return unit ? value + unit : value
     })
 
@@ -189,7 +189,7 @@ export function createElement({
             },
             cpPath,
           )
-          ctx.reportFormulaEvaluation?.(cpPath, val)
+          ctx.reportFormulaEvaluation?.(cpPath, val, ctx)
           return appendUnit(val, unit)
         }),
         root: ctx.root,
@@ -224,7 +224,7 @@ export function createElement({
               },
               variantCpPath,
             )
-            ctx.reportFormulaEvaluation?.(variantCpPath, val)
+            ctx.reportFormulaEvaluation?.(variantCpPath, val, ctx)
             return appendUnit(val, unit)
           }),
           root: ctx.root,

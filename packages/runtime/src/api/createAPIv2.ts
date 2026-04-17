@@ -291,16 +291,20 @@ export function createAPI({
       },
     })
 
-    ctx.reportFormulaEvaluation?.(['apis', api.name], {
-      isLoading: false,
-      data: data.body,
-      error: null,
-      response: {
-        status: data.status,
-        headers: data.headers,
-        performance,
+    ctx.reportFormulaEvaluation?.(
+      ['apis', api.name],
+      {
+        isLoading: false,
+        data: data.body,
+        error: null,
+        response: {
+          status: data.status,
+          headers: data.headers,
+          performance,
+        },
       },
-    })
+      ctx,
+    )
 
     const appliedRedirectRule = handleRedirectRules(api, componentData)
     if (appliedRedirectRule) {
@@ -366,16 +370,20 @@ export function createAPI({
       },
     })
 
-    ctx.reportFormulaEvaluation?.(['apis', api.name], {
-      isLoading: false,
-      data: null,
-      error: data.body,
-      response: {
-        status: data.status,
-        headers: data.headers,
-        performance,
+    ctx.reportFormulaEvaluation?.(
+      ['apis', api.name],
+      {
+        isLoading: false,
+        data: null,
+        error: data.body,
+        response: {
+          status: data.status,
+          headers: data.headers,
+          performance,
+        },
       },
-    })
+      ctx,
+    )
 
     const appliedRedirectRule = handleRedirectRules(api, componentData)
     if (appliedRedirectRule) {
@@ -433,11 +441,15 @@ export function createAPI({
         },
       })
 
-      ctx.reportFormulaEvaluation?.(['apis', api.name], {
-        isLoading: true,
-        data: ctx.dataSignal.get().Apis?.[api.name]?.data ?? null,
-        error: null,
-      })
+      ctx.reportFormulaEvaluation?.(
+        ['apis', api.name],
+        {
+          isLoading: true,
+          data: ctx.dataSignal.get().Apis?.[api.name]?.data ?? null,
+          error: null,
+        },
+        ctx,
+      )
 
       let response
 
@@ -1030,7 +1042,7 @@ export function createAPI({
     if (ctx.reportFormulaEvaluation) {
       const apiStatus = data.Apis?.[api.name]
       if (apiStatus) {
-        ctx.reportFormulaEvaluation(['apis', api.name], apiStatus)
+        ctx.reportFormulaEvaluation(['apis', api.name], apiStatus, ctx)
       }
     }
     return {

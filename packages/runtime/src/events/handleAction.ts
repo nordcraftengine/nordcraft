@@ -66,21 +66,17 @@ export function handleAction(
         break
       }
       case 'SetVariable': {
-        const value = applyFormula(
-          action.data,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          ['data'],
-        )
+        const value = applyFormula(action.data, {
+          data,
+          component: ctx.component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+          jsonPath: ctx.jsonPath,
+        })
+
         ctx.dataSignal.update((data) => {
           return {
             ...data,

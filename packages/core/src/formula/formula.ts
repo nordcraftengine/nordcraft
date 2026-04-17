@@ -26,6 +26,10 @@ import {
   applySwitchFormula,
 } from './switchFormula'
 
+// As we are evaluating all branches of "if", "or" & "and" formulas when reportFormulaEvaluation is provided,
+// we need to limit the depth to infinite loops as exit conditions are no longer used in recursive formulas.
+const MAX_REPORT_DEPTH = 64
+
 // Define the some objects types as union of ServerSide and ClientSide runtime types as applyFormula is used in both
 type ShadowRoot = DocumentFragment
 
@@ -211,7 +215,7 @@ export function applyFormula(
   const path = [...(_ctx?.jsonPath ?? []), ...(extendedPath ?? [])]
   const ctx = { ..._ctx, jsonPath: path }
   const report = (value: any, p: Array<string | number> = path) => {
-    ctx?.reportFormulaEvaluation?.(p, value)
+    ctx?.reportFormulaEvaluation?.(p, value, ctx)
     return value
   }
 
@@ -227,19 +231,28 @@ export function applyFormula(
         return report(applyPathFormula(formula, ctx.data))
       }
       case 'switch': {
-        if (ctx.reportFormulaEvaluation) {
+        if (
+          ctx.reportFormulaEvaluation &&
+          ctx.jsonPath.length < MAX_REPORT_DEPTH
+        ) {
           return report(applyEvaluateAllSwitchFormula(formula, ctx))
         }
         return applySwitchFormula(formula, ctx)
       }
       case 'or': {
-        if (ctx.reportFormulaEvaluation) {
+        if (
+          ctx.reportFormulaEvaluation &&
+          ctx.jsonPath.length < MAX_REPORT_DEPTH
+        ) {
           return report(applyEvaluateAllOrFormula(formula, ctx))
         }
         return applyOrFormula(formula, ctx)
       }
       case 'and': {
-        if (ctx.reportFormulaEvaluation) {
+        if (
+          ctx.reportFormulaEvaluation &&
+          ctx.jsonPath.length < MAX_REPORT_DEPTH
+        ) {
           return report(applyEvaluateAllAndFormula(formula, ctx))
         }
         return applyAndFormula(formula, ctx)

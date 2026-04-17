@@ -11,3 +11,18 @@ export const debounce = (func: () => void, wait: number, immediate = false) => {
     }
   }
 }
+
+export const throttleToIdleCallback = (func: () => void) => {
+  let scheduled = false
+  return () => {
+    if (!scheduled) {
+      scheduled = true
+      ;(globalThis.requestIdleCallback ?? globalThis.requestAnimationFrame)(
+        () => {
+          func()
+          scheduled = false
+        },
+      )
+    }
+  }
+}
