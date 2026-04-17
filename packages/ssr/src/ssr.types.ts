@@ -39,7 +39,7 @@ export interface ProjectFiles {
   config?: {
     // See https://github.com/nordcraftengine/nordcraft/releases
     runtimeVersion?: string
-    theme: OldTheme
+    theme?: OldTheme
     meta?: {
       icon?: { formula: Formula }
       robots?: { formula: Formula }
