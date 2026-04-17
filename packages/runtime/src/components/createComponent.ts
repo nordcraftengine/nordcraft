@@ -106,7 +106,7 @@ export function createComponent({
                 data: dataSignal.get(),
               },
               ['apis', name, 'autoFetch'],
-            ) === true
+            )
               ? true
               : false,
           error: null,
