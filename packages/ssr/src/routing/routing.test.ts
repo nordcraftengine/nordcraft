@@ -1,9 +1,13 @@
 import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { describe, expect, test } from 'bun:test'
-import { serverEnv } from '../rendering/formulaContext'
+import { getServerToddleObject, serverEnv } from '../rendering/formulaContext'
 import type { Route } from '../ssr.types'
-import { matchPageForUrl, matchRouteForUrl } from './routing'
+import {
+  getRouteDestination,
+  matchPageForUrl,
+  matchRouteForUrl,
+} from './routing'
 
 describe('matchPageForUrl', () => {
   test('it finds the correct page for a url', () => {
@@ -206,7 +210,7 @@ describe('matchRouteForUrl', () => {
           getFormula: () => undefined,
           getCustomFormula: () => undefined,
         },
-      }),
+      }) as any,
     ).toEqual({ name: 'docsRedirect', route: routes['docsRedirect'] })
   })
   test('it ignores disabled routes', () => {
@@ -269,7 +273,164 @@ describe('matchRouteForUrl', () => {
           getFormula: () => undefined,
           getCustomFormula: () => undefined,
         },
-      }),
+      }) as any,
     ).toEqual({ name: 'docsRedirect', route: routes['docsRedirect'] })
+  })
+})
+describe('getRouteDestination', () => {
+  const getEnv = (req: Request) =>
+    serverEnv({
+      branchName: 'main',
+      req,
+      logErrors: false,
+    })
+
+  test('it returns the destination for a rewrite route', () => {
+    const route: Route = {
+      type: 'rewrite',
+      source: { path: [{ type: 'static', name: 'search' }], query: {} },
+      destination: {
+        url: valueFormula('results'),
+      },
+    }
+    const req = new Request('http://localhost:3000/search')
+    const url = getRouteDestination({
+      serverContext: getServerToddleObject({}),
+      req,
+      route,
+      env: getEnv(req),
+    })
+    expect(url?.toString()).toEqual('http://localhost:3000/results')
+  })
+
+  test('it returns the destination for a redirect route', () => {
+    const route: Route = {
+      type: 'redirect',
+      source: { path: [{ type: 'static', name: 'old' }], query: {} },
+      destination: {
+        url: valueFormula('new'),
+      },
+    }
+    const req = new Request('http://localhost:3000/old')
+    const url = getRouteDestination({
+      serverContext: getServerToddleObject({}),
+      req,
+      route,
+      env: getEnv(req),
+    })
+    expect(url?.toString()).toEqual('http://localhost:3000/new')
+  })
+
+  test('it returns undefined if a redirect points to the same URL', () => {
+    const route: Route = {
+      type: 'redirect',
+      source: { path: [{ type: 'static', name: 'same' }], query: {} },
+      destination: {
+        url: valueFormula('same'),
+      },
+    }
+    const req = new Request('http://localhost:3000/same')
+    const url = getRouteDestination({
+      serverContext: getServerToddleObject({}),
+      req,
+      route,
+      env: getEnv(req),
+    })
+    expect(url).toBeUndefined()
+  })
+
+  test('it allows a rewrite to point to the same URL', () => {
+    const route: Route = {
+      type: 'rewrite',
+      source: { path: [{ type: 'static', name: 'same' }], query: {} },
+      destination: {
+        url: valueFormula('same'),
+      },
+    }
+    const req = new Request('http://localhost:3000/same')
+    const url = getRouteDestination({
+      serverContext: getServerToddleObject({}),
+      req,
+      route,
+      env: getEnv(req),
+    })
+    expect(url?.toString()).toEqual('http://localhost:3000/same')
+  })
+
+  test('it handles dynamic parameters in the destination', () => {
+    const route: Route = {
+      type: 'rewrite',
+      source: {
+        path: [
+          { type: 'static', name: 'user' },
+          { type: 'param', name: 'id', testValue: '123' },
+        ],
+        query: {},
+      },
+      destination: {
+        path: {
+          profile: {
+            index: 0,
+            formula: valueFormula('profile'),
+          },
+          id: {
+            index: 1,
+            formula: {
+              path: ['Route parameters', 'path', 'id'],
+              type: 'path',
+            },
+          },
+        },
+      },
+    }
+    const req = new Request('http://localhost:3000/user/456')
+    const url = getRouteDestination({
+      serverContext: getServerToddleObject({}),
+      req,
+      route,
+      env: getEnv(req),
+    })
+    expect(url?.toString()).toEqual('http://localhost:3000/profile/456')
+  })
+
+  test('it handles relative URLs in the destination', () => {
+    const route: Route = {
+      type: 'redirect',
+      source: { path: [{ type: 'static', name: 'old' }], query: {} },
+      destination: {
+        url: valueFormula('/new-relative'),
+      },
+    }
+    const req = new Request('http://localhost:3000/old')
+    const url = getRouteDestination({
+      serverContext: getServerToddleObject({}),
+      req,
+      route,
+      env: getEnv(req),
+    })
+    expect(url?.toString()).toEqual('http://localhost:3000/new-relative')
+  })
+
+  test('it handles query parameters in the destination', () => {
+    const route: Route = {
+      type: 'rewrite',
+      source: { path: [{ type: 'static', name: 'search' }], query: {} },
+      destination: {
+        url: valueFormula('results'),
+        queryParams: {
+          q: {
+            formula: valueFormula('toddle'),
+          },
+        },
+      },
+    }
+    const req = new Request('http://localhost:3000/search')
+    const url = getRouteDestination({
+      serverContext: getServerToddleObject({}),
+      req,
+      route,
+      env: getEnv(req),
+    })
+    expect(url?.toString()).toEqual('http://localhost:3000/results?q=toddle')
   })
 })

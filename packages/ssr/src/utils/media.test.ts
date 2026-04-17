@@ -67,7 +67,7 @@ describe('transformRelativePaths()', () => {
           },
         },
       },
-    })
+    } as any)
   })
   test('it keeps absolute urls', () => {
     expect(
@@ -96,7 +96,7 @@ describe('transformRelativePaths()', () => {
           },
         },
       },
-    })
+    } as any)
   })
   test('it does not transform non-src attributes', () => {
     expect(
@@ -125,6 +125,6 @@ describe('transformRelativePaths()', () => {
           },
         },
       },
-    })
+    } as any)
   })
 })
