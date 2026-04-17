@@ -28,6 +28,7 @@ export const parseCss = (args: {
     : []
 
   if (args.style.constructor !== Object) {
+    // eslint-disable-next-line no-console
     return console.error('The value you provided is not valid!')
   }
 

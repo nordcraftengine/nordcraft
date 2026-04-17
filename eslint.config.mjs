@@ -34,6 +34,7 @@ export default defineConfig([
       'examples/**/*',
       'packages/lib/actions.ts',
       'packages/lib/formulas.ts',
+      'packages/css-parser/bin/**/*',
     ],
   },
   ...compat.extends(

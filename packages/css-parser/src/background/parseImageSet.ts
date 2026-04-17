@@ -400,6 +400,7 @@ const checkValue = ({
                 name: 'var',
                 value: valueToCheck.arguments
                   .map((a) => {
+                    // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
                     switch (a.type) {
                       case 'angle':
                       case 'length':
