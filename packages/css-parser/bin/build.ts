@@ -13,11 +13,11 @@ const bundleFiles = (files: any, settings: any) =>
   })
 
 /**
- * Creates a temporary .build/ folder
+ * Creates a temporary dist/ folder
  */
 const setup = () => {
-  fs.rmSync('.build/', { recursive: true, force: true })
-  fs.mkdirSync('.build/', { recursive: true })
+  fs.rmSync('dist/', { recursive: true, force: true })
+  fs.mkdirSync('dist/', { recursive: true })
 }
 
 const run = async () => {
@@ -33,7 +33,7 @@ const run = async () => {
   scriptModuleFiles.outputFiles?.forEach((file) => {
     const path = file.path.split('/')
     const fileName = path[path.length - 1]
-    fs.writeFileSync(`.build/${fileName}`, file.text)
+    fs.writeFileSync(`dist/${fileName}`, file.text)
   })
 
   return `Build finished in ${Date.now() - t1}ms`

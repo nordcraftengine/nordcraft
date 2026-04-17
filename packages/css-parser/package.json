@@ -10,8 +10,8 @@
   },
   "scripts": {
     "build": "bun run bin/build.ts",
-    "upload-parser": "bunx wrangler r2 object put public/editor/cssParser.browser.js --file=.build/cssParser.browser.js --remote",
-    "upload-source-map": "bunx wrangler r2 object put public/editor/cssParser.browser.js.map --file=.build/cssParser.browser.js.map --remote",
+    "upload-parser": "bunx wrangler r2 object put public/editor/cssParser.browser.js --file=dist/cssParser.browser.js --remote",
+    "upload-source-map": "bunx wrangler r2 object put public/editor/cssParser.browser.js.map --file=dist/cssParser.browser.js.map --remote",
     "deploy": "bun run upload-parser && bun run upload-source-map",
     "typecheck": "tsgo --noEmit",
     "watch": "tsgo --noEmit -w",
