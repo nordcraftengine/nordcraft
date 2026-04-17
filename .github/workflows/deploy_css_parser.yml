@@ -3,7 +3,7 @@ name: 'Deploy CSS parser'
 on:
   push:
     branches:
-      - feature/css-parser
+      - main
     paths:
       # Only deploy css-parser when files in the packages/css-parser/ directory are changed
       - 'packages/css-parser/**'
