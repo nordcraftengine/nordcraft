@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test'
 import { ToddleComponent } from './ToddleComponent'
 
 describe('ToddleComponent.actionReferences', () => {
@@ -31,6 +32,42 @@ describe('ToddleComponent.actionReferences', () => {
     })
     const actions = Array.from(demo.actionReferences)
     expect(actions).toEqual(['MyCustomAction', 'MyLegacyCustomAction'])
+  })
+  test('it return custom actions referenced in workflow callbacks', () => {
+    const demo = new ToddleComponent({
+      component: {
+        name: 'demo',
+        apis: {},
+        attributes: {},
+        nodes: {},
+        variables: {},
+        onLoad: {
+          trigger: 'onLoad',
+          actions: [
+            {
+              type: 'TriggerWorkflow',
+              callbacks: {
+                'test event': {
+                  actions: [
+                    {
+                      type: 'Custom',
+                      name: 'MyCustomAction',
+                    },
+                  ],
+                },
+              },
+              workflow: 'AsqRCv',
+              parameters: {},
+            },
+          ],
+        },
+      },
+      getComponent: () => undefined,
+      packageName: 'demo',
+      globalFormulas: { formulas: {}, packages: {} },
+    })
+    const actions = Array.from(demo.actionReferences)
+    expect(actions).toEqual(['MyCustomAction'])
   })
   test('it should not include non-custom actions', () => {
     const demo = new ToddleComponent({
