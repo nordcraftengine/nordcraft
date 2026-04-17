@@ -1,0 +1,23 @@
+{
+  "name": "css-parser",
+  "type": "module",
+  "devDependencies": {
+    "@happy-dom/global-registrator": "17.4.4",
+    "@types/node": "25.6.0"
+  },
+  "dependencies": {
+    "@nordcraft/core": "workspace:*"
+  },
+  "scripts": {
+    "build": "bun run bin/build.ts",
+    "upload-parser": "bunx wrangler r2 object put public/editor/cssParser.browser.js --file=.build/cssParser.browser.js --remote",
+    "upload-source-map": "bunx wrangler r2 object put public/editor/cssParser.browser.js.map --file=.build/cssParser.browser.js.map --remote",
+    "deploy": "bun run upload-parser && bun run upload-source-map",
+    "typecheck": "tsgo --noEmit",
+    "watch": "tsgo --noEmit -w",
+    "test:watch:only": "bun test --watch --only"
+  },
+  "files": [
+    "src"
+  ]
+}
