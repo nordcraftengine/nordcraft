@@ -1,0 +1,38 @@
+name: 'Test css-parser'
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+# This allows a subsequently queued workflow run to interrupt previous runs
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  test-css-parser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout css-parser
+        uses: actions/checkout@v4
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.3
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build all packages
+        run: bun run build
+      - name: Typecheck
+        run: |
+          cd packages/css-parser
+          bun run typecheck
+      - name: Test
+        run: |
+          cd packages/css-parser
+          bun test
+      - name: Build
+        run: |
+          cd packages/css-parser
+          bun run build

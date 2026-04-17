@@ -16,6 +16,7 @@ This repository holds different packages that are used internally by the Nordcra
 - [ssr](https://www.npmjs.com/package/@nordcraft/ssr) 👈 holds part of the server-side rendering logic
 - [lib](https://www.npmjs.com/package/@nordcraft/std-lib) 👈 holds all builtin [formulas](https://docs.nordcraft.com/formulas/overview#the-formula-editor) and [actions](https://docs.nordcraft.com/the-editor/data-panel#workflows) used by the runtime and during ssr
 - [search](https://www.npmjs.com/package/@nordcraft/search) 👈 holds all issue rules and search functionality for traversing a Nordcraft project. This powers the issue panel in the Nordcraft editor in a web worker atm
+- [css-parser] the CSS parser used in the Nordcraft editor to power the style panel
 
 ## Requirements
 
