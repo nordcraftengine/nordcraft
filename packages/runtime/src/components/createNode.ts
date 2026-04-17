@@ -63,6 +63,9 @@ export function createNode({
             ...ctx,
             package:
               node.package ?? (isLocalComponent ? undefined : ctx.package),
+            // Skip sub-component formula evaluation for now as editor only needs the scope for the selected component
+            // TODO: Letting the AI get the state of a deep component may be useful in the future, but we need a better way at precising scope for it to not overwhelm it.
+            reportFormulaEvaluation: undefined,
           },
           parentElement,
         })
@@ -105,8 +108,6 @@ export function createNode({
           conditionPath,
         ),
       )
-
-      ctx.reportFormulaEvaluation?.(conditionPath, show)
 
       return show
     })
@@ -208,8 +209,6 @@ export function createNode({
         listPath,
       )
 
-      ctx.reportFormulaEvaluation?.(listPath, list)
-
       if (typeof list !== 'object') {
         return []
       }
@@ -237,20 +236,20 @@ export function createNode({
           }
           const repeatKeyPath = ['nodes', id, 'repeatKey']
           let childKey = node?.repeatKey
-            ? applyFormula(node.repeatKey, {
-                data: childData,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-              })
+            ? applyFormula(
+                node.repeatKey,
+                {
+                  data: childData,
+                  component: ctx.component,
+                  formulaCache: ctx.formulaCache,
+                  root: ctx.root,
+                  package: ctx.package,
+                  toddle: ctx.toddle,
+                  env: ctx.env,
+                },
+                repeatKeyPath,
+              )
             : Key
-
-          if (node?.repeatKey) {
-            ctx.reportFormulaEvaluation?.(repeatKeyPath, childKey)
-          }
 
           if (seenKeys.has(childKey)) {
             console.warn(

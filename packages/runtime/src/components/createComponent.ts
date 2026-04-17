@@ -75,10 +75,14 @@ export function createComponent({
     return mapObject(node.attrs, ([attr, value]) => [
       attr,
       value?.type !== 'value'
-        ? applyFormula(value, {
-            ...formulaCtx,
-            data,
-          })
+        ? applyFormula(
+            value,
+            {
+              ...formulaCtx,
+              data,
+            },
+            ['attrs', attr],
+          )
         : value?.value,
     ])
   })
@@ -94,11 +98,15 @@ export function createComponent({
           data: null,
           isLoading:
             api!.autoFetch &&
-            applyFormula(api!.autoFetch, {
-              ...formulaCtx,
-              component,
-              data: dataSignal.get(),
-            })
+            applyFormula(
+              api!.autoFetch,
+              {
+                ...formulaCtx,
+                component,
+                data: dataSignal.get(),
+              },
+              ['apis', name, 'autoFetch'],
+            ) === true
               ? true
               : false,
           error: null,
@@ -125,12 +133,16 @@ export function createComponent({
     ...data,
     Variables: mapObject(component.variables ?? {}, ([name, variable]) => [
       name,
-      applyFormula(variable.initialValue, {
-        // Initial value
-        ...formulaCtx,
-        component,
-        data: componentDataSignal.get(),
-      }),
+      applyFormula(
+        variable.initialValue,
+        {
+          // Initial value
+          ...formulaCtx,
+          component,
+          data: componentDataSignal.get(),
+        },
+        ['variables', name],
+      ),
     ]),
   }))
   registerComponentToLogState(component, componentDataSignal)
@@ -140,7 +152,7 @@ export function createComponent({
   componentDataSignal.subscribe(
     (data) => {
       Object.entries(data.Variables ?? {}).forEach(([name, value]) => {
-        ctx.reportFormulaEvaluation?.(['variables', name], value)
+        ctx.reportFormulaEvaluation?.(['variables', name], value, ctx)
       })
     },
     {
@@ -332,10 +344,14 @@ export function createComponent({
         }),
         signal: dataSignal.map((data) =>
           appendUnit(
-            applyFormula(customProperty.formula, {
-              ...formulaCtx,
-              data,
-            }),
+            applyFormula(
+              customProperty.formula,
+              {
+                ...formulaCtx,
+                data,
+              },
+              ['customProperties', customPropertyName, 'formula'],
+            ),
             customProperty.unit,
           ),
         ),
@@ -355,10 +371,14 @@ export function createComponent({
           }),
           signal: dataSignal.map((data) =>
             appendUnit(
-              applyFormula(customProperty.formula, {
-                ...formulaCtx,
-                data,
-              }),
+              applyFormula(
+                customProperty.formula,
+                {
+                  ...formulaCtx,
+                  data,
+                },
+                ['customProperties', customPropertyName, 'formula'],
+              ),
               customProperty.unit,
             ),
           ),

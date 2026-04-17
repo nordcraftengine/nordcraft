@@ -64,7 +64,7 @@ import { dragEnded } from './editor/drag-drop/dragEnded'
 import { dragMove } from './editor/drag-drop/dragMove'
 import { dragReorder } from './editor/drag-drop/dragReorder'
 import { dragStarted } from './editor/drag-drop/dragStarted'
-import { debounce } from './editor/editorUtils'
+import { throttleToIdleCallback } from './editor/editorUtils'
 import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
 import { updateComponentLinks } from './editor/links'
@@ -251,22 +251,35 @@ export const createRoot = (
   let component: Component | null = null
   let componentFormulaData: Record<string, any> = {}
 
-  const reportFormulaEvaluation: FormulaEvaluationReporter = (path, data) => {
-    componentFormulaData[path.join('/')] = data
-    reportComponentFormulaData()
+  const reportFormulaEvaluation: FormulaEvaluationReporter = (
+    path,
+    data,
+    ctx,
+  ) => {
+    if (
+      data !== undefined &&
+      path.length > 0 &&
+      // We are currently skipping all children formulas to lower the scope of reporting to what the user can see in the canvas
+      ctx.component?.name === component?.name
+    ) {
+      try {
+        componentFormulaData[path.join('/')] = JSON.parse(JSON.stringify(data))
+      } catch {
+        componentFormulaData[path.join('/')] =
+          `[Unserializable value of type ${typeof data}]`
+      } finally {
+        reportComponentFormulaData()
+      }
+    }
   }
-  const reportComponentFormulaData = debounce(
-    () => {
-      postMessageToEditor({
-        type: 'componentFormulaData',
-        data: componentFormulaData,
-        component: component?.name,
-      })
-      componentFormulaData = {}
-    },
-    5, // 5ms debounce to batch multiple rapid updates
-    true,
-  )
+  const reportComponentFormulaData = throttleToIdleCallback(() => {
+    postMessageToEditor({
+      type: 'componentFormulaData',
+      data: componentFormulaData,
+      component: component?.name,
+    })
+    componentFormulaData = {}
+  })
   let selectedNodeId: string | null = null
   let highlightedNodeId: string | null = null
   let styleVariantSelection: {
@@ -1427,7 +1440,6 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
                 applyFormula(variable.initialValue, formulaContext, [
                   'variables',
                   name,
-                  'initialValue',
                 ]),
               ],
             )
@@ -1477,7 +1489,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               jsonPath: ctx?.jsonPath,
               reportFormulaEvaluation,
             },
-            ['variables', name, 'initialValue'],
+            ['variables', name],
           ),
         ],
       )

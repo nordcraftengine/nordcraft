@@ -72,6 +72,7 @@ export function createText({
     ctx.reportFormulaEvaluation?.(
       [...(ctx.jsonPath ?? []), 'value'],
       value.value,
+      ctx,
     )
     elem.innerText = String(value.value)
   }
