@@ -249,7 +249,10 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
                 key,
                 {
                   ...value,
-                  actions: value.actions?.map(removeActionTestData) ?? [],
+                  actions:
+                    value?.actions?.map((a) =>
+                      a ? removeActionTestData(a) : a,
+                    ) ?? [],
                 },
               ]),
             }

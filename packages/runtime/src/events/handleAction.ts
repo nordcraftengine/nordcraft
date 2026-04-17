@@ -424,19 +424,21 @@ export function handleAction(
               event,
               (callbackName, callbackData) => {
                 const callback = callbacks?.[callbackName]
-                callback?.actions?.forEach((action) =>
-                  handleAction(
-                    action,
-                    {
-                      ...data,
-                      ...ctx.dataSignal.get(),
-                      Parameters: parameters,
-                      Event: callbackData,
-                    },
-                    ctx,
-                    event,
-                    workflowCallback,
-                  ),
+                callback?.actions?.forEach(
+                  (action) =>
+                    action &&
+                    handleAction(
+                      action,
+                      {
+                        ...data,
+                        ...ctx.dataSignal.get(),
+                        Parameters: parameters,
+                        Event: callbackData,
+                      },
+                      ctx,
+                      event,
+                      workflowCallback,
+                    ),
                 )
               },
             ),
@@ -464,19 +466,21 @@ export function handleAction(
             event,
             (callbackName, callbackData) => {
               const callback = callbacks?.[callbackName]
-              callback?.actions?.forEach((action) =>
-                handleAction(
-                  action,
-                  {
-                    ...data,
-                    ...ctx.dataSignal.get(),
-                    Parameters: parameters,
-                    Event: callbackData,
-                  },
-                  ctx,
-                  event,
-                  workflowCallback,
-                ),
+              callback?.actions?.forEach(
+                (action) =>
+                  action &&
+                  handleAction(
+                    action,
+                    {
+                      ...data,
+                      ...ctx.dataSignal.get(),
+                      Parameters: parameters,
+                      Event: callbackData,
+                    },
+                    ctx,
+                    event,
+                    workflowCallback,
+                  ),
               )
             },
           ),

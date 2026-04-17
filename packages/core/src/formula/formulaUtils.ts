@@ -319,6 +319,23 @@ export function* getFormulasInAction<Handler>({
           })
         }
       }
+      for (const [callbackKey, callback] of Object.entries(
+        action.callbacks ?? {},
+      )) {
+        if (isDefined(callback?.actions)) {
+          for (const [key, a] of Object.entries(callback.actions)) {
+            if (isDefined(a)) {
+              yield* getFormulasInAction({
+                action: a,
+                globalFormulas,
+                path: [...path, 'callbacks', callbackKey, 'actions', key],
+                visitedFormulas,
+                packageName,
+              })
+            }
+          }
+        }
+      }
       break
     case 'Switch':
       if (isDefined(action.data) && isFormula(action.data)) {
