@@ -372,7 +372,9 @@ export interface WorkflowActionModel {
   type: 'TriggerWorkflow'
   workflow: string
   parameters: Record<string, { formula?: Nullable<Formula> }>
-  callbacks?: Nullable<Record<string, { actions?: Nullable<ActionModel[]> }>>
+  callbacks?: Nullable<
+    Partial<Record<string, { actions?: Nullable<Partial<ActionModel[]>> }>>
+  >
   contextProvider?: Nullable<string>
 }
 
