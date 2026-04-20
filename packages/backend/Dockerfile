@@ -7,10 +7,11 @@ WORKDIR /app
 COPY bun.lock package.json bunfig.toml ./
 COPY packages/backend/package.json ./packages/backend/
 COPY packages/core/package.json ./packages/core/
-# We technically don't need the editor package for anything, but if it's no included
+# We technically don't need the editor and css-parser packages for anything, but if they're not included
 # then bun install will fail when --production/--frozen-lockfile is used because it
-# can't find all the packages listed in the lockfile
+# can't find all the packages listed in the lockfile. They're never included in the runner though
 COPY packages/editor/package.json ./packages/editor/
+COPY packages/css-parser/package.json ./packages/css-parser/
 COPY packages/lib/package.json ./packages/lib/
 COPY packages/runtime/package.json ./packages/runtime/
 COPY packages/search/package.json ./packages/search/

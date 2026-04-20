@@ -27,7 +27,7 @@
   },
   "scripts": {
     "build": "cd packages/core && bun run build && cd ../lib && bun run build && cd ../ssr && bun run build && cd ../search && bun run build && cd ../runtime && bun run build",
-    "clean": "rm -rf node_modules && rm bun.lock && rm -rf packages/core/node_modules && rm -rf packages/lib/node_modules && rm -rf packages/runtime/node_modules && rm -rf packages/ssr/node_modules && rm -rf packages/search/node_modules && bun i && rm -rf packages/backend/dist && rm -rf packages/core/dist && rm -rf packages/lib/dist && rm -rf packages/runtime/dist && rm -rf packages/search/dist && rm -rf packages/ssr/dist",
+    "clean": "rm -rf node_modules && rm bun.lock && rm -rf packages/core/node_modules && rm -rf packages/lib/node_modules && rm -rf packages/runtime/node_modules && rm -rf packages/ssr/node_modules && rm -rf packages/search/node_modules && bun i && rm -rf packages/backend/dist && rm -rf packages/core/dist && rm -rf packages/lib/dist && rm -rf packages/runtime/dist && rm -rf packages/search/dist && rm -rf packages/ssr/dist && rm -rf packages/css-parser/dist",
     "link": "cd packages/core && bun link && cd ../lib && bun link && cd ../ssr && bun link && cd ../search && bun link && cd ../runtime && bun link",
     "lint": "eslint --quiet --report-unused-disable-directives .",
     "prettier": "prettier --check '*.{json,js,ts}' '**/*.{json,js,ts}' 'packages/editor/elements/**/*.json'",

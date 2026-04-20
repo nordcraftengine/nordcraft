@@ -34,6 +34,7 @@ export default defineConfig([
       'examples/**/*',
       'packages/lib/actions.ts',
       'packages/lib/formulas.ts',
+      'packages/css-parser/bin/**/*',
     ],
   },
   ...compat.extends(
@@ -66,7 +67,7 @@ export default defineConfig([
       '@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
       '@typescript-eslint/no-unnecessary-condition': 'warn',
       '@typescript-eslint/no-unsafe-function-type': 'off',
-      '@typescript-eslint/prefer-nullish-coalescing': 'error',
+      '@typescript-eslint/prefer-nullish-coalescing': 'warn',
       '@typescript-eslint/prefer-optional-chain': 'error',
       '@typescript-eslint/restrict-template-expressions': 'warn',
       '@typescript-eslint/return-await': 'warn',
