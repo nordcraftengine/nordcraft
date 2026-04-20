@@ -35,6 +35,11 @@ export const getApp = <T extends Record<string, any>>(options: {
 
   const app = new Hono<HonoEnv<T>>({ strict: false })
 
+  app.use(async (c, next) => {
+    c.set('app', app)
+    await next()
+  })
+
   app.use(
     timing({
       // Potentially only enable detailed timing in development mode

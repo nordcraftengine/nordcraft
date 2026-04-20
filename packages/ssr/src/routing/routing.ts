@@ -127,23 +127,13 @@ export const getRouteDestination = ({
       serverContext,
     })
 
-    const url = getUrl(
-      route.destination,
-      formulaContext,
-      // Redirects can redirect to relative URLs - rewrites can't
-      route.type === 'redirect' ? requestUrl.origin : undefined,
-    )
+    const url = getUrl(route.destination, formulaContext, requestUrl.origin)
     if (
       route.type === 'redirect' &&
       requestUrl.origin === url.origin &&
       requestUrl.pathname === url.pathname
     ) {
       // Redirects are not allowed to redirect to the same URL as their source
-      return
-    }
-    if (route.type === 'rewrite' && requestUrl.origin === url.origin) {
-      // Rewrites are not allowed from the same origin as the source
-      // This prevents potential recursive fetch calls from the server to itself
       return
     }
     return url

@@ -241,7 +241,7 @@ describe('removeTestData', () => {
             inputs: {},
           },
         },
-      }).apis['a'],
+      }).apis?.['a'],
     ).toEqual({
       name: 'foo',
       url: valueFormula('https://example.com'),
