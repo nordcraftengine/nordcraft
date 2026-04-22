@@ -5,6 +5,7 @@ const app = new Hono({ strict: false })
 
 // Serve static files from the dist directory
 app.get('*', serveStatic({ root: '../dist/' }))
+app.get('*', serveStatic({ root: '../packages/css-parser/dist/' }))
 
 export default {
   port: 1337,
