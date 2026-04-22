@@ -433,4 +433,27 @@ describe('parseFont', () => {
       }),
     )
   })
+
+  test('Show the invalid values for font-family', () => {
+    expect(
+      parseCss({
+        style: {
+          'font-family': '2rem',
+        },
+        variables: {},
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        font: {
+          family: [
+            {
+              type: 'length',
+              value: '2',
+              unit: 'rem',
+            },
+          ],
+        },
+      }),
+    )
+  })
 })

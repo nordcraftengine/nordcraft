@@ -12,7 +12,7 @@ import {
   parse,
   parseMultipleValues,
 } from './shared'
-import type { CSSStyleToken, ParsedFont, ParsedFontProperty } from './types'
+import type { CSSStyleToken, ParsedFont, ParsedFontProperty, ParsedValueType } from './types'
 
 export const getParsedFont = (
   style: Record<string, any>,
@@ -154,22 +154,11 @@ export const getParsedFont = (
     ) {
       const fontFamily = parse({ input: style['font-family'] })
 
-      const singlePropertyFamily: (
-        | {
-            type: 'keyword'
-            value: string
-          }
-        | {
-            type: 'string'
-            value: string
-            quote: "'" | '"'
-          }
-        | {
-            type: 'function'
-            name: string
-            value: string
-          }
-      )[] = []
+      const singlePropertyFamily: Exclude<ParsedValueType, {
+    type: "functionArguments";
+    name: string;
+    arguments: ParsedValueType[];
+}> [] = []
 
       fontFamily.forEach((family, index) => {
         const parsedFamily = parseMultipleValues(getValue(family))
@@ -200,7 +189,7 @@ export const getParsedFont = (
                   ...pf,
                   type: pf.type,
                 }
-              } else if (pf.type === 'function' && pf.name === 'var') {
+              } else {
                 singlePropertyFamily[index] = pf
               }
             }
