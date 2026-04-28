@@ -1,3 +1,5 @@
+import type { Formula } from '@nordcraft/core/dist/formula/formula'
+import type { CssSyntaxNode } from '@nordcraft/core/dist/styling/customProperty'
 import type {
   StyleToken,
   StyleTokenCategory,
@@ -377,10 +379,19 @@ export type ThemeVariables = Partial<
   Record<StyleTokenCategory, CSSStyleToken[]>
 >
 
-export type CSSStyleToken = StyleToken & {
-  category: StyleTokenCategory
-  unit?: string | null
-}
+export type CSSStyleToken =
+  | (StyleToken & {
+      category: StyleTokenCategory
+      unit?: string | null
+    })
+  | {
+      syntax: CssSyntaxNode
+      formula: Formula
+      name: string
+      description: undefined
+      unit?: Nullable<string>
+      value: string
+    }
 
 export type getValueType =
   | {
