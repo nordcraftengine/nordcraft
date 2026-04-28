@@ -169,7 +169,7 @@ export const proxyRequestHandler =
     }
   }
 
-const normalizeIP = (address?: string) => {
+export const normalizeIP = (address?: string) => {
   // Remove IPv4-mapped IPv6 prefix if present
   if (address?.startsWith('::ffff:')) {
     return address.substring(7)

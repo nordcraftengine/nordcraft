@@ -84,7 +84,7 @@ export const getApp = <T extends Record<string, any>>(options: {
   }
 
   // Load a route if it matches the URL
-  app.all('/*', routeHandler)
+  app.all('/*', routeHandler(options.getConnInfo))
 
   // Load default resource endpoints
   app.get('/sitemap.xml', sitemap)
