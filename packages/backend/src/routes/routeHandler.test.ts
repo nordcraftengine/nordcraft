@@ -1,10 +1,10 @@
-import { REWRITE_HEADER } from '@nordcraft/core/dist/utils/url';
-import * as routing from '@nordcraft/ssr/dist/routing/routing';
-import { REDIRECT_NAME_HEADER } from '@nordcraft/ssr/src/utils/headers';
-import { afterAll, beforeEach, describe, expect, it, spyOn } from 'bun:test';
-import { Hono } from 'hono';
-import type { HonoEnv } from '../../hono';
-import { routeHandler } from './routeHandler';
+import { REWRITE_HEADER } from '@nordcraft/core/dist/utils/url'
+import * as routing from '@nordcraft/ssr/dist/routing/routing'
+import { REDIRECT_NAME_HEADER } from '@nordcraft/ssr/src/utils/headers'
+import { afterAll, beforeEach, describe, expect, it, spyOn } from 'bun:test'
+import { Hono } from 'hono'
+import type { HonoEnv } from '../../hono'
+import { routeHandler } from './routeHandler'
 
 const spyFetch = spyOn(globalThis, 'fetch')
 const spyMatchRoute = spyOn(routing, 'matchRouteForUrl')
