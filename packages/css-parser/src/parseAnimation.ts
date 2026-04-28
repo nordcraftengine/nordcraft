@@ -532,39 +532,44 @@ const parseAnimation = ({
           return
         }
 
+        const valueWithoutUnit = usedVariable.unit
+          ? usedVariable.value.replaceAll(usedVariable.unit, '')
+          : usedVariable.value
+
         const parsedVariable = parseMultipleValues([
           {
             type: 'word',
-            value:
-              usedVariable.unit && usedVariable.unit !== ''
-                ? `${usedVariable.value}${usedVariable.unit}`
-                : usedVariable.value,
+            value: valueWithoutUnit,
           },
         ])
-        const newProp = parseAnimation({
-          valueToCheck: parsedVariable[0],
-          valueToReturn: valueToCheck,
-          durationSet,
-          nameSet,
-          variables,
-        })
 
-        if (newProp.direction) {
-          direction = returnValue
-        } else if (newProp.timing) {
-          timing = returnValue
-        } else if (newProp.playState) {
-          playState = returnValue
-        } else if (newProp.fillMode) {
-          fillMode = returnValue
-        } else if (newProp.iterationCount) {
-          iterationCount = returnValue
-        } else if (newProp.duration) {
-          duration = returnValue
-        } else if (newProp.delay) {
-          delay = returnValue
-        } else if (newProp.name) {
-          name = true
+        if (isDefined(parsedVariable[0])) {
+          const newProp = parseAnimation({
+            valueToCheck: parsedVariable[0],
+            valueToReturn: valueToCheck,
+            durationSet,
+            nameSet,
+            variables,
+          })
+          if (newProp.direction) {
+            direction = returnValue
+          } else if (newProp.timing) {
+            timing = returnValue
+          } else if (newProp.playState) {
+            playState = returnValue
+          } else if (newProp.fillMode) {
+            fillMode = returnValue
+          } else if (newProp.iterationCount) {
+            iterationCount = returnValue
+          } else if (newProp.duration) {
+            duration = returnValue
+          } else if (newProp.delay) {
+            delay = returnValue
+          } else if (newProp.name) {
+            name = returnValue
+          }
+        } else {
+          invalidValue = true
         }
       } else {
         const parsedVariable = parseMultipleValues([
@@ -593,7 +598,7 @@ const parseAnimation = ({
         } else if (newProp.delay) {
           delay = returnValue
         } else if (newProp.name) {
-          name = true
+          name = returnValue
         }
       }
     })

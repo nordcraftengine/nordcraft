@@ -51,6 +51,62 @@ describe('parseAnimation', () => {
     ])
   })
 
+  test('Using variable that has a null value', () => {
+    expect(
+      getParsedAnimation(
+        {
+          animation: '2s ease var(--delay) 1 normal none running',
+        },
+        [
+          {
+            syntax: {
+              type: 'primitive',
+              name: 'time',
+            },
+            formula: { type: 'value', value: null },
+            name: '--delay',
+            description: undefined,
+            unit: 'ms',
+            value: 'ms',
+          } as any,
+        ],
+      ),
+    ).toEqual([
+      {
+        duration: {
+          type: 'time',
+          value: '2',
+          unit: 's',
+        },
+        timing: {
+          type: 'keyword',
+          value: 'ease',
+        },
+        delay: {
+          name: 'var',
+          type: 'function',
+          value: '--delay',
+        },
+        direction: {
+          type: 'keyword',
+          value: 'normal',
+        },
+        iterationCount: {
+          type: 'number',
+          value: '1',
+        },
+        playState: {
+          type: 'keyword',
+          value: 'running',
+        },
+        fillMode: {
+          type: 'keyword',
+          value: 'none',
+        },
+      },
+    ])
+  })
+
   test('Multiple animations are defined', () => {
     expect(
       getParsedAnimation(
