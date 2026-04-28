@@ -386,9 +386,9 @@ export type CSSStyleToken =
     })
   | {
       syntax: CssSyntaxNode
-      formula: Formula
+      formula?: Formula
       name: string
-      description: undefined
+      description: undefined | string
       unit?: Nullable<string>
       value: string
     }
