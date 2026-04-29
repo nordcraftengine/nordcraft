@@ -68,7 +68,7 @@ describe('parseAnimation', () => {
             description: undefined,
             unit: 'ms',
             value: 'ms',
-          } as any,
+          },
         ],
       ),
     ).toEqual([
