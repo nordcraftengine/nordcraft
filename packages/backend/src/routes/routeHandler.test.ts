@@ -10,6 +10,10 @@ const spyFetch = spyOn(globalThis, 'fetch')
 const spyMatchRoute = spyOn(routing, 'matchRouteForUrl')
 const spyGetRouteDestination = spyOn(routing, 'getRouteDestination')
 
+const localhostRouteHandler = routeHandler(() => ({
+  remote: { address: '127.0.0.1' },
+}))
+
 describe('routeHandler', () => {
   beforeEach(() => {
     spyFetch.mockReset()
@@ -27,7 +31,7 @@ describe('routeHandler', () => {
     spyMatchRoute.mockReturnValue(undefined)
     let nextCalled = false
     const app = new Hono()
-    app.use('*', routeHandler)
+    app.use('*', localhostRouteHandler)
     app.get('*', (c) => {
       nextCalled = true
       return c.text('next')
@@ -46,7 +50,7 @@ describe('routeHandler', () => {
     spyGetRouteDestination.mockReturnValue(undefined)
 
     const app = new Hono()
-    app.use('*', routeHandler)
+    app.use('*', localhostRouteHandler)
 
     const res = await app.request('http://localhost/test')
     expect(res.status).toBe(500)
@@ -62,7 +66,7 @@ describe('routeHandler', () => {
     spyGetRouteDestination.mockReturnValue(destination)
 
     const app = new Hono()
-    app.use('*', routeHandler)
+    app.use('*', localhostRouteHandler)
 
     const res = await app.request('http://localhost/old')
     expect(res.status).toBe(301)
@@ -78,7 +82,7 @@ describe('routeHandler', () => {
     spyGetRouteDestination.mockReturnValue(new URL('http://localhost/proxy'))
 
     const app = new Hono()
-    app.use('*', routeHandler)
+    app.use('*', localhostRouteHandler)
 
     const res = await app.request('http://localhost/proxy', {
       headers: {
@@ -99,15 +103,23 @@ describe('routeHandler', () => {
     const destinationUrl = 'https://external.com/api'
     spyGetRouteDestination.mockReturnValue(new URL(destinationUrl))
 
-    spyFetch.mockResolvedValue(
-      new Response('external content', {
+    const mockFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = input instanceof Request ? input.url : input.toString()
+      const headers =
+        input instanceof Request ? input.headers : new Headers(init?.headers)
+
+      expect(url).toBe(destinationUrl)
+      expect(headers.get(REWRITE_HEADER)).toBe('true')
+      expect(headers.get('X-Forwarded-For')).toBe('127.0.0.1')
+      return new Response('external content', {
         status: 200,
         headers: { 'Content-Type': 'text/plain' },
-      }),
-    )
+      })
+    }
+    spyFetch.mockImplementation(mockFetch as any)
 
     const app = new Hono()
-    app.use('*', routeHandler)
+    app.use('*', localhostRouteHandler)
 
     const res = await app.request('http://localhost/proxy')
     expect(res.status).toBe(200)
@@ -143,7 +155,7 @@ describe('routeHandler', () => {
       c.set('app', innerApp)
       await next()
     })
-    app.use('*', routeHandler)
+    app.use('*', localhostRouteHandler)
 
     const res = await app.request('http://localhost/internal')
     expect(res.status).toBe(200)
