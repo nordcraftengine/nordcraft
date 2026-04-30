@@ -205,21 +205,26 @@ const parseBackground = (args: backgroundArguments) => {
             : parse({ input: usedVariable.value })
 
         const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
-        const parsedVariable = parseMultipleValues(parsedUsedVariableVal)
-        if (parsedVariable[0]?.type !== 'functionArguments') {
-          const newProp = parseBackground({
-            variables,
-            image,
-            valueToCheck: parsedVariable[0],
-            positionSet,
-            valueToReturn: returnValue,
-          })
 
-          if (newProp.color) {
-            color = newProp.color
-            return
-          } else {
-            image = { ...image, ...newProp.image }
+        if (parsedUsedVariableVal.length > 1) {
+          invalidValue = true
+        } else {
+          const parsedVariable = parseMultipleValues(parsedUsedVariableVal)
+          if (parsedVariable[0]?.type !== 'functionArguments') {
+            const newProp = parseBackground({
+              variables,
+              image,
+              valueToCheck: parsedVariable[0],
+              positionSet,
+              valueToReturn: returnValue,
+            })
+
+            if (newProp.color) {
+              color = newProp.color
+              return
+            } else {
+              image = { ...image, ...newProp.image }
+            }
           }
         }
       } else {
@@ -1823,100 +1828,109 @@ export const getParsedBackground = (
       'attachment',
     ] as const
 
-    invalidValues.forEach((iv, index) => {
-      if (iv.length > 0 && !isDefined(parsedBackground.images)) {
-        if (isDefined(shorthandBackground[index])) {
-          parsedBackground.images = []
-          if (!isDefined(parsedBackground.images[index])) {
-            parsedBackground.images[index] = {}
-          }
-          parsedBackground.images[index] = shorthandBackground[index].image
-          parsedBackground.color = shorthandBackground[index].color
-        }
-
-        backgroundImageProperties.forEach((key) => {
-          if (iv.length > 0) {
-            if (
-              key === 'repeat' &&
-              isDefined(parsedBackground.images?.[index])
-            ) {
-              if (
-                !isDefined(parsedBackground.images[index]?.repeat?.horizontal)
-              ) {
-                if (!isDefined(parsedBackground.images[index][key])) {
-                  parsedBackground.images[index][key] = {}
-                }
-                parsedBackground.images[index][key].horizontal = iv[0]
-                iv.shift()
-              } else if (
-                !isDefined(parsedBackground.images[index]?.repeat?.vertical)
-              ) {
-                if (!isDefined(parsedBackground.images[index][key])) {
-                  parsedBackground.images[index][key] = {}
-                }
-                parsedBackground.images[index][key].vertical = iv[0]
-                iv.shift()
-              }
-            } else if (
-              key === 'position' &&
-              isDefined(parsedBackground.images?.[index])
-            ) {
-              if (
-                !isDefined(parsedBackground.images[index].position?.x?.align)
-              ) {
-                if (!isDefined(parsedBackground.images[index][key])) {
-                  parsedBackground.images[index][key] = {}
-                }
-                if (!isDefined(parsedBackground.images[index][key].x)) {
-                  parsedBackground.images[index][key].x = {}
-                }
-                parsedBackground.images[index][key].x.align = iv[0]
-                iv.shift()
-              } else if (
-                !isDefined(parsedBackground.images[index].position.x.offset)
-              ) {
-                if (!isDefined(parsedBackground.images[index][key])) {
-                  parsedBackground.images[index][key] = {}
-                }
-                if (!isDefined(parsedBackground.images[index][key].x)) {
-                  parsedBackground.images[index][key].x = {}
-                }
-                parsedBackground.images[index][key].x.offset = iv[0]
-                iv.shift()
-              } else if (
-                !isDefined(parsedBackground.images[index].position.y?.align)
-              ) {
-                if (!isDefined(parsedBackground.images[index][key])) {
-                  parsedBackground.images[index][key] = {}
-                }
-                if (!isDefined(parsedBackground.images[index][key].y)) {
-                  parsedBackground.images[index][key].y = {}
-                }
-                parsedBackground.images[index][key].y.align = iv[0]
-                iv.shift()
-              } else if (
-                !isDefined(parsedBackground.images[index].position.y.offset)
-              ) {
-                if (!isDefined(parsedBackground.images[index][key])) {
-                  parsedBackground.images[index][key] = {}
-                }
-                if (!isDefined(parsedBackground.images[index][key].y)) {
-                  parsedBackground.images[index][key].y = {}
-                }
-                parsedBackground.images[index][key].y.offset = iv[0]
-                iv.shift()
-              }
-            } else if (
-              isDefined(parsedBackground.images?.[index]) &&
-              !isDefined(parsedBackground.images[index][key])
-            ) {
-              parsedBackground.images[index][key] = iv[0]
-              iv.shift()
+    if (
+      invalidValues.length === 1 &&
+      invalidValues[0]?.length === 1 &&
+      !isDefined(parsedBackground.color) &&
+      !isDefined(parsedBackground.images)
+    ) {
+      parsedBackground.color = invalidValues[0][0]
+    } else {
+      invalidValues.forEach((iv, index) => {
+        if (iv.length > 0 && !isDefined(parsedBackground.images)) {
+          if (isDefined(shorthandBackground[index])) {
+            parsedBackground.images = []
+            if (!isDefined(parsedBackground.images[index])) {
+              parsedBackground.images[index] = {}
             }
+            parsedBackground.images[index] = shorthandBackground[index].image
+            parsedBackground.color = shorthandBackground[index].color
           }
-        })
-      }
-    })
+
+          backgroundImageProperties.forEach((key) => {
+            if (iv.length > 0) {
+              if (
+                key === 'repeat' &&
+                isDefined(parsedBackground.images?.[index])
+              ) {
+                if (
+                  !isDefined(parsedBackground.images[index]?.repeat?.horizontal)
+                ) {
+                  if (!isDefined(parsedBackground.images[index][key])) {
+                    parsedBackground.images[index][key] = {}
+                  }
+                  parsedBackground.images[index][key].horizontal = iv[0]
+                  iv.shift()
+                } else if (
+                  !isDefined(parsedBackground.images[index]?.repeat?.vertical)
+                ) {
+                  if (!isDefined(parsedBackground.images[index][key])) {
+                    parsedBackground.images[index][key] = {}
+                  }
+                  parsedBackground.images[index][key].vertical = iv[0]
+                  iv.shift()
+                }
+              } else if (
+                key === 'position' &&
+                isDefined(parsedBackground.images?.[index])
+              ) {
+                if (
+                  !isDefined(parsedBackground.images[index].position?.x?.align)
+                ) {
+                  if (!isDefined(parsedBackground.images[index][key])) {
+                    parsedBackground.images[index][key] = {}
+                  }
+                  if (!isDefined(parsedBackground.images[index][key].x)) {
+                    parsedBackground.images[index][key].x = {}
+                  }
+                  parsedBackground.images[index][key].x.align = iv[0]
+                  iv.shift()
+                } else if (
+                  !isDefined(parsedBackground.images[index].position.x.offset)
+                ) {
+                  if (!isDefined(parsedBackground.images[index][key])) {
+                    parsedBackground.images[index][key] = {}
+                  }
+                  if (!isDefined(parsedBackground.images[index][key].x)) {
+                    parsedBackground.images[index][key].x = {}
+                  }
+                  parsedBackground.images[index][key].x.offset = iv[0]
+                  iv.shift()
+                } else if (
+                  !isDefined(parsedBackground.images[index].position.y?.align)
+                ) {
+                  if (!isDefined(parsedBackground.images[index][key])) {
+                    parsedBackground.images[index][key] = {}
+                  }
+                  if (!isDefined(parsedBackground.images[index][key].y)) {
+                    parsedBackground.images[index][key].y = {}
+                  }
+                  parsedBackground.images[index][key].y.align = iv[0]
+                  iv.shift()
+                } else if (
+                  !isDefined(parsedBackground.images[index].position.y.offset)
+                ) {
+                  if (!isDefined(parsedBackground.images[index][key])) {
+                    parsedBackground.images[index][key] = {}
+                  }
+                  if (!isDefined(parsedBackground.images[index][key].y)) {
+                    parsedBackground.images[index][key].y = {}
+                  }
+                  parsedBackground.images[index][key].y.offset = iv[0]
+                  iv.shift()
+                }
+              } else if (
+                isDefined(parsedBackground.images?.[index]) &&
+                !isDefined(parsedBackground.images[index][key])
+              ) {
+                parsedBackground.images[index][key] = iv[0]
+                iv.shift()
+              }
+            }
+          })
+        }
+      })
+    }
 
     parsedBackground.images = parsedBackground.images?.toReversed()
 

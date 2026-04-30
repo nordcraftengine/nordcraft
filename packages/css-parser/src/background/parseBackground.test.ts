@@ -2,6 +2,34 @@ import { describe, expect, test } from 'bun:test'
 import { getParsedBackground } from './parseBackground'
 
 describe('parseBackground', () => {
+  test('The background shorthand with one variable that has an invalid value', () => {
+    expect(
+      getParsedBackground(
+        {
+          background: 'var(--invalidValue)',
+        },
+        [
+          {
+            syntax: {
+              name: '*',
+              type: 'primitive',
+            },
+            description: '',
+            name: '--invalidValue',
+            value:
+              ' 0 10px 15px -3px rgba(0, 0, 0, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.25)',
+          } as any,
+        ],
+      ),
+    ).toEqual({
+      color: {
+        name: 'var',
+        type: 'function',
+        value: '--invalidValue',
+      },
+    })
+  })
+
   test('The background shorthand with all properties is defined', () => {
     expect(
       getParsedBackground(
