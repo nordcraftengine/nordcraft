@@ -461,58 +461,64 @@ export const getParsedBackground = (
                 }
 
                 if (invalidValues.length > 0) {
-                  invalidValues.forEach((iv) => {
+                  invalidValues.forEach((_, index) => {
                     if (isDefined(image.image)) {
                       Object.entries(image.image).forEach(([key, value]) => {
-                        if (
-                          key === 'stops' &&
-                          image.image?.type === 'linear-function'
-                        ) {
-                          image.image[key].forEach((stop, index) => {
-                            Object.entries(stop).forEach(([k, v]) => {
-                              if (
-                                !v &&
-                                image.image?.type === 'linear-function' &&
-                                isDefined(image.image.stops[index])
-                              ) {
-                                if (k === 'color') {
-                                  image.image.stops[index].color = iv
-                                  invalidValues.shift()
-                                } else if (
-                                  k === 'position' &&
-                                  isDefined(image.image.stops[index])
-                                ) {
-                                  if (!image.image.stops[index].position) {
-                                    image.image.stops[index].position = {
-                                      start: iv,
-                                    }
-                                  } else if (
-                                    !image.image.stops[index].position.start
-                                  ) {
-                                    image.image.stops[index].position.start = iv
-                                  } else if (
-                                    !image.image.stops[index].position.end
-                                  ) {
-                                    image.image.stops[index].position.end = iv
-                                  }
-                                  invalidValues.shift()
-                                } else if (k === 'midpoint') {
-                                  image.image.stops[index].midpoint = iv
-                                  invalidValues.shift()
-                                }
-                              }
-                            })
-                          })
-                        } else if (
-                          key === 'interpolation' ||
-                          key === 'direction'
-                        ) {
+                        if (isDefined(invalidValues[index])) {
                           if (
-                            !value &&
+                            key === 'stops' &&
                             image.image?.type === 'linear-function'
                           ) {
-                            image.image[key] = iv
-                            invalidValues.shift()
+                            image.image[key].forEach((stop, index) => {
+                              Object.entries(stop).forEach(([k, v]) => {
+                                if (
+                                  !v &&
+                                  image.image?.type === 'linear-function' &&
+                                  isDefined(image.image.stops[index])
+                                ) {
+                                  if (k === 'color') {
+                                    image.image.stops[index].color =
+                                      invalidValues[index]
+                                    invalidValues.shift()
+                                  } else if (
+                                    k === 'position' &&
+                                    isDefined(image.image.stops[index])
+                                  ) {
+                                    if (!image.image.stops[index].position) {
+                                      image.image.stops[index].position = {
+                                        start: invalidValues[index],
+                                      }
+                                    } else if (
+                                      !image.image.stops[index].position.start
+                                    ) {
+                                      image.image.stops[index].position.start =
+                                        invalidValues[index]
+                                    } else if (
+                                      !image.image.stops[index].position.end
+                                    ) {
+                                      image.image.stops[index].position.end =
+                                        invalidValues[index]
+                                    }
+                                    invalidValues.shift()
+                                  } else if (k === 'midpoint') {
+                                    image.image.stops[index].midpoint =
+                                      invalidValues[index]
+                                    invalidValues.shift()
+                                  }
+                                }
+                              })
+                            })
+                          } else if (
+                            key === 'interpolation' ||
+                            key === 'direction'
+                          ) {
+                            if (
+                              !isDefined(value) &&
+                              image.image?.type === 'linear-function'
+                            ) {
+                              image.image[key] = invalidValues[index]
+                              invalidValues.shift()
+                            }
                           }
                         }
                       })
@@ -532,73 +538,80 @@ export const getParsedBackground = (
                 }
 
                 if (invalidValues.length > 0) {
-                  invalidValues.forEach((iv) => {
+                  invalidValues.forEach((_, index) => {
                     if (isDefined(image.image)) {
                       Object.entries(image.image).forEach(([key, value]) => {
-                        if (
-                          key === 'stops' &&
-                          image.image?.type === 'conic-function'
-                        ) {
-                          image.image[key].forEach((stop, index) => {
-                            Object.entries(stop).forEach(([k, v]) => {
-                              if (
-                                !v &&
-                                image.image?.type === 'conic-function'
-                              ) {
+                        if (isDefined(invalidValues[index])) {
+                          if (
+                            key === 'stops' &&
+                            image.image?.type === 'conic-function'
+                          ) {
+                            image.image[key].forEach((stop, index) => {
+                              Object.entries(stop).forEach(([k, v]) => {
                                 if (
-                                  k === 'color' &&
-                                  isDefined(image.image.stops[index])
+                                  !v &&
+                                  image.image?.type === 'conic-function'
                                 ) {
-                                  image.image.stops[index].color = iv
-                                  invalidValues.shift()
-                                } else if (
-                                  k === 'position' &&
-                                  isDefined(image.image.stops[index])
-                                ) {
-                                  if (!image.image.stops[index].position) {
-                                    image.image.stops[index].position = {
-                                      start: iv,
+                                  if (
+                                    k === 'color' &&
+                                    isDefined(image.image.stops[index])
+                                  ) {
+                                    image.image.stops[index].color =
+                                      invalidValues[index]
+                                    invalidValues.shift()
+                                  } else if (
+                                    k === 'position' &&
+                                    isDefined(image.image.stops[index])
+                                  ) {
+                                    if (!image.image.stops[index].position) {
+                                      image.image.stops[index].position = {
+                                        start: invalidValues[index],
+                                      }
+                                    } else if (
+                                      !image.image.stops[index].position.start
+                                    ) {
+                                      image.image.stops[index].position.start =
+                                        invalidValues[index]
+                                    } else if (
+                                      !image.image.stops[index].position.end
+                                    ) {
+                                      image.image.stops[index].position.end =
+                                        invalidValues[index]
                                     }
-                                  } else if (
-                                    !image.image.stops[index].position.start
-                                  ) {
-                                    image.image.stops[index].position.start = iv
-                                  } else if (
-                                    !image.image.stops[index].position.end
-                                  ) {
-                                    image.image.stops[index].position.end = iv
+                                    invalidValues.shift()
                                   }
-                                  invalidValues.shift()
                                 }
-                              }
+                              })
                             })
-                          })
-                        } else if (key === 'angle') {
-                          if (
-                            !value &&
-                            image.image?.type === 'conic-function'
+                          } else if (key === 'angle') {
+                            if (
+                              !value &&
+                              image.image?.type === 'conic-function'
+                            ) {
+                              image.image[key] = invalidValues[index]
+                              invalidValues.shift()
+                            }
+                          } else if (
+                            key === 'interpolation' &&
+                            invalidValues[index].type !== 'functionArguments'
                           ) {
-                            image.image[key] = iv
-                            invalidValues.shift()
-                          }
-                        } else if (
-                          key === 'interpolation' &&
-                          iv.type !== 'functionArguments'
-                        ) {
-                          if (
-                            !value &&
-                            image.image?.type === 'conic-function'
-                          ) {
-                            image.image[key] = iv
-                            invalidValues.shift()
-                          }
-                        } else if (key === 'position') {
-                          if (
-                            !value &&
-                            image.image?.type === 'conic-function'
-                          ) {
-                            image.image[key] = { x: { align: iv } }
-                            invalidValues.shift()
+                            if (
+                              !value &&
+                              image.image?.type === 'conic-function'
+                            ) {
+                              image.image[key] = invalidValues[index]
+                              invalidValues.shift()
+                            }
+                          } else if (key === 'position') {
+                            if (
+                              !value &&
+                              image.image?.type === 'conic-function'
+                            ) {
+                              image.image[key] = {
+                                x: { align: invalidValues[index] },
+                              }
+                              invalidValues.shift()
+                            }
                           }
                         }
                       })
@@ -619,73 +632,80 @@ export const getParsedBackground = (
                 }
 
                 if (invalidValues.length > 0) {
-                  invalidValues.forEach((iv) => {
+                  invalidValues.forEach((_, index) => {
                     if (isDefined(image.image)) {
                       Object.entries(image.image).forEach(([key, value]) => {
-                        if (
-                          key === 'stops' &&
-                          image.image?.type === 'radial-function'
-                        ) {
-                          image.image[key].forEach((stop, index) => {
-                            Object.entries(stop).forEach(([k, v]) => {
-                              if (
-                                !v &&
-                                image.image?.type === 'radial-function'
-                              ) {
+                        if (isDefined(invalidValues[index])) {
+                          if (
+                            key === 'stops' &&
+                            image.image?.type === 'radial-function'
+                          ) {
+                            image.image[key].forEach((stop, index) => {
+                              Object.entries(stop).forEach(([k, v]) => {
                                 if (
-                                  k === 'color' &&
-                                  isDefined(image.image.stops[index])
+                                  !v &&
+                                  image.image?.type === 'radial-function'
                                 ) {
-                                  image.image.stops[index].color = iv
-                                  invalidValues.shift()
-                                } else if (
-                                  k === 'position' &&
-                                  isDefined(image.image.stops[index])
-                                ) {
-                                  if (!image.image.stops[index].position) {
-                                    image.image.stops[index].position = {
-                                      start: iv,
+                                  if (
+                                    k === 'color' &&
+                                    isDefined(image.image.stops[index])
+                                  ) {
+                                    image.image.stops[index].color =
+                                      invalidValues[index]
+                                    invalidValues.shift()
+                                  } else if (
+                                    k === 'position' &&
+                                    isDefined(image.image.stops[index])
+                                  ) {
+                                    if (!image.image.stops[index].position) {
+                                      image.image.stops[index].position = {
+                                        start: invalidValues[index],
+                                      }
+                                    } else if (
+                                      !image.image.stops[index].position.start
+                                    ) {
+                                      image.image.stops[index].position.start =
+                                        invalidValues[index]
+                                    } else if (
+                                      !image.image.stops[index].position.end
+                                    ) {
+                                      image.image.stops[index].position.end =
+                                        invalidValues[index]
                                     }
-                                  } else if (
-                                    !image.image.stops[index].position.start
-                                  ) {
-                                    image.image.stops[index].position.start = iv
-                                  } else if (
-                                    !image.image.stops[index].position.end
-                                  ) {
-                                    image.image.stops[index].position.end = iv
+                                    invalidValues.shift()
                                   }
-                                  invalidValues.shift()
                                 }
-                              }
+                              })
                             })
-                          })
-                        } else if (key === 'shape' || key === 'size') {
-                          if (
-                            !value &&
-                            image.image?.type === 'radial-function'
+                          } else if (key === 'shape' || key === 'size') {
+                            if (
+                              !value &&
+                              image.image?.type === 'radial-function'
+                            ) {
+                              image.image[key] = invalidValues[index]
+                              invalidValues.shift()
+                            }
+                          } else if (
+                            key === 'interpolation' &&
+                            invalidValues[index].type !== 'functionArguments'
                           ) {
-                            image.image[key] = iv
-                            invalidValues.shift()
-                          }
-                        } else if (
-                          key === 'interpolation' &&
-                          iv.type !== 'functionArguments'
-                        ) {
-                          if (
-                            !value &&
-                            image.image?.type === 'radial-function'
-                          ) {
-                            image.image[key] = iv
-                            invalidValues.shift()
-                          }
-                        } else if (key === 'position') {
-                          if (
-                            !value &&
-                            image.image?.type === 'radial-function'
-                          ) {
-                            image.image[key] = { x: { align: iv } }
-                            invalidValues.shift()
+                            if (
+                              !value &&
+                              image.image?.type === 'radial-function'
+                            ) {
+                              image.image[key] = invalidValues[index]
+                              invalidValues.shift()
+                            }
+                          } else if (key === 'position') {
+                            if (
+                              !value &&
+                              image.image?.type === 'radial-function'
+                            ) {
+                              image.image[key] = {
+                                x: { align: invalidValues[index] },
+                              }
+                              invalidValues.shift()
+                            }
                           }
                         }
                       })
@@ -900,61 +920,75 @@ export const getParsedBackground = (
               }
 
               if (invalidValues.length > 0) {
-                invalidValues.forEach((iv) => {
+                invalidValues.forEach((_, index) => {
                   if (isDefined(image.image)) {
                     Object.entries(image.image).forEach(([key, value]) => {
-                      if (
-                        key === 'stops' &&
-                        image.image?.type === 'linear-function'
-                      ) {
-                        image.image[key].forEach((stop, index) => {
-                          Object.entries(stop).forEach(([k, v]) => {
-                            if (!v && image.image?.type === 'linear-function') {
+                      if (isDefined(invalidValues[index])) {
+                        if (
+                          key === 'stops' &&
+                          image.image?.type === 'linear-function'
+                        ) {
+                          image.image[key].forEach((stop, index) => {
+                            Object.entries(stop).forEach(([k, v]) => {
                               if (
-                                k === 'color' &&
-                                isDefined(image.image.stops[index])
+                                !v &&
+                                image.image?.type === 'linear-function'
                               ) {
-                                image.image.stops[index].color = iv
-                                invalidValues.shift()
-                              } else if (k === 'position') {
                                 if (
-                                  isDefined(image.image.stops[index]) &&
-                                  !isDefined(image.image.stops[index].position)
+                                  k === 'color' &&
+                                  isDefined(image.image.stops[index])
                                 ) {
-                                  image.image.stops[index].position = {
-                                    start: iv,
+                                  image.image.stops[index].color =
+                                    invalidValues[index]
+                                  invalidValues.shift()
+                                } else if (k === 'position') {
+                                  if (
+                                    isDefined(image.image.stops[index]) &&
+                                    !isDefined(
+                                      image.image.stops[index].position,
+                                    )
+                                  ) {
+                                    image.image.stops[index].position = {
+                                      start: invalidValues[index],
+                                    }
+                                  } else if (
+                                    isDefined(image.image.stops[index]) &&
+                                    image.image.stops[index].position &&
+                                    !image.image.stops[index].position.start
+                                  ) {
+                                    image.image.stops[index].position.start =
+                                      invalidValues[index]
+                                  } else if (
+                                    isDefined(image.image.stops[index]) &&
+                                    image.image.stops[index].position &&
+                                    !image.image.stops[index].position.end
+                                  ) {
+                                    image.image.stops[index].position.end =
+                                      invalidValues[index]
                                   }
+                                  invalidValues.shift()
                                 } else if (
-                                  isDefined(image.image.stops[index]) &&
-                                  image.image.stops[index].position &&
-                                  !image.image.stops[index].position.start
+                                  k === 'midpoint' &&
+                                  isDefined(image.image.stops[index])
                                 ) {
-                                  image.image.stops[index].position.start = iv
-                                } else if (
-                                  isDefined(image.image.stops[index]) &&
-                                  image.image.stops[index].position &&
-                                  !image.image.stops[index].position.end
-                                ) {
-                                  image.image.stops[index].position.end = iv
+                                  image.image.stops[index].midpoint =
+                                    invalidValues[index]
+                                  invalidValues.shift()
                                 }
-                                invalidValues.shift()
-                              } else if (
-                                k === 'midpoint' &&
-                                isDefined(image.image.stops[index])
-                              ) {
-                                image.image.stops[index].midpoint = iv
-                                invalidValues.shift()
                               }
-                            }
+                            })
                           })
-                        })
-                      } else if (
-                        key === 'interpolation' ||
-                        key === 'direction'
-                      ) {
-                        if (!value && image.image?.type === 'linear-function') {
-                          image.image[key] = iv
-                          invalidValues.shift()
+                        } else if (
+                          key === 'interpolation' ||
+                          key === 'direction'
+                        ) {
+                          if (
+                            !value &&
+                            image.image?.type === 'linear-function'
+                          ) {
+                            image.image[key] = invalidValues[index]
+                            invalidValues.shift()
+                          }
                         }
                       }
                     })
@@ -976,93 +1010,114 @@ export const getParsedBackground = (
               }
 
               if (invalidValues.length > 0) {
-                invalidValues.forEach((iv) => {
+                invalidValues.forEach((_, index) => {
                   if (isDefined(image.image)) {
                     Object.entries(image.image).forEach(([key, value]) => {
-                      if (
-                        key === 'stops' &&
-                        image.image?.type === 'conic-function'
-                      ) {
-                        if (!value) {
-                          image.image[key] = [{ position: { start: iv } }]
-                        } else {
-                          image.image[key].forEach((stop, index) => {
-                            Object.entries(stop).forEach(([k, v]) => {
-                              if (!v && isDefined(image.image)) {
-                                if (
-                                  k === 'color' &&
-                                  image.image.type !== 'image-set-function' &&
-                                  isDefined(image.image.stops[index])
-                                ) {
-                                  image.image.stops[index].color = iv
-                                  invalidValues.shift()
-                                } else if (k === 'position') {
+                      if (isDefined(invalidValues[index])) {
+                        if (
+                          key === 'stops' &&
+                          image.image?.type === 'conic-function'
+                        ) {
+                          if (!value) {
+                            image.image[key] = [
+                              { position: { start: invalidValues[index] } },
+                            ]
+                          } else {
+                            image.image[key].forEach((stop, index) => {
+                              Object.entries(stop).forEach(([k, v]) => {
+                                if (!v && isDefined(image.image)) {
                                   if (
-                                    image.image.type === 'conic-function' &&
-                                    isDefined(image.image.stops[index]) &&
-                                    !isDefined(
-                                      image.image.stops[index].position,
-                                    )
+                                    k === 'color' &&
+                                    image.image.type !== 'image-set-function' &&
+                                    isDefined(image.image.stops[index])
                                   ) {
-                                    image.image.stops[index].position = {
-                                      start: iv,
+                                    image.image.stops[index].color =
+                                      invalidValues[index]
+                                    invalidValues.shift()
+                                  } else if (k === 'position') {
+                                    if (
+                                      image.image.type === 'conic-function' &&
+                                      isDefined(image.image.stops[index]) &&
+                                      !isDefined(
+                                        image.image.stops[index].position,
+                                      )
+                                    ) {
+                                      image.image.stops[index].position = {
+                                        start: invalidValues[index],
+                                      }
+                                    } else if (
+                                      image.image.type === 'conic-function' &&
+                                      isDefined(image.image.stops[index]) &&
+                                      image.image.stops[index].position &&
+                                      !image.image.stops[index].position.start
+                                    ) {
+                                      image.image.stops[index].position.start =
+                                        invalidValues[index]
+                                    } else if (
+                                      image.image.type === 'conic-function' &&
+                                      isDefined(image.image.stops[index]) &&
+                                      image.image.stops[index].position &&
+                                      !image.image.stops[index].position.end
+                                    ) {
+                                      image.image.stops[index].position.end =
+                                        invalidValues[index]
                                     }
-                                  } else if (
-                                    image.image.type === 'conic-function' &&
-                                    isDefined(image.image.stops[index]) &&
-                                    image.image.stops[index].position &&
-                                    !image.image.stops[index].position.start
-                                  ) {
-                                    image.image.stops[index].position.start = iv
-                                  } else if (
-                                    image.image.type === 'conic-function' &&
-                                    isDefined(image.image.stops[index]) &&
-                                    image.image.stops[index].position &&
-                                    !image.image.stops[index].position.end
-                                  ) {
-                                    image.image.stops[index].position.end = iv
+                                    invalidValues.shift()
                                   }
-                                  invalidValues.shift()
                                 }
-                              }
+                              })
                             })
-                          })
-                        }
-                      } else if (key === 'angle') {
-                        if (!value && image.image?.type === 'conic-function') {
-                          image.image[key] = iv
-                          invalidValues.shift()
-                        }
-                      } else if (
-                        key === 'interpolation' &&
-                        iv.type !== 'functionArguments'
-                      ) {
-                        if (!value && image.image?.type === 'conic-function') {
-                          image.image[key] = iv
-                          invalidValues.shift()
-                        }
-                      } else if (
-                        key === 'position' &&
-                        image.image?.type === 'conic-function'
-                      ) {
-                        if (!value) {
-                          image.image[key] = {
-                            x: { align: iv },
                           }
-                          invalidValues.shift()
-                        } else {
-                          if (image.image[key] && !image.image[key].x?.offset) {
-                            image.image[key].x = {
-                              ...image.image[key].x,
-                              offset: iv,
-                            }
-                          } else if (image.image[key] && !image.image[key].y) {
-                            image.image[key].y = { align: iv }
-                          } else if (
-                            image.image[key]?.y &&
-                            !image.image[key].y.offset
+                        } else if (key === 'angle') {
+                          if (
+                            !value &&
+                            image.image?.type === 'conic-function'
                           ) {
-                            image.image[key].y.offset = iv
+                            image.image[key] = invalidValues[index]
+                            invalidValues.shift()
+                          }
+                        } else if (
+                          key === 'interpolation' &&
+                          invalidValues[index].type !== 'functionArguments'
+                        ) {
+                          if (
+                            !value &&
+                            image.image?.type === 'conic-function'
+                          ) {
+                            image.image[key] = invalidValues[index]
+                            invalidValues.shift()
+                          }
+                        } else if (
+                          key === 'position' &&
+                          image.image?.type === 'conic-function'
+                        ) {
+                          if (!value) {
+                            image.image[key] = {
+                              x: { align: invalidValues[index] },
+                            }
+                            invalidValues.shift()
+                          } else {
+                            if (
+                              image.image[key] &&
+                              !image.image[key].x?.offset
+                            ) {
+                              image.image[key].x = {
+                                ...image.image[key].x,
+                                offset: invalidValues[index],
+                              }
+                            } else if (
+                              image.image[key] &&
+                              !image.image[key].y
+                            ) {
+                              image.image[key].y = {
+                                align: invalidValues[index],
+                              }
+                            } else if (
+                              image.image[key]?.y &&
+                              !image.image[key].y.offset
+                            ) {
+                              image.image[key].y.offset = invalidValues[index]
+                            }
                           }
                         }
                       }
@@ -1086,93 +1141,114 @@ export const getParsedBackground = (
               }
 
               if (invalidValues.length > 0) {
-                invalidValues.forEach((iv) => {
+                invalidValues.forEach((_, index) => {
                   if (isDefined(image.image)) {
                     Object.entries(image.image).forEach(([key, value]) => {
-                      if (
-                        key === 'stops' &&
-                        image.image?.type === 'radial-function'
-                      ) {
-                        if (!value) {
-                          image.image[key] = [{ position: { start: iv } }]
-                        } else {
-                          image.image[key].forEach((stop, index) => {
-                            Object.entries(stop).forEach(([k, v]) => {
-                              if (!v && isDefined(image.image)) {
-                                if (
-                                  k === 'color' &&
-                                  image.image.type !== 'image-set-function' &&
-                                  isDefined(image.image.stops[index])
-                                ) {
-                                  image.image.stops[index].color = iv
-                                  invalidValues.shift()
-                                } else if (k === 'position') {
+                      if (isDefined(invalidValues[index])) {
+                        if (
+                          key === 'stops' &&
+                          image.image?.type === 'radial-function'
+                        ) {
+                          if (!value) {
+                            image.image[key] = [
+                              { position: { start: invalidValues[index] } },
+                            ]
+                          } else {
+                            image.image[key].forEach((stop, index) => {
+                              Object.entries(stop).forEach(([k, v]) => {
+                                if (!v && isDefined(image.image)) {
                                   if (
-                                    image.image.type === 'radial-function' &&
-                                    isDefined(image.image.stops[index]) &&
-                                    !isDefined(
-                                      image.image.stops[index].position,
-                                    )
+                                    k === 'color' &&
+                                    image.image.type !== 'image-set-function' &&
+                                    isDefined(image.image.stops[index])
                                   ) {
-                                    image.image.stops[index].position = {
-                                      start: iv,
+                                    image.image.stops[index].color =
+                                      invalidValues[index]
+                                    invalidValues.shift()
+                                  } else if (k === 'position') {
+                                    if (
+                                      image.image.type === 'radial-function' &&
+                                      isDefined(image.image.stops[index]) &&
+                                      !isDefined(
+                                        image.image.stops[index].position,
+                                      )
+                                    ) {
+                                      image.image.stops[index].position = {
+                                        start: invalidValues[index],
+                                      }
+                                    } else if (
+                                      image.image.type === 'radial-function' &&
+                                      isDefined(image.image.stops[index]) &&
+                                      image.image.stops[index].position &&
+                                      !image.image.stops[index].position.start
+                                    ) {
+                                      image.image.stops[index].position.start =
+                                        invalidValues[index]
+                                    } else if (
+                                      image.image.type === 'radial-function' &&
+                                      isDefined(image.image.stops[index]) &&
+                                      image.image.stops[index].position &&
+                                      !image.image.stops[index].position.end
+                                    ) {
+                                      image.image.stops[index].position.end =
+                                        invalidValues[index]
                                     }
-                                  } else if (
-                                    image.image.type === 'radial-function' &&
-                                    isDefined(image.image.stops[index]) &&
-                                    image.image.stops[index].position &&
-                                    !image.image.stops[index].position.start
-                                  ) {
-                                    image.image.stops[index].position.start = iv
-                                  } else if (
-                                    image.image.type === 'radial-function' &&
-                                    isDefined(image.image.stops[index]) &&
-                                    image.image.stops[index].position &&
-                                    !image.image.stops[index].position.end
-                                  ) {
-                                    image.image.stops[index].position.end = iv
+                                    invalidValues.shift()
                                   }
-                                  invalidValues.shift()
                                 }
-                              }
+                              })
                             })
-                          })
-                        }
-                      } else if (key === 'shape' || key === 'size') {
-                        if (!value && image.image?.type === 'radial-function') {
-                          image.image[key] = iv
-                          invalidValues.shift()
-                        }
-                      } else if (
-                        key === 'interpolation' &&
-                        iv.type !== 'functionArguments'
-                      ) {
-                        if (!value && image.image?.type === 'radial-function') {
-                          image.image[key] = iv
-                          invalidValues.shift()
-                        }
-                      } else if (
-                        key === 'position' &&
-                        image.image?.type === 'radial-function'
-                      ) {
-                        if (!value) {
-                          image.image[key] = {
-                            x: { align: iv },
                           }
-                          invalidValues.shift()
-                        } else {
-                          if (image.image[key] && !image.image[key].x?.offset) {
-                            image.image[key].x = {
-                              ...image.image[key].x,
-                              offset: iv,
-                            }
-                          } else if (image.image[key] && !image.image[key].y) {
-                            image.image[key].y = { align: iv }
-                          } else if (
-                            image.image[key]?.y &&
-                            !image.image[key].y.offset
+                        } else if (key === 'shape' || key === 'size') {
+                          if (
+                            !value &&
+                            image.image?.type === 'radial-function'
                           ) {
-                            image.image[key].y.offset = iv
+                            image.image[key] = invalidValues[index]
+                            invalidValues.shift()
+                          }
+                        } else if (
+                          key === 'interpolation' &&
+                          invalidValues[index].type !== 'functionArguments'
+                        ) {
+                          if (
+                            !value &&
+                            image.image?.type === 'radial-function'
+                          ) {
+                            image.image[key] = invalidValues[index]
+                            invalidValues.shift()
+                          }
+                        } else if (
+                          key === 'position' &&
+                          image.image?.type === 'radial-function'
+                        ) {
+                          if (!value) {
+                            image.image[key] = {
+                              x: { align: invalidValues[index] },
+                            }
+                            invalidValues.shift()
+                          } else {
+                            if (
+                              image.image[key] &&
+                              !image.image[key].x?.offset
+                            ) {
+                              image.image[key].x = {
+                                ...image.image[key].x,
+                                offset: invalidValues[index],
+                              }
+                            } else if (
+                              image.image[key] &&
+                              !image.image[key].y
+                            ) {
+                              image.image[key].y = {
+                                align: invalidValues[index],
+                              }
+                            } else if (
+                              image.image[key]?.y &&
+                              !image.image[key].y.offset
+                            ) {
+                              image.image[key].y.offset = invalidValues[index]
+                            }
                           }
                         }
                       }
