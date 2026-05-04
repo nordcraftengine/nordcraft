@@ -896,11 +896,6 @@ export const createRoot = (
             type: 'computedStyle',
             computedStyle: Object.fromEntries(
               (styles ?? []).map((style) => {
-                console.log('style', style)
-                console.log(
-                  'computedStyle.getPropertyValue(style)',
-                  computedStyle.getPropertyValue(style),
-                )
                 const input = computedStyle.getPropertyValue(style)
 
                 // If it is a number or number with unit we want to round to 2 decimal
