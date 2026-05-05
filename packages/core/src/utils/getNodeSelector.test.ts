@@ -54,4 +54,13 @@ describe('getNodeSelector', () => {
     const selector = getNodeSelector(path)
     expect(selector).toBe('[data-id="0.1\\/2"]')
   })
+
+  test('should prefix selector with an underscore if it starts with a number', () => {
+    const path = '0.1\\/2'
+    const selector = getNodeSelector(path, {
+      componentName: '404',
+      nodeId: 'test-node',
+    })
+    expect(selector).toBe('[data-id="0.1\\/2"]._404\\:test-node')
+  })
 })
