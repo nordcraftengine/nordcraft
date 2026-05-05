@@ -3029,3 +3029,134 @@ describe('parseBackground', () => {
     })
   })
 })
+
+describe('parseBackground', () => {
+  test('The linear background shorthand with invalid value for an angle', () => {
+    expect(
+      getParsedBackground(
+        {
+          background:
+            'linear-gradient(wjote, #fff200 0% 100%, white 50%, white 55%, yellow 100%) scroll border-box padding-box repeat repeat 0% 0% / auto',
+        },
+        [],
+      ),
+    ).toEqual({
+      images: [
+        {
+          image: {
+            name: 'linear-gradient',
+            type: 'linear-function',
+            stops: [
+              {
+                color: {
+                  type: 'hex',
+                  value: '#fff200',
+                },
+                position: {
+                  start: {
+                    type: 'length',
+                    unit: '%',
+                    value: '0',
+                  },
+                  end: {
+                    type: 'length',
+                    unit: '%',
+                    value: '100',
+                  },
+                },
+              },
+              {
+                color: {
+                  type: 'keyword',
+                  value: 'white',
+                },
+                position: {
+                  start: {
+                    type: 'length',
+                    unit: '%',
+                    value: '50',
+                  },
+                },
+              },
+              {
+                color: {
+                  type: 'keyword',
+                  value: 'white',
+                },
+                position: {
+                  start: {
+                    type: 'length',
+                    unit: '%',
+                    value: '55',
+                  },
+                },
+              },
+              {
+                color: {
+                  type: 'keyword',
+                  value: 'yellow',
+                },
+                position: {
+                  start: {
+                    type: 'length',
+                    unit: '%',
+                    value: '100',
+                  },
+                },
+              },
+            ],
+            direction: {
+              type: 'keyword',
+              value: 'wjote',
+            },
+          },
+          position: {
+            x: {
+              offset: {
+                type: 'length',
+                unit: '%',
+                value: '0',
+              },
+            },
+            y: {
+              offset: {
+                type: 'length',
+                unit: '%',
+                value: '0',
+              },
+            },
+          },
+          repeat: {
+            horizontal: {
+              type: 'keyword',
+              value: 'repeat',
+            },
+            vertical: {
+              type: 'keyword',
+              value: 'repeat',
+            },
+          },
+          size: {
+            type: 'widthHeight',
+            width: {
+              type: 'keyword',
+              value: 'auto',
+            },
+          },
+          origin: {
+            type: 'keyword',
+            value: 'border-box',
+          },
+          clip: {
+            type: 'keyword',
+            value: 'padding-box',
+          },
+          attachment: {
+            type: 'keyword',
+            value: 'scroll',
+          },
+        },
+      ],
+    })
+  })
+})
