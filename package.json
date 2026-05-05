@@ -23,7 +23,7 @@
     "eslint": "10.2.0",
     "happy-dom": "20.8.9",
     "prettier-plugin-organize-imports": "4.3.0",
-    "prettier": "3.8.1"
+    "prettier": "3.8.3"
   },
   "scripts": {
     "build": "cd packages/core && bun run build && cd ../lib && bun run build && cd ../ssr && bun run build && cd ../search && bun run build && cd ../runtime && bun run build",
