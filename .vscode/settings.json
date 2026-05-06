@@ -69,4 +69,5 @@
     "typescriptreact"
   ],
   "typescript.preferences.autoImportSpecifierExcludeRegexes": ["^lodash$"],
-  "typescript.experimental.useTsgo": true}
+  "typescript.experimental.useTsgo": true
+}
