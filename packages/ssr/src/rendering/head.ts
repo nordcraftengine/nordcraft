@@ -8,7 +8,7 @@ import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core/dist/styling/th
 import { easySort } from '@nordcraft/core/dist/utils/collections'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { validateUrl } from '@nordcraft/core/dist/utils/url'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { escapeAttrValue } from '../rendering/attributes'
 import type { ProjectFiles, ToddleProject } from '../ssr.types'
 import { isCloudflareImagePath } from '../utils/media'
@@ -277,44 +277,51 @@ export const getHeadItems = ({
       Object.entries(pageInfo.meta),
       // Sort by index if it exists
       ([_, meta]) => meta.index ?? Infinity,
-    ).forEach(([id, metaEntry]) => {
-      if (Object.values(HeadTagTypes).includes(metaEntry.tag)) {
-        // If the tag has a name or property attribute, we use that as the key
-        // to avoid duplicates and to ensure sorting of tags later
-        const key = Object.entries(metaEntry.attrs ?? {}).find(
-          ([key]) => key === 'name' || key === 'property',
-        )
-        const headItemKey: HeadItemType = `${metaEntry.tag}:${
-          isDefined(key) ? applyFormula(key[1], context) : (id ?? nanoid())
-        }`
-        headItems.set(
-          headItemKey,
-          // Add the id to the tag so it's easier to dynamically update it later
-          // from our runtime (main.ts)
-          `<${metaEntry.tag} data-toddle-id="${id}" ${Object.entries(
-            metaEntry.attrs ?? {},
+    )
+      .filter(
+        ([_, meta]) =>
+          // Only include enabled meta tags
+          !isDefined(meta.enabled) ||
+          toBoolean(applyFormula(meta.enabled, context)),
+      )
+      .forEach(([id, metaEntry]) => {
+        if (Object.values(HeadTagTypes).includes(metaEntry.tag)) {
+          // If the tag has a name or property attribute, we use that as the key
+          // to avoid duplicates and to ensure sorting of tags later
+          const key = Object.entries(metaEntry.attrs ?? {}).find(
+            ([key]) => key === 'name' || key === 'property',
           )
-            .map(([key, formula]) => {
-              const value = applyFormula(formula, context)
-              if (value === true) {
-                // If the value is true, we just return the key - this is useful
-                // for tags like <script async> where async doesn't have a value
-                return key
-              }
-              return `${key}="${escapeAttrValue(value)}"`
-            })
-            .join(' ')} ${
-            VOID_HTML_ELEMENTS.includes(metaEntry.tag)
-              ? `/>`
-              : `>${
-                  metaEntry.content
-                    ? applyFormula(metaEntry.content, context)
-                    : ''
-                }</${metaEntry.tag}>`
-          }`,
-        )
-      }
-    })
+          const headItemKey: HeadItemType = `${metaEntry.tag}:${
+            isDefined(key) ? applyFormula(key[1], context) : (id ?? nanoid())
+          }`
+          headItems.set(
+            headItemKey,
+            // Add the id to the tag so it's easier to dynamically update it later
+            // from our runtime (main.ts)
+            `<${metaEntry.tag} data-toddle-id="${id}" ${Object.entries(
+              metaEntry.attrs ?? {},
+            )
+              .map(([key, formula]) => {
+                const value = applyFormula(formula, context)
+                if (value === true) {
+                  // If the value is true, we just return the key - this is useful
+                  // for tags like <script async> where async doesn't have a value
+                  return key
+                }
+                return `${key}="${escapeAttrValue(value)}"`
+              })
+              .join(' ')} ${
+              VOID_HTML_ELEMENTS.includes(metaEntry.tag)
+                ? `/>`
+                : `>${
+                    metaEntry.content
+                      ? applyFormula(metaEntry.content, context)
+                      : ''
+                  }</${metaEntry.tag}>`
+            }`,
+          )
+        }
+      })
   }
   return headItems
 }

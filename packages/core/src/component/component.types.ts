@@ -143,6 +143,7 @@ export interface MetaEntry {
   attrs?: Nullable<Record<string, Formula>>
   content?: Nullable<Formula>
   index?: Nullable<number>
+  enabled?: Nullable<Formula>
 }
 
 export interface StaticPathSegment {
