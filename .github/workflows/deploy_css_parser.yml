@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - update-actions-on-css-parser
     paths:
       # Only deploy css-parser when files in the packages/css-parser/ directory are changed
       - 'packages/css-parser/**'
