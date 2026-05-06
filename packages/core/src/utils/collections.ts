@@ -29,7 +29,7 @@ export const mapValues = <T, T2>(
  */
 export const omit = <T = object>(
   collection: T,
-  [key, ...rest]: Array<string | number>,
+  [key, ...rest]: Array<string | number | symbol>,
 ): T => {
   if (rest.length > 0) {
     const clone: any = Array.isArray(collection)
@@ -60,8 +60,10 @@ export const omitKeys = <T extends Record<string, any>>(
     Object.entries(object).filter(([k]) => !keys.includes(k)),
   ) as T
 
-export const omitPaths = (object: Record<string, any>, keys: string[][]) =>
-  keys.reduce((acc, key) => omit(acc, key), { ...object })
+export const omitPaths = <T extends Record<string, any>>(
+  object: T,
+  keys: Array<Array<keyof T>>,
+): T => keys.reduce((acc, key) => omit(acc, key), { ...object })
 
 export const groupBy = <T>(items: T[], f: (t: T) => string) =>
   items.reduce<Record<string, T[]>>((acc, item) => {
