@@ -13,9 +13,14 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - name: Install bun
         uses: oven-sh/setup-bun@v2
         with:
