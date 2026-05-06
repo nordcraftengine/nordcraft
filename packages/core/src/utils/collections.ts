@@ -60,7 +60,7 @@ export const omitKeys = <T extends Record<string, any>>(
     Object.entries(object).filter(([k]) => !keys.includes(k)),
   ) as T
 
-// This adds type safety to the omit function, ensuring that the first key in the path is a valid key of the object, while the rest of the keys can be any property key (string, number, or symbol)
+// This adds type safety to the omitPaths function, ensuring that the first key in the path is a valid key of the object, while the rest of the keys can be any property key (string, number, or symbol)
 type ValidPath<T> = [keyof T, ...PropertyKey[]]
 export const omitPaths = <T extends Record<string, any>>(
   object: T,
