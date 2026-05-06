@@ -69,6 +69,4 @@
     "typescriptreact"
   ],
   "typescript.preferences.autoImportSpecifierExcludeRegexes": ["^lodash$"],
-  "typescript.experimental.useTsgo": true,
-  "typescript.native-preview.tsdk": "/Users/marijagerasimovska/Documents/ToddleProjects/toddle/node_modules/@typescript/native-preview"
-}
+  "typescript.experimental.useTsgo": true}
