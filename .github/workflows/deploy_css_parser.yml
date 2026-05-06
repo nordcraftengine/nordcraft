@@ -7,6 +7,7 @@ on:
     paths:
       # Only deploy css-parser when files in the packages/css-parser/ directory are changed
       - 'packages/css-parser/**'
+      - '.github/workflows/deploy_css_parser.yml'
 
 jobs:
   deploy:
