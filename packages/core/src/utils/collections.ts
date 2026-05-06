@@ -29,7 +29,7 @@ export const mapValues = <T, T2>(
  */
 export const omit = <T = object>(
   collection: T,
-  [key, ...rest]: Array<string | number>,
+  [key, ...rest]: Array<PropertyKey>,
 ): T => {
   if (rest.length > 0) {
     const clone: any = Array.isArray(collection)
@@ -60,8 +60,12 @@ export const omitKeys = <T extends Record<string, any>>(
     Object.entries(object).filter(([k]) => !keys.includes(k)),
   ) as T
 
-export const omitPaths = (object: Record<string, any>, keys: string[][]) =>
-  keys.reduce((acc, key) => omit(acc, key), { ...object })
+// This adds type safety to the omitPaths function, ensuring that the first key in the path is a valid key of the object, while the rest of the keys can be any property key. Empty paths are also allowed.
+type ValidPath<T> = [] | [keyof T, ...PropertyKey[]]
+export const omitPaths = <T extends Record<string, any>>(
+  object: T,
+  keys: Array<ValidPath<T>>,
+): T => keys.reduce((acc, key) => omit(acc, key), { ...object })
 
 export const groupBy = <T>(items: T[], f: (t: T) => string) =>
   items.reduce<Record<string, T[]>>((acc, item) => {
@@ -78,7 +82,7 @@ export const filterObject = <T>(
 
 export function get<T = any>(
   collection: T,
-  [head, ...rest]: Array<string | number>,
+  [head, ...rest]: Array<PropertyKey>,
 ): any {
   const headItem = isDefined(head) ? (collection as any)?.[head] : undefined
   if (rest.length === 0) {
@@ -89,7 +93,7 @@ export function get<T = any>(
 
 export const set = <T = unknown>(
   collection: T,
-  key: Array<string | number>,
+  key: Array<PropertyKey>,
   value: any,
 ): T => {
   const [head, ...rest] = key
