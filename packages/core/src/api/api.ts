@@ -367,13 +367,11 @@ export const getRequestBody = ({
       return ''
     }
     case 'multipart/form-data': {
-      const formData = new FormData()
       if (typeof body === 'object' && body !== null) {
-        Object.entries(body).forEach(([key, value]) => {
-          formData.set(key, value as string | Blob)
-        })
+        return toFormData(body)
+      } else {
+        return new FormData()
       }
-      return formData
     }
     case 'text/plain':
       return String(body)
@@ -381,6 +379,37 @@ export const getRequestBody = ({
       // For other content types, we return the body as is
       return body
   }
+}
+
+/**
+ * Converts a plain object to FormData, supporting nested objects and arrays.
+ */
+export const toFormData = (body: Record<string, unknown>): FormData => {
+  const formData = new FormData()
+  for (const [key, value] of Object.entries(body)) {
+    if (value === null || value === undefined) {
+      continue
+    }
+    const values = Array.isArray(value) ? value : [value]
+    for (const v of values) {
+      if (v === null || v === undefined) {
+        continue
+      }
+      if (v instanceof File) {
+        formData.append(key, v, v.name)
+      } else if (v instanceof Blob) {
+        formData.append(key, v)
+      } else if (['string', 'number', 'boolean'].includes(typeof v)) {
+        formData.append(key, String(v))
+      } else if (typeof v === 'object') {
+        formData.append(key, JSON.stringify(v))
+      } else {
+        // Unsupported value type
+        continue
+      }
+    }
+  }
+  return formData
 }
 
 export const createApiEvent = (
