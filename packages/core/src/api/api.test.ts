@@ -7,6 +7,7 @@ import {
   getRequestPath,
   getRequestQueryParams,
   getUrl,
+  toFormData,
 } from './api'
 import type { ApiRequest } from './apiTypes'
 import { ApiMethod } from './apiTypes'
@@ -416,5 +417,72 @@ describe('getRequestBody', () => {
       method: ApiMethod.POST,
     })
     expect(body).toBeInstanceOf(File)
+  })
+})
+
+describe('toFormData()', () => {
+  it('converts a simple object to FormData', () => {
+    const body = {
+      name: 'John Doe',
+      age: 30,
+      active: true,
+    }
+    const formData = toFormData(body)
+    expect(formData.get('name')).toBe('John Doe')
+    expect(formData.get('age')).toBe('30')
+    expect(formData.get('active')).toBe('true')
+  })
+
+  it('handles arrays by appending multiple values', () => {
+    const body = {
+      tags: ['tag1', 'tag2'],
+    }
+    const formData = toFormData(body)
+    expect(formData.getAll('tags')).toEqual(['tag1', 'tag2'])
+  })
+
+  it('skips null and undefined values', () => {
+    const body = {
+      name: 'John Doe',
+      age: null,
+      active: undefined,
+    }
+    const formData = toFormData(body)
+    expect(formData.get('name')).toBe('John Doe')
+    expect(formData.has('age')).toBe(false)
+    expect(formData.has('active')).toBe(false)
+  })
+
+  it('handles nested objects by stringifying them', () => {
+    const body = {
+      user: { id: 1, name: 'John' },
+    }
+    const formData = toFormData(body)
+    expect(formData.get('user')).toBe(JSON.stringify(body.user))
+  })
+
+  it('handles File and Blob objects', () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const blob = new Blob(['blob content'], {
+      type: 'application/octet-stream',
+    })
+    const body = {
+      file,
+      blob,
+    }
+    const formData = toFormData(body)
+    expect(formData.get('file')).toBeInstanceOf(File)
+    expect((formData.get('file') as File).name).toBe('test.txt')
+    expect(formData.get('blob')).toBeInstanceOf(Blob)
+  })
+
+  it('skips unsupported value types', () => {
+    const body = {
+      fn: () => {},
+      valid: 'working',
+    }
+    const formData = toFormData(body)
+    expect(formData.has('fn')).toBe(false)
+    expect(formData.get('valid')).toBe('working')
   })
 })

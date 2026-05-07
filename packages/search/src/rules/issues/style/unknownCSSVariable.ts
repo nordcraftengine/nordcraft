@@ -81,6 +81,21 @@ export const unknownCSSVariableRule: IssueRule<
                 }
               })
             })
+
+            // If the node is a component, add variables declared on the component's root
+            if (node.type === 'component') {
+              const referencedComponent = files.components[node.name]
+              if (referencedComponent) {
+                const rootNode = referencedComponent.nodes?.root
+                if (rootNode) {
+                  Object.keys((rootNode as any).customProperties ?? {}).forEach(
+                    (varName) => {
+                      vars.add(varName)
+                    },
+                  )
+                }
+              }
+            }
           }
 
           const parent = Object.entries(component.nodes ?? {}).find(([_, n]) =>

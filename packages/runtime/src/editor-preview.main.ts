@@ -895,10 +895,24 @@ export const createRoot = (
           postMessageToEditor({
             type: 'computedStyle',
             computedStyle: Object.fromEntries(
-              (styles ?? []).map((style) => [
-                style,
-                computedStyle.getPropertyValue(style),
-              ]),
+              (styles ?? []).map((style) => {
+                const input = computedStyle.getPropertyValue(style)
+
+                // If it is a number or number with unit we want to round to 2 decimal
+                if (parseFloat(input)) {
+                  const splited = input.match(/([0-9.]+)\s*(.*)/) ?? ''
+
+                  const number = splited[1]
+                  const unit = splited[2]
+
+                  const roundNumber = Number(Number(number).toFixed(2))
+                  const result = roundNumber.toString() + unit
+
+                  return [style, result]
+                }
+
+                return [style, computedStyle.getPropertyValue(style)]
+              }),
             ),
           })
           break

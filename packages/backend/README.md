@@ -39,7 +39,7 @@ bun run preview
 The [Dockerfile](/Dockerfile) uses a distroless Debian 12 image to run the backend in a lightweight container. To summarize its steps:
 
 - **Build Stage**
-  - Use [oven/bun:1.3.3-debian](https://hub.docker.com/r/oven/bun/tags) as the base image.
+  - Use [oven/bun:1.3.13-debian](https://hub.docker.com/r/oven/bun/tags) as the base image.
   - Set working directory to `/app`.
   - Copy lockfiles and package manifests.
   - Copy package-specific package.json files and dist folder.
