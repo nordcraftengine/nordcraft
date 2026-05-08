@@ -457,6 +457,8 @@ export const getParsedAnimation = (
   }
 }
 
+const cssFunctions = ['calc', 'clamp', 'max', 'min']
+
 const parseAnimation = ({
   valueToCheck,
   valueToReturn,
@@ -602,6 +604,20 @@ const parseAnimation = ({
         }
       }
     })
+  } else if (
+    valueToCheck.type === 'function' &&
+    cssFunctions.includes(valueToCheck.name)
+  ) {
+    const validTimeValue = checkIfTimeValues({
+      valueToCheck: valueToCheck.value,
+      variables,
+      isCalc: valueToCheck.name === 'calc',
+    })
+    if (validTimeValue && !durationSet) {
+      duration = returnValue
+    } else if (validTimeValue && durationSet) {
+      delay = returnValue
+    }
   } else {
     invalidValue = true
   }
@@ -616,4 +632,97 @@ const parseAnimation = ({
     name,
     invalidValue,
   }
+}
+
+const checkIfTimeValues = ({
+  valueToCheck,
+  variables,
+  isCalc,
+}: {
+  valueToCheck?: string
+  variables: CSSStyleToken[]
+  isCalc: boolean
+}): boolean => {
+  const parsedFunc = parse({ input: valueToCheck })
+
+  let validValue = true
+
+  parsedFunc.forEach((parsed) => {
+    const getValueRes = getValue(parsed)
+    const parseMultipleValuesRes = parseMultipleValues(getValueRes)
+
+    for (
+      let i = 0;
+      i < parseMultipleValuesRes.length;
+      isCalc ? (i = i + 2) : i++
+    ) {
+      const val = parseMultipleValuesRes[i]
+      if (validValue && isDefined(val)) {
+        if (val.type === 'function' && cssFunctions.includes(val.name)) {
+          const t2 = checkIfTimeValues({
+            valueToCheck: val.value,
+            variables,
+            isCalc: val.name === 'calc',
+          })
+          validValue = t2
+        } else if (val.type === 'function' && val.name === 'var') {
+          // If it's a variable
+          const allValues = val.value.split(', ')
+          allValues.forEach((val) => {
+            if (isVariable(val)) {
+              const usedVariable = variables.find((v) =>
+                v.name.startsWith('--')
+                  ? v.name === val
+                  : `--${v.name}` === val,
+              )
+              if (!usedVariable) {
+                return
+              }
+
+              const valueWithoutUnit = usedVariable.unit
+                ? usedVariable.value.replaceAll(usedVariable.unit, '')
+                : usedVariable.value
+
+              const pars = parse({ input: valueWithoutUnit })
+              const va = getValue(pars[0])
+              const parsedVariable = parseMultipleValues(va)
+
+              if (
+                isDefined(parsedVariable[0]) &&
+                parsedVariable[0].type === 'function' &&
+                (cssFunctions.includes(parsedVariable[0].name) ||
+                  parsedVariable[0].name === 'var')
+              ) {
+                validValue = checkIfTimeValues({
+                  valueToCheck: parsedVariable[0].value,
+                  variables,
+                  isCalc: parsedVariable[0].name === 'calc',
+                })
+              } else if (
+                isDefined(parsedVariable[0]) &&
+                parsedVariable[0].type !== 'time'
+              ) {
+                validValue = false
+              }
+            } else {
+              const parsedVariable = parseMultipleValues([
+                { type: 'word', value: val },
+              ])
+
+              if (
+                isDefined(parsedVariable[0]) &&
+                parsedVariable[0].type !== 'time'
+              ) {
+                validValue = false
+              }
+            }
+          })
+        } else if (val.type !== 'time') {
+          validValue = false
+        }
+      }
+    }
+  })
+
+  return validValue
 }
