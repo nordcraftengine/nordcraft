@@ -46,9 +46,6 @@ import type { NoReferenceAttributeRuleFix } from './rules/issues/attributes/noRe
 import type { UnknownComponentAttributeRuleFix } from './rules/issues/attributes/unknownComponentAttributeRule'
 import type { ChangeDataTypeFix } from './rules/issues/components/invalidComponentStructureRule'
 import type { NoReferenceComponentRuleFix } from './rules/issues/components/noReferenceComponentRule'
-import type { NoReferenceContextFormulaRuleFix } from './rules/issues/context/noReferenceContextFormulaRule'
-import type { NoReferenceContextWorkflowRuleFix } from './rules/issues/context/noReferenceContextWorkflowRule'
-import type { UnknownContextFormulaRuleFix } from './rules/issues/context/unknownContextFormulaRule'
 import type { NoReferenceEventRuleFix } from './rules/issues/events/noReferenceEventRule'
 import type { LegacyFormulaRuleFix } from './rules/issues/formulas/legacyFormulaRule'
 import type { NoReferenceComponentFormulaRuleFix } from './rules/issues/formulas/noReferenceComponentFormulaRule'
@@ -62,7 +59,6 @@ import type { NoReferenceAnimationRuleFix } from './rules/issues/style/noReferen
 import type { AddToThemeFix } from './rules/issues/style/unknownCSSVariable'
 import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noReferenceVariableRule'
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
-import type { UnknownContextWorkflowRuleFix } from './rules/issues/workflows/unknownContextWorkflowRule'
 
 export type Code =
   | 'duplicate action argument name'
@@ -96,8 +92,6 @@ export type Code =
   | 'no-reference component formula'
   | 'no-reference component workflow'
   | 'no-reference component'
-  | 'no-reference context formula'
-  | 'no-reference context workflow'
   | 'no-reference event'
   | 'no-reference global css variable'
   | 'no-reference node'
@@ -106,7 +100,6 @@ export type Code =
   | 'no-reference project package'
   | 'no-reference variable'
   | 'no-static-node-condition'
-  | 'no-reference context formula'
   | 'no-unnecessary-condition-falsy'
   | 'no-unnecessary-condition-truthy'
   | 'non-empty void element'
@@ -490,8 +483,6 @@ export type FixType =
   | NoReferenceAttributeRuleFix
   | NoReferenceComponentFormulaRuleFix
   | NoReferenceComponentRuleFix
-  | NoReferenceContextFormulaRuleFix
-  | NoReferenceContextWorkflowRuleFix
   | NoReferenceEventRuleFix
   | NoReferenceNodeRuleFix
   | NoReferenceProjectActionRuleFix
@@ -503,8 +494,6 @@ export type FixType =
   | UnknownApiServiceRuleFix
   | UnknownComponentAttributeRuleFix
   | NoReferenceProjectPackageRuleFix
-  | UnknownContextFormulaRuleFix
-  | UnknownContextWorkflowRuleFix
 
 interface ReportedIssueInfo {
   title: string
