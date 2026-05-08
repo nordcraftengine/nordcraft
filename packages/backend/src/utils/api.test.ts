@@ -6,7 +6,7 @@ import type {
 } from '@nordcraft/core/dist/formula/formula'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { beforeEach, describe, expect, it, spyOn } from 'bun:test'
-import { evaluateComponentApis } from './api'
+import { evaluateComponentApis, RedirectError } from './api'
 
 const spyFetch = spyOn(globalThis, 'fetch')
 
@@ -319,5 +319,237 @@ describe('evaluateComponentApis', () => {
       receivedToken: 'my-session-id',
     })
     expect(spyFetch).toHaveBeenCalled()
+  })
+
+  it('should trigger redirect if redirectRule returns a string', async () => {
+    const mockApi = new ToddleApiV2(
+      {
+        name: 'testApi',
+        version: 2,
+        type: 'http',
+        url: { type: 'value', value: 'https://example.com/api' },
+        method: ApiMethod.GET,
+        inputs: {},
+        autoFetch: { type: 'value', value: true },
+        server: {
+          ssr: { enabled: { formula: valueFormula(true) } },
+        },
+        redirectRules: {
+          rule1: {
+            formula: { type: 'value', value: '/login' },
+            index: 0,
+          },
+        },
+      },
+      'testApi',
+      {},
+    )
+
+    const formulaContext: FormulaContext = {
+      component: { name: 'TestComponent' },
+      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
+      package: null,
+      toddle: {
+        getFormula: () => undefined,
+        getCustomFormula: () => undefined,
+        errors: [],
+      },
+      env: {
+        branchName: 'main',
+        isServer: true,
+        request: {
+          headers: {},
+          cookies: {},
+          url: 'http://localhost:3000/page',
+        },
+        logErrors: false,
+      } as ToddleServerEnv,
+    }
+
+    const mockResponse = async () =>
+      new Response(JSON.stringify({ redirect: true }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }) as any
+
+    spyFetch.mockImplementation(mockResponse as any)
+
+    try {
+      await evaluateComponentApis({
+        component: {
+          name: 'TestComponent',
+          apis: { testApi: mockApi },
+        } as any,
+        formulaContext,
+        req: new Request('http://localhost:3000/page'),
+        apiCache: {},
+        updateApiCache: () => {},
+      })
+      throw new Error('Should have thrown RedirectError')
+    } catch (e) {
+      expect(e).toBeInstanceOf(RedirectError)
+      const redirectError = e as RedirectError
+      expect(redirectError.redirect.url.href).toBe(
+        'http://localhost:3000/login',
+      )
+      expect(redirectError.redirect.statusCode).toBe(302)
+    }
+  })
+
+  it('should use numeric status code in redirectRule', async () => {
+    const mockApi = new ToddleApiV2(
+      {
+        name: 'testApi',
+        version: 2,
+        type: 'http',
+        url: { type: 'value', value: 'https://example.com/api' },
+        method: ApiMethod.GET,
+        inputs: {},
+        autoFetch: { type: 'value', value: true },
+        server: {
+          ssr: { enabled: { formula: valueFormula(true) } },
+        },
+        redirectRules: {
+          rule1: {
+            formula: { type: 'value', value: '/login' },
+            index: 0,
+            statusCode: valueFormula(301),
+          },
+        },
+      },
+      'testApi',
+      {},
+    )
+
+    const formulaContext: FormulaContext = {
+      component: { name: 'TestComponent' },
+      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
+      package: null,
+      toddle: {
+        getFormula: () => undefined,
+        getCustomFormula: () => undefined,
+        errors: [],
+      },
+      env: {
+        branchName: 'main',
+        isServer: true,
+        request: {
+          headers: {},
+          cookies: {},
+          url: 'http://localhost:3000/page',
+        },
+        logErrors: false,
+      } as ToddleServerEnv,
+    }
+
+    const mockResponse = async () =>
+      new Response(JSON.stringify({ redirect: true }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }) as any
+
+    spyFetch.mockImplementation(mockResponse as any)
+
+    try {
+      await evaluateComponentApis({
+        component: {
+          name: 'TestComponent',
+          apis: { testApi: mockApi },
+        } as any,
+        formulaContext,
+        req: new Request('http://localhost:3000/page'),
+        apiCache: {},
+        updateApiCache: () => {},
+      })
+      throw new Error('Should have thrown RedirectError')
+    } catch (e) {
+      expect(e).toBeInstanceOf(RedirectError)
+      const redirectError = e as RedirectError
+      expect(redirectError.redirect.url.href).toBe(
+        'http://localhost:3000/login',
+      )
+      expect(redirectError.redirect.statusCode).toBe(301)
+    }
+  })
+
+  it('should support formula for redirectRule status code', async () => {
+    const mockApi = new ToddleApiV2(
+      {
+        name: 'testApi',
+        version: 2,
+        type: 'http',
+        url: { type: 'value', value: 'https://example.com/api' },
+        method: ApiMethod.GET,
+        inputs: {},
+        autoFetch: { type: 'value', value: true },
+        server: {
+          ssr: { enabled: { formula: valueFormula(true) } },
+        },
+        redirectRules: {
+          rule1: {
+            formula: { type: 'value', value: '/login' },
+            index: 0,
+            statusCode: {
+              type: 'path',
+              path: ['Apis', 'testApi', 'response', 'status'],
+            } as any,
+          },
+        },
+      },
+      'testApi',
+      {},
+    )
+
+    const formulaContext: FormulaContext = {
+      component: { name: 'TestComponent' },
+      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
+      package: null,
+      toddle: {
+        getFormula: () => undefined,
+        getCustomFormula: () => undefined,
+        errors: [],
+      },
+      env: {
+        branchName: 'main',
+        isServer: true,
+        request: {
+          headers: {},
+          cookies: {},
+          url: 'http://localhost:3000/page',
+        },
+        logErrors: false,
+      } as ToddleServerEnv,
+    }
+
+    const mockResponse = async () =>
+      new Response(JSON.stringify({ redirect: true }), {
+        status: 307,
+        headers: {
+          'content-type': 'application/json',
+        },
+      }) as any
+
+    spyFetch.mockImplementation(mockResponse as any)
+
+    try {
+      await evaluateComponentApis({
+        component: {
+          name: 'TestComponent',
+          apis: { testApi: mockApi },
+        } as any,
+        formulaContext,
+        req: new Request('http://localhost:3000/page'),
+        apiCache: {},
+        updateApiCache: () => {},
+      })
+      throw new Error('Should have thrown RedirectError')
+    } catch (e) {
+      expect(e).toBeInstanceOf(RedirectError)
+      const redirectError = e as RedirectError
+      expect(redirectError.redirect.url.href).toBe(
+        'http://localhost:3000/login',
+      )
+      expect(redirectError.redirect.statusCode).toBe(307)
+    }
   })
 })

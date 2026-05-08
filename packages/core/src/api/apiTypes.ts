@@ -42,7 +42,10 @@ export enum ApiMethod {
   OPTIONS = 'OPTIONS',
 }
 
-export type RedirectStatusCode = 300 | 301 | 302 | 303 | 304 | 307 | 308
+
+export const REDIRECT_STATUS_CODES = [300, 301, 302, 303, 304, 307, 308] as const
+
+export type RedirectStatusCode = typeof REDIRECT_STATUS_CODES[number]
 
 export type ApiParserMode =
   | 'auto'
@@ -122,7 +125,7 @@ export interface ApiRequest extends ApiBase {
         // A redirect response will be returned if the formula returns a valid url
         formula: Formula
         // The status code used in the redirect response. Only relevant server side
-        statusCode?: Nullable<RedirectStatusCode>
+        statusCode?: Nullable<Formula>
         index: number
       }
     >
