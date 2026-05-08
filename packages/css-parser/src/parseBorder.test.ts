@@ -235,6 +235,32 @@ describe('parseBorder', () => {
     })
   })
 
+  test('Single properties defined with undefined variable for color', () => {
+    expect(
+      getParsedBorder(
+        {
+          'border-width': '5px',
+          'border-style': 'dashed',
+          'border-color': 'var(--border-color)',
+        },
+        [],
+      ),
+    ).toEqual({
+      all: {
+        width: {
+          type: 'length',
+          value: '5',
+          unit: 'px',
+        },
+        style: {
+          type: 'keyword',
+          value: 'dashed',
+        },
+        color: { type: 'function', name: 'var', value: '--border-color' },
+      },
+    })
+  })
+
   test('Border left is set', () => {
     expect(
       getParsedBorder(
