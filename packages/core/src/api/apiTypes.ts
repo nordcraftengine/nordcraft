@@ -42,10 +42,11 @@ export enum ApiMethod {
   OPTIONS = 'OPTIONS',
 }
 
+export const REDIRECT_STATUS_CODES = [
+  300, 301, 302, 303, 304, 307, 308,
+] as const
 
-export const REDIRECT_STATUS_CODES = [300, 301, 302, 303, 304, 307, 308] as const
-
-export type RedirectStatusCode = typeof REDIRECT_STATUS_CODES[number]
+export type RedirectStatusCode = (typeof REDIRECT_STATUS_CODES)[number]
 
 export type ApiParserMode =
   | 'auto'
