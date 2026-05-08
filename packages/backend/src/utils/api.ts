@@ -313,12 +313,18 @@ const fetchApiV2 = async ({
       })
       if (url) {
         // Opt out early to avoid additional API requests/rendering
-        let statusCode = applyFormula(rule.statusCode, ruleContext)
-        statusCode =
-          typeof statusCode === 'number' &&
-          REDIRECT_STATUS_CODES.includes(statusCode as RedirectStatusCode)
-            ? statusCode
-            : 302
+        let statusCode = 302 as RedirectStatusCode
+        if (isDefined(rule.statusCode)) {
+          const statusCodeResult = applyFormula(rule.statusCode, ruleContext)
+          if (
+            typeof statusCodeResult === 'number' &&
+            REDIRECT_STATUS_CODES.includes(
+              statusCodeResult as RedirectStatusCode,
+            )
+          ) {
+            statusCode = statusCodeResult as RedirectStatusCode
+          }
+        }
         throw new RedirectError({
           url,
           statusCode,
