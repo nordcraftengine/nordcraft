@@ -59,7 +59,10 @@ import type { NoReferenceProjectPackageRuleFix } from './rules/issues/miscellane
 import type { InvalidStyleSyntaxRuleFix } from './rules/issues/style/invalidStyleSyntaxRule'
 import type { LegacyStyleVariableRuleFix } from './rules/issues/style/legacyStyleVariableRule'
 import type { NoReferenceAnimationRuleFix } from './rules/issues/style/noReferenceAnimationRule'
-import type { AddToThemeFix } from './rules/issues/style/unknownCSSVariable'
+import type {
+  AddToRootNodeFix,
+  AddToThemeFix,
+} from './rules/issues/style/unknownCSSVariable'
 import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noReferenceVariableRule'
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
 import type { UnknownContextWorkflowRuleFix } from './rules/issues/workflows/unknownContextWorkflowRule'
@@ -477,6 +480,7 @@ export type NodeType =
 
 export type FixType =
   | AddToThemeFix
+  | AddToRootNodeFix
   | ChangeDataTypeFix
   | DeleteFetchInputFix
   | InvalidStyleSyntaxRuleFix

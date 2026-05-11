@@ -24,7 +24,8 @@ export const noReferenceContextFormulaRule: IssueRule<
       return
     }
 
-    const componentName = path[1] as string
+    const [_fileType, componentName, _contexts, contextComponentName] =
+      path as string[]
     const componentFile = files.components[componentName]
     if (!componentFile) {
       return
@@ -60,15 +61,18 @@ export const noReferenceContextFormulaRule: IssueRule<
     )
 
     value.formulas.forEach((formulaName) => {
-      if (!usedContextFormulas.has(`${value.componentName}/${formulaName}`)) {
+      if (!usedContextFormulas.has(`${contextComponentName}/${formulaName}`)) {
+        const formulaDisplayName =
+          files.components[contextComponentName]?.formulas?.[formulaName]
+            ?.name ?? formulaName
         report({
           path,
           info: {
             title: 'Unused context formula',
-            description: `Context formula **${formulaName}** from **${value.componentName}** is not used in this component.`,
+            description: `Context formula **${formulaDisplayName}** from **${contextComponentName}** is not used in this component.`,
           },
           details: {
-            providerName: value.componentName ?? '',
+            providerName: contextComponentName,
             formulaName,
           },
           fixes: ['remove-context-formula-subscription'],

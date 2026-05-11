@@ -24,7 +24,8 @@ export const noReferenceContextWorkflowRule: IssueRule<
       return
     }
 
-    const componentName = path[1] as string
+    const [_fileType, componentName, _contexts, contextComponentName] =
+      path as string[]
     const componentFile = files.components[componentName]
     if (!componentFile) {
       return
@@ -58,15 +59,20 @@ export const noReferenceContextWorkflowRule: IssueRule<
     )
 
     value.workflows.forEach((workflowName) => {
-      if (!usedContextWorkflows.has(`${value.componentName}/${workflowName}`)) {
+      if (
+        !usedContextWorkflows.has(`${contextComponentName}/${workflowName}`)
+      ) {
+        const workflowDisplayName =
+          files.components[contextComponentName]?.workflows?.[workflowName]
+            ?.name ?? workflowName
         report({
           path,
           info: {
             title: 'Unused context workflow',
-            description: `Context workflow **${workflowName}** from **${value.componentName}** is not used in this component.`,
+            description: `Context workflow **${workflowDisplayName}** from **${contextComponentName}** is not used in this component.`,
           },
           details: {
-            providerName: value.componentName ?? '',
+            providerName: contextComponentName,
             workflowName,
           },
           fixes: ['remove-context-workflow-subscription'],
