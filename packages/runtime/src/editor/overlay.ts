@@ -3,8 +3,16 @@ export function getRectData(selectedNode: Element | null | undefined) {
     return null
   }
 
-  const { borderRadius, rotate } = window.getComputedStyle(selectedNode)
-  const rect: DOMRect = selectedNode.getBoundingClientRect()
+  const { borderRadius, rotate, padding, margin, gap } =
+    window.getComputedStyle(selectedNode)
+  let rect: DOMRect
+  if (selectedNode.getAttribute('data-node-type') === 'text') {
+    selectedNode.classList.add('__nc-text-node-measure')
+    rect = selectedNode.getBoundingClientRect()
+    selectedNode.classList.remove('__nc-text-node-measure')
+  } else {
+    rect = selectedNode.getBoundingClientRect()
+  }
 
   return {
     left: rect.left,
@@ -17,5 +25,8 @@ export function getRectData(selectedNode: Element | null | undefined) {
     y: rect.y,
     borderRadius: borderRadius.split(' '),
     rotate,
+    padding: padding.split(' '),
+    margin: margin.split(' '),
+    gap: gap.split(' '),
   }
 }

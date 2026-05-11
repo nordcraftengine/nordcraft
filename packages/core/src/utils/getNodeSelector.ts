@@ -19,7 +19,10 @@ export function getNodeSelector(
 ): string {
   let selector = `[data-id="${path}"]`
   if (componentName) {
-    selector += `.${componentName}`
+    // Do not allow classes to start with a number, for example a page named "404" would result in a selector starting with a number which is invalid in CSS.
+    selector += startsWithNumber(componentName)
+      ? `._${componentName}`
+      : `.${componentName}`
   }
   if (nodeId) {
     selector += `\\:${nodeId}`
@@ -31,4 +34,10 @@ export function getNodeSelector(
   }
 
   return selector
+}
+
+function startsWithNumber(str: string): boolean {
+  if (!str) return false
+  const code = str.charCodeAt(0)
+  return code >= 48 && code <= 57
 }
