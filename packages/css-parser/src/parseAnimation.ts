@@ -659,12 +659,11 @@ const isValidTimeValue = ({
       const val = parseMultipleValuesRes[i]
       if (validValue && isDefined(val)) {
         if (val.type === 'function' && CSS_FUNCTIONS.includes(val.name)) {
-          const isValid = isValidTimeValue({
+          validValue = isValidTimeValue({
             valueToCheck: val.value,
             variables,
             isCalc: val.name === 'calc',
           })
-          validValue = isValid
         } else if (val.type === 'function' && val.name === 'var') {
           // If it's a variable
           const allValues = val.value.split(',').map((v) => v.trim())
