@@ -1,3 +1,4 @@
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { parseBorderOrOutline } from './parseBorderOrOutline'
 import {
   checkIfNoUnknownVariables,
@@ -650,42 +651,97 @@ export const getParsedBorder = (
           valueToCheck: parsedBorderColor[0],
           variables,
         })
-        if (newProp.color) {
-          border.all.color = newProp.color
-        }
+
+        border.all.color = parsedBorderColor[0]
 
         // Apply to the single ones only if they are defined in the style
         if (
           border.top &&
+          (isDefined(newProp.color) ||
+            (parsedBorderColor[0]?.type === 'function' &&
+              parsedBorderColor[0].name === 'var')) &&
           styleKeys.indexOf('border-color') >
             styleKeys.indexOf('border-top-color') &&
           styleKeys.indexOf('border-color') > styleKeys.indexOf('border-top')
         ) {
-          border.top.color = newProp.color
+          border.top.color = border.all.color
+        }
+        if (!border.top?.color && style['border-top-color']) {
+          if (!isDefined(border.top)) {
+            border.top = {}
+          }
+          const borderTopColor = parse({ input: style['border-top-color'] })
+
+          border.top.color = parseMultipleValues(getValue(borderTopColor[0]))[0]
         }
         if (
           border.bottom &&
+          (isDefined(newProp.color) ||
+            (parsedBorderColor[0]?.type === 'function' &&
+              parsedBorderColor[0].name === 'var')) &&
           styleKeys.indexOf('border-color') >
             styleKeys.indexOf('border-bottom-color') &&
           styleKeys.indexOf('border-color') > styleKeys.indexOf('border-bottom')
         ) {
-          border.bottom.color = newProp.color
+          border.bottom.color = border.all.color
+        }
+        if (!border.bottom?.color && style['border-bottom-color']) {
+          if (!isDefined(border.bottom)) {
+            border.bottom = {}
+          }
+          const borderBottomColor = parse({
+            input: style['border-bottom-color'],
+          })
+
+          border.bottom.color = parseMultipleValues(
+            getValue(borderBottomColor[0]),
+          )[0]
         }
         if (
           border.left &&
+          (isDefined(newProp.color) ||
+            (parsedBorderColor[0]?.type === 'function' &&
+              parsedBorderColor[0].name === 'var')) &&
           styleKeys.indexOf('border-color') >
             styleKeys.indexOf('border-left-color') &&
           styleKeys.indexOf('border-color') > styleKeys.indexOf('border-left')
         ) {
-          border.left.color = newProp.color
+          border.left.color = border.all.color
+        }
+        if (!border.left?.color && style['border-left-color']) {
+          if (!isDefined(border.left)) {
+            border.left = {}
+          }
+          const borderLeftColor = parse({
+            input: style['border-left-color'],
+          })
+
+          border.left.color = parseMultipleValues(
+            getValue(borderLeftColor[0]),
+          )[0]
         }
         if (
           border.right &&
+          (isDefined(newProp.color) ||
+            (parsedBorderColor[0]?.type === 'function' &&
+              parsedBorderColor[0].name === 'var')) &&
           styleKeys.indexOf('border-color') >
             styleKeys.indexOf('border-right-color') &&
           styleKeys.indexOf('border-color') > styleKeys.indexOf('border-right')
         ) {
-          border.right.color = newProp.color
+          border.right.color = border.all.color
+        }
+        if (!border.right?.color && style['border-right-color']) {
+          if (!isDefined(border.right)) {
+            border.right = {}
+          }
+          const borderRightColor = parse({
+            input: style['border-right-color'],
+          })
+
+          border.right.color = parseMultipleValues(
+            getValue(borderRightColor[0]),
+          )[0]
         }
       } else {
         if (!border.top) {

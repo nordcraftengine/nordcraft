@@ -722,4 +722,99 @@ describe('parseAnimation', () => {
       },
     ])
   })
+
+  test('Use calc function for duration', () => {
+    expect(
+      getParsedAnimation(
+        {
+          animation:
+            'calc(var(--duration) + 4s) linear 0s infinite alternate sun-rise',
+        },
+        [
+          {
+            name: 'duration',
+            type: 'value',
+            value: 'calc(calc(5s - 1s) - var(--delay))',
+            category: 'spacing',
+          },
+          {
+            name: 'delay',
+            type: 'value',
+            value: 'calc(5s - 1s)',
+            category: 'spacing',
+          },
+        ],
+      ),
+    ).toEqual([
+      {
+        duration: {
+          type: 'function',
+          name: 'calc',
+          value: 'var(--duration) + 4s',
+        },
+        timing: {
+          type: 'keyword',
+          value: 'linear',
+        },
+        delay: {
+          type: 'time',
+          value: '0',
+          unit: 's',
+        },
+        direction: {
+          type: 'keyword',
+          value: 'alternate',
+        },
+        iterationCount: {
+          type: 'keyword',
+          value: 'infinite',
+        },
+        name: {
+          type: 'keyword',
+          value: 'sun-rise',
+        },
+      },
+    ])
+  })
+
+  test('Use min and max function for duration and delay', () => {
+    expect(
+      getParsedAnimation(
+        {
+          animation:
+            'clamp(500ms, 1s, 3s) linear min(4s, 150ms) infinite alternate sun-rise',
+        },
+        [],
+      ),
+    ).toEqual([
+      {
+        duration: {
+          type: 'function',
+          name: 'clamp',
+          value: '500ms, 1s, 3s',
+        },
+        timing: {
+          type: 'keyword',
+          value: 'linear',
+        },
+        delay: {
+          type: 'function',
+          name: 'min',
+          value: '4s, 150ms',
+        },
+        direction: {
+          type: 'keyword',
+          value: 'alternate',
+        },
+        iterationCount: {
+          type: 'keyword',
+          value: 'infinite',
+        },
+        name: {
+          type: 'keyword',
+          value: 'sun-rise',
+        },
+      },
+    ])
+  })
 })
