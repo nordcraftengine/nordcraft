@@ -1,3 +1,4 @@
+import type { CustomProperty } from '@nordcraft/core/dist/component/component.types'
 import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme'
 import type { FixFunction, IssueRule, StyleNode } from '../../../types'
 
@@ -81,6 +82,21 @@ export const unknownCSSVariableRule: IssueRule<
                 }
               })
             })
+
+            // If the node is a component, add variables declared on the component's root
+            if (node.type === 'component') {
+              const referencedComponent = files.components[node.name]
+              if (referencedComponent) {
+                const rootNode = referencedComponent.nodes?.root
+                if (rootNode) {
+                  Object.keys((rootNode as any).customProperties ?? {}).forEach(
+                    (varName) => {
+                      vars.add(varName)
+                    },
+                  )
+                }
+              }
+            }
           }
 
           const parent = Object.entries(component.nodes ?? {}).find(([_, n]) =>
@@ -96,6 +112,8 @@ export const unknownCSSVariableRule: IssueRule<
       },
     )
 
+    const rootNodeType =
+      files.components?.[componentName]?.nodes?.[nodeName]?.type
     for (const varName of vars) {
       if (!(varName in themeCssVariables) && !localCssVariables.has(varName)) {
         report({
@@ -105,17 +123,22 @@ export const unknownCSSVariableRule: IssueRule<
             description: `The CSS variable **${varName}** is not declared in any parent element or theme. CSS variables must be declared in an ancestor element or in your global theme.`,
           },
           details: { name: varName },
-          fixes: ['add-to-theme'],
+          fixes:
+            rootNodeType === 'component' || rootNodeType === 'element'
+              ? ['add-to-theme', 'add-to-root-node']
+              : ['add-to-theme'],
         })
       }
     }
   },
   fixes: {
     'add-to-theme': addToThemeFix,
+    'add-to-root-node': addToRootNodeFix,
   },
 }
 
 export type AddToThemeFix = 'add-to-theme'
+export type AddToRootNodeFix = 'add-to-root-node'
 
 function addToThemeFix(
   args: Parameters<FixFunction<StyleNode, { name: string }>>[0],
@@ -146,6 +169,60 @@ function addToThemeFix(
         propertyDefinitions: {
           ...args.data.files.themes.Default.propertyDefinitions,
           [varName]: definition,
+        },
+      },
+    },
+  }
+}
+
+// Add an empty definition for the variable on the root node of the component, which will indicate that the variable is expected to be passed in from instances
+function addToRootNodeFix(
+  args: Parameters<FixFunction<StyleNode, { name: string }>>[0],
+): ReturnType<FixFunction<StyleNode, { name: string }>> {
+  const varName = args.details?.name
+  if (typeof varName !== 'string') {
+    return args.data.files
+  }
+
+  const [_fileType, componentName] = args.data.path as string[]
+  const component = args.data.files.components[componentName]
+  if (!component) {
+    return args.data.files
+  }
+
+  const rootNode = component.nodes?.root
+  if (!rootNode) {
+    return args.data.files
+  }
+
+  if (rootNode.type !== 'component' && rootNode.type !== 'element') {
+    return args.data.files
+  }
+
+  return {
+    ...args.data.files,
+    components: {
+      ...args.data.files.components,
+      [componentName]: {
+        ...component,
+        nodes: {
+          ...component.nodes,
+          root: {
+            ...rootNode,
+            customProperties: {
+              ...rootNode.customProperties,
+              [varName]: {
+                syntax: {
+                  type: 'primitive',
+                  name: '*',
+                },
+                formula: {
+                  type: 'value',
+                  value: null,
+                },
+              } as CustomProperty,
+            },
+          },
         },
       },
     },
