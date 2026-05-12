@@ -5,13 +5,14 @@ import {
   requestHash,
   sortApiEntries,
 } from '@nordcraft/core/dist/api/api'
-import type {
-  ApiMethod,
-  ApiParserMode,
-  ApiPerformance,
-  ApiStatus,
-  LegacyApiStatus,
-  RedirectStatusCode,
+import {
+  REDIRECT_STATUS_CODES,
+  type ApiMethod,
+  type ApiParserMode,
+  type ApiPerformance,
+  type ApiStatus,
+  type LegacyApiStatus,
+  type RedirectStatusCode,
 } from '@nordcraft/core/dist/api/apiTypes'
 import {
   isJsonHeader,
@@ -137,9 +138,7 @@ const fetchApi = async ({
   }
 
   const ssrEnabled = isDefined(api.server?.ssr?.enabled)
-    ? toBoolean(
-        applyFormula(api.server?.ssr?.enabled.formula, newFormulaContext),
-      )
+    ? toBoolean(applyFormula(api.server.ssr.enabled.formula, newFormulaContext))
     : false
 
   const autoFetch = isDefined(api.autoFetch)
@@ -297,7 +296,7 @@ const fetchApiV2 = async ({
     Object.values(api.redirectRules ?? {}),
     (rule) => rule.index,
   ).forEach((rule) => {
-    const location = applyFormula(rule.formula, {
+    const ruleContext: FormulaContext = {
       ...formulaContext,
       data: {
         ...formulaContext.data,
@@ -305,7 +304,8 @@ const fetchApiV2 = async ({
           [api.name]: apiStatus,
         },
       },
-    })
+    }
+    const location = applyFormula(rule.formula, ruleContext)
     if (typeof location === 'string') {
       const url = validateUrl({
         path: location,
@@ -313,10 +313,21 @@ const fetchApiV2 = async ({
       })
       if (url) {
         // Opt out early to avoid additional API requests/rendering
+        let statusCode = 302 as RedirectStatusCode
+        if (isDefined(rule.statusCode)) {
+          const statusCodeResult = applyFormula(rule.statusCode, ruleContext)
+          if (
+            typeof statusCodeResult === 'number' &&
+            REDIRECT_STATUS_CODES.includes(
+              statusCodeResult as RedirectStatusCode,
+            )
+          ) {
+            statusCode = statusCodeResult as RedirectStatusCode
+          }
+        }
         throw new RedirectError({
           url,
-          statusCode:
-            typeof rule.statusCode === 'number' ? rule.statusCode : undefined,
+          statusCode,
           componentName,
           apiName: api.name,
         })

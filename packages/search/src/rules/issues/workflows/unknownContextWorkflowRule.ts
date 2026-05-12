@@ -1,20 +1,16 @@
-import type { ActionModelNode, IssueRule, NodeType } from '../../../types'
-import { addContextSubscription } from './unknownContextWorkflowRule.fix'
+import type { IssueRule } from '../../../types'
 
-export const unknownContextWorkflowRule: IssueRule<
-  {
-    providerName: string
-    workflowName: string
-  },
-  ActionModelNode
-> = {
+export const unknownContextWorkflowRule: IssueRule<{
+  providerName: string
+  workflowName: string
+}> = {
   code: 'unknown context workflow',
   level: 'error',
   category: 'Unknown Reference',
   visit: (report, { path, files, value, nodeType }) => {
     if (
       path[0] !== 'components' ||
-      (nodeType as NodeType['nodeType']) !== 'action-model' ||
+      nodeType !== 'action-model' ||
       value.type !== 'TriggerWorkflow' ||
       !value.contextProvider
     ) {
@@ -22,8 +18,7 @@ export const unknownContextWorkflowRule: IssueRule<
     }
 
     const contexts = files.components[path[1]]?.contexts ?? {}
-    const context = (contexts as any)[value.contextProvider]
-    if (context?.workflows.includes(value.workflow)) {
+    if (contexts[value.contextProvider]?.workflows.includes(value.workflow)) {
       return
     }
 
@@ -37,12 +32,6 @@ export const unknownContextWorkflowRule: IssueRule<
         providerName: value.contextProvider,
         workflowName: value.workflow,
       },
-      fixes: ['add-context-subscription'],
     })
   },
-  fixes: {
-    'add-context-subscription': addContextSubscription,
-  },
 }
-
-export type UnknownContextWorkflowRuleFix = 'add-context-subscription'

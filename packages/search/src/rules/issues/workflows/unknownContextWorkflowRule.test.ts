@@ -90,49 +90,4 @@ describe('unknownContextWorkflowRule', () => {
 
     expect(problems).toBeEmpty()
   })
-
-  test('should apply add-context-subscription fix', () => {
-    const files = {
-      components: {
-        consumer: {
-          name: 'consumer',
-          nodes: {},
-          formulas: {},
-          apis: {},
-          attributes: {},
-          variables: {},
-          onLoad: {
-            trigger: 'onLoad',
-            actions: [
-              {
-                type: 'TriggerWorkflow',
-                workflow: 'testWorkflow',
-                contextProvider: 'provider',
-                parameters: {},
-              },
-            ],
-          },
-          contexts: {},
-        },
-      },
-    } as any
-
-    const results = Array.from(
-      searchProject({
-        files,
-        rules: [unknownContextWorkflowRule],
-        fixOptions: {
-          mode: 'FIX',
-          fixType: 'add-context-subscription',
-        },
-      }),
-    )
-
-    expect(results).toHaveLength(1)
-    const updatedFiles = results[0] as any
-    expect(updatedFiles.components.consumer.contexts.provider).toBeDefined()
-    expect(
-      updatedFiles.components.consumer.contexts.provider.workflows,
-    ).toContain('testWorkflow')
-  })
 })
