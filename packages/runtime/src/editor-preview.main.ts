@@ -898,20 +898,28 @@ export const createRoot = (
               (styles ?? []).map((style) => {
                 const input = computedStyle.getPropertyValue(style)
 
-                // If it is a number or number with unit we want to round to 2 decimal
-                if (parseFloat(input)) {
-                  const splited = input.match(/([0-9.]+)\s*(.*)/) ?? ''
+                const allValues = input.split(' ')
 
-                  const number = splited[1]
-                  const unit = splited[2]
+                const result = allValues
+                  .map((value) => {
+                    // If it is a float or float with unit we want to round to 2 decimal
+                    if (value.match(/^(-?\d+)\.\d+([a-z]*|%?)$/)) {
+                      const splited = value.match(/([0-9.]+)\s*(.*)/) ?? ''
 
-                  const roundNumber = Number(Number(number).toFixed(2))
-                  const result = roundNumber.toString() + unit
+                      const number = splited[1]
+                      const unit = splited[2]
 
-                  return [style, result]
-                }
+                      const roundNumber = Number(Number(number).toFixed(2))
+                      const rounded = roundNumber.toString() + unit
 
-                return [style, computedStyle.getPropertyValue(style)]
+                      return rounded
+                    } else {
+                      return value
+                    }
+                  })
+                  .join(' ')
+
+                return [style, result]
               }),
             ),
           })
