@@ -1,16 +1,20 @@
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule, NodeType } from '../../../types'
+import { addContextSubscription } from './unknownContextFormulaRule.fix'
 
-export const unknownContextFormulaRule: IssueRule<{
-  providerName: string
-  formulaName: string
-}> = {
+export const unknownContextFormulaRule: IssueRule<
+  {
+    providerName: string
+    formulaName: string
+  },
+  FormulaNode
+> = {
   code: 'unknown context formula',
   level: 'error',
   category: 'Unknown Reference',
   visit: (report, { path, files, value, nodeType }) => {
     if (
       path[0] !== 'components' ||
-      nodeType !== 'formula' ||
+      (nodeType as NodeType['nodeType']) !== 'formula' ||
       value.type !== 'path' ||
       value.path[0] !== 'Contexts'
     ) {
@@ -18,7 +22,11 @@ export const unknownContextFormulaRule: IssueRule<{
     }
 
     const contexts = files.components[path[1]]?.contexts ?? {}
-    if (contexts[value.path[1]]?.formulas.includes(value.path[2] as string)) {
+    if (
+      (contexts as any)[value.path[1] as string]?.formulas.includes(
+        value.path[2] as string,
+      )
+    ) {
       return
     }
 
@@ -32,6 +40,12 @@ export const unknownContextFormulaRule: IssueRule<{
         providerName: value.path[1] as string,
         formulaName: value.path[2] as string,
       },
+      fixes: ['add-context-subscription'],
     })
   },
+  fixes: {
+    'add-context-subscription': addContextSubscription,
+  },
 }
+
+export type UnknownContextFormulaRuleFix = 'add-context-subscription'
