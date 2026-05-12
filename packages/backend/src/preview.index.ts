@@ -33,7 +33,6 @@ const loadProject = ({
     return projectLoader
   }
   projectLoadTime = new Date()
-  // eslint-disable-next-line no-async-promise-executor
   projectLoader = new Promise(async (resolve, reject) => {
     // Load files from Durable Object
     const id = ctx.env.BRANCH_STATE.idFromName(
