@@ -457,7 +457,7 @@ export const getParsedAnimation = (
   }
 }
 
-const cssFunctions = ['calc', 'clamp', 'max', 'min']
+const CSS_FUNCTIONS = ['calc', 'clamp', 'max', 'min']
 
 const parseAnimation = ({
   valueToCheck,
@@ -606,9 +606,9 @@ const parseAnimation = ({
     })
   } else if (
     valueToCheck.type === 'function' &&
-    cssFunctions.includes(valueToCheck.name)
+    CSS_FUNCTIONS.includes(valueToCheck.name)
   ) {
-    const validTimeValue = checkIfTimeValues({
+    const validTimeValue = isValidTimeValue({
       valueToCheck: valueToCheck.value,
       variables,
       isCalc: valueToCheck.name === 'calc',
@@ -634,7 +634,7 @@ const parseAnimation = ({
   }
 }
 
-const checkIfTimeValues = ({
+const isValidTimeValue = ({
   valueToCheck,
   variables,
   isCalc,
@@ -658,16 +658,16 @@ const checkIfTimeValues = ({
     ) {
       const val = parseMultipleValuesRes[i]
       if (validValue && isDefined(val)) {
-        if (val.type === 'function' && cssFunctions.includes(val.name)) {
-          const t2 = checkIfTimeValues({
+        if (val.type === 'function' && CSS_FUNCTIONS.includes(val.name)) {
+          const isValid = isValidTimeValue({
             valueToCheck: val.value,
             variables,
             isCalc: val.name === 'calc',
           })
-          validValue = t2
+          validValue = isValid
         } else if (val.type === 'function' && val.name === 'var') {
           // If it's a variable
-          const allValues = val.value.split(', ')
+          const allValues = val.value.split(',').map((v) => v.trim())
           allValues.forEach((val) => {
             if (isVariable(val)) {
               const usedVariable = variables.find((v) =>
@@ -690,10 +690,10 @@ const checkIfTimeValues = ({
               if (
                 isDefined(parsedVariable[0]) &&
                 parsedVariable[0].type === 'function' &&
-                (cssFunctions.includes(parsedVariable[0].name) ||
+                (CSS_FUNCTIONS.includes(parsedVariable[0].name) ||
                   parsedVariable[0].name === 'var')
               ) {
-                validValue = checkIfTimeValues({
+                validValue = isValidTimeValue({
                   valueToCheck: parsedVariable[0].value,
                   variables,
                   isCalc: parsedVariable[0].name === 'calc',
