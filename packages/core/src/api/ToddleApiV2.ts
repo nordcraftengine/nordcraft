@@ -279,6 +279,11 @@ export class ToddleApiV2<Handler> implements ApiRequest {
         globalFormulas: this.globalFormulas,
         path: ['apis', apiKey, 'redirectRules', rule, 'formula'],
       })
+      yield* getFormulasInFormula({
+        formula: value.statusCode,
+        globalFormulas: this.globalFormulas,
+        path: ['apis', apiKey, 'redirectRules', rule, 'statusCode'],
+      })
     }
     yield* getFormulasInFormula({
       formula: api.isError?.formula,

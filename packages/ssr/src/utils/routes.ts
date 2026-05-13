@@ -20,7 +20,7 @@ import { getServerToddleObject } from '../rendering/formulaContext'
 import { removeTestData } from '../rendering/testData'
 import type { ProjectFiles, Route, ToddleProject } from '../ssr.types'
 
-interface Routes {
+export interface Routes {
   pages: Record<string, { name: string; route: RouteDeclaration }>
   routes: Record<string, Route>
 }
