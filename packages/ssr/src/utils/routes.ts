@@ -31,6 +31,11 @@ export type ProjectFilesWithCustomCode = ProjectFiles & {
 
 export type Files = Record<string, ProjectFilesWithCustomCode>
 
+export type ProjectWithConfig = {
+  project: ToddleProject
+  config: ProjectFiles['config']
+}
+
 export const splitRoutes = ({
   branchName,
   files,
@@ -40,7 +45,7 @@ export const splitRoutes = ({
   files: ProjectFiles
   project: ToddleProject
 }): {
-  project: { project: ToddleProject; config: ProjectFiles['config'] }
+  project: ProjectWithConfig
   routes: Routes
   files: Files
   styles: Record<string, string>
