@@ -24,7 +24,6 @@ export interface ToddleProject {
   description?: string | null
   short_id: string
   id: string
-  emoji?: string | null
   type: 'app' | 'package'
   thumbnail?: { path: string } | null
 }
