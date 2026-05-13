@@ -245,15 +245,6 @@ export const getHeadItems = ({
       'link:icon:32',
     ].every((k) => !hasCustomMeta(k))
   ) {
-    if (project.emoji) {
-      // Use emoji as icon
-      headItems.set(
-        'link:icon',
-        `<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${escapeAttrValue(
-          project.emoji,
-        )}</text></svg>">`,
-      )
-    }
     headItems.set(
       'link:mask-icon',
       '<link rel="mask-icon" href="https://raw.githubusercontent.com/nordcraftengine/resources/main/icons/safari-pinned-tab.svg" color="#171717">',
