@@ -9,6 +9,7 @@ import type { ToddleInternals } from '@nordcraft/core/dist/types'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
 import type { ApiCache } from '@nordcraft/ssr/dist/rendering/api'
+import { serializeClasses } from '@nordcraft/ssr/dist/rendering/classes'
 import { renderPageBody } from '@nordcraft/ssr/dist/rendering/components'
 import { getPageFormulaContext } from '@nordcraft/ssr/dist/rendering/formulaContext'
 import {
@@ -167,8 +168,8 @@ export const nordcraftPage = async ({
         ...apiCache,
       },
     },
-    component: removeTestData(page),
-    components: includedComponents.map(removeTestData),
+    component: removeTestData(serializeClasses(toddleComponent)),
+    components: includedComponents.map(removeTestData).map(serializeClasses),
     isPageLoaded: false,
     cookies: Object.keys(formulaContext.env.request.cookies),
   }
