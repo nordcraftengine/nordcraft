@@ -5,10 +5,7 @@ import type {
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import {
-  getClassName,
-  toValidClassName,
-} from '@nordcraft/core/dist/styling/className'
+import { toValidClassName } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
@@ -71,8 +68,6 @@ export function createElement({
   if (ctx.isRootComponent === false && id !== 'root') {
     elem.setAttribute('data-component', ctx.component.name)
   }
-  const classHash = getClassName([node.style, node.variants])
-  elem.classList.add(classHash)
   if (instance && id === 'root') {
     Object.entries(instance).forEach(([key, value]) => {
       elem.classList.add(toValidClassName(`${key}:${value}`))
