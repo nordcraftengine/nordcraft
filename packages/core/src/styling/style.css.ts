@@ -281,11 +281,10 @@ export const createStylesheet = (
         if (childComponent) {
           insertComponentStyles(childComponent, node.package ?? package_name)
           stylesheet += getNodeStyles(
-            node as any,
+            node,
             toValidClassName(`${component.name}:${id}`, true),
             animationHashes,
           )
-
           return
         }
       }
@@ -297,7 +296,7 @@ export const createStylesheet = (
         return ''
       }
       hashes.add(classHash)
-      stylesheet += getNodeStyles(node as any, classHash, animationHashes)
+      stylesheet += getNodeStyles(node, classHash, animationHashes)
     })
   }
   insertComponentStyles(root)
