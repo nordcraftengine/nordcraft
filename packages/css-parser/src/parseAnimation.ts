@@ -538,10 +538,17 @@ const parseAnimation = ({
           ? usedVariable.value.replaceAll(usedVariable.unit, '')
           : usedVariable.value
 
+        if (valueWithoutUnit === '') {
+          invalidValue = true
+          return
+        }
+
+        const valueWithUnit = usedVariable.value
+
         const parsedVariable = parseMultipleValues([
           {
             type: 'word',
-            value: valueWithoutUnit,
+            value: valueWithUnit,
           },
         ])
 

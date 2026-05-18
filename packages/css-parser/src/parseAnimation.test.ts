@@ -817,4 +817,54 @@ describe('parseAnimation', () => {
       },
     ])
   })
+
+  test('Use variable for delay', () => {
+    expect(
+      getParsedAnimation(
+        {
+          animation: '3s linear var(--delay) infinite alternate sun-rise',
+        },
+        [
+          {
+            formula: {
+              type: 'value',
+              value: 2,
+            },
+            unit: 's',
+            name: '--delay',
+            value: '2s',
+          } as any,
+        ],
+      ),
+    ).toEqual([
+      {
+        duration: {
+          type: 'time',
+          value: '3',
+          unit: 's',
+        },
+        timing: {
+          type: 'keyword',
+          value: 'linear',
+        },
+        delay: {
+          type: 'function',
+          name: 'var',
+          value: '--delay',
+        },
+        direction: {
+          type: 'keyword',
+          value: 'alternate',
+        },
+        iterationCount: {
+          type: 'keyword',
+          value: 'infinite',
+        },
+        name: {
+          type: 'keyword',
+          value: 'sun-rise',
+        },
+      },
+    ])
+  })
 })
