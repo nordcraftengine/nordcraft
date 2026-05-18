@@ -7,10 +7,13 @@ import {
   getRequestPath,
   getRequestQueryParams,
   getUrl,
+  isLegacyApi,
   toFormData,
 } from './api'
 import type { ApiRequest } from './apiTypes'
 import { ApiMethod } from './apiTypes'
+import { LegacyToddleApi } from './LegacyToddleApi'
+import { ToddleApiV2 } from './ToddleApiV2'
 
 describe('getApiPath()', () => {
   test('it returns a valid url path string', () => {
@@ -484,5 +487,49 @@ describe('toFormData()', () => {
     const formData = toFormData(body)
     expect(formData.has('fn')).toBe(false)
     expect(formData.get('valid')).toBe('working')
+  })
+})
+describe('isLegacyApi()', () => {
+  test('it checks if an API is legacy', () => {
+    expect(
+      isLegacyApi({
+        name: 'Legacy API',
+        type: 'REST',
+      }),
+    ).toBe(true)
+    expect(
+      isLegacyApi({
+        name: 'New API',
+        type: 'http',
+        version: 2,
+        inputs: {},
+      }),
+    ).toBe(false)
+    expect(
+      isLegacyApi(
+        new LegacyToddleApi(
+          {
+            name: 'Legacy API',
+            type: 'REST',
+          },
+          'myLegacyApi',
+          {},
+        ),
+      ),
+    ).toBe(true)
+    expect(
+      isLegacyApi(
+        new ToddleApiV2(
+          {
+            name: 'New API',
+            type: 'http',
+            version: 2,
+            inputs: {},
+          },
+          'myNewApi',
+          {},
+        ),
+      ),
+    ).toBe(false)
   })
 })

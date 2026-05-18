@@ -14,15 +14,14 @@ import type {
 } from './apiTypes'
 import { ApiMethod } from './apiTypes'
 import { isJsonHeader } from './headers'
-import { LegacyToddleApi } from './LegacyToddleApi'
+import type { LegacyToddleApi } from './LegacyToddleApi'
 import type { ToddleApiV2 } from './ToddleApiV2'
 
 export const NON_BODY_RESPONSE_CODES = [101, 204, 205, 304]
 
 export const isLegacyApi = <Handler>(
   api: ComponentAPI | LegacyToddleApi<Handler> | ToddleApiV2<Handler>,
-): api is LegacyComponentAPI | LegacyToddleApi<Handler> =>
-  api instanceof LegacyToddleApi ? true : !('version' in api)
+): api is LegacyComponentAPI | LegacyToddleApi<Handler> => !('version' in api)
 
 export const createApiRequest = <Handler>({
   api,
