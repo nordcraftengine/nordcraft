@@ -1,6 +1,8 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type {
+  Component,
+  PageComponent,
+} from '@nordcraft/core/dist/component/component.types'
 import { HeadTagTypes } from '@nordcraft/core/dist/component/component.types'
-import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
@@ -41,7 +43,7 @@ export const getHeadItems = ({
   context: FormulaContext
   cssBasePath?: string
   files: ProjectFiles
-  page: ToddleComponent<string>
+  page: PageComponent
   resetStylesheetPath?: string
   pageStylesheetPath?: string
   project: ToddleProject

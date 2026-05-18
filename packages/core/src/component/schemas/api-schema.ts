@@ -210,6 +210,10 @@ const ApiRequestSchema: z.ZodType<ApiRequest> = z
       .describe(
         'Rules for redirecting based on response data. The key is a unique identifier for the rule.',
       ),
+    dependsOn: z
+      .array(z.string())
+      .optional()
+      .describe('List of APIs that this API depends on.'),
   })
   .describe('Schema defining an API request from a component or a page.')
 
@@ -244,6 +248,7 @@ const LegacyComponentAPISchema: z.ZodType<LegacyComponentAPI> = z
         type: z.enum(['Bearer id_token', 'Bearer access_token']),
       })
       .nullish(),
+    dependsOn: z.array(z.string()).optional(),
   })
   .describe(
     'Legacy API schema for backward compatibility. Never use this for new APIs.',
