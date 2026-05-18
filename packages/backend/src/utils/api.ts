@@ -3,7 +3,6 @@ import {
   HttpMethodsWithAllowedBody,
   isApiError,
   requestHash,
-  sortApiEntries,
 } from '@nordcraft/core/dist/api/api'
 import {
   REDIRECT_STATUS_CODES,
@@ -25,7 +24,11 @@ import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { easySort } from '@nordcraft/core/dist/utils/collections'
 import { validateUrl } from '@nordcraft/core/dist/utils/url'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import type { ApiCache, ApiEvaluator } from '@nordcraft/ssr/dist/rendering/api'
+import {
+  sortApiEntries,
+  type ApiCache,
+  type ApiEvaluator,
+} from '@nordcraft/ssr/dist/rendering/api'
 import {
   applyTemplateValues,
   sanitizeProxyHeaders,
@@ -42,7 +45,8 @@ export const evaluateComponentApis: ApiEvaluator = async ({
 
   // We only support v2 APIs in this function
   const sortedApis: [string, ToddleApiV2<string>][] = []
-  sortApiEntries(Object.entries(component.apis)).forEach(
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  sortApiEntries(Object.entries(component.apis ?? {})).forEach(
     ([key, api]) => api instanceof ToddleApiV2 && sortedApis.push([key, api]),
   )
 
@@ -51,7 +55,7 @@ export const evaluateComponentApis: ApiEvaluator = async ({
     await Promise.all(
       // Evaluate independent API requests in parallel
       sortedApis
-        .filter(([_, api]) => api.apiReferences.size === 0)
+        .filter(([_, api]) => api.dependsOn.length === 0)
         .map(async ([name, api]) => {
           const { response, cacheKey } = await fetchApi({
             api,
@@ -72,7 +76,7 @@ export const evaluateComponentApis: ApiEvaluator = async ({
     ...independentApiResponses,
   }
   const dependentApis = sortedApis.filter(
-    ([_, api]) => api.apiReferences.size > 0,
+    ([_, api]) => api.dependsOn.length > 0,
   )
   const dependentApiResponses: Record<string, LegacyApiStatus | ApiStatus> = {}
   for (const [_, api] of dependentApis) {

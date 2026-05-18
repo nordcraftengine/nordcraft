@@ -1,4 +1,4 @@
-import { isLegacyApi, sortApiObjects } from '@nordcraft/core/dist/api/api'
+import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   Component,
@@ -29,6 +29,7 @@ import { match } from 'path-to-regexp'
 import { isContextApiV2 } from './api/apiUtils'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
+import { sortApis } from './api/sortApis'
 import { getDynamicMetaEntries } from './components/meta'
 import { renderComponent } from './components/renderComponent'
 import { isContextProvider } from './context/isContextProvider'
@@ -236,7 +237,7 @@ export const createRoot = (domNode: HTMLElement) => {
   }
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
-  sortApiObjects(
+  sortApis(
     Object.entries(component.apis ?? {}).filter(
       (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
     ),
