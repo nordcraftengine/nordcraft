@@ -206,7 +206,7 @@ jobs:
       - name: Check runtime file size
         run: |
           FILE=./dist/page.main.esm.js
-          MAX_SIZE=100000
+          MAX_SIZE=102400
           ACTUAL_SIZE=$(stat -c%s "$FILE")
           if [ "$ACTUAL_SIZE" -gt "$MAX_SIZE" ]; then
             echo "Error: $FILE is larger than 100KB ($ACTUAL_SIZE bytes)" >&2
