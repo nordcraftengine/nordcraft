@@ -1,3 +1,4 @@
+import { animatedStyleNotInThemeRule } from './animatedStyleNotInThemeRule'
 import { invalidStyleSyntaxRule } from './invalidStyleSyntaxRule'
 import { legacyStyleVariableRule } from './legacyStyleVariableRule'
 import { legacyThemeRule } from './legacyThemeRule'
@@ -14,4 +15,5 @@ export default [
   unknownClassnameRule,
   unknownCSSVariableRule,
   noReferenceGlobalCSSVariableRule,
+  animatedStyleNotInThemeRule,
 ]
