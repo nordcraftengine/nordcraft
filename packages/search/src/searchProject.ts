@@ -404,39 +404,45 @@ function* visitNode({
       })
 
       for (const key in value.attributes) {
-        yield* visitNode({
-          args: {
-            nodeType: 'component-attribute',
-            value: value.attributes[key],
-            path: [...path, 'attributes', key],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-            component,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
+        const attribute = value.attributes[key]
+        if (isDefined(attribute)) {
+          yield* visitNode({
+            args: {
+              nodeType: 'component-attribute',
+              value: attribute,
+              path: [...path, 'attributes', key],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              component,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
       }
 
       for (const key in value.variables) {
-        yield* visitNode({
-          args: {
-            nodeType: 'component-variable',
-            value: value.variables[key],
-            path: [...path, 'variables', key],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-            component,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
+        const variable = value.variables[key]
+        if (isDefined(variable)) {
+          yield* visitNode({
+            args: {
+              nodeType: 'component-variable',
+              value: variable,
+              path: [...path, 'variables', key],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              component,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
       }
 
       for (const key in value.apis) {
@@ -482,39 +488,45 @@ function* visitNode({
       }
 
       for (const key in value.formulas) {
-        yield* visitNode({
-          args: {
-            nodeType: 'component-formula',
-            value: value.formulas[key],
-            path: [...path, 'formulas', key],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-            component,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
+        const formula = value.formulas[key]
+        if (isDefined(formula)) {
+          yield* visitNode({
+            args: {
+              nodeType: 'component-formula',
+              value: formula,
+              path: [...path, 'formulas', key],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              component,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
       }
 
       for (const key in value.workflows) {
-        yield* visitNode({
-          args: {
-            nodeType: 'component-workflow',
-            value: value.workflows[key],
-            path: [...path, 'workflows', key],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-            component,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
+        const workflow = value.workflows[key]
+        if (isDefined(workflow)) {
+          yield* visitNode({
+            args: {
+              nodeType: 'component-workflow',
+              value: workflow,
+              path: [...path, 'workflows', key],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              component,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
       }
 
       for (let i = 0; i < (value.events ?? []).length; i++) {

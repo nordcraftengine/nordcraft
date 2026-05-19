@@ -1,5 +1,6 @@
 import { mapHeadersToObject } from '@nordcraft/core/dist/api/headers'
 import type {
+  ComponentVariable,
   PageComponent,
   PageRoute,
 } from '@nordcraft/core/dist/component/component.types'
@@ -12,7 +13,8 @@ import {
   isToddleFormula,
 } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import { mapValues } from '@nordcraft/core/dist/utils/collections'
+import type { Nullable } from '@nordcraft/core/dist/types'
+import { filterObject, mapValues } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import { getPathSegments } from '../routing/routing'
@@ -71,7 +73,10 @@ export const getPageFormulaContext = ({
       : null,
   }
   formulaContext.data.Variables = mapValues(
-    component?.variables ?? {},
+    filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+      component?.variables ?? {},
+      ([_, variable]) => isDefined(variable),
+    ),
     ({ initialValue }) => {
       return applyFormula(initialValue, formulaContext)
     },

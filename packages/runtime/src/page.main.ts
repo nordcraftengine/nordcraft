@@ -3,6 +3,8 @@ import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   Component,
   ComponentData,
+  ComponentFormula,
+  ComponentVariable,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
@@ -13,10 +15,11 @@ import type {
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
+  Nullable,
   PluginActionV2,
   Toddle,
 } from '@nordcraft/core/dist/types'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
@@ -167,23 +170,29 @@ export const createRoot = (domNode: HTMLElement) => {
     ...window.toddle.pageState,
     // Re-initialize variables since some of them might rely on client-side
     // state (e.g. localStorage, sensors etc.)
-    Variables: mapObject(component.variables ?? {}, ([name, variable]) => [
-      name,
-      applyFormula(
-        variable.initialValue,
-        {
-          data: window.toddle.pageState,
-          component,
-          formulaCache: {},
-          root: document,
-          package: undefined,
-          toddle: window.toddle,
-          env,
-          jsonPath: [],
-        },
-        ['variables', name],
+    Variables: mapObject(
+      filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+        component.variables ?? {},
+        ([_, variable]) => isDefined(variable),
       ),
-    ]),
+      ([name, variable]) => [
+        name,
+        applyFormula(
+          variable.initialValue,
+          {
+            data: window.toddle.pageState,
+            component,
+            formulaCache: {},
+            root: document,
+            package: undefined,
+            toddle: window.toddle,
+            env,
+            jsonPath: [],
+          },
+          ['variables', name],
+        ),
+      ],
+    ),
   })
 
   registerComponentToLogState(component, dataSignal)
@@ -260,11 +269,11 @@ export const createRoot = (domNode: HTMLElement) => {
     // Subscribe to exposed formulas and update the component's data signal
     const formulaDataSignals = Object.fromEntries(
       Object.entries(component.formulas ?? {})
-        .filter(([, formula]) => formula.exposeInContext)
+        .filter(([, formula]) => formula?.exposeInContext)
         .map(([name, formula]) => [
           name,
           dataSignal.map((data) =>
-            applyFormula(formula.formula, {
+            applyFormula((formula as ComponentFormula).formula, {
               data,
               component,
               formulaCache: ctx.formulaCache,

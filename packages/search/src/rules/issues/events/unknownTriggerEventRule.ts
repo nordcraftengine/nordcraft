@@ -13,7 +13,7 @@ export const unknownTriggerEventRule: IssueRule<{
 
     const [, componentName] = path
     const component = files.components[componentName]
-    if (!component?.events?.some((e) => e.name === value.event)) {
+    if (!component?.events?.some((e) => e?.name === value.event)) {
       report({
         path,
         info: {

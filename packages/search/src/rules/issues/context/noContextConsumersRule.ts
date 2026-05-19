@@ -16,10 +16,10 @@ export const noContextConsumersRule: IssueRule<{
       return
     }
     const exposesFormulas = Object.values(value.formulas ?? {}).some(
-      (f) => f.exposeInContext,
+      (f) => f?.exposeInContext,
     )
     const exposesWorkflows = Object.values(value.workflows ?? {}).some(
-      (w) => w.exposeInContext,
+      (w) => w?.exposeInContext,
     )
     if (!exposesFormulas && !exposesWorkflows) {
       return

@@ -21,7 +21,7 @@ export const unknownEventRule: IssueRule<{
       ? files.packages?.[value.package]?.components[value.name]
       : files.components[value.name]
     const componentEvents = new Set(
-      (component?.events ?? []).map((e) => e.name),
+      (component?.events ?? []).map((e) => e?.name),
     )
     Object.entries(value.events).forEach(([eventKey, event]) => {
       if (isDefined(event) && !componentEvents.has(event.trigger)) {

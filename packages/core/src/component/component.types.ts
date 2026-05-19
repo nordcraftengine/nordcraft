@@ -180,9 +180,9 @@ export interface Component {
   // @deprecated - use route->path instead
   page?: Nullable<string> // page url /projects/:id - only for pages
   route?: Nullable<PageRoute>
-  attributes?: Nullable<Record<string, ComponentAttribute>>
-  variables?: Nullable<Record<string, ComponentVariable>>
-  formulas?: Nullable<Record<string, ComponentFormula>>
+  attributes?: Nullable<Record<string, Nullable<ComponentAttribute>>>
+  variables?: Nullable<Record<string, Nullable<ComponentVariable>>>
+  formulas?: Nullable<Record<string, Nullable<ComponentFormula>>>
   contexts?: Nullable<
     Record<
       // `componentName` or `packageName/componentName` if the context comes from a different package than the component itself
@@ -190,10 +190,10 @@ export interface Component {
       ComponentContext
     >
   >
-  workflows?: Nullable<Record<string, ComponentWorkflow>>
+  workflows?: Nullable<Record<string, Nullable<ComponentWorkflow>>>
   apis?: Nullable<Record<string, Nullable<ComponentAPI>>>
   nodes?: Nullable<Record<string, NodeModel>>
-  events?: Nullable<ComponentEvent[]>
+  events?: Nullable<Nullable<ComponentEvent>[]>
   onLoad?: Nullable<EventModel>
   onAttributeChange?: Nullable<EventModel>
   // exported indicates that a component is exported in a package

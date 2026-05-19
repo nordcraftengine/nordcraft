@@ -75,10 +75,13 @@ export const groupBy = <T>(items: T[], f: (t: T) => string) =>
     return acc
   }, {})
 
-export const filterObject = <T>(
+export const filterObject = <T, T2 extends T = T>(
   object: Record<string, T>,
   f: (kv: [string, T]) => boolean,
-): Record<string, T> => Object.fromEntries(Object.entries(object).filter(f))
+): Record<string, T2> =>
+  Object.fromEntries(
+    Object.entries(object).filter((o): o is [string, T2] => f(o)),
+  )
 
 export function get<T = any>(
   collection: T,

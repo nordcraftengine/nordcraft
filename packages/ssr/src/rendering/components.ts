@@ -5,6 +5,8 @@ import type {
 import type {
   Component,
   ComponentData,
+  ComponentFormula,
+  ComponentVariable,
   MediaQuery,
   NodeModel,
   SupportedNamespaces,
@@ -21,7 +23,7 @@ import {
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import type { Nullable } from '@nordcraft/core/dist/types'
-import { mapValues } from '@nordcraft/core/dist/utils/collections'
+import { filterObject, mapValues } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
@@ -297,10 +299,13 @@ const renderComponent = async ({
           ...data.Contexts,
           [component.name]: Object.fromEntries(
             Object.entries(component.formulas ?? {})
-              .filter(([, formula]) => formula.exposeInContext)
+              .filter(([, formula]) => formula?.exposeInContext)
               .map(([key, formula]) => [
                 key,
-                applyFormula(formula.formula, formulaContext),
+                applyFormula(
+                  (formula as ComponentFormula).formula,
+                  formulaContext,
+                ),
               ]),
           ),
         }
@@ -365,7 +370,10 @@ const renderComponent = async ({
               Contexts: contexts,
               Page: formulaContext.data.Page,
               Variables: mapValues(
-                childComponent.variables ?? {},
+                filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+                  childComponent.variables ?? {},
+                  ([_, variable]) => isDefined(variable),
+                ),
                 ({ initialValue }) => {
                   return applyFormula(initialValue, formulaContext)
                 },
@@ -403,10 +411,10 @@ const renderComponent = async ({
                     ...contexts,
                     [childComponent.name]: Object.fromEntries(
                       Object.entries(childComponent.formulas ?? {})
-                        .filter(([, formula]) => formula.exposeInContext)
+                        .filter(([, formula]) => formula?.exposeInContext)
                         .map(([key, formula]) => [
                           key,
-                          applyFormula(formula.formula, {
+                          applyFormula((formula as ComponentFormula).formula, {
                             component: childComponent,
                             package: _packageName,
                             data: {
@@ -415,29 +423,38 @@ const renderComponent = async ({
                                 ...Object.fromEntries(
                                   Object.entries(childComponent.formulas ?? {})
                                     .filter(
-                                      ([, formula]) => formula.exposeInContext,
+                                      ([, formula]) => formula?.exposeInContext,
                                     )
                                     .map(([key, formula]) => [
                                       key,
-                                      applyFormula(formula.formula, {
-                                        data: {
-                                          Attributes: attrs,
-                                          Apis: { ...data.Apis, ...apis },
-                                          Location: data.Location,
-                                          Page: data.Page,
+                                      applyFormula(
+                                        (formula as ComponentFormula).formula,
+                                        {
+                                          data: {
+                                            Attributes: attrs,
+                                            Apis: { ...data.Apis, ...apis },
+                                            Location: data.Location,
+                                            Page: data.Page,
+                                          },
+                                          component,
+                                          package: _packageName,
+                                          env,
+                                          toddle,
                                         },
-                                        component,
-                                        package: _packageName,
-                                        env,
-                                        toddle,
-                                      }),
+                                      ),
                                     ]),
                                 ),
                               },
                               Apis: apis,
                               Attributes: attrs,
                               Variables: mapValues(
-                                childComponent.variables ?? {},
+                                filterObject<
+                                  Nullable<ComponentVariable>,
+                                  ComponentVariable
+                                >(
+                                  childComponent.variables ?? {},
+                                  ([_, variable]) => isDefined(variable),
+                                ),
                                 ({ initialValue }) => {
                                   return applyFormula(initialValue, {
                                     data: {
@@ -642,12 +659,18 @@ const createComponent = async ({
   }
 
   // Variables initial value has access to component data like attributes, so must be applied after formulaContext is somewhat populated
-  data.Variables = mapValues(component.variables ?? {}, ({ initialValue }) => {
-    return applyFormula(initialValue, {
-      ...formulaContext,
-      data,
-    })
-  })
+  data.Variables = mapValues(
+    filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+      component.variables ?? {},
+      ([_, variable]) => isDefined(variable),
+    ),
+    ({ initialValue }) => {
+      return applyFormula(initialValue, {
+        ...formulaContext,
+        data,
+      })
+    },
+  )
 
   // Own context formulas has access to all other data in the component (attributes, variables, apis etc.) so is applied last
   data.Contexts = {
@@ -656,10 +679,10 @@ const createComponent = async ({
       ...data.Contexts?.[component.name],
       ...Object.fromEntries(
         Object.entries(component.formulas ?? {})
-          .filter(([, formula]) => formula.exposeInContext)
+          .filter(([, formula]) => formula?.exposeInContext)
           .map(([key, formula]) => [
             key,
-            applyFormula(formula.formula, {
+            applyFormula((formula as ComponentFormula).formula, {
               ...formulaContext,
               data,
             }),

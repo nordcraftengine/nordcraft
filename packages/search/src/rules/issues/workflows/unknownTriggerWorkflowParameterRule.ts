@@ -1,4 +1,5 @@
 import type { ComponentWorkflow } from '@nordcraft/core/dist/component/component.types'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import type { IssueRule } from '../../../types'
 
 export const unknownTriggerWorkflowParameterRule: IssueRule<{
@@ -18,7 +19,7 @@ export const unknownTriggerWorkflowParameterRule: IssueRule<{
       return
     }
 
-    let workflow: ComponentWorkflow | undefined
+    let workflow: Nullable<ComponentWorkflow>
     if (typeof value.contextProvider === 'string') {
       const subscription = args.component.contexts?.[value.contextProvider]
       const isSubscribed = subscription?.workflows?.includes(value.workflow)
