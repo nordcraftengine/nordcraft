@@ -207,6 +207,27 @@ export type EditorPostMessageType =
       data: any
       apiKey: string
     }
+  | {
+      type: 'animationSample'
+      sample: Record<
+        string,
+        (
+          | number
+          | string
+          | {
+              x: number
+              y: number
+              width: number
+              height: number
+              keyframes?: AnimationKeyframe[]
+            }
+        )[]
+      >
+    }
+  | {
+      type: 'getComponentState'
+      evaluateSubtree: boolean
+    }
 
 export type DragState = {
   /**
