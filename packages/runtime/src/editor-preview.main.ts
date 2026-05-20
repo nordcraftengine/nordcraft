@@ -389,7 +389,6 @@ export const createRoot = (
               Location: data.Location
                 ? {
                     ...data.Location,
-                    path: component?.page ?? '',
                   }
                 : undefined,
               // Ensure that URL parameters are only available for pages and not components
@@ -496,13 +495,6 @@ export const createRoot = (
                 Props: Record<string, unknown>
               } = {
                 ...data,
-                Location:
-                  data.Location && component?.page
-                    ? {
-                        ...data.Location,
-                        query: attrs as Record<string, string>,
-                      }
-                    : data.Location,
                 Props: attrs ?? {},
               }
               return newData

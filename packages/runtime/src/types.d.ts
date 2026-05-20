@@ -30,7 +30,6 @@ export type LocationSignal = Signal<Location>
 
 export interface Location {
   route: Component['route']
-  page?: string
   path: string
   params: Record<string, string | null>
   query: Record<string, string | string[] | null>

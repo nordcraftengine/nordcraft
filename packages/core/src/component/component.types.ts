@@ -177,8 +177,6 @@ export interface Component {
    * @deprecated - we are no longer using version 2 components, but we are keeping this field for backwards compatibility
    */
   version?: Nullable<2>
-  // @deprecated - use route->path instead
-  page?: Nullable<string> // page url /projects/:id - only for pages
   route?: Nullable<PageRoute>
   attributes?: Nullable<Record<string, Nullable<ComponentAttribute>>>
   variables?: Nullable<Record<string, Nullable<ComponentVariable>>>

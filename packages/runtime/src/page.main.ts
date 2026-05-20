@@ -25,7 +25,6 @@ import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import fastDeepEqual from 'fast-deep-equal'
-import { match } from 'path-to-regexp'
 import { isContextApiV2 } from './api/apiUtils'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
@@ -107,7 +106,6 @@ export const initGlobalObject = (code?: {
       data: {},
       locationSignal: signal<any>({
         route: component.route,
-        page: component.page as string,
         path: window.location.pathname,
         params,
         query,
@@ -153,7 +151,6 @@ export const createRoot = (domNode: HTMLElement) => {
     window.toddle.locationSignal.update(() => {
       return {
         route: component?.route,
-        page: component!.page as string,
         path: window.location.pathname,
         params,
         query,
@@ -346,14 +343,6 @@ function parseUrl(component: Component) {
         params[segment.name] = segment.name
       }
     })
-  } else {
-    const urlPattern = match<Record<string, string>>(component.page ?? '', {
-      decode: decodeURIComponent,
-    })
-    const res = urlPattern(window.location.pathname) || {
-      params: {},
-    }
-    params = res.params
   }
 
   const [hash] = window.location.hash.split('?')

@@ -46,7 +46,6 @@ export const getPageFormulaContext = ({
   const formulaContext: FormulaContext & { env: ToddleServerEnv } = {
     data: {
       Location: {
-        page: component?.page ?? '',
         path: url.pathname,
         params: combinedParams,
         query: searchParamsWithDefaults,
