@@ -330,7 +330,7 @@ export const createRoot = (domNode: HTMLElement) => {
 
 function parseUrl(component: Component) {
   const path = window.location.pathname.split('/').slice(1)
-  let params: Record<string, string | null> = {}
+  const params: Record<string, string | null> = {}
   if (component.route) {
     component.route.path.forEach((segment, i) => {
       if (segment.type === 'param') {
