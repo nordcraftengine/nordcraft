@@ -84,14 +84,16 @@ export const customElement =
  *
  * Attributes:
  *
- * ${Object.entries(component.attributes ?? {})
-   .map(([, attr]) => `- ${attr.name}`)
+ * ${Object.values(component.attributes ?? {})
+   .filter(isDefined)
+   .map((attr) => `- ${attr.name}`)
    .join('\n * ')}
  *
  * Events:
  *
- * ${Object.entries(component.events ?? {})
-   .map(([, event]) => `- ${event.name}`)
+ * ${Object.values(component.events ?? {})
+   .filter(isDefined)
+   .map((event) => `- ${event.name}`)
    .join('\n * ')}
  */
 

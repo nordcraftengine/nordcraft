@@ -1,25 +1,37 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   ActionModel,
   Component,
+  ComponentAttribute,
+  ComponentFormula,
+  ComponentWorkflow,
   CustomActionArgument,
   NodeModel,
 } from '@nordcraft/core/dist/component/component.types'
 import { isFormula, type Formula } from '@nordcraft/core/dist/formula/formula'
-import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
+import type { Nullable } from '@nordcraft/core/dist/types'
+import {
+  filterObject,
+  mapObject,
+  omitKeys,
+} from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 export const removeTestData = (component: Component): Component => ({
   ...component,
-  attributes: mapObject(component.attributes ?? {}, ([key, value]) => [
-    key,
-    omitKeys(value, ['testValue']),
-  ]),
+  attributes: mapObject(
+    filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
+      component.attributes ?? {},
+      ([_, value]) => isDefined(value),
+    ),
+    ([key, value]) => [key, omitKeys(value, ['testValue'])],
+  ),
   ...(component.events
     ? {
-        events: component.events.map((event) =>
-          omitKeys(event, ['dummyEvent']),
-        ),
+        events: component.events
+          .filter(isDefined)
+          .map((event) => omitKeys(event, ['dummyEvent'])),
       }
     : undefined),
   nodes: mapObject(component.nodes ?? {}, ([key, value]) => {
@@ -54,47 +66,61 @@ export const removeTestData = (component: Component): Component => ({
     : {}),
   ...(component.formulas
     ? {
-        formulas: mapObject(component.formulas, ([key, value]) => [
-          key,
-          {
-            ...value,
-            arguments: (value.arguments ?? []).map((a) =>
-              omitKeys(a, ['testValue']),
-            ),
-            formula: removeFormulaTestData(value.formula),
-          },
-        ]),
+        formulas: mapObject(
+          filterObject<Nullable<ComponentFormula>, ComponentFormula>(
+            component.formulas,
+            ([_, value]) => isDefined(value),
+          ),
+          ([key, value]) => [
+            key,
+            {
+              ...value,
+              arguments: (value.arguments ?? []).map((a) =>
+                omitKeys(a, ['testValue']),
+              ),
+              formula: removeFormulaTestData(value.formula),
+            },
+          ],
+        ),
       }
     : {}),
   ...(component.workflows
     ? {
-        workflows: mapObject(component.workflows, ([key, value]) => [
-          key,
-          {
-            ...omitKeys(value, ['testValue']),
-            // We should find all actions (also nested actions and non-workflow actions) and remove
-            // the description from them. This is a start though
-            actions: value.actions.map(removeActionTestData),
-            parameters: (value.parameters ?? []).map((p) =>
-              omitKeys(p, ['testValue']),
-            ),
-            callbacks: value.callbacks?.map((c) => omitKeys(c, ['testValue'])),
-          },
-        ]),
+        workflows: mapObject(
+          filterObject<Nullable<ComponentWorkflow>, ComponentWorkflow>(
+            component.workflows,
+            ([_, value]) => isDefined(value),
+          ),
+          ([key, value]) => [
+            key,
+            {
+              ...omitKeys(value, ['testValue']),
+              // We should find all actions (also nested actions and non-workflow actions) and remove
+              // the description from them. This is a start though
+              actions: value.actions.map(removeActionTestData),
+              parameters: (value.parameters ?? []).map((p) =>
+                omitKeys(p, ['testValue']),
+              ),
+              callbacks: value.callbacks?.map((c) =>
+                omitKeys(c, ['testValue']),
+              ),
+            },
+          ],
+        ),
       }
     : {}),
-  apis: mapObject(component.apis ?? {}, ([key, api]) => {
-    if (!isDefined(api)) {
-      // Keep null APIs although they're not valid/used
-      return [key, api]
-    }
-    return [
+  apis: mapObject(
+    filterObject<Nullable<ComponentAPI>, ComponentAPI>(
+      component.apis ?? {},
+      ([_, api]) => isDefined(api),
+    ),
+    ([key, api]) => [
       key,
       // service and servicePath are only necessary in the editor. All information about an API
       // request is available on the api object itself
       isLegacyApi(api) ? api : omitKeys(api, ['service', 'servicePath']),
-    ]
-  }),
+    ],
+  ),
   ...(component.onLoad
     ? {
         onLoad: {

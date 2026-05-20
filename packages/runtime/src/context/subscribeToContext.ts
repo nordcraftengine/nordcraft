@@ -1,11 +1,14 @@
 import type {
   Component,
+  ComponentAttribute,
   ComponentData,
+  ComponentVariable,
 } from '@nordcraft/core/dist/component/component.types'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { Nullable } from '@nordcraft/core/src/types'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 
@@ -73,7 +76,10 @@ export function subscribeToContext(
         const formulaContext: FormulaContext = {
           data: {
             Attributes: mapObject(
-              testProvider.attributes ?? {},
+              filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
+                testProvider.attributes ?? {},
+                ([_, attr]) => isDefined(attr),
+              ),
               ([name, attr]) => [name, attr.testValue],
             ),
           },
@@ -101,7 +107,10 @@ export function subscribeToContext(
           }
         }
         formulaContext.data.Variables = mapObject(
-          testProvider.variables ?? {},
+          filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+            testProvider.variables ?? {},
+            ([_, variable]) => isDefined(variable),
+          ),
           ([name, variable]) => [
             name,
             applyFormula(variable.initialValue, {

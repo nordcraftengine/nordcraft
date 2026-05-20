@@ -2,6 +2,8 @@ import { isLegacyApi, sortApiObjects } from '@nordcraft/core/dist/api/api'
 import type {
   Component,
   ComponentData,
+  ComponentFormula,
+  ComponentVariable,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
@@ -11,8 +13,8 @@ import {
   theme as defaultTheme,
   THEME_DATA_ATTRIBUTE,
 } from '@nordcraft/core/dist/styling/theme.const'
-import type { Toddle } from '@nordcraft/core/dist/types'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import type { Nullable, Toddle } from '@nordcraft/core/dist/types'
+import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ComponentAPI } from '@nordcraft/core/src/api/apiTypes'
 import { isContextApiV2 } from '../api/apiUtils'
@@ -135,12 +137,12 @@ export class ToddleComponent extends HTMLElement {
       // Subscribe to exposed formulas and update the component's data signal
       const formulaDataSignals = Object.fromEntries(
         Object.entries(this.#component.formulas ?? {})
-          .filter(([, formula]) => formula.exposeInContext)
+          .filter(([, formula]) => formula?.exposeInContext)
           .map(([name, formula]) => [
             name,
             this.#signal.map((data) =>
               applyFormula(
-                formula.formula,
+                (formula as ComponentFormula).formula,
                 {
                   data,
                   component: this.#component,
@@ -327,7 +329,10 @@ export const createSignal = ({
     // Pages are not supported as custom elements, so no need to add location signal
     Location: undefined,
     Variables: mapObject(
-      component.variables ?? {},
+      filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+        component.variables ?? {},
+        ([_, variable]) => isDefined(variable),
+      ),
       ([name, { initialValue }]) => {
         if (!component) {
           throw new Error(`Component not found`)

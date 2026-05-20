@@ -7,7 +7,10 @@ import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils
 import {
   HeadTagTypes,
   type Component,
+  type ComponentAttribute,
   type ComponentData,
+  type ComponentFormula,
+  type ComponentVariable,
   type MetaEntry,
 } from '@nordcraft/core/dist/component/component.types'
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
@@ -40,11 +43,16 @@ import type {
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
+  Nullable,
   PluginAction,
   PluginActionV2,
   Toddle,
 } from '@nordcraft/core/dist/types'
-import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
+import {
+  filterObject,
+  mapObject,
+  omitKeys,
+} from '@nordcraft/core/dist/utils/collections'
 import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
@@ -1322,7 +1330,10 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       fastDeepEqual(ctx?.component.attributes, _component.attributes) === false
     ) {
       Attributes = mapObject(
-        _component.attributes ?? {},
+        filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
+          _component.attributes ?? {},
+          ([_, attr]) => isDefined(attr),
+        ),
         ([name, { testValue }]) => [name, testValue],
       )
     }
@@ -1369,7 +1380,10 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       }
 
       Attributes = mapObject(
-        _component.attributes ?? {},
+        filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
+          _component.attributes ?? {},
+          ([_, attr]) => isDefined(attr),
+        ),
         ([name, { testValue }]) => [name, testValue],
       )
     }
@@ -1419,8 +1433,13 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
             const formulaContext: FormulaContext = {
               data: {
                 Attributes: mapObject(
-                  providerComponent.attributes ?? {},
-                  ([name, attr]) => [name, attr.testValue],
+                  filterObject<
+                    Nullable<ComponentAttribute>,
+                    ComponentAttribute
+                  >(providerComponent.attributes ?? {}, ([_, attr]) =>
+                    isDefined(attr),
+                  ),
+                  ([name, { testValue }]) => [name, testValue],
                 ),
                 // Recursively resolve contexts providers before their children to build up the fake context tree in preview mode
                 Contexts: createStaticContextFromComponent(
@@ -1456,7 +1475,10 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               }
             }
             formulaContext.data.Variables = mapObject(
-              providerComponent.variables ?? {},
+              filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+                providerComponent.variables ?? {},
+                ([_, variable]) => isDefined(variable),
+              ),
               ([name, variable]) => [
                 name,
                 applyFormula(variable.initialValue, formulaContext, [
@@ -1496,7 +1518,10 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       fastDeepEqual(_component.variables, ctx?.component.variables) === false
     ) {
       Variables = mapObject(
-        _component.variables ?? {},
+        filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+          _component.variables ?? {},
+          ([_, variable]) => isDefined(variable),
+        ),
         ([name, { initialValue }]) => [
           name,
           applyFormula(
@@ -1743,12 +1768,12 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       // Subscribe to exposed formulas and update the component's data signal
       const formulaDataSignals = Object.fromEntries(
         Object.entries(component.formulas ?? {})
-          .filter(([, formula]) => formula.exposeInContext)
+          .filter(([, formula]) => formula?.exposeInContext)
           .map(([name, formula]) => [
             name,
             dataSignal.map((data) =>
               applyFormula(
-                formula.formula,
+                (formula as ComponentFormula).formula,
                 {
                   data,
                   component,

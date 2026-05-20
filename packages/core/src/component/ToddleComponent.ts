@@ -398,27 +398,31 @@ export class ToddleComponent<Handler> {
       })
     }
     for (const [formulaKey, formula] of Object.entries(this.formulas ?? {})) {
-      yield* getFormulasInFormula({
-        formula: formula.formula,
-        globalFormulas,
-        path: ['formulas', formulaKey, 'formula'],
-        packageName,
-      })
+      if (isDefined(formula)) {
+        yield* getFormulasInFormula({
+          formula: formula.formula,
+          globalFormulas,
+          path: ['formulas', formulaKey, 'formula'],
+          packageName,
+        })
+      }
     }
     for (const [variableKey, variable] of Object.entries(
       this.variables ?? {},
     )) {
-      yield* getFormulasInFormula({
-        formula: variable.initialValue,
-        globalFormulas,
-        path: ['variables', variableKey, 'initialValue'],
-        packageName,
-      })
+      if (isDefined(variable)) {
+        yield* getFormulasInFormula({
+          formula: variable.initialValue,
+          globalFormulas,
+          path: ['variables', variableKey, 'initialValue'],
+          packageName,
+        })
+      }
     }
     for (const [workflowKey, workflow] of Object.entries(
       this.workflows ?? {},
     )) {
-      for (const [actionKey, action] of workflow.actions.entries()) {
+      for (const [actionKey, action] of workflow?.actions.entries() ?? []) {
         yield* getFormulasInAction({
           action,
           globalFormulas,

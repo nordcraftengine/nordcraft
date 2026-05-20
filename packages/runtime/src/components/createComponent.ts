@@ -1,11 +1,14 @@
 import { isLegacyApi, sortApiObjects } from '@nordcraft/core/dist/api/api'
 import type {
   ComponentData,
+  ComponentFormula,
   ComponentNodeModel,
+  ComponentVariable,
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
@@ -131,19 +134,25 @@ export function createComponent({
   subscribeToContext(componentDataSignal, component, ctx)
   componentDataSignal.update((data) => ({
     ...data,
-    Variables: mapObject(component.variables ?? {}, ([name, variable]) => [
-      name,
-      applyFormula(
-        variable.initialValue,
-        {
-          // Initial value
-          ...formulaCtx,
-          component,
-          data: componentDataSignal.get(),
-        },
-        ['variables', name],
+    Variables: mapObject(
+      filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+        component.variables ?? {},
+        ([_, variable]) => isDefined(variable),
       ),
-    ]),
+      ([name, variable]) => [
+        name,
+        applyFormula(
+          variable.initialValue,
+          {
+            // Initial value
+            ...formulaCtx,
+            component,
+            data: componentDataSignal.get(),
+          },
+          ['variables', name],
+        ),
+      ],
+    ),
   }))
   registerComponentToLogState(component, componentDataSignal)
 
@@ -239,12 +248,12 @@ export function createComponent({
     // Subscribe to exposed formulas and update the component's data signal
     const formulaDataSignals = Object.fromEntries(
       Object.entries(component.formulas ?? {})
-        .filter(([, formula]) => formula.exposeInContext)
+        .filter(([, formula]) => formula?.exposeInContext)
         .map(([name, formula]) => [
           name,
           componentDataSignal.map((data) =>
             applyFormula(
-              formula.formula,
+              (formula as ComponentFormula).formula,
               {
                 data,
                 component,
