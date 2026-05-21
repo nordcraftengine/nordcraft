@@ -1,10 +1,7 @@
-import type {
-  Component,
-  NodeModel,
-} from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
-import { getClassName } from '@nordcraft/core/dist/styling/className'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import type { Component, NodeModel } from '../component/component.types'
+import { valueFormula } from '../formula/formulaUtils'
+import { mapObject } from '../utils/collections'
+import { getClassName } from './className'
 
 /**
  * Function to strip styles and variants from a Component's nodes and convert them to static class names
