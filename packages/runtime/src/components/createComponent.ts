@@ -75,7 +75,7 @@ export function createComponent({
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
   const attributesSignal = dataSignal.map((data) => {
-    return mapObject(node.attrs, ([attr, value]) => [
+    return mapObject(node.attrs ?? {}, ([attr, value]) => [
       attr,
       value?.type !== 'value'
         ? applyFormula(
@@ -189,8 +189,8 @@ export function createComponent({
         formulaCache,
         package: node.package ?? ctx.package,
         triggerEvent: (eventTrigger, data) => {
-          const eventHandler = Object.values(node.events).find(
-            (e) => e.trigger === eventTrigger,
+          const eventHandler = Object.values(node.events ?? {}).find(
+            (e) => e?.trigger === eventTrigger,
           )
           if (eventHandler) {
             eventHandler.actions?.forEach((action) =>
@@ -212,8 +212,8 @@ export function createComponent({
           formulaCache,
           package: node.package ?? ctx.package,
           triggerEvent: (eventTrigger, data) => {
-            const eventHandler = Object.values(node.events).find(
-              (e) => e.trigger === eventTrigger,
+            const eventHandler = Object.values(node.events ?? {}).find(
+              (e) => e?.trigger === eventTrigger,
             )
             if (eventHandler) {
               eventHandler.actions?.forEach((action) =>
@@ -233,8 +233,8 @@ export function createComponent({
     })
 
   const onEvent = (eventTrigger: string, data: any) => {
-    const eventHandler = Object.values(node.events).find(
-      (e) => e.trigger === eventTrigger,
+    const eventHandler = Object.values(node.events ?? {}).find(
+      (e) => e?.trigger === eventTrigger,
     )
     if (eventHandler) {
       eventHandler.actions?.forEach((action) =>
@@ -289,8 +289,11 @@ export function createComponent({
   }
 
   const children: Record<string, Array<ComponentChild>> = {}
-  for (let i = 0; i < node.children.length; i++) {
-    const childId = node.children[i]
+  for (let i = 0; i < (node?.children ?? []).length; i++) {
+    const childId = node.children?.[i]
+    if (childId === undefined) {
+      continue
+    }
     const childNode = ctx.component.nodes?.[childId]
     const slotName = childNode?.slot ?? 'default'
     children[slotName] = children[slotName] ?? []

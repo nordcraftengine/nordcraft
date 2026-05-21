@@ -24,7 +24,7 @@ export function createRequiredDirectChildRule(
       }
       const getElement = (id: string): NodeModel | undefined =>
         component.nodes?.[id]
-      value.children.forEach((childId) => {
+      ;(value.children ?? []).forEach((childId) => {
         const childNode = getElement(childId)
         if (
           childNode?.type === 'element' &&

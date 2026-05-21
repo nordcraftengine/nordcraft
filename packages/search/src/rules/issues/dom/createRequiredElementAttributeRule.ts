@@ -37,7 +37,7 @@ export function createRequiredElementAttributeRule({
         const attributes = Array.isArray(attribute) ? attribute : [attribute]
         if (
           attributes.some((attr) => {
-            if (!isDefined(value.attrs[attr])) {
+            if (!isDefined(value.attrs?.[attr])) {
               return false
             }
             const { isStatic, result } = contextlessEvaluateFormula(

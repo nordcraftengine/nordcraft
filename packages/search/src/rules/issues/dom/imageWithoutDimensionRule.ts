@@ -24,13 +24,13 @@ export const imageWithoutDimensionRule: IssueRule = {
     let hasValidHeight = false
     let hasValidAspectRatio = false
 
-    if (isDefined(value.attrs.width)) {
+    if (isDefined(value.attrs?.width)) {
       const widthEval = contextlessEvaluateFormula(value.attrs.width)
       // If dynamic, we assume it is valid
       hasValidWidth ||= !widthEval.isStatic || checkValue(widthEval.result)
     }
 
-    if (isDefined(value.attrs.height)) {
+    if (isDefined(value.attrs?.height)) {
       const heightEval = contextlessEvaluateFormula(value.attrs.height)
       // If dynamic, we assume it is valid
       hasValidHeight ||= !heightEval.isStatic || checkValue(heightEval.result)

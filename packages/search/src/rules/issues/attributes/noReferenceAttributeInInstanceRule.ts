@@ -35,7 +35,7 @@ export const noReferenceAttributeInInstanceRule: IssueRule<void> = {
         Object.values(otherComponent?.nodes ?? {})
           .filter((node) => node.type === 'component')
           .forEach((instance) =>
-            Object.keys(instance.attrs).forEach((attr) => {
+            Object.keys(instance.attrs ?? {}).forEach((attr) => {
               attrs.add([instance.name, attr].join('/'))
             }),
           ),

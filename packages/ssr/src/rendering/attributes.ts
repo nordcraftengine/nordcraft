@@ -59,7 +59,7 @@ export function getNodeAttrs({
   env: ToddleEnv
   toddle: FormulaContext['toddle']
 }) {
-  const { style, ...restAttrs } = node.attrs
+  const { style, ...restAttrs } = node.attrs ?? {}
   const nodeAttrs = Object.entries(restAttrs).reduce<string[]>(
     (appliedAttributes, [name, attrValue]) => {
       const value = applyFormula(attrValue, {

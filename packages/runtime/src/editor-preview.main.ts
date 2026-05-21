@@ -646,7 +646,7 @@ export const createRoot = (
                 } else {
                   const firstTextChild =
                     nodeLookup?.node.type === 'element'
-                      ? nodeLookup.node.children.find(
+                      ? nodeLookup.node.children?.find(
                           (c) => component?.nodes?.[c]?.type === 'text',
                         )
                       : undefined

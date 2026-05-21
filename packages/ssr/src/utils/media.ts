@@ -19,7 +19,7 @@ export const transformRelativePaths =
           ...node,
           ...(node.type === 'element'
             ? {
-                attrs: Object.entries(node.attrs).reduce(
+                attrs: Object.entries(node.attrs ?? {}).reduce(
                   (acc, [key, formula]) => {
                     if (
                       ['src'].includes(key) &&

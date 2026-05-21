@@ -1,5 +1,6 @@
 import type {
   ElementNodeModel,
+  EventModel,
   NodeModel,
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
@@ -45,7 +46,7 @@ export function createElement({
   }
 
   // Explicitly setting a namespace has precedence over inferring it from the tag
-  if (node.attrs['xmlns']?.type === 'value') {
+  if (node.attrs?.['xmlns']?.type === 'value') {
     namespace = String(node.attrs['xmlns'].value) as SupportedNamespaces
   }
 
@@ -99,7 +100,7 @@ export function createElement({
     })
   }
 
-  Object.entries(node.attrs).forEach(([attr, value]) => {
+  Object.entries(node.attrs ?? {}).forEach(([attr, value]) => {
     if (!isDefined(value)) {
       return
     }
@@ -233,7 +234,7 @@ export function createElement({
   })
 
   const eventHandlers: [string, (e: Event) => boolean][] = []
-  Object.values(node.events).forEach((event) => {
+  Object.values(node.events ?? {}).forEach((event) => {
     if (!event) {
       return
     }
@@ -253,7 +254,7 @@ export function createElement({
   const nodeTag = node.tag.toLocaleLowerCase()
   if (nodeTag === 'script' || nodeTag === 'style') {
     const textValues: Array<Signal<string> | string> = []
-    node.children
+    ;(node.children ?? [])
       .map<NodeModel | undefined>((child) => ctx.component.nodes?.[child])
       .filter((node) => node?.type === 'text')
       .forEach((node) => {
@@ -289,7 +290,7 @@ export function createElement({
       })
   } else {
     const childNodes: (Element | Text)[] = []
-    node.children.forEach((child, i) => {
+    ;(node.children ?? []).forEach((child, i) => {
       childNodes.push(
         ...createNode({
           parentElement: elem,
@@ -320,7 +321,7 @@ const getEventHandler =
     dataSignal,
     ctx,
   }: {
-    event: ElementNodeModel['events'][string]
+    event: EventModel
     dataSignal: Signal<ComponentData>
     ctx: ComponentContext
   }) =>
