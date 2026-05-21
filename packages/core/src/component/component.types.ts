@@ -314,7 +314,7 @@ export interface CustomActionModel {
   package?: Nullable<string>
   name: string
   description?: Nullable<string>
-  group?: Nullable<string>
+  group?: Nullable<never>
   data?: Nullable<string | number | boolean | Formula>
   arguments?: Nullable<Partial<CustomActionArgument[]>>
   events?: Nullable<Record<string, ActionModelActions>>
