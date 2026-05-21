@@ -22,6 +22,9 @@ describe('createNode()', () => {
               children: ['test-node-id.0', 'test-node-id.1'],
               attrs: {},
               events: {},
+              classes: {
+                'my-class': { formula: { type: 'value', value: true } },
+              },
             },
             'test-node-id.0': {
               type: 'text',
@@ -46,7 +49,7 @@ describe('createNode()', () => {
     })
     expect(nodes.length).toBe(1)
     expect((nodes[0] as Element).outerHTML).toMatchInlineSnapshot(
-      `"<div data-node-id="test-node-id" data-id="test-node" data-component="My Component" class="cYXIdv"><span data-node-id="test-node-id.0" data-id="test-node.0" data-component="My Component" data-node-type="text">Item 1</span><span data-node-id="test-node-id.1" data-id="test-node.1" data-component="My Component" data-node-type="text">Item 2</span></div>"`,
+      `"<div data-node-id="test-node-id" data-id="test-node" data-component="My Component" class="my-class"><span data-node-id="test-node-id.0" data-id="test-node.0" data-component="My Component" data-node-type="text">Item 1</span><span data-node-id="test-node-id.1" data-id="test-node.1" data-component="My Component" data-node-type="text">Item 2</span></div>"`,
     )
   })
 
