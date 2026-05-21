@@ -4,7 +4,10 @@ import type {
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { toValidClassName } from '@nordcraft/core/dist/styling/className'
+import {
+  getClassName,
+  toValidClassName,
+} from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
@@ -66,6 +69,11 @@ export function createElement({
   }
   if (ctx.isRootComponent === false && id !== 'root') {
     elem.setAttribute('data-component', ctx.component.name)
+  }
+  if (node.style || node.variants) {
+    // style and variants are not available except in the editor's runtime
+    const classHash = getClassName([node.style, node.variants])
+    elem.classList.add(classHash)
   }
   if (instance && id === 'root') {
     Object.entries(instance).forEach(([key, value]) => {

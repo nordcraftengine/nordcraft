@@ -28,7 +28,6 @@ import {
   type PluginFormula,
   type ToddleFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
-import { serializeClasses } from '@nordcraft/core/dist/styling/classes'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
 import {
@@ -366,9 +365,7 @@ export const createRoot = (
             ctx = null
           }
 
-          component = updateComponentLinks(
-            serializeClasses(message.data.component),
-          )
+          component = updateComponentLinks(message.data.component)
 
           if (components && packageComponents && ctx) {
             // Since we're not receiving the current component in
@@ -423,9 +420,9 @@ export const createRoot = (
         }
         case 'components': {
           if (Array.isArray(message.data.components)) {
-            components = (message.data.components as Component[])
-              .map(serializeClasses)
-              .map(updateComponentLinks)
+            components = (message.data.components as Component[]).map(
+              updateComponentLinks,
+            )
             const allComponents = getAllComponents()
             if (ctx) {
               ctx.components = allComponents
