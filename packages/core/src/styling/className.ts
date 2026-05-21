@@ -6,7 +6,7 @@ import type { StyleVariant } from './variantSelector'
 // Classnames are reused a lot, and JS hashing is expensive, so there is benefit in caching them in a native hashmap.
 const CLASSNAME_LOOKUP = new Map<string, string>()
 export const getClassName = (
-  object: Array<Nullable<NodeStyleModel> | Nullable<StyleVariant[]>>,
+  object: [Nullable<NodeStyleModel>, Nullable<StyleVariant[]>],
 ) => {
   const stringified = JSON.stringify(
     object.filter(
