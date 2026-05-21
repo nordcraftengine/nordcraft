@@ -37,6 +37,12 @@ export type ActionHandler<Args = unknown[]> = (
     ) => void
     env: ToddleEnv
     abortSignal: AbortSignal
+    stores?: {
+      theme: {
+        set: (value: string | null) => void
+        get: () => string | null
+      }
+    }
   },
   event?: Nullable<Event>,
 ) => void

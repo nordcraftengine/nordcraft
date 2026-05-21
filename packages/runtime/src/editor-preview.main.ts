@@ -35,7 +35,10 @@ import {
   getThemeEntries,
   renderThemeValues,
 } from '@nordcraft/core/dist/styling/theme'
-import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/theme.const'
+import {
+  THEME_COOKIE_NAME,
+  THEME_DATA_ATTRIBUTE,
+} from '@nordcraft/core/dist/styling/theme.const'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type {
   ActionHandler,
@@ -1166,6 +1169,15 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
         }
         case 'preview_theme': {
           const { theme } = message.data
+          themeSignal.set(theme)
+          const shouldDelete = theme === null || theme === ''
+          await cookieStore.set({
+            name: THEME_COOKIE_NAME,
+            value: theme ?? '',
+            path: '/',
+            expires: shouldDelete ? 0 : Date.now() + 1000 * 60 * 60 * 24, // 1 day
+            sameSite: 'none',
+          })
           if (theme) {
             document.body.setAttribute(THEME_DATA_ATTRIBUTE, theme)
           } else {
