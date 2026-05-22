@@ -1,3 +1,5 @@
+process.stdout.write('Starting...\n')
+
 import { serve } from '@hono/node-server'
 import { getConnInfo } from '@hono/node-server/conninfo'
 import { serveStatic } from '@hono/node-server/serve-static'
@@ -27,5 +29,8 @@ const app = getApp({
   // This could be replaced with a more advanced setup if needed - e.g. nginx in front of the app with brotli support
   earlyMiddleware: [compress()],
 })
+process.stdout.write('Serving...\n')
 
-serve(app)
+serve(app, (info) => {
+  process.stdout.write(`Server started on ${JSON.stringify(info)}\n`)
+})
