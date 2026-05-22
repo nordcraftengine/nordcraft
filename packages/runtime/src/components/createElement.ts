@@ -1,4 +1,5 @@
 import type {
+  ComponentData,
   ElementNodeModel,
   NodeModel,
   SupportedNamespaces,
@@ -11,7 +12,6 @@ import {
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import type { ComponentData } from '@nordcraft/core/src/component/component.types'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'

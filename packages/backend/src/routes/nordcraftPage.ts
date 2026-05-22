@@ -9,7 +9,7 @@ import type { ToddleInternals } from '@nordcraft/core/dist/types'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
 import type { ApiCache } from '@nordcraft/ssr/dist/rendering/api'
-import { serializeClasses } from '@nordcraft/ssr/dist/rendering/classes'
+import { resolveClasses } from '@nordcraft/ssr/dist/rendering/classes'
 import { renderPageBody } from '@nordcraft/ssr/dist/rendering/components'
 import { getPageFormulaContext } from '@nordcraft/ssr/dist/rendering/formulaContext'
 import {
@@ -21,13 +21,13 @@ import {
   getHtmlLanguage,
   getTheme,
 } from '@nordcraft/ssr/dist/rendering/html'
+import { removeTestData } from '@nordcraft/ssr/dist/rendering/testData'
 import type { ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
-import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
-import { removeTestData } from '@nordcraft/ssr/src/rendering/testData'
 import {
   REDIRECT_API_NAME_HEADER,
   REDIRECT_COMPONENT_NAME_HEADER,
-} from '@nordcraft/ssr/src/utils/headers'
+} from '@nordcraft/ssr/dist/utils/headers'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
 import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
 import { endTime, startTime } from 'hono/timing'
@@ -168,8 +168,8 @@ export const nordcraftPage = async ({
         ...apiCache,
       },
     },
-    component: removeTestData(serializeClasses(toddleComponent)),
-    components: includedComponents.map(removeTestData).map(serializeClasses),
+    component: removeTestData(resolveClasses(toddleComponent)),
+    components: includedComponents.map(removeTestData).map(resolveClasses),
     isPageLoaded: false,
     cookies: Object.keys(formulaContext.env.request.cookies),
   }

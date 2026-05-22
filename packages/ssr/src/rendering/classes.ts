@@ -9,7 +9,7 @@ import { mapObject } from '@nordcraft/core/dist/utils/collections'
 /**
  * Function to strip styles and variants from a Component's nodes and convert them to static class names
  */
-export const serializeClasses = (component: Component) => ({
+export const resolveClasses = (component: Component) => ({
   ...component,
   nodes: mapObject<NodeModel, NodeModel>(
     component.nodes ?? {},
