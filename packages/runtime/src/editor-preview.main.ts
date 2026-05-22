@@ -247,6 +247,20 @@ export const createRoot = (
     testMode: false,
   })
   const themeSignal = signal<string | null>(null)
+  themeSignal.subscribe((theme) => {
+    if (isDefined(theme)) {
+      document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, theme)
+    } else {
+      document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE)
+    }
+    dataSignal.update((data) => ({
+      ...data,
+      Page: {
+        ...(data.Page ?? {}),
+        Theme: theme ?? null,
+      },
+    }))
+  })
   const resizeCanvasOptions: {
     viewport?: { height: number | null }
     enabled?: boolean
@@ -1178,11 +1192,6 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
             expires: shouldDelete ? 0 : Date.now() + 1000 * 60 * 60 * 24, // 1 day
             sameSite: 'none',
           })
-          if (theme) {
-            document.body.setAttribute(THEME_DATA_ATTRIBUTE, theme)
-          } else {
-            document.body.removeAttribute(THEME_DATA_ATTRIBUTE)
-          }
           requestResizeCanvas(resizeCanvasOptions)
           break
         }
@@ -2116,19 +2125,6 @@ function setupThemeSubscription(
 ) {
   _themeRootSignal?.destroy()
   _themeRootSignal = getThemeSignal(component, dataSignal, env)
-  _themeRootSignal.subscribe((theme) => {
-    if (isDefined(theme)) {
-      document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, theme)
-    } else {
-      document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE)
-    }
-    dataSignal.update((data) => ({
-      ...data,
-      Page: {
-        Theme: theme ?? null,
-      },
-    }))
-  })
 
   return _themeRootSignal
 }
