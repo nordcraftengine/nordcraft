@@ -56,7 +56,17 @@
     "-ms-content-zoom-limit": [],
     "-ms-content-zoom-limit-max": [],
     "-ms-content-zoom-limit-min": [],
-    "-ms-content-zoom-snap": [],
+    "-ms-content-zoom-snap": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "proximity"
+      },
+      {
+        "value": "mandatory"
+      }
+    ],
     "-ms-content-zoom-snap-points": [],
     "-ms-content-zoom-snap-type": [
       {
@@ -177,7 +187,11 @@
         "value": "none"
       }
     ],
-    "-ms-scroll-limit": [],
+    "-ms-scroll-limit": [
+      {
+        "value": "auto"
+      }
+    ],
     "-ms-scroll-limit-x-max": [
       {
         "value": "auto"
@@ -211,8 +225,28 @@
         "value": "mandatory"
       }
     ],
-    "-ms-scroll-snap-x": [],
-    "-ms-scroll-snap-y": [],
+    "-ms-scroll-snap-x": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "proximity"
+      },
+      {
+        "value": "mandatory"
+      }
+    ],
+    "-ms-scroll-snap-y": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "proximity"
+      },
+      {
+        "value": "mandatory"
+      }
+    ],
     "-ms-scroll-translation": [
       {
         "value": "none"
@@ -950,10 +984,91 @@
         "value": "-apple-pay-button"
       }
     ],
-    "-webkit-border-before": [],
+    "-webkit-border-before": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      },
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
     "-webkit-border-before-color": [],
-    "-webkit-border-before-style": [],
-    "-webkit-border-before-width": [],
+    "-webkit-border-before-style": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
+    "-webkit-border-before-width": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      }
+    ],
     "-webkit-box-reflect": [
       {
         "value": "above"
@@ -1556,6 +1671,9 @@
     ],
     "animation": [
       {
+        "value": "auto"
+      },
+      {
         "value": "linear"
       },
       {
@@ -1608,9 +1726,6 @@
       },
       {
         "value": "paused"
-      },
-      {
-        "value": "auto"
       }
     ],
     "animation-composition": [
@@ -1690,7 +1805,29 @@
         "description": "The animation is paused and retains its current computed values."
       }
     ],
-    "animation-range": [],
+    "animation-range": [
+      {
+        "value": "normal"
+      },
+      {
+        "value": "cover"
+      },
+      {
+        "value": "contain"
+      },
+      {
+        "value": "entry"
+      },
+      {
+        "value": "exit"
+      },
+      {
+        "value": "entry-crossing"
+      },
+      {
+        "value": "exit-crossing"
+      }
+    ],
     "animation-range-end": [
       {
         "value": "normal"
@@ -2113,7 +2250,20 @@
         "value": "baseline"
       }
     ],
-    "block-size": [],
+    "block-size": [
+      {
+        "value": "auto"
+      },
+      {
+        "value": "min-content"
+      },
+      {
+        "value": "max-content"
+      },
+      {
+        "value": "fit-content"
+      }
+    ],
     "border": [
       {
         "value": "thin"
@@ -2155,18 +2305,261 @@
         "value": "outset"
       }
     ],
-    "border-block": [],
+    "border-block": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      },
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
     "border-block-color": [],
-    "border-block-end": [],
+    "border-block-end": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      },
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
     "border-block-end-color": [],
-    "border-block-end-style": [],
-    "border-block-end-width": [],
-    "border-block-start": [],
+    "border-block-end-style": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
+    "border-block-end-width": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      }
+    ],
+    "border-block-start": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      },
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
     "border-block-start-color": [],
-    "border-block-start-style": [],
-    "border-block-start-width": [],
-    "border-block-style": [],
-    "border-block-width": [],
+    "border-block-start-style": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
+    "border-block-start-width": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      }
+    ],
+    "border-block-style": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
+    "border-block-width": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      }
+    ],
     "border-bottom": [
       {
         "value": "thin"
@@ -2277,7 +2670,29 @@
     "border-color": [],
     "border-end-end-radius": [],
     "border-end-start-radius": [],
-    "border-image": [],
+    "border-image": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "fill"
+      },
+      {
+        "value": "auto"
+      },
+      {
+        "value": "stretch"
+      },
+      {
+        "value": "repeat"
+      },
+      {
+        "value": "round"
+      },
+      {
+        "value": "space"
+      }
+    ],
     "border-image-outset": [],
     "border-image-repeat": [
       {
@@ -2308,18 +2723,261 @@
         "value": "auto"
       }
     ],
-    "border-inline": [],
+    "border-inline": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      },
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
     "border-inline-color": [],
-    "border-inline-end": [],
+    "border-inline-end": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      },
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
     "border-inline-end-color": [],
-    "border-inline-end-style": [],
-    "border-inline-end-width": [],
-    "border-inline-start": [],
+    "border-inline-end-style": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
+    "border-inline-end-width": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      }
+    ],
+    "border-inline-start": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      },
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
     "border-inline-start-color": [],
-    "border-inline-start-style": [],
-    "border-inline-start-width": [],
-    "border-inline-style": [],
-    "border-inline-width": [],
+    "border-inline-start-style": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
+    "border-inline-start-width": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      }
+    ],
+    "border-inline-style": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
+    "border-inline-width": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      }
+    ],
     "border-left": [
       {
         "value": "thin"
@@ -2887,7 +3545,20 @@
         "value": "bottom"
       }
     ],
-    "caret": [],
+    "caret": [
+      {
+        "value": "auto"
+      },
+      {
+        "value": "bar"
+      },
+      {
+        "value": "block"
+      },
+      {
+        "value": "underscore"
+      }
+    ],
     "caret-color": [
       {
         "value": "auto"
@@ -3029,10 +3700,91 @@
         "description": "Uses layout-defined spacing between columns."
       }
     ],
-    "column-rule": [],
+    "column-rule": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      },
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
     "column-rule-color": [],
-    "column-rule-style": [],
-    "column-rule-width": [],
+    "column-rule-style": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "hidden"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
+    "column-rule-width": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      }
+    ],
     "column-span": [
       {
         "value": "none"
@@ -3046,7 +3798,11 @@
         "value": "auto"
       }
     ],
-    "columns": [],
+    "columns": [
+      {
+        "value": "auto"
+      }
+    ],
     "contain": [
       {
         "value": "none"
@@ -3113,7 +3869,23 @@
         "value": "none"
       }
     ],
-    "container": [],
+    "container": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "normal"
+      },
+      {
+        "value": "size"
+      },
+      {
+        "value": "inline-size"
+      },
+      {
+        "value": "scroll-state"
+      }
+    ],
     "container-name": [
       {
         "value": "none"
@@ -3496,12 +4268,42 @@
       {
         "value": "none",
         "description": "Disables flex sizing; the item is sized according to its base size and does not grow or shrink."
+      },
+      {
+        "value": "content"
+      },
+      {
+        "value": "auto",
+        "description": "Items grow and shrink as needed, with base size determined by content."
+      },
+      {
+        "value": "min-content"
+      },
+      {
+        "value": "max-content"
+      },
+      {
+        "value": "fit-content"
       }
     ],
     "flex-basis": [
       {
         "value": "content",
         "description": "The item's base size is determined solely by its content."
+      },
+      {
+        "value": "auto",
+        "description": "The item's base size is determined by its content and styles before flex sizing occurs."
+      },
+      {
+        "value": "min-content"
+      },
+      {
+        "value": "max-content"
+      },
+      {
+        "value": "fit-content",
+        "description": "The item sizes itself based on content but does not exceed the space available."
       }
     ],
     "flex-direction": [
@@ -3522,7 +4324,29 @@
         "description": "Sets the main axis to the block direction, placing items vertically in reverse block progression order."
       }
     ],
-    "flex-flow": [],
+    "flex-flow": [
+      {
+        "value": "row"
+      },
+      {
+        "value": "row-reverse"
+      },
+      {
+        "value": "column"
+      },
+      {
+        "value": "column-reverse"
+      },
+      {
+        "value": "nowrap"
+      },
+      {
+        "value": "wrap"
+      },
+      {
+        "value": "wrap-reverse"
+      }
+    ],
     "flex-grow": [],
     "flex-shrink": [],
     "flex-wrap": [
@@ -3568,7 +4392,22 @@
         "value": "normal"
       },
       {
+        "value": "italic"
+      },
+      {
+        "value": "oblique"
+      },
+      {
         "value": "small-caps"
+      },
+      {
+        "value": "bold"
+      },
+      {
+        "value": "bolder"
+      },
+      {
+        "value": "lighter"
       },
       {
         "value": "ultra-condensed"
@@ -3593,6 +4432,75 @@
       },
       {
         "value": "ultra-expanded"
+      },
+      {
+        "value": "xx-small"
+      },
+      {
+        "value": "x-small"
+      },
+      {
+        "value": "small"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "large"
+      },
+      {
+        "value": "x-large"
+      },
+      {
+        "value": "xx-large"
+      },
+      {
+        "value": "xxx-large"
+      },
+      {
+        "value": "larger"
+      },
+      {
+        "value": "smaller"
+      },
+      {
+        "value": "math"
+      },
+      {
+        "value": "serif"
+      },
+      {
+        "value": "sans-serif"
+      },
+      {
+        "value": "system-ui"
+      },
+      {
+        "value": "cursive"
+      },
+      {
+        "value": "fantasy"
+      },
+      {
+        "value": "monospace"
+      },
+      {
+        "value": "ui-serif"
+      },
+      {
+        "value": "ui-sans-serif"
+      },
+      {
+        "value": "ui-monospace"
+      },
+      {
+        "value": "ui-rounded"
+      },
+      {
+        "value": "emoji"
+      },
+      {
+        "value": "fangsong"
       },
       {
         "value": "caption"
@@ -4236,8 +5144,34 @@
         "value": "preserve-parent-color"
       }
     ],
-    "gap": [],
+    "gap": [
+      {
+        "value": "normal",
+        "description": "Uses the default spacing behavior defined by the layout model."
+      }
+    ],
     "grid": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "min-content"
+      },
+      {
+        "value": "max-content"
+      },
+      {
+        "value": "auto"
+      },
+      {
+        "value": "auto-fill"
+      },
+      {
+        "value": "auto-fit"
+      },
+      {
+        "value": "subgrid"
+      },
       {
         "value": "auto-flow"
       },
@@ -4366,6 +5300,15 @@
       },
       {
         "value": "auto"
+      },
+      {
+        "value": "auto-fill"
+      },
+      {
+        "value": "auto-fit"
+      },
+      {
+        "value": "subgrid"
       }
     ],
     "grid-template-areas": [
@@ -4551,14 +5494,62 @@
         "value": "ideographic"
       }
     ],
-    "inline-size": [],
-    "inset": [],
-    "inset-block": [],
-    "inset-block-end": [],
-    "inset-block-start": [],
-    "inset-inline": [],
-    "inset-inline-end": [],
-    "inset-inline-start": [],
+    "inline-size": [
+      {
+        "value": "auto"
+      },
+      {
+        "value": "min-content"
+      },
+      {
+        "value": "max-content"
+      },
+      {
+        "value": "fit-content"
+      }
+    ],
+    "inset": [
+      {
+        "value": "auto",
+        "description": "No offset is applied; layout determines final position."
+      }
+    ],
+    "inset-block": [
+      {
+        "value": "auto",
+        "description": "No offset is applied; layout determines final position."
+      }
+    ],
+    "inset-block-end": [
+      {
+        "value": "auto",
+        "description": "No offset is applied; layout determines final position."
+      }
+    ],
+    "inset-block-start": [
+      {
+        "value": "auto",
+        "description": "No offset is applied; layout determines final position."
+      }
+    ],
+    "inset-inline": [
+      {
+        "value": "auto",
+        "description": "No offset is applied; layout determines final position."
+      }
+    ],
+    "inset-inline-end": [
+      {
+        "value": "auto",
+        "description": "No offset is applied; layout determines final position."
+      }
+    ],
+    "inset-inline-start": [
+      {
+        "value": "auto",
+        "description": "No offset is applied; layout determines final position."
+      }
+    ],
     "interpolate-size": [
       {
         "value": "numeric-only"
@@ -4834,7 +5825,18 @@
       }
     ],
     "line-height-step": [],
-    "list-style": [],
+    "list-style": [
+      {
+        "value": "none",
+        "description": "Removes the list marker."
+      },
+      {
+        "value": "inside"
+      },
+      {
+        "value": "outside"
+      }
+    ],
     "list-style-image": [
       {
         "value": "none",
@@ -4856,19 +5858,48 @@
         "value": "none"
       }
     ],
-    "margin": [],
-    "margin-block": [],
-    "margin-block-end": [],
-    "margin-block-start": [],
+    "margin": [
+      {
+        "value": "auto",
+        "description": "Let the user agent calculate the margin; commonly used for centering block elements horizontally."
+      }
+    ],
+    "margin-block": [
+      {
+        "value": "auto"
+      }
+    ],
+    "margin-block-end": [
+      {
+        "value": "auto"
+      }
+    ],
+    "margin-block-start": [
+      {
+        "value": "auto"
+      }
+    ],
     "margin-bottom": [
       {
         "value": "auto",
         "description": "Let the user agent calculate the margin; commonly used for centering block elements horizontally."
       }
     ],
-    "margin-inline": [],
-    "margin-inline-end": [],
-    "margin-inline-start": [],
+    "margin-inline": [
+      {
+        "value": "auto"
+      }
+    ],
+    "margin-inline-end": [
+      {
+        "value": "auto"
+      }
+    ],
+    "margin-inline-start": [
+      {
+        "value": "auto"
+      }
+    ],
     "margin-left": [
       {
         "value": "auto",
@@ -5010,7 +6041,35 @@
         "value": "match-source"
       }
     ],
-    "mask-border": [],
+    "mask-border": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "fill"
+      },
+      {
+        "value": "auto"
+      },
+      {
+        "value": "stretch"
+      },
+      {
+        "value": "repeat"
+      },
+      {
+        "value": "round"
+      },
+      {
+        "value": "space"
+      },
+      {
+        "value": "luminance"
+      },
+      {
+        "value": "alpha"
+      }
+    ],
     "mask-border-mode": [
       {
         "value": "luminance"
@@ -5225,7 +6284,20 @@
         "value": "compact"
       }
     ],
-    "max-block-size": [],
+    "max-block-size": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "min-content"
+      },
+      {
+        "value": "max-content"
+      },
+      {
+        "value": "fit-content"
+      }
+    ],
     "max-height": [
       {
         "value": "none"
@@ -5243,7 +6315,20 @@
         "description": "Clamps the size between the min-content and max-content sizes."
       }
     ],
-    "max-inline-size": [],
+    "max-inline-size": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "min-content"
+      },
+      {
+        "value": "max-content"
+      },
+      {
+        "value": "fit-content"
+      }
+    ],
     "max-lines": [
       {
         "value": "none"
@@ -5266,7 +6351,20 @@
         "description": "Clamps the size between the min-content and max-content sizes."
       }
     ],
-    "min-block-size": [],
+    "min-block-size": [
+      {
+        "value": "auto"
+      },
+      {
+        "value": "min-content"
+      },
+      {
+        "value": "max-content"
+      },
+      {
+        "value": "fit-content"
+      }
+    ],
     "min-height": [
       {
         "value": "auto",
@@ -5285,7 +6383,20 @@
         "description": "Clamps the size between the min-content and max-content sizes."
       }
     ],
-    "min-inline-size": [],
+    "min-inline-size": [
+      {
+        "value": "auto"
+      },
+      {
+        "value": "min-content"
+      },
+      {
+        "value": "max-content"
+      },
+      {
+        "value": "fit-content"
+      }
+    ],
     "min-width": [
       {
         "value": "auto",
@@ -5421,7 +6532,53 @@
         "value": "none"
       }
     ],
-    "offset": [],
+    "offset": [
+      {
+        "value": "normal"
+      },
+      {
+        "value": "auto"
+      },
+      {
+        "value": "left"
+      },
+      {
+        "value": "center"
+      },
+      {
+        "value": "right"
+      },
+      {
+        "value": "top"
+      },
+      {
+        "value": "bottom"
+      },
+      {
+        "value": "none"
+      },
+      {
+        "value": "content-box"
+      },
+      {
+        "value": "padding-box"
+      },
+      {
+        "value": "border-box"
+      },
+      {
+        "value": "fill-box"
+      },
+      {
+        "value": "stroke-box"
+      },
+      {
+        "value": "view-box"
+      },
+      {
+        "value": "reverse"
+      }
+    ],
     "offset-anchor": [
       {
         "value": "auto"
@@ -5500,7 +6657,49 @@
     "opacity": [],
     "order": [],
     "orphans": [],
-    "outline": [],
+    "outline": [
+      {
+        "value": "thin"
+      },
+      {
+        "value": "medium"
+      },
+      {
+        "value": "thick"
+      },
+      {
+        "value": "auto",
+        "description": "Allows the user agent to determine an appropriate outline representation."
+      },
+      {
+        "value": "none",
+        "description": "Disables the outline."
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "groove"
+      },
+      {
+        "value": "ridge"
+      },
+      {
+        "value": "inset"
+      },
+      {
+        "value": "outset"
+      }
+    ],
     "outline-color": [
       {
         "value": "auto"
@@ -5892,9 +7091,171 @@
         "value": "bottom"
       }
     ],
-    "place-content": [],
-    "place-items": [],
-    "place-self": [],
+    "place-content": [
+      {
+        "value": "normal"
+      },
+      {
+        "value": "first"
+      },
+      {
+        "value": "last"
+      },
+      {
+        "value": "baseline"
+      },
+      {
+        "value": "space-between"
+      },
+      {
+        "value": "space-around"
+      },
+      {
+        "value": "space-evenly"
+      },
+      {
+        "value": "stretch"
+      },
+      {
+        "value": "unsafe"
+      },
+      {
+        "value": "safe"
+      },
+      {
+        "value": "center"
+      },
+      {
+        "value": "start"
+      },
+      {
+        "value": "end"
+      },
+      {
+        "value": "flex-start"
+      },
+      {
+        "value": "flex-end"
+      },
+      {
+        "value": "left"
+      },
+      {
+        "value": "right"
+      }
+    ],
+    "place-items": [
+      {
+        "value": "normal"
+      },
+      {
+        "value": "stretch"
+      },
+      {
+        "value": "first"
+      },
+      {
+        "value": "last"
+      },
+      {
+        "value": "baseline"
+      },
+      {
+        "value": "unsafe"
+      },
+      {
+        "value": "safe"
+      },
+      {
+        "value": "center"
+      },
+      {
+        "value": "start"
+      },
+      {
+        "value": "end"
+      },
+      {
+        "value": "self-start"
+      },
+      {
+        "value": "self-end"
+      },
+      {
+        "value": "flex-start"
+      },
+      {
+        "value": "flex-end"
+      },
+      {
+        "value": "anchor-center"
+      },
+      {
+        "value": "left"
+      },
+      {
+        "value": "right"
+      },
+      {
+        "value": "legacy"
+      }
+    ],
+    "place-self": [
+      {
+        "value": "auto"
+      },
+      {
+        "value": "normal"
+      },
+      {
+        "value": "stretch"
+      },
+      {
+        "value": "first"
+      },
+      {
+        "value": "last"
+      },
+      {
+        "value": "baseline"
+      },
+      {
+        "value": "unsafe"
+      },
+      {
+        "value": "safe"
+      },
+      {
+        "value": "center"
+      },
+      {
+        "value": "start"
+      },
+      {
+        "value": "end"
+      },
+      {
+        "value": "self-start"
+      },
+      {
+        "value": "self-end"
+      },
+      {
+        "value": "flex-start"
+      },
+      {
+        "value": "flex-end"
+      },
+      {
+        "value": "anchor-center"
+      },
+      {
+        "value": "left"
+      },
+      {
+        "value": "right"
+      }
+    ],
     "pointer-events": [
       {
         "value": "auto"
@@ -6115,7 +7476,185 @@
         "value": "span-self-end"
       }
     ],
-    "position-try": [],
+    "position-try": [
+      {
+        "value": "normal"
+      },
+      {
+        "value": "most-width"
+      },
+      {
+        "value": "most-height"
+      },
+      {
+        "value": "most-block-size"
+      },
+      {
+        "value": "most-inline-size"
+      },
+      {
+        "value": "none"
+      },
+      {
+        "value": "flip-block"
+      },
+      {
+        "value": "flip-inline"
+      },
+      {
+        "value": "flip-start"
+      },
+      {
+        "value": "left"
+      },
+      {
+        "value": "center"
+      },
+      {
+        "value": "right"
+      },
+      {
+        "value": "span-left"
+      },
+      {
+        "value": "span-right"
+      },
+      {
+        "value": "x-start"
+      },
+      {
+        "value": "x-end"
+      },
+      {
+        "value": "span-x-start"
+      },
+      {
+        "value": "span-x-end"
+      },
+      {
+        "value": "x-self-start"
+      },
+      {
+        "value": "x-self-end"
+      },
+      {
+        "value": "span-x-self-start"
+      },
+      {
+        "value": "span-x-self-end"
+      },
+      {
+        "value": "span-all"
+      },
+      {
+        "value": "top"
+      },
+      {
+        "value": "bottom"
+      },
+      {
+        "value": "span-top"
+      },
+      {
+        "value": "span-bottom"
+      },
+      {
+        "value": "y-start"
+      },
+      {
+        "value": "y-end"
+      },
+      {
+        "value": "span-y-start"
+      },
+      {
+        "value": "span-y-end"
+      },
+      {
+        "value": "y-self-start"
+      },
+      {
+        "value": "y-self-end"
+      },
+      {
+        "value": "span-y-self-start"
+      },
+      {
+        "value": "span-y-self-end"
+      },
+      {
+        "value": "block-start"
+      },
+      {
+        "value": "block-end"
+      },
+      {
+        "value": "span-block-start"
+      },
+      {
+        "value": "span-block-end"
+      },
+      {
+        "value": "inline-start"
+      },
+      {
+        "value": "inline-end"
+      },
+      {
+        "value": "span-inline-start"
+      },
+      {
+        "value": "span-inline-end"
+      },
+      {
+        "value": "self-block-start"
+      },
+      {
+        "value": "self-block-end"
+      },
+      {
+        "value": "span-self-block-start"
+      },
+      {
+        "value": "span-self-block-end"
+      },
+      {
+        "value": "self-inline-start"
+      },
+      {
+        "value": "self-inline-end"
+      },
+      {
+        "value": "span-self-inline-start"
+      },
+      {
+        "value": "span-self-inline-end"
+      },
+      {
+        "value": "start"
+      },
+      {
+        "value": "end"
+      },
+      {
+        "value": "span-start"
+      },
+      {
+        "value": "span-end"
+      },
+      {
+        "value": "self-start"
+      },
+      {
+        "value": "self-end"
+      },
+      {
+        "value": "span-self-start"
+      },
+      {
+        "value": "span-self-end"
+      }
+    ],
     "position-try-fallbacks": [
       {
         "value": "none"
@@ -6128,6 +7667,156 @@
       },
       {
         "value": "flip-start"
+      },
+      {
+        "value": "left"
+      },
+      {
+        "value": "center"
+      },
+      {
+        "value": "right"
+      },
+      {
+        "value": "span-left"
+      },
+      {
+        "value": "span-right"
+      },
+      {
+        "value": "x-start"
+      },
+      {
+        "value": "x-end"
+      },
+      {
+        "value": "span-x-start"
+      },
+      {
+        "value": "span-x-end"
+      },
+      {
+        "value": "x-self-start"
+      },
+      {
+        "value": "x-self-end"
+      },
+      {
+        "value": "span-x-self-start"
+      },
+      {
+        "value": "span-x-self-end"
+      },
+      {
+        "value": "span-all"
+      },
+      {
+        "value": "top"
+      },
+      {
+        "value": "bottom"
+      },
+      {
+        "value": "span-top"
+      },
+      {
+        "value": "span-bottom"
+      },
+      {
+        "value": "y-start"
+      },
+      {
+        "value": "y-end"
+      },
+      {
+        "value": "span-y-start"
+      },
+      {
+        "value": "span-y-end"
+      },
+      {
+        "value": "y-self-start"
+      },
+      {
+        "value": "y-self-end"
+      },
+      {
+        "value": "span-y-self-start"
+      },
+      {
+        "value": "span-y-self-end"
+      },
+      {
+        "value": "block-start"
+      },
+      {
+        "value": "block-end"
+      },
+      {
+        "value": "span-block-start"
+      },
+      {
+        "value": "span-block-end"
+      },
+      {
+        "value": "inline-start"
+      },
+      {
+        "value": "inline-end"
+      },
+      {
+        "value": "span-inline-start"
+      },
+      {
+        "value": "span-inline-end"
+      },
+      {
+        "value": "self-block-start"
+      },
+      {
+        "value": "self-block-end"
+      },
+      {
+        "value": "span-self-block-start"
+      },
+      {
+        "value": "span-self-block-end"
+      },
+      {
+        "value": "self-inline-start"
+      },
+      {
+        "value": "self-inline-end"
+      },
+      {
+        "value": "span-self-inline-start"
+      },
+      {
+        "value": "span-self-inline-end"
+      },
+      {
+        "value": "start"
+      },
+      {
+        "value": "end"
+      },
+      {
+        "value": "span-start"
+      },
+      {
+        "value": "span-end"
+      },
+      {
+        "value": "self-start"
+      },
+      {
+        "value": "self-end"
+      },
+      {
+        "value": "span-self-start"
+      },
+      {
+        "value": "span-self-end"
       }
     ],
     "position-try-order": [
@@ -6477,7 +8166,23 @@
         "value": "proximity"
       }
     ],
-    "scroll-timeline": [],
+    "scroll-timeline": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "block"
+      },
+      {
+        "value": "inline"
+      },
+      {
+        "value": "x"
+      },
+      {
+        "value": "y"
+      }
+    ],
     "scroll-timeline-axis": [
       {
         "value": "block"
@@ -6714,6 +8419,39 @@
     "text-box": [
       {
         "value": "normal"
+      },
+      {
+        "value": "none"
+      },
+      {
+        "value": "trim-start"
+      },
+      {
+        "value": "trim-end"
+      },
+      {
+        "value": "trim-both"
+      },
+      {
+        "value": "auto"
+      },
+      {
+        "value": "text"
+      },
+      {
+        "value": "cap"
+      },
+      {
+        "value": "ex"
+      },
+      {
+        "value": "ideographic"
+      },
+      {
+        "value": "ideographic-ink"
+      },
+      {
+        "value": "alphabetic"
       }
     ],
     "text-box-edge": [
@@ -6764,7 +8502,54 @@
         "value": "digits"
       }
     ],
-    "text-decoration": [],
+    "text-decoration": [
+      {
+        "value": "none",
+        "description": "No text decoration is applied."
+      },
+      {
+        "value": "underline",
+        "description": "Draws a line beneath the text."
+      },
+      {
+        "value": "overline",
+        "description": "Draws a line above the text."
+      },
+      {
+        "value": "line-through",
+        "description": "Draws a line through the text."
+      },
+      {
+        "value": "blink"
+      },
+      {
+        "value": "spelling-error"
+      },
+      {
+        "value": "grammar-error"
+      },
+      {
+        "value": "solid"
+      },
+      {
+        "value": "double"
+      },
+      {
+        "value": "dotted"
+      },
+      {
+        "value": "dashed"
+      },
+      {
+        "value": "wavy"
+      },
+      {
+        "value": "auto"
+      },
+      {
+        "value": "from-font"
+      }
+    ],
     "text-decoration-color": [],
     "text-decoration-line": [
       {
@@ -6859,7 +8644,32 @@
         "description": "Uses the thickness specified in the font's metrics when available."
       }
     ],
-    "text-emphasis": [],
+    "text-emphasis": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "filled"
+      },
+      {
+        "value": "open"
+      },
+      {
+        "value": "dot"
+      },
+      {
+        "value": "circle"
+      },
+      {
+        "value": "double-circle"
+      },
+      {
+        "value": "triangle"
+      },
+      {
+        "value": "sesame"
+      }
+    ],
     "text-emphasis-color": [],
     "text-emphasis-position": [
       {
@@ -7052,7 +8862,29 @@
         "value": "right"
       }
     ],
-    "text-wrap": [],
+    "text-wrap": [
+      {
+        "value": "wrap",
+        "description": "Allows text to wrap normally."
+      },
+      {
+        "value": "nowrap",
+        "description": "Prevents text from wrapping."
+      },
+      {
+        "value": "auto"
+      },
+      {
+        "value": "balance",
+        "description": "Balances line length to improve visual appearance."
+      },
+      {
+        "value": "stable"
+      },
+      {
+        "value": "pretty"
+      }
+    ],
     "text-wrap-mode": [
       {
         "value": "wrap"
@@ -7351,7 +9183,26 @@
         "description": "Aligns the bottom of the element with the bottom of the lowest element on the line."
       }
     ],
-    "view-timeline": [],
+    "view-timeline": [
+      {
+        "value": "none"
+      },
+      {
+        "value": "block"
+      },
+      {
+        "value": "inline"
+      },
+      {
+        "value": "x"
+      },
+      {
+        "value": "y"
+      },
+      {
+        "value": "auto"
+      }
+    ],
     "view-timeline-axis": [
       {
         "value": "block"
@@ -7419,6 +9270,29 @@
       {
         "value": "pre-line",
         "description": "Collapses sequences of spaces but preserves line breaks, wrapping when necessary."
+      },
+      {
+        "value": "collapse"
+      },
+      {
+        "value": "preserve"
+      },
+      {
+        "value": "preserve-breaks"
+      },
+      {
+        "value": "preserve-spaces"
+      },
+      {
+        "value": "break-spaces",
+        "description": "Preserves spaces, wraps at any space, and allows spaces at line ends."
+      },
+      {
+        "value": "wrap"
+      },
+      {
+        "value": "nowrap",
+        "description": "Collapses whitespace but prevents line wrapping."
       }
     ],
     "white-space-collapse": [

@@ -140,18 +140,18 @@ function getCssKeywordsMap() {
               }
               break
             }
-            // case 'Property': {
-            //   const prop = properties[node.name]
-            //   if (prop) {
-            //     recursiveWalk({
-            //       syntax: prop.syntax,
-            //       keywords,
-            //       property,
-            //       keywordNames,
-            //     })
-            //   }
-            //   break
-            // }
+            case 'Property': {
+              const prop = properties[node.name]
+              if (prop) {
+                recursiveWalk({
+                  syntax: prop.syntax,
+                  keywords,
+                  property,
+                  keywordNames,
+                })
+              }
+              break
+            }
             default:
               // Ignore other node types for now
               break
