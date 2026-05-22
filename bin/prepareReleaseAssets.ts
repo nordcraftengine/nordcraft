@@ -5,7 +5,6 @@ import { copyFileSync, mkdirSync, rmSync, writeFileSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { RESET_STYLES } from '../packages/core/src/styling/theme.const'
-import { getCssKeywordsMap } from '../packages/editor/css-properties/fetchCssPropertyKeywords'
 import { combineElements } from '../packages/editor/elements/combineElements'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -106,10 +105,10 @@ const run = async () => {
     JSON.stringify(combineElements(), null, 2),
   )
 
-  // Build css property -> keywords for the editor
-  createTempFileFromValue(
-    'css-property-keywords.json',
-    JSON.stringify(getCssKeywordsMap(), null, 2),
+  // Copy CSS property -> keywords for the editor
+  copyFileSync(
+    resolvePath('../packages/editor/css-properties/cssPropertyKeywords.json'),
+    resolvePath(distPath, 'css-property-keywords.json'),
   )
 
   return `Build finished in ${Date.now() - t1}ms`

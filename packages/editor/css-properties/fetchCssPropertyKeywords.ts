@@ -1,5 +1,8 @@
 import { definitionSyntax } from 'css-tree'
-import { css } from 'mdn-data'
+import { writeFileSync } from 'fs'
+import { css, type Property } from 'mdn-data'
+import { dirname, resolve } from 'path'
+import { fileURLToPath } from 'url'
 import { keywordDescriptionsByProperty } from './keywordDescriptionsByProperty'
 
 const GLOBAL_KEYWORDS = [
@@ -80,8 +83,10 @@ type ProcessedKeywords = Array<{ value: string; description?: string }>
  * Uses MDN data. MDN data is in the process of being deprecated in favor of w3c/webref.
  * I made an attempt at using the data on w3c/webref, but there are currently too many issues (as of 30/10/2025).
  */
-export function getCssKeywordsMap() {
-  const { properties, syntaxes } = css
+function getCssKeywordsMap() {
+  const { properties: _properties, syntaxes } = css
+  // Adjust the type to highlight that some properties could be missing
+  const properties = _properties as Partial<Record<string, Property>>
 
   try {
     const recursiveWalk = ({
@@ -99,36 +104,57 @@ export function getCssKeywordsMap() {
         definitionSyntax.parse(fixKnownSyntaxErrors(syntax)),
 
         (node) => {
-          if (
-            node.type === 'Type' &&
-            // exclude functions
-            !node.name.includes('()') &&
-            // exclude named colors
-            !node.name.includes('color')
-          ) {
-            const type = syntaxes[node.name]
+          switch (node.type) {
+            case 'Type': {
+              if (
+                // exclude functions
+                !node.name.includes('()') &&
+                // exclude named colors
+                !node.name.includes('color')
+              ) {
+                const type = syntaxes[node.name]
 
-            if (type) {
-              recursiveWalk({
-                syntax: type.syntax,
-                keywords,
-                property,
-                keywordNames,
-              })
+                if (type) {
+                  recursiveWalk({
+                    syntax: type.syntax,
+                    keywords,
+                    property,
+                    keywordNames,
+                  })
+                }
+              }
+              break
             }
-          }
+            case 'Keyword': {
+              if (
+                !keywordNames.has(node.name) &&
+                !EXCLUDED_KEYWORDS[property]?.includes(node.name)
+              ) {
+                keywordNames.add(node.name)
 
-          if (
-            node.type === 'Keyword' &&
-            !keywordNames.has(node.name) &&
-            !EXCLUDED_KEYWORDS[property]?.includes(node.name)
-          ) {
-            keywordNames.add(node.name)
-
-            keywords.push({
-              value: node.name,
-              description: keywordDescriptionsByProperty[property]?.[node.name],
-            })
+                keywords.push({
+                  value: node.name,
+                  description:
+                    keywordDescriptionsByProperty[property]?.[node.name],
+                })
+              }
+              break
+            }
+            // case 'Property': {
+            //   const prop = properties[node.name]
+            //   if (prop) {
+            //     recursiveWalk({
+            //       syntax: prop.syntax,
+            //       keywords,
+            //       property,
+            //       keywordNames,
+            //     })
+            //   }
+            //   break
+            // }
+            default:
+              // Ignore other node types for now
+              break
           }
         },
       )
@@ -141,7 +167,7 @@ export function getCssKeywordsMap() {
           const keywordNames: Set<string> = new Set()
           const processedKeywords: ProcessedKeywords = []
 
-          if (data.syntax) {
+          if (data?.syntax) {
             recursiveWalk({
               syntax: data.syntax,
               keywords: processedKeywords,
@@ -164,3 +190,15 @@ export function getCssKeywordsMap() {
     process.exit(1)
   }
 }
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+const resolvePath = (...segments: string[]) => resolve(__dirname, ...segments)
+
+const keywordsMap = getCssKeywordsMap()
+writeFileSync(
+  resolvePath(`./cssPropertyKeywords.json`),
+  JSON.stringify(keywordsMap, null, 2),
+  'utf-8',
+)
