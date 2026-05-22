@@ -3811,28 +3811,36 @@
     ],
     "contain": [
       {
-        "value": "none"
+        "value": "none",
+        "description": "No containment; the element behaves normally."
       },
       {
-        "value": "strict"
+        "value": "strict",
+        "description": "Applies strict containment, isolating the element from its surroundings."
       },
       {
-        "value": "content"
+        "value": "content",
+        "description": "Contains only the content of the element."
       },
       {
-        "value": "size"
+        "value": "size",
+        "description": "Contains the size of the element."
       },
       {
-        "value": "inline-size"
+        "value": "inline-size",
+        "description": "Contains the inline size of the element."
       },
       {
-        "value": "layout"
+        "value": "layout",
+        "description": "Contains the layout of the element."
       },
       {
-        "value": "style"
+        "value": "style",
+        "description": "Contains the style of the element."
       },
       {
-        "value": "paint"
+        "value": "paint",
+        "description": "Contains the painting of the element."
       }
     ],
     "contain-intrinsic-block-size": [
@@ -3967,13 +3975,16 @@
         "description": "Uses the platform's default cursor."
       },
       {
-        "value": "none"
+        "value": "none",
+        "description": "No cursor is displayed."
       },
       {
-        "value": "context-menu"
+        "value": "context-menu",
+        "description": "Indicates a context menu is available."
       },
       {
-        "value": "help"
+        "value": "help",
+        "description": "Indicates help is available."
       },
       {
         "value": "pointer",
@@ -3988,7 +3999,8 @@
         "description": "Indicates the user should wait."
       },
       {
-        "value": "cell"
+        "value": "cell",
+        "description": "Indicates a cell in a table."
       },
       {
         "value": "crosshair",
@@ -3999,75 +4011,96 @@
         "description": "Indicates text selection is possible."
       },
       {
-        "value": "vertical-text"
+        "value": "vertical-text",
+        "description": "Indicates vertical text."
       },
       {
-        "value": "alias"
+        "value": "alias",
+        "description": "Indicates an alias for another element."
       },
       {
-        "value": "copy"
+        "value": "copy",
+        "description": "Indicates that the element can be copied."
       },
       {
         "value": "move",
         "description": "Indicates the element can be moved."
       },
       {
-        "value": "no-drop"
+        "value": "no-drop",
+        "description": "Indicates that the element cannot be dropped."
       },
       {
         "value": "not-allowed",
         "description": "Indicates the requested action will not be carried out."
       },
       {
-        "value": "e-resize"
+        "value": "e-resize",
+        "description": "Indicates horizontal resizing towards the east."
       },
       {
-        "value": "n-resize"
+        "value": "n-resize",
+        "description": "Indicates vertical resizing towards the north."
       },
       {
-        "value": "ne-resize"
+        "value": "ne-resize",
+        "description": "Indicates diagonal resizing towards the northeast."
       },
       {
-        "value": "nw-resize"
+        "value": "nw-resize",
+        "description": "Indicates diagonal resizing towards the northwest."
       },
       {
-        "value": "s-resize"
+        "value": "s-resize",
+        "description": "Indicates vertical resizing towards the south."
       },
       {
-        "value": "se-resize"
+        "value": "se-resize",
+        "description": "Indicates diagonal resizing towards the southeast."
       },
       {
-        "value": "sw-resize"
+        "value": "sw-resize",
+        "description": "Indicates diagonal resizing towards the southwest."
       },
       {
-        "value": "w-resize"
+        "value": "w-resize",
+        "description": "Indicates horizontal resizing towards the west."
       },
       {
-        "value": "ew-resize"
+        "value": "ew-resize",
+        "description": "Indicates horizontal resizing in both directions."
       },
       {
-        "value": "ns-resize"
+        "value": "ns-resize",
+        "description": "Indicates vertical resizing in both directions."
       },
       {
-        "value": "nesw-resize"
+        "value": "nesw-resize",
+        "description": "Indicates diagonal resizing from northeast to southwest."
       },
       {
-        "value": "nwse-resize"
+        "value": "nwse-resize",
+        "description": "Indicates diagonal resizing from northwest to southeast."
       },
       {
-        "value": "col-resize"
+        "value": "col-resize",
+        "description": "Indicates column resizing."
       },
       {
-        "value": "row-resize"
+        "value": "row-resize",
+        "description": "Indicates row resizing."
       },
       {
-        "value": "all-scroll"
+        "value": "all-scroll",
+        "description": "Indicates scrolling in all directions."
       },
       {
-        "value": "zoom-in"
+        "value": "zoom-in",
+        "description": "Indicates zooming in."
       },
       {
-        "value": "zoom-out"
+        "value": "zoom-out",
+        "description": "Indicates zooming out."
       },
       {
         "value": "grab",
@@ -4141,50 +4174,64 @@
         "description": "Behaves as a block-level element and includes a marker, similar to an HTML list item."
       },
       {
-        "value": "table-row-group"
+        "value": "table-row-group",
+        "description": "Uses table layout rules to group rows together, similar to the HTML <tbody> element."
       },
       {
-        "value": "table-header-group"
+        "value": "table-header-group",
+        "description": "Uses table layout rules to group header rows together, similar to the HTML <thead> element."
       },
       {
-        "value": "table-footer-group"
+        "value": "table-footer-group",
+        "description": "Uses table layout rules to group footer rows together, similar to the HTML <tfoot> element."
       },
       {
-        "value": "table-row"
+        "value": "table-row",
+        "description": "Uses table layout rules to define a row in a table, similar to the HTML <tr> element."
       },
       {
-        "value": "table-cell"
+        "value": "table-cell",
+        "description": "Uses table layout rules to define a cell in a table, similar to the HTML <td> element."
       },
       {
-        "value": "table-column-group"
+        "value": "table-column-group",
+        "description": "Uses table layout rules to group columns together, similar to the HTML <colgroup> element."
       },
       {
-        "value": "table-column"
+        "value": "table-column",
+        "description": "Uses table layout rules to define a column in a table, similar to the HTML <col> element."
       },
       {
-        "value": "table-caption"
+        "value": "table-caption",
+        "description": "Uses table layout rules to define a caption for a table, similar to the HTML <caption> element."
       },
       {
-        "value": "ruby-base"
+        "value": "ruby-base",
+        "description": "Uses ruby layout rules to define the base text in a ruby annotation, similar to the HTML <ruby> element."
       },
       {
-        "value": "ruby-text"
+        "value": "ruby-text",
+        "description": "Uses ruby layout rules to define the annotation text in a ruby annotation, similar to the HTML <rt> element."
       },
       {
-        "value": "ruby-base-container"
+        "value": "ruby-base-container",
+        "description": "Uses ruby layout rules to define the container for the base text in a ruby annotation, similar to the HTML <rb> element."
       },
       {
-        "value": "ruby-text-container"
+        "value": "ruby-text-container",
+        "description": "Uses ruby layout rules to define the container for the annotation text in a ruby annotation, similar to the HTML <rtc> element."
       },
       {
         "value": "contents",
         "description": "The element itself does not participate in layout; only its children are rendered."
       },
       {
-        "value": "inline-block"
+        "value": "inline-block",
+        "description": "Behaves as a block-level element but flows inline with surrounding content."
       },
       {
-        "value": "inline-list-item"
+        "value": "inline-list-item",
+        "description": "Behaves as an inline-level list item, similar to an HTML <li> element."
       },
       {
         "value": "inline-table",
@@ -4246,13 +4293,16 @@
     ],
     "fill": [
       {
-        "value": "none"
+        "value": "none",
+        "description": "No fill is applied."
       },
       {
-        "value": "context-fill"
+        "value": "context-fill",
+        "description": "Uses the current context fill color."
       },
       {
-        "value": "context-stroke"
+        "value": "context-stroke",
+        "description": "Uses the current context stroke color."
       }
     ],
     "fill-opacity": [],
@@ -4276,7 +4326,8 @@
         "description": "Disables flex sizing; the item is sized according to its base size and does not grow or shrink."
       },
       {
-        "value": "content"
+        "value": "content",
+        "description": "Items are sized based solely on their content, ignoring available space."
       },
       {
         "value": "auto",
@@ -4291,7 +4342,8 @@
         "description": "The item sizes itself to the largest size that does not cause overflow."
       },
       {
-        "value": "fit-content"
+        "value": "fit-content",
+        "description": "Items grow to fit their content but do not exceed the available space."
       }
     ],
     "flex-basis": [
@@ -4717,7 +4769,8 @@
         "description": "Uses the largest predefined font size."
       },
       {
-        "value": "xxx-large"
+        "value": "xxx-large",
+        "description": "Uses an extra-large predefined font size."
       },
       {
         "value": "larger",
@@ -4728,7 +4781,8 @@
         "description": "Uses a font size smaller than the parent element."
       },
       {
-        "value": "math"
+        "value": "math",
+        "description": "Uses a font size suitable for mathematical typesetting."
       }
     ],
     "font-size-adjust": [
@@ -5251,10 +5305,12 @@
     ],
     "grid-area": [
       {
-        "value": "auto"
+        "value": "auto",
+        "description": "The item is placed according to auto-placement rules."
       },
       {
-        "value": "span"
+        "value": "span",
+        "description": "The item spans a specified number of grid tracks in both row and column directions."
       }
     ],
     "grid-auto-columns": [
@@ -5364,7 +5420,8 @@
     ],
     "grid-template": [
       {
-        "value": "none"
+        "value": "none",
+        "description": "No explicit grid template is defined; the grid will be sized based on content and auto-placement."
       },
       {
         "value": "min-content",
@@ -5375,16 +5432,20 @@
         "description": "The item sizes itself to the largest size that does not cause overflow."
       },
       {
-        "value": "auto"
+        "value": "auto",
+        "description": "Automatically determines the grid template based on content and container size."
       },
       {
-        "value": "auto-fill"
+        "value": "auto-fill",
+        "description": "Fills the grid container with as many columns or rows as possible."
       },
       {
-        "value": "auto-fit"
+        "value": "auto-fit",
+        "description": "Fits the grid items into the available space, stretching them if necessary."
       },
       {
-        "value": "subgrid"
+        "value": "subgrid",
+        "description": "Uses the parent grid's tracks for alignment."
       }
     ],
     "grid-template-areas": [
@@ -5407,16 +5468,20 @@
         "description": "The item sizes itself to the largest size that does not cause overflow."
       },
       {
-        "value": "auto"
+        "value": "auto",
+        "description": "Implicit columns size themselves based on content and layout constraints."
       },
       {
-        "value": "auto-fill"
+        "value": "auto-fill",
+        "description": "Fills the grid container with as many columns as possible."
       },
       {
-        "value": "auto-fit"
+        "value": "auto-fit",
+        "description": "Fits the grid items into the available space, stretching them if necessary."
       },
       {
-        "value": "subgrid"
+        "value": "subgrid",
+        "description": "Uses the parent grid's tracks for alignment."
       }
     ],
     "grid-template-rows": [
@@ -5433,16 +5498,20 @@
         "description": "The item sizes itself to the largest size that does not cause overflow."
       },
       {
-        "value": "auto"
+        "value": "auto",
+        "description": "Implicit rows size themselves based on content and layout constraints."
       },
       {
-        "value": "auto-fill"
+        "value": "auto-fill",
+        "description": "Fills the grid container with as many rows as possible."
       },
       {
-        "value": "auto-fit"
+        "value": "auto-fit",
+        "description": "Fits the grid items into the available space, stretching them if necessary."
       },
       {
-        "value": "subgrid"
+        "value": "subgrid",
+        "description": "Uses the parent grid's tracks for alignment."
       }
     ],
     "hanging-punctuation": [
@@ -5748,15 +5817,18 @@
         "description": "Aligns items to the right edge in horizontal writing modes."
       },
       {
-        "value": "legacy"
+        "value": "legacy",
+        "description": "Aligns items to the start edge in flex layout and left edge in horizontal writing modes."
       },
       {
-        "value": "anchor-center"
+        "value": "anchor-center",
+        "description": "Aligns items to the center of the alignment context."
       }
     ],
     "justify-self": [
       {
-        "value": "auto"
+        "value": "auto",
+        "description": "The item is aligned according to the default alignment behavior of the layout mode."
       },
       {
         "value": "normal",
@@ -5807,7 +5879,8 @@
         "description": "Aligns items to the right edge in horizontal writing modes."
       },
       {
-        "value": "anchor-center"
+        "value": "anchor-center",
+        "description": "Aligns the item to the center of the alignment context."
       }
     ],
     "justify-tracks": [
@@ -6760,25 +6833,32 @@
     ],
     "offset-position": [
       {
-        "value": "normal"
+        "value": "normal",
+        "description": "The offset position is determined by the layout and positioning context."
       },
       {
-        "value": "auto"
+        "value": "auto",
+        "description": "Automatically determines the offset position based on the element and its content."
       },
       {
-        "value": "left"
+        "value": "left",
+        "description": "Positions the offset on the left side of the element."
       },
       {
-        "value": "center"
+        "value": "center",
+        "description": "Positions the offset at the center of the element."
       },
       {
-        "value": "right"
+        "value": "right",
+        "description": "Positions the offset on the right side of the element."
       },
       {
-        "value": "top"
+        "value": "top",
+        "description": "Positions the offset on the top side of the element."
       },
       {
-        "value": "bottom"
+        "value": "bottom",
+        "description": "Positions the offset on the bottom side of the element."
       }
     ],
     "offset-rotate": [
@@ -7404,37 +7484,48 @@
     ],
     "pointer-events": [
       {
-        "value": "auto"
+        "value": "auto",
+        "description": "The element behaves as it normally would, responding to pointer events based on its visibility and layout."
       },
       {
-        "value": "none"
+        "value": "none",
+        "description": "The element does not respond to any pointer events."
       },
       {
-        "value": "visiblePainted"
+        "value": "visiblePainted",
+        "description": "The element responds to pointer events only when the pointer is over a visible painted area."
       },
       {
-        "value": "visibleFill"
+        "value": "visibleFill",
+        "description": "The element responds to pointer events only when the pointer is over a visible fill area."
       },
       {
-        "value": "visibleStroke"
+        "value": "visibleStroke",
+        "description": "The element responds to pointer events only when the pointer is over a visible stroke area."
       },
       {
-        "value": "visible"
+        "value": "visible",
+        "description": "The element responds to pointer events only when the pointer is over a visible area."
       },
       {
-        "value": "painted"
+        "value": "painted",
+        "description": "The element responds to pointer events only when the pointer is over a painted area."
       },
       {
-        "value": "fill"
+        "value": "fill",
+        "description": "The element responds to pointer events only when the pointer is over a fill area."
       },
       {
-        "value": "stroke"
+        "value": "stroke",
+        "description": "The element responds to pointer events only when the pointer is over a stroke area."
       },
       {
-        "value": "all"
+        "value": "all",
+        "description": "The element responds to pointer events regardless of visibility or painting."
       },
       {
-        "value": "inherit"
+        "value": "inherit",
+        "description": "The element inherits the pointer-events behavior from its parent."
       }
     ],
     "position": [
@@ -8675,34 +8766,44 @@
         "description": "Draws a line through the text."
       },
       {
-        "value": "blink"
+        "value": "blink",
+        "description": "Causes the text to blink (deprecated and not widely supported)."
       },
       {
-        "value": "spelling-error"
+        "value": "spelling-error",
+        "description": "Indicates a spelling error in the text."
       },
       {
-        "value": "grammar-error"
+        "value": "grammar-error",
+        "description": "Indicates a grammar error in the text."
       },
       {
-        "value": "solid"
+        "value": "solid",
+        "description": "Draws a single continuous line."
       },
       {
-        "value": "double"
+        "value": "double",
+        "description": "Draws two parallel lines."
       },
       {
-        "value": "dotted"
+        "value": "dotted",
+        "description": "Draws a dotted line."
       },
       {
-        "value": "dashed"
+        "value": "dashed",
+        "description": "Draws a dashed line."
       },
       {
-        "value": "wavy"
+        "value": "wavy",
+        "description": "Draws a wavy line."
       },
       {
-        "value": "auto"
+        "value": "auto",
+        "description": "Determines the decoration style automatically based on the element."
       },
       {
-        "value": "from-font"
+        "value": "from-font",
+        "description": "Uses the decoration style specified in the font metrics when available."
       }
     ],
     "text-decoration-color": [],
@@ -8801,28 +8902,36 @@
     ],
     "text-emphasis": [
       {
-        "value": "none"
+        "value": "none",
+        "description": "No emphasis mark is applied."
       },
       {
-        "value": "filled"
+        "value": "filled",
+        "description": "Applies a filled emphasis mark."
       },
       {
-        "value": "open"
+        "value": "open",
+        "description": "Applies an open emphasis mark."
       },
       {
-        "value": "dot"
+        "value": "dot",
+        "description": "Applies a dot-shaped emphasis mark."
       },
       {
-        "value": "circle"
+        "value": "circle",
+        "description": "Applies a circle-shaped emphasis mark."
       },
       {
-        "value": "double-circle"
+        "value": "double-circle",
+        "description": "Applies a double circle-shaped emphasis mark."
       },
       {
-        "value": "triangle"
+        "value": "triangle",
+        "description": "Applies a triangle-shaped emphasis mark."
       },
       {
-        "value": "sesame"
+        "value": "sesame",
+        "description": "Applies a sesame-shaped emphasis mark."
       }
     ],
     "text-emphasis-color": [],

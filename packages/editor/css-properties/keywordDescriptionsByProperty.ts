@@ -423,8 +423,20 @@ export const keywordDescriptionsByProperty: Partial<
   'column-rule-width': {},
   'column-span': {},
   'column-width': {},
-  columns: {},
-  contain: {},
+  columns: {
+    auto: 'Column width is determined by the available space and column count.',
+  },
+  contain: {
+    none: 'No containment; the element behaves normally.',
+    strict:
+      'Applies strict containment, isolating the element from its surroundings.',
+    content: 'Contains only the content of the element.',
+    size: 'Contains the size of the element.',
+    'inline-size': 'Contains the inline size of the element.',
+    layout: 'Contains the layout of the element.',
+    style: 'Contains the style of the element.',
+    paint: 'Contains the painting of the element.',
+  },
   'contain-intrinsic-block-size': {},
   'contain-intrinsic-height': {},
   'contain-intrinsic-inline-size': {},
@@ -451,6 +463,31 @@ export const keywordDescriptionsByProperty: Partial<
     grabbing: 'Indicates content is currently being grabbed.',
     crosshair: 'Indicates precise targeting is available.',
     'not-allowed': 'Indicates the requested action will not be carried out.',
+    none: 'No cursor is displayed.',
+    'context-menu': 'Indicates a context menu is available.',
+    help: 'Indicates help is available.',
+    cell: 'Indicates a cell in a table.',
+    'vertical-text': 'Indicates vertical text.',
+    alias: 'Indicates an alias for another element.',
+    copy: 'Indicates that the element can be copied.',
+    'no-drop': 'Indicates that the element cannot be dropped.',
+    'e-resize': 'Indicates horizontal resizing towards the east.',
+    'n-resize': 'Indicates vertical resizing towards the north.',
+    'ne-resize': 'Indicates diagonal resizing towards the northeast.',
+    'nw-resize': 'Indicates diagonal resizing towards the northwest.',
+    's-resize': 'Indicates vertical resizing towards the south.',
+    'se-resize': 'Indicates diagonal resizing towards the southeast.',
+    'sw-resize': 'Indicates diagonal resizing towards the southwest.',
+    'w-resize': 'Indicates horizontal resizing towards the west.',
+    'ew-resize': 'Indicates horizontal resizing in both directions.',
+    'ns-resize': 'Indicates vertical resizing in both directions.',
+    'nesw-resize': 'Indicates diagonal resizing from northeast to southwest.',
+    'nwse-resize': 'Indicates diagonal resizing from northwest to southeast.',
+    'col-resize': 'Indicates column resizing.',
+    'row-resize': 'Indicates row resizing.',
+    'all-scroll': 'Indicates scrolling in all directions.',
+    'zoom-in': 'Indicates zooming in.',
+    'zoom-out': 'Indicates zooming out.',
   },
   cx: {},
   cy: {},
@@ -485,11 +522,43 @@ export const keywordDescriptionsByProperty: Partial<
     'run-in':
       'Behaves as inline or block depending on surrounding context. Support is limited.',
     ruby: 'Uses the ruby layout model for East Asian annotation text.',
+    'table-row-group':
+      'Uses table layout rules to group rows together, similar to the HTML <tbody> element.',
+    'table-header-group':
+      'Uses table layout rules to group header rows together, similar to the HTML <thead> element.',
+    'table-footer-group':
+      'Uses table layout rules to group footer rows together, similar to the HTML <tfoot> element.',
+    'table-row':
+      'Uses table layout rules to define a row in a table, similar to the HTML <tr> element.',
+    'table-cell':
+      'Uses table layout rules to define a cell in a table, similar to the HTML <td> element.',
+    'table-column-group':
+      'Uses table layout rules to group columns together, similar to the HTML <colgroup> element.',
+    'table-column':
+      'Uses table layout rules to define a column in a table, similar to the HTML <col> element.',
+    'table-caption':
+      'Uses table layout rules to define a caption for a table, similar to the HTML <caption> element.',
+    'ruby-base':
+      'Uses ruby layout rules to define the base text in a ruby annotation, similar to the HTML <ruby> element.',
+    'ruby-text':
+      'Uses ruby layout rules to define the annotation text in a ruby annotation, similar to the HTML <rt> element.',
+    'ruby-base-container':
+      'Uses ruby layout rules to define the container for the base text in a ruby annotation, similar to the HTML <rb> element.',
+    'ruby-text-container':
+      'Uses ruby layout rules to define the container for the annotation text in a ruby annotation, similar to the HTML <rtc> element.',
+    'inline-block':
+      'Behaves as a block-level element but flows inline with surrounding content.',
+    'inline-list-item':
+      'Behaves as an inline-level list item, similar to an HTML <li> element.',
   },
   'dominant-baseline': {},
   'empty-cells': {},
   'field-sizing': {},
-  fill: {},
+  fill: {
+    none: 'No fill is applied.',
+    'context-fill': 'Uses the current context fill color.',
+    'context-stroke': 'Uses the current context stroke color.',
+  },
   'fill-opacity': {},
   'fill-rule': {},
   filter: {
@@ -517,6 +586,10 @@ export const keywordDescriptionsByProperty: Partial<
   flex: {
     auto: 'Items grow and shrink as needed, with base size determined by content.',
     none: 'Disables flex sizing; the item is sized according to its base size and does not grow or shrink.',
+    'fit-content':
+      'Items grow to fit their content but do not exceed the available space.',
+    content:
+      'Items are sized based solely on their content, ignoring available space.',
   },
   'flex-basis': {
     auto: "The item's base size is determined by its content and styles before flex sizing occurs.",
@@ -683,6 +756,8 @@ export const keywordDescriptionsByProperty: Partial<
     'xx-large': 'Uses the largest predefined font size.',
     smaller: 'Uses a font size smaller than the parent element.',
     larger: 'Uses a font size larger than the parent element.',
+    'xxx-large': 'Uses an extra-large predefined font size.',
+    math: 'Uses a font size suitable for mathematical typesetting.',
   },
   'font-size-adjust': {},
   'font-smooth': {
@@ -748,7 +823,10 @@ export const keywordDescriptionsByProperty: Partial<
     dense:
       'Allows auto-placement to fill in holes earlier in the grid if smaller items fit.',
   },
-  'grid-area': {},
+  'grid-area': {
+    auto: 'The item is placed according to auto-placement rules.',
+    span: 'The item spans a specified number of grid tracks in both row and column directions.',
+  },
   'grid-auto-columns': {
     auto: 'Implicit columns size themselves based on content and layout constraints.',
   },
@@ -792,15 +870,33 @@ export const keywordDescriptionsByProperty: Partial<
     auto: "The item's row start line is determined by auto-placement or other layout constraints.",
     span: 'Extends the item across a specified number of row tracks from this start position.',
   },
-  'grid-template': {},
+  'grid-template': {
+    none: 'No explicit grid template is defined; the grid will be sized based on content and auto-placement.',
+    auto: 'Automatically determines the grid template based on content and container size.',
+    'auto-fill':
+      'Fills the grid container with as many columns or rows as possible.',
+    'auto-fit':
+      'Fits the grid items into the available space, stretching them if necessary.',
+    subgrid: "Uses the parent grid's tracks for alignment.",
+  },
   'grid-template-areas': {
     none: 'No named grid areas are defined.',
   },
   'grid-template-columns': {
     none: 'No explicit column tracks are defined; columns are created only as needed.',
+    auto: 'Implicit columns size themselves based on content and layout constraints.',
+    'auto-fill': 'Fills the grid container with as many columns as possible.',
+    'auto-fit':
+      'Fits the grid items into the available space, stretching them if necessary.',
+    subgrid: "Uses the parent grid's tracks for alignment.",
   },
   'grid-template-rows': {
     none: 'No explicit row tracks are defined; rows are created only as needed.',
+    auto: 'Implicit rows size themselves based on content and layout constraints.',
+    'auto-fill': 'Fills the grid container with as many rows as possible.',
+    'auto-fit':
+      'Fits the grid items into the available space, stretching them if necessary.',
+    subgrid: "Uses the parent grid's tracks for alignment.",
   },
   'hanging-punctuation': {},
   height: {
@@ -895,6 +991,9 @@ export const keywordDescriptionsByProperty: Partial<
     'flex-end': 'Aligns items to the end edge in flex layout.',
     left: 'Aligns items to the left edge in horizontal writing modes.',
     right: 'Aligns items to the right edge in horizontal writing modes.',
+    legacy:
+      'Aligns items to the start edge in flex layout and left edge in horizontal writing modes.',
+    'anchor-center': 'Aligns items to the center of the alignment context.',
   },
   'justify-self': {
     normal: 'Uses the alignment behavior defined by the layout mode.',
@@ -915,6 +1014,8 @@ export const keywordDescriptionsByProperty: Partial<
     'flex-end': 'Aligns items to the end edge in flex layout.',
     left: 'Aligns items to the left edge in horizontal writing modes.',
     right: 'Aligns items to the right edge in horizontal writing modes.',
+    auto: 'The item is aligned according to the default alignment behavior of the layout mode.',
+    'anchor-center': 'Aligns the item to the center of the alignment context.',
   },
   'justify-tracks': {
     normal: 'Uses the alignment behavior defined by the layout mode.',
@@ -1178,7 +1279,16 @@ export const keywordDescriptionsByProperty: Partial<
   'offset-anchor': {},
   'offset-distance': {},
   'offset-path': {},
-  'offset-position': {},
+  'offset-position': {
+    normal:
+      'The offset position is determined by the layout and positioning context.',
+    auto: 'Automatically determines the offset position based on the element and its content.',
+    left: 'Positions the offset on the left side of the element.',
+    center: 'Positions the offset at the center of the element.',
+    right: 'Positions the offset on the right side of the element.',
+    top: 'Positions the offset on the top side of the element.',
+    bottom: 'Positions the offset on the bottom side of the element.',
+  },
   'offset-rotate': {},
   opacity: {},
   order: {
@@ -1323,7 +1433,26 @@ export const keywordDescriptionsByProperty: Partial<
     '<align-self> <justify-self>':
       'Overrides both block-axis and inline-axis alignment for this item only.',
   },
-  'pointer-events': {},
+  'pointer-events': {
+    auto: 'The element behaves as it normally would, responding to pointer events based on its visibility and layout.',
+    none: 'The element does not respond to any pointer events.',
+    visiblePainted:
+      'The element responds to pointer events only when the pointer is over a visible painted area.',
+    visibleFill:
+      'The element responds to pointer events only when the pointer is over a visible fill area.',
+    visibleStroke:
+      'The element responds to pointer events only when the pointer is over a visible stroke area.',
+    visible:
+      'The element responds to pointer events only when the pointer is over a visible area.',
+    painted:
+      'The element responds to pointer events only when the pointer is over a painted area.',
+    fill: 'The element responds to pointer events only when the pointer is over a fill area.',
+    stroke:
+      'The element responds to pointer events only when the pointer is over a stroke area.',
+    all: 'The element responds to pointer events regardless of visibility or painting.',
+    inherit:
+      'The element inherits the pointer-events behavior from its parent.',
+  },
   position: {
     static: 'Element participates in normal flow without offset positioning.',
     relative:
@@ -1460,6 +1589,17 @@ export const keywordDescriptionsByProperty: Partial<
     underline: 'Draws a line beneath the text.',
     overline: 'Draws a line above the text.',
     'line-through': 'Draws a line through the text.',
+    blink: 'Causes the text to blink (deprecated and not widely supported).',
+    'spelling-error': 'Indicates a spelling error in the text.',
+    'grammar-error': 'Indicates a grammar error in the text.',
+    solid: 'Draws a single continuous line.',
+    double: 'Draws two parallel lines.',
+    dotted: 'Draws a dotted line.',
+    dashed: 'Draws a dashed line.',
+    wavy: 'Draws a wavy line.',
+    auto: 'Determines the decoration style automatically based on the element.',
+    'from-font':
+      'Uses the decoration style specified in the font metrics when available.',
   },
   'text-decoration-color': {
     currentColor: "Uses the element's current text color for the decoration.",
@@ -1484,7 +1624,16 @@ export const keywordDescriptionsByProperty: Partial<
     'from-font':
       "Uses the thickness specified in the font's metrics when available.",
   },
-  'text-emphasis': {},
+  'text-emphasis': {
+    none: 'No emphasis mark is applied.',
+    filled: 'Applies a filled emphasis mark.',
+    open: 'Applies an open emphasis mark.',
+    dot: 'Applies a dot-shaped emphasis mark.',
+    circle: 'Applies a circle-shaped emphasis mark.',
+    'double-circle': 'Applies a double circle-shaped emphasis mark.',
+    triangle: 'Applies a triangle-shaped emphasis mark.',
+    sesame: 'Applies a sesame-shaped emphasis mark.',
+  },
   'text-emphasis-color': {},
   'text-emphasis-position': {},
   'text-emphasis-style': {},
