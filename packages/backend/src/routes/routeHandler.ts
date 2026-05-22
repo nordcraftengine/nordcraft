@@ -17,7 +17,7 @@ import {
   skipContentEncodingHeader,
   skipCookieHeader,
   skipHopByHopHeaders,
-} from '@nordcraft/ssr/dist/utils/headers'
+} from '@nordcraft/ssr/src/utils/headers'
 import type { Context, ExecutionContext, Handler, Hono } from 'hono'
 import type { ConnInfo } from 'hono/conninfo'
 import { endTime, startTime } from 'hono/timing'
