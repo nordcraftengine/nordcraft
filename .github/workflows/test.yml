@@ -140,6 +140,7 @@ jobs:
         run: |
           bun run noderun &
           NODE_PID=$!
+          sleep 5 # wait for server to start
           for i in {1..20}; do
             if curl --fail http://localhost:3000/; then
               break
