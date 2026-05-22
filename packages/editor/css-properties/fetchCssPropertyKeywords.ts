@@ -138,11 +138,11 @@ function getCssKeywordsMap() {
                 const description =
                   keywordDescriptionsByProperty[property]?.[node.name] ??
                   sharedKeywordDescriptionsByProperty[node.name]
-                if (!description) {
-                  console.warn(
-                    `Unable to find description for ${property}: ${node.name}`,
-                  )
-                }
+                // if (!description) {
+                //   console.warn(
+                //     `Unable to find description for ${property}: ${node.name}`,
+                //   )
+                // }
                 keywords.push({
                   value: node.name,
                   description,
