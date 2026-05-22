@@ -3,7 +3,10 @@ import { writeFileSync } from 'fs'
 import { css, type Property } from 'mdn-data'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { keywordDescriptionsByProperty } from './keywordDescriptionsByProperty'
+import {
+  keywordDescriptionsByProperty,
+  sharedKeywordDescriptionsByProperty,
+} from './keywordDescriptionsByProperty'
 
 const GLOBAL_KEYWORDS = [
   {
@@ -132,10 +135,17 @@ function getCssKeywordsMap() {
               ) {
                 keywordNames.add(node.name)
 
+                const description =
+                  keywordDescriptionsByProperty[property]?.[node.name] ??
+                  sharedKeywordDescriptionsByProperty[node.name]
+                if (!description) {
+                  console.warn(
+                    `Unable to find description for ${property}: ${node.name}`,
+                  )
+                }
                 keywords.push({
                   value: node.name,
-                  description:
-                    keywordDescriptionsByProperty[property]?.[node.name],
+                  description,
                 })
               }
               break
