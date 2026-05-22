@@ -1,7 +1,6 @@
 import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { type ToddleServerEnv } from '@nordcraft/core/dist/formula/formula'
-import { serializeClasses } from '@nordcraft/core/dist/styling/classes'
 import {
   theme as defaultTheme,
   THEME_DATA_ATTRIBUTE,
@@ -10,6 +9,7 @@ import type { ToddleInternals } from '@nordcraft/core/dist/types'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
 import type { ApiCache } from '@nordcraft/ssr/dist/rendering/api'
+import { resolveClasses } from '@nordcraft/ssr/dist/rendering/classes'
 import { renderPageBody } from '@nordcraft/ssr/dist/rendering/components'
 import { getPageFormulaContext } from '@nordcraft/ssr/dist/rendering/formulaContext'
 import {
@@ -167,8 +167,8 @@ export const nordcraftPage = async ({
         ...apiCache,
       },
     },
-    component: serializeClasses(page),
-    components: includedComponents.map(serializeClasses),
+    component: resolveClasses(page),
+    components: includedComponents.map(resolveClasses),
     isPageLoaded: false,
     cookies: Object.keys(formulaContext.env.request.cookies),
   }
