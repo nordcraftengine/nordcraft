@@ -126,8 +126,6 @@ describe('removeTestData', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "apis": {},
-        "attributes": {},
         "formulas": {
           "formula2": {
             "arguments": [
@@ -157,8 +155,6 @@ describe('removeTestData', () => {
           },
         },
         "name": "test",
-        "nodes": {},
-        "variables": {},
       }
     `)
   })
@@ -331,14 +327,9 @@ describe('removeTestData', () => {
     })
     expect(updatedData).toMatchInlineSnapshot(`
       {
-        "apis": {},
-        "attributes": {},
         "name": "test",
         "nodes": {
           "root": {
-            "attrs": {},
-            "children": [],
-            "classes": {},
             "events": {
               "onClick": {
                 "actions": [
@@ -359,7 +350,6 @@ describe('removeTestData', () => {
                 "trigger": "click",
               },
             },
-            "style": {},
             "tag": "div",
             "type": "element",
           },
@@ -400,7 +390,6 @@ describe('removeTestData', () => {
           ],
           "trigger": "onLoad",
         },
-        "variables": {},
       }
     `)
   })
@@ -440,10 +429,7 @@ describe('removeTestData', () => {
     })
     expect(updatedData).toMatchInlineSnapshot(`
       {
-        "apis": {},
-        "attributes": {},
         "name": "test",
-        "nodes": {},
         "onAttributeChange": {
           "actions": [],
           "trigger": "onAttributeChange",
@@ -452,7 +438,6 @@ describe('removeTestData', () => {
           "actions": [],
           "trigger": "onLoad",
         },
-        "variables": {},
         "workflows": {
           "My Workflow": {
             "actions": [],
@@ -471,5 +456,43 @@ describe('removeTestData', () => {
         },
       }
     `)
+  })
+  test('it removes unnecessary arguments from event actions', () => {
+    const cleanedComponent = removeTestData({
+      name: 'test',
+      variables: {},
+      apis: {},
+      nodes: {
+        root: {
+          name: 'Intersection observer',
+          type: 'component',
+          style: {
+            width: '100%',
+            height: '100%',
+          },
+          events: {
+            Change: {
+              actions: [
+                {
+                  data: {
+                    path: ['Event', 'isIntersecting'],
+                    type: 'path',
+                  },
+                  type: 'SetVariable',
+                  variable: 'intersecting',
+                  arguments: null as any, // Check that this gets removed
+                },
+              ],
+              trigger: 'Change',
+            },
+          },
+          package: 'intersection_observer',
+          children: ['Kd8s0Y74_nYzk7T-Ow-ct'],
+        },
+      },
+    }) as any
+    expect(
+      cleanedComponent.nodes.root.events.Change.actions[0].arguments,
+    ).toBeUndefined()
   })
 })

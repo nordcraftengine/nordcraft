@@ -159,7 +159,7 @@ const renderComponent = async ({
             : defaultChild
         } else {
           const slotChildren = await Promise.all(
-            node.children.map((child) =>
+            (node.children ?? []).map((child) =>
               renderNode({
                 id: child,
                 path: `${path}[${node.name ?? 'default'}]`,
@@ -251,23 +251,25 @@ const renderComponent = async ({
         if (
           ['script', 'style'].includes(node.tag.toLocaleLowerCase()) === false
         ) {
-          const childNodes = await Promise.all(
-            node.children.map((child, i) =>
-              renderNode({
-                id: child,
-                path: `${path}.${i}`,
-                namespace,
-                node: component.nodes?.[child],
-                data,
-                packageName,
-              }),
-            ),
-          )
+          const childNodes = node.children
+            ? await Promise.all(
+                node.children.map((child, i) =>
+                  renderNode({
+                    id: child,
+                    path: `${path}.${i}`,
+                    namespace,
+                    node: component.nodes?.[child],
+                    data,
+                    packageName,
+                  }),
+                ),
+              )
+            : []
           innerHTML = childNodes.join('')
         }
         if (node.tag.toLocaleLowerCase() === 'style') {
           // render style content as text
-          const textNode = node.children[0]
+          const textNode = node.children?.[0]
             ? component.nodes?.[node.children[0]]
             : undefined
           if (textNode?.type === 'text') {
@@ -291,7 +293,7 @@ const renderComponent = async ({
         }
       }
       case 'component': {
-        const attrs = mapValues(node.attrs, (formula) =>
+        const attrs = mapValues(node.attrs ?? {}, (formula) =>
           applyFormula(formula, formulaContext),
         )
 
@@ -392,7 +394,7 @@ const renderComponent = async ({
         })
 
         const childNodes = await Promise.all(
-          node.children.map(async (child, i) => {
+          (node.children ?? []).map(async (child, i) => {
             const slotName =
               typeof child === 'string'
                 ? (component.nodes?.[child]?.slot ?? 'default')
@@ -486,7 +488,7 @@ const renderComponent = async ({
 
         const children: Record<string, SlottedContent> = {}
         childNodes.forEach((renderFn, i) => {
-          const childNodeId = node.children[i]
+          const childNodeId = node.children?.[i]
           // Add children to the correct slot in the right order
           const slotName =
             typeof childNodeId === 'string'

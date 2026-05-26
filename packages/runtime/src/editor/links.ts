@@ -9,6 +9,9 @@ export const updateComponentLinks = (component: Component) => {
   // Find all links and add target="_blank" to them
   Object.entries(component.nodes ?? {}).forEach(([_, node]) => {
     if (node.type === 'element' && node.tag === 'a') {
+      if (!node.attrs) {
+        node.attrs = {}
+      }
       node.attrs['target'] = valueFormula('_blank')
     }
   })

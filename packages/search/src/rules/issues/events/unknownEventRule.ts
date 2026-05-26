@@ -23,7 +23,7 @@ export const unknownEventRule: IssueRule<{
     const componentEvents = new Set(
       (component?.events ?? []).map((e) => e?.name),
     )
-    Object.entries(value.events).forEach(([eventKey, event]) => {
+    Object.entries(value.events ?? {}).forEach(([eventKey, event]) => {
       if (isDefined(event) && !componentEvents.has(event.trigger)) {
         report({
           path: [...path, 'events', eventKey],

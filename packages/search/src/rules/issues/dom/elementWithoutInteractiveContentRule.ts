@@ -79,13 +79,13 @@ export const elementWithoutInteractiveContentRule: IssueRule<{
         // Search children in slot/component/element:
         return searchChildren(
           container,
-          child.children,
+          child.children ?? [],
           allResults,
           visitedComponents,
         )
       }, results)
     }
-    const childTags = searchChildren(component, value.children)
+    const childTags = searchChildren(component, value.children ?? [])
     if (childTags.length > 0) {
       childTags.forEach((ic) =>
         report({

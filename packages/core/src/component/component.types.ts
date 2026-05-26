@@ -93,15 +93,17 @@ export interface ElementNodeModel {
   repeat?: Nullable<Formula>
   repeatKey?: Nullable<Formula>
   tag: string
-  attrs: Partial<Record<string, Formula>>
+  attrs?: Nullable<Partial<Record<string, Formula>>>
   style?: Nullable<NodeStyleModel>
   variants?: Nullable<StyleVariant[]>
   animations?: Nullable<Record<string, Record<string, AnimationKeyframe>>>
-  children: string[]
-  events: Partial<Record<string, Nullable<EventModel>>>
+  children?: Nullable<string[]>
+  events?: Nullable<Partial<Record<string, Nullable<EventModel>>>>
   classes?: Nullable<Record<string, { formula?: Nullable<Formula> }>>
   'style-variables'?: Nullable<Array<StyleVariable>>
   customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
+  // Legacy implementations added an invalid property. We'll keep it here to know we can safely remove it
+  styleVariables?: never
 }
 
 export interface ComponentNodeModel {
@@ -117,9 +119,9 @@ export interface ComponentNodeModel {
   style?: Nullable<NodeStyleModel>
   variants?: Nullable<StyleVariant[]>
   animations?: Nullable<Record<string, Record<string, AnimationKeyframe>>>
-  attrs: Record<string, Formula>
-  children: string[]
-  events: Record<string, EventModel>
+  attrs?: Nullable<Record<string, Formula>>
+  children?: Nullable<string[]>
+  events?: Nullable<Partial<Record<string, Nullable<EventModel>>>>
   customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
 }
 
@@ -130,7 +132,9 @@ export interface SlotNodeModel {
   condition?: Nullable<Formula>
   repeat?: Nullable<never>
   repeatKey?: Nullable<never>
-  children: string[]
+  children?: Nullable<string[]>
+  // slots cannot have events, but an empty object might have been declared regardless
+  events?: never
 }
 export type NodeModel =
   | TextNodeModel
@@ -310,7 +314,7 @@ export interface CustomActionModel {
   package?: Nullable<string>
   name: string
   description?: Nullable<string>
-  group?: Nullable<string>
+  group?: Nullable<unknown>
   data?: Nullable<string | number | boolean | Formula>
   arguments?: Nullable<Partial<CustomActionArgument[]>>
   events?: Nullable<Record<string, ActionModelActions>>
@@ -328,12 +332,16 @@ export interface SwitchActionModel {
     }>
   >
   default?: Nullable<ActionModelActions>
+  // Should never be set
+  arguments?: never
 }
 
 export interface VariableActionModel {
   type: 'SetVariable'
   variable: string
   data: Nullable<Formula>
+  // Arguments for this action should never be provided, but have been set sometimes
+  arguments?: never
 }
 
 export interface FetchActionModel {
@@ -355,6 +363,8 @@ export interface SetURLParameterAction {
   parameter: string
   data?: Nullable<Formula>
   historyMode?: Nullable<'replace' | 'push'>
+  // Should never be set
+  arguments?: never
 }
 
 export interface SetMultiUrlParameterAction {
@@ -367,12 +377,14 @@ export interface EventActionModel {
   type: 'TriggerEvent'
   event: string
   data?: Nullable<Formula>
+  // Should never be set
+  arguments?: never
 }
 
 export interface WorkflowActionModel {
   type: 'TriggerWorkflow'
   workflow: string
-  parameters: Record<string, { formula?: Nullable<Formula> }>
+  parameters?: Nullable<Record<string, { formula?: Nullable<Formula> }>>
   callbacks?: Nullable<
     Partial<Record<string, { actions?: Nullable<Partial<ActionModel[]>> }>>
   >
@@ -383,6 +395,8 @@ export interface WorkflowCallbackActionModel {
   type: 'TriggerWorkflowCallback'
   event: string
   data?: Nullable<Formula>
+  // Should never be set
+  arguments?: never
 }
 
 export type ActionModel =

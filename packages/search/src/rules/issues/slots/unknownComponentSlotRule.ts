@@ -38,7 +38,7 @@ export const unknownComponentSlotRule: IssueRule<{ slotName: string }> = {
       .map((node) => node.name ?? 'default')
 
     // Loop the children and report issue when using a slot that doesn't exist
-    value.children.forEach((child) => {
+    value.children?.forEach((child) => {
       const childNode = files.components[currentComponentName]?.nodes?.[child]
       const usedSlot = childNode?.slot ?? 'default'
 

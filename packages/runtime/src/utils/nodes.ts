@@ -29,7 +29,7 @@ export const getNodeAndAncestors = (
       // 'text' elements don't have any children
       case 'element':
       case 'component':
-      case 'slot':
+      case 'slot': {
         // Ancestors are elements before the target node
         if (i <= nodePath.length - 1) {
           ancestors.push({
@@ -38,7 +38,12 @@ export const getNodeAndAncestors = (
             nodeId: path.slice(0, i + 1).join('.'),
           })
         }
-        return component.nodes?.[node.children[childIndex]]
+        const index = node.children?.[childIndex]
+        if (index === undefined) {
+          return undefined
+        }
+        return component.nodes?.[index]
+      }
       default:
         return undefined
     }

@@ -49,7 +49,7 @@ export function createSlot({
     })
   } else {
     // Otherwise, return placeholder content
-    children = node.children.flatMap((child, i) => {
+    children = (node.children ?? []).flatMap((child, i) => {
       return createNode({
         id: child,
         path: path + '.' + i,
