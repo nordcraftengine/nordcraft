@@ -199,7 +199,6 @@ const processNodes = (
             'style-variables',
             'style',
             'styleVariables',
-            'variants',
           ]) as NodeModel,
         ]
       }

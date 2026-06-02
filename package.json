@@ -2,7 +2,7 @@
   "name": "nordcraft",
   "type": "module",
   "license": "Apache-2.0",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "homepage": "https://github.com/nordcraftengine/nordcraft",
   "private": "false",
   "workspaces": [
