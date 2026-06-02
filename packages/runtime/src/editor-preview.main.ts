@@ -1713,6 +1713,27 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
           timeStyle: 'long',
         }).format(new Date()),
       })
+
+      const nodesCountOrOrderChanged =
+        fastDeepEqual(
+          Object.values(newCtx.component.nodes ?? {}).flatMap(
+            (node) => node.children ?? [],
+          ),
+          Object.values(ctx?.component.nodes ?? {}).flatMap(
+            (node) => node.children ?? [],
+          ),
+        ) === false
+
+      if (nodesCountOrOrderChanged) {
+        requestAnimationFrame(() => {
+          if (getDOMNodeFromNodeId(selectedNodeId)) {
+            postMessageToEditor({
+              type: 'selection',
+              selectedNodeId,
+            })
+          }
+        })
+      }
     }
 
     ctx = newCtx
