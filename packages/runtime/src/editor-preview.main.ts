@@ -68,10 +68,12 @@ import {
   CSS_VAR_VIEWPORT_HEIGHT,
   DATA_ATTR_VIEWPORT_HEIGHT,
 } from './editor/const'
-import { dragEnded } from './editor/drag-drop/dragEnded'
-import { dragMove } from './editor/drag-drop/dragMove'
-import { dragReorder } from './editor/drag-drop/dragReorder'
-import { dragStarted } from './editor/drag-drop/dragStarted'
+import {
+  handleDragAltToggle,
+  handleDragEnded,
+  handleDragMouseMove,
+  handleDragStarted,
+} from './editor/drag-drop/dragHandlers'
 import { throttleToIdleCallback } from './editor/editorUtils'
 import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
@@ -79,11 +81,14 @@ import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
 import { requestResizeCanvas } from './editor/resizeCanvas'
-import {
-  TextNodeComputedStyles,
-  type DragState,
-  type NordcraftPreviewEvent,
-} from './editor/types'
+import { handleTextMouseDown } from './editor/text-selection/mouseDown'
+import { handleTextMouseMove } from './editor/text-selection/mouseMove'
+import { handleTextNodeSelection } from './editor/text-selection/selection'
+import type {
+  SelectionAnchor,
+  SelectionMode,
+} from './editor/text-selection/types'
+import { type DragState, type NordcraftPreviewEvent } from './editor/types'
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
@@ -106,7 +111,6 @@ import {
   isNodeOrAncestorConditional,
   stripNodeIdRepeatIndices,
 } from './utils/nodes'
-import { rectHasPoint } from './utils/rectHasPoint'
 import {
   getScrollStateRestorer,
   storeScrollState,
@@ -306,6 +310,13 @@ export const createRoot = (
   let metaKey = false
   let previewStyleAnimationFrame = -1
   let timelineTimeAnimationFrame = -1
+  let selectionAnchor: SelectionAnchor | null = null
+  let selectionMode: SelectionMode = 'char'
+  let prevButtons = 0
+  let lastMouseDownTime = 0
+  let lastMouseDownX = 0
+  let lastMouseDownY = 0
+  let mouseDownCount = 0
 
   const setupDataSignalSubscribers = () => {
     dataSignal.subscribe((data) => {
@@ -513,35 +524,20 @@ export const createRoot = (
         case 'selection': {
           if (selectedNodeId !== message.data.selectedNodeId) {
             selectedNodeId = message.data.selectedNodeId ?? null
+            window.dispatchEvent(new CustomEvent('selected-node-changed'))
             clearSelectedStyleVariant()
 
             updateConditionalElements()
 
             const node = getDOMNodeFromNodeId(selectedNodeId)
             markSelectedElement(node)
-            const element =
-              component?.nodes?.[node?.getAttribute('data-node-id') ?? '']
             if (
               node &&
-              element &&
-              element.type === 'text' &&
-              element.value.type === 'value'
+              node instanceof HTMLElement &&
+              node.getAttribute('data-node-type') === 'text'
             ) {
-              const computedStyle = window.getComputedStyle(node)
-              postMessageToEditor({
-                type: 'textComputedStyle',
-                computedStyle: Object.fromEntries(
-                  Object.values(TextNodeComputedStyles).map((style) => [
-                    style,
-                    computedStyle.getPropertyValue(style),
-                  ]),
-                ),
-              })
-            } else if (node && node.getAttribute('data-node-type') !== 'text') {
-              // Reset computed style on blur
-              postMessageToEditor({
-                type: 'textComputedStyle',
-                computedStyle: {},
+              requestAnimationFrame(() => {
+                handleTextNodeSelection(node)
               })
             }
           }
@@ -568,38 +564,67 @@ export const createRoot = (
             : null
           return
         }
-        case 'mousemove':
+        case 'mousedown': {
+          const { x: _x, y: _y } = message.data
+          const _node = getDOMNodeFromNodeId(selectedNodeId)
+
+          if (
+            _node &&
+            _node.getAttribute('data-node-type') === 'text' &&
+            _node instanceof HTMLElement
+          ) {
+            const result = handleTextMouseDown({
+              node: _node,
+              x: _x,
+              y: _y,
+              context: {
+                lastMouseDownTime,
+                lastMouseDownX,
+                lastMouseDownY,
+                mouseDownCount,
+              },
+            })
+            selectionAnchor = result.selectionAnchor
+            selectionMode = result.selectionMode
+            lastMouseDownTime = result.context.lastMouseDownTime
+            lastMouseDownX = result.context.lastMouseDownX
+            lastMouseDownY = result.context.lastMouseDownY
+            mouseDownCount = result.context.mouseDownCount
+          }
+          break
+        }
+
+        case 'mousemove': {
           if (dragState && !dragState.destroying) {
-            const { x, y } = message.data
-            dragState.lastCursorPosition = { x, y }
-            const draggingInsideContainer = rectHasPoint(
-              dragState.initialContainer.getBoundingClientRect(),
-              { x, y },
-            )
-
-            // Move the element towards the cursor when out of bounds
-            const rect = dragState.element.getBoundingClientRect()
-            if (!rectHasPoint(rect, { x, y })) {
-              dragState.offset.x -= (x - (rect.left + rect.width / 2)) * 0.1
-              dragState.offset.y -= (y - (rect.top + rect.height / 2)) * 0.1
-            }
-
-            if (draggingInsideContainer && !metaKey) {
-              dragReorder(dragState)
-            } else {
-              dragMove(
-                dragState,
-                metaKey
-                  ? [dragState.element]
-                  : [dragState.element, dragState.initialContainer],
-              )
-            }
-            dragState.element.style.setProperty(
-              'translate',
-              `${x - dragState.offset.x}px ${y - dragState.offset.y}px`,
-            )
+            handleDragMouseMove(message.data, dragState, metaKey)
             return
           }
+
+          const node = getDOMNodeFromNodeId(selectedNodeId)
+          if (
+            node &&
+            node instanceof HTMLElement &&
+            node.getAttribute('data-node-type') === 'text'
+          ) {
+            const { x, y, buttons } = message.data
+            const result = handleTextMouseMove({
+              node,
+              x,
+              y,
+              buttons,
+              prevButtons,
+              selectionAnchor,
+              selectionMode,
+            })
+            selectionAnchor = result.selectionAnchor
+            selectionMode = result.selectionMode
+            prevButtons = buttons
+
+            if (result.handled) {
+              return
+            }
+          }
+        }
         case 'click':
         case 'dblclick':
           if (mode === 'test' || !component) {
@@ -631,6 +656,14 @@ export const createRoot = (
           })
 
           const id = element?.getAttribute('data-id') ?? null
+          const elementIsSameAsSelected = id && id === selectedNodeId
+          if (
+            elementIsSameAsSelected &&
+            element?.getAttribute('data-node-type') === 'text'
+          ) {
+            return
+          }
+
           if (type === 'click') {
             if (message.data.metaKey) {
               // Figure out if the clicked element is a text element
@@ -665,6 +698,24 @@ export const createRoot = (
               })
             }
           } else if (type === 'mousemove' && id !== highlightedNodeId) {
+            // Do not send highlight if cursor is inside current selectedElement and current selected element is a text type
+            const selectedNode = getDOMNodeFromNodeId(selectedNodeId)
+            const selectedNodeIsText =
+              selectedNode?.getAttribute('data-node-type') === 'text'
+            const cursorInsideSelectedElement =
+              selectedNode instanceof HTMLElement &&
+              selectedNode.contains(document.elementFromPoint(x, y))
+            if (selectedNodeIsText && cursorInsideSelectedElement) {
+              // Highlight the text node if the cursor is inside the currently selected text node, even if the selected element has a different id than the text node (e.g. when clicking on a span inside a text node)
+              postMessageToEditor({
+                type: 'highlight',
+                highlightedNodeId: stripNodeIdRepeatIndices(
+                  selectedNode.getAttribute('data-id'),
+                ),
+              })
+              return
+            }
+
             postMessageToEditor({
               type: 'highlight',
               highlightedNodeId: stripNodeIdRepeatIndices(id),
@@ -773,94 +824,15 @@ export const createRoot = (
           break
         }
         case 'drag-started':
-          const draggedElement = getDOMNodeFromNodeId(selectedNodeId)
-          if (!draggedElement || !draggedElement.parentElement) {
-            return
-          }
-          const repeatedNodes = Array.from(
-            draggedElement.parentElement.children,
-          ).filter(
-            (node) =>
-              node instanceof HTMLElement &&
-              node.getAttribute('data-id')?.startsWith(selectedNodeId + '('),
-          ) as HTMLElement[]
-          dragState = dragStarted({
-            element: draggedElement as HTMLElement,
-            lastCursorPosition: { x: message.data.x, y: message.data.y },
-            repeatedNodes,
-            asCopy: altKey,
-          })
-          if (altKey) {
-            const nextRect = dragState.element.getBoundingClientRect()
-            dragState.offset.x += nextRect.left - dragState.initialRect.left
-            dragState.offset.y += nextRect.top - dragState.initialRect.top
-          }
-
+          dragState = handleDragStarted(message.data, selectedNodeId, altKey)
           break
         case 'drag-ended':
-          switch (dragState?.mode) {
-            case 'reorder':
-              const parentDataId =
-                dragState?.initialContainer.getAttribute('data-id')
-              const parentNodeId =
-                dragState?.initialContainer.getAttribute('data-node-id')
-              if (!parentDataId || !parentNodeId) {
-                return
-              }
-
-              const nextSibling = dragState?.element.nextElementSibling
-              const nextSiblingId = parseInt(
-                nextSibling?.getAttribute('data-id')?.split('.').at(-1) ?? '',
-              )
-
-              const rect = dragState?.element?.getBoundingClientRect()
-              if (
-                rect &&
-                !message.data.canceled &&
-                (nextSibling !== dragState?.initialNextSibling ||
-                  dragState?.copy)
-              ) {
-                void dragEnded(dragState, false).then(() => {
-                  postMessageToEditor({
-                    type: 'nodeMoved',
-                    copy: Boolean(dragState?.copy),
-                    parent: parentDataId,
-                    index: !isNaN(nextSiblingId)
-                      ? nextSiblingId
-                      : component?.nodes?.[parentNodeId]?.children?.length,
-                  })
-                  dragState = null
-                })
-              } else {
-                void dragEnded(dragState, true).then(() => {
-                  dragState = null
-                })
-              }
-              break
-            case 'insert':
-              const selectedPermutation =
-                dragState?.insertAreas?.[
-                  dragState?.selectedInsertAreaIndex ?? -1
-                ]
-              if (selectedPermutation && !message.data.canceled) {
-                void dragEnded(dragState, false).then(() => {
-                  postMessageToEditor({
-                    type: 'nodeMoved',
-                    copy: Boolean(dragState?.copy),
-                    parent: selectedPermutation?.parent.getAttribute('data-id'),
-                    index: selectedPermutation?.index,
-                  })
-                  dragState = null
-                })
-              } else {
-                void dragEnded(dragState, true).then(() => {
-                  dragState = null
-                })
-              }
-              break
-            case undefined:
-              // TODO: Handle the case where the drag state is undefined
-              break
+          if (dragState) {
+            void handleDragEnded(message.data, dragState, component).then(
+              (newState) => {
+                dragState = newState
+              },
+            )
           }
           break
         case 'keydown':
@@ -871,22 +843,11 @@ export const createRoot = (
             !dragState.destroying &&
             message.data.altKey !== altKey
           ) {
-            const asCopy = message.data.altKey
-            const prevRect = dragState.element.getBoundingClientRect()
-            void dragEnded(dragState, true).then(() => {
-              if (!dragState) return
-              dragState = dragStarted({
-                element: dragState.element,
-                lastCursorPosition: dragState.lastCursorPosition,
-                repeatedNodes: dragState.repeatedNodes,
-                asCopy,
-                initialContainer: dragState.initialContainer,
-                initialNextSibling: dragState.initialNextSibling,
-              })
-              const nextRect = dragState.element.getBoundingClientRect()
-              dragState.offset.x += nextRect.left - prevRect.left
-              dragState.offset.y += nextRect.top - prevRect.top
-            })
+            void handleDragAltToggle(message.data.altKey, dragState).then(
+              (newState) => {
+                dragState = newState
+              },
+            )
           }
           altKey = message.data.altKey
           metaKey = message.data.metaKey

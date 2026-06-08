@@ -58,10 +58,11 @@ export type NordcraftPreviewEvent =
   | { type: 'selection'; selectedNodeId: string | null }
   | { type: 'highlight'; highlightedNodeId: string | null }
   | {
-      type: 'click' | 'mousemove' | 'dblclick'
+      type: 'click' | 'mousemove' | 'mousedown' | 'dblclick'
       metaKey: boolean
       x: number
       y: number
+      buttons: number
     }
   | { type: 'report_document_scroll_size' }
   | { type: 'update_inner_text'; innerText: string }
@@ -206,6 +207,11 @@ export type EditorPostMessageType =
       type: 'introspectionResult'
       data: any
       apiKey: string
+    }
+  | {
+      type: 'updateTextNodeContent'
+      innerText: string
+      nodeId: string | null
     }
 
 export type DragState = {
