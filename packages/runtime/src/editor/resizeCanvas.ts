@@ -62,7 +62,7 @@ export const requestResizeCanvas = (
     return
   }
 
-  requestAnimationFrame(() => {
+  cancelRequestResizeCanvas = requestAnimationFrame(() => {
     resizeCanvas({
       force: options.force ?? false,
       viewport: {

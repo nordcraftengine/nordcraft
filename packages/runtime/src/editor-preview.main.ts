@@ -85,10 +85,11 @@ import { handleTextMouseDown } from './editor/text-selection/mouseDown'
 import { handleTextMouseMove } from './editor/text-selection/mouseMove'
 import { handleTextNodeSelection } from './editor/text-selection/selection'
 import type {
-  SelectionAnchor,
-  SelectionMode,
-} from './editor/text-selection/types'
-import { type DragState, type NordcraftPreviewEvent } from './editor/types'
+  DragState,
+  NordcraftPreviewEvent,
+  PointerState,
+  SelectionState,
+} from './editor/types'
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
@@ -292,6 +293,16 @@ export const createRoot = (
     })
     componentFormulaData = {}
   })
+  const selectionState: SelectionState = {
+    anchor: null,
+    mode: 'char',
+  }
+  const pointerState: PointerState = {
+    lastPressPosition: { x: 0, y: 0 },
+    buttons: 0,
+    lastPressTime: 0,
+    pressCount: 0,
+  }
   let selectedNodeId: string | null = null
   let highlightedNodeId: string | null = null
   let styleVariantSelection: {
@@ -310,13 +321,6 @@ export const createRoot = (
   let metaKey = false
   let previewStyleAnimationFrame = -1
   let timelineTimeAnimationFrame = -1
-  let selectionAnchor: SelectionAnchor | null = null
-  let selectionMode: SelectionMode = 'char'
-  let prevButtons = 0
-  let lastMouseDownTime = 0
-  let lastMouseDownX = 0
-  let lastMouseDownY = 0
-  let mouseDownCount = 0
 
   const setupDataSignalSubscribers = () => {
     dataSignal.subscribe((data) => {
@@ -492,6 +496,7 @@ export const createRoot = (
           mode = message.data.mode
           document.body.setAttribute('data-mode', message.data.mode)
           updateConditionalElements()
+          window.dispatchEvent(new CustomEvent('selected-node-changed'))
           break
         }
         case 'attrs': {
@@ -543,17 +548,6 @@ export const createRoot = (
           }
           return
         }
-        case 'update_inner_text': {
-          const { innerText } = message.data
-          const selectedNode = getDOMNodeFromNodeId(selectedNodeId)
-          if (
-            selectedNode &&
-            selectedNode.getAttribute('data-node-type') === 'text'
-          ) {
-            ;(selectedNode as HTMLElement).innerText = innerText
-          }
-          return
-        }
         case 'highlight': {
           const highlightId = message.data.highlightedNodeId
           highlightedNodeId = highlightId
@@ -573,23 +567,13 @@ export const createRoot = (
             node.getAttribute('data-node-type') === 'text' &&
             node instanceof HTMLElement
           ) {
-            const result = handleTextMouseDown({
+            handleTextMouseDown({
               node,
               x,
               y,
-              context: {
-                lastMouseDownTime,
-                lastMouseDownX,
-                lastMouseDownY,
-                mouseDownCount,
-              },
+              pointerState,
+              selectionState,
             })
-            selectionAnchor = result.selectionAnchor
-            selectionMode = result.selectionMode
-            lastMouseDownTime = result.context.lastMouseDownTime
-            lastMouseDownX = result.context.lastMouseDownX
-            lastMouseDownY = result.context.lastMouseDownY
-            mouseDownCount = result.context.mouseDownCount
           }
           break
         }
@@ -607,20 +591,16 @@ export const createRoot = (
             node.getAttribute('data-node-type') === 'text'
           ) {
             const { x, y, buttons } = message.data
-            const result = handleTextMouseMove({
+            const handled = handleTextMouseMove({
               node,
               x,
               y,
               buttons,
-              prevButtons,
-              selectionAnchor,
-              selectionMode,
+              pointerState,
+              selectionState,
             })
-            selectionAnchor = result.selectionAnchor
-            selectionMode = result.selectionMode
-            prevButtons = buttons
 
-            if (result.handled) {
+            if (handled) {
               return
             }
           }

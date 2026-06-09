@@ -1,40 +1,37 @@
-import type { SelectionAnchor, SelectionMode } from './types'
-
-export interface MouseMoveResult {
-  selectionAnchor: SelectionAnchor | null
-  selectionMode: SelectionMode
-  handled: boolean
-}
+import type { PointerState, SelectionState } from '../types'
 
 export const handleTextMouseMove = ({
   node,
   x,
   y,
   buttons,
-  prevButtons,
-  selectionAnchor,
-  selectionMode,
+  pointerState,
+  selectionState,
 }: {
   node: HTMLElement
   x: number
   y: number
   buttons: number
-  prevButtons: number
-  selectionAnchor: SelectionAnchor | null
-  selectionMode: SelectionMode
-}): MouseMoveResult => {
+  pointerState: PointerState
+  selectionState: SelectionState
+}): boolean => {
   const primaryPressed = (buttons & 1) === 1
-  const primaryJustReleased = !primaryPressed && (prevButtons & 1) === 1
+  const primaryJustReleased =
+    !primaryPressed && (pointerState.buttons & 1) === 1
 
   if (primaryJustReleased) {
-    return {
-      selectionAnchor: null,
-      selectionMode: 'char',
-      handled: false,
-    }
+    selectionState.anchor = null
+    selectionState.mode = 'char'
+    return false
   }
 
-  if (primaryPressed && selectionAnchor && selectionMode !== 'all') {
+  pointerState.buttons = buttons
+
+  if (
+    primaryPressed &&
+    selectionState.anchor &&
+    selectionState.mode !== 'all'
+  ) {
     const caretPosition = document.caretPositionFromPoint(x, y)
     const selection = window.getSelection()
 
@@ -44,7 +41,7 @@ export const handleTextMouseMove = ({
         offset: anchorOffset,
         wordStart: anchorWordStart,
         wordEnd: anchorWordEnd,
-      } = selectionAnchor
+      } = selectionState.anchor
       const focusNode = caretPosition.offsetNode
       const focusOffset = caretPosition.offset
 
@@ -56,7 +53,10 @@ export const handleTextMouseMove = ({
       selection.removeAllRanges()
       const range = document.createRange()
 
-      if (selectionMode === 'word' && focusNode.nodeType === Node.TEXT_NODE) {
+      if (
+        selectionState.mode === 'word' &&
+        focusNode.nodeType === Node.TEXT_NODE
+      ) {
         // Extend selection word-by-word
         const text = focusNode.textContent ?? ''
         let focusWordStart = focusOffset
@@ -88,17 +88,9 @@ export const handleTextMouseMove = ({
 
       selection.addRange(range)
       node.focus()
-      return {
-        selectionAnchor,
-        selectionMode,
-        handled: true,
-      }
+      return true
     }
   }
 
-  return {
-    selectionAnchor,
-    selectionMode,
-    handled: false,
-  }
+  return false
 }
