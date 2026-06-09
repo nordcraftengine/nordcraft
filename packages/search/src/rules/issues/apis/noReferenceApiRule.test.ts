@@ -24,7 +24,7 @@ describe('find noReferenceApiRule', () => {
                 'my-legacy-api': {
                   name: 'my-legacy-api',
                   type: 'REST',
-                  autoFetch: valueFormula(true),
+                  autoFetch: valueFormula(false),
                   onCompleted: null,
                   onFailed: null,
                 },
@@ -32,7 +32,7 @@ describe('find noReferenceApiRule', () => {
                   name: 'my-api',
                   type: 'http',
                   version: 2,
-                  autoFetch: valueFormula(true),
+                  autoFetch: valueFormula(false),
                   inputs: {},
                   '@nordcraft/metadata': {
                     comments: null,
@@ -91,7 +91,7 @@ describe('find noReferenceApiRule', () => {
                   name: 'my-api',
                   type: 'http',
                   version: 2,
-                  autoFetch: valueFormula(true),
+                  autoFetch: valueFormula(false),
                   inputs: {},
                   '@nordcraft/metadata': {
                     comments: null,
@@ -148,7 +148,7 @@ describe('find noReferenceApiRule', () => {
                   name: 'my-api',
                   type: 'http',
                   version: 2,
-                  autoFetch: valueFormula(true),
+                  autoFetch: valueFormula(false),
                   inputs: {},
                   '@nordcraft/metadata': {
                     comments: null,
@@ -184,17 +184,11 @@ describe('find noReferenceApiRule', () => {
                   path: {
                     XYex4RxpjHs7jsyZx9223: {
                       index: 0,
-                      formula: {
-                        type: 'value',
-                        value: '_api',
-                      },
+                      formula: valueFormula('_api'),
                     },
                     jY2URy9JhngGEewv_CjGI: {
                       index: 1,
-                      formula: {
-                        type: 'value',
-                        value: 'weather',
-                      },
+                      formula: valueFormula('weather'),
                     },
                   },
                   type: 'http',
@@ -207,11 +201,11 @@ describe('find noReferenceApiRule', () => {
                           arguments: [
                             {
                               name: 'Label',
-                              formula: { type: 'value', value: '' },
+                              formula: valueFormula(''),
                             },
                             {
                               name: 'Data',
-                              formula: { type: 'path', path: ['Event'] },
+                              formula: pathFormula(['Event']),
                             },
                           ],
                           label: 'Log to console',
@@ -225,18 +219,12 @@ describe('find noReferenceApiRule', () => {
                   server: {
                     ssr: {
                       enabled: {
-                        formula: {
-                          type: 'value',
-                          value: false,
-                        },
+                        formula: valueFormula(false),
                       },
                     },
                     proxy: {
                       enabled: {
-                        formula: {
-                          type: 'value',
-                          value: false,
-                        },
+                        formula: valueFormula(false),
                       },
                     },
                   },
@@ -291,17 +279,11 @@ describe('find noReferenceApiRule', () => {
                   path: {
                     XYex4RxpjHs7jsyZx9223: {
                       index: 0,
-                      formula: {
-                        type: 'value',
-                        value: '_api',
-                      },
+                      formula: valueFormula('_api'),
                     },
                     jY2URy9JhngGEewv_CjGI: {
                       index: 1,
-                      formula: {
-                        type: 'value',
-                        value: 'weather',
-                      },
+                      formula: valueFormula('weather'),
                     },
                   },
                   type: 'http',
@@ -318,38 +300,23 @@ describe('find noReferenceApiRule', () => {
                             },
                             {
                               name: 'Value',
-                              formula: {
-                                type: 'value',
-                                value: '',
-                              },
+                              formula: valueFormula(''),
                             },
                             {
                               name: 'Expires in',
-                              formula: {
-                                type: 'value',
-                                value: null,
-                              },
+                              formula: valueFormula(null),
                             },
                             {
                               name: 'SameSite',
-                              formula: {
-                                type: 'value',
-                                value: null,
-                              },
+                              formula: valueFormula(null),
                             },
                             {
                               name: 'Path',
-                              formula: {
-                                type: 'value',
-                                value: null,
-                              },
+                              formula: valueFormula(null),
                             },
                             {
                               name: 'Include Subdomains',
-                              formula: {
-                                type: 'value',
-                                value: null,
-                              },
+                              formula: valueFormula(null),
                             },
                           ],
                           label: 'Set cookie',
@@ -361,17 +328,11 @@ describe('find noReferenceApiRule', () => {
                                   arguments: [
                                     {
                                       name: 'Label',
-                                      formula: {
-                                        type: 'value',
-                                        value: 'test',
-                                      },
+                                      formula: valueFormula('test'),
                                     },
                                     {
                                       name: 'Data',
-                                      formula: {
-                                        type: 'path',
-                                        path: ['Event'],
-                                      },
+                                      formula: pathFormula(['Event']),
                                     },
                                   ],
                                   label: 'Log to console',
@@ -392,27 +353,18 @@ describe('find noReferenceApiRule', () => {
                   server: {
                     ssr: {
                       enabled: {
-                        formula: {
-                          type: 'value',
-                          value: false,
-                        },
+                        formula: valueFormula(true),
                       },
                     },
                     proxy: {
                       enabled: {
-                        formula: {
-                          type: 'value',
-                          value: false,
-                        },
+                        formula: valueFormula(true),
                       },
                     },
                   },
                   headers: {},
                   version: 2,
-                  autoFetch: {
-                    type: 'value',
-                    value: true,
-                  },
+                  autoFetch: valueFormula(false),
                   queryParams: {},
                   redirectRules: {},
                 },
@@ -424,10 +376,7 @@ describe('find noReferenceApiRule', () => {
               formulas: {},
               variables: {
                 Untitled: {
-                  initialValue: {
-                    type: 'value',
-                    value: null,
-                  },
+                  initialValue: valueFormula(null),
                 },
               },
               attributes: {},
@@ -535,26 +484,15 @@ describe('fix noReferenceApiRule', () => {
                   type: 'http',
                   version: 2,
                   autoFetch: {
-                    type: 'formula',
-                    formula: {
-                      type: 'and',
-                      operands: [
-                        {
-                          type: 'not',
-                          operand: {
-                            type: 'equals',
-                            left: {
-                              type: 'path',
-                              path: ['some', 'path'],
-                            },
-                            right: {
-                              type: 'value',
-                              value: true,
-                            },
-                          },
+                    type: 'and',
+                    arguments: [
+                      {
+                        formula: {
+                          type: 'path',
+                          path: ['some', 'path'],
                         },
-                      ],
-                    },
+                      },
+                    ],
                   },
                   inputs: {},
                   '@nordcraft/metadata': {
