@@ -184,6 +184,8 @@ export function createNode({
 
   function repeat(): ReadonlyArray<Element | Text> {
     let firstRun = true
+    // Only one default element is allowed, but if it is removed, we allow a new to be assigned. The default element is mostly used for the editor.
+    let defaultElement: string | number | null = null
     let lifetimeSize = 0
     let repeatItems = new Map<
       string | number,
@@ -268,6 +270,9 @@ export function createNode({
             item.cleanup()
             item.dataSignal.destroy()
             item.elements.forEach((e) => e.remove())
+            if (defaultElement === key) {
+              defaultElement = null
+            }
           }
         })
 
@@ -325,11 +330,17 @@ export function createNode({
               // - Update list to [A, C, B]
               // Now C and B would have the same path `(1)` if we only used the index or Key, as B would have kept its reference, but the others would be recreated.
               // With lifetimeSize, the keys would be A(3), B(1), C(4) - all unique.
-              path: Key === '0' ? path : `${path}(${++lifetimeSize})`,
+              path:
+                Key === '0' && !defaultElement
+                  ? path
+                  : `${path}(${++lifetimeSize})`,
               ctx,
               namespace,
               parentElement,
               instance,
+            }
+            if (Key === '0' && !defaultElement) {
+              defaultElement = childKey
             }
             const elements = node!.condition ? conditional(args) : create(args)
             newRepeatItems.set(childKey, {

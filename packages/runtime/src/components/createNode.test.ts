@@ -683,4 +683,81 @@ describe('createNode()', () => {
       `[data-id="0"].My_Component\\:root { --color: ${outermostColor}; }`,
     ])
   })
+
+  test('it should add repeat index even if a new item is added at the beginning of a list, if that list have other items with repeat index', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        items: [{ id: '1' }, { id: '2' }],
+      },
+    })
+
+    const ctx = {
+      isRootComponent: false,
+      component: {
+        name: 'My Component',
+        nodes: {
+          repeat: {
+            type: 'element',
+            tag: 'div',
+            repeat: { type: 'path', path: ['Variables', 'items'] },
+            repeatKey: { type: 'path', path: ['ListItem', 'Item', 'id'] },
+            children: ['text'],
+            attrs: {},
+            events: {},
+          },
+          text: {
+            type: 'text',
+            value: { type: 'path', path: ['ListItem', 'Item', 'id'] },
+          },
+        },
+      },
+      root: document,
+      env: { runtime: 'page' },
+      formulaCache: {},
+      toddle: { getCustomFormula: () => undefined },
+    } as any as ComponentContext
+
+    const nodes = createNode({
+      ctx,
+      namespace: 'http://www.w3.org/1999/xhtml',
+      dataSignal,
+      id: 'repeat',
+      instance: {},
+      parentElement,
+      path: '0',
+    })
+    parentElement.append(...nodes)
+
+    expect(parentElement.children[0].getAttribute('data-id')).toBe('0')
+    expect(parentElement.children[1].getAttribute('data-id')).toBe('0(1)')
+
+    // Prepend new item
+    dataSignal.update((data) => ({
+      ...data,
+      Variables: {
+        ...data.Variables,
+        items: [{ id: '3' }, { id: '1' }, { id: '2' }],
+      },
+    }))
+
+    // First check that we have no duplicate data-ids
+    const dataIds = new Set<string>()
+    for (const child of parentElement.children) {
+      const dataId = child.getAttribute('data-id')
+      expect(dataId).toBeTruthy()
+      expect(
+        dataIds.has(dataId!),
+        `Duplicate data-id found: ${dataId}, all ids: ${[...parentElement.children].map((c) => c.getAttribute('data-id'))}`,
+      ).toBeFalsy()
+      dataIds.add(dataId!)
+    }
+
+    expect(parentElement.children[0].getAttribute('data-id')).toBe('0(2)')
+    expect(parentElement.children[1].getAttribute('data-id')).toBe('0')
+    expect(parentElement.children[2].getAttribute('data-id')).toBe('0(1)')
+  })
 })
