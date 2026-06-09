@@ -511,4 +511,73 @@ describe('fix noReferenceApiRule', () => {
       Object.keys(fixedProject.components['apiComponent']!.apis ?? {}),
     ).toEqual(['used-api'])
   })
+
+  test('it should not report when an API has an autoFetch formula that is not false', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            apiComponent: {
+              name: 'test',
+              nodes: {},
+              formulas: {},
+              apis: {
+                'my-legacy-api': {
+                  name: 'my-legacy-api',
+                  type: 'REST',
+                  autoFetch: valueFormula(false),
+                  onCompleted: null,
+                  onFailed: null,
+                },
+                'my-api': {
+                  name: 'my-api',
+                  type: 'http',
+                  version: 2,
+                  autoFetch: {
+                    type: 'formula',
+                    formula: {
+                      type: 'and',
+                      operands: [
+                        {
+                          type: 'not',
+                          operand: {
+                            type: 'equals',
+                            left: {
+                              type: 'path',
+                              path: ['some', 'path'],
+                            },
+                            right: {
+                              type: 'value',
+                              value: true,
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  inputs: {},
+                  '@nordcraft/metadata': {
+                    comments: null,
+                  },
+                },
+              },
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [noReferenceApiRule],
+      }),
+    )
+
+    expect(problems).toHaveLength(1)
+    expect(problems[0].code).toBe('no-reference api')
+    expect(problems[0].path).toEqual([
+      'components',
+      'apiComponent',
+      'apis',
+      'my-legacy-api',
+    ])
+  })
 })
