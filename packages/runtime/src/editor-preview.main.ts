@@ -301,6 +301,8 @@ export const createRoot = (
     time: number | null
     timingFunction?: string
     fillMode?: string
+    elementsAnimationDelay: number[]
+    elementsAnimationDuration: number[]
   } | null = null
   let altKey = false
   let metaKey = false
@@ -1091,7 +1093,7 @@ export const createRoot = (
               )
             })
 
-            if (animatedElementChanged && animationState.animatedElementId) {
+            if (animatedElementChanged && animationState?.animatedElementId) {
               let styleTag = document.head.querySelector(
                 '[data-id="preview-animation-styles"]',
               )
