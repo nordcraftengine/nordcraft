@@ -20,12 +20,14 @@ interface transitionArguments {
   }
   valueToCheck?: ParsedValueType
   valueToReturn?: ParsedValueType
+  singleProperty?: 'duration' | 'delay'
 }
 export const parseTransition = (args: transitionArguments) => {
   const variables = args.variables
   const transition = args.transition
   const valueToCheck = args.valueToCheck
   const valueToReturn = args.valueToReturn
+  const singleProperty = args.singleProperty
 
   if (!isDefined(valueToCheck)) {
     return {}
@@ -38,24 +40,25 @@ export const parseTransition = (args: transitionArguments) => {
   let behavior
   let invalidValue
 
-  const returnValue = valueToReturn ? valueToReturn : valueToCheck
-
-  if (valueToCheck.type === 'time' && !transition.duration) {
+  const returnValue = valueToReturn ?? valueToCheck
+  if (singleProperty === 'duration') {
+    duration = returnValue
+  } else if (singleProperty === 'delay') {
+    delay = returnValue
+  } else if (valueToCheck.type === 'time' && !transition.duration) {
     duration = returnValue
   } else if (valueToCheck.type === 'time' && !transition.delay) {
     delay = returnValue
   } else if (
     valueToCheck.type === 'keyword' &&
-    ['normal', 'allow-discrete'].includes(valueToCheck.value) &&
-    !transition.behavior
+    ['normal', 'allow-discrete'].includes(valueToCheck.value)
   ) {
     behavior = returnValue
   } else if (
     (valueToCheck.type === 'keyword' &&
       timingFunctions.includes(valueToCheck.value)) ||
     (valueToCheck.type === 'function' &&
-      ['cubic-bezier', 'steps', 'linear'].includes(valueToCheck.name) &&
-      !transition.timing)
+      ['cubic-bezier', 'steps', 'linear'].includes(valueToCheck.name))
   ) {
     timing = returnValue
   } else if (valueToCheck.type === 'function' && valueToCheck.name === 'var') {
@@ -121,7 +124,7 @@ export const parseTransition = (args: transitionArguments) => {
         }
       }
     })
-  } else if (valueToCheck.type === 'keyword' && !transition.property) {
+  } else if (valueToCheck.type === 'keyword') {
     property = returnValue
   } else {
     invalidValue = true
@@ -306,6 +309,7 @@ export const getParsedTransition = (
               variables,
               transition: parsedTransition[index],
               valueToCheck: parsedDuration,
+              singleProperty: 'duration',
             })
 
             if (newProp.duration) {
@@ -338,6 +342,7 @@ export const getParsedTransition = (
               variables,
               transition: parsedTransition[index],
               valueToCheck: parsedDelay,
+              singleProperty: 'delay',
             })
 
             if (newProp.delay) {
