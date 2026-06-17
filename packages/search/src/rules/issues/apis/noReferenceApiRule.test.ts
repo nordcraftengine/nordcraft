@@ -411,7 +411,7 @@ describe('fix noReferenceApiRule', () => {
             'my-legacy-api': {
               name: 'my-legacy-api',
               type: 'REST',
-              autoFetch: valueFormula(true),
+              autoFetch: valueFormula(false),
               onCompleted: null,
               onFailed: null,
             },
@@ -419,7 +419,7 @@ describe('fix noReferenceApiRule', () => {
               name: 'my-api',
               type: 'http',
               version: 2,
-              autoFetch: valueFormula(true),
+              autoFetch: valueFormula(false),
               inputs: {},
               '@nordcraft/metadata': {
                 comments: null,
@@ -429,7 +429,7 @@ describe('fix noReferenceApiRule', () => {
               name: 'used-api',
               type: 'http',
               version: 2,
-              autoFetch: valueFormula(true),
+              autoFetch: valueFormula(false),
               inputs: {},
             },
           },
