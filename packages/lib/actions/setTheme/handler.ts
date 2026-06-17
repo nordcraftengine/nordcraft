@@ -23,6 +23,8 @@ const handler: ActionHandler = async function ([name], ctx) {
       expires: shouldDelete ? 0 : Date.now() + ONE_YEAR,
       sameSite: 'none',
     })
+    // Also update the theme store directly for cases where cookies are not supported or delayed.
+    ctx.stores?.theme.set(name)
     ctx.triggerActionEvent('Success', undefined)
   } catch (error) {
     ctx.triggerActionEvent('Error', error as Error)
