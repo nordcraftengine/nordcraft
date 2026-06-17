@@ -16,6 +16,17 @@ export const noReferenceApiRule: IssueRule<void> = {
       return
     }
 
+    // Auto fetch APIs are allowed to not have references, as they effectively reference themselves
+    if (
+      args.value.autoFetch &&
+      !(
+        args.value.autoFetch.type === 'value' &&
+        args.value.autoFetch.value === false
+      )
+    ) {
+      return
+    }
+
     const componentApiReferences = memo(
       `componentApiReferences/${component.name}]`,
       () => {
