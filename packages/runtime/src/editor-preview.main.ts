@@ -6,6 +6,7 @@ import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
 import {
   HeadTagTypes,
+  type AnimationKeyframe,
   type Component,
   type ComponentAttribute,
   type ComponentData,
@@ -110,6 +111,7 @@ import {
   stripNodeIdRepeatIndices,
 } from './utils/nodes'
 import { rectHasPoint } from './utils/rectHasPoint'
+import { requestSampleAnimation } from './utils/sampleAnimation'
 import {
   getScrollStateRestorer,
   storeScrollState,
@@ -323,6 +325,7 @@ export const createRoot = (
   let metaKey = false
   let previewStyleAnimationFrame = -1
   let timelineTimeAnimationFrame = -1
+  let keyframes: Record<string, AnimationKeyframe> | null = null
 
   const setupDataSignalSubscribers = () => {
     dataSignal.subscribe((data) => {
@@ -950,16 +953,23 @@ export const createRoot = (
           })
           break
 
-        case 'set_timeline_keyframes':
-          const { keyframes } = message.data
-          document.head.querySelector('[data-timeline-keyframes]')?.remove()
+        case 'set_timeline_keyframes': {
+          keyframes = message.data.keyframes
+          let styleElem = document.head.querySelector<HTMLStyleElement>(
+            '[data-timeline-keyframes]',
+          )
           if (!keyframes) {
+            styleElem?.remove()
             return
           }
 
-          const styleElem = document.createElement('style')
-          styleElem.appendChild(
-            document.createTextNode(`
+          if (!styleElem) {
+            styleElem = document.createElement('style')
+            styleElem.setAttribute('data-timeline-keyframes', '')
+            document.head.appendChild(styleElem)
+          }
+
+          styleElem.innerHTML = `
 @keyframes preview_timeline {
   ${Object.values(keyframes)
     .map(
@@ -970,18 +980,28 @@ export const createRoot = (
         }`,
     )
     .join('\n')}
-}`),
-          )
-          styleElem.setAttribute('data-timeline-keyframes', '')
-          document.head.appendChild(styleElem)
-          break
+}`
 
-        case 'set_timeline_time':
+          requestAnimationFrame(() => {
+            const _selectedNode = getDOMNodeFromNodeId(selectedNodeId)
+            if (_selectedNode instanceof HTMLElement) {
+              requestSampleAnimation(keyframes!, _selectedNode)
+            }
+          })
+
+          break
+        }
+        case 'set_timeline_time': {
           const { time, timingFunction, fillMode } = message.data
           cancelAnimationFrame(timelineTimeAnimationFrame)
           timelineTimeAnimationFrame = requestAnimationFrame(() => {
             const animatedElementChanged =
               animationState?.animatedElementId !== selectedNodeId
+            const timeOnlyChanged =
+              animationState?.timingFunction === timingFunction &&
+              animationState?.fillMode === fillMode &&
+              animationState?.animatedElementId === selectedNodeId
+
             animationState = {
               animatedElementId: time !== null ? selectedNodeId : null,
               time,
@@ -1037,8 +1057,17 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
   animation-play-state: paused !important;
 }`
             }
+
+            // If the fill mode or timing-function changed, then sample the animation again
+            if (!timeOnlyChanged && keyframes) {
+              const _selectedNode = getDOMNodeFromNodeId(selectedNodeId)
+              if (_selectedNode instanceof HTMLElement) {
+                requestSampleAnimation(keyframes, _selectedNode)
+              }
+            }
           })
           break
+        }
         case 'preview_style':
           const { styles: previewStyleStyles, theme } = message.data
           cancelAnimationFrame(previewStyleAnimationFrame)
