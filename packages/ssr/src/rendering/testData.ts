@@ -197,7 +197,6 @@ const processNodes = (
             'repeatKey',
             'slot',
             'style-variables',
-            'style',
             'styleVariables',
           ]) as NodeModel,
         ]
@@ -248,7 +247,6 @@ const processNodes = (
             'condition',
             'repeat',
             'repeatKey',
-            'style',
             'variants',
             'animations',
             'attrs',
