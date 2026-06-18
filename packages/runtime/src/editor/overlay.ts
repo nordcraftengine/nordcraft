@@ -5,14 +5,7 @@ export function getRectData(selectedNode: Element | null | undefined) {
 
   const { borderRadius, rotate, padding, margin, gap } =
     window.getComputedStyle(selectedNode)
-  let rect: DOMRect
-  if (selectedNode.getAttribute('data-node-type') === 'text') {
-    selectedNode.classList.add('__nc-text-node-measure')
-    rect = selectedNode.getBoundingClientRect()
-    selectedNode.classList.remove('__nc-text-node-measure')
-  } else {
-    rect = selectedNode.getBoundingClientRect()
-  }
+  const rect = selectedNode.getBoundingClientRect()
 
   return {
     left: rect.left,

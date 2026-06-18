@@ -14,11 +14,20 @@ function resizeCanvas({
   // First pass: Set base height to resolve relative units the same way each render
   domNode.style.maxHeight = `${viewport.height}px`
 
+  // Temporarily set the scroll height variable to the actual window height
+  // so that vh units resolve relative to the simulated viewport height
+  domNode.style.setProperty(
+    CSS_VAR_SCROLL_HEIGHT,
+    String(Math.round(window.innerHeight)),
+  )
+
   // Force reflow
   void domNode.offsetHeight
 
   // Measure the actual content size
-  const scrollHeight = Math.max(domNode.scrollHeight, viewport.height)
+  const scrollHeight = Math.round(
+    Math.max(domNode.scrollHeight, viewport.height),
+  )
 
   // Update viewport height ratio for vh to work inside the canvas
   domNode.style.setProperty(CSS_VAR_SCROLL_HEIGHT, String(scrollHeight))
@@ -53,7 +62,7 @@ export const requestResizeCanvas = (
     return
   }
 
-  requestAnimationFrame(() => {
+  cancelRequestResizeCanvas = requestAnimationFrame(() => {
     resizeCanvas({
       force: options.force ?? false,
       viewport: {

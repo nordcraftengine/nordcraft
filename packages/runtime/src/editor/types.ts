@@ -58,13 +58,13 @@ export type NordcraftPreviewEvent =
   | { type: 'selection'; selectedNodeId: string | null }
   | { type: 'highlight'; highlightedNodeId: string | null }
   | {
-      type: 'click' | 'mousemove' | 'dblclick'
+      type: 'click' | 'mousemove' | 'mousedown' | 'dblclick'
       metaKey: boolean
       x: number
       y: number
+      buttons: number
     }
   | { type: 'report_document_scroll_size' }
-  | { type: 'update_inner_text'; innerText: string }
   | { type: 'reload' }
   | { type: 'fetch_api'; apiKey: string }
   | { type: 'introspect_qraphql_api'; apiKey: string }
@@ -207,6 +207,11 @@ export type EditorPostMessageType =
       data: any
       apiKey: string
     }
+  | {
+      type: 'updateTextNodeContent'
+      innerText: string
+      nodeId: string | null
+    }
 
 export type DragState = {
   /**
@@ -284,4 +289,25 @@ export enum TextNodeComputedStyles {
   WRITING_MODE = 'writing-mode',
   LINE_BREAK = 'line-break',
   OVERFLOW_WRAP = 'overflow-wrap',
+}
+
+export type SelectionState = {
+  anchor: SelectionAnchor | null
+  mode: SelectionMode
+}
+
+export type SelectionMode = 'char' | 'word' | 'all'
+
+export type SelectionAnchor = {
+  node: Node
+  offset: number
+  wordStart: number
+  wordEnd: number
+}
+
+export type PointerState = {
+  lastPressPosition: Point
+  buttons: number
+  lastPressTime: number
+  pressCount: number
 }

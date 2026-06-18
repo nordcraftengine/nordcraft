@@ -60,4 +60,110 @@ describe('parseTransitions', () => {
       },
     ])
   })
+
+  test('Parses transition when single properties are also defined', () => {
+    expect(
+      (
+        parseCss({
+          style: {
+            transition:
+              'color 2ms 1s cubic-bezier(0.4, 0, 0.2, 1), color 300ms ease',
+            'transition-timing-function':
+              'cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.4, 0, 0.2, 2)',
+            'transition-duration': '3ms, 5ms',
+          },
+        }) as any
+      ).transition,
+    ).toEqual([
+      {
+        duration: {
+          type: 'time',
+          unit: 'ms',
+          value: '3',
+        },
+        delay: {
+          type: 'time',
+          unit: 's',
+          value: '1',
+        },
+        property: {
+          type: 'keyword',
+          value: 'color',
+        },
+        timing: {
+          type: 'function',
+          name: 'cubic-bezier',
+          value: '0.4, 0, 0.2, 1',
+        },
+      },
+      {
+        duration: {
+          type: 'time',
+          unit: 'ms',
+          value: '5',
+        },
+        property: {
+          type: 'keyword',
+          value: 'color',
+        },
+        timing: {
+          type: 'function',
+          name: 'cubic-bezier',
+          value: '0.4, 0, 0.2, 2',
+        },
+      },
+    ])
+  })
+  test('Parses transition when single properties are defined first', () => {
+    expect(
+      (
+        parseCss({
+          style: {
+            'transition-timing-function':
+              'cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.4, 0, 0.2, 2)',
+            'transition-duration': '3ms, 5ms',
+            transition:
+              'color 2ms 1s cubic-bezier(0.4, 0, 0.2, 1), color 300ms ease',
+          },
+        }) as any
+      ).transition,
+    ).toEqual([
+      {
+        duration: {
+          type: 'time',
+          unit: 'ms',
+          value: '2',
+        },
+        delay: {
+          type: 'time',
+          unit: 's',
+          value: '1',
+        },
+        property: {
+          type: 'keyword',
+          value: 'color',
+        },
+        timing: {
+          type: 'function',
+          name: 'cubic-bezier',
+          value: '0.4, 0, 0.2, 1',
+        },
+      },
+      {
+        duration: {
+          type: 'time',
+          unit: 'ms',
+          value: '300',
+        },
+        property: {
+          type: 'keyword',
+          value: 'color',
+        },
+        timing: {
+          type: 'keyword',
+          value: 'ease',
+        },
+      },
+    ])
+  })
 })
