@@ -7,6 +7,7 @@ import type {
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
   getClassName,
+  getPathClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
@@ -67,6 +68,17 @@ export function createElement({
   elem.setAttribute('data-node-id', id)
   if (path) {
     elem.setAttribute('data-id', path)
+    if (
+      (node.customProperties &&
+        Object.entries(node.customProperties).length > 0) ||
+      node.variants?.some(
+        (variant) =>
+          variant.customProperties &&
+          Object.entries(variant.customProperties).length > 0,
+      )
+    ) {
+      elem.classList.add(getPathClassName(path))
+    }
   }
   if (ctx.isRootComponent === false && id !== 'root') {
     elem.setAttribute('data-component', ctx.component.name)
