@@ -922,10 +922,6 @@ export const createRoot = (
         case 'set_timeline_time':
           const { time, timingFunction, fillMode } = message.data
 
-          console.log('animationState', animationState)
-
-          console.log('message.data', message.data)
-
           cancelAnimationFrame(timelineTimeAnimationFrame)
           timelineTimeAnimationFrame = requestAnimationFrame(() => {
             const animatedElementChanged =
@@ -976,8 +972,6 @@ export const createRoot = (
             )
 
             let repeatedNodes: HTMLElement[] = []
-
-            console.log('animatedElementChanged', animatedElementChanged)
 
             if (selectedNode) {
               if (selectedNode.parentElement) {
@@ -1078,15 +1072,6 @@ export const createRoot = (
                       animation-play-state: paused !important;
                     }`
               })
-
-              // styleTag.innerHTML = `
-              // body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[data-mode="design"] [data-id="${animationState.animatedElementId}"] ~ [data-id^="${animationState.animatedElementId}("] {
-              //   animation: preview_timeline 1s paused normal !important;
-              //   animation-fill-mode: var(--editor-timeline-fill-mode) !important;
-              //   animation-timing-function: var(--editor-timeline-timing-function) !important;
-              //   animation-delay: calc(0s - var(--editor-timeline-position)) !important;
-              //   animation-play-state: paused !important;
-              // }`
             }
           })
           break
