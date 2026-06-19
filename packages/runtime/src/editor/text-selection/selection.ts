@@ -4,29 +4,33 @@ import { postMessageToEditor } from '../postMessageToEditor'
 export const handleTextNodeSelection = (node: HTMLElement) => {
   const initialContent = node.innerText
   node.contentEditable = 'plaintext-only'
-  window.focus()
-  node.focus()
-
   postMessageToEditor({
     type: 'highlight',
     highlightedNodeId: stripNodeIdRepeatIndices(node.getAttribute('data-id')),
+    exactHighlightedNodeId: node.getAttribute('data-id'),
   })
 
-  // Select all text when focusing the text node
-  const selection = window.getSelection()
-  if (selection) {
-    const range = document.createRange()
-    range.selectNodeContents(node)
-    selection.removeAllRanges()
-    selection.addRange(range)
+  const handleKeyDown = (e: KeyboardEvent) => {
+    e.stopPropagation()
+    if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
+      e.preventDefault()
+      finishEditing()
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      node.textContent = initialContent
+      finishEditing()
+    }
   }
 
   const finishEditing = () => {
-    window.removeEventListener('selected-node-changed', finishEditing)
+    globalThis.removeEventListener('selected-node-changed', finishEditing)
     node.removeAttribute('contenteditable')
+    node.removeEventListener('keydown', handleKeyDown)
+    node.removeEventListener('blur', finishEditing)
     // Clear selected text
     requestAnimationFrame(() => {
-      const selection = window.getSelection()
+      const selection = globalThis.getSelection()
       if (selection) {
         selection.removeAllRanges()
       }
@@ -48,22 +52,11 @@ export const handleTextNodeSelection = (node: HTMLElement) => {
     })
   }
 
+  node.addEventListener('keydown', handleKeyDown)
+  node.addEventListener('blur', finishEditing, { once: true })
   setTimeout(() => {
-    window.addEventListener('selected-node-changed', finishEditing, {
+    globalThis.addEventListener('selected-node-changed', finishEditing, {
       once: true,
     })
   }, 0)
-
-  node.addEventListener('keydown', (e) => {
-    e.stopPropagation()
-    if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
-      e.preventDefault()
-      finishEditing()
-    }
-    if (e.key === 'Escape') {
-      e.preventDefault()
-      node.textContent = initialContent
-      finishEditing()
-    }
-  })
 }

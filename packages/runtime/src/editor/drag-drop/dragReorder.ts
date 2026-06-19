@@ -1,4 +1,5 @@
 import { isElementInViewport } from '../../utils/isElementInViewport'
+import { stripNodeIdRepeatIndices } from '../../utils/nodes'
 import { tryStartViewTransition } from '../../utils/tryStartViewTransition'
 import type { DragState } from '../types'
 import { DRAG_MOVE_CLASSNAME } from './dragMove'
@@ -33,7 +34,11 @@ export function dragReorder(dragState: DragState | null) {
     window.parent?.postMessage(
       {
         type: 'highlight',
-        highlightedNodeId: dragState.initialContainer.getAttribute('data-id'),
+        highlightedNodeId: stripNodeIdRepeatIndices(
+          dragState.initialContainer.getAttribute('data-id'),
+        ),
+        exactHighlightedNodeId:
+          dragState.initialContainer.getAttribute('data-id'),
       },
       '*',
     )

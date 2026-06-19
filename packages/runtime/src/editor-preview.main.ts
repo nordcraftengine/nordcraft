@@ -709,6 +709,7 @@ export const createRoot = (
                 highlightedNodeId: stripNodeIdRepeatIndices(
                   selectedNode.getAttribute('data-id'),
                 ),
+                exactHighlightedNodeId: selectedNode.getAttribute('data-id'),
               })
               return
             }
@@ -716,6 +717,7 @@ export const createRoot = (
             postMessageToEditor({
               type: 'highlight',
               highlightedNodeId: stripNodeIdRepeatIndices(id),
+              exactHighlightedNodeId: id,
             })
           } else if (
             type === 'dblclick' &&

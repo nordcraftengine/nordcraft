@@ -1,3 +1,4 @@
+import { stripNodeIdRepeatIndices } from '../../utils/nodes'
 import type { DragState, Point } from '../types'
 import { DRAG_MOVE_CLASSNAME } from './dragMove'
 import { DRAG_REORDER_CLASSNAME } from './dragReorder'
@@ -120,7 +121,11 @@ export function dragStarted({
   window.parent?.postMessage(
     {
       type: 'highlight',
-      highlightedNodeId: dragState.initialContainer.getAttribute('data-id'),
+      highlightedNodeId: stripNodeIdRepeatIndices(
+        dragState.initialContainer.getAttribute('data-id'),
+      ),
+      exactHighlightedNodeId:
+        dragState.initialContainer.getAttribute('data-id'),
     },
     '*',
   )

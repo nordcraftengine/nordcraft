@@ -1,4 +1,5 @@
 import { findNearestLine } from '../../utils/findNearestLine'
+import { stripNodeIdRepeatIndices } from '../../utils/nodes'
 import type { DragState } from '../types'
 import { DRAG_REORDER_CLASSNAME } from './dragReorder'
 import { removeDropHighlight, setExternalDropHighlight } from './dropHighlight'
@@ -78,7 +79,10 @@ export function dragMove(dragState: DragState | null, exclude: HTMLElement[]) {
     window.parent?.postMessage(
       {
         type: 'highlight',
-        highlightedNodeId: insertArea.parent.getAttribute('data-id'),
+        highlightedNodeId: stripNodeIdRepeatIndices(
+          insertArea.parent.getAttribute('data-id'),
+        ),
+        exactHighlightedNodeId: insertArea.parent.getAttribute('data-id'),
       },
       '*',
     )
