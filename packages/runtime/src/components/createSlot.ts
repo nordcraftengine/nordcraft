@@ -14,6 +14,7 @@ export function createSlot({
   parentElement,
   instance,
   namespace,
+  slotRepeatIndex,
 }: NodeRenderer<SlotNodeModel>): ReadonlyArray<Element | Text> {
   const slotName = node.name ?? 'default'
   let children: Array<Element | Text> = []
@@ -30,6 +31,14 @@ export function createSlot({
         ctx.component.nodes,
       )
 
+      let path = child.path
+      if (slotComponentIndex > 0) {
+        path += `{${slotComponentIndex}}`
+      }
+      if (slotRepeatIndex && slotRepeatIndex > 0) {
+        path += `(${slotRepeatIndex})`
+      }
+
       return createNode({
         ...child,
         dataSignal: childDataSignal,
@@ -41,10 +50,7 @@ export function createSlot({
         },
         instance,
         namespace,
-        path:
-          slotComponentIndex > 0
-            ? `${child.path}(${slotComponentIndex})`
-            : child.path,
+        path,
       })
     })
   } else {

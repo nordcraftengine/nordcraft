@@ -136,6 +136,6 @@ export function stripNodeIdRepeatIndices(nodeId: string | null): string | null {
 
   return nodeId
     .split('.')
-    .map((part) => part.split('(')[0])
+    .map((part) => part.split('(')[0].split('{')[0])
     .join('.')
 }

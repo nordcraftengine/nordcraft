@@ -243,4 +243,8 @@ describe('stripNodeIdRepeatIndices', () => {
   it('should handle nodeId with only repeat indices', () => {
     expect(stripNodeIdRepeatIndices('(0)')).toBe('')
   })
+
+  it('should handle nodeId with repeat and slot indices', () => {
+    expect(stripNodeIdRepeatIndices('{0}(0)')).toBe('')
+  })
 })
