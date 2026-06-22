@@ -4,10 +4,11 @@ import { postMessageToEditor } from '../postMessageToEditor'
 export const handleTextNodeSelection = (node: HTMLElement) => {
   const initialContent = node.innerText
   node.contentEditable = 'plaintext-only'
+  const nodeId = node.getAttribute('data-id')
   postMessageToEditor({
     type: 'highlight',
-    highlightedNodeId: stripNodeIdRepeatIndices(node.getAttribute('data-id')),
-    exactHighlightedNodeId: node.getAttribute('data-id'),
+    highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
+    exactHighlightedNodeId: nodeId,
   })
 
   const handleKeyDown = (e: KeyboardEvent) => {

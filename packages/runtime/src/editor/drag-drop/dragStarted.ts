@@ -118,14 +118,12 @@ export function dragStarted({
 
   // Highlight container
   element.classList.add(DRAG_REORDER_CLASSNAME)
+  const nodeId = dragState.initialContainer.getAttribute('data-id')
   window.parent?.postMessage(
     {
       type: 'highlight',
-      highlightedNodeId: stripNodeIdRepeatIndices(
-        dragState.initialContainer.getAttribute('data-id'),
-      ),
-      exactHighlightedNodeId:
-        dragState.initialContainer.getAttribute('data-id'),
+      highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
+      exactHighlightedNodeId: nodeId,
     },
     '*',
   )

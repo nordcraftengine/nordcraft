@@ -76,13 +76,12 @@ export function dragMove(dragState: DragState | null, exclude: HTMLElement[]) {
   if (insertArea) {
     dragState.selectedInsertAreaIndex =
       dragState.insertAreas?.indexOf(insertArea)
+    const nodeId = insertArea.parent.getAttribute('data-id')
     window.parent?.postMessage(
       {
         type: 'highlight',
-        highlightedNodeId: stripNodeIdRepeatIndices(
-          insertArea.parent.getAttribute('data-id'),
-        ),
-        exactHighlightedNodeId: insertArea.parent.getAttribute('data-id'),
+        highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
+        exactHighlightedNodeId: nodeId,
       },
       '*',
     )

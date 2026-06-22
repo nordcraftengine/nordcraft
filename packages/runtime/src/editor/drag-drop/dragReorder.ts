@@ -31,14 +31,12 @@ export function dragReorder(dragState: DragState | null) {
     const nextRect = dragState.element.getBoundingClientRect()
     dragState.offset.x += nextRect.left - prevRect.left
     dragState.offset.y += nextRect.top - prevRect.top
+    const nodeId = dragState.initialContainer.getAttribute('data-id')
     window.parent?.postMessage(
       {
         type: 'highlight',
-        highlightedNodeId: stripNodeIdRepeatIndices(
-          dragState.initialContainer.getAttribute('data-id'),
-        ),
-        exactHighlightedNodeId:
-          dragState.initialContainer.getAttribute('data-id'),
+        highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
+        exactHighlightedNodeId: nodeId,
       },
       '*',
     )
