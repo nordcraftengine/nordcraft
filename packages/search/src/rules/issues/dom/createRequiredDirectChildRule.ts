@@ -19,7 +19,7 @@ export function createRequiredDirectChildRule(
         return
       }
       const { value, component, path } = args
-      if (value.type !== 'element' || !parentTags.includes(value.tag)) {
+      if (value?.type !== 'element' || !parentTags.includes(value.tag)) {
         return
       }
       const getElement = (id: string): NodeModel | undefined =>

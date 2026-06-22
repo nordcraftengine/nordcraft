@@ -14,7 +14,7 @@ export const imageWithoutDimensionRule: IssueRule = {
   visit: (report, { path, nodeType, value }) => {
     if (
       nodeType !== 'component-node' ||
-      value.type !== 'element' ||
+      value?.type !== 'element' ||
       !['img', 'source'].includes(value.tag)
     ) {
       return

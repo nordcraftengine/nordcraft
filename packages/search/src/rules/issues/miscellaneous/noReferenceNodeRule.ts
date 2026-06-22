@@ -19,9 +19,18 @@ export const noReferenceNodeRule: IssueRule<{ node: string }> = {
       () =>
         new Set(
           Object.values(component.nodes ?? {}).flatMap(
-            (node) => node.children ?? [],
+            (node) => node?.children ?? [],
           ),
         ),
+    )
+
+    console.log(
+      'Checking node',
+      nodeId,
+      'in component',
+      component.name,
+      'referenced',
+      referencedNodesInComponent.has(nodeId),
     )
 
     if (nodeId !== 'root' && !referencedNodesInComponent.has(nodeId)) {

@@ -100,7 +100,7 @@ export const unknownCSSVariableRule: IssueRule<
           }
 
           const parent = Object.entries(component.nodes ?? {}).find(([_, n]) =>
-            n.children?.includes(nodeName),
+            n?.children?.includes(nodeName),
           )
           if (parent) {
             visitVars(parent[0])

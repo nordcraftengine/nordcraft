@@ -22,7 +22,7 @@ export const elementWithoutInteractiveContentRule: IssueRule<{
     }
     const { value, component, path, files } = args
     if (
-      value.type !== 'element' ||
+      value?.type !== 'element' ||
       !ELEMENTS_WITHOUT_INTERACTIVE_CONTENT.includes(value.tag)
     ) {
       return

@@ -51,6 +51,48 @@ describe('find noReferenceNodeRule', () => {
     ])
   })
 
+  test('should detect "null" nodes with no references', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  id: 'root',
+                  type: 'element',
+                  tag: 'div',
+                  children: [],
+                  attrs: {},
+                  style: {},
+                  events: {},
+                  classes: {},
+                },
+                '1LisbD0eCjsuccoUwajn1': null as any,
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [noReferenceNodeRule],
+      }),
+    )
+
+    expect(problems).toHaveLength(1)
+    expect(problems[0].details).toEqual({ node: '1LisbD0eCjsuccoUwajn1' })
+    expect(problems[0].path).toEqual([
+      'components',
+      'test',
+      'nodes',
+      '1LisbD0eCjsuccoUwajn1',
+    ])
+  })
+
   test('should not detect nodes with references', () => {
     const problems = Array.from(
       searchProject({

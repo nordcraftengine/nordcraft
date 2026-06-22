@@ -18,7 +18,7 @@ export function createStaticSizeConstraintRule(
     visit: (report, args) => {
       if (
         args.nodeType === 'component-node' &&
-        args.value.type === 'element' &&
+        args.value?.type === 'element' &&
         args.value.tag === tag
       ) {
         let size = 0

@@ -12,7 +12,7 @@ export const unknownComponentSlotRule: IssueRule<{ slotName: string }> = {
     }
 
     // We only want to check the immediate children of a "sub component"
-    if (value.type !== 'component' || (value?.children ?? []).length === 0) {
+    if (value?.type !== 'component' || (value?.children ?? []).length === 0) {
       return
     }
 
@@ -34,7 +34,7 @@ export const unknownComponentSlotRule: IssueRule<{ slotName: string }> = {
     })
 
     const usableSlots = Object.values(subComponent.nodes ?? {})
-      .filter((node): node is SlotNodeModel => node.type === 'slot')
+      .filter((node): node is SlotNodeModel => node?.type === 'slot')
       .map((node) => node.name ?? 'default')
 
     // Loop the children and report issue when using a slot that doesn't exist

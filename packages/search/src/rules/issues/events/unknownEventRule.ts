@@ -10,7 +10,7 @@ export const unknownEventRule: IssueRule<{
   visit: (report, { path, files, value, nodeType }) => {
     if (
       nodeType !== 'component-node' ||
-      value.type !== 'component' ||
+      value?.type !== 'component' ||
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       Object.entries(value.events ?? {}).length === 0
     ) {
