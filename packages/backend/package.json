@@ -36,7 +36,7 @@
     "@nordcraft/core": "workspace:*",
     "@nordcraft/ssr": "workspace:*",
     "hono": "4.12.26",
-    "@hono/node-server": "1.19.11"
+    "@hono/node-server": "2.0.5"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20260621.1",
