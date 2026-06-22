@@ -28,7 +28,7 @@
         "@hono/node-server": "1.19.11",
         "@nordcraft/core": "workspace:*",
         "@nordcraft/ssr": "workspace:*",
-        "hono": "4.12.14",
+        "hono": "4.12.26",
       },
       "devDependencies": {
         "@cloudflare/workers-types": "4.20260519.1",
@@ -471,7 +471,7 @@
 
     "happy-dom": ["happy-dom@20.9.0", "", { "dependencies": { "@types/node": ">=20.0.0", "@types/whatwg-mimetype": "^3.0.2", "@types/ws": "^8.18.1", "entities": "^7.0.1", "whatwg-mimetype": "^3.0.0", "ws": "^8.18.3" } }, "sha512-GZZ9mKe8r646NUAf/zemnGbjYh4Bt8/MqASJY+pSm5ZDtc3YQox+4gsLI7yi1hba6o+eCsGxpHn5+iEVn31/FQ=="],
 
-    "hono": ["hono@4.12.14", "", {}, "sha512-am5zfg3yu6sqn5yjKBNqhnTX7Cv+m00ox+7jbaKkrLMRJ4rAdldd1xPd/JzbBWspqaQv6RSTrgFN95EsfhC+7w=="],
+    "hono": ["hono@4.12.26", "", {}, "sha512-uyZtpnYxM9CmQ7QsQknM4zN8EftNqhON1qYeIKM0Se67CCEe2c44xyGURwB0axX2fBDu1dqHrHAc1hmNT8ITkw=="],
 
     "html-standard": ["html-standard@0.0.13", "", { "dependencies": { "vscode-css-languageservice": "^6.3.9", "vscode-languageserver-textdocument": "^1.0.12" } }, "sha512-6oNfW3c1t44O7jVXu0tp4E5MbHifWlXrHlZBPt6y7vFdgLOUUh8hyzoRhfUgozlBUK6oLLYhqP1uIqbZ8ggcBA=="],
 
