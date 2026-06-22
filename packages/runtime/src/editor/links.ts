@@ -8,18 +8,7 @@ import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 export const updateComponentLinks = (component: Component) => {
   // Find all links and add target="_blank" to them
   Object.entries(component.nodes ?? {}).forEach(([_, node]) => {
-    if (!node?.type) {
-      console.warn(
-        'Node has no type, skipping',
-        node,
-        'key',
-        _,
-        'component',
-        component.name,
-      )
-      return
-    }
-    if (node.type === 'element' && node.tag === 'a') {
+    if (node?.type === 'element' && node.tag === 'a') {
       if (!node.attrs) {
         node.attrs = {}
       }

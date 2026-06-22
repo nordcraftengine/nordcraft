@@ -24,15 +24,6 @@ export const noReferenceNodeRule: IssueRule<{ node: string }> = {
         ),
     )
 
-    console.log(
-      'Checking node',
-      nodeId,
-      'in component',
-      component.name,
-      'referenced',
-      referencedNodesInComponent.has(nodeId),
-    )
-
     if (nodeId !== 'root' && !referencedNodesInComponent.has(nodeId)) {
       report({
         path,
