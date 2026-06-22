@@ -23,7 +23,7 @@ export function createStaticSizeConstraintRule(
       ) {
         let size = 0
         const component = args.component
-        const evaluateElement = (element?: NodeModel): string => {
+        const evaluateElement = (element?: NodeModel | null): string => {
           if (
             !element ||
             ['element', 'text', 'slot', 'component'].includes(element.type) ===
