@@ -19,7 +19,7 @@ describe('toValidClassName()', () => {
   })
 })
 
-describe.only('getClassName()', () => {
+describe('getClassName()', () => {
   test('it produces the same classname whether a nullish entry is provided or not', () => {
     expect(getClassName([null, undefined, { color: 'red' }])).toBe(
       getClassName([{ color: 'red' }]),
