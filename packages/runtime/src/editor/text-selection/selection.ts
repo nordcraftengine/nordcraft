@@ -2,7 +2,7 @@ import { stripNodeIdRepeatIndices } from '../../utils/nodes'
 import { postMessageToEditor } from '../postMessageToEditor'
 
 export const handleTextNodeSelection = (node: HTMLElement) => {
-  const initialContent = node.innerText
+  const initialContent = node.textContent
   node.contentEditable = 'plaintext-only'
   const nodeId = node.getAttribute('data-id')
   postMessageToEditor({
@@ -11,6 +11,7 @@ export const handleTextNodeSelection = (node: HTMLElement) => {
     exactHighlightedNodeId: nodeId,
   })
 
+  let isFinished = false
   const handleKeyDown = (e: KeyboardEvent) => {
     e.stopPropagation()
     if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
@@ -25,6 +26,11 @@ export const handleTextNodeSelection = (node: HTMLElement) => {
   }
 
   const finishEditing = () => {
+    if (isFinished) {
+      return
+    }
+
+    isFinished = true
     globalThis.removeEventListener('selected-node-changed', finishEditing)
     node.removeAttribute('contenteditable')
     node.removeEventListener('keydown', handleKeyDown)
@@ -42,13 +48,13 @@ export const handleTextNodeSelection = (node: HTMLElement) => {
       ;(document.activeElement as HTMLElement).blur()
     }
 
-    if (node.innerText === initialContent) {
+    if (node.textContent === initialContent) {
       return
     }
 
     postMessageToEditor({
       type: 'updateTextNodeContent',
-      innerText: node.innerText,
+      innerText: node.textContent,
       nodeId: node.getAttribute('data-node-id'),
     })
   }
@@ -56,6 +62,10 @@ export const handleTextNodeSelection = (node: HTMLElement) => {
   node.addEventListener('keydown', handleKeyDown)
   node.addEventListener('blur', finishEditing, { once: true })
   setTimeout(() => {
+    if (isFinished) {
+      return
+    }
+
     globalThis.addEventListener('selected-node-changed', finishEditing, {
       once: true,
     })
