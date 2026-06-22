@@ -1,4 +1,3 @@
-import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
 import type { IssueRule, Level } from '../../../types'
 
 export function createRequiredDirectChildRule(
@@ -22,8 +21,7 @@ export function createRequiredDirectChildRule(
       if (value?.type !== 'element' || !parentTags.includes(value.tag)) {
         return
       }
-      const getElement = (id: string): NodeModel | undefined =>
-        component.nodes?.[id]
+      const getElement = (id: string) => component.nodes?.[id]
       ;(value.children ?? []).forEach((childId) => {
         const childNode = getElement(childId)
         if (
