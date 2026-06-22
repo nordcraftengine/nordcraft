@@ -2,6 +2,7 @@ import type {
   Component,
   NodeModel,
 } from '@nordcraft/core/dist/component/component.types'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 type NodeWithNodeId = NodeModel & { nodeId: string }
 
@@ -24,31 +25,34 @@ export const getNodeAndAncestors = (
   // nodePath skips the root element as it's selected as the initial
   // value in the reduce below
   const nodePath = pathParsed.slice(1)
-  const node = nodePath.reduce((node: NodeModel | undefined, childIndex, i) => {
-    switch (node?.type) {
-      // 'text' elements don't have any children
-      case 'element':
-      case 'component':
-      case 'slot': {
-        // Ancestors are elements before the target node
-        if (i <= nodePath.length - 1) {
-          ancestors.push({
-            ...node,
-            // Use the original path as origin to get correct nodeIds
-            nodeId: path.slice(0, i + 1).join('.'),
-          })
+  const node = nodePath.reduce(
+    (node: NodeModel | undefined | null, childIndex, i) => {
+      switch (node?.type) {
+        // 'text' elements don't have any children
+        case 'element':
+        case 'component':
+        case 'slot': {
+          // Ancestors are elements before the target node
+          if (i <= nodePath.length - 1) {
+            ancestors.push({
+              ...node,
+              // Use the original path as origin to get correct nodeIds
+              nodeId: path.slice(0, i + 1).join('.'),
+            })
+          }
+          const index = node.children?.[childIndex]
+          if (index === undefined) {
+            return undefined
+          }
+          return component.nodes?.[index]
         }
-        const index = node.children?.[childIndex]
-        if (index === undefined) {
+        default:
           return undefined
-        }
-        return component.nodes?.[index]
       }
-      default:
-        return undefined
-    }
-  }, root)
-  if (node === undefined) {
+    },
+    root,
+  )
+  if (!isDefined(node)) {
     return undefined
   }
   return { node: { ...node, nodeId: id }, ancestors }

@@ -196,7 +196,7 @@ export interface Component {
   >
   workflows?: Nullable<Record<string, Nullable<ComponentWorkflow>>>
   apis?: Nullable<Record<string, Nullable<ComponentAPI>>>
-  nodes?: Nullable<Record<string, NodeModel>>
+  nodes?: Nullable<Partial<Record<string, NodeModel | null>>>
   events?: Nullable<Nullable<ComponentEvent>[]>
   onLoad?: Nullable<EventModel>
   onAttributeChange?: Nullable<EventModel>

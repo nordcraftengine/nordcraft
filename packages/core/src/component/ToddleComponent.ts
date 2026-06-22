@@ -70,11 +70,17 @@ export class ToddleComponent<Handler> {
           globalFormulas: this.globalFormulas,
         }),
       )
-      Object.values(component.nodes ?? {}).forEach(
-        visitNode(node.package ?? packageName),
-      )
+      Object.values(component.nodes ?? {}).forEach((node) => {
+        if (isDefined(node)) {
+          visitNode((node as any).package ?? packageName)(node)
+        }
+      })
     }
-    Object.values(this.nodes ?? {}).forEach(visitNode())
+    Object.values(this.nodes ?? {}).forEach((node) => {
+      if (isDefined(node)) {
+        visitNode()(node)
+      }
+    })
     return [...components.values()]
   }
 
@@ -455,7 +461,9 @@ export class ToddleComponent<Handler> {
       })
     }
     for (const [nodeKey, node] of Object.entries(this.nodes ?? {})) {
-      yield* visitNode(node, ['nodes', nodeKey])
+      if (isDefined(node)) {
+        yield* visitNode(node, ['nodes', nodeKey])
+      }
     }
   }
 
@@ -542,7 +550,9 @@ export class ToddleComponent<Handler> {
       ])
     }
     for (const [nodeKey, node] of Object.entries(this.nodes ?? {})) {
-      yield* visitNode(node, ['nodes', nodeKey])
+      if (isDefined(node)) {
+        yield* visitNode(node, ['nodes', nodeKey])
+      }
     }
   }
 

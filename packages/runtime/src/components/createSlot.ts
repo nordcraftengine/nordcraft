@@ -1,8 +1,8 @@
 import type {
+  Component,
   NodeModel,
   SlotNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
-import type { Nullable } from '@nordcraft/core/dist/types'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
 
@@ -87,13 +87,13 @@ export function createSlot({
 function getSlotComponentIndex(
   nodeName: string,
   node: NodeModel,
-  componentNodes: Nullable<Record<string, NodeModel>>,
+  componentNodes: Component['nodes'],
 ) {
   let slotsWithSameNameIndex = 0
   if (componentNodes) {
     for (const n in componentNodes) {
       const currentNode = componentNodes[n]
-      if (currentNode.type === 'slot' && currentNode.name === nodeName) {
+      if (currentNode?.type === 'slot' && currentNode.name === nodeName) {
         if (currentNode === node) {
           break
         }

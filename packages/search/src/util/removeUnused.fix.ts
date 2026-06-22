@@ -12,31 +12,26 @@ export const removeFromPathFix: FixFunction<NodeType> = ({
 export const removeNodeFromPathFix: FixFunction<NodeType> = ({ data }) => {
   const nodeId = String(data.path[data.path.length - 1])
   const componentNodesPath = data.path.slice(0, -1).map(String)
-  const nodes = structuredClone(get(data.files, componentNodesPath)) as Record<
-    string,
-    NodeModel
+  const nodes = structuredClone(get(data.files, componentNodesPath)) as Partial<
+    Record<string, NodeModel | null>
   >
 
   // Clean parent reference
   for (const key in nodes) {
-    if (nodes[key].children?.includes(nodeId)) {
-      nodes[key].children = nodes[key].children.filter((p) => p !== nodeId)
+    const node = nodes[key]
+    if (node?.children?.includes(nodeId)) {
+      node.children = node.children.filter((p) => p !== nodeId)
     }
   }
 
   // Clean children recursively
   const removeNodeAndChildren = (nodeId: string) => {
     const node = nodes[nodeId] as NodeModel | undefined
-    if (!node) {
-      return
-    }
-
-    if (node.children) {
+    if (node?.children) {
       for (const childId of node.children) {
         removeNodeAndChildren(childId)
       }
     }
-
     delete nodes[nodeId]
   }
 

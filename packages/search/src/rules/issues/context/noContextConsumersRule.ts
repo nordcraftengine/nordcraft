@@ -25,13 +25,13 @@ export const noContextConsumersRule: IssueRule<{
       return
     }
     const hasSlots = Object.values(value.nodes ?? {}).some(
-      (n) => n.type === 'slot',
+      (n) => n?.type === 'slot',
     )
     if (hasSlots) {
       return
     }
     const hasComponents = Object.values(value.nodes ?? {}).some(
-      (n) => n.type === 'component',
+      (n) => n?.type === 'component',
     )
     if (hasComponents) {
       return

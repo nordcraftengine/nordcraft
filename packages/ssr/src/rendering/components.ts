@@ -92,7 +92,7 @@ const renderComponent = async ({
   }: {
     id: string
     path: string
-    node: NodeModel | undefined
+    node: NodeModel | undefined | null
     data: ComponentData
     packageName: string | undefined
     isComponentRootNode?: boolean

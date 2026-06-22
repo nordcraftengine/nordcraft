@@ -24,7 +24,7 @@ export const noReferenceGlobalCSSVariableRule: IssueRule<{
         const vars = new Set<string>()
         Object.entries(files.components).forEach(([_, component]) => {
           Object.values(component?.nodes ?? {}).forEach((node) => {
-            if (node.type === 'element' || node.type === 'component') {
+            if (node?.type === 'element' || node?.type === 'component') {
               ;[{ style: node.style }, ...(node.variants ?? [])].forEach(
                 ({ style }) => {
                   Object.values(style ?? {}).forEach((styleValue) => {
@@ -51,7 +51,7 @@ export const noReferenceGlobalCSSVariableRule: IssueRule<{
         Object.values(files.packages ?? {}).forEach((pkg) => {
           Object.values(pkg?.components ?? {}).forEach((component) => {
             Object.values(component?.nodes ?? {}).forEach((node) => {
-              if (node.type === 'element' || node.type === 'component') {
+              if (node?.type === 'element' || node?.type === 'component') {
                 ;[{ style: node.style }, ...(node.variants ?? [])].forEach(
                   ({ style }) => {
                     Object.values(style ?? {}).forEach((styleValue) => {

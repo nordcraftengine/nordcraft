@@ -376,7 +376,7 @@ export type ComponentEvent = {
 
 export type ComponentNodeNode = {
   nodeType: 'component-node'
-  value: NodeModel
+  value?: NodeModel | null
   component: ToddleComponent<Function>
 } & Base
 

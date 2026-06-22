@@ -31,7 +31,7 @@ export function createRequiredElementAttributeRule({
     visit: (report, { path, nodeType, value }) => {
       if (
         nodeType === 'component-node' &&
-        value.type === 'element' &&
+        value?.type === 'element' &&
         value.tag === tag
       ) {
         const attributes = Array.isArray(attribute) ? attribute : [attribute]

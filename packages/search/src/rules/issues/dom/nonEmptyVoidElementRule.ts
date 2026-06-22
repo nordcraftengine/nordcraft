@@ -11,7 +11,7 @@ export const nonEmptyVoidElementRule: IssueRule<{ tag: string }> = {
   visit: (report, { path, nodeType, value }) => {
     if (
       nodeType !== 'component-node' ||
-      value.type !== 'element' ||
+      value?.type !== 'element' ||
       (value.children ?? []).length <= 0 ||
       !VOID_HTML_ELEMENTS.includes(value.tag)
     ) {

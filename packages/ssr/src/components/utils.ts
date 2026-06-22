@@ -64,17 +64,21 @@ function takeComponentsIncludedInProject(
       dependencies.set(nodeName, { ...component, name: nodeName })
     }
 
-    Object.values(component.nodes ?? {}).forEach((node) =>
-      visitNode(
-        node,
-        (node.type === 'component' ? node.package : undefined) ?? packageName,
-      ),
-    )
+    Object.values(component.nodes ?? {}).forEach((node) => {
+      if (isDefined(node)) {
+        visitNode(
+          node,
+          (node.type === 'component' ? node.package : undefined) ?? packageName,
+        )
+      }
+    })
   }
 
-  Object.values(parent.nodes ?? {}).forEach((node) =>
-    visitNode(node, node.type === 'component' ? node.package : undefined),
-  )
+  Object.values(parent.nodes ?? {}).forEach((node) => {
+    if (isDefined(node)) {
+      visitNode(node, node.type === 'component' ? node.package : undefined)
+    }
+  })
 
   return Array.from(dependencies.values())
 }

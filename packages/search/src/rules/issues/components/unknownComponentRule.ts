@@ -10,7 +10,7 @@ export const unknownComponentRule: IssueRule<{
   visit: (report, { path, files, value, nodeType }) => {
     if (
       nodeType !== 'component-node' ||
-      value.type !== 'component' ||
+      value?.type !== 'component' ||
       // Check if the component exists in the project
       (!isDefined(value.package) && isDefined(files.components[value.name])) ||
       // Check if the component exists in a specified package

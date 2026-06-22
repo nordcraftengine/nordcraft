@@ -154,6 +154,9 @@ ${
       return
     }
     Object.entries(component.nodes).forEach(([id, node]) => {
+      if (!isDefined(node)) {
+        return
+      }
       if (node.type === 'component') {
         const childComponent = components.find(
           (c) =>
