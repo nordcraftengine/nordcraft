@@ -1,9 +1,22 @@
+import type { NodeStyleModel } from '../component/component.types'
+import type { Nullable } from '../types'
 import { generateAlphabeticName, hash } from './hash'
+import type { StyleVariant } from './variantSelector'
 
 // Classnames are reused a lot, and JS hashing is expensive, so there is benefit in caching them in a native hashmap.
 const CLASSNAME_LOOKUP = new Map<string, string>()
-export const getClassName = (object: any) => {
-  const stringified = JSON.stringify(object)
+export const getClassName = (
+  object: Array<Nullable<NodeStyleModel> | Nullable<StyleVariant[]>>,
+) => {
+  const stringified = JSON.stringify(
+    object.filter(
+      (item) =>
+        item !== null && // Skip nullish values
+        item !== undefined &&
+        (Array.isArray(item) ? item.length > 0 : true) && // Skip empty arrays/objects
+        (typeof item === 'object' ? Object.keys(item).length > 0 : true),
+    ),
+  )
   if (CLASSNAME_LOOKUP.has(stringified)) {
     return CLASSNAME_LOOKUP.get(stringified)!
   }
