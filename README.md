@@ -2,7 +2,7 @@
 
 Create highly performant web apps with SSR, branching, version control, components, and much more! Visit [nordcraft.com](https://nordcraft.com?utm_medium=web&utm_source=GitHub) to learn more.
 
-[Discord](https://discord.com/invite/svBKYZf3UR) | [BlueSky](https://bsky.app/profile/nordcraft.com) | [YouTube](https://youtube.com/@nordcraftengine) | [LinkedIn](https://www.linkedin.com/company/nordcraft) | [X](https://x.com/nordcraftengine)
+[Discord](https://discord.com/invite/svBKYZf3UR) | [BlueSky](https://bsky.app/profile/nordcraft.com) | [YouTube](https://youtube.com/@nordcraftengine) | [LinkedIn](https://www.linkedin.com/company/nordcraft)
 
 ![Test status](https://github.com/nordcraftengine/nordcraft/actions/workflows/test.yml/badge.svg)
 ![Release status](https://github.com/nordcraftengine/nordcraft/actions/workflows/main.yml/badge.svg)
