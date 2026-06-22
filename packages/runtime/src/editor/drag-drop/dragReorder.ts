@@ -1,4 +1,5 @@
 import { isElementInViewport } from '../../utils/isElementInViewport'
+import { stripNodeIdRepeatIndices } from '../../utils/nodes'
 import { tryStartViewTransition } from '../../utils/tryStartViewTransition'
 import type { DragState } from '../types'
 import { DRAG_MOVE_CLASSNAME } from './dragMove'
@@ -30,10 +31,12 @@ export function dragReorder(dragState: DragState | null) {
     const nextRect = dragState.element.getBoundingClientRect()
     dragState.offset.x += nextRect.left - prevRect.left
     dragState.offset.y += nextRect.top - prevRect.top
+    const nodeId = dragState.initialContainer.getAttribute('data-id')
     window.parent?.postMessage(
       {
         type: 'highlight',
-        highlightedNodeId: dragState.initialContainer.getAttribute('data-id'),
+        highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
+        exactHighlightedNodeId: nodeId,
       },
       '*',
     )

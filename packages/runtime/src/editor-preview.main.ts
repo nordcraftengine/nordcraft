@@ -704,11 +704,11 @@ export const createRoot = (
               selectedNode.contains(document.elementFromPoint(x, y))
             if (selectedNodeIsText && cursorInsideSelectedElement) {
               // Highlight the text node if the cursor is inside the currently selected text node, even if the selected element has a different id than the text node (e.g. when clicking on a span inside a text node)
+              const nodeId = selectedNode.getAttribute('data-id')
               postMessageToEditor({
                 type: 'highlight',
-                highlightedNodeId: stripNodeIdRepeatIndices(
-                  selectedNode.getAttribute('data-id'),
-                ),
+                highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
+                exactHighlightedNodeId: nodeId,
               })
               return
             }
@@ -716,6 +716,7 @@ export const createRoot = (
             postMessageToEditor({
               type: 'highlight',
               highlightedNodeId: stripNodeIdRepeatIndices(id),
+              exactHighlightedNodeId: id,
             })
           } else if (
             type === 'dblclick' &&

@@ -1,4 +1,5 @@
 import { findNearestLine } from '../../utils/findNearestLine'
+import { stripNodeIdRepeatIndices } from '../../utils/nodes'
 import type { DragState } from '../types'
 import { DRAG_REORDER_CLASSNAME } from './dragReorder'
 import { removeDropHighlight, setExternalDropHighlight } from './dropHighlight'
@@ -75,10 +76,12 @@ export function dragMove(dragState: DragState | null, exclude: HTMLElement[]) {
   if (insertArea) {
     dragState.selectedInsertAreaIndex =
       dragState.insertAreas?.indexOf(insertArea)
+    const nodeId = insertArea.parent.getAttribute('data-id')
     window.parent?.postMessage(
       {
         type: 'highlight',
-        highlightedNodeId: insertArea.parent.getAttribute('data-id'),
+        highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
+        exactHighlightedNodeId: nodeId,
       },
       '*',
     )
