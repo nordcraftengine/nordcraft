@@ -162,7 +162,7 @@ const processNodes = (
     return undefined
   }
   return mapObject(
-    filterObject<NodeModel | undefined, NodeModel>(nodes, ([_, value]) =>
+    filterObject<NodeModel | undefined | null, NodeModel>(nodes, ([_, value]) =>
       isDefined(value),
     ),
     ([key, value]) => {

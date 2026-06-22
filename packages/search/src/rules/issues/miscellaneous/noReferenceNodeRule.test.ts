@@ -179,6 +179,49 @@ describe('fix noReferenceNodeRule', () => {
       'used',
     ])
   })
+
+  test('should delete "null" nodes with no references', () => {
+    const files: ProjectFiles = {
+      formulas: {},
+      components: {
+        test: {
+          name: 'test',
+          nodes: {
+            root: {
+              id: 'root',
+              type: 'element',
+              tag: 'div',
+              children: ['used'],
+              attrs: {},
+              style: {},
+              events: {},
+              classes: {},
+            },
+            '1LisbD0eCjsuccoUwajn1': null,
+            used: {
+              id: 'used',
+              type: 'text',
+              value: { type: 'value', value: 'I am used' },
+            },
+          },
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
+        },
+      },
+    }
+    const fixedFiles = fixProject({
+      files,
+      rule: noReferenceNodeRule,
+      fixType: 'delete-orphan-node',
+    })
+    expect(Object.keys(fixedFiles.components.test!.nodes ?? {})).toEqual([
+      'root',
+      'used',
+    ])
+  })
+
   test('should remove children of orphan node', () => {
     const files: ProjectFiles = {
       formulas: {},
