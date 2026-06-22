@@ -270,6 +270,9 @@ export const createStylesheet = (
       return
     }
     Object.entries(component.nodes).forEach(([id, node]) => {
+      if (!isDefined(node)) {
+        return
+      }
       if (node.type === 'component') {
         const childComponent = components.find(
           (c) =>
@@ -310,7 +313,7 @@ export const getAllFonts = (components: Component[]) => {
     components
       .flatMap((component) => {
         return Object.values(component.nodes ?? {}).flatMap((node) => {
-          if (node.type === 'element') {
+          if (node?.type === 'element') {
             return [
               node.style?.fontFamily,
               node.style?.['font-family'],

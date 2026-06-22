@@ -1,5 +1,5 @@
 import equal from 'fast-deep-equal'
-import type { NodeType, SearchRule } from '../../types'
+import type { SearchRule } from '../../types'
 import { parseSearchQuery } from '../../util/parseSearchQuery'
 
 type MatchResult =
@@ -253,9 +253,7 @@ export function createFieldSearchRule({
 }: {
   query: string
   withDetails?: boolean
-  skippedFields?: Partial<{
-    [K in NodeType as K['nodeType']]: (keyof K['value'])[]
-  }>
+  skippedFields?: Record<string, string[]>
 }): SearchRule {
   const parsedQuery = parseSearchQuery(query)
   const reportedPaths = new Set<string>()

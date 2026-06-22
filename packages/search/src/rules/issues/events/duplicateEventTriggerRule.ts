@@ -5,7 +5,7 @@ export const duplicateEventTriggerRule: IssueRule<{ trigger: string }> = {
   level: 'warning',
   category: 'Quality',
   visit: (report, { nodeType, path, value }) => {
-    if (nodeType !== 'component-node' || value.type !== 'element') {
+    if (nodeType !== 'component-node' || value?.type !== 'element') {
       return
     }
     const eventTriggers = new Set<string>()

@@ -19,7 +19,7 @@ export const noReferenceNodeRule: IssueRule<{ node: string }> = {
       () =>
         new Set(
           Object.values(component.nodes ?? {}).flatMap(
-            (node) => node.children ?? [],
+            (node) => node?.children ?? [],
           ),
         ),
     )

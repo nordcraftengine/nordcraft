@@ -567,10 +567,11 @@ function* visitNode({
       }
 
       for (const key in value.nodes) {
+        const node = value.nodes[key]
         yield* visitNode({
           args: {
             nodeType: 'component-node',
-            value: value.nodes[key],
+            value: node,
             path: [...path, 'nodes', key],
             rules,
             files,
@@ -583,12 +584,12 @@ function* visitNode({
           fixOptions: fixOptions as any,
         })
         if (
-          value.nodes[key].type === 'component' ||
-          value.nodes[key].type === 'element'
+          isDefined(node) &&
+          (node.type === 'component' || node.type === 'element')
         ) {
           // Visit attributes on component and element nodes
-          for (const attrKey in value.nodes[key].attrs) {
-            const attr = value.nodes[key].attrs[attrKey]
+          for (const attrKey in node.attrs) {
+            const attr = node.attrs[attrKey]
             yield* visitNode({
               args: {
                 nodeType: 'component-node-attribute',
@@ -599,7 +600,7 @@ function* visitNode({
                 pathsToVisit,
                 useExactPaths,
                 memo,
-                node: value.nodes[key],
+                node: node,
               },
               state,
               fixOptions: fixOptions as any,
@@ -739,7 +740,7 @@ function* visitNode({
       break
 
     case 'component-node':
-      if (value.type === 'element' || value.type === 'component') {
+      if (value?.type === 'element' || value?.type === 'component') {
         for (const [styleKey, styleValue] of Object.entries(
           value.style ?? {},
         )) {

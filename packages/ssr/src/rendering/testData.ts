@@ -161,115 +161,120 @@ const processNodes = (
   if (!isDefined(nodes)) {
     return undefined
   }
-  return mapObject(nodes, ([key, value]) => {
-    switch (value.type) {
-      case 'element': {
-        const updatedNode: NodeModel = {
-          ...value,
-          events: mapObject(value.events ?? {}, ([eventKey, eventValue]) => [
-            eventKey,
-            eventValue
-              ? {
-                  ...eventValue,
-                  actions: eventValue.actions?.map(removeActionTestData),
-                }
-              : null,
-          ]),
-          repeat: value.repeat
-            ? removeFormulaTestData(value.repeat)
-            : undefined,
-          repeatKey: value.repeatKey
-            ? removeFormulaTestData(value.repeatKey)
-            : undefined,
+  return mapObject(
+    filterObject<NodeModel | undefined | null, NodeModel>(nodes, ([_, value]) =>
+      isDefined(value),
+    ),
+    ([key, value]) => {
+      switch (value.type) {
+        case 'element': {
+          const updatedNode: NodeModel = {
+            ...value,
+            events: mapObject(value.events ?? {}, ([eventKey, eventValue]) => [
+              eventKey,
+              eventValue
+                ? {
+                    ...eventValue,
+                    actions: eventValue.actions?.map(removeActionTestData),
+                  }
+                : null,
+            ]),
+            repeat: value.repeat
+              ? removeFormulaTestData(value.repeat)
+              : undefined,
+            repeatKey: value.repeatKey
+              ? removeFormulaTestData(value.repeatKey)
+              : undefined,
+          }
+          return [
+            key,
+            removeOptionalPropertiesIfEmpty(updatedNode, [
+              'animations',
+              'attrs',
+              'children',
+              'condition',
+              'classes',
+              'customProperties',
+              'events',
+              'id',
+              'repeat',
+              'repeatKey',
+              'slot',
+              'style-variables',
+              'styleVariables',
+            ]) as NodeModel,
+          ]
         }
-        return [
-          key,
-          removeOptionalPropertiesIfEmpty(updatedNode, [
-            'animations',
-            'attrs',
-            'children',
-            'condition',
-            'classes',
-            'customProperties',
-            'events',
-            'id',
-            'repeat',
-            'repeatKey',
-            'slot',
-            'style-variables',
-            'styleVariables',
-          ]) as NodeModel,
-        ]
-      }
-      case 'text': {
-        return [
-          key,
-          removeOptionalPropertiesIfEmpty<TextNodeModel>(
-            {
-              ...value,
-              repeat: value.repeat
-                ? removeFormulaTestData(value.repeat)
-                : undefined,
-              repeatKey: value.repeatKey
-                ? removeFormulaTestData(value.repeatKey)
-                : undefined,
-            },
-            ['id', 'slot', 'repeat', 'repeatKey'],
-          ) as NodeModel,
-        ]
-      }
-      case 'component': {
-        const updatedNode: NodeModel = {
-          ...value,
-          events: mapObject(value.events ?? {}, ([eventKey, eventValue]) => [
-            eventKey,
-            eventValue
-              ? {
-                  ...eventValue,
-                  actions: eventValue.actions?.map(removeActionTestData),
-                }
-              : null,
-          ]),
-          repeat: value.repeat
-            ? removeFormulaTestData(value.repeat)
-            : undefined,
-          repeatKey: value.repeatKey
-            ? removeFormulaTestData(value.repeatKey)
-            : undefined,
+        case 'text': {
+          return [
+            key,
+            removeOptionalPropertiesIfEmpty<TextNodeModel>(
+              {
+                ...value,
+                repeat: value.repeat
+                  ? removeFormulaTestData(value.repeat)
+                  : undefined,
+                repeatKey: value.repeatKey
+                  ? removeFormulaTestData(value.repeatKey)
+                  : undefined,
+              },
+              ['id', 'slot', 'repeat', 'repeatKey'],
+            ) as NodeModel,
+          ]
         }
-        return [
-          key,
-          removeOptionalPropertiesIfEmpty(updatedNode, [
-            'id',
-            'slot',
-            'path',
-            'package',
-            'condition',
-            'repeat',
-            'repeatKey',
-            'variants',
-            'animations',
-            'attrs',
-            'children',
-            'events',
-          ]) as NodeModel,
-        ]
+        case 'component': {
+          const updatedNode: NodeModel = {
+            ...value,
+            events: mapObject(value.events ?? {}, ([eventKey, eventValue]) => [
+              eventKey,
+              eventValue
+                ? {
+                    ...eventValue,
+                    actions: eventValue.actions?.map(removeActionTestData),
+                  }
+                : null,
+            ]),
+            repeat: value.repeat
+              ? removeFormulaTestData(value.repeat)
+              : undefined,
+            repeatKey: value.repeatKey
+              ? removeFormulaTestData(value.repeatKey)
+              : undefined,
+          }
+          return [
+            key,
+            removeOptionalPropertiesIfEmpty(updatedNode, [
+              'id',
+              'slot',
+              'path',
+              'package',
+              'condition',
+              'repeat',
+              'repeatKey',
+              'variants',
+              'animations',
+              'attrs',
+              'children',
+              'events',
+            ]) as NodeModel,
+          ]
+        }
+        case 'slot': {
+          return [
+            key,
+            removeOptionalPropertiesIfEmpty(
+              omitKeys(
+                value,
+                // Always remove repeat and repeatKey from slots as they're not supported
+                ['repeat', 'repeatKey'],
+              ),
+              ['children', 'condition', 'events', 'name', 'slot'],
+            ) as NodeModel,
+          ]
+        }
       }
-      case 'slot': {
-        return [
-          key,
-          removeOptionalPropertiesIfEmpty(
-            omitKeys(
-              value,
-              // Always remove repeat and repeatKey from slots as they're not supported
-              ['repeat', 'repeatKey'],
-            ),
-            ['children', 'condition', 'events', 'name', 'slot'],
-          ) as NodeModel,
-        ]
-      }
-    }
-  })
+    },
+  )
 }
 
 type OptionalKeys<T extends object> = {
