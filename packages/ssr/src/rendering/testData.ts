@@ -5,6 +5,7 @@ import type {
   Component,
   ComponentAttribute,
   ComponentFormula,
+  ComponentVariable,
   ComponentWorkflow,
   CustomActionArgument,
   CustomActionModel,
@@ -78,6 +79,18 @@ export const removeTestData = (component: Component): Component =>
                   formula: removeFormulaTestData(value.formula),
                 },
               ],
+            ),
+          }
+        : {}),
+      ...(component.variables
+        ? {
+            variables: mapObject(
+              filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+                component.variables,
+                ([_, variable]) => isDefined(variable),
+              ),
+              // On legacy variables, the name was persisted as part of the variable itself, but it's redundant information and should be removed
+              ([key, variable]) => [key, omitKeys(variable, ['name'])],
             ),
           }
         : {}),
