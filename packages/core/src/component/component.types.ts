@@ -418,6 +418,9 @@ export interface ComponentEvent extends NordcraftMetadata {
 
 export interface ComponentVariable extends NordcraftMetadata {
   initialValue: Formula
+  // @deprecated - variables should be referenced by their key in component.variables
+  // name is only here to better reflect how variables are stored in legacy components
+  name?: never
 }
 
 export interface ComponentAttribute extends NordcraftMetadata {
