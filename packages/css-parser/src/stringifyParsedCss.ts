@@ -15,6 +15,74 @@ export const parsedCssToString = (args: { parsedCss: ParsedStyle }) => {
 
   const style: StringifiedStyle = {}
 
+  // Animation
+  if (parsedCss.animation) {
+    const animation: string[] = []
+    const animationDuration: string[] = []
+    const animationTiming: string[] = []
+    const animationDelay: string[] = []
+    const animationIterationCount: string[] = []
+    const animationDirection: string[] = []
+    const animationFillMode: string[] = []
+    const animationPlayState: string[] = []
+    const animationName: string[] = []
+
+    parsedCss.animation.forEach((a) => {
+      const singleAnimation: string[] = []
+      if (isDefined(a.duration)) {
+        const duration = stringifyProperty(a.duration)
+        animationDuration.push(duration)
+        singleAnimation.push(duration)
+      }
+      if (isDefined(a.timing)) {
+        const timing = stringifyProperty(a.timing)
+        animationTiming.push(timing)
+        singleAnimation.push(timing)
+      }
+      if (isDefined(a.delay)) {
+        const delay = stringifyProperty(a.delay)
+        animationDelay.push(delay)
+        singleAnimation.push(delay)
+      }
+      if (isDefined(a.iterationCount)) {
+        const iterationCount = stringifyProperty(a.iterationCount)
+        animationIterationCount.push(iterationCount)
+        singleAnimation.push(iterationCount)
+      }
+      if (isDefined(a.direction)) {
+        const direction = stringifyProperty(a.direction)
+        animationDirection.push(direction)
+        singleAnimation.push(direction)
+      }
+      if (isDefined(a.fillMode)) {
+        const fillMode = stringifyProperty(a.fillMode)
+        animationFillMode.push(fillMode)
+        singleAnimation.push(fillMode)
+      }
+      if (isDefined(a.playState)) {
+        const playState = stringifyProperty(a.playState)
+        animationPlayState.push(playState)
+        singleAnimation.push(playState)
+      }
+      if (isDefined(a.name)) {
+        const name = stringifyProperty(a.name)
+        animationName.push(name)
+        singleAnimation.push(name)
+      }
+
+      animation.push(singleAnimation.join(' '))
+    })
+    style['animation-duration'] = animationDuration.join(', ')
+    style['animation-timing-function'] = animationTiming.join(', ')
+    style['animation-delay'] = animationDelay.join(', ')
+    style['animation-iteration-count'] = animationIterationCount.join(', ')
+    style['animation-direction'] = animationDirection.join(', ')
+    style['animation-fill-mode'] = animationFillMode.join(', ')
+    style['animation-play-state'] = animationPlayState.join(', ')
+    style['animation-name'] = animationName.join(', ')
+    style.animation = animation.join(', ')
+  }
+
   // Padding
   if (parsedCss.padding) {
     style.padding = combineValues([

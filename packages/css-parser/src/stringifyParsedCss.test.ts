@@ -698,4 +698,155 @@ describe('parsedCssToString', () => {
         'color 3s linear(0 0%, 0.0087 0.8537%, 0.9998 100% /*{"type":"spring","stiffness":65,"damping":20,"mass":5}*/) 1s',
     })
   })
+
+  test('The animation is defined', () => {
+    expect(
+      parsedCssToString({
+        parsedCss: {
+          animation: [
+            {
+              duration: {
+                type: 'time',
+                value: '2',
+                unit: 's',
+              },
+              timing: {
+                type: 'keyword',
+                value: 'linear',
+              },
+              delay: {
+                type: 'time',
+                value: '0',
+                unit: 'ms',
+              },
+              iterationCount: {
+                type: 'number',
+                value: '1',
+              },
+              direction: {
+                type: 'keyword',
+                value: 'normal',
+              },
+              fillMode: {
+                type: 'keyword',
+                value: 'none',
+              },
+              playState: {
+                type: 'keyword',
+                value: 'running',
+              },
+              name: {
+                type: 'keyword',
+                value: 'animation-empty',
+              },
+            },
+          ],
+        },
+      }),
+    ).toEqual({
+      animation: '2s linear 0ms 1 normal none running animation-empty',
+      'animation-duration': '2s',
+      'animation-timing-function': 'linear',
+      'animation-delay': '0ms',
+      'animation-iteration-count': '1',
+      'animation-direction': 'normal',
+      'animation-fill-mode': 'none',
+      'animation-play-state': 'running',
+      'animation-name': 'animation-empty',
+    })
+  })
+
+  test('The multiple animations are defined', () => {
+    expect(
+      parsedCssToString({
+        parsedCss: {
+          animation: [
+            {
+              duration: {
+                type: 'time',
+                value: '2',
+                unit: 's',
+              },
+              timing: {
+                type: 'keyword',
+                value: 'linear',
+              },
+              delay: {
+                type: 'time',
+                value: '0',
+                unit: 'ms',
+              },
+              iterationCount: {
+                type: 'number',
+                value: '1',
+              },
+              direction: {
+                type: 'keyword',
+                value: 'normal',
+              },
+              fillMode: {
+                type: 'keyword',
+                value: 'none',
+              },
+              playState: {
+                type: 'keyword',
+                value: 'running',
+              },
+              name: {
+                type: 'keyword',
+                value: 'animation-empty',
+              },
+            },
+            {
+              duration: {
+                type: 'time',
+                value: '3',
+                unit: 's',
+              },
+              timing: {
+                type: 'keyword',
+                value: 'ease',
+              },
+              delay: {
+                type: 'time',
+                value: '100',
+                unit: 'ms',
+              },
+              iterationCount: {
+                type: 'number',
+                value: '1',
+              },
+              direction: {
+                type: 'keyword',
+                value: 'normal',
+              },
+              fillMode: {
+                type: 'keyword',
+                value: 'none',
+              },
+              playState: {
+                type: 'keyword',
+                value: 'paused',
+              },
+              name: {
+                type: 'keyword',
+                value: 'animation-new',
+              },
+            },
+          ],
+        },
+      }),
+    ).toEqual({
+      animation:
+        '2s linear 0ms 1 normal none running animation-empty, 3s ease 100ms 1 normal none paused animation-new',
+      'animation-duration': '2s, 3s',
+      'animation-timing-function': 'linear, ease',
+      'animation-delay': '0ms, 100ms',
+      'animation-iteration-count': '1, 1',
+      'animation-direction': 'normal, normal',
+      'animation-fill-mode': 'none, none',
+      'animation-play-state': 'running, paused',
+      'animation-name': 'animation-empty, animation-new',
+    })
+  })
 })

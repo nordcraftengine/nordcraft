@@ -257,4 +257,13 @@ export enum STYLE_PROPERTIES {
   'overflow-x',
   'overflow-y',
   'textDecoration',
+  'animation',
+  'animation-delay',
+  'animation-duration',
+  'animation-play-state',
+  'animation-fill-mode',
+  'animation-timing-function',
+  'animation-direction',
+  'animation-name',
+  'animation-iteration-count',
 }
