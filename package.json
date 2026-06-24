@@ -21,7 +21,7 @@
     "@typescript/native-preview": "7.0.0-dev.20260318.1",
     "esbuild": "0.27.2",
     "eslint": "10.5.0",
-    "happy-dom": "20.9.0",
+    "happy-dom": "20.10.6",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier": "3.8.3"
   },
