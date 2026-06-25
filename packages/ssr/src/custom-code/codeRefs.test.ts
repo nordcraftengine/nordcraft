@@ -36,6 +36,7 @@ describe('getActionReferences', () => {
     const actions = Array.from(getActionReferences(demo))
     expect(actions).toEqual(['MyCustomAction', 'MyLegacyCustomAction'])
   })
+
   test('it return custom actions referenced in workflow callbacks', () => {
     const demo = new ToddleComponent({
       component: {
@@ -279,5 +280,35 @@ describe('hasCustomCode', () => {
       },
     }
     expect(hasCustomCode(component, files)).toBe(true)
+  })
+
+  test('returns false if a component references a builtin formula', () => {
+    const component: Component = {
+      ...baseComponent,
+      nodes: {
+        n1: {
+          type: 'text',
+          value: {
+            type: 'function',
+            name: '@toddle/concatenate',
+            arguments: [
+              {
+                name: '0',
+                formula: { type: 'value', value: 'test' },
+                type: { type: 'Array \\| String \\| Object' },
+              },
+              {
+                name: '0',
+                formula: { type: 'value', value: ' value' },
+                type: { type: 'Array \\| String \\| Object' },
+              },
+            ],
+            variableArguments: true,
+            display_name: 'Concatenate',
+          },
+        },
+      },
+    }
+    expect(hasCustomCode(component, baseFiles)).toBe(false)
   })
 })

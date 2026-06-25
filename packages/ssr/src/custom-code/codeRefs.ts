@@ -7,6 +7,7 @@ import type {
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import {
   isToddleFormula,
+  type Formula,
   type FunctionOperation,
 } from '@nordcraft/core/dist/formula/formula'
 import type {
@@ -59,7 +60,7 @@ const getProjectFormulaReferences = (
           path: (string | number)[]
           formula: FunctionOperation
           packageName?: string
-        } => entry.formula.type === 'function',
+        } => isCustomFormula(entry.formula),
       )
       .flatMap((entry) => {
         const refs = [entry.formula.name]
@@ -79,6 +80,9 @@ const getProjectFormulaReferences = (
 const isCustomAction = (action: ActionModel) =>
   (action.type === 'Custom' || action.type === undefined) &&
   !action.name.startsWith('@toddle/')
+
+const isCustomFormula = (formula: Formula) =>
+  formula.type === 'function' && !formula.name.startsWith('@toddle/')
 
 export const getActionReferences = (
   component: ToddleComponent<string>,
@@ -211,7 +215,7 @@ export const hasCustomCode = (component: Component, files: ProjectFiles) => {
   const selfFormula = nordcraftComponent
     .formulasInComponent()
     // Only check for function (project) formulas
-    .some((f) => f.formula.type === 'function')
+    .some((f) => isCustomFormula(f.formula))
   if (selfFormula) {
     return true
   }
@@ -224,7 +228,7 @@ export const hasCustomCode = (component: Component, files: ProjectFiles) => {
     const childFormula = child
       .formulasInComponent()
       // Only check for function (project) formulas
-      .some((f) => f.formula.type === 'function')
+      .some((f) => isCustomFormula(f.formula))
     if (childFormula) {
       return true
     }
