@@ -75,7 +75,7 @@ const getProjectFormulaReferences = (
   )
 }
 
-const getActionReferences = (
+export const getActionReferences = (
   component: ToddleComponent<string>,
 ): Set<string> => {
   return new Set(
