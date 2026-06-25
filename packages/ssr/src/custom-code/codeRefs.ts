@@ -1,5 +1,6 @@
 import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
 import type {
+  ActionModel,
   Component,
   CustomActionModel,
 } from '@nordcraft/core/dist/component/component.types'
@@ -75,14 +76,17 @@ const getProjectFormulaReferences = (
   )
 }
 
+const isCustomAction = (action: ActionModel) =>
+  (action.type === 'Custom' || action.type === undefined) &&
+  !action.name.startsWith('@toddle/')
+
 export const getActionReferences = (
   component: ToddleComponent<string>,
 ): Set<string> => {
   return new Set(
     Array.from(component.actionModelsInComponent())
-      .filter(
-        (entry): entry is [(string | number)[], CustomActionModel] =>
-          entry[1].type === 'Custom' || entry[1].type === undefined,
+      .filter((entry): entry is [(string | number)[], CustomActionModel] =>
+        isCustomAction(entry[1]),
       )
       .map(([, a]) => [a.package, a.name].filter(isDefined).join('/')),
   )
@@ -198,7 +202,9 @@ export function takeReferencedFormulasAndActions({
 
 export const hasCustomCode = (component: Component, files: ProjectFiles) => {
   const nordcraftComponent = componentClass(component, files)
-  const selfAction = nordcraftComponent.actionModelsInComponent().next().value
+  const selfAction = nordcraftComponent
+    .actionModelsInComponent()
+    .some(([_, a]) => isCustomAction(a))
   if (selfAction) {
     return true
   }

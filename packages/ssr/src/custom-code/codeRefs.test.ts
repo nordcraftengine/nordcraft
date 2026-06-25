@@ -153,6 +153,31 @@ describe('hasCustomCode', () => {
     expect(hasCustomCode(component, baseFiles)).toBe(true)
   })
 
+  test('returns false for component with builtin action reference', () => {
+    const component: Component = {
+      ...baseComponent,
+      workflows: {
+        w1: {
+          name: 'w1',
+          parameters: [],
+          actions: [
+            {
+              name: '@toddle/gotToURL',
+              arguments: [
+                {
+                  name: 'URL',
+                  formula: { type: 'value', value: 'https://example.com' },
+                },
+              ],
+              label: 'Go to URL',
+            },
+          ],
+        },
+      },
+    }
+    expect(hasCustomCode(component, baseFiles)).toBe(false)
+  })
+
   test('returns true for component with function formula', () => {
     const component: Component = {
       ...baseComponent,
