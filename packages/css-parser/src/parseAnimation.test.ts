@@ -867,4 +867,131 @@ describe('parseAnimation', () => {
       },
     ])
   })
+
+  test('Single properties defined for multiple animations', () => {
+    expect(
+      getParsedAnimation(
+        {
+          'animation-duration': '5s, 3s, 2s',
+          'animation-timing-function': 'ease',
+          'animation-delay': '2s, 100ms',
+          'animation-iteration-count': '15, 1, infinite',
+          'animation-direction': 'reverse',
+          'animation-name': 'animation-1, animation-2, animation-3',
+          'animation-fill-mode': 'backwards',
+          'animation-play-state': 'paused, running',
+        },
+        [],
+      ),
+    ).toEqual([
+      {
+        duration: {
+          type: 'time',
+          value: '5',
+          unit: 's',
+        },
+        timing: {
+          type: 'keyword',
+          value: 'ease',
+        },
+        delay: {
+          type: 'time',
+          value: '2',
+          unit: 's',
+        },
+        direction: {
+          type: 'keyword',
+          value: 'reverse',
+        },
+        iterationCount: {
+          type: 'number',
+          value: '15',
+        },
+        name: {
+          type: 'keyword',
+          value: 'animation-1',
+        },
+        fillMode: {
+          type: 'keyword',
+          value: 'backwards',
+        },
+        playState: {
+          type: 'keyword',
+          value: 'paused',
+        },
+      },
+      {
+        duration: {
+          type: 'time',
+          value: '3',
+          unit: 's',
+        },
+        timing: {
+          type: 'keyword',
+          value: 'ease',
+        },
+        delay: {
+          type: 'time',
+          value: '100',
+          unit: 'ms',
+        },
+        iterationCount: {
+          type: 'number',
+          value: '1',
+        },
+        direction: {
+          type: 'keyword',
+          value: 'reverse',
+        },
+        name: {
+          type: 'keyword',
+          value: 'animation-2',
+        },
+        fillMode: {
+          type: 'keyword',
+          value: 'backwards',
+        },
+        playState: {
+          type: 'keyword',
+          value: 'running',
+        },
+      },
+      {
+        duration: {
+          type: 'time',
+          value: '2',
+          unit: 's',
+        },
+        timing: {
+          type: 'keyword',
+          value: 'ease',
+        },
+        delay: {
+          type: 'time',
+          value: '2',
+          unit: 's',
+        },
+        direction: {
+          type: 'keyword',
+          value: 'reverse',
+        },
+        iterationCount: {
+          type: 'keyword',
+          value: 'infinite',
+        },
+        name: {
+          type: 'keyword',
+          value: 'animation-3',
+        },
+        fillMode: {
+          type: 'keyword',
+          value: 'backwards',
+        },
+        playState: {
+          type: 'keyword',
+          value: 'paused',
+        },
+      },
+    ])
+  })
 })
