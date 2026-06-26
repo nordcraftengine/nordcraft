@@ -163,7 +163,12 @@ export const getParsedAnimation = (
           styleKeys.indexOf('animation') ||
           (isDefined(invalidValues[index]) && invalidValues[index].length > 0))
       ) {
-        const animationDurationValue = getValue(animationDuration[index])
+        const propertyLength = animationDuration.length
+        const cycle = Math.floor(index / propertyLength)
+
+        const animationDurationValue = getValue(
+          animationDuration[index - cycle * propertyLength],
+        )
         const parsedProperty = parseMultipleValues(animationDurationValue)[0]
 
         if (isDefined(parsedProperty)) {
@@ -195,8 +200,11 @@ export const getParsedAnimation = (
           styleKeys.indexOf('animation') ||
           (isDefined(invalidValues[index]) && invalidValues[index]?.length > 0))
       ) {
+        const propertyLength = animationTimingFunction.length
+        const cycle = Math.floor(index / propertyLength)
+
         const animationTimingFunctionValue = getValue(
-          animationTimingFunction[index],
+          animationTimingFunction[index - cycle * propertyLength],
         )
         const parsedProperty = parseMultipleValues(
           animationTimingFunctionValue,
@@ -231,7 +239,12 @@ export const getParsedAnimation = (
           styleKeys.indexOf('animation') ||
           (isDefined(invalidValues[index]) && invalidValues[index]?.length > 0))
       ) {
-        const animationDelayValue = getValue(animationDelay[index])
+        const propertyLength = animationDelay.length
+        const cycle = Math.floor(index / propertyLength)
+
+        const animationDelayValue = getValue(
+          animationDelay[index - cycle * propertyLength],
+        )
         const parsedProperty = parseMultipleValues(animationDelayValue)[0]
 
         if (isDefined(parsedProperty)) {
@@ -263,8 +276,11 @@ export const getParsedAnimation = (
           styleKeys.indexOf('animation') ||
           (isDefined(invalidValues[index]) && invalidValues[index]?.length > 0))
       ) {
+        const propertyLength = animationIterationCount.length
+        const cycle = Math.floor(index / propertyLength)
+
         const animationIterationCountValue = getValue(
-          animationIterationCount[index],
+          animationIterationCount[index - cycle * propertyLength],
         )
         const parsedProperty = parseMultipleValues(
           animationIterationCountValue,
@@ -299,7 +315,12 @@ export const getParsedAnimation = (
           styleKeys.indexOf('animation') ||
           (isDefined(invalidValues[index]) && invalidValues[index]?.length > 0))
       ) {
-        const animationDirectionValue = getValue(animationDirection[index])
+        const propertyLength = animationDirection.length
+        const cycle = Math.floor(index / propertyLength)
+
+        const animationDirectionValue = getValue(
+          animationDirection[index - cycle * propertyLength],
+        )
 
         const parsedProperty = parseMultipleValues(animationDirectionValue)[0]
 
@@ -332,7 +353,12 @@ export const getParsedAnimation = (
           styleKeys.indexOf('animation') ||
           (isDefined(invalidValues[index]) && invalidValues[index]?.length > 0))
       ) {
-        const animationFillModeValue = getValue(animationFillMode[index])
+        const propertyLength = animationFillMode.length
+        const cycle = Math.floor(index / propertyLength)
+
+        const animationFillModeValue = getValue(
+          animationFillMode[index - cycle * propertyLength],
+        )
 
         const parsedProperty = parseMultipleValues(animationFillModeValue)[0]
 
@@ -365,7 +391,12 @@ export const getParsedAnimation = (
           styleKeys.indexOf('animation') ||
           (isDefined(invalidValues[index]) && invalidValues[index]?.length > 0))
       ) {
-        const animationPlayStateValue = getValue(animationPlayState[index])
+        const propertyLength = animationPlayState.length
+        const cycle = Math.floor(index / propertyLength)
+
+        const animationPlayStateValue = getValue(
+          animationPlayState[index - cycle * propertyLength],
+        )
 
         const parsedProperty = parseMultipleValues(animationPlayStateValue)[0]
 
@@ -421,6 +452,8 @@ export const getParsedAnimation = (
               parsedAnimation[index].name = newProp.name
             }
           }
+        } else {
+          parsedAnimation[index].name = { type: 'keyword', value: 'none' }
         }
       }
     })
