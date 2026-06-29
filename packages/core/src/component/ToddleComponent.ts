@@ -54,10 +54,8 @@ export class ToddleComponent<Handler> {
       if (components.has(node.name)) {
         return
       }
-      const component = this.getComponent(
-        node.name,
-        node.package ?? packageName,
-      )
+      const componentPackageName = node.package ?? packageName
+      const component = this.getComponent(node.name, componentPackageName)
       if (!component) {
         return
       }
@@ -66,13 +64,17 @@ export class ToddleComponent<Handler> {
         new ToddleComponent({
           component,
           getComponent: this.getComponent,
-          packageName: node.package ?? packageName,
+          packageName: componentPackageName,
           globalFormulas: this.globalFormulas,
         }),
       )
       Object.values(component.nodes ?? {}).forEach((node) => {
         if (isDefined(node)) {
-          visitNode((node as any).package ?? packageName)(node)
+          const nodePackageName =
+            (node.type === 'component' ? node.package : undefined) ??
+            componentPackageName ??
+            packageName
+          visitNode(nodePackageName)(node)
         }
       })
     }
