@@ -206,6 +206,8 @@ export interface Component {
     // Later, we will add information about allowed origins here
     enabled?: Nullable<Formula>
   }>
+  // Used to indicate if a page or any of its child components use custom actions/formulas
+  customCode?: Nullable<boolean>
 }
 
 export interface ComponentFormula extends NordcraftMetadata {

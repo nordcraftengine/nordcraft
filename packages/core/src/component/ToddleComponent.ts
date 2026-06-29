@@ -2,7 +2,7 @@ import { isLegacyApi } from '../api/api'
 import type { ComponentAPI } from '../api/apiTypes'
 import { LegacyToddleApi } from '../api/LegacyToddleApi'
 import { ToddleApiV2 } from '../api/ToddleApiV2'
-import type { Formula, FunctionOperation } from '../formula/formula'
+import type { Formula } from '../formula/formula'
 import type { GlobalFormulas } from '../formula/formulaTypes'
 import {
   getFormulasInAction,
@@ -10,12 +10,7 @@ import {
 } from '../formula/formulaUtils'
 import { isDefined } from '../utils/util'
 import { getActionsInAction } from './actionUtils'
-import type {
-  ActionModel,
-  Component,
-  CustomActionModel,
-  NodeModel,
-} from './component.types'
+import type { ActionModel, Component, NodeModel } from './component.types'
 import { isPageComponent } from './isPageComponent'
 
 export class ToddleComponent<Handler> {
@@ -84,47 +79,6 @@ export class ToddleComponent<Handler> {
       }
     })
     return [...components.values()]
-  }
-
-  get formulaReferences() {
-    return new Set(
-      Array.from(this.formulasInComponent())
-        .filter(
-          (
-            entry,
-          ): entry is {
-            path: (string | number)[]
-            formula: FunctionOperation
-            packageName?: string
-          } => entry.formula.type === 'function',
-        )
-        .flatMap((entry) => {
-          const refs = [entry.formula.name]
-          const packageName =
-            entry.formula.package ?? entry.packageName ?? this.packageName
-          if (
-            packageName &&
-            this.globalFormulas.packages?.[packageName]?.formulas?.[
-              entry.formula.name
-            ]
-          ) {
-            refs.push([packageName, entry.formula.name].join('/'))
-          }
-
-          return refs
-        }),
-    )
-  }
-
-  get actionReferences(): Set<string> {
-    return new Set(
-      Array.from(this.actionModelsInComponent())
-        .filter(
-          (entry): entry is [(string | number)[], CustomActionModel] =>
-            entry[1].type === 'Custom' || entry[1].type === undefined,
-        )
-        .map(([, a]) => [a.package, a.name].filter(isDefined).join('/')),
-    )
   }
 
   /**
