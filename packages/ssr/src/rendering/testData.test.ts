@@ -350,7 +350,6 @@ describe('removeTestData', () => {
                 "trigger": "click",
               },
             },
-            "style": {},
             "tag": "div",
             "type": "element",
           },
