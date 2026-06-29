@@ -1,9 +1,18 @@
 import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type {
+  ActionModel,
+  Component,
+  CustomActionModel,
+} from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
+import {
+  isToddleFormula,
+  type Formula,
+  type FunctionOperation,
+} from '@nordcraft/core/dist/formula/formula'
 import type {
   CodeFormula,
+  GlobalFormulas,
   PluginFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { PluginAction, PluginActionV2 } from '@nordcraft/core/dist/types'
@@ -11,6 +20,81 @@ import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles, ToddleProject } from '../ssr.types'
+
+const projectFormulas = (files: ProjectFiles): GlobalFormulas<string> => ({
+  formulas: files.formulas,
+  packages: files.packages,
+})
+
+const componentClass = (component: Component, files: ProjectFiles) =>
+  new ToddleComponent({
+    component,
+    getComponent: (name, packageName) => {
+      const nodeLookupKey = [packageName, name].filter(isDefined).join('/')
+      const component = packageName
+        ? files.packages?.[packageName]?.components[name]
+        : files.components[name]
+      if (!component) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Unable to find component "${nodeLookupKey}" for package "${packageName}"`,
+        )
+        return undefined
+      }
+      return component
+    },
+    packageName: undefined,
+    globalFormulas: projectFormulas(files),
+  })
+
+const getProjectFormulaReferences = (
+  component: ToddleComponent<string>,
+  globalFormulas: GlobalFormulas<string>,
+) => {
+  return new Set(
+    Array.from(component.formulasInComponent())
+      .filter(
+        (
+          entry,
+        ): entry is {
+          path: (string | number)[]
+          formula: FunctionOperation
+          packageName?: string
+        } => isCustomFormula(entry.formula),
+      )
+      .flatMap((entry) => {
+        const refs = [entry.formula.name]
+        const packageName =
+          entry.formula.package ?? entry.packageName ?? component.packageName
+        if (
+          packageName &&
+          globalFormulas.packages?.[packageName]?.formulas?.[entry.formula.name]
+        ) {
+          refs.push([packageName, entry.formula.name].join('/'))
+        }
+        return refs
+      }),
+  )
+}
+
+const isCustomAction = (action: ActionModel) =>
+  (action.type === 'Custom' || action.type === undefined) &&
+  !action.name.startsWith('@toddle/')
+
+const isCustomFormula = (formula: Formula) =>
+  formula.type === 'function' && !formula.name.startsWith('@toddle/')
+
+export const getActionReferences = (
+  component: ToddleComponent<string>,
+): Set<string> => {
+  return new Set(
+    Array.from(component.actionModelsInComponent())
+      .filter((entry): entry is [(string | number)[], CustomActionModel] =>
+        isCustomAction(entry[1]),
+      )
+      .map(([, a]) => [a.package, a.name].filter(isDefined).join('/')),
+  )
+}
 
 export function takeReferencedFormulasAndActions({
   component,
@@ -56,35 +140,16 @@ export function takeReferencedFormulasAndActions({
   // Return only the actions and formulas that are referenced by the entry file
   const actionRefs = new Set<string>()
   const formulaRefs = new Set<string>()
-  const toddleComponent = new ToddleComponent({
-    component: component,
-    getComponent: (name, packageName) => {
-      const nodeLookupKey = [packageName, name].filter(isDefined).join('/')
-      const component = packageName
-        ? files.packages?.[packageName]?.components[name]
-        : files.components[name]
-      if (!component) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `Unable to find component "${nodeLookupKey}" for package "${packageName}"`,
-        )
-        return undefined
-      }
-      return component
-    },
-    packageName: undefined,
-    globalFormulas: {
-      formulas: files.formulas,
-      packages: files.packages,
-    },
-  })
-  toddleComponent.actionReferences.forEach((ref) => actionRefs.add(ref))
-  toddleComponent.formulaReferences.forEach((ref) => formulaRefs.add(ref))
+  const toddleComponent = componentClass(component, files)
+  getActionReferences(toddleComponent).forEach((ref) => actionRefs.add(ref))
+  getProjectFormulaReferences(toddleComponent, projectFormulas(files)).forEach(
+    (ref) => formulaRefs.add(ref),
+  )
   toddleComponent.uniqueSubComponents.forEach((c) => {
-    c.actionReferences.forEach((ref) =>
+    getActionReferences(c).forEach((ref) =>
       actionRefs.add([c.packageName, ref].filter(isDefined).join('/')),
     )
-    c.formulaReferences.forEach((ref) =>
+    getProjectFormulaReferences(c, projectFormulas(files)).forEach((ref) =>
       formulaRefs.add([c.packageName, ref].filter(isDefined).join('/')),
     )
   })
@@ -140,11 +205,35 @@ export function takeReferencedFormulasAndActions({
 }
 
 export const hasCustomCode = (component: Component, files: ProjectFiles) => {
-  const code = takeReferencedFormulasAndActions({ component, files })
-  return Object.values(code).some(
-    (c) =>
-      Object.keys(c.actions).length > 0 || Object.keys(c.formulas).length > 0,
-  )
+  const nordcraftComponent = componentClass(component, files)
+  const selfAction = nordcraftComponent
+    .actionModelsInComponent()
+    .some(([_, a]) => isCustomAction(a))
+  if (selfAction) {
+    return true
+  }
+  const selfFormula = nordcraftComponent
+    .formulasInComponent()
+    // Only check for function (project) formulas
+    .some((f) => isCustomFormula(f.formula))
+  if (selfFormula) {
+    return true
+  }
+  const childComponents = nordcraftComponent.uniqueSubComponents
+  for (const child of childComponents) {
+    const childAction = child.actionModelsInComponent().next().value
+    if (childAction) {
+      return true
+    }
+    const childFormula = child
+      .formulasInComponent()
+      // Only check for function (project) formulas
+      .some((f) => isCustomFormula(f.formula))
+    if (childFormula) {
+      return true
+    }
+  }
+  return false
 }
 
 export const generateCustomCodeFile = ({
