@@ -244,27 +244,31 @@ const checkVariableValueRadial = (args: {
           ? parse({ input: `${usedVariable.value}${usedVariable.unit}` })
           : parse({ input: usedVariable.value })
 
-      const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
-      const parsedVariable = parseMultipleValues(parsedUsedVariableVal)[0]
-      if (!isDefined(parsedVariable)) {
-        return
+      if (isDefined(parsedUsedVariable[0])) {
+        const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
+        const parsedVariable = parseMultipleValues(parsedUsedVariableVal)[0]
+        if (!isDefined(parsedVariable)) {
+          return
+        }
+
+        const newValues = checkRadialFuncValue({
+          parsedVariable,
+          returnValue,
+          previousVal: args.previousVal,
+          lastPositionVal: args.lastPositionVal,
+          position: newPosition,
+          stops: newStops,
+          variables: args.variables,
+        })
+
+        shape = newValues.newShape
+        size = newValues.newSize
+        newPosition = newValues.newPosition
+        newStops = newValues.newStops
+        invalidValues.push(...newValues.invalidValues)
+      } else {
+        invalidValues.push(returnValue)
       }
-
-      const newValues = checkRadialFuncValue({
-        parsedVariable,
-        returnValue,
-        previousVal: args.previousVal,
-        lastPositionVal: args.lastPositionVal,
-        position: newPosition,
-        stops: newStops,
-        variables: args.variables,
-      })
-
-      shape = newValues.newShape
-      size = newValues.newSize
-      newPosition = newValues.newPosition
-      newStops = newValues.newStops
-      invalidValues.push(...newValues.invalidValues)
     } else {
       const parsedVariable = parseMultipleValues([
         { type: 'word', value: val },
