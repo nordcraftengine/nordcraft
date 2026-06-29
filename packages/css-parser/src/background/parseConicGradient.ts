@@ -243,41 +243,49 @@ const checkVariableValueConic = (args: {
 
   allValues.forEach((val) => {
     if (isVariable(val)) {
-      const usedVariable = args.variables.find((v) =>
-        v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
-      )
-      if (!usedVariable) {
-        return
+      if (angleToBeSet) {
+        angle = returnValue
+      } else {
+        const usedVariable = args.variables.find((v) =>
+          v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
+        )
+        if (!usedVariable) {
+          return
+        }
+
+        const parsedUsedVariable =
+          usedVariable.unit &&
+          usedVariable.unit !== '' &&
+          !usedVariable.value.endsWith(usedVariable.unit)
+            ? parse({ input: `${usedVariable.value}${usedVariable.unit}` })
+            : parse({ input: usedVariable.value })
+
+        if (isDefined(parsedUsedVariable[0])) {
+          const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
+          const parsedVariable = parseMultipleValues(parsedUsedVariableVal)[0]
+          if (!isDefined(parsedVariable)) {
+            return
+          }
+
+          const newValues = checkConicFuncValue({
+            parsedVariable,
+            returnValue,
+            previousVal: args.previousVal,
+            lastPositionVal: args.lastPositionVal,
+            position: newPosition,
+            angleToBeSet,
+            stops: newStops,
+            variables: args.variables,
+          })
+
+          angle = newValues.newAngle
+          newPosition = newValues.newPosition
+          newStops = newValues.newStops
+          invalidValues.push(...newValues.invalidValues)
+        } else {
+          invalidValues.push(returnValue)
+        }
       }
-
-      const parsedUsedVariable =
-        usedVariable.unit &&
-        usedVariable.unit !== '' &&
-        !usedVariable.value.endsWith(usedVariable.unit)
-          ? parse({ input: `${usedVariable.value}${usedVariable.unit}` })
-          : parse({ input: usedVariable.value })
-
-      const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
-      const parsedVariable = parseMultipleValues(parsedUsedVariableVal)[0]
-      if (!isDefined(parsedVariable)) {
-        return
-      }
-
-      const newValues = checkConicFuncValue({
-        parsedVariable,
-        returnValue,
-        previousVal: args.previousVal,
-        lastPositionVal: args.lastPositionVal,
-        position: newPosition,
-        angleToBeSet,
-        stops: newStops,
-        variables: args.variables,
-      })
-
-      angle = newValues.newAngle
-      newPosition = newValues.newPosition
-      newStops = newValues.newStops
-      invalidValues.push(...newValues.invalidValues)
     } else {
       const parsedVariable = parseMultipleValues([
         { type: 'word', value: val },
