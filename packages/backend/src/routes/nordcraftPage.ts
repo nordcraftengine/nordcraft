@@ -22,7 +22,6 @@ import {
 } from '@nordcraft/ssr/dist/rendering/html'
 import type { ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
 import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
-import { removeTestData } from '@nordcraft/ssr/src/rendering/testData'
 import {
   REDIRECT_API_NAME_HEADER,
   REDIRECT_COMPONENT_NAME_HEADER,
@@ -167,8 +166,8 @@ export const nordcraftPage = async ({
         ...apiCache,
       },
     },
-    component: removeTestData(page),
-    components: includedComponents.map(removeTestData),
+    component: page,
+    components: includedComponents,
     isPageLoaded: false,
     cookies: Object.keys(formulaContext.env.request.cookies),
   }
