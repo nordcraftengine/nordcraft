@@ -4,6 +4,7 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { getClassName } from '@nordcraft/core/dist/styling/className'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
 
 /**
@@ -11,10 +12,10 @@ import { mapObject } from '@nordcraft/core/dist/utils/collections'
  */
 export const resolveClasses = (component: Component) => ({
   ...component,
-  nodes: mapObject<NodeModel, NodeModel>(
+  nodes: mapObject<Nullable<NodeModel>, Nullable<NodeModel>>(
     component.nodes ?? {},
     ([key, node]) => {
-      if (node.type !== 'element') {
+      if (node?.type !== 'element') {
         return [key, node]
       }
       // Convert style and variants to a class name
