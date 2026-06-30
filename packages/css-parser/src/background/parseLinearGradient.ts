@@ -174,23 +174,26 @@ const checkVariableValueLinear = (args: {
         !usedVariable.value.endsWith(usedVariable.unit)
           ? parse({ input: `${usedVariable.value}${usedVariable.unit}` })
           : parse({ input: usedVariable.value })
+      if (isDefined(parsedUsedVariable[0])) {
+        const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
+        const parsedVariable = parseMultipleValues(parsedUsedVariableVal)[0]
+        if (!isDefined(parsedVariable)) {
+          return
+        }
 
-      const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
-      const parsedVariable = parseMultipleValues(parsedUsedVariableVal)[0]
-      if (!isDefined(parsedVariable)) {
-        return
+        const newValues = checkValue({
+          value: parsedVariable,
+          returnValue,
+          stops: newStops,
+          variables: args.variables,
+        })
+
+        direction = newValues.newDirection
+        newStops = newValues.newStops
+        invalidValues.push(...newValues.invalidValues)
+      } else {
+        invalidValues.push(returnValue)
       }
-
-      const newValues = checkValue({
-        value: parsedVariable,
-        returnValue,
-        stops: newStops,
-        variables: args.variables,
-      })
-
-      direction = newValues.newDirection
-      newStops = newValues.newStops
-      invalidValues.push(...newValues.invalidValues)
     } else {
       const parsedVariable = parseMultipleValues([
         { type: 'word', value: val },
