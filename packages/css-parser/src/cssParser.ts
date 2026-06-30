@@ -27,8 +27,6 @@ export const parseCss = (args: {
     ? Object.values(args.variables).flatMap((v) => v)
     : []
 
-  console.log('test')
-
   if (args.style.constructor !== Object) {
     // eslint-disable-next-line no-console
     return console.error('The value you provided is not valid!')
