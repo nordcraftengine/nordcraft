@@ -39,9 +39,9 @@
     "@hono/node-server": "1.19.11"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20260621.1",
+    "@cloudflare/workers-types": "4.20260630.1",
     "@nordcraft/runtime": "workspace:*",
     "@types/node": "25.5.0",
-    "wrangler": "4.103.0"
+    "wrangler": "4.105.0"
   }
 }
