@@ -19,11 +19,10 @@ export function getRectData(selectedNode: Element | null | undefined) {
     x: rect.x,
     y: rect.y,
     borderRadius: borderRadius.split(' '),
-    rotate: rotate,
     padding: padding.split(' '),
     margin: margin.split(' '),
     gap: gap.split(' '),
-    fullRotation: rotate,
+    rotate,
   }
 }
 
