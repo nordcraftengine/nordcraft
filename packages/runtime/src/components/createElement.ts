@@ -32,6 +32,7 @@ export function createElement({
   ctx,
   namespace,
   instance,
+  slotRepeatIndex,
 }: NodeRenderer<ElementNodeModel>): Element {
   const tag = getElementTagName(node, ctx, id)
   switch (tag) {
@@ -302,6 +303,7 @@ export function createElement({
           ctx: { ...ctx, jsonPath: ['nodes', child] },
           namespace,
           instance,
+          slotRepeatIndex,
         }),
       )
     })

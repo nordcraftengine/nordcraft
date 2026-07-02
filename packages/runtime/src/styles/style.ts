@@ -264,7 +264,9 @@ export const styleToCss = (style: NodeStyleModel) => {
 export const convertViewportUnitsToEmulatedViewportUnits = (
   value: string | number | undefined,
 ) => {
-  return value?.toString().replace(/([\d.]+)vh/g, (_, num) => {
-    return `calc(${Number(num)}vh * var(${CSS_VAR_VIEWPORT_HEIGHT}, var(${CSS_VAR_SCROLL_HEIGHT}, 740)) / var(${CSS_VAR_SCROLL_HEIGHT}, 740))`
-  })
+  return value
+    ?.toString()
+    .replace(/([\d.]+)(vh|svh|lvh|dvh)/g, (_, num, unit) => {
+      return `calc(${num}${unit} * var(${CSS_VAR_VIEWPORT_HEIGHT}, var(${CSS_VAR_SCROLL_HEIGHT}, 740)) / var(${CSS_VAR_SCROLL_HEIGHT}, 740))`
+    })
 }
