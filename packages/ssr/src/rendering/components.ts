@@ -19,6 +19,7 @@ import type {
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
   getClassName,
+  getPathClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
@@ -245,6 +246,16 @@ const renderComponent = async ({
             },
           )
         })
+
+        const hasDynamicProperties =
+          Object.keys(node.customProperties ?? {}).length > 0 ||
+          node.variants?.some(
+            (variant) => Object.keys(variant.customProperties ?? {}).length > 0,
+          )
+
+        if (hasDynamicProperties) {
+          classList.push(getPathClassName(path))
+        }
 
         let innerHTML = ''
 

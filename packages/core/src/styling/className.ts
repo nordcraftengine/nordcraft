@@ -25,6 +25,9 @@ export const getClassName = (
   return className
 }
 
+export const getPathClassName = (path: string) =>
+  generateAlphabeticName(hash(path))
+
 export const toValidClassName = (
   input: string,
   escapeSpecialCharacters = false,
