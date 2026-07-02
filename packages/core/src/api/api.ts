@@ -14,15 +14,14 @@ import type {
 } from './apiTypes'
 import { ApiMethod } from './apiTypes'
 import { isJsonHeader } from './headers'
-import { LegacyToddleApi } from './LegacyToddleApi'
-import { ToddleApiV2 } from './ToddleApiV2'
+import type { LegacyToddleApi } from './LegacyToddleApi'
+import type { ToddleApiV2 } from './ToddleApiV2'
 
 export const NON_BODY_RESPONSE_CODES = [101, 204, 205, 304]
 
 export const isLegacyApi = <Handler>(
   api: ComponentAPI | LegacyToddleApi<Handler> | ToddleApiV2<Handler>,
-): api is LegacyComponentAPI | LegacyToddleApi<Handler> =>
-  api instanceof LegacyToddleApi ? true : !('version' in api)
+): api is LegacyComponentAPI | LegacyToddleApi<Handler> => !('version' in api)
 
 export const createApiRequest = <Handler>({
   api,
@@ -420,62 +419,3 @@ export const createApiEvent = (
     detail,
   })
 }
-
-const compareApiDependencies = <Handler>(
-  a: LegacyToddleApi<Handler> | ToddleApiV2<Handler>,
-  b: LegacyToddleApi<Handler> | ToddleApiV2<Handler>,
-) => {
-  const isADependentOnB = a.apiReferences.has(b.name)
-  const isBDependentOnA = b.apiReferences.has(a.name)
-  if (isADependentOnB === isBDependentOnA) {
-    return 0
-  }
-  // 1 means A goes last - hence B is evaluated before A
-  return isADependentOnB ? 1 : -1
-}
-
-export const sortApiObjects = <Handler>(
-  apis: Array<[string, ComponentAPI]>,
-) => {
-  const apiMap = new Map<
-    string,
-    LegacyToddleApi<Handler> | ToddleApiV2<Handler>
-  >()
-  const getApi = (apiObj: ComponentAPI, key: string) => {
-    let api = apiMap.get(key)
-    if (!api) {
-      api =
-        apiObj.version === 2
-          ? new ToddleApiV2<Handler>(
-              apiObj,
-              key,
-              // global formulas are not required for sorting
-              {
-                formulas: {},
-                packages: {},
-              },
-            )
-          : new LegacyToddleApi<Handler>(
-              apiObj,
-              key,
-              // global formulas are not required for sorting
-              {
-                formulas: {},
-                packages: {},
-              },
-            )
-      apiMap.set(key, api)
-    }
-    return api
-  }
-
-  return [...apis].sort(([aKey, aObj], [bKey, bObj]) => {
-    const a = getApi(aObj, aKey)
-    const b = getApi(bObj, bKey)
-    return compareApiDependencies(a, b)
-  })
-}
-
-export const sortApiEntries = <Handler>(
-  apis: Array<[string, LegacyToddleApi<Handler> | ToddleApiV2<Handler>]>,
-) => [...apis].sort(([_, a], [__, b]) => compareApiDependencies(a, b))

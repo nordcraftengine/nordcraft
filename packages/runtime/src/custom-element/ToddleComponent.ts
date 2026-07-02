@@ -1,4 +1,5 @@
-import { isLegacyApi, sortApiObjects } from '@nordcraft/core/dist/api/api'
+import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   Component,
   ComponentData,
@@ -16,10 +17,10 @@ import {
 import type { Nullable, Toddle } from '@nordcraft/core/dist/types'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { ComponentAPI } from '@nordcraft/core/src/api/apiTypes'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
+import { sortApis } from '../api/sortApis'
 import { renderComponent } from '../components/renderComponent'
 import { isContextProvider } from '../context/isContextProvider'
 import type { Signal } from '../signal/signal'
@@ -105,7 +106,7 @@ export class ToddleComponent extends HTMLElement {
   }
 
   connectedCallback() {
-    sortApiObjects(
+    sortApis(
       Object.entries(this.#component.apis ?? {}).filter(
         (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
       ),

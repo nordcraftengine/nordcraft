@@ -727,7 +727,7 @@ export const renderPageBody = async ({
   req,
   projectId,
 }: {
-  component: ToddleComponent<string>
+  component: Component
   env: ToddleServerEnv
   evaluateComponentApis: ApiEvaluator
   files: ProjectFiles

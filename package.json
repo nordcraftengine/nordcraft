@@ -19,7 +19,7 @@
     "@typescript-eslint/eslint-plugin": "8.62.1",
     "@typescript-eslint/parser": "8.62.1",
     "@typescript/native-preview": "7.0.0-dev.20260318.1",
-    "esbuild": "0.27.2",
+    "esbuild": "0.28.1",
     "eslint": "10.6.0",
     "happy-dom": "20.10.6",
     "prettier-plugin-organize-imports": "4.3.0",

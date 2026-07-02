@@ -23,6 +23,7 @@ export interface LegacyComponentAPI {
   onCompleted?: Nullable<EventModel>
   onFailed?: Nullable<EventModel>
   version?: never
+  dependsOn?: string[]
 }
 
 export interface LegacyApiStatus {
@@ -137,6 +138,7 @@ export interface ApiRequest extends ApiBase {
   isError?: Nullable<{ formula: Formula }>
   // Formula for determining when the request should time out
   timeout?: Nullable<{ formula: Formula }>
+  dependsOn?: string[]
 }
 
 export interface ApiStatus {
