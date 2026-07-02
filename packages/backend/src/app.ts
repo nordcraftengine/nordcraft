@@ -13,6 +13,7 @@ import { favicon } from './routes/favicon'
 import { fontRouter } from './routes/font'
 import { manifest } from './routes/manifest'
 import { pageHandler } from './routes/pageHandler'
+import { pageStateHandler } from './routes/pageState'
 import { robots } from './routes/robots'
 import { routeHandler } from './routes/routeHandler'
 import { serviceWorker } from './routes/serviceWorker'
@@ -67,6 +68,7 @@ export const getApp = <T extends Record<string, any>>(options: {
     ),
   )
   app.get('/.nordcraft/cookies/set-cookie', setCookieHandler)
+  app.get('/.nordcraft/page-state/:renderId{.+.js}', pageStateHandler)
 
   // Load project info and all routes for endpoints below to use
   app.use(...options.fileLoaders)

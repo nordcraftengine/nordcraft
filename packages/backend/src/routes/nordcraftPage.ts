@@ -33,6 +33,7 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
 import type { PageLoaderUrls } from '../loaders/types'
 import { evaluateComponentApis, RedirectError } from '../utils/api'
+import { cachePageState } from './pageState'
 
 export const nordcraftPage = async ({
   hono,
@@ -49,6 +50,7 @@ export const nordcraftPage = async ({
   status: ContentfulStatusCode
   options: PageLoaderUrls
 }) => {
+  const usesCustomCode = files.customCode
   const nordcraftPageTimingKey = 'nordcraftPage'
   startTime(hono, nordcraftPageTimingKey, 'The total render time for a page')
   const url = new URL(hono.req.raw.url)
@@ -133,7 +135,7 @@ export const nordcraftPage = async ({
     }
   }
 
-  const head = renderHeadItems({
+  let head = renderHeadItems({
     headItems: getHeadItems({
       url,
       // This refers to the endpoint we created in fontRouter for our proxied stylesheet
@@ -171,43 +173,6 @@ export const nordcraftPage = async ({
     isPageLoaded: false,
     cookies: Object.keys(formulaContext.env.request.cookies),
   }
-  let codeImport = ''
-  if (files.customCode) {
-    codeImport = `
-            <script type="application/json" id="nordcraft-data">
-              ${JSON.stringify(toddleInternals).replaceAll(
-                '</script>',
-                '<\\/script>',
-              )}
-            </script>
-            <script type="module">
-              import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
-              import { loadCustomCode, formulas, actions } from '${options.customCodeUrl(toddleComponent.name)}'
-              window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
-              window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
-              initGlobalObject({formulas, actions});
-              loadCustomCode();
-              createRoot(document.getElementById("App"));
-            </script>
-          `
-  } else {
-    codeImport = `
-        <script type="application/json" id="nordcraft-data">
-          ${JSON.stringify(toddleInternals).replaceAll(
-            '</script>',
-            '<\\/script>',
-          )}
-        </script>
-        <script type="module">
-          import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
-
-          window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
-          window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
-          initGlobalObject({formulas: {}, actions: {}});
-          createRoot(document.getElementById("App"));
-        </script>
-    `
-  }
   endTime(hono, nordcraftPageTimingKey)
 
   const htmlAttributes = Object.entries({
@@ -220,6 +185,29 @@ export const nordcraftPage = async ({
     .map(([key, value]) => `${key}="${value}"`)
     .join(' ')
 
+  // Persist the page state in a cache so that it can be retrieved by the client for hydration
+  const { pageStateUrl, customCodeUrl } = cachePageState({
+    state: toddleInternals,
+    ctx: hono,
+    pageName: page.name,
+    usesCustomCode,
+    options,
+  })
+  const additionalHeadScripts = [
+    `<link rel="modulepreload" href="/_static/page.main.esm.js")}</link>`,
+    // Tell the browser to start fetching the state for hydration as early as possible
+    `<link rel="modulepreload" href="${pageStateUrl}"></link>`,
+    `<script type="module" src="${pageStateUrl}"></script>`,
+  ]
+  if (typeof customCodeUrl === 'string') {
+    // Tell the browser to start fetching custom code for the page as early as possible
+    additionalHeadScripts.push(
+      `<link rel="modulepreload" href="${customCodeUrl}"></link>`,
+    )
+  }
+
+  head = `${head}\n${additionalHeadScripts.join('\n')}`
+
   return hono.html(
     html`<!doctype html>
       <html lang="${language}" ${htmlAttributes}>
@@ -228,7 +216,6 @@ export const nordcraftPage = async ({
         </head>
         <body>
           <div id="App">${raw(body)}</div>
-          ${raw(codeImport)}
         </body>
       </html>`,
     status,
