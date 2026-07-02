@@ -42,6 +42,6 @@
   "devDependencies": {
     "@nordcraft/runtime": "workspace:*",
     "@types/node": "25.5.0",
-    "wrangler": "4.103.0"
+    "wrangler": "4.106.0"
   }
 }
