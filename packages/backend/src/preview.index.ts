@@ -1,4 +1,4 @@
-import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { splitRoutes } from '@nordcraft/ssr/dist/utils/routes'
 import type { Context } from 'hono'
 import { getConnInfo } from 'hono/cloudflare-workers'
@@ -39,15 +39,10 @@ const loadProject = ({
       `/projects/${projectShortId}/branch/${branchName}`,
     )
     const branchState = ctx.env.BRANCH_STATE.get(id)
-    const doProject = (await branchState.getFiles(
+    const doProject = await (branchState as any).getFiles(
       projectShortId,
       branchName,
-    )) as
-      | {
-          project: ToddleProject
-          files: ProjectFiles
-        }
-      | undefined
+    )
     if (!doProject) {
       return reject('Project or branch not found')
     }
