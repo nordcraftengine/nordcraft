@@ -2,6 +2,7 @@
   "name": "nordcraft-backend",
   "type": "module",
   "scripts": {
+    "cf:types": "wrangler types",
     "compile": "bun build --minify --target=node ./src/node.index.ts --outdir dist/",
     "build": "cd ../../ && bun run build",
     "sync": "bun bin/syncStaticAssets.ts",
@@ -39,7 +40,6 @@
     "@hono/node-server": "1.19.11"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20260621.1",
     "@nordcraft/runtime": "workspace:*",
     "@types/node": "25.5.0",
     "wrangler": "4.103.0"
