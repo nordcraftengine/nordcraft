@@ -134,6 +134,8 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Build
         run: bun run build
+      - name: Validate Cloudflare types
+        run: bunx wrangler types --check
       - name: Test backend
         run: bun test
       - name: Test nodejs version
