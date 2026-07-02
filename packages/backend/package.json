@@ -12,7 +12,7 @@
     "docker:build:debug": "cd ../../ && docker build --no-cache --progress=plain . -t nordcraft-backend -f packages/backend/Dockerfile",
     "docker:run:debug": "docker rm -f nordcraft-backend && docker run --rm -p 3000:3000 --name nordcraft-backend -e PORT=3000 nordcraft-backend",
     "docker:run": "docker run -p 3000:3000 --name nordcraft-backend -e PORT=3000 nordcraft-backend",
-    "predev": "bun run sync && bunx esbuild --bundle --outdir=dist --platform=node --format=esm src/index.ts",
+    "predev": "bun run sync && bunx esbuild --bundle --outdir=dist --platform=browser --format=esm src/index.ts",
     "dev": "wrangler dev --no-bundle --port 8989",
     "prenoderun": "bun run buildandsync",
     "noderun": "bun build --compile --minify --sourcemap src/node.index.ts --outfile dist/nordcraft-backend && cd dist/ && ./nordcraft-backend",
@@ -21,9 +21,9 @@
     "preview-link": "sh -c 'ln -s \"$1\" ./nordcraft-internal' --",
     "prepreview": "bun run sync",
     "preview": "wrangler dev --port 8989 -c preview.wrangler.toml -c ./nordcraft-internal/packages/worker/wrangler.toml -c ./nordcraft-internal/packages/worker-tail/wrangler.toml",
-    "predeploy-preview": "bun run sync && bunx esbuild --bundle --outdir=dist --platform=node --format=esm src/preview.index.ts",
+    "predeploy-preview": "bun run sync && bunx esbuild --bundle --outdir=dist --platform=browser --format=esm src/preview.index.ts",
     "deploy-preview": "wrangler deploy -c preview.wrangler.toml",
-    "predeploy": "bun run sync && bunx esbuild --bundle --outdir=dist --platform=node --format=esm src/index.ts",
+    "predeploy": "bun run sync && bunx esbuild --bundle --outdir=dist --platform=browser --format=esm src/index.ts",
     "deploy": "wrangler deploy --no-bundle",
     "test": "bun test",
     "test:watch": "bun test --watch",
@@ -33,15 +33,16 @@
     "watch": "tsgo --noEmit -w"
   },
   "dependencies": {
+    "@hono/node-server": "1.19.11",
     "@nordcraft/core": "workspace:*",
     "@nordcraft/ssr": "workspace:*",
     "hono": "4.12.26",
-    "@hono/node-server": "1.19.11"
+    "nanoid": "5.1.16"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20260621.1",
     "@nordcraft/runtime": "workspace:*",
     "@types/node": "25.5.0",
-    "wrangler": "4.103.0"
+    "wrangler": "4.106.0"
   }
 }
