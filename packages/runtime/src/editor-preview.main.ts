@@ -333,6 +333,8 @@ export const createRoot = (
     time: number | null
     timingFunction?: string
     fillMode?: string
+    elementsAnimationDelay: number[]
+    elementsAnimationDuration: number[]
   } | null = null
   let altKey = false
   let metaKey = false
@@ -920,6 +922,7 @@ export const createRoot = (
 
         case 'set_timeline_time':
           const { time, timingFunction, fillMode } = message.data
+
           cancelAnimationFrame(timelineTimeAnimationFrame)
           timelineTimeAnimationFrame = requestAnimationFrame(() => {
             const animatedElementChanged =
@@ -929,6 +932,10 @@ export const createRoot = (
               time,
               timingFunction,
               fillMode,
+              elementsAnimationDelay:
+                animationState?.elementsAnimationDelay ?? [],
+              elementsAnimationDuration:
+                animationState?.elementsAnimationDuration ?? [],
             }
 
             // Cleanup on null
@@ -936,21 +943,22 @@ export const createRoot = (
               document.head
                 .querySelector('[data-id="preview-animation-styles"]')
                 ?.remove()
-              document.body.style.removeProperty('--editor-timeline-position')
-              document.body.style.removeProperty(
-                '--editor-timeline-timing-function',
-              )
-              document.body.style.removeProperty('--editor-timeline-fill-mode')
+
+              const style = document.body.style
+
+              // Remove all the properties that starts with --editor-timeline
+              for (const prop of style) {
+                if (prop.startsWith('--editor-timeline')) {
+                  style.removeProperty(prop)
+                }
+              }
               document.body.removeAttribute('data-animating')
               update()
               return
             }
 
             document.body.setAttribute('data-animating', 'true')
-            document.body.style.setProperty(
-              '--editor-timeline-position',
-              `${time}s`,
-            )
+
             document.body.style.setProperty(
               '--editor-timeline-timing-function',
               timingFunction ?? 'ease',
@@ -960,7 +968,85 @@ export const createRoot = (
               fillMode ?? 'none',
             )
 
-            if (animatedElementChanged) {
+            const selectedNode = getDOMNodeFromNodeId(
+              animationState.animatedElementId,
+            )
+
+            let repeatedNodes: HTMLElement[] = []
+
+            if (selectedNode) {
+              if (selectedNode.parentElement) {
+                repeatedNodes = Array.from(
+                  selectedNode.parentElement.children,
+                ).filter(
+                  (node) =>
+                    node instanceof HTMLElement &&
+                    node
+                      .getAttribute('data-id')
+                      ?.startsWith(selectedNodeId + '('),
+                ) as HTMLElement[]
+              }
+              if (animatedElementChanged) {
+                const computedStyle = window.getComputedStyle(selectedNode)
+
+                animationState.elementsAnimationDelay = [
+                  parseFloat(computedStyle.animationDelay),
+                ]
+                animationState.elementsAnimationDuration = [
+                  parseFloat(computedStyle.animationDuration),
+                ]
+
+                repeatedNodes.forEach((node) => {
+                  const nodeComputedStyle = window.getComputedStyle(node)
+                  animationState?.elementsAnimationDelay.push(
+                    parseFloat(nodeComputedStyle.animationDelay),
+                  )
+                  animationState?.elementsAnimationDuration.push(
+                    parseFloat(nodeComputedStyle.animationDuration),
+                  )
+                })
+              }
+            }
+
+            const calculatedDelay =
+              time * animationState.elementsAnimationDuration[0] -
+              (animationState.elementsAnimationDelay[0] ?? 0)
+
+            const calculatedDuration =
+              animationState.elementsAnimationDelay[0] +
+              (animationState.elementsAnimationDuration[0] ?? 0)
+
+            document.body.style.setProperty(
+              '--editor-timeline-position-0',
+              `${calculatedDelay}s`,
+            )
+            document.body.style.setProperty(
+              '--editor-timeline-duration-0',
+              `${calculatedDuration}s`,
+            )
+
+            repeatedNodes.forEach((node, index) => {
+              const calculatedDelay =
+                time *
+                  (animationState?.elementsAnimationDuration[index + 1] ?? 1) -
+                (animationState?.elementsAnimationDelay[index + 1] ?? 0)
+
+              const calculatedDuration =
+                (animationState?.elementsAnimationDelay[index + 1] ?? 0) +
+                (animationState?.elementsAnimationDuration[index + 1] ?? 0)
+
+              document.body.style.setProperty(
+                `--editor-timeline-position-${index + 1}`,
+                `${calculatedDelay}s`,
+              )
+
+              document.body.style.setProperty(
+                `--editor-timeline-duration-${index + 1}`,
+                `${calculatedDuration}s`,
+              )
+            })
+
+            if (animatedElementChanged && animationState?.animatedElementId) {
               let styleTag = document.head.querySelector(
                 '[data-id="preview-animation-styles"]',
               )
@@ -969,15 +1055,24 @@ export const createRoot = (
                 styleTag.setAttribute('data-id', 'preview-animation-styles')
                 document.head.appendChild(styleTag)
               }
+              styleTag.innerHTML = `body[data-mode="design"] [data-id="${animationState.animatedElementId}"] {
+                  animation: preview_timeline var(--editor-timeline-duration-0) paused normal !important;
+                  animation-fill-mode: var(--editor-timeline-fill-mode) !important;
+                  animation-timing-function: var(--editor-timeline-timing-function) !important;
+                  animation-delay: calc(0s - var(--editor-timeline-position-0)) !important;
+                  animation-play-state: paused !important;
+                }`
 
-              styleTag.innerHTML = `
-body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[data-mode="design"] [data-id="${animationState.animatedElementId}"] ~ [data-id^="${animationState.animatedElementId}("] {
-  animation: preview_timeline 1s paused normal !important;
-  animation-fill-mode: var(--editor-timeline-fill-mode) !important;
-  animation-timing-function: var(--editor-timeline-timing-function) !important;
-  animation-delay: calc(0s - var(--editor-timeline-position)) !important;
-  animation-play-state: paused !important;
-}`
+              repeatedNodes.forEach((node, index) => {
+                styleTag.innerHTML += `
+                    body[data-mode="design"] [data-id="${node.getAttribute('data-id')}"] {
+                      animation: preview_timeline var(--editor-timeline-duration-${index + 1}) paused normal !important;
+                      animation-fill-mode: var(--editor-timeline-fill-mode) !important;
+                      animation-timing-function: var(--editor-timeline-timing-function) !important;
+                      animation-delay: calc(0s - var(--editor-timeline-position-${index + 1})) !important;
+                      animation-play-state: paused !important;
+                    }`
+              })
             }
           })
           break
