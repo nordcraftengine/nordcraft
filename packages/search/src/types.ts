@@ -76,6 +76,7 @@ export type Code =
   | 'duplicate workflow parameter'
   | 'image without dimension'
   | 'invalid api parser mode'
+  | 'invalid path formula'
   | 'invalid api proxy body setting'
   | 'invalid api proxy cookie setting'
   | 'invalid component structure'
