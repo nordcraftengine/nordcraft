@@ -1,19 +1,12 @@
-import type {
-  Formula,
-  PathOperation,
-} from '@nordcraft/core/dist/formula/formula'
 import type { IssueRule } from '../../../types'
-
-function isPathOperation(formula: Formula): formula is PathOperation {
-  return formula.type === 'path'
-}
+import { isPathFormula } from '../../../util/formulas'
 
 export const invalidPathRule: IssueRule = {
   code: 'invalid path formula',
   level: 'error',
   category: 'Unknown Reference',
   visit: (report, { path, value, nodeType }) => {
-    if (nodeType !== 'formula' || !isPathOperation(value)) {
+    if (nodeType !== 'formula' || !isPathFormula(value)) {
       return
     }
 
