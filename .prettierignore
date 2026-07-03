@@ -6,3 +6,4 @@ examples/hono/assets/
 examples/projects/*
 **/.wrangler/**/*
 packages/backend/__project__/
+**/worker-configuration.d.ts
