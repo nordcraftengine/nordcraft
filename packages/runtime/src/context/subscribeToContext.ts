@@ -6,9 +6,9 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Nullable } from '@nordcraft/core/src/types'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 
