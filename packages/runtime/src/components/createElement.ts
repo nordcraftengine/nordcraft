@@ -1,4 +1,5 @@
 import type {
+  ComponentData,
   ElementNodeModel,
   EventModel,
   NodeModel,
@@ -12,7 +13,6 @@ import {
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import type { ComponentData } from '@nordcraft/core/src/component/component.types'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
@@ -72,8 +72,11 @@ export function createElement({
   if (ctx.isRootComponent === false && id !== 'root') {
     elem.setAttribute('data-component', ctx.component.name)
   }
-  const classHash = getClassName([node.style, node.variants])
-  elem.classList.add(classHash)
+  if (node.style || node.variants) {
+    // style and variants are not available except in the editor's runtime
+    const classHash = getClassName([node.style, node.variants])
+    elem.classList.add(classHash)
+  }
   if (instance && id === 'root') {
     Object.entries(instance).forEach(([key, value]) => {
       elem.classList.add(toValidClassName(`${key}:${value}`))

@@ -1,0 +1,43 @@
+import type {
+  Component,
+  NodeModel,
+} from '@nordcraft/core/dist/component/component.types'
+import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { getClassName } from '@nordcraft/core/dist/styling/className'
+import type { Nullable } from '@nordcraft/core/dist/types'
+import { mapObject } from '@nordcraft/core/dist/utils/collections'
+
+/**
+ * Function to strip styles and variants from a Component's nodes and convert them to static class names
+ */
+export const resolveClasses = (component: Component) => ({
+  ...component,
+  nodes: mapObject<Nullable<NodeModel>, Nullable<NodeModel>>(
+    component.nodes ?? {},
+    ([key, node]) => {
+      if (node?.type !== 'element') {
+        return [key, node]
+      }
+      // Convert style and variants to a class name
+      let classHash: string | undefined
+      if (node.style || node.variants) {
+        classHash = getClassName([node.style, node.variants])
+      }
+      if (typeof classHash === 'string') {
+        return [
+          key,
+          {
+            ...node,
+            classes: {
+              ...node.classes,
+              [classHash]: { formula: valueFormula(true) },
+            },
+            style: undefined,
+            variants: undefined,
+          },
+        ]
+      }
+      return [key, node]
+    },
+  ),
+})
