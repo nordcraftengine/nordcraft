@@ -27,7 +27,7 @@ export class ToddleApiV2<Handler> implements ApiRequest {
     this.globalFormulas = globalFormulas
   }
 
-  get apiReferences(): Set<string> {
+  private get apiReferences(): Set<string> {
     if (this._apiReferences) {
       // Only compute apiReferences once
       return this._apiReferences
@@ -172,6 +172,10 @@ export class ToddleApiV2<Handler> implements ApiRequest {
 
   get '@nordcraft/metadata'() {
     return this.api['@nordcraft/metadata']
+  }
+
+  get dependsOn() {
+    return Array.from(this.apiReferences)
   }
 
   *formulasInApi(): Generator<{

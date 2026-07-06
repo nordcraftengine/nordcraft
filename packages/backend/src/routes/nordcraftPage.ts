@@ -1,14 +1,13 @@
 import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import { type ToddleServerEnv } from '@nordcraft/core/dist/formula/formula'
 import {
   theme as defaultTheme,
   THEME_DATA_ATTRIBUTE,
 } from '@nordcraft/core/dist/styling/theme.const'
 import type { ToddleInternals } from '@nordcraft/core/dist/types'
-import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+import { toBoolean } from '@nordcraft/core/dist/utils/util'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
 import type { ApiCache } from '@nordcraft/ssr/dist/rendering/api'
+import { processComponentApis } from '@nordcraft/ssr/dist/rendering/api'
 import { resolveClasses } from '@nordcraft/ssr/dist/rendering/classes'
 import { renderPageBody } from '@nordcraft/ssr/dist/rendering/components'
 import { getPageFormulaContext } from '@nordcraft/ssr/dist/rendering/formulaContext'
@@ -40,7 +39,7 @@ export const nordcraftPage = async ({
   hono,
   project,
   files,
-  page,
+  page: _page,
   status,
   options,
 }: {
@@ -55,6 +54,7 @@ export const nordcraftPage = async ({
   const nordcraftPageTimingKey = 'nordcraftPage'
   startTime(hono, nordcraftPageTimingKey, 'The total render time for a page')
   const url = new URL(hono.req.raw.url)
+  const page = processComponentApis(_page, files)
   const formulaContext = getPageFormulaContext({
     component: page,
     branchName: 'main',
@@ -79,29 +79,7 @@ export const nordcraftPage = async ({
     projectComponents: files.components,
     packages: files.packages,
     includeRoot: true,
-  })
-
-  const toddleComponent = new ToddleComponent<string>({
-    component: page,
-    getComponent: (name, packageName) => {
-      const nodeLookupKey = [packageName, name].filter(isDefined).join('/')
-      const component = packageName
-        ? files.packages?.[packageName]?.components[name]
-        : files.components[name]
-      if (!component) {
-        // eslint-disable-next-line no-console
-        console.warn(`Unable to find component ${nodeLookupKey} in files`)
-        return undefined
-      }
-
-      return component
-    },
-    packageName: undefined,
-    globalFormulas: {
-      formulas: files.formulas,
-      packages: files.packages,
-    },
-  })
+  }).map((component) => processComponentApis(component, files))
 
   let apiCache: ApiCache
   let body: string
@@ -113,9 +91,9 @@ export const nordcraftPage = async ({
       'The time taken to render the page body - including API calls',
     )
     const pageBody = await renderPageBody({
-      component: toddleComponent,
+      component: page,
       formulaContext,
-      env: formulaContext.env as ToddleServerEnv,
+      env: formulaContext.env,
       req: hono.req.raw,
       files: files,
       includedComponents,
@@ -145,7 +123,7 @@ export const nordcraftPage = async ({
       resetStylesheetPath: '/_static/reset.css',
       // This refers to the generated stylesheet for each page
       pageStylesheetPath: options.pageStylesheetUrl(page.name),
-      page: toddleComponent,
+      page,
       files: files,
       project,
       context: formulaContext,
@@ -154,7 +132,7 @@ export const nordcraftPage = async ({
     }),
   })
   const charset = getCharset({
-    pageInfo: toddleComponent.route?.info,
+    pageInfo: page.route?.info,
     formulaContext,
   })
 
