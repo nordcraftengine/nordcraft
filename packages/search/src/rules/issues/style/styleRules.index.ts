@@ -1,3 +1,4 @@
+import { invalidInitialValueGlobalCSSVariableRule } from './invalidInitialValueGlobalCSSVariable'
 import { invalidStyleSyntaxRule } from './invalidStyleSyntaxRule'
 import { legacyStyleVariableRule } from './legacyStyleVariableRule'
 import { legacyThemeRule } from './legacyThemeRule'
@@ -14,4 +15,5 @@ export default [
   unknownClassnameRule,
   unknownCSSVariableRule,
   noReferenceGlobalCSSVariableRule,
+  invalidInitialValueGlobalCSSVariableRule,
 ]

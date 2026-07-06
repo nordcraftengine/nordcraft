@@ -78,6 +78,7 @@ export type Code =
   | 'invalid api parser mode'
   | 'invalid api proxy body setting'
   | 'invalid api proxy cookie setting'
+  | 'invalid initial value'
   | 'invalid component structure'
   | 'invalid element child'
   | 'invalid style syntax'
