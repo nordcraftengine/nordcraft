@@ -68,6 +68,7 @@ import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPos
 import type { UnknownContextWorkflowRuleFix } from './rules/issues/workflows/unknownContextWorkflowRule'
 
 export type Code =
+  | 'animated style not in theme'
   | 'duplicate action argument name'
   | 'duplicate event trigger'
   | 'duplicate formula argument name'
