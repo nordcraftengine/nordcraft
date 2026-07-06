@@ -514,6 +514,7 @@ export const createRoot = (
           document.body.setAttribute('data-mode', message.data.mode)
           updateConditionalElements()
           window.dispatchEvent(new CustomEvent('selected-node-changed'))
+          syncOverlayRects()
           break
         }
         case 'attrs': {
@@ -563,6 +564,7 @@ export const createRoot = (
               })
             }
           }
+          syncOverlayRects()
           return
         }
         case 'highlight': {
@@ -573,6 +575,7 @@ export const createRoot = (
                 .map((part) => part.split('(')[0])
                 .join('.')
             : null
+          syncOverlayRects()
           return
         }
         case 'mousedown': {
@@ -598,6 +601,7 @@ export const createRoot = (
         case 'mousemove': {
           if (dragState && !dragState.destroying) {
             handleDragMouseMove(message.data, dragState, metaKey)
+            syncOverlayRects()
             return
           }
 
@@ -826,9 +830,13 @@ export const createRoot = (
           break
         case 'drag-ended':
           if (dragState) {
+            const interval = setInterval(() => {
+              syncOverlayRects()
+            }, 1000 / 60)
             void handleDragEnded(message.data, dragState, component).then(
               (newState) => {
                 dragState = newState
+                clearInterval(interval)
               },
             )
           }
@@ -916,6 +924,7 @@ export const createRoot = (
           )
           styleElem.setAttribute('data-timeline-keyframes', '')
           document.head.appendChild(styleElem)
+          syncOverlayRects()
           break
 
         case 'set_timeline_time':
@@ -979,6 +988,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
   animation-play-state: paused !important;
 }`
             }
+            syncOverlayRects()
           })
           break
         case 'preview_style':
@@ -1089,6 +1099,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
   }`
             }
             requestResizeCanvas(resizeCanvasOptions)
+            syncOverlayRects()
           })
           break
         case 'preview_resources': {
@@ -1141,9 +1152,10 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
     },
   )
 
-  const resizeObserver = new ResizeObserver(() =>
-    requestResizeCanvas(resizeCanvasOptions),
-  )
+  const resizeObserver = new ResizeObserver(() => {
+    requestResizeCanvas(resizeCanvasOptions)
+    syncOverlayRects()
+  })
   resizeObserver.observe(domNode)
   requestResizeCanvas(resizeCanvasOptions)
 
@@ -1684,6 +1696,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
     )
     markSelectedElement(getDOMNodeFromNodeId(selectedNodeId))
     requestResizeCanvas(resizeCanvasOptions)
+    syncOverlayRects()
   }
 
   const createContext = (
@@ -1803,29 +1816,37 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
     })
   }
 
-  // Animations are first class citizens in Nordcraft, so we sync their overlay positions on each frame
-  ;(function syncOverlayRects(
-    prevSelectionRect?: ReturnType<typeof getRectData>,
-    prevHighlightedRect?: ReturnType<typeof getRectData>,
-  ) {
+  let prevSelectionRect: ReturnType<typeof getRectData>
+  let prevHighlightRect: ReturnType<typeof getRectData>
+
+  /**
+   * Sync the overlay positions with the editor.
+   * This is called on each frame to account for animations and other changes.
+   */
+  const syncOverlayRects = () => {
     const selectionRect = getRectData(getDOMNodeFromNodeId(selectedNodeId))
-    if (!fastDeepEqual(prevSelectionRect, selectionRect)) {
-      postMessageToEditor({
-        type: 'selectionRect',
-        rect: selectionRect,
-      })
-    }
-
     const highlightRect = getRectData(getDOMNodeFromNodeId(highlightedNodeId))
-    if (!fastDeepEqual(prevHighlightedRect, highlightRect)) {
-      postMessageToEditor({
-        type: 'highlightRect',
-        rect: highlightRect,
-      })
-    }
 
-    requestAnimationFrame(() => syncOverlayRects(selectionRect, highlightRect))
-  })()
+    const selectionChanged = !fastDeepEqual(prevSelectionRect, selectionRect)
+    const highlightChanged = !fastDeepEqual(prevHighlightRect, highlightRect)
+
+    if (selectionChanged || highlightChanged) {
+      prevSelectionRect = selectionRect
+      prevHighlightRect = highlightRect
+      if (selectionChanged) {
+        postMessageToEditor({
+          type: 'selectionRect',
+          rect: selectionRect,
+        })
+      }
+      if (highlightChanged) {
+        postMessageToEditor({
+          type: 'highlightRect',
+          rect: highlightRect,
+        })
+      }
+    }
+  }
 }
 
 const insertOrReplaceHeadNode = (id: string, node: Node) => {
