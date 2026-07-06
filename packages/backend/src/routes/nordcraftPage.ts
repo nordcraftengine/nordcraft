@@ -194,15 +194,15 @@ export const nordcraftPage = async ({
     options,
   })
   const additionalHeadScripts = [
-    `<link rel="modulepreload" href="/_static/page.main.esm.js")}</link>`,
+    `<link rel="modulepreload" href="/_static/page.main.esm.js" />`,
     // Tell the browser to start fetching the state for hydration as early as possible
-    `<link rel="modulepreload" href="${pageStateUrl}"></link>`,
+    `<link rel="modulepreload" href="${pageStateUrl}" />`,
     `<script type="module" src="${pageStateUrl}"></script>`,
   ]
   if (typeof customCodeUrl === 'string') {
     // Tell the browser to start fetching custom code for the page as early as possible
     additionalHeadScripts.push(
-      `<link rel="modulepreload" href="${customCodeUrl}"></link>`,
+      `<link rel="modulepreload" href="${customCodeUrl}" />`,
     )
   }
 
