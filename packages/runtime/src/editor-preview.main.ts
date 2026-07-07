@@ -1619,6 +1619,11 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       // Clear old root signal and create a new one to not keep old signals with previous root around
       ctxDataSignal?.destroy()
       ctxDataSignal = dataSignal.map((data) => data)
+      ctxDataSignal
+        .map((data) => data.Variables)
+        .subscribe(() => {
+          requestResizeCanvas(resizeCanvasOptions)
+        })
       try {
         const rootElem = createNode({
           id: 'root',
