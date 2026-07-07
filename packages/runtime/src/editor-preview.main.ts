@@ -1532,8 +1532,14 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
         Contexts,
       }
     })
+    const defaultCtx =
+      forceRerender || !ctx
+        ? // If we are forcing a rerender, we need to create a new context with the new component and all components
+          // Otherwise, we might be using outdated context provider data signals etc.
+          createContext(_component, getAllComponents())
+        : ctx
     const newCtx: ComponentContext = {
-      ...(ctx ?? createContext(_component, getAllComponents())),
+      ...defaultCtx,
       component: _component,
     }
 
