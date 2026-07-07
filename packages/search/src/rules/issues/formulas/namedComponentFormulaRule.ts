@@ -7,7 +7,7 @@ export const namedComponentFormulaRule: IssueRule<
 > = {
   code: 'named component formula',
   level: 'info',
-  category: 'Quality',
+  category: 'Deprecation',
   visit: (report, { nodeType, value, path }) => {
     const formulaKey = path.at(-1)
     if (

@@ -7,7 +7,7 @@ export const namedComponentWorkflowRule: IssueRule<
 > = {
   code: 'named component workflow',
   level: 'info',
-  category: 'Quality',
+  category: 'Deprecation',
   visit: (report, { nodeType, value, path }) => {
     const workflowKey = path.at(-1)
     if (
