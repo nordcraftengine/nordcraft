@@ -51,6 +51,7 @@ import type { NoReferenceContextWorkflowRuleFix } from './rules/issues/context/n
 import type { UnknownContextFormulaRuleFix } from './rules/issues/context/unknownContextFormulaRule'
 import type { NoReferenceEventRuleFix } from './rules/issues/events/noReferenceEventRule'
 import type { LegacyFormulaRuleFix } from './rules/issues/formulas/legacyFormulaRule'
+import type { NamedComponentFormulaRuleFix } from './rules/issues/formulas/namedComponentFormulaRule'
 import type { NoReferenceComponentFormulaRuleFix } from './rules/issues/formulas/noReferenceComponentFormulaRule'
 import type { NoReferenceProjectFormulaRuleFix } from './rules/issues/formulas/noReferenceProjectFormulaRule'
 import type { NoStaticNodeConditionRuleFix } from './rules/issues/logic/noStaticNodeCondition'
@@ -64,6 +65,7 @@ import type {
   AddToThemeFix,
 } from './rules/issues/style/unknownCSSVariable'
 import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noReferenceVariableRule'
+import type { NamedComponentWorkflowRuleFix } from './rules/issues/workflows/namedComponentWorkflowRule'
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
 import type { UnknownContextWorkflowRuleFix } from './rules/issues/workflows/unknownContextWorkflowRule'
 
@@ -88,6 +90,8 @@ export type Code =
   | 'legacy formula'
   | 'legacy style variable'
   | 'legacy theme'
+  | 'named component formula'
+  | 'named component workflow'
   | 'no context consumers'
   | 'no post navigate action'
   | 'no-console'
@@ -275,7 +279,7 @@ export type ComponentAPIInputNode = {
 export type ComponentWorkflowNode = {
   nodeType: 'component-workflow'
   value: {
-    name: string
+    name?: string
     parameters?: Nullable<
       {
         name: string
@@ -297,7 +301,7 @@ export type ComponentWorkflowNode = {
 export type ComponentFormulaNode = {
   nodeType: 'component-formula'
   value: {
-    name: string
+    name?: string
     arguments?: Nullable<
       {
         name: string
@@ -494,6 +498,8 @@ export type FixType =
   | NoReferenceApiRuleFix
   | NoReferenceApiServiceRuleFix
   | NoReferenceAttributeRuleFix
+  | NamedComponentFormulaRuleFix
+  | NamedComponentWorkflowRuleFix
   | NoReferenceComponentFormulaRuleFix
   | NoReferenceComponentRuleFix
   | NoReferenceContextFormulaRuleFix

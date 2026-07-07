@@ -211,7 +211,7 @@ export interface Component {
 }
 
 export interface ComponentFormula extends NordcraftMetadata {
-  name: string
+  name?: string
   arguments?: Nullable<Array<{ name: string; testValue: any }>>
   memoize?: Nullable<boolean>
   exposeInContext?: Nullable<boolean>
@@ -219,7 +219,7 @@ export interface ComponentFormula extends NordcraftMetadata {
 }
 
 export interface ComponentWorkflow extends NordcraftMetadata {
-  name: string
+  name?: string
   parameters: Array<{ name: string; testValue: any }>
   callbacks?: Nullable<Array<{ name: string; testValue: any }>>
   actions: ActionModel[]
