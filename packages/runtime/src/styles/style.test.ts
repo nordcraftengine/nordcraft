@@ -1,6 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import { describe, expect, test } from 'bun:test'
-import { insertStyles } from './style'
+import {
+  convertViewportUnitsToEmulatedViewportUnits,
+  insertStyles,
+} from './style'
 
 describe('insertStyles() - prefers-reduced-motion', () => {
   test('it inserts styles with prefers-reduced-motion: reduce media query', () => {
@@ -247,5 +250,22 @@ describe('insertStyles() - prefers-reduced-motion', () => {
     expect(styleText).toContain(
       'height:calc(100vh * var(--nc-viewport-height-px, var(--nc-scroll-height-px, 740)) / var(--nc-scroll-height-px, 740));',
     )
+  })
+})
+
+describe('convertViewportUnitsToEmulatedViewportUnits()', () => {
+  test('it converts viewport units to emulated viewport units', () => {
+    expect(convertViewportUnitsToEmulatedViewportUnits('100vh')).toBe(
+      'calc(100vh * var(--nc-viewport-height-px, var(--nc-scroll-height-px, 740)) / var(--nc-scroll-height-px, 740))',
+    )
+    expect(convertViewportUnitsToEmulatedViewportUnits('50svh')).toBe(
+      'calc(50svh * var(--nc-viewport-height-px, var(--nc-scroll-height-px, 740)) / var(--nc-scroll-height-px, 740))',
+    )
+    expect(convertViewportUnitsToEmulatedViewportUnits('5dvh')).toBe(
+      'calc(5dvh * var(--nc-viewport-height-px, var(--nc-scroll-height-px, 740)) / var(--nc-scroll-height-px, 740))',
+    )
+    // Units that are not viewport units should not be changed
+    expect(convertViewportUnitsToEmulatedViewportUnits('20px')).toBe('20px')
+    expect(convertViewportUnitsToEmulatedViewportUnits('2em')).toBe('2em')
   })
 })
