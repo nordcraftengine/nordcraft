@@ -12,7 +12,7 @@ import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
 import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import { omitKeys } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import { CSS_VAR_SCROLL_HEIGHT, CSS_VAR_VIEWPORT_HEIGHT } from '../editor/const'
+import { CSS_VAR_SCROLL_HEIGHT, CSS_VAR_VIEWPORT_HEIGHT } from './const'
 
 const LEGACY_BREAKPOINTS = {
   large: 1440,
