@@ -1,4 +1,5 @@
 import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
+import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
   theme as defaultTheme,
   THEME_DATA_ATTRIBUTE,
@@ -20,6 +21,7 @@ import {
   getHtmlLanguage,
   getTheme,
 } from '@nordcraft/ssr/dist/rendering/html'
+import { evaluateResponseHeaders } from '@nordcraft/ssr/dist/rendering/response'
 import type { ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
 import {
   REDIRECT_API_NAME_HEADER,
@@ -187,6 +189,20 @@ export const nordcraftPage = async ({
 
   head = `${head}\n${additionalHeadScripts.join('\n')}`
 
+  const responseHeaders = evaluateResponseHeaders({
+    formulaContext,
+    responseHeaders: page.route.response?.headers,
+  })
+
+  const customStatusCode = applyFormula(
+    page.route.response?.status,
+    formulaContext,
+  )
+  const statusCode =
+    typeof customStatusCode === 'number'
+      ? (customStatusCode as any as ContentfulStatusCode)
+      : status
+
   return hono.html(
     html`<!doctype html>
       <html lang="${language}" ${htmlAttributes}>
@@ -197,9 +213,10 @@ export const nordcraftPage = async ({
           <div id="App">${raw(body)}</div>
         </body>
       </html>`,
-    status,
+    statusCode,
     {
       'Content-Type': `text/html; charset=${charset}`,
+      ...responseHeaders,
     },
   )
 }

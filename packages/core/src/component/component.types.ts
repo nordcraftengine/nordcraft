@@ -241,7 +241,17 @@ export interface RouteDeclaration {
   query: Record<string, { name: string; testValue: any }>
 }
 
+export interface ResponseHeaders {
+  [key: string]: Nullable<Formula | string>
+}
+
 export interface PageRoute extends RouteDeclaration {
+  response?: Nullable<{
+    // Allow overriding response headers for a page render. For example to set a custom cache-control header for a page
+    // or specify a Location along with a 3xx status code to redirect the user to another page
+    headers?: Nullable<ResponseHeaders>
+    status?: Nullable<Formula>
+  }>
   // Information for the <head> element
   // only relevant for pages - not for regular
   // components
