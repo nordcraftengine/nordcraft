@@ -86,7 +86,7 @@ export const noReferenceComponentFormulaRule: IssueRule<{
       },
       details: {
         contextSubscribers,
-        name: value.name,
+        name: value.name ?? String(formulaKey),
       },
       fixes: ['delete-component-formula'],
     })
