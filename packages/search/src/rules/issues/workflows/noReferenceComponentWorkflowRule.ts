@@ -81,7 +81,7 @@ export const noReferenceComponentWorkflowRule: IssueRule<{
       path,
       info: {
         title: 'Unused component workflow',
-        description: `**${workflowName}** is never used by any workflow. Consider removing it.`,
+        description: `The **${workflowName}** workflow has a legacy name field. Consider migrating the workflow to use standard keys by renaming it or applying the rename fix.`,
       },
       details: { contextSubscribers, name: workflowName },
     })

@@ -23,7 +23,7 @@ export const namedComponentFormulaRule: IssueRule<
       path,
       info: {
         title: 'Formula has name property',
-        description: `The name for the **${value.name}** formula is declared directly on the formula. Consider moving the name to the formula key to reduce complexity in your project and help the AI perform better.`,
+        description: `The **${value.name}** formula has a legacy name field. Consider migrating the formula to use standard keys by renaming it or applying the rename fix.`,
       },
       details: {
         name: value.name,
