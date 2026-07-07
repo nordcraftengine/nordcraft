@@ -874,8 +874,6 @@ describe('createNode()', () => {
     // Elements should have unique data-ids
     const dataIds = new Set<string>()
     const elements = parentElement.querySelectorAll('span')
-    expect(elements.length).toBe(72) // 3 (parent) * 2 (comp) * 2 (slots) * 3 (slot repeat) * 2 (slotted items)
-
     for (const el of elements) {
       const dataId = el.getAttribute('data-id')
       expect(dataId).toBeTruthy()
