@@ -84,6 +84,11 @@ import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
 import { requestResizeCanvas } from './editor/resizeCanvas'
+import {
+  convertViewportUnitsToEmulatedViewportUnits,
+  insertStyles,
+  styleToCss,
+} from './editor/style'
 import { handleTextMouseDown } from './editor/text-selection/mouseDown'
 import { handleTextMouseMove } from './editor/text-selection/mouseMove'
 import { handleTextNodeSelection } from './editor/text-selection/selection'
@@ -96,11 +101,6 @@ import type {
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
-import {
-  convertViewportUnitsToEmulatedViewportUnits,
-  insertStyles,
-  styleToCss,
-} from './styles/style'
 import type {
   ComponentContext,
   ContextApiV2,
