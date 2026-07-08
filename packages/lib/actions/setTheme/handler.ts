@@ -1,7 +1,7 @@
 import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/theme.const'
 import type { ActionHandler } from '@nordcraft/core/dist/types'
 
-const ONE_YEAR = 60 * 60 * 24 * 365
+const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365
 
 const handler: ActionHandler = async function ([name], ctx) {
   if (typeof name !== 'string' && name !== null) {
@@ -20,14 +20,15 @@ const handler: ActionHandler = async function ([name], ctx) {
       name: THEME_COOKIE_NAME,
       value: name ?? '',
       path: '/',
-      expires: shouldDelete ? 0 : Date.now() + ONE_YEAR,
+      expires: shouldDelete ? 0 : Date.now() + ONE_YEAR_MS,
       sameSite: 'none',
     })
-    // Also update the theme store directly for cases where cookies are not supported or delayed.
-    ctx.stores?.theme.set(name)
     ctx.triggerActionEvent('Success', undefined)
   } catch (error) {
     ctx.triggerActionEvent('Error', error as Error)
+  } finally {
+    // Also update the theme store directly for cases where cookies are not supported or delayed.
+    ctx.stores?.theme.set(name)
   }
 }
 

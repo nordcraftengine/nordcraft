@@ -191,10 +191,10 @@ export const getNodeStyles = (
             return `
 
     @keyframes ${animationName} {${Object.values(keyframes)
-      .sort((a, b) => a.position - b.position)
+      .sort((a, b) => Number(a.position) - Number(b.position))
       .map(({ key, position, value }) => {
         return `
-        ${position * 100}% {
+        ${Number(position) * 100}% {
           ${key}: ${value};
         }`
       })

@@ -19,7 +19,7 @@ export const animatedStyleNotInThemeRule: IssueRule = {
     const animatedProperties = new Set<string>()
 
     keyframes.forEach((keyframe) => {
-      if (keyframe.key.startsWith('--')) {
+      if (keyframe.key?.startsWith('--')) {
         animatedProperties.add(keyframe.key)
       }
     })

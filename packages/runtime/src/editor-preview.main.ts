@@ -914,7 +914,7 @@ export const createRoot = (
   ${Object.values(keyframes)
     .map(
       ({ key, value, position, easing }) =>
-        `${position * 100}% {
+        `${Number(position) * 100}% {
           ${key}: ${value};
           ${easing ? `animation-timing-function: ${easing};` : ''}
         }`,
