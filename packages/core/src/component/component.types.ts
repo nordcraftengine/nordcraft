@@ -48,9 +48,9 @@ export interface ComponentData {
 }
 
 export interface AnimationKeyframe {
-  position: number
-  key: string
-  value: string
+  position: Nullable<number>
+  key: Nullable<string>
+  value: Nullable<string>
   easing?: Nullable<never>
 }
 
