@@ -2,7 +2,7 @@ import { isLegacyApi } from '../api/api'
 import type { ComponentAPI } from '../api/apiTypes'
 import { LegacyToddleApi } from '../api/LegacyToddleApi'
 import { ToddleApiV2 } from '../api/ToddleApiV2'
-import type { Formula } from '../formula/formula'
+import { isFormula, type Formula } from '../formula/formula'
 import type { GlobalFormulas } from '../formula/formulaTypes'
 import {
   getFormulasInAction,
@@ -358,6 +358,26 @@ export class ToddleComponent<Handler> {
         path: ['route', 'info', 'meta', metaKey, 'enabled'],
         packageName,
       })
+    }
+    if (this.route?.response) {
+      yield* getFormulasInFormula({
+        formula: this.route.response.status,
+        globalFormulas,
+        path: ['route', 'response', 'status'],
+        packageName,
+      })
+      for (const [headerKey, header] of Object.entries(
+        this.route.response.headers ?? {},
+      )) {
+        if (isDefined(header) && isFormula(header)) {
+          yield* getFormulasInFormula({
+            formula: header,
+            globalFormulas,
+            path: ['route', 'response', 'headers', headerKey],
+            packageName,
+          })
+        }
+      }
     }
     for (const [formulaKey, formula] of Object.entries(this.formulas ?? {})) {
       if (isDefined(formula)) {
