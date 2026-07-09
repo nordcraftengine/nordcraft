@@ -51,9 +51,18 @@ export function createElement({
     namespace = String(node.attrs['xmlns'].value) as SupportedNamespaces
   }
 
-  const elem = namespace
-    ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
-    : document.createElement(tag)
+  let elem =
+    ctx.hydrate?.isHydrating &&
+    ctx.root.querySelector<HTMLElement | SVGElement | MathMLElement>(
+      `[data-hk="${path}"]`,
+    )
+  if (elem) {
+    elem.removeAttribute('data-hk')
+  } else {
+    elem = namespace
+      ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
+      : document.createElement(tag)
+  }
 
   const formulaCtx = {
     component: ctx.component,
@@ -310,7 +319,16 @@ export function createElement({
         }),
       )
     })
-    elem.append(...childNodes)
+    if (ctx.hydrate?.isHydrating) {
+      childNodes.forEach((childNode, index) => {
+        // Only append if not already present in exact expected position.
+        if (elem.children[index] !== childNode) {
+          elem.appendChild(childNode)
+        }
+      })
+    } else {
+      elem.append(...childNodes)
+    }
   }
   dataSignal.subscribe(() => {}, {
     destroy: () => {
