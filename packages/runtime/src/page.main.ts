@@ -338,6 +338,14 @@ export const createRoot = (domNode: HTMLElement) => {
     window.addEventListener('hydrate!', () => {
       hydrateComponent(renderProps)
     })
+
+    window.addEventListener('render!', () => {
+      const elements = renderComponent(renderProps)
+      domNode.innerText = ''
+      elements.forEach((elem) => {
+        domNode.appendChild(elem)
+      })
+    })
   } else {
     const elements = renderComponent(renderProps)
     domNode.innerText = ''
