@@ -75,18 +75,20 @@ export const noReferenceComponentFormulaRule: IssueRule<{
         }
       }
     }
+
+    const name = value.name ?? String(formulaKey)
     report({
       path: args.path,
       info: {
         title: 'Unused component formula',
         description:
           contextSubscribers.length > 0
-            ? `**${value.name}** is never used but is subscribed to by: *${contextSubscribers.join('*, *')}*. Consider removing it and clean up the unused context subscriptions.`
-            : `**${value.name}** is never used. Consider removing it.`,
+            ? `**${name}** is never used but is subscribed to by: *${contextSubscribers.join('*, *')}*. Consider removing it and clean up the unused context subscriptions.`
+            : `**${name}** is never used. Consider removing it.`,
       },
       details: {
         contextSubscribers,
-        name: value.name ?? String(formulaKey),
+        name,
       },
       fixes: ['delete-component-formula'],
     })
