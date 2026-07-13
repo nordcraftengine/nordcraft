@@ -1743,7 +1743,11 @@ export const keywordDescriptionsByProperty: Partial<
     left: 'Sets the origin for transforms to the left edge of the element.',
     right: 'Sets the origin for transforms to the right edge of the element.',
   },
-  'transform-style': {},
+  'transform-style': {
+    flat: 'Indicates that the children of the element are lying in the plane of the element itself.',
+    'preserve-3d':
+      'Indicates that the children of the element should be positioned in the 3D-space.',
+  },
   transition: {
     none: 'No properties are transitioned.',
     all: 'All animatable properties are transitioned.',
