@@ -65,7 +65,7 @@ describe('resolveClasses', () => {
     expect(node.variants.length).toBe(1)
 
     const variant = node.variants[0]
-    expect(variant.style).toEqual({})
+    expect(variant.style).toEqual(undefined)
     expect(variant.customProperties).toEqual({
       '--dynamic': { formula: pathFormula(['variables', 'width']) },
     })
