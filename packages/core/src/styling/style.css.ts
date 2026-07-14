@@ -8,10 +8,14 @@ import type {
 import type { Nullable } from '../types'
 import { omitKeys } from '../utils/collections'
 import { isDefined } from '../utils/util'
-import { getClassName, toValidClassName } from './className'
+import {
+  getClassName,
+  getStaticStyleAndVariants,
+  toValidClassName,
+} from './className'
 import type { OldTheme, Theme, ThemeOptions } from './theme'
 import { getThemeCss } from './theme'
-import { variantSelector, type StyleVariant } from './variantSelector'
+import { variantSelector } from './variantSelector'
 
 const LEGACY_BREAKPOINTS = {
   large: 1440,
@@ -93,16 +97,8 @@ export const getNodeStyles = (
   animationHashes: Set<string> = new Set(),
 ) => {
   try {
-    const style = omitKeys(node.style ?? {}, [
-      'variants',
-      'breakpoints',
-      'shadows',
-    ])
-    const styleVariants =
-      node.variants ??
-      // Support for old style variants stored inside style object
-      // Once we have better versioning options, this should be removed
-      (node.style?.variants as any as StyleVariant[])
+    const [_style, styleVariants] = getStaticStyleAndVariants(node)
+    const style = omitKeys(_style ?? {}, ['variants', 'breakpoints', 'shadows'])
     const renderVariant = (
       selector: string,
       style: NodeStyleModel,
@@ -294,7 +290,7 @@ export const createStylesheet = (
       if (node.type !== 'element') {
         return
       }
-      const classHash = getClassName([node.style, node.variants])
+      const classHash = getClassName(getStaticStyleAndVariants(node))
       if (hashes.has(classHash)) {
         return ''
       }
