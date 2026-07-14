@@ -31,6 +31,9 @@ export const getClassName = (
   return className
 }
 
+export const getPathClassName = (path: string) =>
+  generateAlphabeticName(hash(path))
+
 const getStaticCustomPropertyStyles = (
   customProperties: Record<`--${string}`, CustomProperty> | undefined,
 ) =>
@@ -62,10 +65,9 @@ export const getStaticStyleAndVariants = (
     (node.style?.variants as unknown as StyleVariant[] | undefined)
 
   const staticStyle = mergeStaticStyle(node.style, node.customProperties ?? {})
-
-  const mappedVariants = variants?.map(({ customProperties, ...rest }) => ({
-    ...rest,
-    style: mergeStaticStyle(rest.style, customProperties ?? {}),
+  const mappedVariants = variants?.map((variant) => ({
+    ...variant,
+    style: mergeStaticStyle(variant.style, variant.customProperties ?? {}),
   }))
 
   return [
