@@ -58,14 +58,16 @@ const mergeStaticStyle = (
 
 export const getStaticStyleAndVariants = (
   node: ElementNodeModel | ComponentNodeModel,
-) =>
-  [
+) => {
+  const variants = node.variants ?? (node.style as any)?.variants
+  return [
     mergeStaticStyle(node.style, node.customProperties ?? {}),
-    node.variants?.map(({ customProperties, ...rest }) => ({
+    variants?.map(({ customProperties, ...rest }: any) => ({
       ...rest,
       style: mergeStaticStyle(rest.style, customProperties ?? {}),
     })),
   ] as [Nullable<NodeStyleModel>, Nullable<StyleVariant[]>]
+}
 
 export const toValidClassName = (
   input: string,
