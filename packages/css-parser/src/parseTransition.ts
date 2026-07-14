@@ -69,19 +69,15 @@ export const parseTransition = (args: transitionArguments) => {
         const usedVariable = variables.find((v) =>
           v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
         )
+
         if (!usedVariable) {
           return
         }
 
-        const parsedVariable = parseMultipleValues([
-          {
-            type: 'word',
-            value:
-              usedVariable.unit && usedVariable.unit !== ''
-                ? `${usedVariable.value}${usedVariable.unit}`
-                : usedVariable.value,
-          },
-        ])
+        const parsedValue = parse({ input: usedVariable.value })
+        const value = getValue(parsedValue[0])
+        const parsedVariable = parseMultipleValues(value)
+
         const newProp = parseTransition({
           variables,
           transition,
