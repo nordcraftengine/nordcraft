@@ -198,7 +198,12 @@ const renderComponent = async ({
           env,
           toddle,
         })
-        const classList = [getClassName(getStaticStyleAndVariants(node))]
+        const classList: string[] = []
+        const [style, variants] = getStaticStyleAndVariants(node)
+        if (style || variants) {
+          classList.push(getClassName([style, variants]))
+        }
+
         classList.push(
           ...Object.entries(node.classes ?? {})
             .filter(([_, { formula }]) =>

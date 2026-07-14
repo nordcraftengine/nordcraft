@@ -6,7 +6,6 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import {
   getClassName,
-  getStaticStyleAndVariants,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
 import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
@@ -68,8 +67,7 @@ export const insertStyles = (
     node: ElementNodeModel | ComponentNodeModel,
     classHash: string,
   ) => {
-    const [_style, variants] = getStaticStyleAndVariants(node)
-    const style = omitKeys(_style ?? {}, [
+    const style = omitKeys(node.style ?? {}, [
       'variants',
       'breakpoints',
       'mediaQuery',
@@ -83,8 +81,8 @@ export const insertStyles = (
     ${renderVariant('.' + classHash, style)}
 
 ${
-  variants
-    ? variants
+  node.variants
+    ? node.variants
         .map((variant) => {
           const selector = `.${classHash}${variantSelector(variant)}`
           const renderedVariant = renderVariant(selector, variant.style, {
@@ -180,7 +178,7 @@ ${
           )
         }
       } else if (node.type === 'element') {
-        const classHash = getClassName(getStaticStyleAndVariants(node))
+        const classHash = getClassName([node.style, node.variants])
         newStyles.set(classHash, getNodeStyles(node, classHash))
       }
     })

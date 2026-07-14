@@ -52,7 +52,7 @@ const mergeStaticStyle = (
 ): Nullable<NodeStyleModel> => {
   const staticStyles = getStaticCustomPropertyStyles(customProperties)
   return Object.keys(staticStyles).length > 0 || style
-    ? { ...style, ...staticStyles }
+    ? { ...staticStyles, ...style }
     : undefined
 }
 
