@@ -74,7 +74,7 @@ export function createElement({
     elem.setAttribute('data-component', ctx.component.name)
   }
   // class names are baked during preprocessing, except for in editor-preview where we generate them on the fly
-  if (ctx.env.runtime === 'preview') {
+  if (node.style || node.variants?.some((v) => v.style)) {
     const classHash = getClassName([node.style, node.variants])
     elem.classList.add(classHash)
   }

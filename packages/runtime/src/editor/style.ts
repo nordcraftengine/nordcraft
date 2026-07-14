@@ -10,6 +10,7 @@ import {
 } from '@nordcraft/core/dist/styling/className'
 import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
 import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
+import type { Nullable } from '@nordcraft/core/dist/types'
 import { omitKeys } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { CSS_VAR_SCROLL_HEIGHT, CSS_VAR_VIEWPORT_HEIGHT } from './const'
@@ -200,16 +201,16 @@ ${
 
 const renderVariant = (
   selector: string,
-  style: NodeStyleModel,
+  style: Nullable<NodeStyleModel>,
   options?: {
     startingStyle?: boolean
   },
 ) => {
-  const scrollbarStyles = Object.entries(style).filter(
+  const scrollbarStyles = Object.entries(style ?? {}).filter(
     ([key]) => key === 'scrollbar-width',
   )
 
-  let styles = styleToCss(style)
+  let styles = styleToCss(style ?? {})
   if (options?.startingStyle) {
     styles = `@starting-style {
       ${styles}

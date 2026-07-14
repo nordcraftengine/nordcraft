@@ -313,7 +313,7 @@ export const getAllFonts = (components: Component[]) => {
               node.style?.fontFamily,
               node.style?.['font-family'],
               ...(node.variants?.map(
-                (v) => v.style.fontFamily ?? v.style['font-family'],
+                (v) => v.style?.fontFamily ?? v.style?.['font-family'],
               ) ?? []),
             ].filter(isDefined)
           }

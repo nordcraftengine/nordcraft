@@ -36,7 +36,7 @@ export const resolveClasses = (component: Component) => ({
         )
         hasVariantCustomProperties ||= Object.keys(customProperties).length > 0
         // For dynamic properties, we need details on the variant to be able to resolve them at runtime.
-        return { ...variant, style: {}, customProperties }
+        return { ...variant, customProperties, style: undefined }
       })
 
       return [
