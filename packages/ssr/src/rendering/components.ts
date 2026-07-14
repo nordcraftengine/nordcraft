@@ -19,6 +19,7 @@ import type {
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
   getClassName,
+  getStaticStyleAndVariants,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
@@ -197,7 +198,7 @@ const renderComponent = async ({
           env,
           toddle,
         })
-        const classList = [getClassName([node.style, node.variants])]
+        const classList = [getClassName(getStaticStyleAndVariants(node))]
         classList.push(
           ...Object.entries(node.classes ?? {})
             .filter(([_, { formula }]) =>
@@ -212,8 +213,12 @@ const renderComponent = async ({
             ),
           )
         }
-        Object.entries(node.customProperties ?? {}).forEach(
-          ([customPropertyName, customProperty]) => {
+        Object.entries(node.customProperties ?? {})
+          .filter(
+            // Only prerender dynamic properties here as static properties are already part of class-styling.
+            ([_, customProperty]) => customProperty.formula?.type !== 'value',
+          )
+          .forEach(([customPropertyName, customProperty]) => {
             const value = appendUnit(
               applyFormula(customProperty.formula, formulaContext),
               customProperty.unit,
@@ -224,12 +229,14 @@ const renderComponent = async ({
                 `${customPropertyName}: ${value}` as CustomPropertyRule,
               )
             }
-          },
-        )
+          })
 
         node.variants?.forEach((variant) => {
-          Object.entries(variant.customProperties ?? {}).forEach(
-            ([customPropertyName, customProperty]) => {
+          Object.entries(variant.customProperties ?? {})
+            .filter(
+              ([_, customProperty]) => customProperty.formula?.type !== 'value',
+            )
+            .forEach(([customPropertyName, customProperty]) => {
               // style-variables on variants are always version 2
               const value = appendUnit(
                 applyFormula(customProperty.formula, formulaContext),
@@ -242,8 +249,7 @@ const renderComponent = async ({
                   variant,
                 )
               }
-            },
-          )
+            })
         })
 
         let innerHTML = ''

@@ -1,5 +1,11 @@
-import type { NodeStyleModel } from '../component/component.types'
+import type {
+  ComponentNodeModel,
+  CustomProperty,
+  ElementNodeModel,
+  NodeStyleModel,
+} from '../component/component.types'
 import type { Nullable } from '../types'
+import { appendUnit } from './customProperty'
 import { generateAlphabeticName, hash } from './hash'
 import type { StyleVariant } from './variantSelector'
 
@@ -24,6 +30,42 @@ export const getClassName = (
   CLASSNAME_LOOKUP.set(stringified, className)
   return className
 }
+
+const getStaticCustomPropertyStyles = (
+  customProperties: Record<`--${string}`, CustomProperty> | undefined,
+) =>
+  Object.fromEntries(
+    Object.entries(customProperties ?? {})
+      .filter(([, value]) => value.formula?.type === 'value')
+      .map(([key, value]) => [
+        key,
+        appendUnit(
+          value.formula?.type === 'value' ? value.formula.value : undefined,
+          value.unit,
+        ),
+      ]),
+  )
+
+const mergeStaticStyle = (
+  style: NodeStyleModel | undefined | null,
+  customProperties: Record<`--${string}`, CustomProperty> | undefined,
+): Nullable<NodeStyleModel> => {
+  const staticStyles = getStaticCustomPropertyStyles(customProperties)
+  return Object.keys(staticStyles).length > 0 || style
+    ? { ...style, ...staticStyles }
+    : undefined
+}
+
+export const getStaticStyleAndVariants = (
+  node: ElementNodeModel | ComponentNodeModel,
+) =>
+  [
+    mergeStaticStyle(node.style, node.customProperties ?? {}),
+    node.variants?.map(({ customProperties, ...rest }) => ({
+      ...rest,
+      style: mergeStaticStyle(rest.style, customProperties ?? {}),
+    })),
+  ] as [Nullable<NodeStyleModel>, Nullable<StyleVariant[]>]
 
 export const toValidClassName = (
   input: string,

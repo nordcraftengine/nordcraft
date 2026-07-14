@@ -8,6 +8,7 @@ import type {
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
   getClassName,
+  getStaticStyleAndVariants,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
@@ -74,7 +75,7 @@ export function createElement({
   }
   if (node.style || node.variants) {
     // style and variants are not available except in the editor's runtime
-    const classHash = getClassName([node.style, node.variants])
+    const classHash = getClassName(getStaticStyleAndVariants(node))
     elem.classList.add(classHash)
   }
   if (instance && id === 'root') {
@@ -168,7 +169,12 @@ export function createElement({
   })
 
   Object.entries(node.customProperties ?? {})
-    .filter(([_, { formula }]) => formulaHasValue(formula))
+    .filter(
+      ([_, { formula }]) =>
+        // Only subscribe to dynamic properties here as static properties are already part of static class-styling.
+        // Note: static properties are already excluded during preprocessing, except for the preview environment.
+        formulaHasValue(formula) && formula.type !== 'value',
+    )
     .forEach(([customPropertyName, { formula, unit }]) => {
       const cpPath = [
         'nodes',
@@ -203,7 +209,10 @@ export function createElement({
 
   node.variants?.forEach((variant, variantIndex) => {
     Object.entries(variant.customProperties ?? {})
-      .filter(([_, { formula }]) => formulaHasValue(formula))
+      .filter(
+        ([_, { formula }]) =>
+          formulaHasValue(formula) && formula.type !== 'value',
+      )
       .forEach(([customPropertyName, { formula, unit }]) => {
         const variantCpPath = [
           'nodes',

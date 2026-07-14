@@ -348,7 +348,12 @@ export function createComponent({
 
   // Custom properties instance overrides are added after the child tree is rendered to ensure correct order
   Object.entries(node.customProperties ?? {})
-    .filter(([_, { formula }]) => formulaHasValue(formula))
+    .filter(
+      ([_, { formula }]) =>
+        // Only subscribe to dynamic properties here as static properties are already part of static class-styling.
+        // Note: static properties are already excluded during preprocessing, except for the preview environment.
+        formulaHasValue(formula) && formula.type !== 'value',
+    )
     .forEach(([customPropertyName, customProperty]) =>
       subscribeCustomProperty({
         selector: getNodeSelector(path, {
@@ -374,7 +379,10 @@ export function createComponent({
     )
   node.variants?.forEach((variant) => {
     Object.entries(variant.customProperties ?? {})
-      .filter(([_, { formula }]) => formulaHasValue(formula))
+      .filter(
+        ([_, { formula }]) =>
+          formulaHasValue(formula) && formula.type !== 'value',
+      )
       .forEach(([customPropertyName, customProperty]) =>
         subscribeCustomProperty({
           selector: getNodeSelector(path, {
