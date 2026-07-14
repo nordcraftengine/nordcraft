@@ -360,7 +360,7 @@ describe('renderPageBody', () => {
     // Expect the nested child text node inside the package component to also render the formula value,
     // proving that the formula is evaluated correctly even when used inside a package component
     expect(html).toInclude(
-      '<span data-id="0.1" data-node-id="root" class="PKfF PageComponent:secondChild"><span data-node-type="text" data-node-id="nestedChild">output-from-test-formula</span></span>',
+      '<span data-id="0.1" data-node-id="root" class="PageComponent:secondChild"><span data-node-type="text" data-node-id="nestedChild">output-from-test-formula</span></span>',
     )
   })
 
@@ -961,7 +961,7 @@ describe('renderPageBody', () => {
 
     // Expect the ID formula to render with the correct order (0 in this case since it's the first formula rendered)
     expect(html).toBe(
-      `<div data-custom-id="custom_id_0_" data-id="0" data-node-id="root" class="PKfF"></div>`,
+      `<div data-custom-id="custom_id_0_" data-id="0" data-node-id="root"></div>`,
     )
   })
 })

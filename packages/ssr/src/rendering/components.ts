@@ -295,8 +295,10 @@ const renderComponent = async ({
           ...nodeAttrs,
           `data-id="${path}"`,
           `data-node-id="${escapeAttrValue(id)}"`,
-          `class="${escapeAttrValue(classList.join(' '))}"`,
         ]
+        if (classList.length > 0) {
+          attributes.push(`class="${escapeAttrValue(classList.join(' '))}"`)
+        }
         if (!VOID_HTML_ELEMENTS.includes(tag)) {
           return `<${tag} ${attributes.join(' ')}>${innerHTML}</${tag}>`
         } else {

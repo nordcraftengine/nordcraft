@@ -45,27 +45,32 @@ const getStaticCustomPropertyStyles = (
         ),
       ]),
   )
-
 const mergeStaticStyle = (
   style: NodeStyleModel | undefined | null,
   customProperties: Record<`--${string}`, CustomProperty> | undefined,
 ): Nullable<NodeStyleModel> => {
   const staticStyles = getStaticCustomPropertyStyles(customProperties)
-  return Object.keys(staticStyles).length > 0 || style
-    ? { ...staticStyles, ...style }
-    : undefined
+  const merged = { ...staticStyles, ...style }
+  return Object.keys(merged).length > 0 ? merged : undefined
 }
 
 export const getStaticStyleAndVariants = (
   node: ElementNodeModel | ComponentNodeModel,
 ) => {
-  const variants = node.variants ?? (node.style as any)?.variants
+  const variants =
+    node.variants ??
+    (node.style?.variants as unknown as StyleVariant[] | undefined)
+
+  const staticStyle = mergeStaticStyle(node.style, node.customProperties ?? {})
+
+  const mappedVariants = variants?.map(({ customProperties, ...rest }) => ({
+    ...rest,
+    style: mergeStaticStyle(rest.style, customProperties ?? {}),
+  }))
+
   return [
-    mergeStaticStyle(node.style, node.customProperties ?? {}),
-    variants?.map(({ customProperties, ...rest }: any) => ({
-      ...rest,
-      style: mergeStaticStyle(rest.style, customProperties ?? {}),
-    })),
+    staticStyle,
+    mappedVariants && mappedVariants.length > 0 ? mappedVariants : undefined,
   ] as [Nullable<NodeStyleModel>, Nullable<StyleVariant[]>]
 }
 
