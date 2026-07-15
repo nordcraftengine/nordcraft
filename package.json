@@ -20,7 +20,7 @@
     "@typescript-eslint/parser": "8.64.0",
     "typescript": "7.0.2",
     "esbuild": "0.28.1",
-    "eslint": "10.6.0",
+    "eslint": "10.7.0",
     "happy-dom": "20.10.6",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier": "3.9.5"
