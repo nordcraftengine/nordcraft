@@ -213,7 +213,7 @@ const renderComponent = async ({
             .map(([className]) => className),
         )
         let hasDynamicCustomProperties = false
-        if (instance && id === 'root') {
+        if (id === 'root' && instance && Object.keys(instance).length > 0) {
           classList.push(
             ...Object.entries(instance).map(([key, value]) =>
               toValidClassName(`${key}:${value}`),
