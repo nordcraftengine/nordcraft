@@ -117,9 +117,7 @@ describe('createNode()', () => {
     const sheet = customPropertiesStylesheets.get(document)?.getStyleSheet()
     expect(sheet).toBeTruthy()
     expect(sheet?.cssRules.length).toBe(3)
-    expect(sheet?.cssRules[0].cssText).toBe(
-      '[data-id="0.0.0"] { --color: red; }',
-    )
+    expect(sheet?.cssRules[0].cssText).toBe('.pGfTH { --color: red; }')
 
     parentElement.append(...nodes)
 
@@ -186,12 +184,8 @@ describe('createNode()', () => {
     expect(sheet?.cssRules.length).toBe(2)
 
     // The rules should be correct for the remaining elements
-    expect(sheet?.cssRules[0].cssText).toBe(
-      '[data-id="0.0.0"] { --color: red; }',
-    )
-    expect(sheet?.cssRules[1].cssText).toBe(
-      '[data-id="0.0.0(2)"] { --color: red; }',
-    )
+    expect(sheet?.cssRules[0].cssText).toBe('.pGfTH { --color: red; }')
+    expect(sheet?.cssRules[1].cssText).toBe('.YomHY { --color: red; }')
 
     // Add the same item multiple times
     dataSignal.update((data) => {
@@ -678,9 +672,9 @@ describe('createNode()', () => {
     const sheet = customPropertiesStylesheets.get(ctx.root)?.getStyleSheet()
     // Test that the order makes sense
     expect(Array.from(sheet?.cssRules ?? []).map((r) => r.cssText)).toEqual([
-      `[data-id="0"] { --color: ${innermostColor}; }`,
-      `[data-id="0"].first_wrapper\\:root { --color: ${middleColor}; }`,
-      `[data-id="0"].My_Component\\:root { --color: ${outermostColor}; }`,
+      `.bnID { --color: ${innermostColor}; }`,
+      `.bnID.first_wrapper\\:root { --color: ${middleColor}; }`,
+      `.bnID.My_Component\\:root { --color: ${outermostColor}; }`,
     ])
   })
 

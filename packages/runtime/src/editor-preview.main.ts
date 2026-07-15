@@ -1235,11 +1235,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
                     applyFormula(
                       customProperty.formula,
                       {
-                        data: {
-                          Attributes: dataSignal.get().Attributes,
-                          Variables: dataSignal.get().Variables,
-                          Contexts: ctxDataSignal?.get().Contexts ?? {},
-                        },
+                        data: dataSignal.get(),
                         component: getCurrentComponent(),
                         root: ctx?.root,
                         formulaCache: {},
