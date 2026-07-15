@@ -14,8 +14,8 @@
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:watch:only": "bun test --watch --only",
-    "typecheck": "tsgo --noEmit",
-    "watch": "tsgo -w"
+    "typecheck": "tsc --noEmit",
+    "watch": "tsc -w"
   },
   "files": [
     "dist",

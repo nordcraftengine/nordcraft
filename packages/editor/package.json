@@ -8,8 +8,8 @@
     "buildInterfaces": "cd elements && bun buildInterfaces.ts",
     "postbuildInterfaces": "bun run prettier:write",
     "prettier:write": "prettier --write 'elements/**/*.json' 'css-properties/cssPropertyKeywords.json'",
-    "typecheck": "tsgo --noEmit",
-    "watch": "tsgo --noEmit --watch"
+    "typecheck": "tsc --noEmit",
+    "watch": "tsc --noEmit --watch"
   },
   "devDependencies": {
     "@nordcraft/core": "workspace:*",

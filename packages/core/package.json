@@ -11,8 +11,8 @@
   "scripts": {
     "build": "tsgo",
     "npm-publish": "bun run build && bun publish --access public",
-    "typecheck": "tsgo --noEmit",
-    "watch": "tsgo -w"
+    "typecheck": "tsc --noEmit",
+    "watch": "tsc -w"
   },
   "files": [
     "dist",

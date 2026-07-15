@@ -15,10 +15,10 @@
     "path-to-regexp": "6.3.0"
   },
   "scripts": {
-    "build": "tsgo && bun scripts/build.js",
+    "build": "tsc && bun scripts/build.js",
     "npm-publish": "bun run build && bun publish --access public",
-    "typecheck": "tsgo --noEmit",
-    "watch": "tsgo -w"
+    "typecheck": "tsc --noEmit",
+    "watch": "tsc -w"
   },
   "files": [
     "dist",
