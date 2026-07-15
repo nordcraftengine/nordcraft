@@ -21,7 +21,7 @@ describe('resolveClasses', () => {
       },
     }
 
-    const resolved = resolveClasses(component)
+    const resolved = resolveClasses()(component)
     const node = resolved.nodes?.root as any
 
     expect(node.style).toBeUndefined()
@@ -58,7 +58,7 @@ describe('resolveClasses', () => {
       },
     }
 
-    const resolved = resolveClasses(component)
+    const resolved = resolveClasses()(component)
     const node = resolved.nodes?.root as any
 
     expect(node.variants).toBeDefined()
@@ -95,7 +95,7 @@ describe('resolveClasses', () => {
       },
     }
 
-    const resolved = resolveClasses(component)
+    const resolved = resolveClasses()(component)
     const node = resolved.nodes?.root as any
 
     expect(node.variants).toBeUndefined()
@@ -118,7 +118,7 @@ describe('resolveClasses', () => {
       },
     }
 
-    const resolved = resolveClasses(component)
+    const resolved = resolveClasses()(component)
     const node = resolved.nodes?.root as any
 
     expect(node.customProperties).toEqual({
@@ -138,7 +138,51 @@ describe('resolveClasses', () => {
       },
     }
 
-    const resolved = resolveClasses(component)
+    const resolved = resolveClasses()(component)
     expect(resolved.nodes?.root).toEqual(component.nodes?.root)
+  })
+
+  test('should handle component nodes', () => {
+    const component: Component = {
+      name: 'Test',
+      nodes: {
+        root: {
+          id: 'root',
+          type: 'component',
+          name: 'MyComponent',
+          style: { color: 'red' },
+          children: [],
+        },
+      },
+    }
+
+    const resolved = resolveClasses()(component)
+    const node = resolved.nodes?.root as any
+
+    expect(node.style).toBeUndefined()
+  })
+
+  test('should preserve static custom properties if clearStyle is false', () => {
+    const component: Component = {
+      name: 'Test',
+      nodes: {
+        root: {
+          id: 'root',
+          type: 'element',
+          tag: 'div',
+          customProperties: {
+            '--static': { formula: valueFormula('red') },
+          },
+          children: [],
+        },
+      },
+    }
+
+    const resolved = resolveClasses({ clearStyle: false })(component)
+    const node = resolved.nodes?.root as any
+
+    expect(node.customProperties).toEqual({
+      '--static': { formula: valueFormula('red') },
+    })
   })
 })
