@@ -135,6 +135,9 @@ export class LegacyToddleApi<Handler> {
   get onFailed() {
     return this.api.onFailed
   }
+  get dependsOn() {
+    return this.api.dependsOn
+  }
   *formulasInApi(): Generator<{
     path: (string | number)[]
     formula: Formula

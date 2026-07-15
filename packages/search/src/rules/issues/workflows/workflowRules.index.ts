@@ -1,4 +1,5 @@
 import { duplicateWorkflowParameterRule } from './duplicateWorkflowParameterRule'
+import { namedComponentWorkflowRule } from './namedComponentWorkflowRule'
 import { noPostNavigateAction } from './noPostNavigateAction'
 import { noReferenceComponentWorkflowRule } from './noReferenceComponentWorkflowRule'
 import { unknownTriggerWorkflowParameterRule } from './unknownTriggerWorkflowParameterRule'
@@ -9,6 +10,7 @@ export default [
   duplicateWorkflowParameterRule,
   noPostNavigateAction,
   noReferenceComponentWorkflowRule,
+  namedComponentWorkflowRule,
   unknownTriggerWorkflowParameterRule,
   unknownTriggerWorkflowRule,
   unknownWorkflowParameterRule,

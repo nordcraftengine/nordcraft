@@ -58,7 +58,7 @@ export const handleDragMouseMove = (
     dragState.offset.y -= (y - (rect.top + rect.height / 2)) * 0.1
   }
   if (draggingInsideContainer && !metaKey) {
-    dragReorder(dragState)
+    void dragReorder(dragState)
   } else {
     dragMove(
       dragState,

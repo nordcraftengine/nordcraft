@@ -9286,10 +9286,12 @@
     ],
     "transform-style": [
       {
-        "value": "flat"
+        "value": "flat",
+        "description": "Indicates that the children of the element are lying in the plane of the element itself."
       },
       {
-        "value": "preserve-3d"
+        "value": "preserve-3d",
+        "description": "Indicates that the children of the element should be positioned in the 3D-space."
       }
     ],
     "transition": [

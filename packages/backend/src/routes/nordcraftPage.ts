@@ -1,14 +1,15 @@
 import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import { type ToddleServerEnv } from '@nordcraft/core/dist/formula/formula'
+import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
   theme as defaultTheme,
   THEME_DATA_ATTRIBUTE,
 } from '@nordcraft/core/dist/styling/theme.const'
 import type { ToddleInternals } from '@nordcraft/core/dist/types'
-import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+import { toBoolean } from '@nordcraft/core/dist/utils/util'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
 import type { ApiCache } from '@nordcraft/ssr/dist/rendering/api'
+import { processComponentApis } from '@nordcraft/ssr/dist/rendering/api'
+import { resolveClasses } from '@nordcraft/ssr/dist/rendering/classes'
 import { renderPageBody } from '@nordcraft/ssr/dist/rendering/components'
 import { getPageFormulaContext } from '@nordcraft/ssr/dist/rendering/formulaContext'
 import {
@@ -20,13 +21,13 @@ import {
   getHtmlLanguage,
   getTheme,
 } from '@nordcraft/ssr/dist/rendering/html'
+import { evaluateResponseHeaders } from '@nordcraft/ssr/dist/rendering/response'
 import type { ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
-import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
-import { removeTestData } from '@nordcraft/ssr/src/rendering/testData'
 import {
   REDIRECT_API_NAME_HEADER,
   REDIRECT_COMPONENT_NAME_HEADER,
-} from '@nordcraft/ssr/src/utils/headers'
+} from '@nordcraft/ssr/dist/utils/headers'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
 import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
 import { endTime, startTime } from 'hono/timing'
@@ -34,12 +35,13 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
 import type { PageLoaderUrls } from '../loaders/types'
 import { evaluateComponentApis, RedirectError } from '../utils/api'
+import { cachePageState } from './pageState'
 
 export const nordcraftPage = async ({
   hono,
   project,
   files,
-  page,
+  page: _page,
   status,
   options,
 }: {
@@ -50,9 +52,11 @@ export const nordcraftPage = async ({
   status: ContentfulStatusCode
   options: PageLoaderUrls
 }) => {
+  const usesCustomCode = files.customCode
   const nordcraftPageTimingKey = 'nordcraftPage'
   startTime(hono, nordcraftPageTimingKey, 'The total render time for a page')
   const url = new URL(hono.req.raw.url)
+  const page = processComponentApis(_page, files)
   const formulaContext = getPageFormulaContext({
     component: page,
     branchName: 'main',
@@ -77,29 +81,7 @@ export const nordcraftPage = async ({
     projectComponents: files.components,
     packages: files.packages,
     includeRoot: true,
-  })
-
-  const toddleComponent = new ToddleComponent<string>({
-    component: page,
-    getComponent: (name, packageName) => {
-      const nodeLookupKey = [packageName, name].filter(isDefined).join('/')
-      const component = packageName
-        ? files.packages?.[packageName]?.components[name]
-        : files.components[name]
-      if (!component) {
-        // eslint-disable-next-line no-console
-        console.warn(`Unable to find component ${nodeLookupKey} in files`)
-        return undefined
-      }
-
-      return component
-    },
-    packageName: undefined,
-    globalFormulas: {
-      formulas: files.formulas,
-      packages: files.packages,
-    },
-  })
+  }).map((component) => processComponentApis(component, files))
 
   let apiCache: ApiCache
   let body: string
@@ -111,9 +93,9 @@ export const nordcraftPage = async ({
       'The time taken to render the page body - including API calls',
     )
     const pageBody = await renderPageBody({
-      component: toddleComponent,
+      component: page,
       formulaContext,
-      env: formulaContext.env as ToddleServerEnv,
+      env: formulaContext.env,
       req: hono.req.raw,
       files: files,
       includedComponents,
@@ -134,7 +116,7 @@ export const nordcraftPage = async ({
     }
   }
 
-  const head = renderHeadItems({
+  let head = renderHeadItems({
     headItems: getHeadItems({
       url,
       // This refers to the endpoint we created in fontRouter for our proxied stylesheet
@@ -143,7 +125,7 @@ export const nordcraftPage = async ({
       resetStylesheetPath: '/_static/reset.css',
       // This refers to the generated stylesheet for each page
       pageStylesheetPath: options.pageStylesheetUrl(page.name),
-      page: toddleComponent,
+      page,
       files: files,
       project,
       context: formulaContext,
@@ -152,7 +134,7 @@ export const nordcraftPage = async ({
     }),
   })
   const charset = getCharset({
-    pageInfo: toddleComponent.route?.info,
+    pageInfo: page.route?.info,
     formulaContext,
   })
 
@@ -167,47 +149,10 @@ export const nordcraftPage = async ({
         ...apiCache,
       },
     },
-    component: removeTestData(page),
-    components: includedComponents.map(removeTestData),
+    component: resolveClasses(page),
+    components: includedComponents.map(resolveClasses),
     isPageLoaded: false,
     cookies: Object.keys(formulaContext.env.request.cookies),
-  }
-  let codeImport = ''
-  if (files.customCode) {
-    codeImport = `
-            <script type="application/json" id="nordcraft-data">
-              ${JSON.stringify(toddleInternals).replaceAll(
-                '</script>',
-                '<\\/script>',
-              )}
-            </script>
-            <script type="module">
-              import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
-              import { loadCustomCode, formulas, actions } from '${options.customCodeUrl(toddleComponent.name)}'
-              window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
-              window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
-              initGlobalObject({formulas, actions});
-              loadCustomCode();
-              createRoot(document.getElementById("App"));
-            </script>
-          `
-  } else {
-    codeImport = `
-        <script type="application/json" id="nordcraft-data">
-          ${JSON.stringify(toddleInternals).replaceAll(
-            '</script>',
-            '<\\/script>',
-          )}
-        </script>
-        <script type="module">
-          import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
-
-          window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
-          window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
-          initGlobalObject({formulas: {}, actions: {}});
-          createRoot(document.getElementById("App"));
-        </script>
-    `
   }
   endTime(hono, nordcraftPageTimingKey)
 
@@ -221,6 +166,43 @@ export const nordcraftPage = async ({
     .map(([key, value]) => `${key}="${value}"`)
     .join(' ')
 
+  // Persist the page state in a cache so that it can be retrieved by the client for hydration
+  const { pageStateUrl, customCodeUrl } = cachePageState({
+    state: toddleInternals,
+    ctx: hono,
+    pageName: page.name,
+    usesCustomCode,
+    options,
+  })
+  const additionalHeadScripts = [
+    `<link rel="modulepreload" href="/_static/page.main.esm.js" />`,
+    // Tell the browser to start fetching the state for hydration as early as possible
+    `<link rel="modulepreload" href="${pageStateUrl}" />`,
+    `<script type="module" src="${pageStateUrl}"></script>`,
+  ]
+  if (typeof customCodeUrl === 'string') {
+    // Tell the browser to start fetching custom code for the page as early as possible
+    additionalHeadScripts.push(
+      `<link rel="modulepreload" href="${customCodeUrl}" />`,
+    )
+  }
+
+  head = `${head}\n${additionalHeadScripts.join('\n')}`
+
+  const responseHeaders = evaluateResponseHeaders({
+    formulaContext,
+    responseHeaders: page.route.response?.headers,
+  })
+
+  const customStatusCode = applyFormula(
+    page.route.response?.status,
+    formulaContext,
+  )
+  const statusCode =
+    typeof customStatusCode === 'number'
+      ? (customStatusCode as any as ContentfulStatusCode)
+      : status
+
   return hono.html(
     html`<!doctype html>
       <html lang="${language}" ${htmlAttributes}>
@@ -229,12 +211,12 @@ export const nordcraftPage = async ({
         </head>
         <body>
           <div id="App">${raw(body)}</div>
-          ${raw(codeImport)}
         </body>
       </html>`,
-    status,
+    statusCode,
     {
       'Content-Type': `text/html; charset=${charset}`,
+      ...responseHeaders,
     },
   )
 }

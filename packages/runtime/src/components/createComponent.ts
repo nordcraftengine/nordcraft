@@ -1,4 +1,5 @@
-import { isLegacyApi, sortApiObjects } from '@nordcraft/core/dist/api/api'
+import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   ComponentData,
   ComponentFormula,
@@ -12,10 +13,10 @@ import type { Nullable } from '@nordcraft/core/dist/types'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { ComponentAPI } from '@nordcraft/core/src/api/apiTypes'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
+import { sortApis } from '../api/sortApis'
 import { isContextProvider } from '../context/isContextProvider'
 import { subscribeToContext } from '../context/subscribeToContext'
 import { registerComponentToLogState } from '../debug/logState'
@@ -173,7 +174,7 @@ export function createComponent({
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
   const apis: Record<string, ContextApi> = {}
-  sortApiObjects(
+  sortApis(
     Object.entries(component.apis ?? {}).filter(
       (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
     ),

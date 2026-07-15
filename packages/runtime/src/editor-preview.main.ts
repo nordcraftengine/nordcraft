@@ -84,6 +84,11 @@ import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
 import { requestResizeCanvas } from './editor/resizeCanvas'
+import {
+  convertViewportUnitsToEmulatedViewportUnits,
+  insertStyles,
+  styleToCss,
+} from './editor/style'
 import { handleTextMouseDown } from './editor/text-selection/mouseDown'
 import { handleTextMouseMove } from './editor/text-selection/mouseMove'
 import { handleTextNodeSelection } from './editor/text-selection/selection'
@@ -96,11 +101,6 @@ import type {
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
-import {
-  convertViewportUnitsToEmulatedViewportUnits,
-  insertStyles,
-  styleToCss,
-} from './styles/style'
 import type {
   ComponentContext,
   ContextApiV2,
@@ -516,6 +516,7 @@ export const createRoot = (
           document.body.setAttribute('data-mode', message.data.mode)
           updateConditionalElements()
           window.dispatchEvent(new CustomEvent('selected-node-changed'))
+          syncOverlayRects()
           break
         }
         case 'attrs': {
@@ -565,6 +566,7 @@ export const createRoot = (
               })
             }
           }
+          syncOverlayRects()
           return
         }
         case 'highlight': {
@@ -575,6 +577,7 @@ export const createRoot = (
                 .map((part) => part.split('(')[0])
                 .join('.')
             : null
+          syncOverlayRects()
           return
         }
         case 'mousedown': {
@@ -600,6 +603,7 @@ export const createRoot = (
         case 'mousemove': {
           if (dragState && !dragState.destroying) {
             handleDragMouseMove(message.data, dragState, metaKey)
+            syncOverlayRects()
             return
           }
 
@@ -706,11 +710,11 @@ export const createRoot = (
               selectedNode.contains(document.elementFromPoint(x, y))
             if (selectedNodeIsText && cursorInsideSelectedElement) {
               // Highlight the text node if the cursor is inside the currently selected text node, even if the selected element has a different id than the text node (e.g. when clicking on a span inside a text node)
+              const nodeId = selectedNode.getAttribute('data-id')
               postMessageToEditor({
                 type: 'highlight',
-                highlightedNodeId: stripNodeIdRepeatIndices(
-                  selectedNode.getAttribute('data-id'),
-                ),
+                highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
+                exactHighlightedNodeId: nodeId,
               })
               return
             }
@@ -718,6 +722,7 @@ export const createRoot = (
             postMessageToEditor({
               type: 'highlight',
               highlightedNodeId: stripNodeIdRepeatIndices(id),
+              exactHighlightedNodeId: id,
             })
           } else if (
             type === 'dblclick' &&
@@ -827,9 +832,13 @@ export const createRoot = (
           break
         case 'drag-ended':
           if (dragState) {
+            const interval = setInterval(() => {
+              syncOverlayRects()
+            }, 1000 / 60)
             void handleDragEnded(message.data, dragState, component).then(
               (newState) => {
                 dragState = newState
+                clearInterval(interval)
               },
             )
           }
@@ -907,7 +916,7 @@ export const createRoot = (
   ${Object.values(keyframes)
     .map(
       ({ key, value, position, easing }) =>
-        `${position * 100}% {
+        `${Number(position) * 100}% {
           ${key}: ${value};
           ${easing ? `animation-timing-function: ${easing};` : ''}
         }`,
@@ -917,6 +926,7 @@ export const createRoot = (
           )
           styleElem.setAttribute('data-timeline-keyframes', '')
           document.head.appendChild(styleElem)
+          syncOverlayRects()
           break
 
         case 'set_timeline_time':
@@ -1073,6 +1083,7 @@ export const createRoot = (
                     }`
               })
             }
+            syncOverlayRects()
           })
           break
         case 'preview_style':
@@ -1183,6 +1194,7 @@ export const createRoot = (
   }`
             }
             requestResizeCanvas(resizeCanvasOptions)
+            syncOverlayRects()
           })
           break
         case 'preview_resources': {
@@ -1235,9 +1247,10 @@ export const createRoot = (
     },
   )
 
-  const resizeObserver = new ResizeObserver(() =>
-    requestResizeCanvas(resizeCanvasOptions),
-  )
+  const resizeObserver = new ResizeObserver(() => {
+    requestResizeCanvas(resizeCanvasOptions)
+    syncOverlayRects()
+  })
   resizeObserver.observe(domNode)
   requestResizeCanvas(resizeCanvasOptions)
 
@@ -1614,8 +1627,14 @@ export const createRoot = (
         Contexts,
       }
     })
+    const defaultCtx =
+      forceRerender || !ctx
+        ? // If we are forcing a rerender, we need to create a new context with the new component and all components
+          // Otherwise, we might be using outdated context provider data signals etc.
+          createContext(_component, getAllComponents())
+        : ctx
     const newCtx: ComponentContext = {
-      ...(ctx ?? createContext(_component, getAllComponents())),
+      ...defaultCtx,
       component: _component,
     }
 
@@ -1701,6 +1720,11 @@ export const createRoot = (
       // Clear old root signal and create a new one to not keep old signals with previous root around
       ctxDataSignal?.destroy()
       ctxDataSignal = dataSignal.map((data) => data)
+      ctxDataSignal
+        .map((data) => data.Variables)
+        .subscribe(() => {
+          requestResizeCanvas(resizeCanvasOptions)
+        })
       try {
         const rootElem = createNode({
           id: 'root',
@@ -1778,6 +1802,7 @@ export const createRoot = (
     )
     markSelectedElement(getDOMNodeFromNodeId(selectedNodeId))
     requestResizeCanvas(resizeCanvasOptions)
+    syncOverlayRects()
   }
 
   const createContext = (
@@ -1897,29 +1922,37 @@ export const createRoot = (
     })
   }
 
-  // Animations are first class citizens in Nordcraft, so we sync their overlay positions on each frame
-  ;(function syncOverlayRects(
-    prevSelectionRect?: ReturnType<typeof getRectData>,
-    prevHighlightedRect?: ReturnType<typeof getRectData>,
-  ) {
+  let prevSelectionRect: ReturnType<typeof getRectData>
+  let prevHighlightRect: ReturnType<typeof getRectData>
+
+  /**
+   * Sync the overlay positions with the editor.
+   * This is called on each frame to account for animations and other changes.
+   */
+  const syncOverlayRects = () => {
     const selectionRect = getRectData(getDOMNodeFromNodeId(selectedNodeId))
-    if (!fastDeepEqual(prevSelectionRect, selectionRect)) {
-      postMessageToEditor({
-        type: 'selectionRect',
-        rect: selectionRect,
-      })
-    }
-
     const highlightRect = getRectData(getDOMNodeFromNodeId(highlightedNodeId))
-    if (!fastDeepEqual(prevHighlightedRect, highlightRect)) {
-      postMessageToEditor({
-        type: 'highlightRect',
-        rect: highlightRect,
-      })
-    }
 
-    requestAnimationFrame(() => syncOverlayRects(selectionRect, highlightRect))
-  })()
+    const selectionChanged = !fastDeepEqual(prevSelectionRect, selectionRect)
+    const highlightChanged = !fastDeepEqual(prevHighlightRect, highlightRect)
+
+    if (selectionChanged || highlightChanged) {
+      prevSelectionRect = selectionRect
+      prevHighlightRect = highlightRect
+      if (selectionChanged) {
+        postMessageToEditor({
+          type: 'selectionRect',
+          rect: selectionRect,
+        })
+      }
+      if (highlightChanged) {
+        postMessageToEditor({
+          type: 'highlightRect',
+          rect: highlightRect,
+        })
+      }
+    }
+  }
 }
 
 const insertOrReplaceHeadNode = (id: string, node: Node) => {

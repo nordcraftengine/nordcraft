@@ -132,6 +132,7 @@ export type EditorPostMessageType =
   | {
       type: 'highlight'
       highlightedNodeId: string | null
+      exactHighlightedNodeId?: string | null
     }
   | {
       type: 'navigate'

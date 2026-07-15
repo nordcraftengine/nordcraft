@@ -17,7 +17,7 @@ export const transformRelativePaths =
         ...acc,
         [key]: {
           ...node,
-          ...(node.type === 'element'
+          ...(node?.type === 'element'
             ? {
                 attrs: Object.entries(node.attrs ?? {}).reduce(
                   (acc, [key, formula]) => {

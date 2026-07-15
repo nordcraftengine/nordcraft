@@ -1,5 +1,6 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 
 export function omitSubnodeStyleForComponent<T extends Component | undefined>(
   component: T,
@@ -7,6 +8,7 @@ export function omitSubnodeStyleForComponent<T extends Component | undefined>(
   const clone = structuredClone(component)
   Object.entries(clone?.nodes ?? {}).forEach(([nodeId, node]) => {
     if (
+      isDefined(node) &&
       (node.type === 'element' || node.type === 'component') &&
       nodeId !== 'root'
     ) {

@@ -8,10 +8,14 @@ import type {
 import type { Nullable } from '../types'
 import { omitKeys } from '../utils/collections'
 import { isDefined } from '../utils/util'
-import { getClassName, toValidClassName } from './className'
+import {
+  getClassName,
+  getStaticStyleAndVariants,
+  toValidClassName,
+} from './className'
 import type { OldTheme, Theme, ThemeOptions } from './theme'
 import { getThemeCss } from './theme'
-import { variantSelector, type StyleVariant } from './variantSelector'
+import { variantSelector } from './variantSelector'
 
 const LEGACY_BREAKPOINTS = {
   large: 1440,
@@ -93,16 +97,8 @@ export const getNodeStyles = (
   animationHashes: Set<string> = new Set(),
 ) => {
   try {
-    const style = omitKeys(node.style ?? {}, [
-      'variants',
-      'breakpoints',
-      'shadows',
-    ])
-    const styleVariants =
-      node.variants ??
-      // Support for old style variants stored inside style object
-      // Once we have better versioning options, this should be removed
-      (node.style?.variants as any as StyleVariant[])
+    const [_style, styleVariants] = getStaticStyleAndVariants(node)
+    const style = omitKeys(_style ?? {}, ['variants', 'breakpoints', 'shadows'])
     const renderVariant = (
       selector: string,
       style: NodeStyleModel,
@@ -191,10 +187,10 @@ export const getNodeStyles = (
             return `
 
     @keyframes ${animationName} {${Object.values(keyframes)
-      .sort((a, b) => a.position - b.position)
+      .sort((a, b) => Number(a.position) - Number(b.position))
       .map(({ key, position, value }) => {
         return `
-        ${position * 100}% {
+        ${Number(position) * 100}% {
           ${key}: ${value};
         }`
       })
@@ -270,6 +266,9 @@ export const createStylesheet = (
       return
     }
     Object.entries(component.nodes).forEach(([id, node]) => {
+      if (!isDefined(node)) {
+        return
+      }
       if (node.type === 'component') {
         const childComponent = components.find(
           (c) =>
@@ -281,23 +280,22 @@ export const createStylesheet = (
         if (childComponent) {
           insertComponentStyles(childComponent, node.package ?? package_name)
           stylesheet += getNodeStyles(
-            node as any,
+            node,
             toValidClassName(`${component.name}:${id}`, true),
             animationHashes,
           )
-
           return
         }
       }
       if (node.type !== 'element') {
         return
       }
-      const classHash = getClassName([node.style, node.variants])
+      const classHash = getClassName(getStaticStyleAndVariants(node))
       if (hashes.has(classHash)) {
         return ''
       }
       hashes.add(classHash)
-      stylesheet += getNodeStyles(node as any, classHash, animationHashes)
+      stylesheet += getNodeStyles(node, classHash, animationHashes)
     })
   }
   insertComponentStyles(root)
@@ -310,7 +308,7 @@ export const getAllFonts = (components: Component[]) => {
     components
       .flatMap((component) => {
         return Object.values(component.nodes ?? {}).flatMap((node) => {
-          if (node.type === 'element') {
+          if (node?.type === 'element') {
             return [
               node.style?.fontFamily,
               node.style?.['font-family'],

@@ -48,9 +48,9 @@ export interface ComponentData {
 }
 
 export interface AnimationKeyframe {
-  position: number
-  key: string
-  value: string
+  position: Nullable<number>
+  key: Nullable<string>
+  value: Nullable<string>
   easing?: Nullable<never>
 }
 
@@ -196,7 +196,7 @@ export interface Component {
   >
   workflows?: Nullable<Record<string, Nullable<ComponentWorkflow>>>
   apis?: Nullable<Record<string, Nullable<ComponentAPI>>>
-  nodes?: Nullable<Record<string, NodeModel>>
+  nodes?: Nullable<Partial<Record<string, NodeModel | null>>>
   events?: Nullable<Nullable<ComponentEvent>[]>
   onLoad?: Nullable<EventModel>
   onAttributeChange?: Nullable<EventModel>
@@ -206,10 +206,12 @@ export interface Component {
     // Later, we will add information about allowed origins here
     enabled?: Nullable<Formula>
   }>
+  // Used to indicate if a page or any of its child components use custom actions/formulas
+  customCode?: Nullable<boolean>
 }
 
 export interface ComponentFormula extends NordcraftMetadata {
-  name: string
+  name?: string
   arguments?: Nullable<Array<{ name: string; testValue: any }>>
   memoize?: Nullable<boolean>
   exposeInContext?: Nullable<boolean>
@@ -217,7 +219,7 @@ export interface ComponentFormula extends NordcraftMetadata {
 }
 
 export interface ComponentWorkflow extends NordcraftMetadata {
-  name: string
+  name?: string
   parameters: Array<{ name: string; testValue: any }>
   callbacks?: Nullable<Array<{ name: string; testValue: any }>>
   actions: ActionModel[]
@@ -239,7 +241,17 @@ export interface RouteDeclaration {
   query: Record<string, { name: string; testValue: any }>
 }
 
+export interface ResponseHeaders {
+  [key: string]: Nullable<Formula | string>
+}
+
 export interface PageRoute extends RouteDeclaration {
+  response?: Nullable<{
+    // Allow overriding response headers for a page render. For example to set a custom cache-control header for a page
+    // or specify a Location along with a 3xx status code to redirect the user to another page
+    headers?: Nullable<ResponseHeaders>
+    status?: Nullable<Formula>
+  }>
   // Information for the <head> element
   // only relevant for pages - not for regular
   // components
@@ -418,6 +430,9 @@ export interface ComponentEvent extends NordcraftMetadata {
 
 export interface ComponentVariable extends NordcraftMetadata {
   initialValue: Formula
+  // @deprecated - variables should be referenced by their key in component.variables
+  // name is only here to better reflect how variables are stored in legacy components
+  name?: never
 }
 
 export interface ComponentAttribute extends NordcraftMetadata {

@@ -18,12 +18,12 @@ export function createStaticSizeConstraintRule(
     visit: (report, args) => {
       if (
         args.nodeType === 'component-node' &&
-        args.value.type === 'element' &&
+        args.value?.type === 'element' &&
         args.value.tag === tag
       ) {
         let size = 0
         const component = args.component
-        const evaluateElement = (element?: NodeModel): string => {
+        const evaluateElement = (element?: NodeModel | null): string => {
           if (
             !element ||
             ['element', 'text', 'slot', 'component'].includes(element.type) ===

@@ -1,4 +1,5 @@
 import type {
+  ComponentData,
   ElementNodeModel,
   EventModel,
   NodeModel,
@@ -12,7 +13,6 @@ import {
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import type { ComponentData } from '@nordcraft/core/src/component/component.types'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
@@ -32,6 +32,7 @@ export function createElement({
   ctx,
   namespace,
   instance,
+  slotRepeatIndex,
 }: NodeRenderer<ElementNodeModel>): Element {
   const tag = getElementTagName(node, ctx, id)
   switch (tag) {
@@ -71,8 +72,11 @@ export function createElement({
   if (ctx.isRootComponent === false && id !== 'root') {
     elem.setAttribute('data-component', ctx.component.name)
   }
-  const classHash = getClassName([node.style, node.variants])
-  elem.classList.add(classHash)
+  if (node.style || node.variants) {
+    // style and variants are not available except in the editor's runtime
+    const classHash = getClassName([node.style, node.variants])
+    elem.classList.add(classHash)
+  }
   if (instance && id === 'root') {
     Object.entries(instance).forEach(([key, value]) => {
       elem.classList.add(toValidClassName(`${key}:${value}`))
@@ -255,7 +259,9 @@ export function createElement({
   if (nodeTag === 'script' || nodeTag === 'style') {
     const textValues: Array<Signal<string> | string> = []
     ;(node.children ?? [])
-      .map<NodeModel | undefined>((child) => ctx.component.nodes?.[child])
+      .map<NodeModel | undefined | null>(
+        (child) => ctx.component.nodes?.[child],
+      )
       .filter((node) => node?.type === 'text')
       .forEach((node) => {
         if (node.value.type === 'value') {
@@ -300,6 +306,7 @@ export function createElement({
           ctx: { ...ctx, jsonPath: ['nodes', child] },
           namespace,
           instance,
+          slotRepeatIndex,
         }),
       )
     })

@@ -76,14 +76,14 @@ export const noReferenceComponentWorkflowRule: IssueRule<{
         }
       }
     }
-
+    const name = value.name ?? String(workflowKey)
     report({
       path,
       info: {
         title: 'Unused component workflow',
-        description: `**${value.name}** is never used by any workflow. Consider removing it.`,
+        description: `**${name}** is never used by any workflow. Consider removing it.`,
       },
-      details: { contextSubscribers, name: value.name },
+      details: { contextSubscribers, name },
     })
   },
 }

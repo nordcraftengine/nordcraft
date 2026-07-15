@@ -444,4 +444,32 @@ describe('ToddleComponent.formulasInComponent', () => {
     expect(formulas).toContain('Page description')
     expect(formulas).toContain('OG Title')
   })
+
+  test('it visits formulas in route response', () => {
+    const demo = new ToddleComponent({
+      component: {
+        name: 'demo',
+        route: {
+          path: [],
+          query: {},
+          response: {
+            status: valueFormula(200),
+            headers: {
+              'Content-Language': valueFormula('en'),
+              'Content-Type': valueFormula('text/html'),
+            },
+          },
+        },
+      },
+      getComponent: () => undefined,
+      packageName: undefined,
+      globalFormulas: {},
+    })
+    const formulas = Array.from(demo.formulasInComponent()).map(
+      ({ formula }) => (formula.type === 'value' ? formula.value : undefined),
+    )
+    expect(formulas).toContain('en')
+    expect(formulas).toContain('text/html')
+    expect(formulas).toContain(200)
+  })
 })
