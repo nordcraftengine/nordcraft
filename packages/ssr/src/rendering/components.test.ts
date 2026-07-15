@@ -360,7 +360,7 @@ describe('renderPageBody', () => {
     // Expect the nested child text node inside the package component to also render the formula value,
     // proving that the formula is evaluated correctly even when used inside a package component
     expect(html).toInclude(
-      '<span data-id="0.1" data-node-id="root" class="PageComponent:secondChild AxiNE\"><span data-node-type="text" data-node-id="nestedChild">output-from-test-formula</span></span>',
+      '<span data-id="0.1" data-node-id="root" class="PageComponent:secondChild AxiNE"><span data-node-type="text" data-node-id="nestedChild">output-from-test-formula</span></span>',
     )
   })
 
