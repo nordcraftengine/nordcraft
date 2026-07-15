@@ -100,9 +100,12 @@ export function createElement({
     })
   }
 
+  let hasDynamicCustomProperties = false
   if (instance && id === 'root') {
     Object.entries(instance).forEach(([key, value]) => {
       elem.classList.add(toValidClassName(`${key}:${value}`))
+      // TODO: We should forward info on whether the instance has dynamic custom properties, but for now we assume that if the instance has any custom properties, they are dynamic.
+      hasDynamicCustomProperties = true
     })
   }
 
@@ -169,7 +172,6 @@ export function createElement({
     signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
   })
 
-  let hasDynamicCustomProperties = false
   Object.entries(node.customProperties ?? {})
     .filter(([_, { formula }]) => formulaHasValue(formula))
     .forEach(([customPropertyName, { formula, unit }]) => {
