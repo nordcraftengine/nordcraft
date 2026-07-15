@@ -212,14 +212,15 @@ const renderComponent = async ({
             )
             .map(([className]) => className),
         )
-        if (instance && id === 'root') {
+        let hasDynamicCustomProperties = false
+        if (id === 'root' && instance && Object.keys(instance).length > 0) {
           classList.push(
             ...Object.entries(instance).map(([key, value]) =>
               toValidClassName(`${key}:${value}`),
             ),
           )
+          hasDynamicCustomProperties = true
         }
-        let hasDynamicCustomProperties = false
         Object.entries(node.customProperties ?? {})
           .filter(
             // Only prerender dynamic properties here as static properties are already part of class-styling.
