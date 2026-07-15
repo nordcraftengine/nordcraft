@@ -162,7 +162,7 @@ describe('resolveClasses', () => {
     expect(node.style).toBeUndefined()
   })
 
-  test('should preserve static custom properties if clearStyle is false', () => {
+  test('should move static custom properties to the node style itself', () => {
     const component: Component = {
       name: 'Test',
       nodes: {
@@ -181,8 +181,6 @@ describe('resolveClasses', () => {
     const resolved = resolveClasses({ clearStyle: false })(component)
     const node = resolved.nodes?.root as any
 
-    expect(node.customProperties).toEqual({
-      '--static': { formula: valueFormula('red') },
-    })
+    expect(node.style).toEqual({ '--static': 'red' })
   })
 })
