@@ -1629,7 +1629,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       try {
         const rootElem = createNode({
           id: 'root',
-          path: '0',
+          path: [{ index: 0 }], // editor expects the root to be at index 0
           dataSignal: ctxDataSignal,
           ctx: { ...newCtx, jsonPath: ['nodes', 'root'] },
           parentElement: domNode,

@@ -23,7 +23,12 @@ import { registerComponentToLogState } from '../debug/logState'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
-import type { ComponentChild, ComponentContext, ContextApi } from '../types'
+import type {
+  ComponentChild,
+  ComponentContext,
+  ContextApi,
+  Path,
+} from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
 import { formulaHasValue } from '../utils/formulaHasValue'
 import { getComponent } from '../utils/getComponent'
@@ -31,7 +36,7 @@ import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
 import { renderComponent } from './renderComponent'
 
 export type RenderComponentNodeProps = {
-  path: string
+  path: Path
   node: ComponentNodeModel
   dataSignal: Signal<ComponentData>
   ctx: ComponentContext
@@ -300,7 +305,10 @@ export function createComponent({
     children[slotName] = children[slotName] ?? []
     children[slotName].push({
       id: childId,
-      path: `${path}.${i}[${slotName}]`,
+      path: [
+        ...path,
+        { index: i, slotName, repeatIndex: 0, slotComponentIndex: 0 },
+      ],
       dataSignal,
       ctx: {
         ...ctx,
