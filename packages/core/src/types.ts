@@ -96,6 +96,15 @@ export type CustomFormulaHandler = (
 
 export type FormulaLookup = (name: string) => FormulaHandler | undefined
 
+export type PathElement = {
+  index: number
+  repeatIndex?: number
+  slotName?: string
+  slotComponentIndex?: number
+}
+
+export type Path = PathElement[]
+
 export interface Toddle<LocationSignal, ShowSignal> {
   project: string
   branch: string

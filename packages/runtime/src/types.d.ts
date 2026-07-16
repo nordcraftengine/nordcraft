@@ -16,6 +16,7 @@ import type {
   ToddleInternals,
 } from '@nordcraft/core/dist/types'
 import type { ApiRequest } from './api/createAPI'
+import type { PATH } from './constants'
 import type { Signal } from './signal/signal'
 
 declare global {
@@ -24,7 +25,13 @@ declare global {
     __toddle: ToddleInternals
     toddle: NewToddle<LocationSignal, PreviewShowSignal>
   }
+
+  interface Node {
+    [PATH]?: Path
+  }
 }
+
+export type { Path, PathElement } from '@nordcraft/core/src/types'
 
 export type LocationSignal = Signal<Location>
 
@@ -51,7 +58,7 @@ interface ListItem {
 export interface ComponentChild {
   dataSignal: Signal<ComponentData>
   id: string
-  path: string
+  path: Path
   ctx: ComponentContext
 }
 

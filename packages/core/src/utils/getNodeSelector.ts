@@ -1,6 +1,6 @@
 import { getPathClassName } from '../styling/className'
 import { variantSelector, type StyleVariant } from '../styling/variantSelector'
-import type { Nullable } from '../types'
+import type { Nullable, Path } from '../types'
 
 type NodeSelectorOptions =
   | {
@@ -15,7 +15,7 @@ type NodeSelectorOptions =
     }
 
 export function getNodeSelector(
-  path: string,
+  path: Path,
   { componentName, nodeId, variant }: NodeSelectorOptions = {},
 ): string {
   let selector = `.${getPathClassName(path)}`

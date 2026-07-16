@@ -206,7 +206,7 @@ export class ToddleComponent extends HTMLElement {
   render() {
     const elements = renderComponent({
       ...this.#ctx,
-      path: '0',
+      path: [{ index: 0 }],
       onEvent: this.dispatch.bind(this),
       parentElement: this.#shadowRoot,
       instance: { [this.#component.name]: 'root' },
