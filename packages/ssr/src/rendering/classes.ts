@@ -70,7 +70,7 @@ export const resolveClasses =
                 ? variants
                 : undefined,
           },
-        ] as [string, NodeModel]
+        ]
       },
     ),
   })
@@ -84,5 +84,6 @@ function filterDynamicProperties(
       dynamicCustomProperties[key as `--${string}`] = customProperty
     }
   }
+
   return dynamicCustomProperties
 }
