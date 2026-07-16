@@ -17,10 +17,10 @@
     "jsonschema": "1.5.0"
   },
   "scripts": {
-    "build": "bun ./bin/generate.js && tsgo --project tsconfig.build.json",
+    "build": "bun ./bin/generate.js && tsc --project tsconfig.build.json",
     "npm-publish": "bun run build && bun publish --access public",
-    "typecheck": "tsgo --noEmit && bun bin/validate.ts",
-    "watch": "tsgo --noEmit -w"
+    "typecheck": "tsc --noEmit && bun bin/validate.ts",
+    "watch": "tsc --noEmit -w"
   },
   "files": [
     "dist"
