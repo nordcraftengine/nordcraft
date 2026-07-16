@@ -344,6 +344,7 @@ export function createComponent({
         : { [ctx.component.name]: node.id ?? '' },
     jsonPath: ctx.jsonPath,
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+    hydrate: ctx.hydrate,
   })
 
   // Custom properties instance overrides are added after the child tree is rendered to ensure correct order
