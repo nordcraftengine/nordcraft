@@ -1330,11 +1330,7 @@ export const createRoot = (
                     applyFormula(
                       customProperty.formula,
                       {
-                        data: {
-                          Attributes: dataSignal.get().Attributes,
-                          Variables: dataSignal.get().Variables,
-                          Contexts: ctxDataSignal?.get().Contexts ?? {},
-                        },
+                        data: dataSignal.get(),
                         component: getCurrentComponent(),
                         root: ctx?.root,
                         formulaCache: {},

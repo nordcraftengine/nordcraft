@@ -8,6 +8,7 @@ import { removeTestData } from '@nordcraft/ssr/dist/rendering/testData'
 import { transformRelativePaths } from '@nordcraft/ssr/dist/utils/media'
 import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
 import { replaceTagInNodes } from '@nordcraft/ssr/dist/utils/tags'
+import { resolveClasses } from '@nordcraft/ssr/src/rendering/classes'
 import type { Context } from 'hono'
 import type { HonoEnv, HonoProject } from '../../hono'
 import type { PageLoader } from '../loaders/types'
@@ -199,7 +200,8 @@ defineComponents(${JSON.stringify([component.name])}, ${JSON.stringify({
         components: includedComponents
           .map(replaceTagInNodes(safeCustomElementName(component.name), 'div'))
           .map(removeTestData)
-          .map(transformRelativePaths(url.origin)),
+          .map(transformRelativePaths(url.origin))
+          .map(resolveClasses({ clearStyle: false })),
       })}, toddle);
 `
       ctx.header('Cache-Control', 'no-cache')

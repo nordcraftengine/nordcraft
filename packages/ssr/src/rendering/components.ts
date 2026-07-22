@@ -19,6 +19,7 @@ import type {
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
   getClassName,
+  getPathClassName,
   getStaticStyleAndVariants,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
@@ -211,12 +212,14 @@ const renderComponent = async ({
             )
             .map(([className]) => className),
         )
-        if (instance && id === 'root') {
+        let hasDynamicCustomProperties = false
+        if (id === 'root' && instance && Object.keys(instance).length > 0) {
           classList.push(
             ...Object.entries(instance).map(([key, value]) =>
               toValidClassName(`${key}:${value}`),
             ),
           )
+          hasDynamicCustomProperties = true
         }
         Object.entries(node.customProperties ?? {})
           .filter(
@@ -224,6 +227,7 @@ const renderComponent = async ({
             ([_, customProperty]) => customProperty.formula?.type !== 'value',
           )
           .forEach(([customPropertyName, customProperty]) => {
+            hasDynamicCustomProperties = true
             const value = appendUnit(
               applyFormula(customProperty.formula, formulaContext),
               customProperty.unit,
@@ -242,6 +246,7 @@ const renderComponent = async ({
               ([_, customProperty]) => customProperty.formula?.type !== 'value',
             )
             .forEach(([customPropertyName, customProperty]) => {
+              hasDynamicCustomProperties = true
               // style-variables on variants are always version 2
               const value = appendUnit(
                 applyFormula(customProperty.formula, formulaContext),
@@ -256,6 +261,10 @@ const renderComponent = async ({
               }
             })
         })
+
+        if (hasDynamicCustomProperties) {
+          classList.push(getPathClassName(path))
+        }
 
         let innerHTML = ''
 
