@@ -89,26 +89,29 @@ export function createNode({
   }: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
     let firstRun = true
     let childDataSignal: Signal<ComponentData> | null = null
+    const formulaCtx = {
+      component: ctx.component,
+      formulaCache: ctx.formulaCache,
+      root: ctx.root,
+      package: ctx.package,
+      toddle: ctx.toddle,
+      env: ctx.env,
+      jsonPath: ctx.jsonPath,
+      reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+    }
     const showSignal = dataSignal.map((data) => {
       const conditionPath = ['nodes', id, 'condition']
       const show = toBoolean(
         applyFormula(
           node.condition,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
+          formulaCtx as any,
+          data,
+          undefined,
+          undefined,
+          undefined,
           conditionPath,
         ),
       )
-
       return show
     })
 
@@ -196,19 +199,23 @@ export function createNode({
         elements: ReadonlyArray<Element | Text>
       }
     >()
+    const formulaCtx = {
+      component: ctx.component,
+      formulaCache: ctx.formulaCache,
+      root: ctx.root,
+      package: ctx.package,
+      toddle: ctx.toddle,
+      env: ctx.env,
+    }
     const repeatSignal = dataSignal.map((data) => {
       const listPath = ['nodes', id, 'repeat']
       const list = applyFormula(
         node?.repeat,
-        {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        },
+        formulaCtx as any,
+        data,
+        undefined,
+        undefined,
+        undefined,
         listPath,
       )
 
@@ -241,15 +248,11 @@ export function createNode({
           let childKey = node?.repeatKey
             ? applyFormula(
                 node.repeatKey,
-                {
-                  data: childData,
-                  component: ctx.component,
-                  formulaCache: ctx.formulaCache,
-                  root: ctx.root,
-                  package: ctx.package,
-                  toddle: ctx.toddle,
-                  env: ctx.env,
-                },
+                formulaCtx as any,
+                childData,
+                undefined,
+                undefined,
+                undefined,
                 repeatKeyPath,
               )
             : Key

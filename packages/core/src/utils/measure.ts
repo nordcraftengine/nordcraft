@@ -22,24 +22,24 @@ globalScope.__nc_enableMeasure = (enabled = true, maxDepth = 10) => {
 
 let measureCount = 0
 const STACK: string[] = []
-const NOOP = () => {}
 
 export const measure = (
-  key: string,
-  details: Record<string, unknown>,
-  type?: 'component',
+  args: () =>
+    | [string, Record<string, unknown>]
+    | [string, Record<string, unknown>, 'component'],
 ) => {
   if (!globalScope.__nc_measure_enabled) {
-    return NOOP
+    return
   }
 
+  const [key, details, type] = args()
   const selfIndex = measureCount++
   const selfStackSize = STACK.length
   if (selfStackSize >= globalScope.__nc_measure_max_depth) {
-    return NOOP
+    return
   }
   if (STACK.length >= globalScope.__nc_measure_max_depth) {
-    return NOOP
+    return
   }
 
   const start = performance.now() + selfStackSize * 0.001
