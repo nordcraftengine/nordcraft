@@ -61,6 +61,7 @@ import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import fastDeepEqual from 'fast-deep-equal'
+import { domToCanvas } from 'modern-screenshot'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
 import { createNode } from './components/createNode'
@@ -1146,6 +1147,39 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
             sameSite: 'none',
           })
           requestResizeCanvas(resizeCanvasOptions)
+          break
+        }
+        case 'capture_screenshot': {
+          const { id } = message.data
+          try {
+            // Rasterize the full document (not just what's currently scrolled into
+            // view) by walking the DOM/computed styles rather than capturing the
+            // screen, so content below the fold is still included.
+            const target = document.documentElement
+            const canvas = await domToCanvas(target, {
+              width: target.scrollWidth,
+              height: target.scrollHeight,
+            })
+            const url = canvas.toDataURL('image/png')
+
+            postMessageToEditor({
+              type: 'screenshot',
+              id,
+              file: {
+                type: 'image/png',
+                size: url.length,
+                dimensions: { width: canvas.width, height: canvas.height },
+                url,
+              },
+            })
+          } catch (error) {
+            postMessageToEditor({
+              type: 'screenshot',
+              id,
+              file: null,
+              error: error instanceof Error ? error.message : String(error),
+            })
+          }
           break
         }
       }
