@@ -72,8 +72,8 @@ const SIZE_PROPERTIES = new Set([
   'outline-width',
 ])
 
-export const styleToCss = (style: NodeStyleModel) => {
-  return Object.entries(style)
+export const styleToCss = (style: Nullable<NodeStyleModel>) => {
+  return Object.entries(style ?? {})
     .map(([property, value]) => {
       if (!isDefined(value)) {
         // ignore undefined/null values
@@ -101,10 +101,10 @@ export const getNodeStyles = (
     const style = omitKeys(_style ?? {}, ['variants', 'breakpoints', 'shadows'])
     const renderVariant = (
       selector: string,
-      style: NodeStyleModel,
+      style: Nullable<NodeStyleModel>,
       options?: Nullable<{ startingStyle?: Nullable<boolean> }>,
     ) => {
-      const scrollbarStyles = Object.entries(style).filter(
+      const scrollbarStyles = Object.entries(style ?? {}).filter(
         ([key]) => key === 'scrollbar-width',
       )
       // If selectorCss is empty, we don't need to render the selector
@@ -313,7 +313,7 @@ export const getAllFonts = (components: Component[]) => {
               node.style?.fontFamily,
               node.style?.['font-family'],
               ...(node.variants?.map(
-                (v) => v.style.fontFamily ?? v.style['font-family'],
+                (v) => v.style?.fontFamily ?? v.style?.['font-family'],
               ) ?? []),
             ].filter(isDefined)
           }

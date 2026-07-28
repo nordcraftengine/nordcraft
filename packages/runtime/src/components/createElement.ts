@@ -8,6 +8,7 @@ import type {
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
   getClassName,
+  getPathClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
@@ -72,15 +73,10 @@ export function createElement({
   if (ctx.isRootComponent === false && id !== 'root') {
     elem.setAttribute('data-component', ctx.component.name)
   }
-  if (node.style || node.variants) {
-    // style and variants are not available except in the editor's runtime
+  // class names are baked during preprocessing, except for in editor-preview where we generate them on the fly
+  if (node.style || node.variants?.some((v) => v.style)) {
     const classHash = getClassName([node.style, node.variants])
     elem.classList.add(classHash)
-  }
-  if (instance && id === 'root') {
-    Object.entries(instance).forEach(([key, value]) => {
-      elem.classList.add(toValidClassName(`${key}:${value}`))
-    })
   }
   if (node.classes) {
     Object.entries(node.classes)?.forEach(([className, { formula }]) => {
@@ -101,6 +97,15 @@ export function createElement({
       } else {
         elem.classList.add(className)
       }
+    })
+  }
+
+  let hasDynamicCustomProperties = false
+  if (instance && id === 'root') {
+    Object.entries(instance).forEach(([key, value]) => {
+      elem.classList.add(toValidClassName(`${key}:${value}`))
+      // TODO: We should forward info on whether the instance has dynamic custom properties, but for now we assume that if the instance has any custom properties, they are dynamic.
+      hasDynamicCustomProperties = true
     })
   }
 
@@ -170,6 +175,7 @@ export function createElement({
   Object.entries(node.customProperties ?? {})
     .filter(([_, { formula }]) => formulaHasValue(formula))
     .forEach(([customPropertyName, { formula, unit }]) => {
+      hasDynamicCustomProperties = true
       const cpPath = [
         'nodes',
         id,
@@ -205,6 +211,7 @@ export function createElement({
     Object.entries(variant.customProperties ?? {})
       .filter(([_, { formula }]) => formulaHasValue(formula))
       .forEach(([customPropertyName, { formula, unit }]) => {
+        hasDynamicCustomProperties = true
         const variantCpPath = [
           'nodes',
           id,
@@ -236,6 +243,10 @@ export function createElement({
         })
       })
   })
+
+  if (path && hasDynamicCustomProperties) {
+    elem.classList.add(getPathClassName(path))
+  }
 
   const eventHandlers: [string, (e: Event) => boolean][] = []
   Object.values(node.events ?? {}).forEach((event) => {

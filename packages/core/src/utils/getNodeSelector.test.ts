@@ -1,11 +1,12 @@
 import type { StyleVariant } from '../component/component.types'
+import { getPathClassName } from '../styling/className'
 import { getNodeSelector } from './getNodeSelector'
 
 describe('getNodeSelector', () => {
   test('should return a selector to a specific node when given a path', () => {
     const path = '0.1.2'
     const selector = getNodeSelector(path)
-    expect(selector).toBe('[data-id="0.1.2"]')
+    expect(selector).toBe(`.${getPathClassName(path)}`)
   })
 
   test('should return a selector to a specific node from a component instance', () => {
@@ -13,7 +14,9 @@ describe('getNodeSelector', () => {
     const componentName = 'test-component'
     const nodeId = 'test-node'
     const selector = getNodeSelector(path, { componentName, nodeId })
-    expect(selector).toBe('[data-id="0.1.2"].test-component\\:test-node')
+    expect(selector).toBe(
+      `.${getPathClassName(path)}.test-component\\:test-node`,
+    )
   })
 
   test('should return a selector to a specific node variant when given a path and variant', () => {
@@ -24,7 +27,7 @@ describe('getNodeSelector', () => {
       breakpoint: 'medium',
     }
     const selector = getNodeSelector(path, { variant })
-    expect(selector).toBe('[data-id="0.1.2"]:hover')
+    expect(selector).toBe(`.${getPathClassName(path)}:hover`)
   })
 
   test('should return a selector to a specific node variant from a component instance', () => {
@@ -39,20 +42,20 @@ describe('getNodeSelector', () => {
     }
     const selector = getNodeSelector(path, { componentName, nodeId, variant })
     expect(selector).toBe(
-      '[data-id="0.1.2"].test-component\\:test-node.test-class:active',
+      `.${getPathClassName(path)}.test-component\\:test-node.test-class:active`,
     )
   })
 
   test('should escape unescaped slashes in the path', () => {
     const path = '0.1/2'
     const selector = getNodeSelector(path)
-    expect(selector).toBe('[data-id="0.1\\/2"]')
+    expect(selector).toBe(`.${getPathClassName(path)}`)
   })
 
   test('should not escape already escaped slashes in the path', () => {
     const path = '0.1\\/2'
     const selector = getNodeSelector(path)
-    expect(selector).toBe('[data-id="0.1\\/2"]')
+    expect(selector).toBe(`.${getPathClassName(path)}`)
   })
 
   test('should prefix selector with an underscore if it starts with a number', () => {
@@ -61,6 +64,6 @@ describe('getNodeSelector', () => {
       componentName: '404',
       nodeId: 'test-node',
     })
-    expect(selector).toBe('[data-id="0.1\\/2"]._404\\:test-node')
+    expect(selector).toBe(`.${getPathClassName(path)}._404\\:test-node`)
   })
 })

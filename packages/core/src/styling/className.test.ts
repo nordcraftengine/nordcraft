@@ -21,14 +21,14 @@ describe('toValidClassName()', () => {
 
 describe('getClassName()', () => {
   test('it produces the same classname whether a nullish entry is provided or not', () => {
-    expect(getClassName([null, undefined, { color: 'red' }])).toBe(
-      getClassName([{ color: 'red' }]),
+    expect(getClassName([null, undefined, { color: 'red' }] as any)).toBe(
+      getClassName([{ color: 'red' }] as any),
     )
   })
 
   test('it produces the same classname whether an empty object is provided or not', () => {
-    expect(getClassName([{}, { color: 'red' }])).toBe(
-      getClassName([{ color: 'red' }]),
+    expect(getClassName([{}, { color: 'red' }] as any)).toBe(
+      getClassName([{ color: 'red' }] as any),
     )
   })
 })
