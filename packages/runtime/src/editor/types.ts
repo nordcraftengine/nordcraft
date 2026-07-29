@@ -119,6 +119,7 @@ export type NordcraftPreviewEvent =
       height: number
       enabled: boolean
     }
+  | { type: 'capture_screenshot'; id: string; viewportWidth?: number }
 
 export type EditorPostMessageType =
   | {
@@ -212,6 +213,21 @@ export type EditorPostMessageType =
       type: 'updateTextNodeContent'
       innerText: string
       nodeId: string | null
+    }
+  | {
+      type: 'screenshot'
+      id: string
+      file: {
+        type: string
+        size: number
+        dimensions: { width: number; height: number } | null
+        url: string
+      } | null
+      error?: string
+    }
+  | {
+      type: 'requestViewportWidth'
+      width: number
     }
 
 export type DragState = {
