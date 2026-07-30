@@ -207,11 +207,33 @@ export const isToddleFormula = <Handler>(
   Object.hasOwn(formula, 'formula') &&
   isDefined((formula as ToddleFormula).formula)
 
+// Allowing max-params for performance reasons as this function is called 1000s of times, and alternative is destructuring which adds noticeable garbage collection overhead
+// eslint-disable-next-line max-params
 export function applyFormula(
   formula: Formula | string | number | undefined | null | boolean,
   ctx: FormulaContext,
+  dataOrExtendedPath?: ComponentData | Array<string | number> | undefined,
+  args?: any,
+  packageName?: string | null,
+  jsonPath?: Array<string | number> | undefined,
   extendedPath?: Array<string | number> | undefined,
 ): any {
+  let data: ComponentData
+  let actualExtendedPath: Array<string | number> | undefined = extendedPath
+
+  if (Array.isArray(dataOrExtendedPath)) {
+    data = ctx.data ?? ({ Attributes: {}, Variables: {} } as ComponentData)
+    actualExtendedPath = dataOrExtendedPath
+  } else {
+    data =
+      dataOrExtendedPath ??
+      ctx.data ??
+      ({ Attributes: {}, Variables: {} } as ComponentData)
+  }
+
+  const currentArgs = args !== undefined ? args : data?.Args
+  const currentPackage = packageName !== undefined ? packageName : ctx.package
+
   // Short-circuit when not reporting to avoid unnecessary overhead of creating new objects and function
   if (!ctx.reportFormulaEvaluation) {
     if (!isFormula(formula)) {
@@ -222,23 +244,79 @@ export function applyFormula(
         case 'value':
           return formula.value
         case 'path':
-          return applyPathFormula(formula, ctx.data)
+          return applyPathFormula(formula, data, currentArgs)
         case 'switch':
-          return applySwitchFormula(formula, ctx)
+          return applySwitchFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            jsonPath,
+          )
         case 'or':
-          return applyOrFormula(formula, ctx)
+          return applyOrFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            jsonPath,
+          )
         case 'and':
-          return applyAndFormula(formula, ctx)
+          return applyAndFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            jsonPath,
+          )
         case 'object':
-          return applyObjectFormula(formula, ctx)
+          return applyObjectFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            jsonPath,
+          )
         case 'record':
-          return applyRecordFormula(formula, ctx)
+          return applyRecordFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            jsonPath,
+          )
         case 'array':
-          return applyArrayFormula(formula, ctx)
+          return applyArrayFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            jsonPath,
+          )
         case 'function':
-          return applyFunctionFormula(formula, ctx)
+          return applyFunctionFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            jsonPath,
+          )
         case 'apply':
-          return applyApplyFormula(formula, ctx)
+          return applyApplyFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            jsonPath,
+          )
         default:
           if (ctx.env?.logErrors) {
             console.error('Could not recognize formula', formula)
@@ -254,9 +332,13 @@ export function applyFormula(
     return undefined
   }
 
-  const jsonPath = [...(ctx.jsonPath ?? []), ...(extendedPath ?? [])]
-  const _ctx = { ...ctx, jsonPath }
-  const report = (value: any, p: Array<string | number> = jsonPath) => {
+  const basePath = jsonPath !== undefined ? jsonPath : (ctx.jsonPath ?? [])
+  const currentPath = actualExtendedPath
+    ? [...basePath, ...actualExtendedPath]
+    : basePath
+
+  const _ctx = { ...ctx, jsonPath: currentPath, package: currentPackage }
+  const report = (value: any, p: Array<string | number> = currentPath) => {
     ctx.reportFormulaEvaluation?.(p, value, _ctx)
     return value
   }
@@ -270,50 +352,143 @@ export function applyFormula(
         return report(formula.value)
       }
       case 'path': {
-        return report(applyPathFormula(formula, _ctx.data))
+        return report(applyPathFormula(formula, data, currentArgs))
       }
       case 'switch': {
         if (
           _ctx.reportFormulaEvaluation &&
           _ctx.jsonPath.length < MAX_REPORT_DEPTH
         ) {
-          return report(applyEvaluateAllSwitchFormula(formula, _ctx))
+          return report(
+            applyEvaluateAllSwitchFormula(
+              formula,
+              ctx,
+              data,
+              currentArgs,
+              currentPackage,
+              currentPath,
+            ),
+          )
         }
-        return applySwitchFormula(formula, _ctx)
+        return applySwitchFormula(
+          formula,
+          ctx,
+          data,
+          currentArgs,
+          currentPackage,
+          currentPath,
+        )
       }
       case 'or': {
         if (
           _ctx.reportFormulaEvaluation &&
           _ctx.jsonPath.length < MAX_REPORT_DEPTH
         ) {
-          return report(applyEvaluateAllOrFormula(formula, _ctx))
+          return report(
+            applyEvaluateAllOrFormula(
+              formula,
+              ctx,
+              data,
+              currentArgs,
+              currentPackage,
+              currentPath,
+            ),
+          )
         }
-        return applyOrFormula(formula, _ctx)
+        return applyOrFormula(
+          formula,
+          ctx,
+          data,
+          currentArgs,
+          currentPackage,
+          currentPath,
+        )
       }
       case 'and': {
         if (
           _ctx.reportFormulaEvaluation &&
           _ctx.jsonPath.length < MAX_REPORT_DEPTH
         ) {
-          return report(applyEvaluateAllAndFormula(formula, _ctx))
+          return report(
+            applyEvaluateAllAndFormula(
+              formula,
+              ctx,
+              data,
+              currentArgs,
+              currentPackage,
+              currentPath,
+            ),
+          )
         }
-        return applyAndFormula(formula, _ctx)
+        return applyAndFormula(
+          formula,
+          ctx,
+          data,
+          currentArgs,
+          currentPackage,
+          currentPath,
+        )
       }
       case 'object': {
-        return report(applyObjectFormula(formula, _ctx))
+        return report(
+          applyObjectFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            currentPath,
+          ),
+        )
       }
       case 'record': {
         // object used to be called record, there are still examples in the wild.
-        return report(applyRecordFormula(formula, _ctx))
+        return report(
+          applyRecordFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            currentPath,
+          ),
+        )
       }
       case 'array': {
-        return report(applyArrayFormula(formula, _ctx))
+        return report(
+          applyArrayFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            currentPath,
+          ),
+        )
       }
       case 'function': {
-        return report(applyFunctionFormula(formula, _ctx))
+        return report(
+          applyFunctionFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            currentPath,
+          ),
+        )
       }
       case 'apply': {
-        return report(applyApplyFormula(formula, _ctx))
+        return report(
+          applyApplyFormula(
+            formula,
+            ctx,
+            data,
+            currentArgs,
+            currentPackage,
+            currentPath,
+          ),
+        )
       }
       default:
         if (_ctx.env?.logErrors) {

@@ -67,6 +67,7 @@ export function createComponent({
     return []
   }
   const formulaCtx = {
+    data: dataSignal.get(),
     component: ctx.component,
     formulaCache: ctx.formulaCache,
     root: ctx.root,
@@ -81,10 +82,11 @@ export function createComponent({
       value?.type !== 'value'
         ? applyFormula(
             value,
-            {
-              ...formulaCtx,
-              data,
-            },
+            formulaCtx,
+            data,
+            undefined,
+            undefined,
+            undefined,
             ['attrs', attr],
           )
         : value?.value,
@@ -107,8 +109,11 @@ export function createComponent({
               {
                 ...formulaCtx,
                 component,
-                data: dataSignal.get(),
               },
+              dataSignal.get(),
+              undefined,
+              undefined,
+              undefined,
               ['apis', name, 'autoFetch'],
             )
               ? true
@@ -133,6 +138,7 @@ export function createComponent({
 
   // Subscribe context before calculating variable initial values to ensure they can reference context values
   subscribeToContext(componentDataSignal, component, ctx)
+  const childFormulaCtx = { ...formulaCtx, component }
   componentDataSignal.update((data) => ({
     ...data,
     Variables: mapObject(
@@ -144,12 +150,11 @@ export function createComponent({
         name,
         applyFormula(
           variable.initialValue,
-          {
-            // Initial value
-            ...formulaCtx,
-            component,
-            data: componentDataSignal.get(),
-          },
+          childFormulaCtx,
+          componentDataSignal.get(),
+          undefined,
+          undefined,
+          undefined,
           ['variables', name],
         ),
       ],
@@ -359,10 +364,11 @@ export function createComponent({
           appendUnit(
             applyFormula(
               customProperty.formula,
-              {
-                ...formulaCtx,
-                data,
-              },
+              formulaCtx,
+              data,
+              undefined,
+              undefined,
+              undefined,
               ['customProperties', customPropertyName, 'formula'],
             ),
             customProperty.unit,
@@ -386,10 +392,11 @@ export function createComponent({
             appendUnit(
               applyFormula(
                 customProperty.formula,
-                {
-                  ...formulaCtx,
-                  data,
-                },
+                formulaCtx,
+                data,
+                undefined,
+                undefined,
+                undefined,
                 ['customProperties', customPropertyName, 'formula'],
               ),
               customProperty.unit,
