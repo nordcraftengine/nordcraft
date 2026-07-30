@@ -5,10 +5,9 @@ import {
   rectangularColorSpace,
 } from '../const'
 import {
-  getValue,
+  getVariableValueByName,
   isColor,
   isVariable,
-  parse,
   parseMultipleValues,
 } from '../shared'
 import type {
@@ -161,39 +160,30 @@ const checkVariableValueLinear = (args: {
 
   allValues.forEach((val) => {
     if (isVariable(val)) {
-      const usedVariable = args.variables.find((v) =>
-        v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
-      )
-      if (!usedVariable) {
+      const parsedVariable = getVariableValueByName({
+        variableName: val,
+        variables: args.variables,
+      })
+
+      if (!isDefined(parsedVariable)) {
         return
       }
 
-      const parsedUsedVariable =
-        usedVariable.unit &&
-        usedVariable.unit !== '' &&
-        !usedVariable.value.endsWith(usedVariable.unit)
-          ? parse({ input: `${usedVariable.value}${usedVariable.unit}` })
-          : parse({ input: usedVariable.value })
-      if (isDefined(parsedUsedVariable[0])) {
-        const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
-        const parsedVariable = parseMultipleValues(parsedUsedVariableVal)[0]
-        if (!isDefined(parsedVariable)) {
-          return
-        }
-
-        const newValues = checkValue({
-          value: parsedVariable,
-          returnValue,
-          stops: newStops,
-          variables: args.variables,
-        })
-
-        direction = newValues.newDirection
-        newStops = newValues.newStops
-        invalidValues.push(...newValues.invalidValues)
-      } else {
+      if (parsedVariable === 'invalid') {
         invalidValues.push(returnValue)
+        return
       }
+
+      const newValues = checkValue({
+        value: parsedVariable,
+        returnValue,
+        stops: newStops,
+        variables: args.variables,
+      })
+
+      direction = newValues.newDirection
+      newStops = newValues.newStops
+      invalidValues.push(...newValues.invalidValues)
     } else {
       const parsedVariable = parseMultipleValues([
         { type: 'word', value: val },
