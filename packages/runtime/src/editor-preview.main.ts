@@ -110,7 +110,7 @@ import type {
   PreviewShowSignal,
 } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
-import { getThemeSignal } from './utils/getThemeSignal'
+import { clamp, getThemeSignal, toSeconds } from './utils/getThemeSignal'
 import { markSelectedElement } from './utils/markSelectedElement'
 import {
   getNodeAndAncestors,
@@ -335,6 +335,11 @@ export const createRoot = (
     time: number | null
     timingFunction?: string
     fillMode?: string
+    elementsAnimationDelay: number[]
+    elementsAnimationDuration: number[]
+    repeatedElementsValues: [{ delay: string; duration: string }]
+    timelineTime: { delay: string; duration: string }
+    iterationCount: string
   } | null = null
   let altKey = false
   let metaKey = false
@@ -869,6 +874,7 @@ export const createRoot = (
 
           const { styles } = message.data
           const computedStyle = window.getComputedStyle(selectedNode)
+
           postMessageToEditor({
             type: 'computedStyle',
             computedStyle: Object.fromEntries(
@@ -899,6 +905,11 @@ export const createRoot = (
                 return [style, result]
               }),
             ),
+            repeatedItemsValues: animationState?.repeatedElementsValues ?? [],
+            timelineTime: animationState?.timelineTime ?? {
+              delay: '0s',
+              duration: '0s',
+            },
           })
           break
 
@@ -931,6 +942,10 @@ export const createRoot = (
 
         case 'set_timeline_time':
           const { time, timingFunction, fillMode } = message.data
+
+          console.log('time ', time)
+          // console.log('iteration ', iteration)
+
           cancelAnimationFrame(timelineTimeAnimationFrame)
           timelineTimeAnimationFrame = requestAnimationFrame(() => {
             const animatedElementChanged =
@@ -940,6 +955,19 @@ export const createRoot = (
               time,
               timingFunction,
               fillMode,
+              elementsAnimationDelay:
+                animationState?.elementsAnimationDelay ?? [],
+              elementsAnimationDuration:
+                animationState?.elementsAnimationDuration ?? [],
+              repeatedElementsValues:
+                animationState?.repeatedElementsValues ?? [
+                  { delay: '0s', duration: '0s' },
+                ],
+              timelineTime: animationState?.timelineTime ?? {
+                delay: '0s',
+                duration: '1s',
+              },
+              iterationCount: animationState?.iterationCount ?? '1',
             }
 
             // Cleanup on null
@@ -947,21 +975,22 @@ export const createRoot = (
               document.head
                 .querySelector('[data-id="preview-animation-styles"]')
                 ?.remove()
-              document.body.style.removeProperty('--editor-timeline-position')
-              document.body.style.removeProperty(
-                '--editor-timeline-timing-function',
-              )
-              document.body.style.removeProperty('--editor-timeline-fill-mode')
+
+              const style = document.body.style
+
+              // Remove all the properties that starts with --editor-timeline
+              for (const prop of style) {
+                if (prop.startsWith('--editor-timeline')) {
+                  style.removeProperty(prop)
+                }
+              }
               document.body.removeAttribute('data-animating')
               update()
               return
             }
 
             document.body.setAttribute('data-animating', 'true')
-            document.body.style.setProperty(
-              '--editor-timeline-position',
-              `${time}s`,
-            )
+
             document.body.style.setProperty(
               '--editor-timeline-timing-function',
               timingFunction ?? 'ease',
@@ -971,7 +1000,174 @@ export const createRoot = (
               fillMode ?? 'none',
             )
 
-            if (animatedElementChanged) {
+            const selectedNode = getDOMNodeFromNodeId(
+              animationState.animatedElementId,
+            )
+
+            let repeatedNodes: HTMLElement[] = []
+
+            if (selectedNode) {
+              console.log('animationState', animationState)
+              if (selectedNode.parentElement) {
+                repeatedNodes = Array.from(
+                  selectedNode.parentElement.children,
+                ).filter(
+                  (node) =>
+                    node instanceof HTMLElement &&
+                    node
+                      .getAttribute('data-id')
+                      ?.startsWith(selectedNodeId + '('),
+                ) as HTMLElement[]
+              }
+              if (animatedElementChanged) {
+                console.log(animatedElementChanged)
+                const computedStyle = window.getComputedStyle(selectedNode)
+                animationState.iterationCount =
+                  computedStyle.animationIterationCount
+
+                animationState.elementsAnimationDelay = [
+                  toSeconds(computedStyle.animationDelay),
+                ]
+                animationState.elementsAnimationDuration = [
+                  toSeconds(computedStyle.animationDuration),
+                ]
+                animationState.repeatedElementsValues = [
+                  {
+                    delay: `${toSeconds(computedStyle.animationDelay)}s`,
+                    duration: `${toSeconds(computedStyle.animationDuration)}s`,
+                  },
+                ]
+                animationState.timelineTime = {
+                  delay: `${toSeconds(computedStyle.animationDelay)}s`,
+                  duration: `${toSeconds(computedStyle.animationDuration)}s`,
+                }
+
+                repeatedNodes.forEach((node) => {
+                  const nodeComputedStyle = window.getComputedStyle(node)
+                  animationState?.elementsAnimationDelay.push(
+                    toSeconds(nodeComputedStyle.animationDelay),
+                  )
+                  animationState?.elementsAnimationDuration.push(
+                    toSeconds(nodeComputedStyle.animationDuration),
+                  )
+                  animationState?.repeatedElementsValues.push({
+                    delay: `${toSeconds(nodeComputedStyle.animationDelay)}s`,
+                    duration: `${toSeconds(nodeComputedStyle.animationDuration)}s`,
+                  })
+                  const totalTime =
+                    toSeconds(nodeComputedStyle.animationDelay) +
+                    toSeconds(nodeComputedStyle.animationDuration)
+
+                  if (
+                    isDefined(animationState?.timelineTime) &&
+                    totalTime >
+                      parseFloat(animationState.timelineTime.delay) +
+                        parseFloat(animationState.timelineTime.duration)
+                  ) {
+                    animationState.timelineTime = {
+                      delay: `${toSeconds(nodeComputedStyle.animationDelay)}s`,
+                      duration: `${toSeconds(nodeComputedStyle.animationDuration)}s`,
+                    }
+                  }
+                })
+              }
+            }
+
+            // const calculatedDelay =
+            //   time * animationState.elementsAnimationDuration[0] -
+            //   (animationState.elementsAnimationDelay[0] ?? 0)
+
+            // const calculatedDuration =
+            //   animationState.elementsAnimationDelay[0] +
+            //   (animationState.elementsAnimationDuration[0] ?? 0)
+
+            const animationDelay = animationState.elementsAnimationDelay[0] ?? 0
+            const animationDuration =
+              animationState.elementsAnimationDuration[0] ?? 1
+
+            const timelineTime =
+              parseFloat(animationState.timelineTime.delay) +
+              parseFloat(animationState.timelineTime.duration)
+            const timelinePosition =
+              // iteration > 1
+              //   ? time * animationDuration + time * timelineTime
+              // :
+              time * timelineTime
+
+            const calculatedDelay =
+              // iteration > 1
+              //   ? (iteration - 1) * animationDuration + timelinePosition
+              timelinePosition - animationDelay
+
+            const progressTime = clamp(
+              calculatedDelay,
+              0,
+              animationDelay + animationDuration,
+            )
+
+            // const progressTime = clamp(
+            //   calculatedDelay,
+            //   0,
+            //   animationDelay +
+            //     animationDuration * parseFloat(animationState.iterationCount),
+            // )
+
+            document.body.style.setProperty(
+              '--editor-timeline-position-0',
+              `${progressTime}s`,
+            )
+            document.body.style.setProperty(
+              '--editor-timeline-duration-0',
+              `${animationDuration}s`,
+            )
+
+            repeatedNodes.forEach((node, index) => {
+              // const calculatedDelay =
+              //   time *
+              //     (animationState?.elementsAnimationDuration[index + 1] ?? 1) -
+              //   (animationState?.elementsAnimationDelay[index + 1] ?? 0)
+
+              // const calculatedDuration =
+              //   (animationState?.elementsAnimationDelay[index + 1] ?? 0) +
+              //   (animationState?.elementsAnimationDuration[index + 1] ?? 0)
+
+              const animationDelay =
+                animationState?.elementsAnimationDelay[index + 1] ?? 0
+
+              const animationDuration =
+                animationState?.elementsAnimationDuration[index + 1] ?? 1
+
+              const calculatedDelay =
+                // iteration > 1
+                //   ? (iteration - 1) * animationDuration + timelinePosition
+                timelinePosition - animationDelay
+
+              const progressTime = clamp(
+                calculatedDelay,
+                0,
+                animationDelay + animationDuration,
+              )
+
+              // const progressTime = clamp(
+              //   calculatedDelay,
+              //   0,
+              //   animationDelay +
+              //     animationDuration *
+              //       parseFloat(animationState?.iterationCount ?? '1'),
+              // )
+
+              document.body.style.setProperty(
+                `--editor-timeline-position-${index + 1}`,
+                `${progressTime}s`,
+              )
+
+              document.body.style.setProperty(
+                `--editor-timeline-duration-${index + 1}`,
+                `${animationDuration}s`,
+              )
+            })
+
+            if (animatedElementChanged && animationState?.animatedElementId) {
               let styleTag = document.head.querySelector(
                 '[data-id="preview-animation-styles"]',
               )
@@ -980,15 +1176,26 @@ export const createRoot = (
                 styleTag.setAttribute('data-id', 'preview-animation-styles')
                 document.head.appendChild(styleTag)
               }
+              styleTag.innerHTML = `body[data-mode="design"] [data-id="${animationState.animatedElementId}"] {
+                  animation: preview_timeline var(--editor-timeline-duration-0) paused normal !important;
+                  animation-fill-mode: var(--editor-timeline-fill-mode) !important;
+                  animation-timing-function: var(--editor-timeline-timing-function) !important;
+                  animation-delay: calc(0s - var(--editor-timeline-position-0)) !important;
+                  animation-play-state: paused !important;
+                  animation-iteration-count: ${animationState.iterationCount} !important
+                }`
 
-              styleTag.innerHTML = `
-body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[data-mode="design"] [data-id="${animationState.animatedElementId}"] ~ [data-id^="${animationState.animatedElementId}("] {
-  animation: preview_timeline 1s paused normal !important;
-  animation-fill-mode: var(--editor-timeline-fill-mode) !important;
-  animation-timing-function: var(--editor-timeline-timing-function) !important;
-  animation-delay: calc(0s - var(--editor-timeline-position)) !important;
-  animation-play-state: paused !important;
-}`
+              repeatedNodes.forEach((node, index) => {
+                styleTag.innerHTML += `
+                    body[data-mode="design"] [data-id="${node.getAttribute('data-id')}"] {
+                      animation: preview_timeline var(--editor-timeline-duration-${index + 1}) paused normal !important;
+                      animation-fill-mode: var(--editor-timeline-fill-mode) !important;
+                      animation-timing-function: var(--editor-timeline-timing-function) !important;
+                      animation-delay: calc(0s - var(--editor-timeline-position-${index + 1})) !important;
+                      animation-play-state: paused !important;
+                      animation-iteration-count: ${animationState?.iterationCount ?? 1} !important
+                    }`
+              })
             }
             syncOverlayRects()
           })
