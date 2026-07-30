@@ -141,4 +141,35 @@ describe('parseBoxShadow', () => {
       },
     ])
   })
+
+  test('Use defined variable as blur value', () => {
+    expect(
+      getParsedBoxShadow(
+        {
+          'box-shadow': '0px 0px var(--test) 0px #000000',
+        },
+        [
+          {
+            syntax: {
+              type: 'primitive',
+              name: 'length',
+            },
+            formula: { type: 'value', value: 4 },
+            name: '--test',
+            description: undefined,
+            unit: 'px',
+            value: '4px',
+          },
+        ],
+      ),
+    ).toEqual([
+      {
+        horizontal: { type: 'length', value: '0', unit: 'px' },
+        vertical: { type: 'length', value: '0', unit: 'px' },
+        blur: { type: 'function', name: 'var', value: '--test' },
+        spread: { type: 'length', value: '0', unit: 'px' },
+        color: { type: 'hex', value: '#000000' },
+      },
+    ])
+  })
 })
