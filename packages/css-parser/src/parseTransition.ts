@@ -3,6 +3,7 @@ import { timingFunctions } from './const'
 import {
   checkIfNoUnknownVariables,
   getValue,
+  getVariableValueByName,
   isVariable,
   parse,
   parseMultipleValues,
@@ -66,22 +67,24 @@ export const parseTransition = (args: transitionArguments) => {
     const allValues = valueToCheck.value.split(', ')
     allValues.forEach((val) => {
       if (isVariable(val)) {
-        const usedVariable = variables.find((v) =>
-          v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
-        )
+        const parsedVariable = getVariableValueByName({
+          variableName: val,
+          variables,
+        })
 
-        if (!usedVariable) {
+        if (!isDefined(parsedVariable)) {
           return
         }
 
-        const parsedValue = parse({ input: usedVariable.value })
-        const value = getValue(parsedValue[0])
-        const parsedVariable = parseMultipleValues(value)
+        if (parsedVariable === 'invalid') {
+          invalidValue = true
+          return
+        }
 
         const newProp = parseTransition({
           variables,
           transition,
-          valueToCheck: parsedVariable[0],
+          valueToCheck: parsedVariable,
           valueToReturn: valueToCheck,
         })
 

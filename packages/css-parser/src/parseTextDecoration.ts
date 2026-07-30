@@ -7,6 +7,7 @@ import {
 import {
   checkIfNoUnknownVariables,
   getValue,
+  getVariableValueByName,
   isColor,
   isVariable,
   parse,
@@ -321,24 +322,21 @@ const parseDecoration = (args: {
     const allValues = valueToCheck.value.split(', ')
     allValues.forEach((val) => {
       if (isVariable(val)) {
-        const usedVariable = variables.find((v) =>
-          v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
-        )
-        if (!usedVariable) {
+        const parsedVariable = getVariableValueByName({
+          variableName: val,
+          variables,
+        })
+
+        if (!isDefined(parsedVariable)) {
           return
         }
 
-        const parsedVariable = parseMultipleValues([
-          {
-            type: 'word',
-            value:
-              usedVariable.unit && usedVariable.unit !== ''
-                ? `${usedVariable.value}${usedVariable.unit}`
-                : usedVariable.value,
-          },
-        ])
+        if (parsedVariable === 'invalid') {
+          invalidValue = true
+          return
+        }
         const newProp = parseDecoration({
-          valueToCheck: parsedVariable[0],
+          valueToCheck: parsedVariable,
           valueToReturn: valueToCheck,
           variables,
         })
