@@ -10,6 +10,16 @@ import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/theme.const'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { signal, type Signal } from '../signal/signal'
 
+export const clamp = (val: number, min: number, max: number) =>
+  Math.min(Math.max(val, min), max)
+
+export const toSeconds = (value: string) => {
+  if (value.endsWith('ms')) {
+    return parseFloat(value) / 1000
+  } else {
+    return parseFloat(value)
+  }
+}
 export const getThemeSignal = (
   component: Component,
   dataSignal: Signal<ComponentData>,

@@ -94,6 +94,7 @@ export type NordcraftPreviewEvent =
         | string
         | undefined
       fillMode: 'none' | 'forwards' | 'backwards' | 'both' | undefined
+      iteration: number
     }
   | {
       type: 'preview_style'
@@ -151,6 +152,11 @@ export type EditorPostMessageType =
   | {
       type: 'computedStyle'
       computedStyle: Record<string, string>
+      repeatedItemsValues: {
+        delay: string
+        duration: string
+      }[]
+      timelineTime: { delay: string; duration: string }
     }
   | {
       type: 'style'
