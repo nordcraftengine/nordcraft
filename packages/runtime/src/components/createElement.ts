@@ -13,7 +13,9 @@ import {
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
+import { pathToString } from '@nordcraft/core/dist/utils/path'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+import { PATH } from '../constants'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
@@ -66,11 +68,19 @@ export function createElement({
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
 
+  // [data-node-id] is required for reset-style targeting. Remove if we can get rid of/change reset-style.
   elem.setAttribute('data-node-id', id)
   if (path) {
-    elem.setAttribute('data-id', path)
+    elem[PATH] = path
+    if (ctx.env.runtime === 'preview') {
+      elem.setAttribute('data-id', pathToString(path))
+    }
   }
-  if (ctx.isRootComponent === false && id !== 'root') {
+  if (
+    ctx.isRootComponent === false &&
+    id !== 'root' &&
+    ctx.env.runtime === 'preview'
+  ) {
     elem.setAttribute('data-component', ctx.component.name)
   }
   // class names are baked during preprocessing, except for in editor-preview where we generate them on the fly
@@ -188,7 +198,8 @@ export function createElement({
         selector:
           ctx.env.runtime === 'custom-element' &&
           ctx.isRootComponent &&
-          path === '0'
+          path.length === 1 &&
+          path[0].index === 0
             ? `${getNodeSelector(path)}, :host`
             : getNodeSelector(path),
         signal: dataSignal.map((data) => {
@@ -312,7 +323,7 @@ export function createElement({
         ...createNode({
           parentElement: elem,
           id: child,
-          path: path + '.' + i,
+          path: [...path, { index: i }],
           dataSignal,
           ctx: { ...ctx, jsonPath: ['nodes', child] },
           namespace,

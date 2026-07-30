@@ -1,8 +1,12 @@
+/* eslint-disable no-console */
 import type {
   Component,
   NodeModel,
 } from '@nordcraft/core/dist/component/component.types'
+import { pathToString, stringToPath } from '@nordcraft/core/dist/utils/path'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { PATH } from '../constants'
+import type { Path } from '../types'
 
 type NodeWithNodeId = NodeModel & { nodeId: string }
 
@@ -19,14 +23,13 @@ export const getNodeAndAncestors = (
   if (typeof id !== 'string' || id.length === 0) {
     return undefined
   }
-  const path = id.split('.')
-  const pathParsed = path.map((n) => parseInt(n))
+  const path = stringToPath(id)
   const ancestors: NodeWithNodeId[] = []
   // nodePath skips the root element as it's selected as the initial
   // value in the reduce below
-  const nodePath = pathParsed.slice(1)
+  const nodePath = path.slice(1)
   const node = nodePath.reduce(
-    (node: NodeModel | undefined | null, childIndex, i) => {
+    (node: NodeModel | undefined | null, pathElement, i) => {
       switch (node?.type) {
         // 'text' elements don't have any children
         case 'element':
@@ -37,10 +40,10 @@ export const getNodeAndAncestors = (
             ancestors.push({
               ...node,
               // Use the original path as origin to get correct nodeIds
-              nodeId: path.slice(0, i + 1).join('.'),
+              nodeId: pathToString(path.slice(0, i + 1)),
             })
           }
-          const index = node.children?.[childIndex]
+          const index = node.children?.[pathElement.index]
           if (index === undefined) {
             return undefined
           }
@@ -68,27 +71,28 @@ export const isNodeOrAncestorConditional = (
  * @returns The next sibling element or null if this is the last element. A nc sibling is a sibling with a higher index or the same index but a higher repeat index.
  */
 export const getNextSiblingElement = (
-  path: string,
+  path: Path,
   parentElement: Element | ShadowRoot,
-) => {
-  const pathParts = path.split('.')
-  const lastPathPart = pathParts.slice(-1)[0]
-  const index = parseInt(lastPathPart)
-  const repeatIndex = parseInt(String(lastPathPart.split('(')[1]))
+): Node | null => {
+  const lastPathPart = path[path.length - 1]
+  const index = lastPathPart.index
+  const repeatIndex = lastPathPart.repeatIndex ?? 0
 
   // Find the first child that either has a higher index or a similar index, but higher repeat index
-  for (const child of parentElement.children) {
-    const childPath = child.getAttribute('data-id')
-    const lastChildPathPart = childPath?.split('.').slice(-1)[0]
-    const childIndex = parseInt(String(lastChildPathPart))
-    if (
-      childIndex === index &&
-      parseInt(String(lastChildPathPart?.split('(')[1])) > repeatIndex
-    ) {
-      return child
+  for (const child of parentElement.childNodes) {
+    const childPath = child[PATH]
+    if (!childPath || !Array.isArray(childPath)) {
+      continue
     }
+    const lastChildPathPart = childPath[childPath.length - 1]
+    const childIndex = lastChildPathPart.index
 
-    if (childIndex > index) {
+    if (childIndex === index) {
+      const childRepeatIndex = lastChildPathPart.repeatIndex ?? 0
+      if (childRepeatIndex > repeatIndex) {
+        return child
+      }
+    } else if (childIndex > index) {
       return child
     }
   }
@@ -103,8 +107,8 @@ export const getNextSiblingElement = (
  */
 export function ensureEfficientOrdering(
   parentElement: Element | ShadowRoot,
-  items: ReadonlyArray<Element | Text>,
-  nextElement: Element | Text | null = null,
+  items: ReadonlyArray<Node>,
+  nextElement: Node | null = null,
 ) {
   // Identify the starting point for comparisons.
   let insertBeforeElement = nextElement // If insertBeforeElement is null, items will be appended at the end.
@@ -125,7 +129,16 @@ export function ensureEfficientOrdering(
     } else {
       // The item is either not in the DOM or not in the correct position.
       // Insert the item before the insertBeforeElement (or append it if insertBeforeElement is null).
-      parentElement.insertBefore(item, insertBeforeElement)
+      if (
+        item.parentNode === parentElement &&
+        'moveBefore' in Element.prototype
+      ) {
+        // `moveBefore` is not yet supported in Safari and some older browsers,
+        // moveBefore actually moves the element in the DOM instead of removing and reinserting it, which is more efficient and preserves animation-, transition- and focus states.
+        parentElement.moveBefore(item, insertBeforeElement)
+      } else {
+        parentElement.insertBefore(item, insertBeforeElement)
+      }
     }
 
     // Update insertBeforeElement to the current item for the next iteration, as we need to insert subsequent items before this one.
