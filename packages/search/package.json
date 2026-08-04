@@ -17,6 +17,7 @@
     "jsondiffpatch": "0.7.6",
     "postcss": "8.5.26",
     "valibot": "1.5.0",
+    "fast-equals": "6.0.2",
     "zod": "4.2.1"
   },
   "scripts": {
