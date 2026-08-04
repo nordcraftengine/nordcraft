@@ -60,7 +60,7 @@ import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
-import fastDeepEqual from 'fast-deep-equal'
+import { deepEqual as isEqual } from 'fast-equals'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
 import { createNode } from './components/createNode'
@@ -135,7 +135,7 @@ export const initGlobalObject = () => {
     const legacyFormulas: Record<string, FormulaHandler | undefined> = {}
     const argumentInputDataList: Record<string, ArgumentInputDataFunction> = {}
     const toddle: Toddle<LocationSignal, PreviewShowSignal> = {
-      isEqual: fastDeepEqual,
+      isEqual,
       errors: [],
       formulas: {},
       actions: {},
@@ -520,8 +520,7 @@ export const createRoot = (
         case 'attrs': {
           if (
             message.data.attrs &&
-            fastDeepEqual(message.data.attrs, dataSignal.get().Attributes) ===
-              false
+            isEqual(message.data.attrs, dataSignal.get().Attributes) === false
           ) {
             const attrs = message.data.attrs
             dataSignal.update((data) => {
@@ -1297,9 +1296,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
 
     const scrollStateRestorer = storeScrollState()
     let { Attributes, Variables, Contexts } = dataSignal.get()
-    if (
-      fastDeepEqual(ctx?.component.attributes, _component.attributes) === false
-    ) {
+    if (isEqual(ctx?.component.attributes, _component.attributes) === false) {
       Attributes = mapObject(
         filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
           _component.attributes ?? {},
@@ -1310,7 +1307,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
     }
     if (
       _component.route &&
-      fastDeepEqual(ctx?.component.route, _component.route) === false
+      isEqual(ctx?.component.route, _component.route) === false
     ) {
       // Subscribe to the route signal so we can preview URL parameter changes in the editor
       routeSignal?.destroy()
@@ -1359,7 +1356,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       )
     }
     if (
-      fastDeepEqual(
+      isEqual(
         ctx?.component.route?.info?.meta,
         _component.route?.info?.meta,
       ) === false ||
@@ -1376,7 +1373,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
         reportFormulaEvaluation,
       })
     }
-    if (fastDeepEqual(_component.contexts, ctx?.component.contexts) === false) {
+    if (isEqual(_component.contexts, ctx?.component.contexts) === false) {
       Contexts = (function createStaticContextFromComponent(
         component: Component,
         contextProvidersCreated?: Set<string>,
@@ -1485,9 +1482,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
         )
       })(_component)
     }
-    if (
-      fastDeepEqual(_component.variables, ctx?.component.variables) === false
-    ) {
+    if (isEqual(_component.variables, ctx?.component.variables) === false) {
       Variables = mapObject(
         filterObject<Nullable<ComponentVariable>, ComponentVariable>(
           _component.variables ?? {},
@@ -1540,7 +1535,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
     }
 
     if (
-      fastDeepEqual(
+      isEqual(
         newCtx.component.route?.info?.theme,
         ctx?.component.route?.info?.theme,
       ) === false
@@ -1561,7 +1556,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       const previousApiInstance = ctx?.component.apis?.[api]
       if (isLegacyApi(apiInstance)) {
         if (
-          fastDeepEqual(
+          isEqual(
             omitKeys(apiInstance, ['onCompleted', 'onFailed']),
             previousApiInstance && isLegacyApi(previousApiInstance)
               ? omitKeys(previousApiInstance, ['onCompleted', 'onFailed'])
@@ -1603,9 +1598,8 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
 
     if (
       forceRerender ||
-      fastDeepEqual(newCtx.component.nodes, ctx?.component?.nodes) === false ||
-      fastDeepEqual(newCtx.component.formulas, ctx?.component?.formulas) ===
-        false
+      isEqual(newCtx.component.nodes, ctx?.component?.nodes) === false ||
+      isEqual(newCtx.component.formulas, ctx?.component?.formulas) === false
     ) {
       updateStyle(newCtx.component)
 
@@ -1834,8 +1828,8 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
     const selectionRect = getRectData(getDOMNodeFromNodeId(selectedNodeId))
     const highlightRect = getRectData(getDOMNodeFromNodeId(highlightedNodeId))
 
-    const selectionChanged = !fastDeepEqual(prevSelectionRect, selectionRect)
-    const highlightChanged = !fastDeepEqual(prevHighlightRect, highlightRect)
+    const selectionChanged = !isEqual(prevSelectionRect, selectionRect)
+    const highlightChanged = !isEqual(prevHighlightRect, highlightRect)
 
     if (selectionChanged || highlightChanged) {
       prevSelectionRect = selectionRect

@@ -1,8 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import handler from './handler'
-
-import fastDeepEqual from 'fast-deep-equal'
-;(globalThis as any).toddle = { isEqual: fastDeepEqual }
+;(globalThis as any).toddle = { isEqual }
 
 describe('Formula: JSON', () => {
   test('Should return a json string when given an object', () => {

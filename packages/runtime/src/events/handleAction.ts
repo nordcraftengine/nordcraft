@@ -11,7 +11,7 @@ import {
 } from '@nordcraft/core/dist/formula/formula'
 import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import fastDeepEqual from 'fast-deep-equal'
+import { deepEqual as isEqual } from 'fast-equals'
 import { isContextApiV2 } from '../api/apiUtils'
 import type { ComponentContext, Location } from '../types'
 import { getLocationUrl } from '../utils/url'
@@ -262,7 +262,7 @@ export function handleAction(
               ...queryUpdates,
             },
           }
-          if (fastDeepEqual(newLocation, current)) {
+          if (isEqual(newLocation, current)) {
             // No path/query parameter matched
             return current
           }

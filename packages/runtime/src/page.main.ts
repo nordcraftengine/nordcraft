@@ -24,7 +24,7 @@ import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
-import fastDeepEqual from 'fast-deep-equal'
+import { deepEqual as isEqual } from 'fast-equals'
 import { match } from 'path-to-regexp'
 import { isContextApiV2 } from './api/apiUtils'
 import { createLegacyAPI } from './api/createAPI'
@@ -61,7 +61,7 @@ export const initGlobalObject = (code?: {
     const legacyFormulas: Record<string, FormulaHandler> = {}
     const argumentInputDataList: Record<string, ArgumentInputDataFunction> = {}
     const toddle: Toddle<LocationSignal, never> = {
-      isEqual: fastDeepEqual,
+      isEqual,
       errors: [],
       project: window.__toddle.project,
       branch: window.__toddle.branch,

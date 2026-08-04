@@ -1,4 +1,42 @@
-import fastDeepEqual from 'fast-deep-equal'
+import { createCustomEqual } from 'fast-equals'
+
+/**
+ * The APIv2 seems to save Header and FormData prototypes to the dataSignal, which is not supported by the default deepEqual implementation.
+ * The better solution would be to save these class instances as plain objects before they go into the signal.
+ * A refactor to APIv2 will allow us to use the default deepEqual implementation for everything.
+ */
+export const customIsEqual = createCustomEqual({
+  circular: false,
+  createCustomConfig: () => {
+    const customAreObjectsEqual = (a: unknown, b: unknown) => {
+      // If prototype of header, then compare via reference equality
+      if (a instanceof Headers && b instanceof Headers) {
+        return (
+          JSON.stringify([...a.entries()]) === JSON.stringify([...b.entries()])
+        )
+      }
+
+      if (a instanceof FormData && b instanceof FormData) {
+        return (
+          JSON.stringify([...a.entries()]) === JSON.stringify([...b.entries()])
+        )
+      }
+
+      console.warn(
+        'Unsupported custom type comparison, falling back to reference equality',
+        {
+          a,
+          b,
+        },
+      )
+      return a === b
+    }
+
+    return {
+      getUnsupportedCustomComparator: () => customAreObjectsEqual,
+    }
+  },
+})
 
 export class Signal<T> {
   value: T
@@ -24,7 +62,7 @@ export class Signal<T> {
       return
     }
 
-    if (fastDeepEqual(value, this.value) === false) {
+    if (customIsEqual(value, this.value) === false) {
       this.value = value
       for (const subscriber of this.subscribers) {
         subscriber.notify(this.value)
@@ -83,5 +121,5 @@ export function signal<T>(value: T) {
 
 if (typeof window !== 'undefined') {
   ;(window as any).signal = signal
-  ;(window as any).deepEqual = fastDeepEqual
+  ;(window as any).deepEqual = customIsEqual
 }

@@ -1,8 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import handler from './handler'
-
-import fastDeepEqual from 'fast-deep-equal'
-;(globalThis as any).toddle = { isEqual: fastDeepEqual }
+;(globalThis as any).toddle = { isEqual }
 
 describe('Formula: Square root', () => {
   test('should return the square root', () => {

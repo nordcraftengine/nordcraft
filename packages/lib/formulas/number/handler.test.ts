@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import isEqual from 'fast-deep-equal'
+import { deepEqual as isEqual } from 'fast-equals'
 import handler from './handler'
 ;(globalThis as any).toddle = { isEqual }
 

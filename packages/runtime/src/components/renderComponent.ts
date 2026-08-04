@@ -7,7 +7,7 @@ import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Toddle } from '@nordcraft/core/dist/types'
 import { measure } from '@nordcraft/core/dist/utils/measure'
-import fastDeepEqual from 'fast-deep-equal'
+import { deepEqual as isEqual } from 'fast-equals'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type {
@@ -138,7 +138,7 @@ export function renderComponent({
                       [key, value],
                     ) => {
                       if (
-                        fastDeepEqual(value, prev![key]) === false &&
+                        isEqual(value, prev![key]) === false &&
                         component.attributes?.[key]?.name
                       ) {
                         changes[component.attributes?.[key]?.name] = {

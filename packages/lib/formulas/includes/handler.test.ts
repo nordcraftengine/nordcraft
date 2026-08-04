@@ -1,8 +1,7 @@
 import { describe, expect, test } from 'bun:test'
+import { deepEqual as isEqual } from 'fast-equals'
 import handler from './handler'
-
-import fastDeepEqual from 'fast-deep-equal'
-;(globalThis as any).toddle = { isEqual: fastDeepEqual }
+;(globalThis as any).toddle = { isEqual }
 
 describe('Formula: Includes', () => {
   test('should return null if collection is neither string nor array', () => {

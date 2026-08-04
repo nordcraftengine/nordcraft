@@ -69,6 +69,7 @@
       "dependencies": {
         "@nordcraft/core": "workspace:*",
         "fast-deep-equal": "3.1.3",
+        "fast-equals": "6.0.2",
       },
       "devDependencies": {
         "@types/node": "26.1.0",
@@ -81,6 +82,7 @@
         "@nordcraft/core": "workspace:*",
         "@nordcraft/std-lib": "workspace:*",
         "fast-deep-equal": "3.1.3",
+        "fast-equals": "6.0.2",
         "path-to-regexp": "6.3.0",
       },
     },
@@ -102,6 +104,7 @@
         "@nordcraft/std-lib": "workspace:*",
         "cookie": "1.0.2",
         "fast-deep-equal": "3.1.3",
+        "fast-equals": "6.0.2",
         "xss": "1.0.15",
       },
     },
@@ -448,6 +451,8 @@
     "esutils": ["esutils@2.0.3", "", {}, "sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g=="],
 
     "fast-deep-equal": ["fast-deep-equal@3.1.3", "", {}, "sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q=="],
+
+    "fast-equals": ["fast-equals@6.0.2", "", {}, "sha512-sAjhj9ZhOxYCGiNMnZLaucOqf5ZeFnHNoKoAZiD9thhJ0N8RP85qJK759/97C/3L7NzzmGVB5uiX9AUpySZmUQ=="],
 
     "fast-json-stable-stringify": ["fast-json-stable-stringify@2.1.0", "", {}, "sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw=="],
 

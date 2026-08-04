@@ -1,10 +1,10 @@
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
-import fastDeepEqual from 'fast-deep-equal'
+import { deepEqual as isEqual } from 'fast-equals'
 import { defineComponents } from './custom-element/defineComponents'
 
 const loadCorePlugins = (toddle = window.toddle) => {
-  toddle.isEqual = fastDeepEqual
+  toddle.isEqual = isEqual
 
   // load default formulas and actions
   Object.entries(libFormulas).forEach(([name, module]) =>
