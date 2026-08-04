@@ -14,6 +14,7 @@
     "@nordcraft/core": "workspace:*",
     "jsondiffpatch": "0.7.3",
     "postcss": "8.5.8",
+    "fast-equals": "6.0.2",
     "zod": "4.2.1"
   },
   "scripts": {

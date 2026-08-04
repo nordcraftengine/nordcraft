@@ -1,4 +1,4 @@
-import equal from 'fast-deep-equal'
+import { deepEqual as isEqual } from 'fast-equals'
 import type { SearchRule } from '../../types'
 import { parseSearchQuery } from '../../util/parseSearchQuery'
 
@@ -44,7 +44,10 @@ function checkStringMatch(
       try {
         // JSON parse only used for structural equality — not reproduced as output
         const parsed = JSON.parse(targetValue)
-        if (equal(stringVal, parsed) || equal(JSON.parse(stringVal), parsed)) {
+        if (
+          isEqual(stringVal, parsed) ||
+          isEqual(JSON.parse(stringVal), parsed)
+        ) {
           return fullMatch(stringVal)
         }
       } catch {
@@ -136,7 +139,7 @@ function matchString(value: any, matcher: string, key?: string): MatchResult {
     if (isExact) {
       if (isJsonStructuralTarget(targetValue)) {
         try {
-          if (equal(valToCheck, JSON.parse(targetValue)))
+          if (isEqual(valToCheck, JSON.parse(targetValue)))
             return fullMatch(targetValue)
         } catch {
           // fall through
@@ -185,7 +188,7 @@ function isMatch(
     return (
       Array.isArray(value) &&
       value.length >= matcher.length &&
-      matcher.every((m, i) => equal(value[i], m))
+      matcher.every((m, i) => isEqual(value[i], m))
     )
   }
 
@@ -194,7 +197,7 @@ function isMatch(
       return false
     }
     for (const key in matcher) {
-      if (!equal(value[key], (matcher as any)[key])) {
+      if (!isEqual(value[key], (matcher as any)[key])) {
         return false
       }
     }
