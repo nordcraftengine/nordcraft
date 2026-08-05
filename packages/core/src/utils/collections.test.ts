@@ -1,4 +1,12 @@
-import { omit, omitPaths, sortObjectEntries } from './collections'
+import { describe, expect, mock, test } from 'bun:test'
+import {
+  filterObject,
+  mapObject,
+  mapValues,
+  omit,
+  omitPaths,
+  sortObjectEntries,
+} from './collections'
 
 describe('omit()', () => {
   test('it should omit paths from an array and resize the array to the new size', () => {
@@ -75,5 +83,47 @@ describe('omitPaths()', () => {
         h: 'bar',
       },
     })
+  })
+})
+describe('filterObject()', () => {
+  test('it filters the object keys and values based on the predicate', () => {
+    const obj = { a: 1, b: 2, c: 3, d: 4 }
+    const result = filterObject(obj, ([key, value]) => value % 2 === 0)
+    expect(result).toEqual({ b: 2, d: 4 })
+  })
+
+  test('it handles empty objects', () => {
+    expect(filterObject({}, () => true)).toEqual({})
+  })
+
+  test('it passes the correct key-value pair to the predicate', () => {
+    const obj = { a: 'foo' }
+    const spy = mock(() => true)
+    filterObject(obj, spy)
+    expect(spy).toHaveBeenCalledWith(['a', 'foo'])
+  })
+})
+
+describe('mapValues()', () => {
+  test('it maps values correctly', () => {
+    const obj = { a: 1, b: 2 }
+    const result = mapValues(obj, (v) => v * 2)
+    expect(result).toEqual({ a: 2, b: 4 })
+  })
+
+  test('it handles empty objects', () => {
+    expect(mapValues({}, (v) => v)).toEqual({})
+  })
+})
+
+describe('mapObject()', () => {
+  test('it maps object keys and values correctly', () => {
+    const obj = { a: 1, b: 2 }
+    const result = mapObject(obj, ([k, v]) => [`new_${k}`, v * 2])
+    expect(result).toEqual({ new_a: 2, new_b: 4 })
+  })
+
+  test('it handles empty objects', () => {
+    expect(mapObject({}, (kv) => kv)).toEqual({})
   })
 })
