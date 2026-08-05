@@ -88,7 +88,7 @@ describe('omitPaths()', () => {
 describe('filterObject()', () => {
   test('it filters the object keys and values based on the predicate', () => {
     const obj = { a: 1, b: 2, c: 3, d: 4 }
-    const result = filterObject(obj, ([key, value]) => value % 2 === 0)
+    const result = filterObject(obj, ([_, value]) => value % 2 === 0)
     expect(result).toEqual({ b: 2, d: 4 })
   })
 
