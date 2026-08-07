@@ -38,7 +38,7 @@
     "@nordcraft/core": "workspace:*",
     "@nordcraft/ssr": "workspace:*",
     "hono": "4.12.26",
-    "nanoid": "5.1.16"
+    "nanoid": "6.0.0"
   },
   "devDependencies": {
     "@nordcraft/runtime": "workspace:*",
