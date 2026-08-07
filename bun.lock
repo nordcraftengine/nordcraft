@@ -58,7 +58,7 @@
       "devDependencies": {
         "@nordcraft/core": "workspace:*",
         "@types/css-tree": "2.3.11",
-        "@webref/elements": "2.6.0",
+        "@webref/elements": "2.7.1",
         "@webref/events": "1.20.0",
         "css-tree": "3.2.1",
         "mdn-data": "2.29.0",
@@ -374,7 +374,7 @@
 
     "@vscode/l10n": ["@vscode/l10n@0.0.18", "", {}, "sha512-KYSIHVmslkaCDyw013pphY+d7x1qV8IZupYfeIfzNA+nsaWHbn5uPuQRvdRFsa9zFzGeudPuoGoZ1Op4jrJXIQ=="],
 
-    "@webref/elements": ["@webref/elements@2.6.0", "", {}, "sha512-SVVXgJjktuVpqoxckYOkDbuQ5YQ6w6XLSL0+67lslVX/Q1gYcdQ4Zeeg1y0FQZFb74cq4RF9cfi7nl0n1dmiCw=="],
+    "@webref/elements": ["@webref/elements@2.7.1", "", {}, "sha512-ke5VQWxr7vGket8tObjgNrmQ/+BO7MY1XL9gb0auPnHRzW7EN1Xpv5O237glCd4HWRrro05fBpBFXTPHlb24pw=="],
 
     "@webref/events": ["@webref/events@1.20.0", "", {}, "sha512-yAwTO+rE6roP3+Pw375hluVe5OKXAkcFvu8fuRc7QRxccVaBaoEilpNmJpletL1OA1xFnjCYlHUf8s7kiEYrZw=="],
 
