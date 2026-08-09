@@ -24,10 +24,11 @@ import {
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
-import type { Nullable } from '@nordcraft/core/dist/types'
+import type { Nullable, Path } from '@nordcraft/core/dist/types'
 import { filterObject, mapValues } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
+import { pathToString } from '@nordcraft/core/dist/utils/path'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { escapeAttrValue } from 'xss'
 import type { ProjectFiles } from '../ssr.types'
@@ -58,7 +59,7 @@ const renderComponent = async ({
   addCustomProperty,
   namespace,
 }: {
-  path: string
+  path: Path
   apiCache: ApiCache
   children?: Record<string, SlottedContent>
   component: Component
@@ -93,7 +94,7 @@ const renderComponent = async ({
     namespace,
   }: {
     id: string
-    path: string
+    path: Path
     node: NodeModel | undefined | null
     data: ComponentData
     packageName: string | undefined
@@ -121,7 +122,10 @@ const renderComponent = async ({
         items.map((Item, Index) =>
           renderNode({
             id,
-            path: Index ? `${path}(${Index})` : path,
+            path: [
+              ...path.slice(0, -1),
+              { ...path[path.length - 1]!, repeatIndex: Index },
+            ],
             node: { ...node, repeat: undefined },
             data: {
               ...data,
@@ -161,10 +165,18 @@ const renderComponent = async ({
             : defaultChild
         } else {
           const slotChildren = await Promise.all(
-            (node.children ?? []).map((child) =>
+            (node.children ?? []).map((child, i) =>
               renderNode({
                 id: child,
-                path: `${path}[${node.name ?? 'default'}]`,
+                path: [
+                  ...path,
+                  {
+                    index: i,
+                    repeatIndex: 0,
+                    slotName: node.name ?? 'default',
+                    slotComponentIndex: 0,
+                  },
+                ],
                 node: component.nodes?.[child],
                 data,
                 packageName,
@@ -276,7 +288,15 @@ const renderComponent = async ({
                 node.children.map((child, i) =>
                   renderNode({
                     id: child,
-                    path: `${path}.${i}`,
+                    path: [
+                      ...path,
+                      {
+                        index: i,
+                        repeatIndex: 0,
+                        slotName: 'default',
+                        slotComponentIndex: 0,
+                      },
+                    ],
                     namespace,
                     node: component.nodes?.[child],
                     data,
@@ -302,7 +322,7 @@ const renderComponent = async ({
             : node.tag
         const attributes = [
           ...nodeAttrs,
-          `data-id="${path}"`,
+          `data-id="${pathToString(path)}"`,
           `data-node-id="${escapeAttrValue(id)}"`,
         ]
         if (classList.length > 0) {
@@ -425,7 +445,16 @@ const renderComponent = async ({
             return (contexts: Record<string, Record<string, unknown>>) => {
               return renderNode({
                 id: child,
-                path: `${path}.${i}[${slotName}]`,
+                // path: `${path}.${i}[${slotName}]`,
+                path: [
+                  ...path,
+                  {
+                    index: i,
+                    repeatIndex: 0,
+                    slotName,
+                    slotComponentIndex: 0,
+                  },
+                ],
                 namespace,
                 node: component.nodes?.[child],
                 data: {
@@ -641,7 +670,7 @@ const createComponent = async ({
   addCustomProperty,
   namespace,
 }: {
-  path: string
+  path: Path
   apiCache: ApiCache
   apis: Record<
     string,
@@ -798,7 +827,9 @@ export const renderPageBody = async ({
   formulaContext.data.Apis = apis
 
   const html = await renderComponent({
-    path: '0',
+    path: [
+      { index: 0, repeatIndex: 0, slotName: 'default', slotComponentIndex: 0 },
+    ],
     apiCache,
     component,
     data: formulaContext.data,

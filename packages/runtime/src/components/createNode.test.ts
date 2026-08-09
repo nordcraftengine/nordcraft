@@ -1,5 +1,6 @@
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
+import { stringToPath } from '@nordcraft/core/dist/utils/path'
 import { describe, expect, test } from 'bun:test'
 import '../happydom'
 import { signal } from '../signal/signal'
@@ -39,14 +40,14 @@ describe('createNode()', () => {
         Attributes: {},
         Variables: {},
       }),
-      path: 'test-node',
+      path: [{ index: 0 }],
       id: 'test-node-id',
       parentElement,
       instance: {},
     })
     expect(nodes.length).toBe(1)
     expect((nodes[0] as Element).outerHTML).toMatchInlineSnapshot(
-      `"<div data-node-id="test-node-id" data-id="test-node" data-component="My Component"><span data-node-id="test-node-id.0" data-id="test-node.0" data-component="My Component" data-node-type="text">Item 1</span><span data-node-id="test-node-id.1" data-id="test-node.1" data-component="My Component" data-node-type="text">Item 2</span></div>"`,
+      `"<div data-node-id="test-node-id" data-id="0" data-component="My Component"><span data-node-id="test-node-id.0" data-id="test-node.0" data-component="My Component" data-node-type="text">Item 1</span><span data-node-id="test-node-id.1" data-id="test-node.1" data-component="My Component" data-node-type="text">Item 2</span></div>"`,
     )
   })
 
@@ -107,7 +108,7 @@ describe('createNode()', () => {
       ctx,
       namespace: 'http://www.w3.org/1999/xhtml',
       dataSignal,
-      path: '0.0.0',
+      path: stringToPath('0.0.0'),
       id: 'repeat-node-id',
       parentElement,
       instance: {},
@@ -255,7 +256,7 @@ describe('createNode()', () => {
       ctx,
       namespace: 'http://www.w3.org/1999/xhtml',
       dataSignal,
-      path: 'cond',
+      path: stringToPath('cond'),
       id: 'conditional-node',
       parentElement,
       instance: {},
@@ -355,7 +356,7 @@ describe('createNode()', () => {
       ctx,
       namespace: 'http://www.w3.org/1999/xhtml',
       dataSignal,
-      path: 'nested',
+      path: stringToPath('nested'),
       id: 'outer-repeat',
       parentElement,
       instance: {},
@@ -455,7 +456,7 @@ describe('createNode()', () => {
       ctx,
       namespace: 'http://www.w3.org/1999/xhtml',
       dataSignal,
-      path: 'prepend',
+      path: stringToPath('prepend'),
       id: 'repeat',
       parentElement,
       instance: {},
@@ -524,7 +525,7 @@ describe('createNode()', () => {
       namespace: 'http://www.w3.org/1999/xhtml',
       dataSignal,
       id: 'repeat',
-      path: '0',
+      path: stringToPath('0'),
       instance: {},
       parentElement,
     })
@@ -663,7 +664,7 @@ describe('createNode()', () => {
         Attributes: {},
         Variables: {},
       }),
-      path: '0',
+      path: stringToPath('0'),
       id: 'root',
       parentElement,
       instance: {},
@@ -722,7 +723,7 @@ describe('createNode()', () => {
       id: 'repeat',
       instance: {},
       parentElement,
-      path: '0',
+      path: stringToPath('0'),
     })
     parentElement.append(...nodes)
 
@@ -858,7 +859,7 @@ describe('createNode()', () => {
       ctx,
       namespace: 'http://www.w3.org/1999/xhtml',
       dataSignal,
-      path: '0',
+      path: stringToPath('0'),
       id: 'repeat-node',
       parentElement,
       instance: {},

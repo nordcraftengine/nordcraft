@@ -10,11 +10,12 @@ describe('createText()', () => {
     let textElement = createText({
       ctx: {
         isRootComponent: false,
+        env: { runtime: 'preview' },
         component: { name: 'My Component' },
       } as Partial<ComponentContext> as any,
       namespace: 'http://www.w3.org/1999/xhtml',
       dataSignal: undefined as any,
-      path: 'test-text-element',
+      path: [{ index: 0 }],
       id: 'test-text-element-id',
       node: {
         type: 'text',
@@ -27,7 +28,7 @@ describe('createText()', () => {
     expect(textElement.getAttribute('data-node-id')).toBe(
       'test-text-element-id',
     )
-    expect(textElement.getAttribute('data-id')).toBe('test-text-element')
+    expect(textElement.getAttribute('data-id')).toBe('0')
     expect(textElement.getAttribute('data-component')).toBe('My Component')
     expect(textElement.children.length).toBe(0)
     expect(textElement.innerText).toBe('Hello world')
@@ -36,11 +37,12 @@ describe('createText()', () => {
     const textElement = createText({
       ctx: {
         isRootComponent: false,
+        env: { runtime: 'preview' },
         component: { name: 'My Component' },
       } as Partial<ComponentContext> as any,
       namespace: 'http://www.w3.org/2000/svg',
       dataSignal: undefined as any,
-      path: 'test-text-element',
+      path: [{ index: 0 }],
       id: 'test-text-element-id',
       node: {
         type: 'text',
@@ -54,9 +56,10 @@ describe('createText()', () => {
     const textElement = createText({
       ctx: {
         isRootComponent: true,
+        env: { runtime: 'preview' },
       } as Partial<ComponentContext> as any,
       dataSignal: undefined as any,
-      path: 'test-text-element',
+      path: [{ index: 0 }],
       id: 'test-text-element-id',
       node: {
         type: 'text',
@@ -70,9 +73,12 @@ describe('createText()', () => {
       Attributes: { text: 'Hello world' },
     })
     const textElement = createText({
-      ctx: { dataSignal } as Partial<ComponentContext> as any,
+      ctx: {
+        dataSignal,
+        env: { runtime: 'preview' },
+      } as Partial<ComponentContext> as any,
       dataSignal,
-      path: '',
+      path: [],
       id: '',
       node: {
         type: 'text',
@@ -88,9 +94,9 @@ describe('createText()', () => {
   })
   test('Show formulas are not respected for text elements', () => {
     const textElement = createText({
-      ctx: {} as Partial<ComponentContext> as any,
+      ctx: { env: { runtime: 'preview' } } as Partial<ComponentContext> as any,
       dataSignal: undefined as any,
-      path: '',
+      path: [],
       id: '',
       node: {
         type: 'text',
@@ -102,9 +108,9 @@ describe('createText()', () => {
   })
   test('Repeat formulas are not respected for text elements', () => {
     const textElement = createText({
-      ctx: {} as Partial<ComponentContext> as any,
+      ctx: { env: { runtime: 'preview' } } as Partial<ComponentContext> as any,
       dataSignal: undefined as any,
-      path: '',
+      path: [],
       id: '',
       node: {
         type: 'text',

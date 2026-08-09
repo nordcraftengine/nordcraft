@@ -4,7 +4,8 @@ import type {
   ElementNodeModel,
   NodeStyleModel,
 } from '../component/component.types'
-import type { Nullable } from '../types'
+import type { Nullable, Path } from '../types'
+import { pathToString } from '../utils/path'
 import { appendUnit } from './customProperty'
 import { generateAlphabeticName, hash } from './hash'
 import type { StyleVariant } from './variantSelector'
@@ -31,8 +32,8 @@ export const getClassName = (
   return className
 }
 
-export const getPathClassName = (path: string) =>
-  generateAlphabeticName(hash(path))
+export const getPathClassName = (path: Path) =>
+  generateAlphabeticName(hash(pathToString(path)))
 
 const getStaticCustomPropertyStyles = (
   customProperties: Record<`--${string}`, CustomProperty> | undefined,

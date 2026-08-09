@@ -16,6 +16,7 @@ import type {
   ContextApi,
   FormulaCache,
   LocationSignal,
+  Path,
   PreviewShowSignal,
 } from '../types'
 import { BatchQueue } from '../utils/BatchQueue'
@@ -30,7 +31,7 @@ interface RenderComponentProps {
   onEvent: (event: string, data: unknown) => void
   isRootComponent: boolean
   formulaCache: FormulaCache
-  path: string
+  path: Path
   children: Record<string, Array<ComponentChild>>
   root: Document | ShadowRoot
   providers: Record<
