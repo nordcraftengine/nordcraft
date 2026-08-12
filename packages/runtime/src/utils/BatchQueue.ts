@@ -13,13 +13,6 @@ export class BatchQueue {
       this.batchQueue[this.head++]?.()
     }
 
-    // Compact instead of shift()-ing per callback — shift() is O(n),
-    // this keeps add()/drain() close to O(1) even for large bursts.
-    if (this.head > 256 && this.head * 2 > this.batchQueue.length) {
-      this.batchQueue = this.batchQueue.slice(this.head)
-      this.head = 0
-    }
-
     if (this.head < this.batchQueue.length) {
       // Budget exceeded: fall back to a macrotask so the browser gets a chance to paint before we resume.
       setTimeout(() => this.drain(), 0)
