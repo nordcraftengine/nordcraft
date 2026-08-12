@@ -18,6 +18,7 @@ import type {
   LocationSignal,
   PreviewShowSignal,
 } from '../types'
+import { BatchQueue } from '../utils/BatchQueue'
 import { createNode } from './createNode'
 
 interface RenderComponentProps {
@@ -52,6 +53,8 @@ interface RenderComponentProps {
   jsonPath: Array<string | number> | undefined
   reportFormulaEvaluation?: FormulaEvaluationReporter
 }
+
+const BATCH_QUEUE = new BatchQueue()
 
 export function renderComponent({
   component,
@@ -113,7 +116,7 @@ export function renderComponent({
     namespace,
     instance,
   })
-  queueMicrotask(() => {
+  BATCH_QUEUE.add(() => {
     let prev: Record<string, any> | undefined
     if (
       component.onAttributeChange?.actions &&
