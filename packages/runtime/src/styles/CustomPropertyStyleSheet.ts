@@ -182,6 +182,11 @@ export class CustomPropertyStyleSheet {
   }
 
   private static escapeSelector(selector: string): string {
+    // Fast path
+    if (selector.indexOf('/') === -1) {
+      return selector
+    }
+
     // Prefix forward slashes with double backslashes (if not already prefixed) to escape them in CSS selectors
     return selector.replace(/(^|[^\\])\//g, '$1\\/') // Escape forward slashes
   }
