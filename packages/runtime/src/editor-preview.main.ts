@@ -108,7 +108,8 @@ import type {
   PreviewShowSignal,
 } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
-import { clamp, getThemeSignal, toSeconds } from './utils/getThemeSignal'
+import { getThemeSignal } from './utils/getThemeSignal'
+import { clamp, toSeconds } from './utils/helpers'
 import { markSelectedElement } from './utils/markSelectedElement'
 import {
   getNodeAndAncestors,
