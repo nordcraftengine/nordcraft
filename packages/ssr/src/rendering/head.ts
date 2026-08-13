@@ -200,7 +200,7 @@ export const getHeadItems = ({
       Object.entries(m.attrs ?? {}).some(
         ([k, value]) =>
           ['name', 'property'].includes(k.toLowerCase()) &&
-          value.type === 'value' &&
+          value?.type === 'value' &&
           typeof value.value === 'string' &&
           value.value.toLowerCase() === nameOrProperty.toLowerCase(),
       ),
