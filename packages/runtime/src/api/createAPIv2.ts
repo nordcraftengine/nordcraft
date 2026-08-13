@@ -39,6 +39,7 @@ import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
+import { createFormulaContext } from '../utils/createFormulaContext'
 import { ApiAbortHandler } from './apiUtils'
 
 /**
@@ -97,17 +98,10 @@ export function createAPI({
     componentData: ComponentData | undefined,
   ): FormulaContext {
     // Use the general formula context to evaluate the arguments of the api
-    const formulaContext: FormulaContext = {
-      data: ctx.dataSignal.get(),
-      component: ctx.component,
-      formulaCache: ctx.formulaCache,
-      root: ctx.root,
-      package: ctx.package,
-      toddle: ctx.toddle,
-      env: ctx.env,
-      jsonPath: ctx.jsonPath,
-      reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-    }
+    const formulaContext: FormulaContext = createFormulaContext(
+      ctx,
+      ctx.dataSignal.get(),
+    )
 
     // Make sure inputs are also available in the formula context
     const evaluatedInputs = Object.entries(api.inputs).reduce<
@@ -125,17 +119,7 @@ export function createAPI({
       },
     }
 
-    return {
-      component: ctx.component,
-      formulaCache: ctx.formulaCache,
-      root: ctx.root,
-      package: ctx.package,
-      data,
-      toddle: ctx.toddle,
-      env: ctx.env,
-      jsonPath: ctx.jsonPath,
-      reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-    }
+    return createFormulaContext(ctx, data)
   }
 
   function handleRedirectRules(api: ApiRequest, componentData: ComponentData) {
