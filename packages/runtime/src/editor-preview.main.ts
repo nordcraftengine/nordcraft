@@ -516,6 +516,7 @@ export const createRoot = (
           document.body.setAttribute('data-mode', message.data.mode)
           updateConditionalElements()
           window.dispatchEvent(new CustomEvent('selected-node-changed'))
+          requestResizeCanvas(resizeCanvasOptions)
           syncOverlayRects()
           break
         }
@@ -562,7 +563,11 @@ export const createRoot = (
               node.getAttribute('data-node-type') === 'text'
             ) {
               requestAnimationFrame(() => {
-                handleTextNodeSelection(node)
+                handleTextNodeSelection(node, {
+                  onInput: () => {
+                    syncOverlayRects()
+                  },
+                })
               })
             }
           }
@@ -571,12 +576,13 @@ export const createRoot = (
         }
         case 'highlight': {
           const highlightId = message.data.highlightedNodeId
-          highlightedNodeId = highlightId
-            ? highlightId
-                .split('.')
-                .map((part) => part.split('(')[0])
-                .join('.')
-            : null
+          highlightedNodeId =
+            typeof highlightId === 'string'
+              ? highlightId
+                  .split('.')
+                  .map((part) => part.split('(')[0])
+                  .join('.')
+              : null
           syncOverlayRects()
           return
         }
@@ -756,6 +762,8 @@ export const createRoot = (
         case 'style_variant_changed':
           const { variantIndex } = message.data
           updateSelectedStyleVariant(variantIndex)
+          requestResizeCanvas(resizeCanvasOptions)
+          syncOverlayRects()
           break
         case 'report_document_scroll_size':
           requestResizeCanvas({
@@ -881,10 +889,10 @@ export const createRoot = (
                   .map((value) => {
                     // If it is a float or float with unit we want to round to 2 decimal
                     if (value.match(/^(-?\d+)\.\d+([a-z]*|%?)$/)) {
-                      const splited = value.match(/([0-9.]+)\s*(.*)/) ?? ''
+                      const split = value.match(/([0-9.]+)\s*(.*)/) ?? ''
 
-                      const number = splited[1]
-                      const unit = splited[2]
+                      const number = split[1]
+                      const unit = split[2]
 
                       const roundNumber = Number(Number(number).toFixed(2))
                       const rounded = roundNumber.toString() + unit
@@ -1132,8 +1140,17 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               resourceElement.rel = 'stylesheet'
               resourceElement.href = resource.href
               document.head.appendChild(resourceElement)
+
+              // Sync canvas after the resource has loaded (if not already loaded)
+              if (!resourceElement.sheet) {
+                resourceElement.addEventListener('load', () => {
+                  requestResizeCanvas(resizeCanvasOptions)
+                  syncOverlayRects()
+                })
+              }
             })
           requestResizeCanvas(resizeCanvasOptions)
+          syncOverlayRects()
           break
         }
         case 'preview_theme': {
@@ -1709,11 +1726,10 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       // Clear old root signal and create a new one to not keep old signals with previous root around
       ctxDataSignal?.destroy()
       ctxDataSignal = dataSignal.map((data) => data)
-      ctxDataSignal
-        .map((data) => data.Variables)
-        .subscribe(() => {
-          requestResizeCanvas(resizeCanvasOptions)
-        })
+      ctxDataSignal.subscribe(() => {
+        requestResizeCanvas(resizeCanvasOptions)
+        syncOverlayRects()
+      })
       try {
         const rootElem = createNode({
           id: 'root',
