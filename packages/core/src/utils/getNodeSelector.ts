@@ -29,7 +29,9 @@ export function getNodeSelector(
     selector += `\\:${nodeId}`
   }
   // Escape unescaped slashes in the path to avoid issues with CSS selector parsing
-  selector = selector.replace(/(^|[^\\])\//g, '$1\\/')
+  if (selector.indexOf('/') !== -1) {
+    selector = selector.replace(/(^|[^\\])\//g, '$1\\/')
+  }
   if (variant) {
     selector += variantSelector(variant)
   }

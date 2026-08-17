@@ -27,73 +27,104 @@ export function getRectData(selectedNode: Element | null | undefined) {
 }
 
 /**
- * Intrinsic size is the size of the element without any rotation applied (ie. the smallest bounding box that can contain the element).
- * By default, getBoundingClientRect() returns a rectangle that contains the element as-is, so undoing the rotation is necessary to get the intrinsic size.
+ * Intrinsic size is the size of the element without any rotation applied (ie. the smallest
+ * bounding box that can contain the element). getBoundingClientRect() includes rotation, so we
+ * temporarily undo it (see neutralizeRotation) to measure the unrotated box.
  */
-function getIntrinsicRect(
-  node: Element,
-  rotate: string,
-): {
-  left: number
-  top: number
-  right: number
-  bottom: number
-  width: number
-  height: number
-  x: number
-  y: number
-} {
-  const nodeEl = node as HTMLElement
-  const prevTransform = nodeEl.style.transform
-  const prevDisplay = nodeEl.style.display
-  const style = window.getComputedStyle(nodeEl)
-  const currentTransform = style.transform
-  const baseTransform =
-    currentTransform === 'none' ? 'matrix(1,0,0,1,0,0)' : currentTransform
+function getIntrinsicRect(node: Element, rotate: string): DOMRect {
+  const isInline = window.getComputedStyle(node).display === 'inline'
+  const rect = isInline ? getInlineRect(node) : node.getBoundingClientRect()
 
-  if (style.display === 'inline') {
-    nodeEl.style.setProperty('display', 'inline-block', 'important')
+  const matrix = new DOMMatrix(rotate)
+  if (matrix.isIdentity) {
+    return rect
   }
 
-  nodeEl.style.setProperty(
-    'transform',
-    `${new DOMMatrix(rotate).inverse().toString()} ${baseTransform}`,
-    'important',
-  )
+  const inverse = matrix.inverse()
+  const cx = rect.left + rect.width / 2
+  const cy = rect.top + rect.height / 2
 
-  const rect = node.getBoundingClientRect()
-
-  if (prevTransform) {
-    nodeEl.style.setProperty('transform', prevTransform)
-  } else {
-    nodeEl.style.removeProperty('transform')
+  const transformPoint = (x: number, y: number) => {
+    const dx = x - cx
+    const dy = y - cy
+    const tx = inverse.a * dx + inverse.c * dy + inverse.e
+    const ty = inverse.b * dx + inverse.d * dy + inverse.f
+    return {
+      x: tx + cx,
+      y: ty + cy,
+    }
   }
 
-  if (prevDisplay) {
-    nodeEl.style.setProperty('display', prevDisplay)
-  } else {
-    nodeEl.style.removeProperty('display')
+  const p1 = transformPoint(rect.left, rect.top)
+  const p2 = transformPoint(rect.left + rect.width, rect.top)
+  const p3 = transformPoint(rect.left, rect.top + rect.height)
+  const p4 = transformPoint(rect.left + rect.width, rect.top + rect.height)
+
+  const xs = [p1.x, p2.x, p3.x, p4.x]
+  const ys = [p1.y, p2.y, p3.y, p4.y]
+
+  const minX = Math.min(...xs)
+  const maxX = Math.max(...xs)
+  const minY = Math.min(...ys)
+  const maxY = Math.max(...ys)
+
+  let width = maxX - minX
+  let height = maxY - minY
+
+  const a = Math.abs(matrix.a)
+  const c = Math.abs(matrix.c)
+  const denom = a * a - c * c
+
+  if (Math.abs(denom) > 0.15) {
+    const exactW = (rect.width * a - rect.height * c) / denom
+    const exactH = (rect.height * a - rect.width * c) / denom
+    if (exactW > 0 && exactH > 0) {
+      width = exactW
+      height = exactH
+    }
   }
 
-  return rect
+  const left = cx - width / 2
+  const top = cy - height / 2
+  return new DOMRect(left, top, width, height)
 }
 
 /**
- * There is no well supported API to get the "world" rotation of an element (even though the browser knows it and uses it internally).
- * This function traverses up the DOM tree and multiplies the rotation matrices of each element to get the combined rotation of the element in world space.
+ * Uses a Range to get a stable, precise rect around the text content of an inline element/span.
+ * This avoids browser-dependent baseline/line-height quirks that getBoundingClientRect()
+ * can produce for inline elements.
+ */
+function getInlineRect(node: Element): DOMRect {
+  try {
+    const range = document.createRange()
+    range.selectNodeContents(node)
+    const rangeRect = range.getBoundingClientRect()
+    if (rangeRect.width > 0 && rangeRect.height > 0) {
+      return rangeRect
+    }
+  } catch {
+    // fall through to getBoundingClientRect below
+  }
+
+  return node.getBoundingClientRect()
+}
+
+/**
+ * There is no well supported API to get the "world" rotation of an element (even though the
+ * browser knows it and uses it internally). This traverses up the DOM tree, multiplying the
+ * rotation matrices of each ancestor to get the combined rotation in world space.
  */
 function getFullRotation(node: Element): string {
   let combined = new DOMMatrix()
   let current: Element | null = node
 
   while (current && current !== document.documentElement) {
-    const style = window.getComputedStyle(current)
-    const { transform, rotate } = style
+    const { transform, rotate } = window.getComputedStyle(current)
 
-    if (transform && transform !== 'none') {
+    if (transform !== 'none') {
       combined = new DOMMatrix(transform).multiply(combined)
     }
-    if (rotate && rotate !== 'none') {
+    if (rotate !== 'none') {
       combined = parseRotate(rotate).multiply(combined)
     }
 
@@ -103,6 +134,7 @@ function getFullRotation(node: Element): string {
   return extractRotationMatrix(combined).toString()
 }
 
+/** Strips scale from a matrix, leaving only rotation. */
 function extractRotationMatrix(m: DOMMatrix): DOMMatrix {
   const sx = Math.hypot(m.m11, m.m12, m.m13) || 1
   const sy = Math.hypot(m.m21, m.m22, m.m23) || 1
@@ -141,23 +173,21 @@ function parseRotate(rotate: string): DOMMatrix {
   const parts = rotate.trim().split(/\s+/)
   const angle = parseFloat(parts[parts.length - 1])
 
-  if (parts.length === 1) {
-    return matrix.rotateSelf(0, 0, angle)
+  switch (parts.length) {
+    case 1:
+      return matrix.rotateSelf(0, 0, angle)
+    case 2: {
+      const axis = parts[0].toLowerCase()
+      if (axis === 'x') return matrix.rotateSelf(angle, 0, 0)
+      if (axis === 'y') return matrix.rotateSelf(0, angle, 0)
+      if (axis === 'z') return matrix.rotateSelf(0, 0, angle)
+      return matrix
+    }
+    case 4: {
+      const [x, y, z] = parts.slice(0, 3).map(parseFloat)
+      return matrix.rotateAxisAngleSelf(x, y, z, angle)
+    }
+    default:
+      return matrix
   }
-
-  if (parts.length === 2) {
-    const axis = parts[0].toLowerCase()
-    if (axis === 'x') return matrix.rotateSelf(angle, 0, 0)
-    if (axis === 'y') return matrix.rotateSelf(0, angle, 0)
-    if (axis === 'z') return matrix.rotateSelf(0, 0, angle)
-  }
-
-  if (parts.length === 4) {
-    const x = parseFloat(parts[0])
-    const y = parseFloat(parts[1])
-    const z = parseFloat(parts[2])
-    return matrix.rotateAxisAngleSelf(x, y, z, angle)
-  }
-
-  return matrix
 }
