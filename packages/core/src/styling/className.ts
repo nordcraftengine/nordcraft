@@ -92,8 +92,11 @@ export const toValidClassName = (
   }
 
   // Ensure the class name doesn't start with a number or special character
-  if (/^[^a-zA-Z]/.test(className)) {
-    className = `_${className}`
+  if (className.length > 0) {
+    const code = className.charCodeAt(0)
+    if (!((code >= 65 && code <= 90) || (code >= 97 && code <= 122))) {
+      className = `_${className}`
+    }
   }
 
   return className

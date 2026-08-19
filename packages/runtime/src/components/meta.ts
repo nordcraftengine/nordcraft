@@ -14,7 +14,7 @@ export const getDynamicMetaEntries = (
     if (isDefined(entry.content) && entry.content.type !== 'value') {
       dynamicMetaEntries[key] = entry
     } else if (
-      Object.values(entry.attrs ?? {}).some((a) => a.type !== 'value')
+      Object.values(entry.attrs ?? {}).some((a) => a?.type !== 'value')
     ) {
       dynamicMetaEntries[key] = entry
     }

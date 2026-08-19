@@ -1,10 +1,9 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { radialGradientShape, radialGradientSize } from '../const'
 import {
-  getValue,
+  getVariableValueByName,
   isColor,
   isVariable,
-  parse,
   parseMultipleValues,
 } from '../shared'
 import type {
@@ -211,21 +210,17 @@ const checkVariableValueRadial = (args: {
 
   allValues.forEach((val) => {
     if (isVariable(val)) {
-      const usedVariable = args.variables.find((v) =>
-        v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
-      )
-      if (!usedVariable) {
+      const parsedVariable = getVariableValueByName({
+        variableName: val,
+        variables: args.variables,
+      })
+
+      if (!isDefined(parsedVariable)) {
         return
       }
 
-      const parsedUsedVariable =
-        usedVariable.unit && usedVariable.unit !== ''
-          ? parse({ input: `${usedVariable.value}${usedVariable.unit}` })
-          : parse({ input: usedVariable.value })
-
-      const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
-      const parsedVariable = parseMultipleValues(parsedUsedVariableVal)[0]
-      if (!isDefined(parsedVariable)) {
+      if (parsedVariable === 'invalid') {
+        invalidValues.push(returnValue)
         return
       }
 
@@ -376,68 +371,61 @@ const checkValue = ({
         if (value.type !== 'functionArguments') {
           const val = value.value
           if (isVariable(val)) {
-            const usedVariable = variables.find((v) =>
-              v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
-            )
-            if (!usedVariable) {
+            const parsedVariable = getVariableValueByName({
+              variableName: val,
+              variables,
+            })
+
+            if (!isDefined(parsedVariable)) {
               return
             }
 
-            const parsedUsedVariable =
-              usedVariable.unit && usedVariable.unit !== ''
-                ? parse({
-                    input: `${usedVariable.value}${usedVariable.unit}`,
-                  })
-                : parse({ input: usedVariable.value })
+            if (parsedVariable === 'invalid') {
+              return
+            }
 
-            const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
-
-            const parsedVariable = parseMultipleValues(parsedUsedVariableVal)[0]
-
-            if (isDefined(parsedVariable)) {
-              const valueToReturn = returnValue ?? {
-                type: 'function',
-                name: 'var',
-                value: valueToCheck.arguments
-                  .map((a) => {
-                    // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
-                    switch (a.type) {
-                      case 'angle':
-                      case 'length':
-                      case 'time':
-                      case 'resolution': {
-                        return `${a.value}${a.unit}`
-                      }
-                      case 'keyword':
-                      case 'number':
-                      case 'string':
-                      case 'hex': {
-                        return `${a.value}`
-                      }
-                      case 'function': {
-                        return `${a.name}(${a.value})`
-                      }
-                      case 'functionArguments': {
-                        return ``
-                      }
+            const valueToReturn = returnValue ?? {
+              type: 'function',
+              name: 'var',
+              value: valueToCheck.arguments
+                .map((a) => {
+                  // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
+                  switch (a.type) {
+                    case 'angle':
+                    case 'length':
+                    case 'time':
+                    case 'resolution': {
+                      return `${a.value}${a.unit}`
                     }
-                  })
-                  .join(', '),
-              }
+                    case 'keyword':
+                    case 'number':
+                    case 'string':
+                    case 'hex': {
+                      return `${a.value}`
+                    }
+                    case 'function': {
+                      return `${a.name}(${a.value})`
+                    }
+                    case 'functionArguments': {
+                      return ``
+                    }
+                  }
+                })
+                .join(', '),
+            }
 
-              const newProp = checkValue({
-                valueToCheck: parsedVariable,
-                returnValue: valueToReturn,
-                images: imagesSet,
-                variables,
-              })
+            const newProp = checkValue({
+              valueToCheck: parsedVariable,
+              returnValue: valueToReturn,
+              images: imagesSet,
+              variables,
+            })
 
-              if (newProp.imagesSet.length > 0) {
-                imagesSet = newProp.imagesSet
-              }
-              if (isDefined(newProp.invalidValue)) {
-                invalidValue = newProp.invalidValue
-              }
+            if (newProp.imagesSet.length > 0) {
+              imagesSet = newProp.imagesSet
+            }
+            if (isDefined(newProp.invalidValue)) {
+              invalidValue = newProp.invalidValue
             }
           } else {
             const parsedVariable = parseMultipleValues([

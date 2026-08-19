@@ -1,10 +1,9 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { colorFunction, lineStyle, outlineStyle } from './const'
 import {
-  getValue,
+  getVariableValueByName,
   isColor,
   isVariable,
-  parse,
   parseMultipleValues,
 } from './shared'
 import type { CSSStyleToken, ParsedValueType } from './types'
@@ -58,25 +57,21 @@ export const parseBorderOrOutline = (args: {
     const allValues = valueToCheck.value.split(', ')
     allValues.forEach((val) => {
       if (isVariable(val)) {
-        const usedVariable = variables.find((v) =>
-          v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
-        )
-        if (!usedVariable) {
+        const parsedVariable = getVariableValueByName({
+          variableName: val,
+          variables,
+        })
+
+        if (!isDefined(parsedVariable)) {
           return
         }
 
-        const value =
-          usedVariable.unit && usedVariable.unit !== ''
-            ? getValue(
-                parse({
-                  input: `${usedVariable.value}${usedVariable.unit}`,
-                })[0],
-              )
-            : getValue(parse({ input: usedVariable.value })[0])
-
-        const parsedVariable = parseMultipleValues(value)
+        if (parsedVariable === 'invalid') {
+          invalidValue = true
+          return
+        }
         const newProp = parseBorderOrOutline({
-          valueToCheck: parsedVariable[0],
+          valueToCheck: parsedVariable,
           property,
           variables,
           valueToReturn: valueToCheck,
