@@ -81,6 +81,11 @@ import {
 import { throttleToIdleCallback } from './editor/editorUtils'
 import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
+import {
+  handleInsertEnded,
+  handleInsertMouseMove,
+  handleInsertStarted,
+} from './editor/insert/insertHandlers'
 import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
@@ -95,6 +100,7 @@ import { handleTextMouseMove } from './editor/text-selection/mouseMove'
 import { handleTextNodeSelection } from './editor/text-selection/selection'
 import type {
   DragState,
+  InsertState,
   NordcraftPreviewEvent,
   PointerState,
   SelectionState,
@@ -331,6 +337,7 @@ export const createRoot = (
   } | null = null
   let routeSignal: Signal<any> | null = null
   let dragState: DragState | null = null
+  let insertState: InsertState | null = null
   let animationState: {
     animatedElementId: string | null
     time: number | null
@@ -611,6 +618,16 @@ export const createRoot = (
         }
 
         case 'mousemove': {
+          if (['insert-div', 'insert-text'].includes(message.data.canvasTool)) {
+            if (insertState && !insertState.destroying) {
+              handleInsertMouseMove(message.data, insertState)
+              syncOverlayRects()
+              return
+            } else {
+              insertState = handleInsertStarted(message.data, highlightedNodeId)
+            }
+          }
+
           if (dragState && !dragState.destroying) {
             handleDragMouseMove(message.data, dragState, metaKey)
             syncOverlayRects()
@@ -850,6 +867,23 @@ export const createRoot = (
             void handleDragEnded(message.data, dragState, component).then(
               (newState) => {
                 dragState = newState
+                clearInterval(interval)
+              },
+            )
+          }
+          break
+        // Not sure if I need tthis ?
+        case 'insert-started':
+          insertState = handleInsertStarted(message.data, highlightedNodeId)
+          break
+        case 'insert-ended':
+          if (insertState) {
+            const interval = setInterval(() => {
+              syncOverlayRects()
+            }, 1000 / 60)
+            void handleInsertEnded(message.data, insertState).then(
+              (newState) => {
+                insertState = newState
                 clearInterval(interval)
               },
             )
