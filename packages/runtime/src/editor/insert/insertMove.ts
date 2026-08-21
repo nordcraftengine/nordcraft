@@ -1,6 +1,5 @@
 import { findNearestLine } from '../../utils/findNearestLine'
 import { stripNodeIdRepeatIndices } from '../../utils/nodes'
-import { DRAG_REORDER_CLASSNAME } from '../drag-drop/dragReorder'
 import {
   removeDropHighlight,
   setExternalDropHighlight,
@@ -19,7 +18,6 @@ export function insertMove(
   }
 
   insertState.element.style.setProperty('display', 'none')
-  // We only calculate insert locations when dragging outside the container to avoid unnecessary calculations
   insertState.insertAreas ??= getInsertAreas().filter(
     (x) =>
       exclude.every((e) => !e?.contains(x.parent) && e !== x.parent) &&
@@ -31,23 +29,21 @@ export function insertMove(
   const rect = insertState.element.getBoundingClientRect()
   document.body.appendChild(insertState.element)
   insertState.element.classList.add(INSERT_MOVE_CLASSNAME)
-  insertState.element.classList.remove(DRAG_REORDER_CLASSNAME)
   insertState.element.style.setProperty(
-    '--drag-mode--move-left',
+    '--insert-mode--move-left',
     `${rect.left}px`,
   )
   insertState.element.style.setProperty(
-    '--drag-mode--move-top',
+    '--insert-mode--move-top',
     `${rect.top}px`,
   )
   insertState.element.style.setProperty(
-    '--drag-mode--move-width',
+    '--insert-mode--move-width',
     `${insertState.initialRect.width}px`,
   )
   insertState.element.style.setProperty('translate', translate)
-  ////////////////////
   insertState.repeatedNodes.forEach((node, i) => {
-    node.style.setProperty('--drag-repeat-node-opacity', i < 3 ? '0.2' : '0')
+    node.style.setProperty('--insert-repeat-node-opacity', i < 3 ? '0.2' : '0')
   })
 
   const lines = insertState.insertAreas?.map((line) => {
@@ -91,7 +87,7 @@ export function insertMove(
     setExternalDropHighlight({
       layout: insertArea.layout,
       center: insertArea.center,
-      length: insertArea.size,
+      length: insertArea.size > 0 ? insertArea.size : 6,
       color: '2563EB',
       projectionPoint,
     })

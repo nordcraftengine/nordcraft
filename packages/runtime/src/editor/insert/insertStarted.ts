@@ -2,7 +2,7 @@ import { stripNodeIdRepeatIndices } from '../../utils/nodes'
 import { setDropHighlight } from '../drag-drop/dropHighlight'
 import type { InsertState, Point } from '../types'
 
-export const INSERT_REORDER_CLASSNAME = '__drag-mode--reorder'
+export const INSERT_REORDER_CLASSNAME = '__insert-mode--reorder'
 
 export function insertStarted({
   element,
@@ -17,22 +17,22 @@ export function insertStarted({
   initialContainer?: HTMLElement
   initialNextSibling?: Element | null
 }) {
-  // Move repeat nodes as a stack below the dragged element
+  // Move repeat nodes as a stack below the new element
   repeatedNodes
     .map<[HTMLElement, DOMRect]>((node) => [node, node.getBoundingClientRect()])
     .forEach(([node, rect], i) => {
-      node.classList.add('drag-repeat-node')
-      node.style.setProperty('--drag-repeat-node-width', `${rect.width}px`)
-      node.style.setProperty('--drag-repeat-node-height', `${rect.height}px`)
+      node.classList.add('insert-repeat-node')
+      node.style.setProperty('--insert-repeat-node-width', `${rect.width}px`)
+      node.style.setProperty('--insert-repeat-node-height', `${rect.height}px`)
       node.style.setProperty(
-        '--drag-repeat-node-translate',
+        '--insert-repeat-node-translate',
         `${rect.left}px ${rect.top}px`,
       )
       node.style.setProperty(
-        '--drag-repeat-node-rotate',
+        '--insert-repeat-node-rotate',
         `${Math.random() * 9 - 4.5}deg`,
       )
-      node.style.setProperty('--drag-repeat-node-opacity', i < 3 ? '1' : '0')
+      node.style.setProperty('--insert-repeat-node-opacity', i < 3 ? '1' : '0')
     })
 
   initialNextSibling ??= element.nextElementSibling
@@ -50,8 +50,8 @@ export function insertStarted({
   }
 
   // Calculate all possible permutations, by iterating over all siblings of the targetContainer
-  // and moving the draggedElement to before each sibling to calculate the rect and then
-  // store it in the dragState.permutations array
+  // and moving the pointer to before each sibling to calculate the rect and then
+  // store it in the insertState.permutations array
   insertState.initialContainer.childNodes.forEach((sibling) => {
     if (
       sibling instanceof Element &&
@@ -76,7 +76,7 @@ export function insertStarted({
       rect: element.getBoundingClientRect(),
     })
   }
-  // Restore the initial position of the draggedElement
+  // Restore the initial position of the new Element
   insertState.initialContainer.insertBefore(
     element,
     insertState.initialNextSibling,
@@ -97,7 +97,7 @@ export function insertStarted({
       const interpolation = 0.4
       const x = fromRect.left + (toX - fromRect.left) * interpolation
       const y = fromRect.top + (toY - fromRect.top) * interpolation
-      node.style.setProperty('--drag-repeat-node-translate', `${x}px ${y}px`)
+      node.style.setProperty('--insert-repeat-node-translate', `${x}px ${y}px`)
     })
 
     requestAnimationFrame(followRepeatedNodes)
