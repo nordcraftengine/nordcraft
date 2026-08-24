@@ -99,8 +99,7 @@ import { handleTextMouseDown } from './editor/text-selection/mouseDown'
 import { handleTextMouseMove } from './editor/text-selection/mouseMove'
 import { handleTextNodeSelection } from './editor/text-selection/selection'
 import type {
-  DragState,
-  InsertState,
+  DragInsertState,
   NordcraftPreviewEvent,
   PointerState,
   SelectionState,
@@ -336,8 +335,8 @@ export const createRoot = (
     styleVariantIndex: number
   } | null = null
   let routeSignal: Signal<any> | null = null
-  let dragState: DragState | null = null
-  let insertState: InsertState | null = null
+  let dragState: DragInsertState | null = null
+  let insertState: DragInsertState | null = null
   let animationState: {
     animatedElementId: string | null
     time: number | null

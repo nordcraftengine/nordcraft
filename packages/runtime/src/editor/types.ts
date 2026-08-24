@@ -244,7 +244,7 @@ export type EditorPostMessageType =
       width: number
     }
 
-export type DragState = {
+export type DragInsertState = {
   /**
    * Dragging elements within the initial container is a reorder operation while dragging elements outside the initial container is an insert operation.
    * While they share some common properties, we need to differentiate between the two to handle them differently.
@@ -267,27 +267,6 @@ export type DragState = {
   selectedInsertAreaIndex?: number
   insertAreas?: Array<InsertArea>
   destroying: boolean
-}
-
-export type InsertState = {
-  /**
-   * Dragging elements within the initial container is a reorder operation while dragging elements outside the initial container is an insert operation.
-   * While they share some common properties, we need to differentiate between the two to handle them differently.
-   */
-  offset: Point
-  lastCursorPosition: Point
-  reorderPermutations: Array<{
-    nextSibling: Node | null
-    rect: DOMRect
-  }>
-  selectedInsertAreaIndex?: number
-  insertAreas?: Array<InsertArea>
-  destroying: boolean
-  element: HTMLElement
-  repeatedNodes: HTMLElement[]
-  initialContainer: HTMLElement
-  initialNextSibling: Element | null
-  initialRect: DOMRect
 }
 
 export type InsertArea = {

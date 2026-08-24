@@ -1,14 +1,13 @@
 import { isElementInViewport } from '../../utils/isElementInViewport'
 import { stripNodeIdRepeatIndices } from '../../utils/nodes'
 import { tryStartViewTransition } from '../../utils/tryStartViewTransition'
-import { getBestPermutation } from '../helpers'
-import type { DragState } from '../types'
-import { DRAG_MOVE_CLASSNAME } from './dragMove'
+import { DRAG_MOVE_CLASSNAME, getBestPermutation } from '../helpers'
+import type { DragInsertState } from '../types'
 import { setDropHighlight } from './dropHighlight'
 
 export const DRAG_REORDER_CLASSNAME = '__drag-mode--reorder'
 
-export async function dragReorder(dragState: DragState | null) {
+export async function dragReorder(dragState: DragInsertState | null) {
   if (!dragState || dragState.isTransitioning) {
     return
   }

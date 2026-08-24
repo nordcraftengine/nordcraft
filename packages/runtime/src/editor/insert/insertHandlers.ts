@@ -1,15 +1,13 @@
 import { getDOMNodeFromNodeId } from '../../editor-preview.main'
 import { rectHasPoint } from '../../utils/rectHasPoint'
+import { dragInsertEnded, dragInsertMove, dragInsertStarted } from '../helpers'
 import { postMessageToEditor } from '../postMessageToEditor'
-import type { InsertState } from '../types'
-import { insertEnded } from './insertEnded'
-import { insertMove } from './insertMove'
-import { insertStarted } from './insertStarted'
+import type { DragInsertState } from '../types'
 
 export const handleInsertStarted = (
   messageData: { x: number; y: number },
   highlightedNodeId: string | null,
-): InsertState | null => {
+): DragInsertState | null => {
   const highlightedElement = getDOMNodeFromNodeId(highlightedNodeId)
   if (!highlightedElement?.parentElement) {
     return null
@@ -22,11 +20,13 @@ export const handleInsertStarted = (
 
   const element = document.createElement('div') as HTMLElement
 
-  const insertState = insertStarted({
+  const insertState = dragInsertStarted({
+    action: 'insert',
     element,
     initialContainer: highlightedElement as HTMLElement,
     lastCursorPosition: { x: messageData.x, y: messageData.y },
     repeatedNodes,
+    asCopy: false,
   })
 
   return insertState
@@ -34,7 +34,7 @@ export const handleInsertStarted = (
 
 export const handleInsertMouseMove = (
   messageData: { x: number; y: number },
-  insertState: InsertState,
+  insertState: DragInsertState,
 ) => {
   const { x, y } = messageData
   insertState.lastCursorPosition = { x, y }
@@ -45,17 +45,17 @@ export const handleInsertMouseMove = (
     insertState.offset.y -= (y - (rect.top + rect.height / 2)) * 0.1
   }
 
-  insertMove(insertState, [insertState.element])
+  dragInsertMove('insert', insertState, [insertState.element])
 }
 
 export const handleInsertEnded = async (
   messageData: { canceled?: boolean },
-  insertState: InsertState,
-): Promise<InsertState | null> => {
+  insertState: DragInsertState,
+): Promise<DragInsertState | null> => {
   const selectedPermutation =
     insertState?.insertAreas?.[insertState?.selectedInsertAreaIndex ?? -1]
   if (selectedPermutation && !messageData.canceled) {
-    await insertEnded(insertState, false)
+    await dragInsertEnded(insertState, false)
 
     postMessageToEditor({
       type: 'insertNode',
@@ -64,7 +64,7 @@ export const handleInsertEnded = async (
     })
     return null
   } else {
-    await insertEnded(insertState, true)
+    await dragInsertEnded(insertState, true)
     return null
   }
 }
