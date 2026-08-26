@@ -7,6 +7,7 @@ import type { DragInsertState } from '../types'
 export const handleInsertStarted = (
   messageData: { x: number; y: number },
   highlightedNodeId: string | null,
+  elementType: 'text' | 'div',
 ): DragInsertState | null => {
   const highlightedElement = getDOMNodeFromNodeId(highlightedNodeId)
   if (!highlightedElement?.parentElement) {
@@ -18,11 +19,17 @@ export const handleInsertStarted = (
       node.getAttribute('data-id')?.startsWith(highlightedNodeId + '('),
   ) as HTMLElement[]
 
-  const element = document.createElement('div') as HTMLElement
+  const divElement = document.createElement('div')
+  divElement.setAttribute('data-selected', 'true')
+  divElement.style.minWidth = '1em'
+  divElement.style.minHeight = '1em'
+
+  const textElement = document.createElement('span')
+  textElement.textContent = 'Text'
 
   const insertState = dragInsertStarted({
     action: 'insert',
-    element,
+    element: elementType === 'div' ? divElement : textElement,
     initialContainer: highlightedElement as HTMLElement,
     lastCursorPosition: { x: messageData.x, y: messageData.y },
     repeatedNodes,
@@ -46,12 +53,16 @@ export const handleInsertMouseMove = (
   }
 
   dragInsertMove('insert', insertState, [insertState.element])
+  insertState.element.style.setProperty(
+    'translate',
+    `${x - insertState.offset.x}px ${y - insertState.offset.y}px`,
+  )
 }
 
 export const handleInsertEnded = async (
   messageData: { canceled?: boolean },
   insertState: DragInsertState,
-): Promise<DragInsertState | null> => {
+) => {
   const selectedPermutation =
     insertState?.insertAreas?.[insertState?.selectedInsertAreaIndex ?? -1]
   if (selectedPermutation && !messageData.canceled) {

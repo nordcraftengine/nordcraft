@@ -14,6 +14,27 @@ import type { DragInsertState, Point } from './types'
 const OVERLAP_OFFSET_PX = 100
 export const DRAG_MOVE_CLASSNAME = '__drag-mode--move'
 
+const voidElements = new Set([
+  'AREA',
+  'BASE',
+  'BR',
+  'COL',
+  'EMBED',
+  'HR',
+  'IMG',
+  'INPUT',
+  'LINK',
+  'META',
+  'PARAM',
+  'SOURCE',
+  'TRACK',
+  'WBR',
+])
+
+export function isVoidElement(element: Element) {
+  return voidElements.has(element.tagName)
+}
+
 /**
  * Return the most likely permutation to move the dragged element to based on the current drag position.
  * The calculation is based on distance from the center of the dragged element to the center of the potential target element,
@@ -328,6 +349,10 @@ export function dragInsertMove(
     dragInsertState.element.style.setProperty(
       '--drag-mode--move-width',
       `${dragInsertState.initialRect.width}px`,
+    )
+    dragInsertState.element.style.setProperty(
+      '--drag-mode--move-opacity',
+      action === 'insert' ? '0' : '0.4',
     )
     dragInsertState.element.style.setProperty('translate', translate)
   }

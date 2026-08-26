@@ -622,8 +622,14 @@ export const createRoot = (
               handleInsertMouseMove(message.data, insertState)
               syncOverlayRects()
               return
-            } else {
-              insertState = handleInsertStarted(message.data, highlightedNodeId)
+            } else if (!insertState?.destroying) {
+              const elementType =
+                message.data.canvasTool === 'insert-div' ? 'div' : 'text'
+              insertState = handleInsertStarted(
+                message.data,
+                highlightedNodeId,
+                elementType,
+              )
             }
           }
 
@@ -871,9 +877,14 @@ export const createRoot = (
             )
           }
           break
-        // Not sure if I need tthis ?
         case 'insert-started':
-          insertState = handleInsertStarted(message.data, highlightedNodeId)
+          const elementType =
+            message.data.canvasTool === 'insert-div' ? 'div' : 'text'
+          insertState = handleInsertStarted(
+            message.data,
+            highlightedNodeId,
+            elementType,
+          )
           break
         case 'insert-ended':
           if (insertState) {

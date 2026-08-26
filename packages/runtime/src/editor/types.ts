@@ -71,7 +71,12 @@ export type NordcraftPreviewEvent =
   | { type: 'introspect_qraphql_api'; apiKey: string }
   | { type: 'drag-started'; x: number; y: number }
   | { type: 'drag-ended'; canceled?: true }
-  | { type: 'insert-started'; x: number; y: number }
+  | {
+      type: 'insert-started'
+      x: number
+      y: number
+      canvasTool: 'select' | 'pan' | 'insert-div' | 'insert-text'
+    }
   | { type: 'insert-ended'; canceled?: true }
   | { type: 'keydown'; key: string; altKey: boolean; metaKey: boolean }
   | { type: 'keyup'; key: string; altKey: boolean; metaKey: boolean }
