@@ -81,6 +81,11 @@ import {
 import { throttleToIdleCallback } from './editor/editorUtils'
 import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
+import {
+  handleInsertEnded,
+  handleInsertMouseMove,
+  handleInsertStarted,
+} from './editor/insert/insertHandlers'
 import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
@@ -94,7 +99,7 @@ import { handleTextMouseDown } from './editor/text-selection/mouseDown'
 import { handleTextMouseMove } from './editor/text-selection/mouseMove'
 import { handleTextNodeSelection } from './editor/text-selection/selection'
 import type {
-  DragState,
+  DragInsertState,
   NordcraftPreviewEvent,
   PointerState,
   SelectionState,
@@ -330,7 +335,8 @@ export const createRoot = (
     styleVariantIndex: number
   } | null = null
   let routeSignal: Signal<any> | null = null
-  let dragState: DragState | null = null
+  let dragState: DragInsertState | null = null
+  let insertState: DragInsertState | null = null
   let animationState: {
     animatedElementId: string | null
     time: number | null
@@ -611,6 +617,22 @@ export const createRoot = (
         }
 
         case 'mousemove': {
+          if (['insert-div', 'insert-text'].includes(message.data.canvasTool)) {
+            if (insertState && !insertState.destroying) {
+              handleInsertMouseMove(message.data, insertState)
+              syncOverlayRects()
+              return
+            } else if (!insertState?.destroying) {
+              const elementType =
+                message.data.canvasTool === 'insert-div' ? 'div' : 'text'
+              insertState = handleInsertStarted(
+                message.data,
+                highlightedNodeId,
+                elementType,
+              )
+            }
+          }
+
           if (dragState && !dragState.destroying) {
             handleDragMouseMove(message.data, dragState, metaKey)
             syncOverlayRects()
@@ -850,6 +872,28 @@ export const createRoot = (
             void handleDragEnded(message.data, dragState, component).then(
               (newState) => {
                 dragState = newState
+                clearInterval(interval)
+              },
+            )
+          }
+          break
+        case 'insert-started':
+          const elementType =
+            message.data.canvasTool === 'insert-div' ? 'div' : 'text'
+          insertState = handleInsertStarted(
+            message.data,
+            highlightedNodeId,
+            elementType,
+          )
+          break
+        case 'insert-ended':
+          if (insertState) {
+            const interval = setInterval(() => {
+              syncOverlayRects()
+            }, 1000 / 60)
+            void handleInsertEnded(message.data, insertState).then(
+              (newState) => {
+                insertState = newState
                 clearInterval(interval)
               },
             )

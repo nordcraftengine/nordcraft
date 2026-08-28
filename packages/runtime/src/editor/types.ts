@@ -63,6 +63,7 @@ export type NordcraftPreviewEvent =
       x: number
       y: number
       buttons: number
+      canvasTool: 'select' | 'pan' | 'insert-div' | 'insert-text'
     }
   | { type: 'report_document_scroll_size' }
   | { type: 'reload' }
@@ -70,6 +71,13 @@ export type NordcraftPreviewEvent =
   | { type: 'introspect_qraphql_api'; apiKey: string }
   | { type: 'drag-started'; x: number; y: number }
   | { type: 'drag-ended'; canceled?: true }
+  | {
+      type: 'insert-started'
+      x: number
+      y: number
+      canvasTool: 'select' | 'pan' | 'insert-div' | 'insert-text'
+    }
+  | { type: 'insert-ended'; canceled?: true }
   | { type: 'keydown'; key: string; altKey: boolean; metaKey: boolean }
   | { type: 'keyup'; key: string; altKey: boolean; metaKey: boolean }
   | {
@@ -147,6 +155,11 @@ export type EditorPostMessageType =
   | {
       type: 'nodeMoved'
       copy: boolean
+      parent?: string | null
+      index?: number
+    }
+  | {
+      type: 'insertNode'
       parent?: string | null
       index?: number
     }
@@ -236,7 +249,7 @@ export type EditorPostMessageType =
       width: number
     }
 
-export type DragState = {
+export type DragInsertState = {
   /**
    * Dragging elements within the initial container is a reorder operation while dragging elements outside the initial container is an insert operation.
    * While they share some common properties, we need to differentiate between the two to handle them differently.
