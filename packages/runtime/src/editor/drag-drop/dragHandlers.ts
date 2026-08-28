@@ -1,18 +1,16 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import { getDOMNodeFromNodeId } from '../../editor-preview.main'
 import { rectHasPoint } from '../../utils/rectHasPoint'
+import { dragInsertEnded, dragInsertMove, dragInsertStarted } from '../helpers'
 import { postMessageToEditor } from '../postMessageToEditor'
-import type { DragState } from '../types'
-import { dragEnded } from './dragEnded'
-import { dragMove } from './dragMove'
+import type { DragInsertState } from '../types'
 import { dragReorder } from './dragReorder'
-import { dragStarted } from './dragStarted'
 
 export const handleDragStarted = (
   messageData: { x: number; y: number },
   selectedNodeId: string | null,
   altKey: boolean,
-): DragState | null => {
+): DragInsertState | null => {
   const draggedElement = getDOMNodeFromNodeId(selectedNodeId)
   if (!draggedElement?.parentElement) {
     return null
@@ -25,7 +23,8 @@ export const handleDragStarted = (
       node.getAttribute('data-id')?.startsWith(selectedNodeId + '('),
   ) as HTMLElement[]
 
-  const dragState = dragStarted({
+  const dragState = dragInsertStarted({
+    action: 'drag',
     element: draggedElement as HTMLElement,
     lastCursorPosition: { x: messageData.x, y: messageData.y },
     repeatedNodes,
@@ -43,7 +42,7 @@ export const handleDragStarted = (
 
 export const handleDragMouseMove = (
   messageData: { x: number; y: number },
-  dragState: DragState,
+  dragState: DragInsertState,
   metaKey: boolean,
 ) => {
   const { x, y } = messageData
@@ -60,7 +59,8 @@ export const handleDragMouseMove = (
   if (draggingInsideContainer && !metaKey) {
     void dragReorder(dragState)
   } else {
-    dragMove(
+    dragInsertMove(
+      'drag',
       dragState,
       metaKey
         ? [dragState.element]
@@ -75,11 +75,12 @@ export const handleDragMouseMove = (
 
 export const handleDragAltToggle = async (
   asCopy: boolean,
-  dragState: DragState,
-): Promise<DragState | null> => {
+  dragState: DragInsertState,
+): Promise<DragInsertState | null> => {
   const prevRect = dragState.element.getBoundingClientRect()
-  await dragEnded(dragState, true)
-  const newState = dragStarted({
+  await dragInsertEnded(dragState, true)
+  const newState = dragInsertStarted({
+    action: 'drag',
     element: dragState.element,
     lastCursorPosition: dragState.lastCursorPosition,
     repeatedNodes: dragState.repeatedNodes,
@@ -99,9 +100,9 @@ export const handleDragAltToggle = async (
 
 export const handleDragEnded = async (
   messageData: { canceled?: boolean },
-  dragState: DragState,
+  dragState: DragInsertState,
   component: Component | null,
-): Promise<DragState | null> => {
+): Promise<DragInsertState | null> => {
   switch (dragState?.mode) {
     case 'reorder': {
       const parentDataId = dragState?.initialContainer.getAttribute('data-id')
@@ -122,7 +123,7 @@ export const handleDragEnded = async (
         !messageData.canceled &&
         (nextSibling !== dragState?.initialNextSibling || dragState?.copy)
       ) {
-        await dragEnded(dragState, false)
+        await dragInsertEnded(dragState, false)
         postMessageToEditor({
           type: 'nodeMoved',
           copy: Boolean(dragState?.copy),
@@ -133,7 +134,7 @@ export const handleDragEnded = async (
         })
         return null
       } else {
-        await dragEnded(dragState, true)
+        await dragInsertEnded(dragState, true)
         return null
       }
     }
@@ -141,7 +142,7 @@ export const handleDragEnded = async (
       const selectedPermutation =
         dragState?.insertAreas?.[dragState?.selectedInsertAreaIndex ?? -1]
       if (selectedPermutation && !messageData.canceled) {
-        await dragEnded(dragState, false)
+        await dragInsertEnded(dragState, false)
         postMessageToEditor({
           type: 'nodeMoved',
           copy: Boolean(dragState?.copy),
@@ -150,7 +151,7 @@ export const handleDragEnded = async (
         })
         return null
       } else {
-        await dragEnded(dragState, true)
+        await dragInsertEnded(dragState, true)
         return null
       }
     }
