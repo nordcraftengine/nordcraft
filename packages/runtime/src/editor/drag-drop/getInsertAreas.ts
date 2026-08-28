@@ -38,7 +38,7 @@ export function getInsertAreas() {
           index: 0,
           center: {
             x: rect.left + rect.width / 2,
-            y: rect.top,
+            y: rect.top + rect.height / 2,
           },
           size: rect.width,
           direction: 1,
