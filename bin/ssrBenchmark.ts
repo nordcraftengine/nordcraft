@@ -17,25 +17,6 @@ import {
 } from '../packages/ssr/dist/rendering/formulaContext'
 import type { ProjectFiles } from '../packages/ssr/dist/ssr.types'
 
-type BenchmarkResult = {
-  name: string
-  unit: 'ms/op'
-  samples: number[]
-  average: number
-  median: number
-  min: number
-  max: number
-}
-
-type BenchmarkOutput = {
-  generatedAt: string
-  runtime: string
-  warmup: number
-  samples: number
-  iterationsPerSample: number
-  results: BenchmarkResult[]
-}
-
 type ExampleProject = {
   files: ProjectFiles
 }
@@ -47,59 +28,25 @@ const args = new Map(
   }),
 )
 
-const warmup = Number(args.get('--warmup') ?? 5)
-const samples = Number(args.get('--samples') ?? 20)
-const iterationsPerSample = Number(args.get('--iterations') ?? 1)
-const outputPath = args.get('--output')
+type CaseId = 'formula' | 'collections-hot-path' | 'example-project-homepage'
 
-const median = (values: number[]) => {
-  const sorted = [...values].sort((a, b) => a - b)
-  const half = Math.floor(sorted.length / 2)
-  if (sorted.length % 2 === 0) {
-    return (sorted[half - 1] + sorted[half]) / 2
-  }
-  return sorted[half]
+const repeatCount = Number(args.get('--repeat') ?? 1)
+if (!Number.isInteger(repeatCount) || repeatCount < 1) {
+  throw new Error('--repeat must be a positive integer')
 }
 
-const average = (values: number[]) =>
-  values.reduce((sum, value) => sum + value, 0) / values.length
+const isCaseId = (value: string | undefined): value is CaseId =>
+  value === 'formula' ||
+  value === 'collections-hot-path' ||
+  value === 'example-project-homepage'
 
-const runCase = async (
-  name: string,
-  runner: () => void | Promise<void>,
-  options?: {
-    runsPerSample?: number
-  },
-): Promise<BenchmarkResult> => {
-  const runsPerSample = options?.runsPerSample ?? 1
-  const totalRunsPerSample = runsPerSample * iterationsPerSample
-
-  for (let i = 0; i < warmup; i++) {
-    for (let j = 0; j < totalRunsPerSample; j++) {
-      await runner()
-    }
-  }
-
-  const sampleDurations: number[] = []
-  for (let i = 0; i < samples; i++) {
-    const start = performance.now()
-    for (let j = 0; j < totalRunsPerSample; j++) {
-      await runner()
-    }
-    const elapsed = performance.now() - start
-    sampleDurations.push(elapsed / totalRunsPerSample)
-  }
-
-  return {
-    name,
-    unit: 'ms/op',
-    samples: sampleDurations,
-    average: average(sampleDurations),
-    median: median(sampleDurations),
-    min: Math.min(...sampleDurations),
-    max: Math.max(...sampleDurations),
-  }
+const caseIdValue = args.get('--case')
+if (!isCaseId(caseIdValue)) {
+  throw new Error(
+    'Usage: bun bin/ssrBenchmark.ts --case=<formula|collections-hot-path|example-project-homepage>',
+  )
 }
+const caseId = caseIdValue
 
 const createFormulaCase = () => {
   const data: ComponentData & {
@@ -562,9 +509,9 @@ const createProjectRenderCase = async () => {
     await Bun.file(projectPath).text(),
   ) as ExampleProject
   const files = exampleProject.files
-  const page = files.components.HomePage as PageComponent | undefined
+  const page = files.components.HomePage
 
-  if (!page) {
+  if (!page || !page.route) {
     throw new Error('No page component found in example project')
   }
 
@@ -602,48 +549,29 @@ const createProjectRenderCase = async () => {
   }
 }
 
-const results = await Promise.all([
-  runCase(
-    'core.applyFormula (complex mix, 3k evals)',
-    createFormulaCase(),
-    { runsPerSample: 6 },
-  ),
-  runCase(
-    'ssr.renderPageBody (collections hot path)',
-    createCollectionsHotPathRenderCase(),
-    { runsPerSample: 6 },
-  ),
-  runCase(
-    'ssr.renderPageBody (example project HomePage)',
-    await createProjectRenderCase(),
-    { runsPerSample: 30 },
-  ),
-])
-
-const output: BenchmarkOutput = {
-  generatedAt: new Date().toISOString(),
-  runtime: `bun ${Bun.version}`,
-  warmup,
-  samples,
-  iterationsPerSample,
-  results,
+switch (caseId) {
+  case 'formula': {
+    const runner = createFormulaCase()
+    for (let i = 0; i < repeatCount; i++) {
+      runner()
+    }
+    break
+  }
+  case 'collections-hot-path': {
+    const runner = createCollectionsHotPathRenderCase()
+    for (let i = 0; i < repeatCount; i++) {
+      await runner()
+    }
+    break
+  }
+  case 'example-project-homepage': {
+    const runner = await createProjectRenderCase()
+    for (let i = 0; i < repeatCount; i++) {
+      await runner()
+    }
+    break
+  }
+  default: {
+    throw new Error(`Unknown benchmark case: ${caseId}`)
+  }
 }
-
-const printable = {
-  ...output,
-  results: output.results.map((result) => ({
-    ...result,
-    average: Number(result.average.toFixed(4)),
-    median: Number(result.median.toFixed(4)),
-    min: Number(result.min.toFixed(4)),
-    max: Number(result.max.toFixed(4)),
-    samples: result.samples.map((sample) => Number(sample.toFixed(4))),
-  })),
-}
-
-const text = JSON.stringify(printable, null, 2)
-if (outputPath) {
-  await Bun.write(outputPath, `${text}\n`)
-}
-
-console.log(text)
