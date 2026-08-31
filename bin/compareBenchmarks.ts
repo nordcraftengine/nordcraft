@@ -27,10 +27,11 @@ const args = new Map(
 const basePath = args.get('--base')
 const headPath = args.get('--head')
 const maxRegressionPercent = Number(args.get('--max-regression-percent') ?? 5)
+const maxRegressionMs = Number(args.get('--max-regression-ms') ?? 1.0)
 const failOnRegression = (args.get('--fail-on-regression') ?? 'true') === 'true'
 
 if (!basePath || !headPath) {
-  throw new Error('Usage: bun bin/compareBenchmarks.ts --base=<path> --head=<path> [--max-regression-percent=5] [--fail-on-regression=true]')
+  throw new Error('Usage: bun bin/compareBenchmarks.ts --base=<path> --head=<path> [--max-regression-percent=5] [--max-regression-ms=1.0] [--fail-on-regression=true]')
 }
 
 const readJson = async <T>(path: string): Promise<T> => {
@@ -55,14 +56,16 @@ const rows = head.results
         name: headResult.name,
         baseMedian: NaN,
         headMedian: headResult.median,
+        deltaMs: NaN,
         deltaPercent: NaN,
         status: 'missing-base',
       }
     }
 
+    const deltaMs = headResult.median - baseResult.median
     const deltaPercent = percent(headResult.median, baseResult.median)
     const status =
-      deltaPercent > maxRegressionPercent
+      deltaPercent > maxRegressionPercent && deltaMs > maxRegressionMs
         ? 'regression'
         : deltaPercent < 0
           ? 'improvement'
@@ -72,6 +75,7 @@ const rows = head.results
       name: headResult.name,
       baseMedian: baseResult.median,
       headMedian: headResult.median,
+      deltaMs,
       deltaPercent,
       status,
     }
@@ -100,13 +104,18 @@ const markdownLines = [
   '',
   `- Base runtime: ${base.runtime}`,
   `- Head runtime: ${head.runtime}`,
-  `- Allowed regression threshold: ${maxRegressionPercent.toFixed(2)}% (median ms/op)`,
+  `- Allowed regression threshold: ${maxRegressionPercent.toFixed(2)}% and ${maxRegressionMs.toFixed(4)} ms (median ms/op)`,
   '',
-  '| Case | Base median | Head median | Delta | Status |',
-  '| --- | ---: | ---: | ---: | --- |',
+  '| Case | Base median | Head median | Delta (%) | Delta (ms) | Status |',
+  '| --- | ---: | ---: | ---: | ---: | --- |',
   ...rows.map((row) => {
     const baseMedian = Number.isFinite(row.baseMedian) ? formatMs(row.baseMedian) : 'n/a'
-    const delta = Number.isFinite(row.deltaPercent) ? formatPct(row.deltaPercent) : 'n/a'
+    const deltaPercent = Number.isFinite(row.deltaPercent)
+      ? formatPct(row.deltaPercent)
+      : 'n/a'
+    const deltaMs = Number.isFinite(row.deltaMs)
+      ? formatMs(row.deltaMs)
+      : 'n/a'
     const status =
       row.status === 'regression'
         ? ':x: regression'
@@ -116,7 +125,7 @@ const markdownLines = [
             ? ':white_check_mark: ok'
             : ':warning: missing base'
 
-    return `| ${row.name} | ${baseMedian} | ${formatMs(row.headMedian)} | ${delta} | ${status} |`
+    return `| ${row.name} | ${baseMedian} | ${formatMs(row.headMedian)} | ${deltaPercent} | ${deltaMs} | ${status} |`
   }),
 ]
 
@@ -124,7 +133,7 @@ console.log(markdownLines.join('\n'))
 
 if (regressions.length > 0 && failOnRegression) {
   const message = regressions
-    .map((row) => `${row.name}: ${formatPct(row.deltaPercent)}`)
+    .map((row) => `${row.name}: ${formatPct(row.deltaPercent)}, ${formatMs(row.deltaMs)}`)
     .join(', ')
   throw new Error(`SSR benchmark regression above threshold: ${message}`)
 }

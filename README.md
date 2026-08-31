@@ -40,7 +40,8 @@ We run an SSR benchmark workflow on pull requests and compare median render time
   - `core.applyFormula (complex mix, 3k evals)`
   - `ssr.renderPageBody (collections hot path)`
   - `ssr.renderPageBody (example project HomePage)`
-- Default regression threshold: `5%` on median `ms/op`
+- Default regression threshold: `5%` and `1.0 ms` on median `ms/op`
+  - A benchmark only fails when both thresholds are exceeded, which reduces false positives on tiny absolute regressions.
 
 To run locally and compare two branches manually:
 
@@ -51,7 +52,7 @@ To run locally and compare two branches manually:
    - `bun run build`
    - `bun run benchmark:ssr --output=/tmp/ssr-head.json`
 3. Compare:
-   - `bun run benchmark:ssr:compare --base=/tmp/ssr-base.json --head=/tmp/ssr-head.json --max-regression-percent=5`
+   - `bun run benchmark:ssr:compare --base=/tmp/ssr-base.json --head=/tmp/ssr-head.json --max-regression-percent=5 --max-regression-ms=1.0`
 
 ## Status
 
