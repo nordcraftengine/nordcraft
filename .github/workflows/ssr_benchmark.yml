@@ -1,0 +1,104 @@
+name: SSR Benchmark
+
+on:
+  pull_request:
+    paths-ignore:
+      - '.vscode/**'
+      - '**/*/README.md'
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.3.14
+
+      - name: Install dependencies (head)
+        run: bun install --frozen-lockfile
+
+      - name: Build packages (head)
+        run: bun run build
+
+      - name: Benchmark PR head
+        run: bun run benchmark:ssr --samples=20 --warmup=5 --iterations=1 --output=/tmp/ssr-benchmark-head.json
+
+      - name: Create worktree for base
+        run: git worktree add /tmp/nordcraft-base ${{ github.event.pull_request.base.sha }}
+
+      - name: Install dependencies (base)
+        run: bun install --frozen-lockfile
+        working-directory: /tmp/nordcraft-base
+
+      - name: Build packages (base)
+        run: bun run build
+        working-directory: /tmp/nordcraft-base
+
+      - name: Benchmark PR base
+        run: bun run benchmark:ssr --samples=20 --warmup=5 --iterations=1 --output=/tmp/ssr-benchmark-base.json
+        working-directory: /tmp/nordcraft-base
+
+      - name: Compare benchmark results
+        id: compare
+        run: |
+          bun run benchmark:ssr:compare --base=/tmp/ssr-benchmark-base.json --head=/tmp/ssr-benchmark-head.json --max-regression-percent=5 --fail-on-regression=false > /tmp/ssr-benchmark-report.md
+          tee -a "$GITHUB_STEP_SUMMARY" < /tmp/ssr-benchmark-report.md
+
+      - name: Check benchmark threshold
+        id: threshold
+        continue-on-error: true
+        run: |
+          bun run benchmark:ssr:compare --base=/tmp/ssr-benchmark-base.json --head=/tmp/ssr-benchmark-head.json --max-regression-percent=5 > /tmp/ssr-benchmark-threshold.md
+
+      - name: Comment on pull request
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs')
+            const report = fs.readFileSync('/tmp/ssr-benchmark-report.md', 'utf8')
+            const marker = '<!-- ssr-benchmark-report -->'
+            const body = `${marker}\n${report}`
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            })
+
+            const existing = comments.find((comment) => comment.body?.includes(marker))
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              })
+            }
+
+      - name: Cleanup base worktree
+        if: always()
+        run: git worktree remove /tmp/nordcraft-base --force
+
+      - name: Fail on benchmark regression
+        if: steps.threshold.outcome == 'failure'
+        run: exit 1

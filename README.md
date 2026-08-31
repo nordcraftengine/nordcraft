@@ -28,6 +28,30 @@ Install using [bun](https://bun.sh/) by running `bun install`
 - Lint: `bun lint`
 - Check types: `bun typecheck`
 - Build: `bun run build` <-- builds all packages
+- Benchmark SSR: `bun run benchmark:ssr`
+- Compare two benchmark runs: `bun run benchmark:ssr:compare --base=/tmp/base.json --head=/tmp/head.json`
+
+### SSR performance in PRs
+
+We run an SSR benchmark workflow on pull requests and compare median render times between the PR branch and the PR base commit.
+
+- Workflow: `.github/workflows/ssr_benchmark.yml`
+- Cases included:
+  - `core.applyFormula (complex mix, 3k evals)`
+  - `ssr.renderPageBody (collections hot path)`
+  - `ssr.renderPageBody (example project HomePage)`
+- Default regression threshold: `5%` on median `ms/op`
+
+To run locally and compare two branches manually:
+
+1. Generate a baseline file:
+   - `bun run build`
+   - `bun run benchmark:ssr --output=/tmp/ssr-base.json`
+2. Switch branch/commit and generate a head file:
+   - `bun run build`
+   - `bun run benchmark:ssr --output=/tmp/ssr-head.json`
+3. Compare:
+   - `bun run benchmark:ssr:compare --base=/tmp/ssr-base.json --head=/tmp/ssr-head.json --max-regression-percent=5`
 
 ## Status
 
