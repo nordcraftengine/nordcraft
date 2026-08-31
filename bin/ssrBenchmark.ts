@@ -67,19 +67,27 @@ const average = (values: number[]) =>
 const runCase = async (
   name: string,
   runner: () => void | Promise<void>,
+  options?: {
+    runsPerSample?: number
+  },
 ): Promise<BenchmarkResult> => {
+  const runsPerSample = options?.runsPerSample ?? 1
+  const totalRunsPerSample = runsPerSample * iterationsPerSample
+
   for (let i = 0; i < warmup; i++) {
-    await runner()
+    for (let j = 0; j < totalRunsPerSample; j++) {
+      await runner()
+    }
   }
 
   const sampleDurations: number[] = []
   for (let i = 0; i < samples; i++) {
     const start = performance.now()
-    for (let j = 0; j < iterationsPerSample; j++) {
+    for (let j = 0; j < totalRunsPerSample; j++) {
       await runner()
     }
     const elapsed = performance.now() - start
-    sampleDurations.push(elapsed / iterationsPerSample)
+    sampleDurations.push(elapsed / totalRunsPerSample)
   }
 
   return {
@@ -595,14 +603,20 @@ const createProjectRenderCase = async () => {
 }
 
 const results = await Promise.all([
-  runCase('core.applyFormula (complex mix, 3k evals)', createFormulaCase()),
+  runCase(
+    'core.applyFormula (complex mix, 3k evals)',
+    createFormulaCase(),
+    { runsPerSample: 6 },
+  ),
   runCase(
     'ssr.renderPageBody (collections hot path)',
     createCollectionsHotPathRenderCase(),
+    { runsPerSample: 6 },
   ),
   runCase(
     'ssr.renderPageBody (example project HomePage)',
     await createProjectRenderCase(),
+    { runsPerSample: 30 },
   ),
 ])
 

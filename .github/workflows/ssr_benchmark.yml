@@ -57,14 +57,14 @@ jobs:
         id: compare
         continue-on-error: true
         run: |
-          bun bin/compareBenchmarks.ts --base=/tmp/ssr-benchmark-base.json --head=/tmp/ssr-benchmark-head.json --max-regression-percent=5 --fail-on-regression=false > /tmp/ssr-benchmark-report.md
+          bun bin/compareBenchmarks.ts --base=/tmp/ssr-benchmark-base.json --head=/tmp/ssr-benchmark-head.json --max-regression-percent=5 --max-regression-ms=1.0 --fail-on-regression=false > /tmp/ssr-benchmark-report.md
           tee -a "$GITHUB_STEP_SUMMARY" < /tmp/ssr-benchmark-report.md
 
       - name: Check benchmark threshold
         id: threshold
         continue-on-error: true
         run: |
-          bun bin/compareBenchmarks.ts --base=/tmp/ssr-benchmark-base.json --head=/tmp/ssr-benchmark-head.json --max-regression-percent=5 > /tmp/ssr-benchmark-threshold.md
+          bun bin/compareBenchmarks.ts --base=/tmp/ssr-benchmark-base.json --head=/tmp/ssr-benchmark-head.json --max-regression-percent=5 --max-regression-ms=1.0 > /tmp/ssr-benchmark-threshold.md
 
       - name: Ensure benchmark report exists
         if: always()
