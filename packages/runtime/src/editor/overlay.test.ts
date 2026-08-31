@@ -84,6 +84,7 @@ describe('getRectData()', () => {
     window.getComputedStyle = (el) => {
       if (el === parent) {
         return {
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread
           ...originalGetComputedStyle(el),
           transform: 'matrix(0.866025, 0.5, -0.5, 0.866025, 0, 0)', // cos(30) = 0.866025, sin(30) = 0.5
           rotate: 'none',
