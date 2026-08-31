@@ -30,10 +30,14 @@ Install using [bun](https://bun.sh/) by running `bun install`
 - Build: `bun run build` <-- builds all packages
 - Benchmark SSR: `bun run benchmark:ssr`
 - Compare two benchmark runs: `bun run benchmark:ssr:compare --base=/tmp/base.json --head=/tmp/head.json`
+- Run full local benchmark suite: `bun run benchmark:ssr:run`
 
 ### SSR performance in PRs
 
 We run an SSR benchmark workflow on pull requests and compare median render times between the PR branch and the PR base commit.
+
+Benchmark timing/stats are measured by `hyperfine` and exported as one JSON file per case for both base and head.
+Each benchmark process also executes the selected case multiple times (`--repeat`) to make each run more stable.
 
 - Workflow: `.github/workflows/ssr_benchmark.yml`
 - Cases included:
@@ -52,7 +56,29 @@ To run locally and compare two branches manually:
    - `bun run build`
    - `bun run benchmark:ssr --output=/tmp/ssr-head.json`
 3. Compare:
-   - `bun run benchmark:ssr:compare --base=/tmp/ssr-base.json --head=/tmp/ssr-head.json --max-regression-percent=5 --max-regression-ms=1.0`
+   - `bun run benchmark:ssr:compare --base-dir=/tmp/ssr-base --head-dir=/tmp/ssr-head --max-regression-percent=5 --max-regression-ms=1.0`
+
+To generate local hyperfine outputs manually:
+
+- `mkdir -p /tmp/ssr-head /tmp/ssr-base`
+- `hyperfine --warmup 3 --runs 30 --export-json /tmp/ssr-head/formula.json 'bun bin/ssrBenchmark.ts --case=formula'`
+- `hyperfine --warmup 3 --runs 30 --export-json /tmp/ssr-head/collections-hot-path.json 'bun bin/ssrBenchmark.ts --case=collections-hot-path'`
+- `hyperfine --warmup 3 --runs 30 --export-json /tmp/ssr-head/example-project-homepage.json 'bun bin/ssrBenchmark.ts --case=example-project-homepage'`
+
+To run everything (and compare against `main`) with one command:
+
+- `bun run benchmark:ssr:run --base-ref=origin/main`
+- CI uses the same benchmark intensity as this command with explicit defaults: `--runs=40 --warmup=5 --repeat=15`.
+
+Useful options:
+
+- `--runs=50` (hyperfine runs per case)
+- `--warmup=5` (hyperfine warmup runs)
+- `--repeat=3` (number of case executions per hyperfine run)
+- `--output-dir=/tmp/my-ssr-bench` (persist outputs in a custom folder)
+- `--skip-build=true` (skip build/install if already prepared)
+  - Note: `--skip-build=true` only works when running head-only (without `--base-ref`).
+- `--max-regression-percent=5 --max-regression-ms=1.0` (comparison thresholds)
 
 ## Status
 
