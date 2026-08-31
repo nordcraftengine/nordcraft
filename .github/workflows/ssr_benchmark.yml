@@ -31,7 +31,7 @@ jobs:
         run: bun run build
 
       - name: Benchmark PR head
-        run: bun run benchmark:ssr --samples=20 --warmup=5 --iterations=1 --output=/tmp/ssr-benchmark-head.json
+        run: bun bin/ssrBenchmark.ts --samples=20 --warmup=5 --iterations=1 --output=/tmp/ssr-benchmark-head.json
 
       - name: Create worktree for base
         run: git worktree add /tmp/nordcraft-base ${{ github.event.pull_request.base.sha }}
@@ -44,22 +44,27 @@ jobs:
         run: bun run build
         working-directory: /tmp/nordcraft-base
 
+      - name: Copy benchmark script to base worktree
+        run: |
+          mkdir -p /tmp/nordcraft-base/bin
+          cp bin/ssrBenchmark.ts /tmp/nordcraft-base/bin/ssrBenchmark.ts
+
       - name: Benchmark PR base
-        run: bun run benchmark:ssr --samples=20 --warmup=5 --iterations=1 --output=/tmp/ssr-benchmark-base.json
+        run: bun bin/ssrBenchmark.ts --samples=20 --warmup=5 --iterations=1 --output=/tmp/ssr-benchmark-base.json
         working-directory: /tmp/nordcraft-base
 
       - name: Compare benchmark results
         id: compare
         continue-on-error: true
         run: |
-          bun run benchmark:ssr:compare --base=/tmp/ssr-benchmark-base.json --head=/tmp/ssr-benchmark-head.json --max-regression-percent=5 --fail-on-regression=false > /tmp/ssr-benchmark-report.md
+          bun bin/compareBenchmarks.ts --base=/tmp/ssr-benchmark-base.json --head=/tmp/ssr-benchmark-head.json --max-regression-percent=5 --fail-on-regression=false > /tmp/ssr-benchmark-report.md
           tee -a "$GITHUB_STEP_SUMMARY" < /tmp/ssr-benchmark-report.md
 
       - name: Check benchmark threshold
         id: threshold
         continue-on-error: true
         run: |
-          bun run benchmark:ssr:compare --base=/tmp/ssr-benchmark-base.json --head=/tmp/ssr-benchmark-head.json --max-regression-percent=5 > /tmp/ssr-benchmark-threshold.md
+          bun bin/compareBenchmarks.ts --base=/tmp/ssr-benchmark-base.json --head=/tmp/ssr-benchmark-head.json --max-regression-percent=5 > /tmp/ssr-benchmark-threshold.md
 
       - name: Ensure benchmark report exists
         if: always()
