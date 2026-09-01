@@ -21,7 +21,7 @@ export const mapValues = <T, T2>(
   object: Record<string, T>,
   f: (value: T) => T2,
 ): Record<string, T2> => {
-  const result = {} as Record<string, T2>
+  const result: Record<string, T2> = {}
   for (const k in object) {
     result[k] = f(object[k] as T)
   }
@@ -100,7 +100,7 @@ export const filterObject = <T, T2 extends T = T>(
   object: Record<string, T>,
   f: (kv: [string, T]) => boolean,
 ): Record<string, T2> => {
-  const result = {} as Record<string, T2>
+  const result: Record<string, T2> = {}
   for (const k in object) {
     const v = object[k] as T
     if (f([k, v])) {
