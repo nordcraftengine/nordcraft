@@ -12,8 +12,16 @@ import type { InsertArea } from '../types'
  */
 export function getInsertAreas() {
   const insertAreas: Array<InsertArea> = []
-  Array.from(document.querySelectorAll('[data-id]:not([data-component])'))
-    .filter((e) => e.getAttribute('data-id')?.includes(')') === false)
+  Array.from(
+    document.querySelectorAll(
+      '[data-id]:not([data-component]):has(> :not([data-component]))',
+    ),
+  )
+    .filter(
+      (e) =>
+        e.getAttribute('data-id')?.includes(')') === false &&
+        e.closest('[data-component]') === null,
+    )
     .map((e) => e.getAttribute('data-id'))
     .forEach((id) => {
       const element = getDOMNodeFromNodeId(id)
