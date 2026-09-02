@@ -10,8 +10,9 @@ export const mapObject = <T, T2>(
 ): Record<string, T2> => {
   const result: Record<string, T2> = {}
   for (const key in object) {
-    const [k, v] = f([key, object[key] as T])
-    result[k] = v
+    const v = object[key] as T
+    const [k, mappedV] = f([key, v])
+    result[k] = mappedV
   }
   return result
 }
@@ -19,7 +20,13 @@ export const mapObject = <T, T2>(
 export const mapValues = <T, T2>(
   object: Record<string, T>,
   f: (value: T) => T2,
-): Record<string, T2> => mapObject(object, ([key, value]) => [key, f(value)])
+): Record<string, T2> => {
+  const result: Record<string, T2> = {}
+  for (const k in object) {
+    result[k] = f(object[k] as T)
+  }
+  return result
+}
 
 /**
  * Deletes potentially nested keys from an object
@@ -29,36 +36,42 @@ export const mapValues = <T, T2>(
  */
 export const omit = <T = object>(
   collection: T,
-  [key, ...rest]: Array<PropertyKey>,
+  path: Array<PropertyKey>,
 ): T => {
-  if (rest.length > 0) {
-    const clone: any = Array.isArray(collection)
-      ? [...collection]
-      : { ...collection }
-    if (isDefined(key)) {
-      clone[key] = omit(clone[key], rest)
+  const omitInternal = (coll: any, index: number): any => {
+    const key = path[index] as PropertyKey
+    if (index < path.length - 1) {
+      const clone = Array.isArray(coll) ? [...coll] : { ...coll }
+      clone[key] = omitInternal(clone[key], index + 1)
+      return clone
     }
+
+    if (Array.isArray(coll)) {
+      const arrClone = [...coll]
+      arrClone.splice(Number(key), 1)
+      return arrClone
+    }
+
+    const clone = { ...coll }
+    delete clone[key]
     return clone
   }
-
-  if (Array.isArray(collection)) {
-    return collection.toSpliced(Number(key), 1) as T
-  }
-
-  const clone: any = { ...collection }
-  if (isDefined(key)) {
-    delete clone[key]
-  }
-  return clone
+  if (path.length === 0) return collection
+  return omitInternal(collection, 0)
 }
 
 export const omitKeys = <T extends Record<string, any>>(
   object: T,
   keys: Array<keyof T>,
-): T =>
-  Object.fromEntries(
-    Object.entries(object).filter(([k]) => !keys.includes(k)),
-  ) as T
+): T => {
+  const result = { ...object }
+  const len = keys.length
+  for (let i = 0; i < len; i++) {
+    const key = keys[i] as keyof T
+    delete result[key]
+  }
+  return result
+}
 
 // This adds type safety to the omitPaths function, ensuring that the first key in the path is a valid key of the object, while the rest of the keys can be any property key. Empty paths are also allowed.
 type ValidPath<T> = [] | [keyof T, ...PropertyKey[]]
@@ -67,51 +80,76 @@ export const omitPaths = <T extends Record<string, any>>(
   keys: Array<ValidPath<T>>,
 ): T => keys.reduce((acc, key) => omit(acc, key), { ...object })
 
-export const groupBy = <T>(items: T[], f: (t: T) => string) =>
-  items.reduce<Record<string, T[]>>((acc, item) => {
+export const groupBy = <T>(items: T[], f: (t: T) => string) => {
+  const result: Record<string, T[] | undefined> = Object.create(null)
+  const len = items.length
+  for (let i = 0; i < len; i++) {
+    const item = items[i] as T
     const key = f(item)
-    acc[key] = acc[key] ?? []
-    acc[key].push(item)
-    return acc
-  }, {})
+    const existing = result[key]
+    if (existing === undefined) {
+      result[key] = [item]
+    } else {
+      existing.push(item)
+    }
+  }
+  return result as Record<string, T[]>
+}
 
 export const filterObject = <T, T2 extends T = T>(
   object: Record<string, T>,
   f: (kv: [string, T]) => boolean,
-): Record<string, T2> =>
-  Object.fromEntries(
-    Object.entries(object).filter((o): o is [string, T2] => f(o)),
-  )
-
-export function get<T = any>(
-  collection: T,
-  [head, ...rest]: Array<PropertyKey>,
-): any {
-  const headItem = isDefined(head) ? (collection as any)?.[head] : undefined
-  if (rest.length === 0) {
-    return headItem
+): Record<string, T2> => {
+  const result: Record<string, T2> = {}
+  for (const k in object) {
+    const v = object[k] as T
+    if (f([k, v])) {
+      result[k] = v as unknown as T2
+    }
   }
-  return get(headItem, rest)
+  return result
+}
+
+export function get<T = any>(collection: T, path: Array<PropertyKey>): any {
+  let current: any = collection
+  const len = path.length
+  for (let i = 0; i < len; i++) {
+    const key = path[i] as PropertyKey
+    if (current === undefined || current === null) {
+      return undefined
+    }
+    current = current[key]
+  }
+
+  return current
 }
 
 export const set = <T = unknown>(
   collection: T,
-  key: Array<PropertyKey>,
+  path: Array<PropertyKey>,
   value: any,
 ): T => {
-  const [head, ...rest] = key
+  const len = path.length
+  if (len === 0) return collection
 
-  const clone: any = Array.isArray(collection)
-    ? [...collection]
-    : isObject(collection)
-      ? { ...collection }
-      : {}
+  const recurse = (current: any, index: number): any => {
+    const head = path[index]
+    const clone: any = Array.isArray(current)
+      ? [...current]
+      : isObject(current)
+        ? { ...current }
+        : {}
 
-  // Cast to any, since it's actually possible to set a property with an undefined key on an object in Javascript
-  // and we don't want to introduce a breaking change
-  clone[head as any] =
-    rest.length === 0 ? value : set(clone[head as any], rest, value)
-  return clone as T
+    if (index === len - 1) {
+      clone[head as any] = value
+      return clone
+    }
+
+    clone[head as any] = recurse(clone[head as any], index + 1)
+    return clone
+  }
+
+  return recurse(collection, 0) as T
 }
 
 export const sortObjectEntries = <T>(
