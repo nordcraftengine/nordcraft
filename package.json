@@ -33,5 +33,8 @@
     "prettier": "prettier --check '*.{json,js,ts}' '**/*.{json,js,ts}' 'packages/editor/elements/**/*.json'",
     "prettier:write": "prettier --write  '*.{json,js,ts}' './**/*.{json,js,ts}' 'packages/editor/elements/**/*.json'",
     "typecheck": "cd packages/core && bun typecheck && cd ../ssr && bun run typecheck && cd ../lib && bun run typecheck && cd ../search && bun run typecheck && cd ../runtime && bun run typecheck && cd ../backend && bun run typecheck && cd ../editor && bun run typecheck"
+  },
+  "dependencies": {
+    "jsondiffpatch": "^0.7.6"
   }
 }
