@@ -58,6 +58,7 @@ export function createElement({
   const initialClasses: string[] = []
 
   const formulaCtx = {
+    data: dataSignal.get(),
     component: ctx.component,
     formulaCache: ctx.formulaCache,
     root: ctx.root,
@@ -84,12 +85,7 @@ export function createElement({
       const formula = node.classes[className].formula
       if (formula) {
         const classSignal = dataSignal.map((data) =>
-          toBoolean(
-            applyFormula(formula, {
-              ...formulaCtx,
-              data,
-            }),
-          ),
+          toBoolean(applyFormula(formula, formulaCtx, data)),
         )
         classSignal.subscribe((show) =>
           show
@@ -124,10 +120,11 @@ export function createElement({
         o = dataSignal.map((data) => {
           const val = applyFormula(
             value,
-            {
-              ...formulaCtx,
-              data,
-            },
+            formulaCtx,
+            data,
+            undefined,
+            undefined,
+            undefined,
             attrPath,
           )
           ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
@@ -161,10 +158,11 @@ export function createElement({
     const signal = dataSignal.map((data) => {
       const value = applyFormula(
         formula,
-        {
-          ...formulaCtx,
-          data,
-        },
+        formulaCtx,
+        data,
+        undefined,
+        undefined,
+        undefined,
         styleVarPath,
       )
       ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
@@ -197,10 +195,11 @@ export function createElement({
         signal: dataSignal.map((data) => {
           const val = applyFormula(
             formula,
-            {
-              ...formulaCtx,
-              data,
-            },
+            formulaCtx,
+            data,
+            undefined,
+            undefined,
+            undefined,
             cpPath,
           )
           ctx.reportFormulaEvaluation?.(cpPath, val, ctx)
@@ -233,10 +232,11 @@ export function createElement({
           signal: dataSignal.map((data) => {
             const val = applyFormula(
               formula,
-              {
-                ...formulaCtx,
-                data,
-              },
+              formulaCtx,
+              data,
+              undefined,
+              undefined,
+              undefined,
               variantCpPath,
             )
             ctx.reportFormulaEvaluation?.(variantCpPath, val, ctx)
@@ -283,12 +283,7 @@ export function createElement({
           textValues.push(String(node.value.value))
         } else {
           const textSignal = dataSignal.map((data) => {
-            return String(
-              applyFormula(node.value, {
-                ...formulaCtx,
-                data,
-              }),
-            )
+            return String(applyFormula(node.value, formulaCtx, data))
           })
           textValues.push(textSignal)
         }

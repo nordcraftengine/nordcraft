@@ -32,4 +32,11 @@ describe('applyPathFormula', () => {
     const data: any = { arr: [10, 20, 30] }
     expect(applyPathFormula(formula, data)).toBe(20)
   })
+
+  it('resolves Args from the args parameter', () => {
+    const formula: PathOperation = { type: 'path', path: ['Args', 'val'] }
+    const data: any = {}
+    const args = { val: 'hello' }
+    expect(applyPathFormula(formula, data, args)).toBe('hello')
+  })
 })
