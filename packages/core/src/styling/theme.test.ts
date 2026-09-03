@@ -185,4 +185,124 @@ describe('getThemeCss()', () => {
       "
     `)
   })
+
+  test('should only create font faces for uploaded fonts', () => {
+    const theme: Theme = {
+      fonts: [
+        {
+          name: 'lora',
+          family: 'Lora',
+          provider: 'google',
+          type: 'serif',
+          variants: [
+            {
+              name: 'Lora 400',
+              weight: '400',
+              italic: false,
+              url: 'https://fonts.gstatic.com/s/lora/v35/0QI6MX1D_JOuGQbT0gvTJPa787weuxJMkq1rGQ.woff2',
+            },
+            {
+              name: 'Lora 700 italic',
+              weight: '700',
+              italic: true,
+              url: 'https://fonts.gstatic.com/s/lora/v35/0QIvMX1D_JOuMw_hLdO6T2wV9KnW-MoFoq92mQ.woff2',
+            },
+          ],
+        },
+        {
+          name: 'my-font',
+          family: 'My Font',
+          provider: 'upload',
+          type: 'sans-serif',
+          variants: [
+            {
+              name: 'My Font 500',
+              weight: '500',
+              italic: false,
+              url: 'https://my-files.nordcraft.com/fonts/my-font-500.woff2',
+            },
+          ],
+        },
+      ],
+    }
+
+    expect(
+      getThemeCss(
+        { theme },
+        { includeResetStyle: false, createFontFaces: true },
+      ),
+    ).toMatchInlineSnapshot(`
+      "
+        
+
+        
+        
+
+        
+        
+        
+        
+          
+
+
+      @layer base {
+        
+          
+          @font-face {
+            font-family: "My Font";
+            font-style: normal;
+            font-weight: 500;
+            font-display: auto;
+            src: local("my-font-500.woff2"), url("https://my-files.nordcraft.com/fonts/my-font-500.woff2") format("woff2");
+          }
+          
+          
+        body, :host {
+          /* Color */
+          
+          /* Fonts */
+          --font-lora: 'Lora',serif;
+      --font-my-font: 'My Font',sans-serif;
+
+          /* Font size */
+          
+          /* Font weight */
+          
+          /* Shadows */
+          
+          /* Border radius */
+          
+          /* Spacing */
+          
+          /* Z-index */
+          
+        }
+        @keyframes animation-spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        @keyframes animation-fade-in {
+          from {
+            opacity:0;
+          }
+          to {
+            opacity:1;
+          }
+        }
+        @keyframes animation-fade-out {
+          from {
+            opacity:1;
+          }
+          to {
+            opacity:0;
+          }
+        }
+      }
+      "
+    `)
+  })
 })
