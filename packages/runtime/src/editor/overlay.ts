@@ -3,7 +3,7 @@ export function getRectData(selectedNode: Element | null | undefined) {
     return null
   }
 
-  const { borderRadius, padding, margin, gap } =
+  const { borderRadius, padding, margin, gap, transformOrigin } =
     window.getComputedStyle(selectedNode)
 
   const rotate = getFullRotation(selectedNode)
@@ -23,6 +23,7 @@ export function getRectData(selectedNode: Element | null | undefined) {
     margin: margin.split(' '),
     gap: gap.split(' '),
     rotate,
+    transformOrigin,
   }
 }
 
