@@ -21,7 +21,7 @@ import type {
 import { BatchQueue } from '../utils/BatchQueue'
 import { createNode } from './createNode'
 
-interface RenderComponentProps {
+export interface RenderComponentProps {
   component: Component
   components: Component[]
   dataSignal: Signal<ComponentData>
@@ -52,6 +52,7 @@ interface RenderComponentProps {
   env: ToddleEnv
   jsonPath: Array<string | number> | undefined
   reportFormulaEvaluation?: FormulaEvaluationReporter
+  hydrate?: { isHydrating: boolean }
 }
 
 const BATCH_QUEUE = new BatchQueue()
@@ -78,6 +79,7 @@ export function renderComponent({
   env,
   jsonPath,
   reportFormulaEvaluation,
+  hydrate,
 }: RenderComponentProps): ReadonlyArray<Element | Text> {
   const stopMeasure = measure(
     `Render component: ${component.name}`,
@@ -105,6 +107,7 @@ export function renderComponent({
     env,
     jsonPath,
     reportFormulaEvaluation,
+    hydrate,
   }
 
   const rootElem = createNode({
@@ -163,4 +166,30 @@ export function renderComponent({
   })
   stopMeasure()
   return rootElem
+}
+
+/* eslint-disable no-console */
+export function hydrateComponent(props: RenderComponentProps) {
+  const hydrate = { isHydrating: true }
+  console.time(`Hydrate component: ${props.component.name}`)
+  renderComponent({
+    ...props,
+    hydrate,
+  })
+  console.timeEnd(`Hydrate component: ${props.component.name}`)
+  hydrate.isHydrating = false
+
+  const misses = Array.from(document.querySelectorAll('[data-hk]'))
+  // Misses are not necessarily a problem, as we have a few cases where things may be different:
+  // - Use of formula `is Server` for conditional rendering
+  // - API data that only loads on client that is cached or very fast, so have loaded before hydration
+  if (misses.length > 0) {
+    console.warn(
+      `Hydration misses for component: ${props.component.name}`,
+      misses,
+    )
+    misses.forEach((miss) => {
+      miss.remove()
+    })
+  }
 }
