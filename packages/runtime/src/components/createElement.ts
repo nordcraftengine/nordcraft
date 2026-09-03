@@ -8,6 +8,7 @@ import type {
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
   getClassName,
+  getPathClassName,
   toValidClassName,
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
@@ -63,6 +64,7 @@ export function createElement({
       ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
       : document.createElement(tag)
   }
+  const initialClasses: string[] = []
 
   const formulaCtx = {
     component: ctx.component,
@@ -81,18 +83,14 @@ export function createElement({
   if (ctx.isRootComponent === false && id !== 'root') {
     elem.setAttribute('data-component', ctx.component.name)
   }
-  if (node.style || node.variants) {
-    // style and variants are not available except in the editor's runtime
+  // class names are baked during preprocessing, except for in editor-preview where we generate them on the fly
+  if (node.style || node.variants?.some((v) => v.style)) {
     const classHash = getClassName([node.style, node.variants])
-    elem.classList.add(classHash)
-  }
-  if (instance && id === 'root') {
-    Object.entries(instance).forEach(([key, value]) => {
-      elem.classList.add(toValidClassName(`${key}:${value}`))
-    })
+    initialClasses.push(classHash)
   }
   if (node.classes) {
-    Object.entries(node.classes)?.forEach(([className, { formula }]) => {
+    for (const className in node.classes) {
+      const formula = node.classes[className].formula
       if (formula) {
         const classSignal = dataSignal.map((data) =>
           toBoolean(
@@ -108,8 +106,17 @@ export function createElement({
             : elem.classList.remove(className),
         )
       } else {
-        elem.classList.add(className)
+        initialClasses.push(className)
       }
+    }
+  }
+
+  let hasDynamicCustomProperties = false
+  if (instance && id === 'root') {
+    Object.entries(instance).forEach(([key, value]) => {
+      initialClasses.push(toValidClassName(`${key}:${value}`))
+      // TODO: We should forward info on whether the instance has dynamic custom properties, but for now we assume that if the instance has any custom properties, they are dynamic.
+      hasDynamicCustomProperties = true
     })
   }
 
@@ -179,6 +186,7 @@ export function createElement({
   Object.entries(node.customProperties ?? {})
     .filter(([_, { formula }]) => formulaHasValue(formula))
     .forEach(([customPropertyName, { formula, unit }]) => {
+      hasDynamicCustomProperties = true
       const cpPath = [
         'nodes',
         id,
@@ -186,14 +194,15 @@ export function createElement({
         customPropertyName,
         'formula',
       ]
+      const nodeSelector = getNodeSelector(path)
       subscribeCustomProperty({
         customPropertyName,
         selector:
           ctx.env.runtime === 'custom-element' &&
           ctx.isRootComponent &&
           path === '0'
-            ? `${getNodeSelector(path)}, :host`
-            : getNodeSelector(path),
+            ? `${nodeSelector}, :host`
+            : nodeSelector,
         signal: dataSignal.map((data) => {
           const val = applyFormula(
             formula,
@@ -214,6 +223,7 @@ export function createElement({
     Object.entries(variant.customProperties ?? {})
       .filter(([_, { formula }]) => formulaHasValue(formula))
       .forEach(([customPropertyName, { formula, unit }]) => {
+        hasDynamicCustomProperties = true
         const variantCpPath = [
           'nodes',
           id,
@@ -246,21 +256,26 @@ export function createElement({
       })
   })
 
-  const eventHandlers: [string, (e: Event) => boolean][] = []
-  Object.values(node.events ?? {}).forEach((event) => {
+  if (path && hasDynamicCustomProperties) {
+    initialClasses.push(getPathClassName(path))
+  }
+
+  if (initialClasses.length > 0) {
+    elem.classList.add(...initialClasses)
+  }
+
+  for (const key in node.events) {
+    const event = node.events[key]
     if (!event) {
-      return
+      continue
     }
 
-    eventHandlers.push([
+    elem.addEventListener(
       event.trigger,
       getEventHandler({ event, dataSignal, ctx }),
-    ])
-  })
-
-  eventHandlers.forEach(([eventName, handler]) => {
-    elem.addEventListener(eventName, handler, { signal: ctx.abortSignal })
-  })
+      { signal: ctx.abortSignal },
+    )
+  }
 
   // for script, style & SVG<text> tags we only render text child.
   // this can be removed once we fix the editor to handle raw text nodes without wrapping <span>

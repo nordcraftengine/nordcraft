@@ -61,6 +61,7 @@ import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import fastDeepEqual from 'fast-deep-equal'
+import { domToCanvas } from 'modern-screenshot'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
 import { createNode } from './components/createNode'
@@ -80,6 +81,11 @@ import {
 import { throttleToIdleCallback } from './editor/editorUtils'
 import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
+import {
+  handleInsertEnded,
+  handleInsertMouseMove,
+  handleInsertStarted,
+} from './editor/insert/insertHandlers'
 import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
@@ -93,11 +99,12 @@ import { handleTextMouseDown } from './editor/text-selection/mouseDown'
 import { handleTextMouseMove } from './editor/text-selection/mouseMove'
 import { handleTextNodeSelection } from './editor/text-selection/selection'
 import type {
-  DragState,
+  DragInsertState,
   NordcraftPreviewEvent,
   PointerState,
   SelectionState,
 } from './editor/types'
+import { waitForViewportWidth } from './editor/viewportWidth'
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
@@ -109,6 +116,7 @@ import type {
 } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
 import { getThemeSignal } from './utils/getThemeSignal'
+import { clamp, toSeconds } from './utils/helpers'
 import { markSelectedElement } from './utils/markSelectedElement'
 import {
   getNodeAndAncestors,
@@ -327,12 +335,16 @@ export const createRoot = (
     styleVariantIndex: number
   } | null = null
   let routeSignal: Signal<any> | null = null
-  let dragState: DragState | null = null
+  let dragState: DragInsertState | null = null
+  let insertState: DragInsertState | null = null
   let animationState: {
     animatedElementId: string | null
     time: number | null
     timingFunction?: string
     fillMode?: string
+    repeatedElementsValues: [{ delay: string; duration: string }]
+    timelineTime: { delay: string; duration: string }
+    iterationCount: string
   } | null = null
   let altKey = false
   let metaKey = false
@@ -514,6 +526,7 @@ export const createRoot = (
           document.body.setAttribute('data-mode', message.data.mode)
           updateConditionalElements()
           window.dispatchEvent(new CustomEvent('selected-node-changed'))
+          requestResizeCanvas(resizeCanvasOptions)
           syncOverlayRects()
           break
         }
@@ -560,7 +573,11 @@ export const createRoot = (
               node.getAttribute('data-node-type') === 'text'
             ) {
               requestAnimationFrame(() => {
-                handleTextNodeSelection(node)
+                handleTextNodeSelection(node, {
+                  onInput: () => {
+                    syncOverlayRects()
+                  },
+                })
               })
             }
           }
@@ -569,12 +586,13 @@ export const createRoot = (
         }
         case 'highlight': {
           const highlightId = message.data.highlightedNodeId
-          highlightedNodeId = highlightId
-            ? highlightId
-                .split('.')
-                .map((part) => part.split('(')[0])
-                .join('.')
-            : null
+          highlightedNodeId =
+            typeof highlightId === 'string'
+              ? highlightId
+                  .split('.')
+                  .map((part) => part.split('(')[0])
+                  .join('.')
+              : null
           syncOverlayRects()
           return
         }
@@ -599,6 +617,22 @@ export const createRoot = (
         }
 
         case 'mousemove': {
+          if (['insert-div', 'insert-text'].includes(message.data.canvasTool)) {
+            if (insertState && !insertState.destroying) {
+              handleInsertMouseMove(message.data, insertState)
+              syncOverlayRects()
+              return
+            } else if (!insertState?.destroying) {
+              const elementType =
+                message.data.canvasTool === 'insert-div' ? 'div' : 'text'
+              insertState = handleInsertStarted(
+                message.data,
+                highlightedNodeId,
+                elementType,
+              )
+            }
+          }
+
           if (dragState && !dragState.destroying) {
             handleDragMouseMove(message.data, dragState, metaKey)
             syncOverlayRects()
@@ -754,6 +788,8 @@ export const createRoot = (
         case 'style_variant_changed':
           const { variantIndex } = message.data
           updateSelectedStyleVariant(variantIndex)
+          requestResizeCanvas(resizeCanvasOptions)
+          syncOverlayRects()
           break
         case 'report_document_scroll_size':
           requestResizeCanvas({
@@ -841,6 +877,28 @@ export const createRoot = (
             )
           }
           break
+        case 'insert-started':
+          const elementType =
+            message.data.canvasTool === 'insert-div' ? 'div' : 'text'
+          insertState = handleInsertStarted(
+            message.data,
+            highlightedNodeId,
+            elementType,
+          )
+          break
+        case 'insert-ended':
+          if (insertState) {
+            const interval = setInterval(() => {
+              syncOverlayRects()
+            }, 1000 / 60)
+            void handleInsertEnded(message.data, insertState).then(
+              (newState) => {
+                insertState = newState
+                clearInterval(interval)
+              },
+            )
+          }
+          break
         case 'keydown':
         case 'keyup':
           // If the `altKey` is pressed/released and the user is currently dragging, then restart the drag with/without a copy.
@@ -867,6 +925,7 @@ export const createRoot = (
 
           const { styles } = message.data
           const computedStyle = window.getComputedStyle(selectedNode)
+
           postMessageToEditor({
             type: 'computedStyle',
             computedStyle: Object.fromEntries(
@@ -879,10 +938,10 @@ export const createRoot = (
                   .map((value) => {
                     // If it is a float or float with unit we want to round to 2 decimal
                     if (value.match(/^(-?\d+)\.\d+([a-z]*|%?)$/)) {
-                      const splited = value.match(/([0-9.]+)\s*(.*)/) ?? ''
+                      const split = value.match(/([0-9.]+)\s*(.*)/) ?? ''
 
-                      const number = splited[1]
-                      const unit = splited[2]
+                      const number = split[1]
+                      const unit = split[2]
 
                       const roundNumber = Number(Number(number).toFixed(2))
                       const rounded = roundNumber.toString() + unit
@@ -897,6 +956,11 @@ export const createRoot = (
                 return [style, result]
               }),
             ),
+            repeatedItemsValues: animationState?.repeatedElementsValues ?? [],
+            timelineTime: animationState?.timelineTime ?? {
+              delay: '0s',
+              duration: '0s',
+            },
           })
           break
 
@@ -929,6 +993,7 @@ export const createRoot = (
 
         case 'set_timeline_time':
           const { time, timingFunction, fillMode } = message.data
+
           cancelAnimationFrame(timelineTimeAnimationFrame)
           timelineTimeAnimationFrame = requestAnimationFrame(() => {
             const animatedElementChanged =
@@ -938,6 +1003,15 @@ export const createRoot = (
               time,
               timingFunction,
               fillMode,
+              repeatedElementsValues:
+                animationState?.repeatedElementsValues ?? [
+                  { delay: '0s', duration: '0s' },
+                ],
+              timelineTime: animationState?.timelineTime ?? {
+                delay: '0s',
+                duration: '1s',
+              },
+              iterationCount: animationState?.iterationCount ?? '1',
             }
 
             // Cleanup on null
@@ -945,21 +1019,22 @@ export const createRoot = (
               document.head
                 .querySelector('[data-id="preview-animation-styles"]')
                 ?.remove()
-              document.body.style.removeProperty('--editor-timeline-position')
-              document.body.style.removeProperty(
-                '--editor-timeline-timing-function',
-              )
-              document.body.style.removeProperty('--editor-timeline-fill-mode')
+
+              const style = document.body.style
+
+              // Remove all the properties that starts with --editor-timeline
+              for (const prop of style) {
+                if (prop.startsWith('--editor-timeline')) {
+                  style.removeProperty(prop)
+                }
+              }
               document.body.removeAttribute('data-animating')
               update()
               return
             }
 
             document.body.setAttribute('data-animating', 'true')
-            document.body.style.setProperty(
-              '--editor-timeline-position',
-              `${time}s`,
-            )
+
             document.body.style.setProperty(
               '--editor-timeline-timing-function',
               timingFunction ?? 'ease',
@@ -969,7 +1044,112 @@ export const createRoot = (
               fillMode ?? 'none',
             )
 
-            if (animatedElementChanged) {
+            const selectedNode = getDOMNodeFromNodeId(
+              animationState.animatedElementId,
+            )
+
+            let repeatedNodes: HTMLElement[] = []
+
+            if (selectedNode) {
+              if (selectedNode.parentElement) {
+                repeatedNodes = Array.from(
+                  selectedNode.parentElement.children,
+                ).filter(
+                  (node) =>
+                    node instanceof HTMLElement &&
+                    node
+                      .getAttribute('data-id')
+                      ?.startsWith(selectedNodeId + '('),
+                ) as HTMLElement[]
+              }
+              if (animatedElementChanged) {
+                const computedStyle = window.getComputedStyle(selectedNode)
+                animationState.iterationCount =
+                  computedStyle.animationIterationCount
+
+                animationState.repeatedElementsValues = [
+                  {
+                    delay: `${toSeconds(computedStyle.animationDelay)}s`,
+                    duration: `${toSeconds(computedStyle.animationDuration)}s`,
+                  },
+                ]
+                animationState.timelineTime = {
+                  delay: `${toSeconds(computedStyle.animationDelay)}s`,
+                  duration: `${toSeconds(computedStyle.animationDuration)}s`,
+                }
+
+                repeatedNodes.forEach((node) => {
+                  const nodeComputedStyle = window.getComputedStyle(node)
+                  animationState?.repeatedElementsValues.push({
+                    delay: `${toSeconds(nodeComputedStyle.animationDelay)}s`,
+                    duration: `${toSeconds(nodeComputedStyle.animationDuration)}s`,
+                  })
+                })
+              }
+            }
+
+            const animationDelay = parseFloat(
+              animationState.repeatedElementsValues[0].delay,
+            )
+            const animationDuration = parseFloat(
+              animationState.repeatedElementsValues[0].duration,
+            )
+
+            const timelineTime =
+              parseFloat(animationState.timelineTime.delay) +
+              parseFloat(animationState.timelineTime.duration)
+            const timelinePosition = time * timelineTime
+
+            const calculatedDelay = timelinePosition - animationDelay
+
+            const progressTime = clamp(
+              calculatedDelay,
+              0,
+              animationDelay + animationDuration,
+            )
+
+            document.body.style.setProperty(
+              '--editor-timeline-position-0',
+              `${progressTime}s`,
+            )
+            document.body.style.setProperty(
+              '--editor-timeline-duration-0',
+              `${animationDuration}s`,
+            )
+
+            repeatedNodes.forEach((node, index) => {
+              const animationDelay = animationState
+                ? parseFloat(
+                    animationState.repeatedElementsValues[index + 1].delay,
+                  )
+                : 0
+
+              const animationDuration = animationState
+                ? parseFloat(
+                    animationState.repeatedElementsValues[index + 1].duration,
+                  )
+                : 1
+
+              const calculatedDelay = timelinePosition - animationDelay
+
+              const progressTime = clamp(
+                calculatedDelay,
+                0,
+                animationDelay + animationDuration,
+              )
+
+              document.body.style.setProperty(
+                `--editor-timeline-position-${index + 1}`,
+                `${progressTime}s`,
+              )
+
+              document.body.style.setProperty(
+                `--editor-timeline-duration-${index + 1}`,
+                `${animationDuration}s`,
+              )
+            })
+
+            if (animatedElementChanged && animationState?.animatedElementId) {
               let styleTag = document.head.querySelector(
                 '[data-id="preview-animation-styles"]',
               )
@@ -978,15 +1158,26 @@ export const createRoot = (
                 styleTag.setAttribute('data-id', 'preview-animation-styles')
                 document.head.appendChild(styleTag)
               }
+              styleTag.innerHTML = `body[data-mode="design"] [data-id="${animationState.animatedElementId}"] {
+                  animation: preview_timeline var(--editor-timeline-duration-0) paused normal !important;
+                  animation-fill-mode: var(--editor-timeline-fill-mode) !important;
+                  animation-timing-function: var(--editor-timeline-timing-function) !important;
+                  animation-delay: calc(0s - var(--editor-timeline-position-0)) !important;
+                  animation-play-state: paused !important;
+                  animation-iteration-count: ${animationState.iterationCount} !important
+                }`
 
-              styleTag.innerHTML = `
-body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[data-mode="design"] [data-id="${animationState.animatedElementId}"] ~ [data-id^="${animationState.animatedElementId}("] {
-  animation: preview_timeline 1s paused normal !important;
-  animation-fill-mode: var(--editor-timeline-fill-mode) !important;
-  animation-timing-function: var(--editor-timeline-timing-function) !important;
-  animation-delay: calc(0s - var(--editor-timeline-position)) !important;
-  animation-play-state: paused !important;
-}`
+              repeatedNodes.forEach((node, index) => {
+                styleTag.innerHTML += `
+                    body[data-mode="design"] [data-id="${node.getAttribute('data-id')}"] {
+                      animation: preview_timeline var(--editor-timeline-duration-${index + 1}) paused normal !important;
+                      animation-fill-mode: var(--editor-timeline-fill-mode) !important;
+                      animation-timing-function: var(--editor-timeline-timing-function) !important;
+                      animation-delay: calc(0s - var(--editor-timeline-position-${index + 1})) !important;
+                      animation-play-state: paused !important;
+                      animation-iteration-count: ${animationState?.iterationCount ?? 1} !important
+                    }`
+              })
             }
             syncOverlayRects()
           })
@@ -1130,8 +1321,17 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               resourceElement.rel = 'stylesheet'
               resourceElement.href = resource.href
               document.head.appendChild(resourceElement)
+
+              // Sync canvas after the resource has loaded (if not already loaded)
+              if (!resourceElement.sheet) {
+                resourceElement.addEventListener('load', () => {
+                  requestResizeCanvas(resizeCanvasOptions)
+                  syncOverlayRects()
+                })
+              }
             })
           requestResizeCanvas(resizeCanvasOptions)
+          syncOverlayRects()
           break
         }
         case 'preview_theme': {
@@ -1146,6 +1346,92 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
             sameSite: 'none',
           })
           requestResizeCanvas(resizeCanvasOptions)
+          break
+        }
+        case 'capture_screenshot': {
+          const { id, viewportWidth } = message.data
+          let disableTransitionsStyle: HTMLStyleElement | null = null
+          // Set only if we actually ask the editor to resize, so we can ask
+          // it to put the width back afterwards - we can't rely on the
+          // editor's own restore logic getting this right.
+          let widthToRestore: number | null = null
+          try {
+            if (viewportWidth !== undefined) {
+              if (window.innerWidth !== viewportWidth) {
+                // We can't resize our own <iframe> element from in here - the
+                // preview iframe is cross-origin/sandboxed from the editor, so
+                // `window.frameElement` isn't accessible. Ask the editor to
+                // resize the actual iframe instead, then wait for the
+                // resulting native `resize` event rather than requiring an
+                // explicit reply.
+                widthToRestore = window.innerWidth
+                postMessageToEditor({
+                  type: 'requestViewportWidth',
+                  width: viewportWidth,
+                })
+                await waitForViewportWidth(viewportWidth)
+              }
+
+              // The editor's resize may have triggered CSS transitions on
+              // responsive layout changes; disable them so we capture the
+              // resting state at this width rather than a half-finished
+              // transition frame.
+              disableTransitionsStyle = document.createElement('style')
+              disableTransitionsStyle.textContent =
+                '*, *::before, *::after { transition: none !important; animation: none !important; }'
+              document.head.appendChild(disableTransitionsStyle)
+
+              // Let layout settle at the new width before capturing -
+              // getComputedStyle (used internally by domToCanvas) forces a
+              // synchronous layout flush, but a frame gives any resize-driven
+              // JS (ResizeObserver, matchMedia listeners, etc.) a chance to run.
+              await new Promise(requestAnimationFrame)
+            }
+
+            // Rasterize the full document (not just what's currently scrolled into
+            // view) by walking the DOM/computed styles rather than capturing the
+            // screen, so content below the fold is still included.
+            const target = document.documentElement
+            const canvas = await domToCanvas(target, {
+              width: target.scrollWidth,
+              height: target.scrollHeight,
+            })
+            const url = canvas.toDataURL('image/png')
+
+            postMessageToEditor({
+              type: 'screenshot',
+              id,
+              file: {
+                type: 'image/png',
+                size: url.length,
+                dimensions: { width: canvas.width, height: canvas.height },
+                url,
+              },
+            })
+          } catch (error) {
+            postMessageToEditor({
+              type: 'screenshot',
+              id,
+              file: null,
+              error: error instanceof Error ? error.message : String(error),
+            })
+          } finally {
+            disableTransitionsStyle?.remove()
+            if (widthToRestore !== null) {
+              postMessageToEditor({
+                type: 'requestViewportWidth',
+                width: widthToRestore,
+              })
+              try {
+                await waitForViewportWidth(widthToRestore)
+              } catch (error) {
+                console.error(
+                  'Failed to restore original viewport width',
+                  error,
+                )
+              }
+            }
+          }
           break
         }
       }
@@ -1235,11 +1521,7 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
                     applyFormula(
                       customProperty.formula,
                       {
-                        data: {
-                          Attributes: dataSignal.get().Attributes,
-                          Variables: dataSignal.get().Variables,
-                          Contexts: ctxDataSignal?.get().Contexts ?? {},
-                        },
+                        data: dataSignal.get(),
                         component: getCurrentComponent(),
                         root: ctx?.root,
                         formulaCache: {},
@@ -1625,11 +1907,10 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       // Clear old root signal and create a new one to not keep old signals with previous root around
       ctxDataSignal?.destroy()
       ctxDataSignal = dataSignal.map((data) => data)
-      ctxDataSignal
-        .map((data) => data.Variables)
-        .subscribe(() => {
-          requestResizeCanvas(resizeCanvasOptions)
-        })
+      ctxDataSignal.subscribe(() => {
+        requestResizeCanvas(resizeCanvasOptions)
+        syncOverlayRects()
+      })
       try {
         const rootElem = createNode({
           id: 'root',

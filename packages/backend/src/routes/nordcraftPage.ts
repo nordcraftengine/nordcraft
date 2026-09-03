@@ -149,8 +149,8 @@ export const nordcraftPage = async ({
         ...apiCache,
       },
     },
-    component: resolveClasses(page),
-    components: includedComponents.map(resolveClasses),
+    component: resolveClasses()(page),
+    components: includedComponents.map(resolveClasses()),
     isPageLoaded: false,
     cookies: Object.keys(formulaContext.env.request.cookies),
   }

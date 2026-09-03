@@ -1,4 +1,5 @@
 import { getDOMNodeFromNodeId } from '../../editor-preview.main'
+import { isVoidElement } from '../helpers'
 import type { InsertArea } from '../types'
 
 /**
@@ -26,6 +27,22 @@ export function getInsertAreas() {
       const parent = element.parentElement
       if (!parent) {
         return
+      }
+
+      const isVoid = isVoidElement(element)
+
+      if (!isVoid && !element.hasChildNodes()) {
+        insertAreas.push({
+          layout: 'block',
+          parent: element,
+          index: 0,
+          center: {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2,
+          },
+          size: rect.width,
+          direction: 1,
+        })
       }
 
       const siblings = Array.from(parent.children).filter(

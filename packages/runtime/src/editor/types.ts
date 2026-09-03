@@ -63,6 +63,7 @@ export type NordcraftPreviewEvent =
       x: number
       y: number
       buttons: number
+      canvasTool: 'select' | 'pan' | 'insert-div' | 'insert-text'
     }
   | { type: 'report_document_scroll_size' }
   | { type: 'reload' }
@@ -70,6 +71,13 @@ export type NordcraftPreviewEvent =
   | { type: 'introspect_qraphql_api'; apiKey: string }
   | { type: 'drag-started'; x: number; y: number }
   | { type: 'drag-ended'; canceled?: true }
+  | {
+      type: 'insert-started'
+      x: number
+      y: number
+      canvasTool: 'select' | 'pan' | 'insert-div' | 'insert-text'
+    }
+  | { type: 'insert-ended'; canceled?: true }
   | { type: 'keydown'; key: string; altKey: boolean; metaKey: boolean }
   | { type: 'keyup'; key: string; altKey: boolean; metaKey: boolean }
   | {
@@ -94,6 +102,7 @@ export type NordcraftPreviewEvent =
         | string
         | undefined
       fillMode: 'none' | 'forwards' | 'backwards' | 'both' | undefined
+      iteration: number
     }
   | {
       type: 'preview_style'
@@ -119,6 +128,7 @@ export type NordcraftPreviewEvent =
       height: number
       enabled: boolean
     }
+  | { type: 'capture_screenshot'; id: string; viewportWidth?: number }
 
 export type EditorPostMessageType =
   | {
@@ -149,8 +159,18 @@ export type EditorPostMessageType =
       index?: number
     }
   | {
+      type: 'insertNode'
+      parent?: string | null
+      index?: number
+    }
+  | {
       type: 'computedStyle'
       computedStyle: Record<string, string>
+      repeatedItemsValues: {
+        delay: string
+        duration: string
+      }[]
+      timelineTime: { delay: string; duration: string }
     }
   | {
       type: 'style'
@@ -213,8 +233,23 @@ export type EditorPostMessageType =
       innerText: string
       nodeId: string | null
     }
+  | {
+      type: 'screenshot'
+      id: string
+      file: {
+        type: string
+        size: number
+        dimensions: { width: number; height: number } | null
+        url: string
+      } | null
+      error?: string
+    }
+  | {
+      type: 'requestViewportWidth'
+      width: number
+    }
 
-export type DragState = {
+export type DragInsertState = {
   /**
    * Dragging elements within the initial container is a reorder operation while dragging elements outside the initial container is an insert operation.
    * While they share some common properties, we need to differentiate between the two to handle them differently.

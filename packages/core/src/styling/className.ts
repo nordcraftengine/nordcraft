@@ -1,5 +1,11 @@
-import type { NodeStyleModel } from '../component/component.types'
+import type {
+  ComponentNodeModel,
+  CustomProperty,
+  ElementNodeModel,
+  NodeStyleModel,
+} from '../component/component.types'
 import type { Nullable } from '../types'
+import { appendUnit } from './customProperty'
 import { generateAlphabeticName, hash } from './hash'
 import type { StyleVariant } from './variantSelector'
 
@@ -25,6 +31,51 @@ export const getClassName = (
   return className
 }
 
+export const getPathClassName = (path: string) =>
+  generateAlphabeticName(hash(path))
+
+const getStaticCustomPropertyStyles = (
+  customProperties: Record<`--${string}`, CustomProperty> | undefined,
+) =>
+  Object.fromEntries(
+    Object.entries(customProperties ?? {})
+      .filter(([, value]) => value.formula?.type === 'value')
+      .map(([key, value]) => [
+        key,
+        appendUnit(
+          value.formula?.type === 'value' ? value.formula.value : undefined,
+          value.unit,
+        ),
+      ]),
+  )
+const mergeStaticStyle = (
+  style: NodeStyleModel | undefined | null,
+  customProperties: Record<`--${string}`, CustomProperty> | undefined,
+): Nullable<NodeStyleModel> => {
+  const staticStyles = getStaticCustomPropertyStyles(customProperties)
+  const merged = { ...staticStyles, ...style }
+  return Object.keys(merged).length > 0 ? merged : undefined
+}
+
+export const getStaticStyleAndVariants = (
+  node: ElementNodeModel | ComponentNodeModel,
+) => {
+  const variants =
+    node.variants ??
+    (node.style?.variants as unknown as StyleVariant[] | undefined)
+
+  const staticStyle = mergeStaticStyle(node.style, node.customProperties ?? {})
+  const mappedVariants = variants?.map((variant) => ({
+    ...variant,
+    style: mergeStaticStyle(variant.style, variant.customProperties ?? {}),
+  }))
+
+  return [
+    staticStyle,
+    mappedVariants && mappedVariants.length > 0 ? mappedVariants : undefined,
+  ] as [Nullable<NodeStyleModel>, Nullable<StyleVariant[]>]
+}
+
 export const toValidClassName = (
   input: string,
   escapeSpecialCharacters = false,
@@ -41,8 +92,11 @@ export const toValidClassName = (
   }
 
   // Ensure the class name doesn't start with a number or special character
-  if (/^[^a-zA-Z]/.test(className)) {
-    className = `_${className}`
+  if (className.length > 0) {
+    const code = className.charCodeAt(0)
+    if (!((code >= 65 && code <= 90) || (code >= 97 && code <= 122))) {
+      className = `_${className}`
+    }
   }
 
   return className

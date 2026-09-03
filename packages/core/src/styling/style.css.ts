@@ -8,10 +8,14 @@ import type {
 import type { Nullable } from '../types'
 import { omitKeys } from '../utils/collections'
 import { isDefined } from '../utils/util'
-import { getClassName, toValidClassName } from './className'
+import {
+  getClassName,
+  getStaticStyleAndVariants,
+  toValidClassName,
+} from './className'
 import type { OldTheme, Theme, ThemeOptions } from './theme'
 import { getThemeCss } from './theme'
-import { variantSelector, type StyleVariant } from './variantSelector'
+import { variantSelector } from './variantSelector'
 
 const LEGACY_BREAKPOINTS = {
   large: 1440,
@@ -68,8 +72,8 @@ const SIZE_PROPERTIES = new Set([
   'outline-width',
 ])
 
-export const styleToCss = (style: NodeStyleModel) => {
-  return Object.entries(style)
+export const styleToCss = (style: Nullable<NodeStyleModel>) => {
+  return Object.entries(style ?? {})
     .map(([property, value]) => {
       if (!isDefined(value)) {
         // ignore undefined/null values
@@ -93,22 +97,14 @@ export const getNodeStyles = (
   animationHashes: Set<string> = new Set(),
 ) => {
   try {
-    const style = omitKeys(node.style ?? {}, [
-      'variants',
-      'breakpoints',
-      'shadows',
-    ])
-    const styleVariants =
-      node.variants ??
-      // Support for old style variants stored inside style object
-      // Once we have better versioning options, this should be removed
-      (node.style?.variants as any as StyleVariant[])
+    const [_style, styleVariants] = getStaticStyleAndVariants(node)
+    const style = omitKeys(_style ?? {}, ['variants', 'breakpoints', 'shadows'])
     const renderVariant = (
       selector: string,
-      style: NodeStyleModel,
+      style: Nullable<NodeStyleModel>,
       options?: Nullable<{ startingStyle?: Nullable<boolean> }>,
     ) => {
-      const scrollbarStyles = Object.entries(style).filter(
+      const scrollbarStyles = Object.entries(style ?? {}).filter(
         ([key]) => key === 'scrollbar-width',
       )
       // If selectorCss is empty, we don't need to render the selector
@@ -294,7 +290,7 @@ export const createStylesheet = (
       if (node.type !== 'element') {
         return
       }
-      const classHash = getClassName([node.style, node.variants])
+      const classHash = getClassName(getStaticStyleAndVariants(node))
       if (hashes.has(classHash)) {
         return ''
       }
@@ -317,7 +313,7 @@ export const getAllFonts = (components: Component[]) => {
               node.style?.fontFamily,
               node.style?.['font-family'],
               ...(node.variants?.map(
-                (v) => v.style.fontFamily ?? v.style['font-family'],
+                (v) => v.style?.fontFamily ?? v.style?.['font-family'],
               ) ?? []),
             ].filter(isDefined)
           }

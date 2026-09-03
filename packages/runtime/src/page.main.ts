@@ -543,7 +543,7 @@ const setupMetaUpdates = (
                 Object.entries(m.attrs ?? {}).some(
                   ([k, value]) =>
                     k.toLowerCase() === 'property' &&
-                    value.type === 'value' &&
+                    value?.type === 'value' &&
                     typeof value.value === 'string' &&
                     value.value.toLowerCase() === 'og:description',
                 ),

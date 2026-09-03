@@ -355,7 +355,7 @@ export class ToddleApiV2<Handler> implements ApiRequest {
         'apis',
         this.key,
         'client',
-        'onData',
+        'onMessage',
         'actions',
         actionKey,
       ])

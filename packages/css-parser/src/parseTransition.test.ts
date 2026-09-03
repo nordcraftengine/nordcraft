@@ -30,6 +30,92 @@ describe('parseTransitions', () => {
     ])
   })
 
+  test('Parses basic transition properties correctly when using a variable', () => {
+    expect(
+      (
+        parseCss({
+          style: {
+            transition: 'color var(--duration) linear',
+          },
+          variables: {
+            spacing: [
+              {
+                description: '',
+                inherits: true,
+                initialValue: null,
+                name: '--duration',
+                syntax: { name: 'time', type: 'primitive' },
+                value: '100ms',
+              } as any,
+            ],
+          },
+        }) as any
+      ).transition,
+    ).toEqual([
+      {
+        duration: {
+          type: 'function',
+          name: 'var',
+          value: '--duration',
+        },
+        property: {
+          type: 'keyword',
+          value: 'color',
+        },
+        timing: {
+          type: 'keyword',
+          value: 'linear',
+        },
+      },
+    ])
+  })
+
+  test('Parses basic transition properties correctly when using a variable that reference a variable', () => {
+    expect(
+      (
+        parseCss({
+          style: {
+            transition: 'color var(--duration-2) linear',
+          },
+          variables: {
+            spacing: [
+              {
+                name: 'duration-1',
+                type: 'value',
+                value: '0.4s',
+                category: 'spacing',
+              },
+              {
+                description: '',
+                inherits: true,
+                initialValue: null,
+                name: '--duration-2',
+                syntax: { name: 'time', type: 'primitive' },
+                value: 'var(--duration-1)',
+              } as any,
+            ],
+          },
+        }) as any
+      ).transition,
+    ).toEqual([
+      {
+        duration: {
+          type: 'function',
+          name: 'var',
+          value: '--duration-2',
+        },
+        property: {
+          type: 'keyword',
+          value: 'color',
+        },
+        timing: {
+          type: 'keyword',
+          value: 'linear',
+        },
+      },
+    ])
+  })
+
   test('Parses transition properties correctly when using complex timing functions', () => {
     expect(
       (
