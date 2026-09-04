@@ -31,21 +31,11 @@ export function getRectData(selectedNode: Element | null | undefined) {
  * Intrinsic size is the size of the element without any rotation/scale/skew applied (ie. the
  * untransformed layout box). getBoundingClientRect() includes the full transform, so we solve
  * for the untransformed width/height that would produce the observed (transformed) bounding box,
- * given the element's full local affine transform matrix.
- *
- * For a W x H rect transformed by 2x2 matrix [[a,c],[b,d]] (DOMMatrix convention:
- * x' = a*x + c*y, y' = b*x + d*y), the axis-aligned bounding box of the resulting parallelogram
- * satisfies:
- *   bboxWidth  = |a|*W + |c|*H
- *   bboxHeight = |b|*W + |d|*H
- * Inverting this (Cramer's rule) recovers W and H exactly for ANY combination of rotation,
- * scale, and skew — not just pure rotation like the old a/c-only formula assumed.
+ * given the element's full local transform matrix.
  *
  * Note: this assumes the pivot (transform-origin) is at the element's own center (the CSS
- * default, 50% 50%). That's a safe assumption because any linear map preserves central
- * symmetry - for every corner there's an antipodal corner, so the bbox stays centered on the
- * same point regardless of rotation/scale/skew. If transform-origin is overridden to something
- * off-center, this positioning will be off and needs separate handling.
+ * default, 50% 50%). If transform-origin is overridden to something off-center, this positioning
+ * will be off and needs separate handling.
  */
 function getIntrinsicRect(node: Element, transform: string): DOMRect {
   const isInline = window.getComputedStyle(node).display === 'inline'
@@ -104,11 +94,11 @@ function getInlineRect(node: Element): DOMRect {
 }
 
 /**
- * There is no well supported API to get the "world" transform of an element (even though the
- * browser knows it and uses it internally). This traverses up the DOM tree, multiplying the
+ * There is no well supported API to get the viewport transform of an element (even though the
+ * browser knows it and uses it internally...) This traverses up the DOM tree, multiplying the
  * transform/rotate matrices of each ancestor to get the combined LOCAL affine transform in
- * world space — rotation, scale, AND skew. This is what needs to be applied to an overlay
- * element to exactly reproduce the visual shape, including skewed elements.
+ * world space — rotation, scale, and skew. This is what needs to be applied to the overlay
+ * selection rect to exactly reproduce the visual shape.
  */
 function getFullTransform(node: Element): string {
   let combined = new DOMMatrix()
