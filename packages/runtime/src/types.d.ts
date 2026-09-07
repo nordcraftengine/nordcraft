@@ -88,6 +88,7 @@ export interface ComponentContext {
   jsonPath: Array<string | number> | undefined
   reportFormulaEvaluation?: FormulaEvaluationReporter | undefined
   env: ToddleEnv
+  hydrate?: { isHydrating: boolean }
 }
 
 export type ContextApi = ContextApiV1 | ContextApiV2
