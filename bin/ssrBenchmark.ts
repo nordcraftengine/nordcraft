@@ -502,14 +502,14 @@ const createCollectionsHotPathRenderCase = () => {
 
 const createProjectRenderCase = async () => {
   const projectPath = new URL(
-    '../packages/backend/__project__/project.json',
+    '../packages/backend/__project__/nordcraft_website.json',
     import.meta.url,
   ).pathname
   const exampleProject = JSON.parse(
     await Bun.file(projectPath).text(),
   ) as ExampleProject
   const files = exampleProject.files
-  const page = files.components.HomePage
+  const page = files.components.nordcraft
 
   if (!page || !page.route) {
     throw new Error('No page component found in example project')
