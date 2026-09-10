@@ -58,6 +58,11 @@ jobs:
           mkdir -p /tmp/nordcraft-base/bin
           cp bin/ssrBenchmark.ts /tmp/nordcraft-base/bin/ssrBenchmark.ts
 
+      - name: Copy project file to base worktree
+        run: |
+          mkdir -p /tmp/nordcraft-base/packages/backend/__project__
+          cp packages/backend/__project__/nordcraft_website.json /tmp/nordcraft-base/packages/backend/__project__/nordcraft_website.json
+
       - name: Benchmark PR base
         run: |
           mkdir -p /tmp/ssr-benchmark-base
