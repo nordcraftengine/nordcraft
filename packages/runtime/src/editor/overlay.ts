@@ -6,7 +6,7 @@ export function getRectData(selectedNode: Element | null | undefined) {
   const { borderRadius, padding, margin, gap, transformOrigin } =
     window.getComputedStyle(selectedNode)
 
-  const rotate = getFullRotation(selectedNode)
+  const rotate = getFullTransform(selectedNode)
   const rect = getIntrinsicRect(selectedNode, rotate)
 
   return {
@@ -28,65 +28,48 @@ export function getRectData(selectedNode: Element | null | undefined) {
 }
 
 /**
- * Intrinsic size is the size of the element without any rotation applied (ie. the smallest
- * bounding box that can contain the element). getBoundingClientRect() includes rotation, so we
- * temporarily undo it (see neutralizeRotation) to measure the unrotated box.
+ * Intrinsic size is the size of the element without any rotation/scale/skew applied (ie. the
+ * untransformed layout box). getBoundingClientRect() includes the full transform, so we solve
+ * for the untransformed width/height that would produce the observed (transformed) bounding box,
+ * given the element's full local transform matrix.
+ *
+ * Note: this assumes the pivot (transform-origin) is at the element's own center (the CSS
+ * default, 50% 50%). If transform-origin is overridden to something off-center, this positioning
+ * will be off and needs separate handling.
  */
-function getIntrinsicRect(node: Element, rotate: string): DOMRect {
+function getIntrinsicRect(node: Element, transform: string): DOMRect {
   const isInline = window.getComputedStyle(node).display === 'inline'
   const rect = isInline ? getInlineRect(node) : node.getBoundingClientRect()
 
-  const matrix = new DOMMatrix(rotate)
+  const matrix = new DOMMatrix(transform)
   if (matrix.isIdentity) {
     return rect
   }
 
-  const inverse = matrix.inverse()
-  const cx = rect.left + rect.width / 2
-  const cy = rect.top + rect.height / 2
-
-  const transformPoint = (x: number, y: number) => {
-    const dx = x - cx
-    const dy = y - cy
-    const tx = inverse.a * dx + inverse.c * dy + inverse.e
-    const ty = inverse.b * dx + inverse.d * dy + inverse.f
-    return {
-      x: tx + cx,
-      y: ty + cy,
-    }
-  }
-
-  const p1 = transformPoint(rect.left, rect.top)
-  const p2 = transformPoint(rect.left + rect.width, rect.top)
-  const p3 = transformPoint(rect.left, rect.top + rect.height)
-  const p4 = transformPoint(rect.left + rect.width, rect.top + rect.height)
-
-  const xs = [p1.x, p2.x, p3.x, p4.x]
-  const ys = [p1.y, p2.y, p3.y, p4.y]
-
-  const minX = Math.min(...xs)
-  const maxX = Math.max(...xs)
-  const minY = Math.min(...ys)
-  const maxY = Math.max(...ys)
-
-  let width = maxX - minX
-  let height = maxY - minY
-
   const a = Math.abs(matrix.a)
+  const b = Math.abs(matrix.b)
   const c = Math.abs(matrix.c)
-  const denom = a * a - c * c
+  const d = Math.abs(matrix.d)
 
-  if (Math.abs(denom) > 0.15) {
-    const exactW = (rect.width * a - rect.height * c) / denom
-    const exactH = (rect.height * a - rect.width * c) / denom
+  const det = a * d - b * c
+
+  let width = rect.width
+  let height = rect.height
+
+  if (Math.abs(det) > 1e-6) {
+    const exactW = (rect.width * d - rect.height * c) / det
+    const exactH = (rect.height * a - rect.width * b) / det
     if (exactW > 0 && exactH > 0) {
       width = exactW
       height = exactH
     }
   }
 
+  const cx = rect.left + rect.width / 2
+  const cy = rect.top + rect.height / 2
   const left = cx - width / 2
   const top = cy - height / 2
+
   return new DOMRect(left, top, width, height)
 }
 
@@ -111,11 +94,13 @@ function getInlineRect(node: Element): DOMRect {
 }
 
 /**
- * There is no well supported API to get the "world" rotation of an element (even though the
- * browser knows it and uses it internally). This traverses up the DOM tree, multiplying the
- * rotation matrices of each ancestor to get the combined rotation in world space.
+ * There is no well supported API to get the viewport transform of an element (even though the
+ * browser knows it and uses it internally...) This traverses up the DOM tree, multiplying the
+ * transform/rotate matrices of each ancestor to get the combined LOCAL affine transform in
+ * world space — rotation, scale, and skew. This is what needs to be applied to the overlay
+ * selection rect to exactly reproduce the visual shape.
  */
-function getFullRotation(node: Element): string {
+function getFullTransform(node: Element): string {
   let combined = new DOMMatrix()
   let current: Element | null = node
 
@@ -132,37 +117,12 @@ function getFullRotation(node: Element): string {
     current = current.parentElement
   }
 
-  return extractRotationMatrix(combined).toString()
-}
+  // Strip translation - position is handled separately via left/top on the overlay, so we
+  // only want the linear part (rotation + scale + skew) here.
+  combined.e = 0
+  combined.f = 0
 
-/** Strips scale from a matrix, leaving only rotation. */
-function extractRotationMatrix(m: DOMMatrix): DOMMatrix {
-  const sx = Math.hypot(m.m11, m.m12, m.m13) || 1
-  const sy = Math.hypot(m.m21, m.m22, m.m23) || 1
-  const sz = Math.hypot(m.m31, m.m32, m.m33) || 1
-
-  if (m.is2D) {
-    return new DOMMatrix([m.a / sx, m.b / sx, m.c / sy, m.d / sy, 0, 0])
-  }
-
-  return new DOMMatrix([
-    m.m11 / sx,
-    m.m12 / sx,
-    m.m13 / sx,
-    0,
-    m.m21 / sy,
-    m.m22 / sy,
-    m.m23 / sy,
-    0,
-    m.m31 / sz,
-    m.m32 / sz,
-    m.m33 / sz,
-    0,
-    0,
-    0,
-    0,
-    1,
-  ])
+  return combined.toString()
 }
 
 function parseRotate(rotate: string): DOMMatrix {
