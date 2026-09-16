@@ -164,6 +164,10 @@ ${options.includeResetStyle ? RESET_STYLES : ''}
       ? Object.values(themesV2)
           .map(({ fonts }) => fonts)
           .flat()
+          // Google fonts are loaded through a stylesheet link (see getFontCssUrl)
+          // in every context, so we only create font faces for uploaded fonts,
+          // which can only be reached through their stored url.
+          .filter((font) => font.provider === 'upload')
           .map(
             (font) => `
     ${(font.variants ?? [])

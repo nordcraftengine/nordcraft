@@ -29,9 +29,7 @@ import {
   type ToddleFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
-import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
 import {
-  getThemeCss,
   getThemeEntries,
   renderThemeValues,
 } from '@nordcraft/core/dist/styling/theme'
@@ -98,6 +96,7 @@ import {
 import { handleTextMouseDown } from './editor/text-selection/mouseDown'
 import { handleTextMouseMove } from './editor/text-selection/mouseMove'
 import { handleTextNodeSelection } from './editor/text-selection/selection'
+import { insertTheme } from './editor/theme'
 import type {
   DragInsertState,
   NordcraftPreviewEvent,
@@ -2240,21 +2239,6 @@ function getNodeId(component: Component, path: string[]) {
     return getId(path, currentNode.children[parseInt(nextChild)])
   }
   return getId(path, 'root')
-}
-
-const insertTheme = (
-  parent: HTMLElement,
-  themes: Record<string, OldTheme | Theme>,
-) => {
-  document.getElementById('theme-style')?.remove()
-  const styleElem = document.createElement('style')
-  styleElem.setAttribute('type', 'text/css')
-  styleElem.setAttribute('id', 'theme-style')
-  styleElem.innerHTML = getThemeCss(themes, {
-    includeResetStyle: false,
-    createFontFaces: true,
-  })
-  parent.appendChild(styleElem)
 }
 
 const initKeyListeners = () => {
