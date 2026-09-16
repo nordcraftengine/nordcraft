@@ -79,14 +79,14 @@ export function renderComponent({
   jsonPath,
   reportFormulaEvaluation,
 }: RenderComponentProps): ReadonlyArray<Element | Text> {
-  const stopMeasure = measure(
+  const stopMeasure = measure(() => [
     `Render component: ${component.name}`,
     {
       component: component.name,
       path,
     },
     'component',
-  )
+  ])
   const ctx: ComponentContext = {
     triggerEvent: onEvent,
     component,
@@ -161,6 +161,6 @@ export function renderComponent({
       void handleAction(action, dataSignal.get(), ctx)
     })
   })
-  stopMeasure()
+  stopMeasure?.()
   return rootElem
 }
