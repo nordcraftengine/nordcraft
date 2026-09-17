@@ -31,13 +31,19 @@ import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
 import { sortApis } from './api/sortApis'
 import { getDynamicMetaEntries } from './components/meta'
-import { renderComponent } from './components/renderComponent'
+import {
+  hydrateComponent,
+  renderComponent,
+  type RenderComponentProps,
+} from './components/renderComponent'
 import { isContextProvider } from './context/isContextProvider'
 import { initLogState, registerComponentToLogState } from './debug/logState'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
 import type { ComponentContext, LocationSignal } from './types'
 import { getThemeSignal } from './utils/getThemeSignal'
+
+const FF_HYDRATE_PROJECTS = ['hydrate']
 
 initLogState()
 
@@ -316,7 +322,7 @@ export const createRoot = (domNode: HTMLElement) => {
   // We can only setup meta updates after the dataSignal has been initiated with API data etc.
   setupMetaUpdates(component, dataSignal)
 
-  const elements = renderComponent({
+  const renderProps: RenderComponentProps = {
     ...ctx,
     providers,
     path: '0',
@@ -324,11 +330,30 @@ export const createRoot = (domNode: HTMLElement) => {
     onEvent: ctx.triggerEvent,
     parentElement: domNode,
     instance: {},
-  })
-  domNode.innerText = ''
-  elements.forEach((elem) => {
-    domNode.appendChild(elem)
-  })
+  }
+
+  if (FF_HYDRATE_PROJECTS.includes(window.__toddle.project)) {
+    // For testing-purpose, we hydrate manually with:
+    // `dispatchEvent(new Event('hydrate!'))` in the console, so we can inspect the DOM before hydration
+    window.addEventListener('hydrate!', () => {
+      hydrateComponent(renderProps)
+    })
+
+    window.addEventListener('render!', () => {
+      const elements = renderComponent(renderProps)
+      domNode.innerText = ''
+      elements.forEach((elem) => {
+        domNode.appendChild(elem)
+      })
+    })
+  } else {
+    const elements = renderComponent(renderProps)
+    domNode.innerText = ''
+    elements.forEach((elem) => {
+      domNode.appendChild(elem)
+    })
+  }
+
   window.__toddle.isPageLoaded = true
 }
 

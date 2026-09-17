@@ -146,7 +146,13 @@ const renderComponent = async ({
     switch (node.type) {
       case 'text': {
         if (!namespace || namespace === 'http://www.w3.org/1999/xhtml') {
-          return `<span data-node-type="text" data-node-id="${id}">${toEncodedText(
+          const attributes = [
+            'data-node-type="text"',
+            `data-node-id="${id}"`,
+            `data-id="${path}"`,
+            `data-hk="${path}"`,
+          ]
+          return `<span ${attributes.join(' ')}>${toEncodedText(
             String(applyFormula(node.value, formulaContext)),
           )}</span>`
         }
@@ -303,6 +309,7 @@ const renderComponent = async ({
         const attributes = [
           ...nodeAttrs,
           `data-id="${path}"`,
+          `data-hk="${path}"`,
           `data-node-id="${escapeAttrValue(id)}"`,
         ]
         if (classList.length > 0) {
