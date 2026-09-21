@@ -41,6 +41,10 @@ export class ToddleComponent extends HTMLElement {
   #shadowRoot: ShadowRoot
   #signal: Signal<ComponentData>
   #files: { themes: Record<string, Theme> }
+  // Maps lowercased attribute names to their original case, so attributeChangedCallback
+  // (which receives lowercased names from observedAttributes) can look them up in the
+  // component's attributes without scanning the whole object on every change.
+  #attributeNames: Map<string, string>
 
   constructor(
     component: Component,
@@ -75,6 +79,12 @@ export class ToddleComponent extends HTMLElement {
     this.#files = {
       themes: options.themes,
     }
+    this.#attributeNames = new Map(
+      Object.keys(component.attributes ?? {}).map((key) => [
+        key.toLowerCase(),
+        key,
+      ]),
+    )
 
     // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
     const abortController = new AbortController()
@@ -287,9 +297,7 @@ export class ToddleComponent extends HTMLElement {
   }
 
   private getAttributeCaseInsensitive(name: string) {
-    const attributeName = Object.keys(this.#signal.get().Attributes).find(
-      (key) => key.toLowerCase() === name.toLowerCase(),
-    )
+    const attributeName = this.#attributeNames.get(name.toLowerCase())
 
     // This should never happen (TM) as we only observe attributes that are defined on the component
     if (!attributeName) {
