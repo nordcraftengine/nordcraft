@@ -1,5 +1,6 @@
 import { getUrl } from '@nordcraft/core/dist/api/api'
 import type {
+  ComponentData,
   PageComponent,
   PageRoute,
   RouteDeclaration,
@@ -48,13 +49,13 @@ export const matchRouteForUrl = ({
       return true
     }
     // Only include routes that are enabled
-    const formulaContext = getRouteFormulaContext({
+    const { formulaContext, data } = getRouteFormulaContext({
       env,
       req,
       route,
       serverContext,
     })
-    return toBoolean(applyFormula(route.enabled.formula, formulaContext))
+    return toBoolean(applyFormula(route.enabled.formula, formulaContext, data))
   })
   return matchRoutes({
     url,
@@ -120,14 +121,19 @@ export const getRouteDestination = ({
   try {
     const requestUrl = new URL(req.url)
 
-    const formulaContext = getRouteFormulaContext({
+    const { formulaContext, data } = getRouteFormulaContext({
       env,
       req,
       route,
       serverContext,
     })
 
-    const url = getUrl(route.destination, formulaContext, requestUrl.origin)
+    const url = getUrl(
+      route.destination,
+      formulaContext,
+      requestUrl.origin,
+      data,
+    )
     if (
       route.type === 'redirect' &&
       requestUrl.origin === url.origin &&
@@ -151,15 +157,18 @@ const getRouteFormulaContext = ({
   req: Request
   route: Route
   serverContext: FormulaContext['toddle']
-}): FormulaContext => {
+}): { formulaContext: FormulaContext; data: ComponentData } => {
   const { searchParamsWithDefaults, pathParams } = getParameters({
     route: route.source,
     req,
   })
   return {
-    component: undefined,
-    // destination formulas should only have access to URL parameters from
-    // the route's source definition + global formulas.
+    formulaContext: {
+      component: undefined,
+      env,
+      package: undefined,
+      toddle: serverContext,
+    },
     data: {
       Attributes: {},
       'Route parameters': {
@@ -167,9 +176,6 @@ const getRouteFormulaContext = ({
         query: searchParamsWithDefaults,
       },
     },
-    env,
-    package: undefined,
-    toddle: serverContext,
   }
 }
 

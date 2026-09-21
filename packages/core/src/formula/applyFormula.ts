@@ -1,4 +1,5 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, max-params */
+import type { ComponentData } from '../component/component.types'
 import { measure } from '../utils/measure'
 import {
   applyFormula,
@@ -9,6 +10,8 @@ import {
 export const applyApplyFormula = (
   formula: ApplyOperation,
   ctx: FormulaContext,
+  data?: ComponentData,
+  path?: Array<string | number>,
 ) => {
   const componentFormula = ctx.component?.formulas?.[formula.name]
   if (!componentFormula) {
@@ -24,34 +27,43 @@ export const applyApplyFormula = (
     formula,
     component: ctx.component?.name,
   })
-  const Input = Object.fromEntries(
-    (formula.arguments ?? []).map((arg, i) =>
-      arg.isFunction
-        ? [
-            arg.name,
-            (Args: any) =>
-              applyFormula(
-                arg.formula,
-                {
-                  ...ctx,
-                  data: {
-                    ...ctx.data,
-                    Args: ctx.data.Args
-                      ? { ...Args, '@toddle.parent': ctx.data.Args }
-                      : Args,
-                  },
-                },
-                ['arguments', i],
-              ),
-          ]
-        : [arg.name, applyFormula(arg.formula, ctx, ['arguments', i])],
-    ),
-  )
-  const data = {
-    ...ctx.data,
-    Args: ctx.data.Args ? { ...Input, '@toddle.parent': ctx.data.Args } : Input,
+  const resolvedData: ComponentData = data ?? { Attributes: {} }
+  const Input: Record<string, any> = {}
+  const formulaArgs = formula.arguments ?? []
+  for (let i = 0; i < formulaArgs.length; i++) {
+    const arg = formulaArgs[i]
+    if (!arg?.name) {
+      continue
+    }
+    const argPath = ctx.reportFormulaEvaluation
+      ? path
+        ? [...path, 'arguments', i]
+        : ['arguments', i]
+      : undefined
+    if (arg.isFunction) {
+      Input[arg.name] = (Args: any) =>
+        applyFormula(
+          arg.formula,
+          ctx,
+          {
+            ...resolvedData,
+            Args: resolvedData.Args
+              ? { ...Args, '@toddle.parent': resolvedData.Args }
+              : Args,
+          },
+          argPath,
+        )
+    } else {
+      Input[arg.name] = applyFormula(arg.formula, ctx, resolvedData, argPath)
+    }
   }
-  const cache = ctx.formulaCache?.[formula.name]?.get(data)
+  const childData: ComponentData = {
+    ...resolvedData,
+    Args: resolvedData.Args
+      ? { ...Input, '@toddle.parent': resolvedData.Args }
+      : Input,
+  }
+  const cache = ctx.formulaCache?.[formula.name]?.get(childData)
 
   if (cache?.hit) {
     stopMeasure({ cache: 'hit' })
@@ -59,13 +71,15 @@ export const applyApplyFormula = (
   } else {
     const result = applyFormula(
       componentFormula.formula,
-      {
-        ...ctx,
-        data,
-      },
-      ['formula'],
+      ctx,
+      childData,
+      ctx.reportFormulaEvaluation
+        ? path
+          ? [...path, 'formula']
+          : ['formula']
+        : undefined,
     )
-    ctx.formulaCache?.[formula.name]?.set(data, result)
+    ctx.formulaCache?.[formula.name]?.set(childData, result)
     stopMeasure({ cache: 'miss' })
     return result
   }

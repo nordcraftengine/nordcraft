@@ -413,9 +413,8 @@ describe('getRequestBody', () => {
     }
     const body = getRequestBody({
       api: apiRequest,
-      formulaContext: {
-        data: { Variables: { file: new File([], 'test.jpg') } },
-      } as any,
+      formulaContext: {} as any,
+      data: { Variables: { file: new File([], 'test.jpg') } } as any,
       headers: new Headers([['Content-Type', 'image/jpeg']]),
       method: ApiMethod.POST,
     })

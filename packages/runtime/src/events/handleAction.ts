@@ -5,16 +5,12 @@ import type {
   SetMultiUrlParameterAction,
   SetURLParameterAction,
 } from '@nordcraft/core/dist/component/component.types'
-import {
-  applyFormula,
-  type FormulaContext,
-} from '@nordcraft/core/dist/formula/formula'
+import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import type { ComponentContext, Location } from '../types'
-import { createFormulaContext } from '../utils/createFormulaContext'
 import { getLocationUrl } from '../utils/url'
 
 // eslint-disable-next-line max-params
@@ -29,7 +25,6 @@ export function handleAction(
     if (!action) {
       throw new Error('Action does not exist')
     }
-    const formulaContext = createFormulaContext(ctx, data)
     switch (action.type) {
       case 'Switch': {
         // find the first case that resolves to true.
@@ -37,7 +32,7 @@ export function handleAction(
         const actionList =
           action.cases?.find(({ condition }) =>
             toBoolean(
-              applyFormula(condition, formulaContext, ['cases', 'condition']),
+              applyFormula(condition, ctx, data, ['cases', 'condition']),
             ),
           ) ?? action.default
         // handle all actions for the case
@@ -54,7 +49,7 @@ export function handleAction(
         break
       }
       case 'SetVariable': {
-        const value = applyFormula(action.data, formulaContext)
+        const value = applyFormula(action.data, ctx, data)
 
         ctx.dataSignal.update((data) => {
           return {
@@ -68,18 +63,18 @@ export function handleAction(
         break
       }
       case 'TriggerEvent': {
-        const payload = applyFormula(action.data, formulaContext, ['data'])
+        const payload = applyFormula(action.data, ctx, data, ['data'])
         ctx.triggerEvent(action.event, payload)
         break
       }
       case 'TriggerWorkflowCallback': {
-        const payload = applyFormula(action.data, formulaContext, ['data'])
+        const payload = applyFormula(action.data, ctx, data, ['data'])
         workflowCallback?.(action.event, payload)
         break
       }
       case 'SetURLParameter': {
         ctx.toddle.locationSignal.update((current) => {
-          const value = applyFormula(action.data, formulaContext, ['data'])
+          const value = applyFormula(action.data, ctx, data, ['data'])
           // historyMode was previously not declared explicitly, and we default
           // to push for state changes and replace for query changes
           let historyMode: SetURLParameterAction['historyMode'] | undefined
@@ -145,7 +140,6 @@ export function handleAction(
           let historyMode: SetMultiUrlParameterAction['historyMode'] = 'replace'
           const queryUpdates: Record<string, string> = {}
           const pathUpdates: Record<string, string> = {}
-          const urlParameterCtx: FormulaContext = formulaContext
           // Only match on p.type === 'param'
           const isValidPathParameter = (param: string) =>
             current.route?.path.some(
@@ -158,10 +152,8 @@ export function handleAction(
 
           for (const [parameter, formula] of parameters) {
             const value =
-              applyFormula(formula, urlParameterCtx, [
-                'parameters',
-                parameter,
-              ]) ?? null
+              applyFormula(formula, ctx, data, ['parameters', parameter]) ??
+              null
             if (isValidPathParameter(parameter)) {
               historyMode = 'push'
               pathUpdates[parameter] = value as string
@@ -226,7 +218,7 @@ export function handleAction(
             action.inputs ?? {},
             ([key, input]) => [
               key,
-              applyFormula(input.formula, formulaContext, [
+              applyFormula(input.formula, ctx, data, [
                 'inputs',
                 key,
                 'formula',
@@ -292,7 +284,7 @@ export function handleAction(
           action.parameters ?? {},
           ([key, parameter]) => [
             key,
-            applyFormula(parameter.formula, formulaContext, [
+            applyFormula(parameter.formula, ctx, data, [
               'parameters',
               key,
               'formula',
@@ -425,7 +417,7 @@ export function handleAction(
                 arg
                   ? {
                       ...args,
-                      [arg.name]: applyFormula(arg.formula, formulaContext, [
+                      [arg.name]: applyFormula(arg.formula, ctx, data, [
                         'arguments',
                         i,
                         'formula',
@@ -474,14 +466,12 @@ export function handleAction(
             }
             // First evaluate any arguments (input) to the action
             const args = action.arguments?.map((arg, i) =>
-              applyFormula(arg?.formula, formulaContext, [
+              applyFormula(arg?.formula, ctx, data, [
                 'arguments',
                 i,
                 'formula',
               ]),
-            ) ?? [
-              applyFormula(action.data, formulaContext, ['arguments', 'data']),
-            ] // action.data is a fallback to handle an older version of the action spec.
+            ) ?? [applyFormula(action.data, ctx, data, ['arguments', 'data'])] // action.data is a fallback to handle an older version of the action spec.
             return legacyHandler(args, { ...ctx, triggerActionEvent }, event)
           }
         } catch (err) {

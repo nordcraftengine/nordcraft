@@ -93,8 +93,8 @@ describe('formulaContext', () => {
         } as any,
       })
 
-      expect(result.data.Page?.Theme).toBe('dark')
-      expect(result.data.Variables?.myVar).toBe('dark')
+      expect(result.data?.Page?.Theme).toBe('dark')
+      expect(result.data?.Variables?.myVar).toBe('dark')
     })
   })
 })

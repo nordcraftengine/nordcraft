@@ -14,14 +14,13 @@ if (!(globalThis as any).__CORE_FORMULAS__) {
 }
 
 // Helper to create a minimal context
-export const createTestFormulaContext = (data: any = {}): FormulaContext => {
+export const createTestFormulaContext = (): FormulaContext => {
   const coreFormulas = (globalThis as any).__CORE_FORMULAS__ as
     | Record<string, any>
     | undefined
   return {
     component: undefined,
     formulaCache: {},
-    data,
     root: {} as Document,
     package: undefined,
     toddle: {
@@ -43,26 +42,29 @@ export const createTestFormulaContext = (data: any = {}): FormulaContext => {
 
 // Helper to create a minimal context when evaluating all paths
 export const createTestFormulaContextForAllPaths = (
-  data: any = {},
-  formulaEvaluationReporter: FormulaEvaluationReporter,
-): FormulaContext => ({
-  component: undefined,
-  formulaCache: {},
-  data,
-  root: undefined,
-  package: undefined,
-  toddle: {
-    getFormula: (name: string) => coreFormulas[name],
-    getCustomFormula: () => undefined,
-    errors: [],
-  },
-  env: {
-    logErrors: true,
-    runtime: 'page',
-    branchName: 'main',
-    isServer: false,
-    request: undefined,
-  },
-  jsonPath: [],
-  reportFormulaEvaluation: formulaEvaluationReporter,
-})
+  dataOrReporter: any,
+  reporter?: FormulaEvaluationReporter,
+): FormulaContext => {
+  const formulaEvaluationReporter =
+    typeof dataOrReporter === 'function' ? dataOrReporter : reporter!
+  return {
+    component: undefined,
+    formulaCache: {},
+    root: undefined,
+    package: undefined,
+    toddle: {
+      getFormula: (name: string) => coreFormulas[name],
+      getCustomFormula: () => undefined,
+      errors: [],
+    },
+    env: {
+      logErrors: true,
+      runtime: 'page',
+      branchName: 'main',
+      isServer: false,
+      request: undefined,
+    },
+    jsonPath: [],
+    reportFormulaEvaluation: formulaEvaluationReporter,
+  }
+}

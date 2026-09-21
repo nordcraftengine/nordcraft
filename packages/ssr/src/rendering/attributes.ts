@@ -60,15 +60,15 @@ export function getNodeAttrs({
   toddle: FormulaContext['toddle']
 }) {
   const { style, ...restAttrs } = node.attrs ?? {}
+  const formulaCtx = {
+    component,
+    package: packageName,
+    env,
+    toddle,
+  }
   const nodeAttrs = Object.entries(restAttrs).reduce<string[]>(
     (appliedAttributes, [name, attrValue]) => {
-      const value = applyFormula(attrValue, {
-        data,
-        component,
-        package: packageName,
-        env,
-        toddle,
-      })
+      const value = applyFormula(attrValue, formulaCtx, data)
       if (toBoolean(value)) {
         appliedAttributes.push(`${name}="${escapeAttrValue(value)}"`)
       }
@@ -79,32 +79,15 @@ export function getNodeAttrs({
   const styleVariables = Object.values(node['style-variables'] ?? {}).map(
     (styleVariable) => {
       return `--${styleVariable.name}: ${
-        String(
-          applyFormula(styleVariable.formula, {
-            data,
-            component,
-            package: packageName,
-            env,
-            toddle,
-          }),
-        ) + (styleVariable.unit ?? '')
+        String(applyFormula(styleVariable.formula, formulaCtx, data)) +
+        (styleVariable.unit ?? '')
       }`
     },
   )
 
   // Handle the style-attribute independently to merge with style variables
   const styles = [
-    ...(style
-      ? [
-          applyFormula(style, {
-            data,
-            component,
-            package: packageName,
-            env,
-            toddle,
-          }),
-        ]
-      : []),
+    ...(style ? [applyFormula(style, formulaCtx, data)] : []),
     ...styleVariables,
   ]
     .filter(Boolean)

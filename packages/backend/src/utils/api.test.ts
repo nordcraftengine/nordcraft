@@ -1,5 +1,6 @@
 import { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
 import { ToddleApiV2 } from '@nordcraft/core/dist/api/ToddleApiV2'
+import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type {
   FormulaContext,
   ToddleServerEnv,
@@ -9,6 +10,13 @@ import { beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import { evaluateComponentApis, RedirectError } from './api'
 
 const spyFetch = spyOn(globalThis, 'fetch')
+
+const defaultData: ComponentData = {
+  Apis: {},
+  Variables: {},
+  Attributes: {},
+  Contexts: {},
+}
 
 describe('evaluateComponentApis', () => {
   beforeEach(() => {
@@ -37,12 +45,6 @@ describe('evaluateComponentApis', () => {
 
     const formulaContext: FormulaContext = {
       component: { name: 'TestComponent' },
-      data: {
-        Apis: {},
-        Variables: {},
-        Attributes: {},
-        Contexts: {},
-      },
       package: null,
       toddle: {
         getFormula: () => undefined,
@@ -77,6 +79,7 @@ describe('evaluateComponentApis', () => {
         },
       } as any,
       formulaContext,
+      data: { ...defaultData },
       req: new Request('http://localhost:3000'),
       apiCache: {},
       updateApiCache: () => {},
@@ -108,7 +111,6 @@ describe('evaluateComponentApis', () => {
 
     const formulaContext: FormulaContext = {
       component: { name: 'TestComponent' },
-      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
       package: null,
       toddle: {
         getFormula: () => undefined,
@@ -131,6 +133,7 @@ describe('evaluateComponentApis', () => {
         },
       } as any,
       formulaContext,
+      data: { ...defaultData },
       req: new Request('http://localhost:3000'),
       apiCache: {},
       updateApiCache: () => {},
@@ -178,7 +181,6 @@ describe('evaluateComponentApis', () => {
 
     const formulaContext: FormulaContext = {
       component: { name: 'TestComponent' },
-      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
       package: null,
       toddle: {
         getFormula: () => undefined,
@@ -224,6 +226,7 @@ describe('evaluateComponentApis', () => {
         },
       } as any,
       formulaContext,
+      data: { ...defaultData },
       req: new Request('http://localhost:3000'),
       apiCache: {},
       updateApiCache: () => {},
@@ -261,12 +264,6 @@ describe('evaluateComponentApis', () => {
 
     const formulaContext: FormulaContext = {
       component: { name: 'TestComponent' },
-      data: {
-        Apis: {},
-        Variables: {},
-        Attributes: {},
-        Contexts: {},
-      },
       package: null,
       toddle: {
         getFormula: () => undefined,
@@ -308,6 +305,7 @@ describe('evaluateComponentApis', () => {
         apis: { testApi: mockApi },
       } as any,
       formulaContext,
+      data: { ...defaultData },
       req: new Request('http://localhost:3000'),
       apiCache: {},
       updateApiCache: () => {},
@@ -347,7 +345,6 @@ describe('evaluateComponentApis', () => {
 
     const formulaContext: FormulaContext = {
       component: { name: 'TestComponent' },
-      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
       package: null,
       toddle: {
         getFormula: () => undefined,
@@ -381,6 +378,7 @@ describe('evaluateComponentApis', () => {
           apis: { testApi: mockApi },
         } as any,
         formulaContext,
+        data: { ...defaultData },
         req: new Request('http://localhost:3000/page'),
         apiCache: {},
         updateApiCache: () => {},
@@ -423,7 +421,6 @@ describe('evaluateComponentApis', () => {
 
     const formulaContext: FormulaContext = {
       component: { name: 'TestComponent' },
-      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
       package: null,
       toddle: {
         getFormula: () => undefined,
@@ -457,6 +454,7 @@ describe('evaluateComponentApis', () => {
           apis: { testApi: mockApi },
         } as any,
         formulaContext,
+        data: { ...defaultData },
         req: new Request('http://localhost:3000/page'),
         apiCache: {},
         updateApiCache: () => {},
@@ -502,7 +500,6 @@ describe('evaluateComponentApis', () => {
 
     const formulaContext: FormulaContext = {
       component: { name: 'TestComponent' },
-      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
       package: null,
       toddle: {
         getFormula: () => undefined,
@@ -538,6 +535,7 @@ describe('evaluateComponentApis', () => {
           apis: { testApi: mockApi },
         } as any,
         formulaContext,
+        data: { ...defaultData },
         req: new Request('http://localhost:3000/page'),
         apiCache: {},
         updateApiCache: () => {},

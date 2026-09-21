@@ -47,23 +47,7 @@ export function createText({
   elem.setAttribute('data-node-type', 'text')
   if (value.type !== 'value') {
     const sig = dataSignal.map((data) =>
-      String(
-        applyFormula(
-          value,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          ['value'],
-        ),
-      ),
+      String(applyFormula(value, ctx, data, ['value'])),
     )
     sig.subscribe((value) => {
       elem.innerText = value
@@ -92,23 +76,7 @@ export function createTextNS({
   const textNode = document.createTextNode('')
   if (value.type !== 'value') {
     const sig = dataSignal.map((data) =>
-      String(
-        applyFormula(
-          value,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          ['value'],
-        ),
-      ),
+      String(applyFormula(value, ctx, data, ['value'])),
     )
     sig.subscribe((value) => {
       textNode.nodeValue = value

@@ -75,18 +75,15 @@ export function createComponent({
     env: ctx.env,
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
+  const childFormulaCtx = {
+    ...formulaCtx,
+    component,
+  }
   const attributesSignal = dataSignal.map((data) => {
     return mapObject(node.attrs ?? {}, ([attr, value]) => [
       attr,
       value?.type !== 'value'
-        ? applyFormula(
-            value,
-            {
-              ...formulaCtx,
-              data,
-            },
-            ['attrs', attr],
-          )
+        ? applyFormula(value, formulaCtx, data, ['attrs', attr])
         : value?.value,
     ])
   })
@@ -102,15 +99,11 @@ export function createComponent({
           data: null,
           isLoading:
             api!.autoFetch &&
-            applyFormula(
-              api!.autoFetch,
-              {
-                ...formulaCtx,
-                component,
-                data: dataSignal.get(),
-              },
-              ['apis', name, 'autoFetch'],
-            )
+            applyFormula(api!.autoFetch, childFormulaCtx, dataSignal.get(), [
+              'apis',
+              name,
+              'autoFetch',
+            ])
               ? true
               : false,
           error: null,
@@ -144,12 +137,8 @@ export function createComponent({
         name,
         applyFormula(
           variable.initialValue,
-          {
-            // Initial value
-            ...formulaCtx,
-            component,
-            data: componentDataSignal.get(),
-          },
+          childFormulaCtx,
+          componentDataSignal.get(),
           ['variables', name],
         ),
       ],
@@ -255,17 +244,8 @@ export function createComponent({
           componentDataSignal.map((data) =>
             applyFormula(
               (formula as ComponentFormula).formula,
-              {
-                data,
-                component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-                jsonPath: ctx.jsonPath,
-                reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-              },
+              childFormulaCtx,
+              data,
               ['formulas', name],
             ),
           ),
@@ -357,14 +337,11 @@ export function createComponent({
         }),
         signal: dataSignal.map((data) =>
           appendUnit(
-            applyFormula(
-              customProperty.formula,
-              {
-                ...formulaCtx,
-                data,
-              },
-              ['customProperties', customPropertyName, 'formula'],
-            ),
+            applyFormula(customProperty.formula, formulaCtx, data, [
+              'customProperties',
+              customPropertyName,
+              'formula',
+            ]),
             customProperty.unit,
           ),
         ),
@@ -384,14 +361,11 @@ export function createComponent({
           }),
           signal: dataSignal.map((data) =>
             appendUnit(
-              applyFormula(
-                customProperty.formula,
-                {
-                  ...formulaCtx,
-                  data,
-                },
-                ['customProperties', customPropertyName, 'formula'],
-              ),
+              applyFormula(customProperty.formula, formulaCtx, data, [
+                'customProperties',
+                customPropertyName,
+                'formula',
+              ]),
               customProperty.unit,
             ),
           ),

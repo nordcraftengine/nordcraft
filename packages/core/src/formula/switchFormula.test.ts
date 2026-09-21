@@ -53,8 +53,10 @@ describe('applySwitchFormula', () => {
       ],
       default: valueFormula('default'),
     }
-    const ctx = createTestFormulaContext({ foo: true })
-    expect(applySwitchFormula(formula, ctx)).toBe('foo matched')
+    const ctx = createTestFormulaContext()
+    expect(applySwitchFormula(formula, ctx, { foo: true } as any)).toBe(
+      'foo matched',
+    )
   })
 })
 
@@ -116,7 +118,9 @@ describe('applyEvaluateAllSwitchFormula', () => {
       ],
       default: valueFormula('default'),
     }
-    const ctx = createTestFormulaContext({ foo: true })
-    expect(applyEvaluateAllSwitchFormula(formula, ctx)).toBe('foo matched')
+    const ctx = createTestFormulaContext()
+    expect(
+      applyEvaluateAllSwitchFormula(formula, ctx, { foo: true } as any),
+    ).toBe('foo matched')
   })
 })

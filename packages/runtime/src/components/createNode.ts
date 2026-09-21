@@ -92,21 +92,7 @@ export function createNode({
     const showSignal = dataSignal.map((data) => {
       const conditionPath = ['nodes', id, 'condition']
       const show = toBoolean(
-        applyFormula(
-          node.condition,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          conditionPath,
-        ),
+        applyFormula(node.condition, ctx, data, conditionPath),
       )
 
       return show
@@ -198,19 +184,7 @@ export function createNode({
     >()
     const repeatSignal = dataSignal.map((data) => {
       const listPath = ['nodes', id, 'repeat']
-      const list = applyFormula(
-        node?.repeat,
-        {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        },
-        listPath,
-      )
+      const list = applyFormula(node?.repeat, ctx, data, listPath)
 
       if (typeof list !== 'object') {
         return []
@@ -239,19 +213,7 @@ export function createNode({
           }
           const repeatKeyPath = ['nodes', id, 'repeatKey']
           let childKey = node?.repeatKey
-            ? applyFormula(
-                node.repeatKey,
-                {
-                  data: childData,
-                  component: ctx.component,
-                  formulaCache: ctx.formulaCache,
-                  root: ctx.root,
-                  package: ctx.package,
-                  toddle: ctx.toddle,
-                  env: ctx.env,
-                },
-                repeatKeyPath,
-              )
+            ? applyFormula(node.repeatKey, ctx, childData, repeatKeyPath)
             : Key
 
           if (seenKeys.has(childKey)) {

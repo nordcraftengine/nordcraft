@@ -1,4 +1,3 @@
-import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import type { ComponentContext } from '../types'
 
@@ -18,11 +17,9 @@ type CreateFormulaContextOptions = {
  */
 export function createFormulaContext(
   ctx: ComponentContext,
-  data: ComponentData,
   options?: CreateFormulaContextOptions,
 ): FormulaContext {
   const formulaContext: FormulaContext = {
-    data,
     component: ctx.component,
     formulaCache: ctx.formulaCache,
     root: ctx.root,

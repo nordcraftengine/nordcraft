@@ -1,4 +1,5 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, max-params */
+import type { ComponentData } from '../component/component.types'
 import type { FormulaHandler, Toddle } from '../types'
 import { measure } from '../utils/measure'
 import { isDefined } from '../utils/util'
@@ -12,6 +13,8 @@ import {
 export const applyFunctionFormula = (
   formula: FunctionOperation,
   ctx: FormulaContext,
+  data?: ComponentData,
+  path?: Array<string | number>,
 ) => {
   const stopMeasure = measure(`Formula: ${formula.name}`, {
     formula,
@@ -22,39 +25,49 @@ export const applyFunctionFormula = (
     ctx.toddle ??
     ((globalThis as any).toddle as Toddle<unknown, unknown> | undefined)
   )?.getCustomFormula(formula.name, packageName)
+  const resolvedData: ComponentData = data ?? { Attributes: {} }
   if (isDefined(newFunc)) {
-    ctx.package = packageName
-    const args = (formula.arguments ?? []).reduce<Record<string, unknown>>(
-      (args, arg, i) => ({
-        ...args,
-        [arg.name ?? `${i}`]: arg.isFunction
-          ? (Args: any) =>
-              applyFormula(
-                arg.formula,
-                {
-                  ...ctx,
-                  data: {
-                    ...ctx.data,
-                    Args: ctx.data.Args
-                      ? { ...Args, '@toddle.parent': ctx.data.Args }
-                      : Args,
-                  },
-                },
-                ['arguments', i],
-              )
-          : applyFormula(arg.formula, ctx, ['arguments', i]),
-      }),
-      {},
-    )
+    const formulaCtx =
+      packageName !== ctx.package ? { ...ctx, package: packageName } : ctx
+    const formulaArgs = formula.arguments ?? []
+    const args: Record<string, unknown> = {}
+    for (let i = 0; i < formulaArgs.length; i++) {
+      const arg = formulaArgs[i]
+      if (!arg) {
+        continue
+      }
+      const key = arg.name ?? `${i}`
+      const argPath = ctx.reportFormulaEvaluation
+        ? path
+          ? [...path, 'arguments', i]
+          : ['arguments', i]
+        : undefined
+      args[key] = arg.isFunction
+        ? (Args: any) =>
+            applyFormula(
+              arg.formula,
+              formulaCtx,
+              {
+                ...resolvedData,
+                Args: resolvedData.Args
+                  ? { ...Args, '@toddle.parent': resolvedData.Args }
+                  : Args,
+              },
+              argPath,
+            )
+        : applyFormula(arg.formula, formulaCtx, resolvedData, argPath)
+    }
     try {
       if (isToddleFormula(newFunc)) {
         return applyFormula(
           newFunc.formula,
-          {
-            ...ctx,
-            data: { ...ctx.data, Args: args },
-          },
-          ['formula'],
+          formulaCtx,
+          { ...resolvedData, Args: args },
+          ctx.reportFormulaEvaluation
+            ? path
+              ? [...path, 'formula']
+              : ['formula']
+            : undefined,
         )
       } else {
         return newFunc.handler(args, {
@@ -77,26 +90,34 @@ export const applyFunctionFormula = (
       ctx.toddle ?? ((globalThis as any).toddle as Toddle<unknown, unknown>)
     ).getFormula(formula.name)
     if (typeof legacyFunc === 'function') {
-      const args = (formula.arguments ?? []).map((arg, i) =>
-        arg.isFunction
+      const formulaArgs = formula.arguments ?? []
+      const args = new Array(formulaArgs.length)
+      for (let i = 0; i < formulaArgs.length; i++) {
+        const arg = formulaArgs[i]
+        const argPath = ctx.reportFormulaEvaluation
+          ? path
+            ? [...path, 'arguments', i]
+            : ['arguments', i]
+          : undefined
+        args[i] = arg?.isFunction
           ? (Args: any) =>
               applyFormula(
                 arg.formula,
+                ctx,
                 {
-                  ...ctx,
-                  data: {
-                    ...ctx.data,
-                    Args: ctx.data.Args
-                      ? { ...Args, '@toddle.parent': ctx.data.Args }
-                      : Args,
-                  },
+                  ...resolvedData,
+                  Args: resolvedData.Args
+                    ? { ...Args, '@toddle.parent': resolvedData.Args }
+                    : Args,
                 },
-                ['arguments', i],
+                argPath,
               )
-          : applyFormula(arg.formula, ctx, ['arguments', i]),
-      )
+          : arg
+            ? applyFormula(arg.formula, ctx, resolvedData, argPath)
+            : undefined
+      }
       try {
-        return legacyFunc(args, ctx as any)
+        return legacyFunc(args, { ...ctx, data: resolvedData } as any)
       } catch (e) {
         ctx.toddle.errors.push(e as Error)
         if (ctx.env?.logErrors) {
