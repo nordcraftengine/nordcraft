@@ -3,6 +3,7 @@ import type { ComponentFormula } from '../component/component.types'
 import { applyApplyFormula } from './applyFormula'
 import {
   applyFormula,
+  isFormula,
   type ApplyOperation,
   type FormulaContext,
 } from './formula'
@@ -147,5 +148,34 @@ describe('applyApplyFormula', () => {
       } as any,
     }
     expect(applyFormula(formula as any, ctx)).toBe('test')
+  })
+})
+
+describe('isFormula()', () => {
+  it('recognizes all supported formula types', () => {
+    const formulas = [
+      { type: 'path', path: ['Variables', 'foo'] },
+      { type: 'function', name: '@toddle/add' },
+      { type: 'value', value: 42 },
+      { type: 'apply', name: 'myFormula' },
+      { type: 'record', entries: [] },
+      { type: 'object', arguments: [] },
+      { type: 'array', arguments: [] },
+      { type: 'or', arguments: [] },
+      { type: 'and', arguments: [] },
+      { type: 'switch', default: { type: 'value', value: null } },
+    ]
+    for (const formula of formulas) {
+      expect(isFormula(formula)).toBe(true)
+    }
+  })
+
+  it('rejects non-formula values', () => {
+    expect(isFormula(null)).toBeFalsy()
+    expect(isFormula(undefined)).toBeFalsy()
+    expect(isFormula(42)).toBeFalsy()
+    expect(isFormula('path')).toBeFalsy()
+    expect(isFormula({ type: 'unknown' })).toBe(false)
+    expect(isFormula({ type: 'PATH' })).toBe(false)
   })
 })
