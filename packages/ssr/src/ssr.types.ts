@@ -46,6 +46,9 @@ export interface ProjectFiles {
       manifest?: { formula: Formula }
       serviceWorker?: { formula: Formula }
     }
+    editorSettings?: {
+      snapSize?: number
+    }
   }
   themes?: Record<string, Theme>
   services?: Record<string, ApiService>
