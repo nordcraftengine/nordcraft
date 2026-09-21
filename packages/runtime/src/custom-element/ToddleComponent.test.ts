@@ -72,6 +72,8 @@ describe('ToddleComponent attributeChangedCallback()', () => {
     const el = defineAndCreate()
     expect(() =>
       el.attributeChangedCallback('unknownattr', null as never, 'value'),
-    ).toThrow(`Unable to find attribute unknownattr on component ${component.name}`)
+    ).toThrow(
+      `Unable to find attribute unknownattr on component ${component.name}`,
+    )
   })
 })
