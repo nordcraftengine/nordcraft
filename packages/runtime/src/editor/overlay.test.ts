@@ -82,15 +82,22 @@ describe('getRectData()', () => {
     // Let's mock getComputedStyle for parent to return a rotated state
     const originalGetComputedStyle = window.getComputedStyle
     window.getComputedStyle = (el) => {
+      const style = originalGetComputedStyle(el)
       if (el === parent) {
-        return {
-          // eslint-disable-next-line @typescript-eslint/no-misused-spread
-          ...originalGetComputedStyle(el),
-          transform: 'matrix(0.866025, 0.5, -0.5, 0.866025, 0, 0)', // cos(30) = 0.866025, sin(30) = 0.5
-          rotate: 'none',
-        } as any
+        return new Proxy(style, {
+          get(target, prop) {
+            if (prop === 'transform') {
+              return 'matrix(0.866025, 0.5, -0.5, 0.866025, 0, 0)' // cos(30) = 0.866025, sin(30) = 0.5
+            }
+            if (prop === 'rotate') {
+              return 'none'
+            }
+            const val = Reflect.get(target, prop, target)
+            return typeof val === 'function' ? val.bind(target) : val
+          },
+        })
       }
-      return originalGetComputedStyle(el)
+      return style
     }
 
     // Let's mock getBoundingClientRect of child as the rotated box of some unrotated 100x50 element
