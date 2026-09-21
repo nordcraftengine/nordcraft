@@ -11,6 +11,7 @@ import type { StyleVariant } from './variantSelector'
 
 // Classnames are reused a lot, and JS hashing is expensive, so there is benefit in caching them in a native hashmap.
 const CLASSNAME_LOOKUP = new Map<string, string>()
+
 export const getClassName = (
   object: [Nullable<NodeStyleModel>, Nullable<StyleVariant[]>],
 ) => {
@@ -31,8 +32,19 @@ export const getClassName = (
   return className
 }
 
-export const getPathClassName = (path: string) =>
-  generateAlphabeticName(hash(path))
+// Path classnames are reused heavily (one per node render), so we want to cache them
+// Kept separate from CLASSNAME_LOOKUP to avoid key collisions between paths and stringified style objects.
+const PATH_CLASSNAME_LOOKUP = new Map<string, string>()
+
+export const getPathClassName = (path: string) => {
+  const cached = PATH_CLASSNAME_LOOKUP.get(path)
+  if (cached) {
+    return cached
+  }
+  const className = generateAlphabeticName(hash(path))
+  PATH_CLASSNAME_LOOKUP.set(path, className)
+  return className
+}
 
 const getStaticCustomPropertyStyles = (
   customProperties: Record<`--${string}`, CustomProperty> | undefined,
