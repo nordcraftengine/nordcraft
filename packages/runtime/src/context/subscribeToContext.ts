@@ -35,20 +35,18 @@ export function subscribeToContext(
             return
           }
 
-          componentDataSignal.subscriptions.push(
-            formulaDataSignal.subscribe((value) => {
-              componentDataSignal.update((data) => ({
-                ...data,
-                Contexts: {
-                  ...data.Contexts,
-                  [providerName]: {
-                    ...data.Contexts?.[providerName],
-                    [formulaName]: value,
-                  },
+          componentDataSignal.subscribeTo(formulaDataSignal, (value) => {
+            componentDataSignal.update((data) => ({
+              ...data,
+              Contexts: {
+                ...data.Contexts,
+                [providerName]: {
+                  ...data.Contexts?.[providerName],
+                  [formulaName]: value,
                 },
-              }))
-            }),
-          )
+              },
+            }))
+          })
         })
       }
 

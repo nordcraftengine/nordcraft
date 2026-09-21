@@ -172,22 +172,20 @@ export class ToddleComponent extends HTMLElement {
 
     this.#ctx.providers = providers
 
-    this.#signal.subscriptions.push(
-      this.#ctx.stores.theme.subscribe((newTheme) => {
-        this.#signal.update((data) => ({
-          ...data,
-          Page: {
-            ...(data.Page ?? {}),
-            Theme: newTheme,
-          },
-        }))
-        if (isDefined(newTheme)) {
-          this.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
-        } else {
-          this.removeAttribute(THEME_DATA_ATTRIBUTE)
-        }
-      }),
-    )
+    this.#signal.subscribeTo(this.#ctx.stores.theme, (newTheme) => {
+      this.#signal.update((data) => ({
+        ...data,
+        Page: {
+          ...(data.Page ?? {}),
+          Theme: newTheme,
+        },
+      }))
+      if (isDefined(newTheme)) {
+        this.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
+      } else {
+        this.removeAttribute(THEME_DATA_ATTRIBUTE)
+      }
+    })
     this.render()
   }
 

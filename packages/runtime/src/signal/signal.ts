@@ -6,7 +6,7 @@ export class Signal<T> {
     notify: (value: T) => void
     destroy?: () => void
   }>
-  subscriptions: Array<() => void>
+  private subscriptions: Array<() => void>
   destroying = false
 
   constructor(value: T) {
@@ -43,6 +43,15 @@ export class Signal<T> {
       this.subscribers.delete(subscriber)
     }
   }
+  subscribeTo<U>(
+    upstream: Signal<U>,
+    notify: (value: U) => void,
+    config?: { destroy?: () => void },
+  ) {
+    const unsubscribe = upstream.subscribe(notify, config)
+    this.subscriptions.push(unsubscribe)
+    return unsubscribe
+  }
   destroy() {
     // Prevent re-entrancy
     if (this.destroying) {
@@ -54,8 +63,8 @@ export class Signal<T> {
       subscriber.destroy?.()
     }
     this.subscribers.clear()
-    for (const subscription of this.subscriptions) {
-      subscription()
+    for (const unsubscribe of this.subscriptions) {
+      unsubscribe()
     }
     this.subscriptions.splice(0, this.subscriptions.length)
     this.destroying = false
@@ -68,11 +77,9 @@ export class Signal<T> {
   }
   map<T2>(f: (value: T) => T2): Signal<T2> {
     const signal2 = signal(f(this.value))
-    signal2.subscriptions.push(
-      this.subscribe((value) => signal2.set(f(value)), {
-        destroy: () => signal2.destroy(),
-      }),
-    )
+    signal2.subscribeTo(this, (value) => signal2.set(f(value)), {
+      destroy: () => signal2.destroy(),
+    })
     return signal2
   }
 }

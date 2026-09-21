@@ -22,7 +22,7 @@ export function createSlot({
   if (ctx.children[slotName]) {
     children = ctx.children[slotName].flatMap((child) => {
       const childDataSignal = child.dataSignal.map((data) => data)
-      dataSignal.subscribe((data) => data, {
+      childDataSignal.subscribeTo(dataSignal, () => {}, {
         destroy: () => childDataSignal.destroy(),
       })
       const slotComponentIndex = getSlotComponentIndex(
