@@ -30,8 +30,8 @@ export const noContextFormulaArgumentsRule: IssueRule<
     report({
       path,
       info: {
-        title: 'Context formula cannot have arguments',
-        description: `Context formula **${formulaName}** cannot declare arguments. Formulas exposed in context do not support arguments.`,
+        title: 'Context formula cannot have inputs',
+        description: `Context formula **${formulaName}** cannot declare inputs. Formulas exposed in context do not support inputs.`,
       },
       details: {
         formulaName,
