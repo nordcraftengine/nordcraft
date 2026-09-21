@@ -46,6 +46,7 @@ import type { NoReferenceAttributeRuleFix } from './rules/issues/attributes/noRe
 import type { UnknownComponentAttributeRuleFix } from './rules/issues/attributes/unknownComponentAttributeRule'
 import type { ChangeDataTypeFix } from './rules/issues/components/invalidComponentStructureRule'
 import type { NoReferenceComponentRuleFix } from './rules/issues/components/noReferenceComponentRule'
+import type { NoContextFormulaArgumentsRuleFix } from './rules/issues/context/noContextFormulaArgumentsRule'
 import type { NoReferenceContextFormulaRuleFix } from './rules/issues/context/noReferenceContextFormulaRule'
 import type { NoReferenceContextWorkflowRuleFix } from './rules/issues/context/noReferenceContextWorkflowRule'
 import type { UnknownContextFormulaRuleFix } from './rules/issues/context/unknownContextFormulaRule'
@@ -93,6 +94,7 @@ export type Code =
   | 'named component formula'
   | 'named component workflow'
   | 'no context consumers'
+  | 'no context formula arguments'
   | 'no post navigate action'
   | 'no-console'
   | 'no-empty url parameter name'
@@ -493,6 +495,7 @@ export type FixType =
   | LegacyActionRuleFix
   | LegacyFormulaRuleFix
   | LegacyStyleVariableRuleFix
+  | NoContextFormulaArgumentsRuleFix
   | NoPostNavigateActionRuleFix
   | NoReferenceAnimationRuleFix
   | NoReferenceApiRuleFix
