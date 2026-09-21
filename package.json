@@ -15,7 +15,7 @@
     "@html-eslint/eslint-plugin": "0.66.0",
     "@html-eslint/parser": "0.66.0",
     "@octokit/core": "7.0.8",
-    "@types/bun": "1.4.0",
+    "@types/bun": "1.4.2",
     "@typescript-eslint/eslint-plugin": "8.70.0",
     "@typescript-eslint/parser": "8.70.0",
     "@typescript/native-preview": "7.0.0-dev.20260318.1",
