@@ -277,7 +277,8 @@ export type DragInsertState = {
 export type InsertArea = {
   layout: 'block' | 'inline'
   parent: Element
-  index: number
+  indexAll: number
+  indexSlot: number
   center: Point
   size: number
   direction: 1 | -1
