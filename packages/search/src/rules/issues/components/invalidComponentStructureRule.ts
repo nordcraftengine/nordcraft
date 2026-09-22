@@ -1,7 +1,6 @@
 import { ShallowComponentSchema } from '@nordcraft/core/dist/component/schemas/component-schema'
 import { get, set } from '@nordcraft/core/dist/utils/collections'
-import { coerce } from 'zod'
-import type { $ZodIssue, $ZodTypeDef } from 'zod/v4/core'
+import * as v from 'valibot'
 import type {
   ComponentNode,
   FixFunction,
@@ -12,84 +11,60 @@ import type {
 
 export interface InvalidComponentData {
   message: string
-  issue?: $ZodIssue
+  issue?: v.BaseIssue<unknown>
 }
 
 const changeDataTypeFix: FixFunction<ComponentNode, InvalidComponentData> = ({
   data,
   details,
 }) => {
-  if (details?.issue?.code !== 'invalid_type') {
+  if (details?.issue?.kind !== 'schema') {
     return data.files
   }
   const issuePath = convertIssuePath(details.issue.path)
   const currentValue = get(data.value, issuePath)
-  switch (details.issue.expected) {
+  switch (details.issue.expected?.toLowerCase()) {
     case 'string': {
-      const parsed = coerce.string().parse(currentValue)
-      if (typeof parsed === 'string') {
-        return set(data.files, data.path, parsed)
+      const parsed = v.safeParse(
+        v.pipe(v.unknown(), v.toString(), v.string()),
+        currentValue,
+      )
+      if (parsed.success) {
+        return set(data.files, data.path, parsed.output)
       }
       break
     }
     case 'number': {
-      const parsed = coerce.number().parse(currentValue)
-      if (typeof parsed === 'number') {
-        return set(data.files, [...data.path, ...issuePath], parsed)
+      const parsed = v.safeParse(
+        v.pipe(v.unknown(), v.toNumber(), v.number()),
+        currentValue,
+      )
+      if (parsed.success) {
+        return set(data.files, [...data.path, ...issuePath], parsed.output)
       }
       break
     }
     case 'boolean': {
-      const parsed = coerce.boolean().parse(currentValue)
-      if (typeof parsed === 'boolean') {
-        return set(data.files, [...data.path, ...issuePath], parsed)
+      const parsed = v.safeParse(
+        v.pipe(v.unknown(), v.toBoolean(), v.boolean()),
+        currentValue,
+      )
+      if (parsed.success) {
+        return set(data.files, [...data.path, ...issuePath], parsed.output)
       }
       break
     }
-    case 'bigint':
-    case 'symbol':
-    case 'undefined':
-    case 'object':
-    case 'function':
-    case 'custom':
-    case 'int':
-    case 'null':
-    case 'void':
-    case 'never':
-    case 'any':
-    case 'unknown':
-    case 'date':
-    case 'record':
-    case 'file':
-    case 'tuple':
-    case 'union':
-    case 'intersection':
-    case 'map':
-    case 'set':
-    case 'enum':
-    case 'literal':
-    case 'nullable':
-    case 'optional':
-    case 'nonoptional':
-    case 'success':
-    case 'transform':
-    case 'default':
-    case 'prefault':
-    case 'catch':
-    case 'nan':
-    case 'pipe':
-    case 'readonly':
-    case 'template_literal':
-    case 'promise':
-    case 'lazy':
-    case 'array':
+    default:
       break
   }
   return data.files
 }
 
-const convertIssuePath = (path: PropertyKey[]) =>
-  path.map((p) => (typeof p === 'number' ? p : String(p)))
+const convertIssuePath = (path?: v.BaseIssue<unknown>['path']) =>
+  path?.map((p) => {
+    const key = typeof p === 'object' && p !== null && 'key' in p ? p.key : p
+    return typeof key === 'number' ? key : String(key)
+  }) ?? []
 
 export const invalidComponentStructureRule: IssueRule<
   InvalidComponentData,
@@ -104,46 +79,29 @@ export const invalidComponentStructureRule: IssueRule<
       return
     }
     const component = data.value
-    const validation = ShallowComponentSchema.safeParse(component, {
-      reportInput: false,
-    })
+    const validation = v.safeParse(ShallowComponentSchema, component)
     if (validation.success) {
       return
     }
-    validation.error.issues.forEach((issue) => {
+    validation.issues.forEach((issue) => {
       const issuePath = convertIssuePath(issue.path)
       const fixes: Set<FixType> = new Set()
-      switch (issue.code) {
-        case 'invalid_type': {
-          const validTypeCoercions: Partial<
-            Record<string, $ZodTypeDef['type'][]>
-          > = {
-            string: ['number', 'boolean', 'undefined'],
-            number: ['string', 'boolean', 'undefined'],
-            boolean: ['string', 'number', 'undefined'],
-            array: ['object', 'undefined'],
-            object: ['array', 'undefined'],
-          }
-          const actualValue = get(component, issuePath)
-          const valueType = typeof actualValue
-          const valueTypeKey = Array.isArray(actualValue) ? 'array' : valueType
-          const conversions = validTypeCoercions[valueTypeKey]
-          if (conversions?.includes(issue.expected)) {
-            fixes.add('change-data-type')
-          }
-          break
+      if (issue.kind === 'schema') {
+        const validTypeCoercions: Partial<Record<string, string[]>> = {
+          string: ['number', 'boolean', 'undefined'],
+          number: ['string', 'boolean', 'undefined'],
+          boolean: ['string', 'number', 'undefined'],
+          array: ['object', 'undefined'],
+          object: ['array', 'undefined'],
         }
-        case 'too_big':
-        case 'too_small':
-        case 'invalid_format':
-        case 'not_multiple_of':
-        case 'unrecognized_keys':
-        case 'invalid_union':
-        case 'invalid_key':
-        case 'invalid_element':
-        case 'invalid_value':
-        case 'custom':
-          break
+        const actualValue = get(component, issuePath)
+        const valueType = typeof actualValue
+        const valueTypeKey = Array.isArray(actualValue) ? 'array' : valueType
+        const conversions = validTypeCoercions[valueTypeKey]
+        const expected = issue.expected?.toLowerCase()
+        if (expected && conversions?.includes(expected)) {
+          fixes.add('change-data-type')
+        }
       }
       report({
         path: [...data.path, ...issuePath],
