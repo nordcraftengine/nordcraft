@@ -1,5 +1,6 @@
 import { getDOMNodeFromNodeId } from '../../editor-preview.main'
 import { rectHasPoint } from '../../utils/rectHasPoint'
+import { removeDropHighlight } from '../drag-drop/dropHighlight'
 import { dragInsertEnded, dragInsertMove, dragInsertStarted } from '../helpers'
 import { postMessageToEditor } from '../postMessageToEditor'
 import type { DragInsertState } from '../types'
@@ -71,11 +72,12 @@ export const handleInsertEnded = async (
     postMessageToEditor({
       type: 'insertNode',
       parent: selectedPermutation.parent.getAttribute('data-id'),
-      index: selectedPermutation.index,
+      index: selectedPermutation.indexSlot,
     })
     return null
   } else {
-    await dragInsertEnded(insertState, true)
+    insertState.destroying = true
+    removeDropHighlight()
     return null
   }
 }
