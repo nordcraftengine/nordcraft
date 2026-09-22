@@ -1,11 +1,18 @@
-import { z } from 'zod'
+import * as v from 'valibot'
 import type { ComponentVariable } from '../component.types'
 import { FormulaSchema } from './formula-schema'
-import { MetadataSchema, SCHEMA_DESCRIPTIONS } from './zod-schemas'
+import { MetadataSchema, SCHEMA_DESCRIPTIONS } from './valibot-schemas'
 
-export const ComponentVariableSchema: z.ZodType<ComponentVariable> = z.object({
-  '@nordcraft/metadata': MetadataSchema.nullish().describe(
-    SCHEMA_DESCRIPTIONS.metadata('variable'),
+export const ComponentVariableSchema: v.GenericSchema<
+  unknown,
+  ComponentVariable
+> = v.object({
+  '@nordcraft/metadata': v.pipe(
+    v.nullish(MetadataSchema),
+    v.description(SCHEMA_DESCRIPTIONS.metadata('variable')),
   ),
-  initialValue: FormulaSchema.describe('Initial value of the variable'),
+  initialValue: v.pipe(
+    FormulaSchema,
+    v.description('Initial value of the variable'),
+  ),
 })

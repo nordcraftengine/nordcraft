@@ -19,7 +19,7 @@
     "src"
   ],
   "dependencies": {
-    "zod": "4.2.1"
+    "valibot": "1.5.0"
   },
   "main": "dist/index.js"
 }
