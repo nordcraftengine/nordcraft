@@ -4,6 +4,7 @@ packages/lib/actions.ts
 packages/lib/formulas.ts
 examples/hono/assets/
 examples/projects/*
+benchmarks/browser/fixtures/**/*
 **/.wrangler/**/*
 packages/backend/__project__/
 **/worker-configuration.d.ts

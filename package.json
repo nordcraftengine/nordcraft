@@ -22,10 +22,12 @@
     "esbuild": "0.28.1",
     "eslint": "10.10.0",
     "happy-dom": "20.14.5",
+    "playwright": "1.63.0",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier": "3.8.3"
   },
   "scripts": {
+    "benchmark:runtime": "bun bin/runRuntimeBenchmark.ts",
     "build": "cd packages/core && bun run build && cd ../lib && bun run build && cd ../ssr && bun run build && cd ../search && bun run build && cd ../runtime && bun run build",
     "clean": "rm -rf node_modules && rm bun.lock && rm -rf packages/core/node_modules && rm -rf packages/lib/node_modules && rm -rf packages/runtime/node_modules && rm -rf packages/ssr/node_modules && rm -rf packages/search/node_modules && bun i && rm -rf packages/backend/dist && rm -rf packages/core/dist && rm -rf packages/lib/dist && rm -rf packages/runtime/dist && rm -rf packages/search/dist && rm -rf packages/ssr/dist && rm -rf packages/css-parser/dist",
     "link": "cd packages/core && bun link && cd ../lib && bun link && cd ../ssr && bun link && cd ../search && bun link && cd ../runtime && bun link",
