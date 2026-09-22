@@ -140,49 +140,51 @@ export function dragInsertStarted({
     mode: action === 'drag' ? 'reorder' : 'insert',
   }
 
-  if (asCopy && action === 'drag') {
-    dragInsertState.copy = element.cloneNode(true) as HTMLElement
-    dragInsertState.copy.style.setProperty('opacity', '0.5')
-    dragInsertState.copy.classList.remove(DRAG_REORDER_CLASSNAME)
-    dragInsertState.copy.classList.remove(DRAG_MOVE_CLASSNAME)
-    dragInsertState.initialContainer.insertBefore(
-      dragInsertState.copy,
-      dragInsertState.initialNextSibling,
-    )
-  }
+  if (action === 'drag') {
+    if (asCopy) {
+      dragInsertState.copy = element.cloneNode(true) as HTMLElement
+      dragInsertState.copy.style.setProperty('opacity', '0.5')
+      dragInsertState.copy.classList.remove(DRAG_REORDER_CLASSNAME)
+      dragInsertState.copy.classList.remove(DRAG_MOVE_CLASSNAME)
+      dragInsertState.initialContainer.insertBefore(
+        dragInsertState.copy,
+        dragInsertState.initialNextSibling,
+      )
+    }
 
-  // Calculate all possible permutations, by iterating over all siblings of the targetContainer
-  // and moving the draggedElement to before each sibling to calculate the rect and then
-  // store it in the dragState.permutations array
-  dragInsertState.initialContainer.childNodes.forEach((sibling) => {
-    if (
-      sibling instanceof Element &&
-      sibling.getAttribute('data-id') &&
-      // Only first item of repeated nodes should be considered
-      !sibling.getAttribute('data-id')?.endsWith(')') &&
-      !sibling.hasAttribute('data-component') &&
-      repeatedNodes.every((node) => node !== sibling)
-    ) {
-      dragInsertState.initialContainer.insertBefore(element, sibling)
+    // Calculate all possible permutations, by iterating over all siblings of the targetContainer
+    // and moving the draggedElement to before each sibling to calculate the rect and then
+    // store it in the dragState.permutations array
+    dragInsertState.initialContainer.childNodes.forEach((sibling) => {
+      if (
+        sibling instanceof Element &&
+        sibling.getAttribute('data-id') &&
+        // Only first item of repeated nodes should be considered
+        !sibling.getAttribute('data-id')?.endsWith(')') &&
+        !sibling.hasAttribute('data-component') &&
+        repeatedNodes.every((node) => node !== sibling)
+      ) {
+        dragInsertState.initialContainer.insertBefore(element, sibling)
+        dragInsertState.reorderPermutations.push({
+          nextSibling: sibling,
+          rect: element.getBoundingClientRect(),
+        })
+      }
+    })
+    // Test the last position
+    if (!dragInsertState.initialContainer.hasAttribute('data-component')) {
+      dragInsertState.initialContainer.appendChild(element)
       dragInsertState.reorderPermutations.push({
-        nextSibling: sibling,
+        nextSibling: null,
         rect: element.getBoundingClientRect(),
       })
     }
-  })
-  // Test the last position
-  if (!dragInsertState.initialContainer.hasAttribute('data-component')) {
-    dragInsertState.initialContainer.appendChild(element)
-    dragInsertState.reorderPermutations.push({
-      nextSibling: null,
-      rect: element.getBoundingClientRect(),
-    })
+    // Restore the initial position of the draggedElement
+    dragInsertState.initialContainer.insertBefore(
+      element,
+      dragInsertState.initialNextSibling,
+    )
   }
-  // Restore the initial position of the draggedElement
-  dragInsertState.initialContainer.insertBefore(
-    element,
-    dragInsertState.initialNextSibling,
-  )
   ;(function followRepeatedNodes() {
     if (dragInsertState.destroying || !dragInsertState.element.isConnected) {
       return
@@ -282,7 +284,7 @@ export async function dragInsertEnded(
     } else if (dragInsertState.mode === 'insert') {
       selectedInsertArea?.parent.insertBefore(
         dragInsertState.element,
-        selectedInsertArea.parent.childNodes[selectedInsertArea.index],
+        selectedInsertArea.parent.childNodes[selectedInsertArea.indexAll],
       )
     }
 
