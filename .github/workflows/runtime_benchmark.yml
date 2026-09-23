@@ -8,9 +8,9 @@ on:
       - '.github/workflows/runtime_benchmark.yml'
       - 'benchmarks/**'
       - 'bin/runRuntimeBenchmark.ts'
-      - 'packages/runtime/**/*'
-      - 'packages/lib/**/*'
-      - 'packages/core/**/*'
+      - 'packages/runtime/**'
+      - 'packages/lib/**'
+      - 'packages/core/**'
 
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.head_ref || github.ref }}'

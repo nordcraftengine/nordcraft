@@ -1,30 +1,29 @@
 const params = new URLSearchParams(window.location.search)
 const version = params.get('version') || 'head'
 
-let runtime
 let project
 let nordcraftProject
 let customElementRuntime
 
-async function initHarness() {
-  const [loadedRuntime, loadedProject, loadedNordcraft] = await Promise.all([
-    import(`/bundle/${version}/page.main.esm.js`),
-    fetch('/fixtures/benchmark-project.json').then((r) => r.json()),
-    fetch('/fixtures/nordcraft.com.json').then((r) => r.json()),
+async function loadFixture(url, name) {
+  const [runtime, fixture] = await Promise.all([
+    import(`/bundle/${version}/page.main.esm.js?fixture=${name}`),
+    fetch(url).then((r) => r.json()),
   ])
-  runtime = loadedRuntime
-  project = loadedProject
-
-  // Merge benchmark components into nordcraftProject so all components exist in the same unified project dictionary
-  Object.assign(
-    loadedNordcraft.files.components,
-    loadedProject.files.components,
-  )
-
   // Strip APIs to guarantee 100% offline, zero-network deterministic execution
-  for (const comp of Object.values(loadedNordcraft.files.components)) {
+  for (const comp of Object.values(fixture.files.components)) {
     comp.apis = {}
   }
+  fixture.runtime = runtime
+  return fixture
+}
+
+async function initHarness() {
+  const [loadedProject, loadedNordcraft] = await Promise.all([
+    loadFixture('/fixtures/benchmark-project.json', 'benchmark'),
+    loadFixture('/fixtures/nordcraft.com.json', 'nordcraft'),
+  ])
+  project = loadedProject
   nordcraftProject = loadedNordcraft
 
   try {
@@ -40,60 +39,64 @@ async function initHarness() {
   window.__harnessReady = true
 }
 
-function setupNordcraftPage(pageName = 'nordcraft') {
-  const pageComp = nordcraftProject.files.components[pageName]
-  if (!pageComp) {
-    throw new Error(
-      `Component "${pageName}" not found in nordcraft.com project`,
-    )
+function getFrontPage(fixture) {
+  // In nordcraft.com.json the front page is called "nordcraft" (not "HomePage")
+  if (fixture.files.components.nordcraft) {
+    return fixture.files.components.nordcraft
   }
+  if (fixture.files.components.HomePage) {
+    return fixture.files.components.HomePage
+  }
+  throw new Error('Front page component not found in fixture')
+}
+
+function setupPage(fixture, pageName, pageState = {}) {
+  const pageComp = pageName
+    ? fixture.files.components[pageName]
+    : getFrontPage(fixture)
+  if (!pageComp) {
+    throw new Error(`Component "${pageName}" not found in project`)
+  }
+
+  const comp = structuredClone(pageComp)
   window.__toddle = {
-    project: 'nordcraft',
+    project: fixture.project?.short_id || fixture.name || 'nordcraft',
     branch: 'main',
     commit: 'bench',
     pageState: {
       Apis: {},
       Parameters: {},
       Variables: {},
-    },
-    component: pageComp,
-    components: Object.values(nordcraftProject.files.components),
-    isPageLoaded: false,
-    cookies: [],
-  }
-  window.__toddle.components = [pageComp, ...window.__toddle.components]
-
-  runtime.initGlobalObject({ formulas: {}, actions: {} })
-}
-
-function setupSyntheticEnvironment(itemsCount = 50) {
-  const comp = structuredClone(project.files.components.HomePage)
-  const items = Array.from({ length: itemsCount }, (_, i) => ({
-    id: `item-${i}`,
-    title: `Benchmark Item ${i}`,
-  }))
-  comp.variables.items.initialValue.value = items
-
-  window.__toddle = {
-    project: 'nordcraft',
-    branch: 'main',
-    commit: 'bench-run',
-    pageState: {
-      Apis: {},
-      Parameters: {},
-      Variables: {
-        items,
-        count: 0,
-      },
+      ...pageState,
     },
     component: comp,
-    components: Object.values(nordcraftProject.files.components),
+    components: Object.values(fixture.files.components),
     isPageLoaded: false,
     cookies: [],
   }
   window.__toddle.components = [comp, ...window.__toddle.components]
 
-  runtime.initGlobalObject({ formulas: {}, actions: {} })
+  fixture.runtime.initGlobalObject({ formulas: {}, actions: {} })
+  return comp
+}
+
+function setupNordcraftPage(pageName = 'nordcraft') {
+  return setupPage(nordcraftProject, pageName)
+}
+
+function setupSyntheticEnvironment(itemsCount = 50) {
+  const items = Array.from({ length: itemsCount }, (_, i) => ({
+    id: `item-${i}`,
+    title: `Benchmark Item ${i}`,
+  }))
+
+  const comp = setupPage(project, undefined, {
+    Variables: {
+      items,
+      count: 0,
+    },
+  })
+  comp.variables.items.initialValue.value = items
 }
 
 const cases = {
@@ -106,7 +109,7 @@ const cases = {
     const app = document.getElementById('App')
     app.replaceChildren()
     setupNordcraftPage('nordcraft')
-    runtime.createRoot(app)
+    nordcraftProject.runtime.createRoot(app)
   },
 
   /**
@@ -118,7 +121,7 @@ const cases = {
     const app = document.getElementById('App')
     app.replaceChildren()
     setupNordcraftPage('pricing')
-    runtime.createRoot(app)
+    nordcraftProject.runtime.createRoot(app)
   },
 
   /**
@@ -130,7 +133,7 @@ const cases = {
     const app = document.getElementById('App')
     app.replaceChildren()
     setupSyntheticEnvironment(20)
-    runtime.createRoot(app)
+    project.runtime.createRoot(app)
 
     const incBtn = document.getElementById('btn-inc')
     if (!incBtn) {
@@ -160,7 +163,7 @@ const cases = {
     const app = document.getElementById('App')
     app.replaceChildren()
     setupSyntheticEnvironment(10)
-    runtime.createRoot(app)
+    project.runtime.createRoot(app)
 
     const populateBtn = document.getElementById('btn-populate-list')
     const clearBtn = document.getElementById('btn-clear-list')
@@ -190,6 +193,10 @@ const cases = {
 
     const app = document.getElementById('App')
     app.replaceChildren()
+
+    if (!window.toddle) {
+      setupPage(project)
+    }
 
     const counterComp = structuredClone(project.files.components.counter)
     if (!customElements.get('toddle-counter')) {
@@ -233,4 +240,6 @@ window.__warmupCase = async function (caseId, count = 5) {
   }
 }
 
-await initHarness()
+initHarness().catch((err) => {
+  console.error('Failed to init harness:', err)
+})
