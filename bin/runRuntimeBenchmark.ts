@@ -158,15 +158,16 @@ async function runBenchmark() {
     }
   }
 
-  const getFileSize = (filePath: string): number | null => {
+  const getFileSize = (filePath: string) => {
     try {
       if (fs.existsSync(filePath)) {
         return fs.statSync(filePath).size
+      } else {
+        throw new Error(`File does not exist: ${filePath}`)
       }
     } catch {
-      // Ignore
+      throw new Error(`Failed to get file size for ${filePath}`)
     }
-    return null
   }
 
   const baseRuntimeBytes = getFileSize(
@@ -365,27 +366,25 @@ async function runBenchmark() {
     cleanupWorktree(createdWorktreePath)
   }
 
-  if (baseRuntimeBytes !== null && headRuntimeBytes !== null) {
-    const deltaBytes = baseRuntimeBytes - headRuntimeBytes
-    const deltaPercent =
-      baseRuntimeBytes > 0 ? (deltaBytes / baseRuntimeBytes) * 100 : 0
-    let deltaStr = '0 B (0.0%)'
-    if (deltaBytes !== 0) {
-      const sign = deltaBytes > 0 ? '+' : '-'
-      const absBytes = Math.abs(deltaBytes)
-      const absPercent = Math.abs(deltaPercent)
-      const sizeStr =
-        absBytes >= 1024 ? formatKb(absBytes / 1024) : `${absBytes} B`
-      const pctStr =
-        absPercent < 0.1 && absPercent > 0
-          ? absPercent.toFixed(2)
-          : absPercent.toFixed(1)
-      deltaStr = `${sign}${sizeStr} (${sign}${pctStr}%)`
-    }
-    console.log(
-      `\nRuntime size: Base ${formatKb(baseRuntimeBytes / 1024)} vs. Head ${formatKb(headRuntimeBytes / 1024)} (Delta: ${deltaStr})`,
-    )
+  let deltaSizeStr = '0 B (0.0%)'
+  const deltaBytes = baseRuntimeBytes - headRuntimeBytes
+  const deltaPercent =
+    baseRuntimeBytes > 0 ? (deltaBytes / baseRuntimeBytes) * 100 : 0
+  if (deltaBytes !== 0) {
+    const sign = deltaBytes > 0 ? '+' : '-'
+    const absBytes = Math.abs(deltaBytes)
+    const absPercent = Math.abs(deltaPercent)
+    const sizeStr =
+      absBytes >= 1024 ? formatKb(absBytes / 1024) : `${absBytes} B`
+    const pctStr =
+      absPercent < 0.1 && absPercent > 0
+        ? absPercent.toFixed(2)
+        : absPercent.toFixed(1)
+    deltaSizeStr = `${sign}${sizeStr} (${sign}${pctStr}%)`
   }
+  console.log(
+    `\nRuntime size: Base ${formatKb(baseRuntimeBytes / 1024)} vs. Head ${formatKb(headRuntimeBytes / 1024)} (Delta: ${deltaSizeStr})`,
+  )
 
   // Print CLI Summary Table
   console.log(
@@ -437,6 +436,7 @@ async function runBenchmark() {
     '',
     `- **Noise & Equivalence Threshold**: ±${config.noiseThresholdPercent.toFixed(1)}% (Delta within CI or threshold reported as 1:1)`,
     `- **Bundle Identity**: ${isByteIdentical ? '`Identical build artifacts (1:1 confirmed)`' : '`Distinct build artifacts`'}`,
+    `- **Runtime Size**: Base ${formatKb(baseRuntimeBytes / 1024)} vs. Head ${formatKb(headRuntimeBytes / 1024)} (Delta: ${deltaSizeStr})`,
     '',
   ]
 
