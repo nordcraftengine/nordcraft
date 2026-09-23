@@ -2,6 +2,7 @@ import { isDefined } from '@nordcraft/core/dist/utils/util'
 import {
   checkIfNoUnknownVariables,
   getValue,
+  getVariableValueByName,
   isVariable,
   parse,
   parseMultipleValues,
@@ -560,34 +561,23 @@ const parseAnimation = ({
     const allValues = valueToCheck.value.split(', ')
     allValues.forEach((val) => {
       if (isVariable(val)) {
-        const usedVariable = variables.find((v) =>
-          v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
-        )
-        if (!usedVariable) {
+        const parsedVariable = getVariableValueByName({
+          variableName: val,
+          variables,
+        })
+
+        if (!isDefined(parsedVariable)) {
           return
         }
 
-        const valueWithoutUnit = usedVariable.unit
-          ? usedVariable.value.replaceAll(usedVariable.unit, '')
-          : usedVariable.value
-
-        if (valueWithoutUnit === '') {
+        if (parsedVariable === 'invalid') {
           invalidValue = true
           return
         }
 
-        const valueWithUnit = usedVariable.value
-
-        const parsedVariable = parseMultipleValues([
-          {
-            type: 'word',
-            value: valueWithUnit,
-          },
-        ])
-
-        if (isDefined(parsedVariable[0])) {
+        if (isDefined(parsedVariable)) {
           const newProp = parseAnimation({
-            valueToCheck: parsedVariable[0],
+            valueToCheck: parsedVariable,
             valueToReturn: valueToCheck,
             durationSet,
             nameSet,
@@ -709,37 +699,34 @@ const isValidTimeValue = ({
           const allValues = val.value.split(',').map((v) => v.trim())
           allValues.forEach((val) => {
             if (isVariable(val)) {
-              const usedVariable = variables.find((v) =>
-                v.name.startsWith('--')
-                  ? v.name === val
-                  : `--${v.name}` === val,
-              )
-              if (!usedVariable) {
+              const parsedVariable = getVariableValueByName({
+                variableName: val,
+                variables,
+              })
+
+              if (!isDefined(parsedVariable)) {
                 return
               }
 
-              const valueWithoutUnit = usedVariable.unit
-                ? usedVariable.value.replaceAll(usedVariable.unit, '')
-                : usedVariable.value
-
-              const pars = parse({ input: valueWithoutUnit })
-              const va = getValue(pars[0])
-              const parsedVariable = parseMultipleValues(va)
+              if (parsedVariable === 'invalid') {
+                validValue = false
+                return
+              }
 
               if (
-                isDefined(parsedVariable[0]) &&
-                parsedVariable[0].type === 'function' &&
-                (CSS_FUNCTIONS.includes(parsedVariable[0].name) ||
-                  parsedVariable[0].name === 'var')
+                isDefined(parsedVariable) &&
+                parsedVariable.type === 'function' &&
+                (CSS_FUNCTIONS.includes(parsedVariable.name) ||
+                  parsedVariable.name === 'var')
               ) {
                 validValue = isValidTimeValue({
-                  valueToCheck: parsedVariable[0].value,
+                  valueToCheck: parsedVariable.value,
                   variables,
-                  isCalc: parsedVariable[0].name === 'calc',
+                  isCalc: parsedVariable.name === 'calc',
                 })
               } else if (
-                isDefined(parsedVariable[0]) &&
-                parsedVariable[0].type !== 'time'
+                isDefined(parsedVariable) &&
+                parsedVariable.type !== 'time'
               ) {
                 validValue = false
               }

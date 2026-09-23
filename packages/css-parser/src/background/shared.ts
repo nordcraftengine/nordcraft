@@ -164,7 +164,7 @@ export const getNextKnowStopPosition = (
   }
 }
 
-export const getStopValue = ({
+const getStopValue = ({
   parsedValue,
   variables,
 }: {

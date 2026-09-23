@@ -1,7 +1,12 @@
 import { stripNodeIdRepeatIndices } from '../../utils/nodes'
 import { postMessageToEditor } from '../postMessageToEditor'
 
-export const handleTextNodeSelection = (node: HTMLElement) => {
+export const handleTextNodeSelection = (
+  node: HTMLElement,
+  options = {
+    onInput: () => {},
+  },
+) => {
   const initialContent = node.textContent
   node.contentEditable = 'plaintext-only'
   const nodeId = node.getAttribute('data-id')
@@ -33,6 +38,7 @@ export const handleTextNodeSelection = (node: HTMLElement) => {
     isFinished = true
     globalThis.removeEventListener('selected-node-changed', finishEditing)
     node.removeAttribute('contenteditable')
+    node.removeEventListener('input', options.onInput)
     node.removeEventListener('keydown', handleKeyDown)
     node.removeEventListener('blur', finishEditing)
     // Clear selected text
@@ -59,6 +65,7 @@ export const handleTextNodeSelection = (node: HTMLElement) => {
     })
   }
 
+  node.addEventListener('input', options.onInput)
   node.addEventListener('keydown', handleKeyDown)
   node.addEventListener('blur', finishEditing, { once: true })
   setTimeout(() => {

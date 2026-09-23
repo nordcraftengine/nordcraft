@@ -13,6 +13,7 @@ import { parseJSONWithDate } from '@nordcraft/core/dist/utils/json'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
+import { createFormulaContext } from '../utils/createFormulaContext'
 
 export type ApiRequest = {
   url: string
@@ -39,17 +40,7 @@ export function createLegacyAPI(
     api: LegacyComponentAPI,
     data: ComponentData,
   ): ApiRequest {
-    const formulaContext: FormulaContext = {
-      data,
-      component: ctx.component,
-      formulaCache: ctx.formulaCache,
-      root: ctx.root,
-      package: ctx.package,
-      toddle: ctx.toddle,
-      env: ctx.env,
-      jsonPath: ctx.jsonPath,
-      reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-    }
+    const formulaContext: FormulaContext = createFormulaContext(ctx, data)
 
     // construct the url
     const baseUrl = applyFormula(api.url, formulaContext, ['url']) ?? ''
@@ -82,37 +73,9 @@ export function createLegacyAPI(
             .join('&')
         : ''
     const headers = isFormula(api.headers) // this is supporting a few legacy cases where the whole header object was set as a formula. This is no longer possible
-      ? applyFormula(
-          api.headers,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          ['headers'],
-        )
+      ? applyFormula(api.headers, formulaContext, ['headers'])
       : mapObject(api.headers ?? {}, ([key, value]) =>
-          applyFormula(
-            value,
-            {
-              data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-              jsonPath: ctx.jsonPath,
-              reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-            },
-            ['headers', key],
-          ),
+          applyFormula(value, formulaContext, ['headers', key]),
         )
     const contentType = String(
       Object.entries(headers).find(
@@ -123,21 +86,7 @@ export function createLegacyAPI(
     const body =
       api.body && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
         ? encodeBody(
-            applyFormula(
-              api.body,
-              {
-                data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-                jsonPath: ctx.jsonPath,
-                reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-              },
-              ['body'],
-            ),
+            applyFormula(api.body, formulaContext, ['body']),
             contentType,
           )
         : undefined
@@ -320,17 +269,7 @@ export function createLegacyAPI(
             api.autoFetch &&
             applyFormula(
               api.autoFetch,
-              {
-                data: ctx.dataSignal.get(),
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-                jsonPath: ctx.jsonPath,
-                reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-              },
+              createFormulaContext(ctx, ctx.dataSignal.get()),
               ['autoFetch'],
             )
               ? true
@@ -348,17 +287,7 @@ export function createLegacyAPI(
         api.autoFetch &&
         applyFormula(
           api.autoFetch,
-          {
-            data: ctx.dataSignal.get(),
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
+          createFormulaContext(ctx, ctx.dataSignal.get()),
           ['autoFetch'],
         )
       ) {

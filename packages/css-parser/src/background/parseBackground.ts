@@ -11,6 +11,7 @@ import {
 import {
   checkIfNoUnknownVariables,
   getValue,
+  getVariableValueByName,
   isColor,
   isVariable,
   parse,
@@ -192,39 +193,34 @@ const parseBackground = (args: backgroundArguments) => {
     allValues.forEach((value) => {
       const val = value.trim()
       if (isVariable(val)) {
-        const usedVariable = variables.find((v) =>
-          v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
-        )
-        if (!usedVariable) {
+        const parsedVariable = getVariableValueByName({
+          variableName: val,
+          variables,
+        })
+
+        if (!isDefined(parsedVariable)) {
           return
         }
 
-        const parsedUsedVariable =
-          usedVariable.unit && usedVariable.unit !== ''
-            ? parse({ input: `${usedVariable.value}${usedVariable.unit}` })
-            : parse({ input: usedVariable.value })
-
-        const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
-
-        if (parsedUsedVariableVal.length > 1) {
+        if (parsedVariable === 'invalid') {
           invalidValue = true
-        } else {
-          const parsedVariable = parseMultipleValues(parsedUsedVariableVal)
-          if (parsedVariable[0]?.type !== 'functionArguments') {
-            const newProp = parseBackground({
-              variables,
-              image,
-              valueToCheck: parsedVariable[0],
-              positionSet,
-              valueToReturn: returnValue,
-            })
+          return
+        }
 
-            if (newProp.color) {
-              color = newProp.color
-              return
-            } else {
-              image = { ...image, ...newProp.image }
-            }
+        if (parsedVariable.type !== 'functionArguments') {
+          const newProp = parseBackground({
+            variables,
+            image,
+            valueToCheck: parsedVariable,
+            positionSet,
+            valueToReturn: returnValue,
+          })
+
+          if (newProp.color) {
+            color = newProp.color
+            return
+          } else {
+            image = { ...image, ...newProp.image }
           }
         }
       } else {
@@ -306,25 +302,24 @@ const parsePosition = (args: {
     allValues.forEach((value) => {
       const val = value.trim()
       if (isVariable(val)) {
-        const usedVariable = variables.find((v) =>
-          v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
-        )
-        if (!usedVariable) {
+        const parsedVariable = getVariableValueByName({
+          variableName: val,
+          variables,
+        })
+
+        if (!isDefined(parsedVariable)) {
           return
         }
 
-        const parsedUsedVariable =
-          usedVariable.unit && usedVariable.unit !== ''
-            ? parse({ input: `${usedVariable.value}${usedVariable.unit}` })
-            : parse({ input: usedVariable.value })
+        if (parsedVariable === 'invalid') {
+          invalidValue = true
+          return
+        }
 
-        const parsedUsedVariableVal = getValue(parsedUsedVariable[0])
-        const parsedVariable = parseMultipleValues(parsedUsedVariableVal)
-
-        if (parsedVariable[0]?.type !== 'functionArguments') {
+        if (parsedVariable.type !== 'functionArguments') {
           const newProp = parsePosition({
             variables,
-            valueToCheck: parsedVariable[0],
+            valueToCheck: parsedVariable,
             valueToReturn: valueToCheck,
           })
 

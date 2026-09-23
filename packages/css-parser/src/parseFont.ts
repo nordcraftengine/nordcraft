@@ -8,6 +8,7 @@ import {
 import {
   checkIfNoUnknownVariables,
   getValue,
+  getVariableValueByName,
   isVariable,
   parse,
   parseMultipleValues,
@@ -533,27 +534,24 @@ const parseFont = (args: {
     const allValues = valueToCheck.value.split(', ')
     allValues.forEach((val) => {
       if (isVariable(val)) {
-        const usedVariable = variables.find((v) =>
-          v.name.startsWith('--') ? v.name === val : `--${v.name}` === val,
-        )
-        if (!usedVariable) {
+        const parsedVariable = getVariableValueByName({
+          variableName: val,
+          variables,
+        })
+
+        if (!isDefined(parsedVariable)) {
           return
         }
 
-        const parsedVariable = parseMultipleValues([
-          {
-            type: 'word',
-            value:
-              usedVariable.unit && usedVariable.unit !== ''
-                ? `${usedVariable.value}${usedVariable.unit}`
-                : usedVariable.value,
-          },
-        ])
-        if (parsedVariable[0]?.type !== 'functionArguments') {
+        if (parsedVariable === 'invalid') {
+          invalidValue = true
+          return
+        }
+        if (parsedVariable.type !== 'functionArguments') {
           const newProp = parseFont({
             font,
             isLastItem,
-            valueToCheck: parsedVariable[0],
+            valueToCheck: parsedVariable,
             lineHeightToBeSet,
             valueToReturn: valueToCheck,
             variables,

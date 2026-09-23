@@ -29,30 +29,50 @@ export const getVariableValue = ({
       return null
     }
 
-    const usedVariable = variables.find((variable) =>
-      variable.name.startsWith('--')
-        ? variable.name === name
-        : `--${variable.name}` === name,
-    )
+    const val = getVariableValueByName({ variableName: name, variables })
 
-    if (usedVariable) {
-      const value =
-        parseMultipleValues([
-          {
-            type: 'word',
-            value: usedVariable?.unit
-              ? `${usedVariable.value}${usedVariable.unit}`
-              : usedVariable.value,
-          },
-        ])[0] ?? null
-
-      return value
-    }
-
-    return null
+    return val === 'invalid' ? null : val
   }
 
   return value
+}
+
+export const getVariableValueByName = ({
+  variableName,
+  variables,
+}: {
+  variableName: string
+  parsedVariable?: ParsedValueType
+  variables: CSSStyleToken[]
+}): ParsedValueType | null | 'invalid' => {
+  const usedVariable = variables.find((v) =>
+    v.name.startsWith('--')
+      ? v.name === variableName
+      : `--${v.name}` === variableName,
+  )
+
+  if (usedVariable) {
+    const valueWithoutUnit = usedVariable.unit
+      ? usedVariable.value.replaceAll(usedVariable.unit, '')
+      : usedVariable.value
+
+    if (valueWithoutUnit === '') {
+      return 'invalid'
+    }
+
+    const valueWithUnit = usedVariable.value
+
+    const parsedValue = parse({ input: valueWithUnit })
+    const value = getValue(parsedValue[0])
+    if (value.length > 1) {
+      return 'invalid'
+    }
+    const parsedVariable = parseMultipleValues(value)[0] ?? null
+
+    return parsedVariable
+  }
+
+  return null
 }
 
 export const getValue = (

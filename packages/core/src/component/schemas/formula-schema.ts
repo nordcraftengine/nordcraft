@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as v from 'valibot'
 import type {
   AndOperation,
   ApplyOperation,
@@ -15,246 +15,270 @@ import type {
   ValueOperationValue,
 } from '../../formula/formula'
 import type { ComponentFormula } from '../component.types'
-import { MetadataSchema, SCHEMA_DESCRIPTIONS } from './zod-schemas'
+import { MetadataSchema, SCHEMA_DESCRIPTIONS } from './valibot-schemas'
 
 // Value Operation
-const ValueOperationValueSchema: z.ZodType<ValueOperationValue> = z.union([
-  z.string(),
-  z.number(),
-  z.boolean(),
-  z.null(),
-  z.object({}),
-])
+const ValueOperationValueSchema: v.GenericSchema<unknown, ValueOperationValue> =
+  v.union([v.string(), v.number(), v.boolean(), v.null(), v.object({})])
 
-const ValueOperationSchema: z.ZodType<ValueOperation> = z.object({
-  '@nordcraft/metadata': MetadataSchema.nullish().describe(
-    SCHEMA_DESCRIPTIONS.metadata('value operation'),
-  ),
-  type: z.literal('value'),
-  value: ValueOperationValueSchema.describe('Literal value.'),
-})
+const ValueOperationSchema: v.GenericSchema<unknown, ValueOperation> = v.object(
+  {
+    '@nordcraft/metadata': v.pipe(
+      v.nullish(MetadataSchema),
+      v.description(SCHEMA_DESCRIPTIONS.metadata('value operation')),
+    ),
+    type: v.literal('value'),
+    value: v.pipe(ValueOperationValueSchema, v.description('Literal value.')),
+  },
+)
 
 // Path Operation
-const PathOperationSchema: z.ZodType<PathOperation> = z.object({
-  '@nordcraft/metadata': MetadataSchema.nullish().describe(
-    SCHEMA_DESCRIPTIONS.metadata('path operation'),
+const PathOperationSchema: v.GenericSchema<unknown, PathOperation> = v.object({
+  '@nordcraft/metadata': v.pipe(
+    v.nullish(MetadataSchema),
+    v.description(SCHEMA_DESCRIPTIONS.metadata('path operation')),
   ),
-  type: z.literal('path'),
-  path: z
-    .array(z.string())
-    .describe(
+  type: v.literal('path'),
+  path: v.pipe(
+    v.array(v.string()),
+    v.description(
       'Path segments for the path operation. Each segment is a string that corresponds to a property name or array index in the Data object passed to the system prompt.',
     ),
+  ),
 })
 
 // Formula argument base
-const FormulaArgumentSchema: z.ZodType<FunctionArgument> = z
-  .object({
-    get formula() {
-      return FormulaSchema.describe('Formula for the argument.')
-    },
-    isFunction: z
-      .boolean()
-      .nullish()
-      .describe(
-        'Whether the argument is a function. This will be true on array formulas like map, filter, reduce, etc. formulas.',
+const FormulaArgumentSchema: v.GenericSchema<unknown, FunctionArgument> =
+  v.pipe(
+    v.object({
+      formula: v.pipe(
+        v.lazy(() => FormulaSchema),
+        v.description('Formula for the argument.'),
       ),
-    name: z
-      .string()
-      .describe(
-        'The name of the argument. This name corresponds to the argument name from the formula definition.',
+      isFunction: v.pipe(
+        v.nullish(v.boolean()),
+        v.description(
+          'Whether the argument is a function. This will be true on array formulas like map, filter, reduce, etc. formulas.',
+        ),
       ),
-  })
-  .describe('Argument for formulas in Nordcraft formulas.')
+      name: v.pipe(
+        v.string(),
+        v.description(
+          'The name of the argument. This name corresponds to the argument name from the formula definition.',
+        ),
+      ),
+    }),
+    v.description('Argument for formulas in Nordcraft formulas.'),
+  )
 
 // Array Operation
-const ArrayOperationSchema: z.ZodType<ArrayOperation> = z
-  .object({
-    '@nordcraft/metadata': MetadataSchema.nullish().describe(
-      SCHEMA_DESCRIPTIONS.metadata('array operation'),
+const ArrayOperationSchema: v.GenericSchema<unknown, ArrayOperation> = v.pipe(
+  v.object({
+    '@nordcraft/metadata': v.pipe(
+      v.nullish(MetadataSchema),
+      v.description(SCHEMA_DESCRIPTIONS.metadata('array operation')),
     ),
-    type: z.literal('array'),
-    get arguments() {
-      return z
-        .array(z.object({ formula: FormulaSchema }))
-        .describe('List of formulas for the array elements.')
-    },
-  })
-  .describe('Model for describing an array in Nordcraft formulas.')
+    type: v.literal('array'),
+    arguments: v.pipe(
+      v.array(v.object({ formula: v.lazy(() => FormulaSchema) })),
+      v.description('List of formulas for the array elements.'),
+    ),
+  }),
+  v.description('Model for describing an array in Nordcraft formulas.'),
+)
 
 // Object Operation
-const ObjectOperationSchema: z.ZodType<ObjectOperation> = z
-  .object({
-    '@nordcraft/metadata': MetadataSchema.nullish().describe(
-      SCHEMA_DESCRIPTIONS.metadata('object operation'),
+const ObjectOperationSchema: v.GenericSchema<unknown, ObjectOperation> = v.pipe(
+  v.object({
+    '@nordcraft/metadata': v.pipe(
+      v.nullish(MetadataSchema),
+      v.description(SCHEMA_DESCRIPTIONS.metadata('object operation')),
     ),
-    type: z.literal('object'),
-    get arguments() {
-      return z
-        .array(FormulaArgumentSchema)
-        .nullish()
-        .describe(
-          'List of key-value pairs for the object. Each entry must have a name and a formula.',
-        )
-    },
-  })
-  .describe('Model for describing an object in Nordcraft formulas.')
+    type: v.literal('object'),
+    arguments: v.pipe(
+      v.nullish(v.array(FormulaArgumentSchema)),
+      v.description(
+        'List of key-value pairs for the object. Each entry must have a name and a formula.',
+      ),
+    ),
+  }),
+  v.description('Model for describing an object in Nordcraft formulas.'),
+)
 
 // Record Operation
-const RecordOperationSchema: z.ZodType<RecordOperation> = z
-  .object({
-    '@nordcraft/metadata': MetadataSchema.nullish(),
-    type: z.literal('record'),
-    get entries() {
-      return z.array(FormulaArgumentSchema)
-    },
-    label: z.string().nullish(),
-  })
-  .describe('Deprecated - use Object operation instead.')
+const RecordOperationSchema: v.GenericSchema<unknown, RecordOperation> = v.pipe(
+  v.object({
+    '@nordcraft/metadata': v.nullish(MetadataSchema),
+    type: v.literal('record'),
+    entries: v.array(FormulaArgumentSchema),
+    label: v.nullish(v.string()),
+  }),
+  v.description('Deprecated - use Object operation instead.'),
+)
 
 // And Operation
-const AndOperationSchema: z.ZodType<AndOperation> = z
-  .object({
-    '@nordcraft/metadata': MetadataSchema.nullish().describe(
-      SCHEMA_DESCRIPTIONS.metadata('AND operation'),
+const AndOperationSchema: v.GenericSchema<unknown, AndOperation> = v.pipe(
+  v.object({
+    '@nordcraft/metadata': v.pipe(
+      v.nullish(MetadataSchema),
+      v.description(SCHEMA_DESCRIPTIONS.metadata('AND operation')),
     ),
-    type: z.literal('and'),
-    get arguments() {
-      return z
-        .array(z.object({ formula: FormulaSchema }))
-        .describe(
-          'List of formulas to evaluate in the AND operation. All formulas must evaluate to a truthy value for the AND operation to return true.',
-        )
-    },
-  })
-  .describe(
+    type: v.literal('and'),
+    arguments: v.pipe(
+      v.array(v.object({ formula: v.lazy(() => FormulaSchema) })),
+      v.description(
+        'List of formulas to evaluate in the AND operation. All formulas must evaluate to a truthy value for the AND operation to return true.',
+      ),
+    ),
+  }),
+  v.description(
     'Model for describing a logical AND operation. The return value is a boolean value.',
-  )
+  ),
+)
 
 // Or Operation
-const OrOperationSchema: z.ZodType<OrOperation> = z
-  .object({
-    '@nordcraft/metadata': MetadataSchema.nullish().describe(
-      SCHEMA_DESCRIPTIONS.metadata('OR operation'),
+const OrOperationSchema: v.GenericSchema<unknown, OrOperation> = v.pipe(
+  v.object({
+    '@nordcraft/metadata': v.pipe(
+      v.nullish(MetadataSchema),
+      v.description(SCHEMA_DESCRIPTIONS.metadata('OR operation')),
     ),
-    type: z.literal('or'),
-    get arguments() {
-      return z
-        .array(z.object({ formula: FormulaSchema }))
-        .describe(
-          'List of formulas to evaluate in the OR operation. At least one formula must evaluate to a truthy value for the OR operation to return true.',
-        )
-    },
-  })
-  .describe(
+    type: v.literal('or'),
+    arguments: v.pipe(
+      v.array(v.object({ formula: v.lazy(() => FormulaSchema) })),
+      v.description(
+        'List of formulas to evaluate in the OR operation. At least one formula must evaluate to a truthy value for the OR operation to return true.',
+      ),
+    ),
+  }),
+  v.description(
     'Model for describing a logical OR operation. The return value is a boolean value.',
-  )
+  ),
+)
 
 // Switch Operation
-const SwitchOperationSchema: z.ZodType<SwitchOperation> = z
-  .object({
-    '@nordcraft/metadata': MetadataSchema.nullish(),
-    type: z.literal('switch'),
-    cases: z
-      .array(
-        z.object({
-          get condition() {
-            return z
-              .lazy(() => FormulaSchema)
-              .describe(
-                'Condition to evaluate for this case. If truthy, the formula is used.',
-              )
-          },
-          get formula() {
-            return z
-              .lazy(() => FormulaSchema)
-              .describe('Formula to use if the condition is met.')
-          },
+const SwitchOperationSchema: v.GenericSchema<unknown, SwitchOperation> = v.pipe(
+  v.object({
+    '@nordcraft/metadata': v.nullish(MetadataSchema),
+    type: v.literal('switch'),
+    cases: v.pipe(
+      v.array(
+        v.object({
+          condition: v.pipe(
+            v.lazy(() => FormulaSchema),
+            v.description(
+              'Condition to evaluate for this case. If truthy, the formula is used.',
+            ),
+          ),
+          formula: v.pipe(
+            v.lazy(() => FormulaSchema),
+            v.description('Formula to use if the condition is met.'),
+          ),
         }),
-      )
-      .length(1)
-      .describe(
+      ),
+      v.length(1),
+      v.description(
         'Cases for the switch operation. Each case has a condition and a formula. The length of cases cannot exceed 1 at this time as the UI does not currently support this.',
       ),
-    get default() {
-      return FormulaSchema.describe('Default formula if no case matches.')
-    },
-  })
-  .describe(
+    ),
+    default: v.pipe(
+      v.lazy(() => FormulaSchema),
+      v.description('Default formula if no case matches.'),
+    ),
+  }),
+  v.description(
     'Model for describing a switch operation. A switch operation allows branching logic based on conditions.',
-  )
+  ),
+)
 
 // Project Function Operation
-const ProjectFunctionOperationSchema: z.ZodType<FunctionOperation> = z
-  .object({
-    '@nordcraft/metadata': MetadataSchema.nullish().describe(
-      SCHEMA_DESCRIPTIONS.metadata('project formula operation'),
+const ProjectFunctionOperationSchema: v.GenericSchema<
+  unknown,
+  FunctionOperation
+> = v.pipe(
+  v.object({
+    '@nordcraft/metadata': v.pipe(
+      v.nullish(MetadataSchema),
+      v.description(SCHEMA_DESCRIPTIONS.metadata('project formula operation')),
     ),
-    type: z.literal('function'),
-    name: z
-      .string()
-      .describe(
+    type: v.literal('function'),
+    name: v.pipe(
+      v.string(),
+      v.description(
         'Key of the project formula to be called. This must match the key of the project formulas passed to the system prompt.',
       ),
-    get arguments() {
-      return z.array(FormulaArgumentSchema).describe('Formula arguments.')
-    },
-  })
-  .describe(
+    ),
+    arguments: v.pipe(
+      v.array(FormulaArgumentSchema),
+      v.description('Formula arguments.'),
+    ),
+  }),
+  v.description(
     'Model for describing a Project Formula operation. A Project Formula is a user-defined formula that can be reused across the project.',
-  )
+  ),
+)
 
 // Built-in Function Operation
-const BuiltInFunctionOperationSchema: z.ZodType<FunctionOperation> = z.object({
-  '@nordcraft/metadata': MetadataSchema.nullish().describe(
-    SCHEMA_DESCRIPTIONS.metadata('built-in formula operation'),
+const BuiltInFunctionOperationSchema: v.GenericSchema<
+  unknown,
+  FunctionOperation
+> = v.object({
+  '@nordcraft/metadata': v.pipe(
+    v.nullish(MetadataSchema),
+    v.description(SCHEMA_DESCRIPTIONS.metadata('built-in formula operation')),
   ),
-  type: z.literal('function'),
-  name: z
-    .string()
-    .describe(
+  type: v.literal('function'),
+  name: v.pipe(
+    v.string(),
+    v.description(
       'Key of the built-in formula to be called. This key is always prefixed with "@toddle/" and can be read from the built-in formula definition.',
     ),
-  get arguments() {
-    return z.array(FormulaArgumentSchema).describe('Formula arguments.')
-  },
-  display_name: z
-    .string()
-    .nullish()
-    .describe(
+  ),
+  arguments: v.pipe(
+    v.array(FormulaArgumentSchema),
+    v.description('Formula arguments.'),
+  ),
+  display_name: v.pipe(
+    v.nullish(v.string()),
+    v.description(
       'Human readable label for the operation. This should be set from the "name" read from the built-in formula definition.',
     ),
-  variableArguments: z
-    .boolean()
-    .nullish()
-    .describe(
+  ),
+  variableArguments: v.pipe(
+    v.nullish(v.boolean()),
+    v.description(
       'Field defining if the formula accepts variable number of arguments. This value is read from the built-in formula definition.',
     ),
+  ),
 })
 
 // Apply Operation
-const ApplyOperationSchema: z.ZodType<ApplyOperation> = z
-  .object({
-    '@nordcraft/metadata': MetadataSchema.nullish().describe(
-      SCHEMA_DESCRIPTIONS.formulas('apply operation'),
+const ApplyOperationSchema: v.GenericSchema<unknown, ApplyOperation> = v.pipe(
+  v.object({
+    '@nordcraft/metadata': v.pipe(
+      v.nullish(MetadataSchema),
+      v.description(SCHEMA_DESCRIPTIONS.formulas('apply operation')),
     ),
-    type: z.literal('apply'),
-    name: z
-      .string()
-      .describe(
+    type: v.literal('apply'),
+    name: v.pipe(
+      v.string(),
+      v.description(
         'Key of the formula to be applied. This is the key defined in the formulas object found in the same file.',
       ),
-    arguments: z
-      .array(FormulaArgumentSchema)
-      .describe('Arguments to pass to the formula being applied.'),
-  })
-  .describe(
+    ),
+    arguments: v.pipe(
+      v.array(FormulaArgumentSchema),
+      v.description('Arguments to pass to the formula being applied.'),
+    ),
+  }),
+  v.description(
     'Model for describing an Apply operation. An apply operation is used when a formula wants to run another formula defined in the same file.',
-  )
+  ),
+)
 
 // Formula - union of all operation types
-export const FormulaSchema: z.ZodType<Formula> = z.lazy(() =>
-  z.union([
+export const FormulaSchema: v.GenericSchema<unknown, Formula> = v.lazy(() =>
+  v.union([
     BuiltInFunctionOperationSchema,
     ProjectFunctionOperationSchema,
     RecordOperationSchema,
@@ -269,31 +293,46 @@ export const FormulaSchema: z.ZodType<Formula> = z.lazy(() =>
   ]),
 )
 
-export const ComponentFormulaSchema: z.ZodType<ComponentFormula> = z.object({
-  '@nordcraft/metadata': MetadataSchema.nullish().describe(
-    SCHEMA_DESCRIPTIONS.metadata('formula'),
+export const ComponentFormulaSchema: v.GenericSchema<
+  unknown,
+  ComponentFormula
+> = v.object({
+  '@nordcraft/metadata': v.pipe(
+    v.nullish(MetadataSchema),
+    v.description(SCHEMA_DESCRIPTIONS.metadata('formula')),
   ),
-  name: z.string().describe('Name of the formula'),
-  formula: FormulaSchema.describe(
-    'Contains the "code" that will be executed when this formula is called.',
+  name: v.pipe(v.string(), v.description('Name of the formula')),
+  formula: v.pipe(
+    FormulaSchema,
+    v.description(
+      'Contains the "code" that will be executed when this formula is called.',
+    ),
   ),
-  arguments: z
-    .array(
-      z.object({
-        name: z.string().describe('Name of the formula argument'),
-        testValue: z.any().describe('Test value for the formula argument'),
-      }),
-    )
-    .nullish()
-    .describe('List of arguments accepted by the formula.'),
-  memoize: z
-    .boolean()
-    .nullish()
-    .describe('Indicates if the formula result should be memoized.'),
-  exposeInContext: z
-    .boolean()
-    .nullish()
-    .describe(
+  arguments: v.pipe(
+    v.nullish(
+      v.array(
+        v.object({
+          name: v.pipe(
+            v.string(),
+            v.description('Name of the formula argument'),
+          ),
+          testValue: v.pipe(
+            v.any(),
+            v.description('Test value for the formula argument'),
+          ),
+        }),
+      ),
+    ),
+    v.description('List of arguments accepted by the formula.'),
+  ),
+  memoize: v.pipe(
+    v.nullish(v.boolean()),
+    v.description('Indicates if the formula result should be memoized.'),
+  ),
+  exposeInContext: v.pipe(
+    v.nullish(v.boolean()),
+    v.description(
       'Indicates if the formula should be exposed in the component context for child components to subscribe to.',
     ),
+  ),
 })

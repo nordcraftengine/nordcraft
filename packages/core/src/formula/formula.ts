@@ -30,6 +30,20 @@ import {
 // we need to limit the depth to infinite loops as exit conditions are no longer used in recursive formulas.
 const MAX_REPORT_DEPTH = 64
 
+// Hoisted to avoid re-allocating the array for every formula evaluation
+const FORMULA_TYPES = [
+  'and',
+  'apply',
+  'array',
+  'function',
+  'object',
+  'or',
+  'path',
+  'record',
+  'switch',
+  'value',
+] as Formula['type'][]
+
 // Define the some objects types as union of ServerSide and ClientSide runtime types as applyFormula is used in both
 type ShadowRoot = DocumentFragment
 
@@ -179,20 +193,7 @@ export function isFormula(f: any): f is Formula {
     f &&
     typeof f === 'object' &&
     typeof f.type === 'string' &&
-    (
-      [
-        'path',
-        'function',
-        'record',
-        'object',
-        'array',
-        'or',
-        'and',
-        'apply',
-        'value',
-        'switch',
-      ] as Formula['type'][]
-    ).includes(f.type)
+    FORMULA_TYPES.includes(f.type)
   )
 }
 export function isFormulaApplyOperation(
