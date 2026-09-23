@@ -33,18 +33,18 @@ export const getClassName = (
   return className
 }
 
-
 // Path classnames are reused heavily (one per node render), so we want to cache them
 // Kept separate from CLASSNAME_LOOKUP to avoid key collisions between paths and stringified style objects.
 const PATH_CLASSNAME_LOOKUP = new Map<string, string>()
 
-export const getPathClassName = (path: string) => {
-  const cached = PATH_CLASSNAME_LOOKUP.get(path)
+export const getPathClassName = (path: Path) => {
+  const pathAsString = pathToString(path)
+  const cached = PATH_CLASSNAME_LOOKUP.get(pathAsString)
   if (cached) {
     return cached
   }
-  const className = generateAlphabeticName(hash(pathToString(path)))
-  PATH_CLASSNAME_LOOKUP.set(path, className)
+  const className = generateAlphabeticName(hash(pathAsString))
+  PATH_CLASSNAME_LOOKUP.set(pathAsString, className)
   return className
 }
 
