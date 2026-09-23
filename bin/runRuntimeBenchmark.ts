@@ -453,8 +453,8 @@ async function runBenchmark() {
   }
 
   markdownLines.push(
-    '| Scenario | Base/Head time | Delta | 95% CI | Time Verdict | Base/Head heap | Delta | Heap Verdict |',
-    '| :--- | ---: | ---: | :---: | :---: | ---: | ---: | :---: |',
+    '| Scenario | Base/Head time | Delta | Time Verdict | Base/Head heap | Delta | Heap Verdict |',
+    '| :--- | ---: | ---: | :---: | ---: | ---: | :---: |',
     ...results.map((r) => {
       const baseStr = `${r.baseMedianMs.toFixed(2)} ms`
       const headStr = `${r.headMedianMs.toFixed(2)} ms`
@@ -462,12 +462,11 @@ async function runBenchmark() {
       const deltaPctStr = `${r.deltaPercent >= 0 ? '+' : ''}${r.deltaPercent.toFixed(2)}%`
       const deltaMsStr = `${r.deltaMs >= 0 ? '+' : ''}${r.deltaMs.toFixed(2)} ms`
       const timeDeltaFull = `${deltaPctStr} (${deltaMsStr})`
-      const ciStr = `[${r.ciLowPercent.toFixed(1)}%, ${r.ciHighPercent.toFixed(1)}%]`
       const baseHeapStr = formatKb(r.baseHeapMedianKb)
       const headHeapStr = formatKb(r.headHeapMedianKb)
       const heapCombined = `${baseHeapStr} / ${headHeapStr}`
       const deltaHeapStr = `${r.deltaHeapKb >= 0 ? '+' : ''}${formatKb(r.deltaHeapKb)} (${r.deltaHeapPercent >= 0 ? '+' : ''}${r.deltaHeapPercent.toFixed(1)}%)`
-      return `| **${r.id}** | ${timeCombined} | ${timeDeltaFull} | ${ciStr} | ${r.timeVerdict} | ${heapCombined} | ${deltaHeapStr} | ${r.heapVerdict} |`
+      return `| **${r.id}** | ${timeCombined} | ${timeDeltaFull} | ${r.timeVerdict} | ${heapCombined} | ${deltaHeapStr} | ${r.heapVerdict} |`
     }),
     '',
   )
