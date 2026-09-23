@@ -51,6 +51,48 @@ describe('find noReferenceNodeRule', () => {
     ])
   })
 
+  test('should detect "null" nodes with no references', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          formulas: {},
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  id: 'root',
+                  type: 'element',
+                  tag: 'div',
+                  children: [],
+                  attrs: {},
+                  style: {},
+                  events: {},
+                  classes: {},
+                },
+                '1LisbD0eCjsuccoUwajn1': null as any,
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [noReferenceNodeRule],
+      }),
+    )
+
+    expect(problems).toHaveLength(1)
+    expect(problems[0].details).toEqual({ node: '1LisbD0eCjsuccoUwajn1' })
+    expect(problems[0].path).toEqual([
+      'components',
+      'test',
+      'nodes',
+      '1LisbD0eCjsuccoUwajn1',
+    ])
+  })
+
   test('should not detect nodes with references', () => {
     const problems = Array.from(
       searchProject({
@@ -137,6 +179,49 @@ describe('fix noReferenceNodeRule', () => {
       'used',
     ])
   })
+
+  test('should delete "null" nodes with no references', () => {
+    const files: ProjectFiles = {
+      formulas: {},
+      components: {
+        test: {
+          name: 'test',
+          nodes: {
+            root: {
+              id: 'root',
+              type: 'element',
+              tag: 'div',
+              children: ['used'],
+              attrs: {},
+              style: {},
+              events: {},
+              classes: {},
+            },
+            '1LisbD0eCjsuccoUwajn1': null,
+            used: {
+              id: 'used',
+              type: 'text',
+              value: { type: 'value', value: 'I am used' },
+            },
+          },
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
+        },
+      },
+    }
+    const fixedFiles = fixProject({
+      files,
+      rule: noReferenceNodeRule,
+      fixType: 'delete-orphan-node',
+    })
+    expect(Object.keys(fixedFiles.components.test!.nodes ?? {})).toEqual([
+      'root',
+      'used',
+    ])
+  })
+
   test('should remove children of orphan node', () => {
     const files: ProjectFiles = {
       formulas: {},

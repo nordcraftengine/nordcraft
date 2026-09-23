@@ -1,8 +1,8 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceApiRule: Rule<void> = {
+export const noReferenceApiRule: IssueRule<void> = {
   code: 'no-reference api',
   level: 'warning',
   category: 'No References',
@@ -13,6 +13,17 @@ export const noReferenceApiRule: Rule<void> = {
     const { value, memo, component } = args
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!component) {
+      return
+    }
+
+    // Auto fetch APIs are allowed to not have references, as they effectively reference themselves
+    if (
+      args.value.autoFetch &&
+      !(
+        args.value.autoFetch.type === 'value' &&
+        args.value.autoFetch.value === false
+      )
+    ) {
       return
     }
 

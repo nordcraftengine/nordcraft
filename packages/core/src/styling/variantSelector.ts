@@ -56,7 +56,7 @@ export interface StyleVariant {
   mediaQuery?: Nullable<MediaQuery>
   pseudoElement?: Nullable<string>
   startingStyle?: Nullable<boolean>
-  style: NodeStyleModel
+  style: Nullable<NodeStyleModel>
   visited?: Nullable<boolean>
 }
 

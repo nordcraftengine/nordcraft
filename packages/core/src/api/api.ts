@@ -14,15 +14,14 @@ import type {
 } from './apiTypes'
 import { ApiMethod } from './apiTypes'
 import { isJsonHeader } from './headers'
-import { LegacyToddleApi } from './LegacyToddleApi'
-import { ToddleApiV2 } from './ToddleApiV2'
+import type { LegacyToddleApi } from './LegacyToddleApi'
+import type { ToddleApiV2 } from './ToddleApiV2'
 
 export const NON_BODY_RESPONSE_CODES = [101, 204, 205, 304]
 
 export const isLegacyApi = <Handler>(
   api: ComponentAPI | LegacyToddleApi<Handler> | ToddleApiV2<Handler>,
-): api is LegacyComponentAPI | LegacyToddleApi<Handler> =>
-  api instanceof LegacyToddleApi ? true : !('version' in api)
+): api is LegacyComponentAPI | LegacyToddleApi<Handler> => !('version' in api)
 
 export const createApiRequest = <Handler>({
   api,
@@ -35,7 +34,11 @@ export const createApiRequest = <Handler>({
   baseUrl?: Nullable<string>
   defaultHeaders: Headers | undefined
 }) => {
-  const url = getUrl(api, formulaContext, baseUrl)
+  const url = getUrl(
+    api,
+    { ...formulaContext, jsonPath: ['apis', api.name] },
+    baseUrl,
+  )
   const requestSettings = getRequestSettings({
     api,
     formulaContext,
@@ -53,7 +56,7 @@ export const getUrl = (
   let urlPathname = ''
   let urlQueryParams = new URLSearchParams()
   let parsedUrl: URL | undefined
-  const url = applyFormula(api.url, formulaContext)
+  const url = applyFormula(api.url, formulaContext, ['url'])
   if (['string', 'number'].includes(typeof url)) {
     const urlInput = typeof url === 'number' ? String(url) : url
     try {
@@ -74,7 +77,10 @@ export const getUrl = (
   ])
   const queryString =
     [...queryParams.entries()].length > 0 ? `?${queryParams.toString()}` : ''
-  const hash = applyFormula(api.hash?.formula, formulaContext)
+  const hash = applyFormula(api.hash?.formula, formulaContext, [
+    'hash',
+    'formula',
+  ])
   const hashString =
     typeof hash === 'string' && hash.length > 0 ? `#${hash}` : ''
   if (parsedUrl) {
@@ -102,7 +108,10 @@ export const applyAbortSignal = (
   formulaContext: FormulaContext,
 ) => {
   if (api.timeout) {
-    const timeout = applyFormula(api.timeout.formula, formulaContext)
+    const timeout = applyFormula(api.timeout.formula, formulaContext, [
+      'timeout',
+      'formula',
+    ])
     if (typeof timeout === 'number' && !Number.isNaN(timeout) && timeout > 0) {
       requestSettings.signal = AbortSignal.timeout(timeout)
     }
@@ -147,7 +156,9 @@ export const getRequestPath = (
   formulaContext: FormulaContext,
 ): string =>
   sortObjectEntries(path ?? {}, ([_, p]) => p.index)
-    .map(([_, p]) => applyFormula(p.formula, formulaContext))
+    .map(([parameterName, p]) =>
+      applyFormula(p.formula, formulaContext, ['path', parameterName]),
+    )
     .join('/')
 
 export const getRequestQueryParams = (
@@ -157,13 +168,21 @@ export const getRequestQueryParams = (
   const queryParams = new URLSearchParams()
   Object.entries(params ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
-      ? applyFormula(param.enabled, formulaContext)
+      ? applyFormula(param.enabled, formulaContext, [
+          'queryParams',
+          key,
+          'enabled',
+        ])
       : true
     if (!enabled) {
       return
     }
 
-    const value = applyFormula(param.formula, formulaContext)
+    const value = applyFormula(param.formula, formulaContext, [
+      'queryParams',
+      key,
+      'formula',
+    ])
     if (!isDefined(value)) {
       // Ignore null/undefined values
       return
@@ -202,10 +221,14 @@ export const getRequestHeaders = ({
   const headers = new Headers(defaultHeaders)
   Object.entries(apiHeaders ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
-      ? applyFormula(param.enabled, formulaContext)
+      ? applyFormula(param.enabled, formulaContext, ['headers', key, 'enabled'])
       : true
     if (enabled) {
-      const value = applyFormula(param.formula, formulaContext)
+      const value = applyFormula(param.formula, formulaContext, [
+        'headers',
+        key,
+        'formula',
+      ])
       if (isDefined(value)) {
         try {
           headers.set(
@@ -286,6 +309,8 @@ export const isApiError = ({
           },
         },
         env: formulaContext.env,
+        jsonPath: ['apis', apiName, 'isError', 'formula'],
+        reportFormulaEvaluation: formulaContext.reportFormulaEvaluation,
       })
     : null
 
@@ -310,7 +335,7 @@ export const getRequestBody = ({
     return
   }
 
-  const body = applyFormula(api.body, formulaContext)
+  const body = applyFormula(api.body, formulaContext, ['body'])
   if (!body) {
     return
   }
@@ -341,13 +366,11 @@ export const getRequestBody = ({
       return ''
     }
     case 'multipart/form-data': {
-      const formData = new FormData()
       if (typeof body === 'object' && body !== null) {
-        Object.entries(body).forEach(([key, value]) => {
-          formData.set(key, value as string | Blob)
-        })
+        return toFormData(body)
+      } else {
+        return new FormData()
       }
-      return formData
     }
     case 'text/plain':
       return String(body)
@@ -355,6 +378,37 @@ export const getRequestBody = ({
       // For other content types, we return the body as is
       return body
   }
+}
+
+/**
+ * Converts a plain object to FormData, supporting nested objects and arrays.
+ */
+export const toFormData = (body: Record<string, unknown>): FormData => {
+  const formData = new FormData()
+  for (const [key, value] of Object.entries(body)) {
+    if (value === null || value === undefined) {
+      continue
+    }
+    const values = Array.isArray(value) ? value : [value]
+    for (const v of values) {
+      if (v === null || v === undefined) {
+        continue
+      }
+      if (v instanceof File) {
+        formData.append(key, v, v.name)
+      } else if (v instanceof Blob) {
+        formData.append(key, v)
+      } else if (['string', 'number', 'boolean'].includes(typeof v)) {
+        formData.append(key, String(v))
+      } else if (typeof v === 'object') {
+        formData.append(key, JSON.stringify(v))
+      } else {
+        // Unsupported value type
+        continue
+      }
+    }
+  }
+  return formData
 }
 
 export const createApiEvent = (
@@ -365,62 +419,3 @@ export const createApiEvent = (
     detail,
   })
 }
-
-const compareApiDependencies = <Handler>(
-  a: LegacyToddleApi<Handler> | ToddleApiV2<Handler>,
-  b: LegacyToddleApi<Handler> | ToddleApiV2<Handler>,
-) => {
-  const isADependentOnB = a.apiReferences.has(b.name)
-  const isBDependentOnA = b.apiReferences.has(a.name)
-  if (isADependentOnB === isBDependentOnA) {
-    return 0
-  }
-  // 1 means A goes last - hence B is evaluated before A
-  return isADependentOnB ? 1 : -1
-}
-
-export const sortApiObjects = <Handler>(
-  apis: Array<[string, ComponentAPI]>,
-) => {
-  const apiMap = new Map<
-    string,
-    LegacyToddleApi<Handler> | ToddleApiV2<Handler>
-  >()
-  const getApi = (apiObj: ComponentAPI, key: string) => {
-    let api = apiMap.get(key)
-    if (!api) {
-      api =
-        apiObj.version === 2
-          ? new ToddleApiV2<Handler>(
-              apiObj,
-              key,
-              // global formulas are not required for sorting
-              {
-                formulas: {},
-                packages: {},
-              },
-            )
-          : new LegacyToddleApi<Handler>(
-              apiObj,
-              key,
-              // global formulas are not required for sorting
-              {
-                formulas: {},
-                packages: {},
-              },
-            )
-      apiMap.set(key, api)
-    }
-    return api
-  }
-
-  return [...apis].sort(([aKey, aObj], [bKey, bObj]) => {
-    const a = getApi(aObj, aKey)
-    const b = getApi(bObj, bKey)
-    return compareApiDependencies(a, b)
-  })
-}
-
-export const sortApiEntries = <Handler>(
-  apis: Array<[string, LegacyToddleApi<Handler> | ToddleApiV2<Handler>]>,
-) => [...apis].sort(([_, a], [__, b]) => compareApiDependencies(a, b))

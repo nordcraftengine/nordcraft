@@ -1,7 +1,7 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const noReferenceComponentWorkflowRule: Rule<{
+export const noReferenceComponentWorkflowRule: IssueRule<{
   name: string
   contextSubscribers: string[]
 }> = {
@@ -76,14 +76,14 @@ export const noReferenceComponentWorkflowRule: Rule<{
         }
       }
     }
-
+    const name = value.name ?? String(workflowKey)
     report({
       path,
       info: {
         title: 'Unused component workflow',
-        description: `**${value.name}** is never used by any workflow. Consider removing it.`,
+        description: `**${name}** is never used by any workflow. Consider removing it.`,
       },
-      details: { contextSubscribers, name: value.name },
+      details: { contextSubscribers, name },
     })
   },
 }

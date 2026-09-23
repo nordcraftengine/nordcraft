@@ -1,8 +1,8 @@
-# Nordcraft - the Web Development Engine
+# Nordcraft
 
 Create highly performant web apps with SSR, branching, version control, components, and much more! Visit [nordcraft.com](https://nordcraft.com?utm_medium=web&utm_source=GitHub) to learn more.
 
-[Discord](https://discord.com/invite/svBKYZf3UR) | [BlueSky](https://bsky.app/profile/nordcraft.com) | [YouTube](https://youtube.com/@nordcraftengine) | [LinkedIn](https://www.linkedin.com/company/nordcraft) | [X](https://x.com/nordcraftengine)
+[Discord](https://discord.com/invite/svBKYZf3UR) | [BlueSky](https://bsky.app/profile/nordcraft.com) | [YouTube](https://youtube.com/@nordcraftengine) | [LinkedIn](https://www.linkedin.com/company/nordcraft)
 
 ![Test status](https://github.com/nordcraftengine/nordcraft/actions/workflows/test.yml/badge.svg)
 ![Release status](https://github.com/nordcraftengine/nordcraft/actions/workflows/main.yml/badge.svg)
@@ -16,6 +16,7 @@ This repository holds different packages that are used internally by the Nordcra
 - [ssr](https://www.npmjs.com/package/@nordcraft/ssr) 👈 holds part of the server-side rendering logic
 - [lib](https://www.npmjs.com/package/@nordcraft/std-lib) 👈 holds all builtin [formulas](https://docs.nordcraft.com/formulas/overview#the-formula-editor) and [actions](https://docs.nordcraft.com/the-editor/data-panel#workflows) used by the runtime and during ssr
 - [search](https://www.npmjs.com/package/@nordcraft/search) 👈 holds all issue rules and search functionality for traversing a Nordcraft project. This powers the issue panel in the Nordcraft editor in a web worker atm
+- [css-parser] the CSS parser used in the Nordcraft editor to power the style panel
 
 ## Requirements
 

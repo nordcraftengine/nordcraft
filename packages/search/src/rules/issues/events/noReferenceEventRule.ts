@@ -1,8 +1,8 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { isLegacyAction } from '../../../util/helpers'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceEventRule: Rule<{ name: string }> = {
+export const noReferenceEventRule: IssueRule<{ name: string }> = {
   code: 'no-reference event',
   level: 'warning',
   category: 'No References',

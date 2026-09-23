@@ -32,8 +32,10 @@ export interface ComponentData {
   Apis?: Nullable<
     Record<
       string,
-      | LegacyApiStatus
-      | (ApiStatus & { inputs?: Nullable<Record<string, unknown>> })
+      Nullable<
+        | LegacyApiStatus
+        | (ApiStatus & { inputs?: Nullable<Record<string, unknown>> })
+      >
     >
   >
   Args?: Nullable<unknown>
@@ -46,9 +48,9 @@ export interface ComponentData {
 }
 
 export interface AnimationKeyframe {
-  position: number
-  key: string
-  value: string
+  position: Nullable<number>
+  key: Nullable<string>
+  value: Nullable<string>
   easing?: Nullable<never>
 }
 
@@ -91,15 +93,17 @@ export interface ElementNodeModel {
   repeat?: Nullable<Formula>
   repeatKey?: Nullable<Formula>
   tag: string
-  attrs: Partial<Record<string, Formula>>
+  attrs?: Nullable<Partial<Record<string, Formula>>>
   style?: Nullable<NodeStyleModel>
   variants?: Nullable<StyleVariant[]>
   animations?: Nullable<Record<string, Record<string, AnimationKeyframe>>>
-  children: string[]
-  events: Partial<Record<string, Nullable<EventModel>>>
+  children?: Nullable<string[]>
+  events?: Nullable<Partial<Record<string, Nullable<EventModel>>>>
   classes?: Nullable<Record<string, { formula?: Nullable<Formula> }>>
   'style-variables'?: Nullable<Array<StyleVariable>>
   customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
+  // Legacy implementations added an invalid property. We'll keep it here to know we can safely remove it
+  styleVariables?: never
 }
 
 export interface ComponentNodeModel {
@@ -115,9 +119,9 @@ export interface ComponentNodeModel {
   style?: Nullable<NodeStyleModel>
   variants?: Nullable<StyleVariant[]>
   animations?: Nullable<Record<string, Record<string, AnimationKeyframe>>>
-  attrs: Record<string, Formula>
-  children: string[]
-  events: Record<string, EventModel>
+  attrs?: Nullable<Record<string, Formula>>
+  children?: Nullable<string[]>
+  events?: Nullable<Partial<Record<string, Nullable<EventModel>>>>
   customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
 }
 
@@ -128,7 +132,9 @@ export interface SlotNodeModel {
   condition?: Nullable<Formula>
   repeat?: Nullable<never>
   repeatKey?: Nullable<never>
-  children: string[]
+  children?: Nullable<string[]>
+  // slots cannot have events, but an empty object might have been declared regardless
+  events?: never
 }
 export type NodeModel =
   | TextNodeModel
@@ -138,9 +144,10 @@ export type NodeModel =
 
 export interface MetaEntry {
   tag: HeadTagTypes
-  attrs?: Nullable<Record<string, Formula>>
+  attrs?: Nullable<Record<string, Nullable<Formula>>>
   content?: Nullable<Formula>
   index?: Nullable<number>
+  enabled?: Nullable<Formula>
 }
 
 export interface StaticPathSegment {
@@ -177,9 +184,9 @@ export interface Component {
   // @deprecated - use route->path instead
   page?: Nullable<string> // page url /projects/:id - only for pages
   route?: Nullable<PageRoute>
-  attributes?: Nullable<Record<string, ComponentAttribute>>
-  variables?: Nullable<Record<string, ComponentVariable>>
-  formulas?: Nullable<Record<string, ComponentFormula>>
+  attributes?: Nullable<Record<string, Nullable<ComponentAttribute>>>
+  variables?: Nullable<Record<string, Nullable<ComponentVariable>>>
+  formulas?: Nullable<Record<string, Nullable<ComponentFormula>>>
   contexts?: Nullable<
     Record<
       // `componentName` or `packageName/componentName` if the context comes from a different package than the component itself
@@ -187,10 +194,10 @@ export interface Component {
       ComponentContext
     >
   >
-  workflows?: Nullable<Record<string, ComponentWorkflow>>
-  apis?: Nullable<Record<string, ComponentAPI>>
-  nodes?: Nullable<Record<string, NodeModel>>
-  events?: Nullable<ComponentEvent[]>
+  workflows?: Nullable<Record<string, Nullable<ComponentWorkflow>>>
+  apis?: Nullable<Record<string, Nullable<ComponentAPI>>>
+  nodes?: Nullable<Partial<Record<string, NodeModel | null>>>
+  events?: Nullable<Nullable<ComponentEvent>[]>
   onLoad?: Nullable<EventModel>
   onAttributeChange?: Nullable<EventModel>
   // exported indicates that a component is exported in a package
@@ -199,10 +206,12 @@ export interface Component {
     // Later, we will add information about allowed origins here
     enabled?: Nullable<Formula>
   }>
+  // Used to indicate if a page or any of its child components use custom actions/formulas
+  customCode?: Nullable<boolean>
 }
 
 export interface ComponentFormula extends NordcraftMetadata {
-  name: string
+  name?: string
   arguments?: Nullable<Array<{ name: string; testValue: any }>>
   memoize?: Nullable<boolean>
   exposeInContext?: Nullable<boolean>
@@ -210,7 +219,7 @@ export interface ComponentFormula extends NordcraftMetadata {
 }
 
 export interface ComponentWorkflow extends NordcraftMetadata {
-  name: string
+  name?: string
   parameters: Array<{ name: string; testValue: any }>
   callbacks?: Nullable<Array<{ name: string; testValue: any }>>
   actions: ActionModel[]
@@ -232,7 +241,17 @@ export interface RouteDeclaration {
   query: Record<string, { name: string; testValue: any }>
 }
 
+export interface ResponseHeaders {
+  [key: string]: Nullable<Formula | string>
+}
+
 export interface PageRoute extends RouteDeclaration {
+  response?: Nullable<{
+    // Allow overriding response headers for a page render. For example to set a custom cache-control header for a page
+    // or specify a Location along with a 3xx status code to redirect the user to another page
+    headers?: Nullable<ResponseHeaders>
+    status?: Nullable<Formula>
+  }>
   // Information for the <head> element
   // only relevant for pages - not for regular
   // components
@@ -307,7 +326,7 @@ export interface CustomActionModel {
   package?: Nullable<string>
   name: string
   description?: Nullable<string>
-  group?: Nullable<string>
+  group?: Nullable<unknown>
   data?: Nullable<string | number | boolean | Formula>
   arguments?: Nullable<Partial<CustomActionArgument[]>>
   events?: Nullable<Record<string, ActionModelActions>>
@@ -325,12 +344,16 @@ export interface SwitchActionModel {
     }>
   >
   default?: Nullable<ActionModelActions>
+  // Should never be set
+  arguments?: never
 }
 
 export interface VariableActionModel {
   type: 'SetVariable'
   variable: string
   data: Nullable<Formula>
+  // Arguments for this action should never be provided, but have been set sometimes
+  arguments?: never
 }
 
 export interface FetchActionModel {
@@ -352,6 +375,8 @@ export interface SetURLParameterAction {
   parameter: string
   data?: Nullable<Formula>
   historyMode?: Nullable<'replace' | 'push'>
+  // Should never be set
+  arguments?: never
 }
 
 export interface SetMultiUrlParameterAction {
@@ -364,13 +389,17 @@ export interface EventActionModel {
   type: 'TriggerEvent'
   event: string
   data?: Nullable<Formula>
+  // Should never be set
+  arguments?: never
 }
 
 export interface WorkflowActionModel {
   type: 'TriggerWorkflow'
   workflow: string
-  parameters: Record<string, { formula?: Nullable<Formula> }>
-  callbacks?: Nullable<Record<string, { actions?: Nullable<ActionModel[]> }>>
+  parameters?: Nullable<Record<string, { formula?: Nullable<Formula> }>>
+  callbacks?: Nullable<
+    Partial<Record<string, { actions?: Nullable<Partial<ActionModel[]>> }>>
+  >
   contextProvider?: Nullable<string>
 }
 
@@ -378,6 +407,8 @@ export interface WorkflowCallbackActionModel {
   type: 'TriggerWorkflowCallback'
   event: string
   data?: Nullable<Formula>
+  // Should never be set
+  arguments?: never
 }
 
 export type ActionModel =
@@ -399,6 +430,9 @@ export interface ComponentEvent extends NordcraftMetadata {
 
 export interface ComponentVariable extends NordcraftMetadata {
   initialValue: Formula
+  // @deprecated - variables should be referenced by their key in component.variables
+  // name is only here to better reflect how variables are stored in legacy components
+  name?: never
 }
 
 export interface ComponentAttribute extends NordcraftMetadata {

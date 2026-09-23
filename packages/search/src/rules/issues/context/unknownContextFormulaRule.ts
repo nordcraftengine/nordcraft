@@ -1,16 +1,20 @@
-import type { Rule } from '../../../types'
+import type { FormulaNode, IssueRule, NodeType } from '../../../types'
+import { addContextSubscription } from './unknownContextFormulaRule.fix'
 
-export const unknownContextFormulaRule: Rule<{
-  providerName: string
-  formulaName: string
-}> = {
+export const unknownContextFormulaRule: IssueRule<
+  {
+    providerName: string
+    formulaName: string
+  },
+  FormulaNode
+> = {
   code: 'unknown context formula',
   level: 'error',
   category: 'Unknown Reference',
   visit: (report, { path, files, value, nodeType }) => {
     if (
       path[0] !== 'components' ||
-      nodeType !== 'formula' ||
+      (nodeType as NodeType['nodeType']) !== 'formula' ||
       value.type !== 'path' ||
       value.path[0] !== 'Contexts'
     ) {
@@ -18,7 +22,11 @@ export const unknownContextFormulaRule: Rule<{
     }
 
     const contexts = files.components[path[1]]?.contexts ?? {}
-    if (contexts[value.path[1]]?.formulas.includes(value.path[2])) {
+    if (
+      (contexts as any)[value.path[1] as string]?.formulas.includes(
+        value.path[2] as string,
+      )
+    ) {
       return
     }
 
@@ -26,12 +34,18 @@ export const unknownContextFormulaRule: Rule<{
       path,
       info: {
         title: 'Unknown context formula',
-        description: `**${value.path[2]}** is not subscribed. Make sure to subscribe to it in the component context section before using it.`,
+        description: `**${value.path[2] as string}** is not subscribed. Make sure to subscribe to it in the component context section before using it.`,
       },
       details: {
-        providerName: value.path[1],
-        formulaName: value.path[2],
+        providerName: value.path[1] as string,
+        formulaName: value.path[2] as string,
       },
+      fixes: ['add-context-subscription'],
     })
   },
+  fixes: {
+    'add-context-subscription': addContextSubscription,
+  },
 }
+
+export type UnknownContextFormulaRuleFix = 'add-context-subscription'

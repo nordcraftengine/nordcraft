@@ -1,7 +1,7 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownEventRule: Rule<{
+export const unknownEventRule: IssueRule<{
   name: string
 }> = {
   code: 'unknown event',
@@ -10,7 +10,7 @@ export const unknownEventRule: Rule<{
   visit: (report, { path, files, value, nodeType }) => {
     if (
       nodeType !== 'component-node' ||
-      value.type !== 'component' ||
+      value?.type !== 'component' ||
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       Object.entries(value.events ?? {}).length === 0
     ) {
@@ -21,9 +21,9 @@ export const unknownEventRule: Rule<{
       ? files.packages?.[value.package]?.components[value.name]
       : files.components[value.name]
     const componentEvents = new Set(
-      (component?.events ?? []).map((e) => e.name),
+      (component?.events ?? []).map((e) => e?.name),
     )
-    Object.entries(value.events).forEach(([eventKey, event]) => {
+    Object.entries(value.events ?? {}).forEach(([eventKey, event]) => {
       if (isDefined(event) && !componentEvents.has(event.trigger)) {
         report({
           path: [...path, 'events', eventKey],

@@ -1,8 +1,11 @@
 /* eslint-disable no-console */
 import type {
   ComponentData,
+  ElementNodeModel,
   NodeModel,
+  SlotNodeModel,
   SupportedNamespaces,
+  TextNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { toBoolean } from '@nordcraft/core/dist/utils/util'
@@ -24,6 +27,7 @@ export function createNode({
   namespace,
   parentElement,
   instance,
+  slotRepeatIndex,
 }: {
   id: string
   dataSignal: Signal<ComponentData>
@@ -32,45 +36,44 @@ export function createNode({
   namespace?: SupportedNamespaces
   parentElement: Element | ShadowRoot
   instance: Record<string, string>
+  slotRepeatIndex?: number
 }): ReadonlyArray<Element | Text> {
   const node = ctx.component.nodes?.[id]
   if (!node) {
     return []
   }
-  const create = ({
-    node,
-    ...props
-  }: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> => {
-    switch (node.type) {
+  const create = (
+    props: NodeRenderer<NodeModel>,
+  ): ReadonlyArray<Element | Text> => {
+    switch (props.node.type) {
       case 'element':
-        return [
-          createElement({
-            node,
-            ...props,
-          }),
-        ]
+        return [createElement(props as NodeRenderer<ElementNodeModel>)]
       case 'component': {
         const isLocalComponent =
           getComponent(
-            node.name,
+            props.node.name,
             ctx.components,
             ctx.env.runtime !== 'preview',
           ) !== undefined
         return createComponent({
-          node: { ...node, id }, // we need the node id for instance classes
           ...props,
+          node: { ...props.node, id }, // we need the node id for instance classes
           ctx: {
             ...ctx,
             package:
-              node.package ?? (isLocalComponent ? undefined : ctx.package),
+              props.node.package ??
+              (isLocalComponent ? undefined : ctx.package),
+            // Skip sub-component formula evaluation for now as editor only needs the scope for the selected component
+            // TODO: Letting the AI get the state of a deep component may be useful in the future, but we need a better way at precising scope for it to not overwhelm it.
+            reportFormulaEvaluation: undefined,
           },
           parentElement,
         })
       }
       case 'text':
-        return [createText({ ...props, node })]
+        return [createText(props as NodeRenderer<TextNodeModel>)]
       case 'slot':
-        return createSlot({ ...props, node })
+        return createSlot(props as NodeRenderer<SlotNodeModel>)
     }
   }
 
@@ -86,19 +89,28 @@ export function createNode({
   }: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
     let firstRun = true
     let childDataSignal: Signal<ComponentData> | null = null
-    const showSignal = dataSignal.map((data) =>
-      toBoolean(
-        applyFormula(node.condition, {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        }),
-      ),
-    )
+    const showSignal = dataSignal.map((data) => {
+      const conditionPath = ['nodes', id, 'condition']
+      const show = toBoolean(
+        applyFormula(
+          node.condition,
+          {
+            data,
+            component: ctx.component,
+            formulaCache: ctx.formulaCache,
+            root: ctx.root,
+            package: ctx.package,
+            toddle: ctx.toddle,
+            env: ctx.env,
+            jsonPath: ctx.jsonPath,
+            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+          },
+          conditionPath,
+        ),
+      )
+
+      return show
+    })
 
     const elements: Array<Element | Text> = []
     const toggle = (show: boolean) => {
@@ -115,6 +127,7 @@ export function createNode({
             namespace,
             parentElement,
             instance,
+            slotRepeatIndex,
           }),
         )
 
@@ -172,6 +185,8 @@ export function createNode({
 
   function repeat(): ReadonlyArray<Element | Text> {
     let firstRun = true
+    // Only one default element is allowed, but if it is removed, we allow a new to be assigned. The default element is mostly used for the editor.
+    let defaultElement: string | number | null = null
     let lifetimeSize = 0
     let repeatItems = new Map<
       string | number,
@@ -182,15 +197,21 @@ export function createNode({
       }
     >()
     const repeatSignal = dataSignal.map((data) => {
-      const list = applyFormula(node?.repeat, {
-        data,
-        component: ctx.component,
-        formulaCache: ctx.formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
-      })
+      const listPath = ['nodes', id, 'repeat']
+      const list = applyFormula(
+        node?.repeat,
+        {
+          data,
+          component: ctx.component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+        },
+        listPath,
+      )
+
       if (typeof list !== 'object') {
         return []
       }
@@ -216,16 +237,21 @@ export function createNode({
               Key,
             },
           }
+          const repeatKeyPath = ['nodes', id, 'repeatKey']
           let childKey = node?.repeatKey
-            ? applyFormula(node.repeatKey, {
-                data: childData,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-              })
+            ? applyFormula(
+                node.repeatKey,
+                {
+                  data: childData,
+                  component: ctx.component,
+                  formulaCache: ctx.formulaCache,
+                  root: ctx.root,
+                  package: ctx.package,
+                  toddle: ctx.toddle,
+                  env: ctx.env,
+                },
+                repeatKeyPath,
+              )
             : Key
 
           if (seenKeys.has(childKey)) {
@@ -245,6 +271,9 @@ export function createNode({
             item.cleanup()
             item.dataSignal.destroy()
             item.elements.forEach((e) => e.remove())
+            if (defaultElement === key) {
+              defaultElement = null
+            }
           }
         })
 
@@ -292,6 +321,8 @@ export function createNode({
               },
             )
 
+            const repeatIndex =
+              Key === '0' && !defaultElement ? undefined : ++lifetimeSize
             const args = {
               node: node!,
               id,
@@ -302,11 +333,15 @@ export function createNode({
               // - Update list to [A, C, B]
               // Now C and B would have the same path `(1)` if we only used the index or Key, as B would have kept its reference, but the others would be recreated.
               // With lifetimeSize, the keys would be A(3), B(1), C(4) - all unique.
-              path: Key === '0' ? path : `${path}(${++lifetimeSize})`,
+              path: repeatIndex ? `${path}(${repeatIndex})` : path,
               ctx,
               namespace,
               parentElement,
               instance,
+              slotRepeatIndex: repeatIndex,
+            }
+            if (Key === '0' && !defaultElement) {
+              defaultElement = childKey
             }
             const elements = node!.condition ? conditional(args) : create(args)
             newRepeatItems.set(childKey, {
@@ -367,6 +402,7 @@ export function createNode({
       namespace,
       parentElement,
       instance,
+      slotRepeatIndex,
     })
   }
   return create({
@@ -378,8 +414,10 @@ export function createNode({
     namespace,
     parentElement,
     instance,
+    slotRepeatIndex,
   })
 }
+
 export type NodeRenderer<NodeType> = {
   node: NodeType
   dataSignal: Signal<ComponentData>
@@ -389,4 +427,9 @@ export type NodeRenderer<NodeType> = {
   namespace?: SupportedNamespaces
   parentElement: Element | ShadowRoot
   instance: Record<string, string>
+  /**
+   * Slots can be located inside repeated nodes, so we need to forward their last repeat index to ensure unique paths for their children.
+   * Note that the repeat index is reset at slot and component boundaries
+   */
+  slotRepeatIndex?: number
 }

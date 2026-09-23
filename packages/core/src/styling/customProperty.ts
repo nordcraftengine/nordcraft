@@ -129,15 +129,15 @@ const FALLBACK_VALUES: Record<CssSyntax | CssCustomSyntax, string> = {
   angle: '0deg',
   time: '0s',
   resolution: '0dpi',
-  'custom-ident': 'none',
+  'custom-ident': '',
   string: '""',
   image: 'none',
   url: 'none',
   'transform-function': 'none',
   'transform-list': 'none',
   integer: '0',
-  'font-family': 'initial',
-  '*': 'initial',
+  'font-family': 'sans-serif',
+  '*': '',
 }
 
 export const appendUnit = (value: any, unit: Nullable<string>) =>

@@ -1,10 +1,10 @@
 import type { ComponentFormula } from '@nordcraft/core/dist/component/component.types'
 import { get } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownProjectFormulaInputRule: Rule<{
-  name?: string | null
+export const unknownProjectFormulaInputRule: IssueRule<{
+  name?: string | number | null
 }> = {
   code: 'unknown project formula input',
   level: 'error',
@@ -14,7 +14,7 @@ export const unknownProjectFormulaInputRule: Rule<{
       nodeType !== 'formula' ||
       value.type !== 'path' ||
       value.path?.[0] !== 'Args' ||
-      ['@toddle.parent', 'item', 'index'].includes(value.path[1]) ||
+      ['@toddle.parent', 'item', 'index'].includes(value.path[1] as string) ||
       value.path.length < 2 ||
       path[0] !== 'formulas' ||
       path.length < 2

@@ -1,17 +1,22 @@
-import { isLegacyApi, sortApiObjects } from '@nordcraft/core/dist/api/api'
+import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   ComponentData,
+  ComponentFormula,
   ComponentNodeModel,
+  ComponentVariable,
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import type { Nullable } from '@nordcraft/core/dist/types'
+import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
+import { sortApis } from '../api/sortApis'
 import { isContextProvider } from '../context/isContextProvider'
 import { subscribeToContext } from '../context/subscribeToContext'
 import { registerComponentToLogState } from '../debug/logState'
@@ -68,15 +73,20 @@ export function createComponent({
     package: ctx.package,
     toddle: ctx.toddle,
     env: ctx.env,
+    reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
   const attributesSignal = dataSignal.map((data) => {
-    return mapObject(node.attrs, ([attr, value]) => [
+    return mapObject(node.attrs ?? {}, ([attr, value]) => [
       attr,
       value?.type !== 'value'
-        ? applyFormula(value, {
-            ...formulaCtx,
-            data,
-          })
+        ? applyFormula(
+            value,
+            {
+              ...formulaCtx,
+              data,
+            },
+            ['attrs', attr],
+          )
         : value?.value,
     ])
   })
@@ -84,22 +94,29 @@ export function createComponent({
   const componentDataSignal = signal<ComponentData>({
     Location: dataSignal.get().Location,
     Attributes: attributesSignal.get(),
-    Apis: mapObject(component.apis ?? {}, ([name, api]) => [
-      name,
-      {
-        data: null,
-        isLoading:
-          api.autoFetch &&
-          applyFormula(api.autoFetch, {
-            ...formulaCtx,
-            component,
-            data: dataSignal.get(),
-          })
-            ? true
-            : false,
-        error: null,
-      },
-    ]),
+    Apis: mapObject(
+      filterObject(component.apis ?? {}, ([_, api]) => isDefined(api)),
+      ([name, api]) => [
+        name,
+        {
+          data: null,
+          isLoading:
+            api!.autoFetch &&
+            applyFormula(
+              api!.autoFetch,
+              {
+                ...formulaCtx,
+                component,
+                data: dataSignal.get(),
+              },
+              ['apis', name, 'autoFetch'],
+            )
+              ? true
+              : false,
+          error: null,
+        },
+      ],
+    ),
   })
 
   // Subscribe to global stores (currently only theme)
@@ -118,32 +135,75 @@ export function createComponent({
   subscribeToContext(componentDataSignal, component, ctx)
   componentDataSignal.update((data) => ({
     ...data,
-    Variables: mapObject(component.variables ?? {}, ([name, variable]) => [
-      name,
-      applyFormula(variable.initialValue, {
-        // Initial value
-        ...formulaCtx,
-        component,
-        data: componentDataSignal.get(),
-      }),
-    ]),
+    Variables: mapObject(
+      filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+        component.variables ?? {},
+        ([_, variable]) => isDefined(variable),
+      ),
+      ([name, variable]) => [
+        name,
+        applyFormula(
+          variable.initialValue,
+          {
+            // Initial value
+            ...formulaCtx,
+            component,
+            data: componentDataSignal.get(),
+          },
+          ['variables', name],
+        ),
+      ],
+    ),
   }))
   registerComponentToLogState(component, componentDataSignal)
 
   // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
   const abortController = new AbortController()
-  componentDataSignal.subscribe(() => {}, {
-    destroy: () =>
-      abortController.abort(`Component ${component.name} unmounted`),
-  })
+  componentDataSignal.subscribe(
+    (data) => {
+      Object.entries(data.Variables ?? {}).forEach(([name, value]) => {
+        ctx.reportFormulaEvaluation?.(['variables', name], value, ctx)
+      })
+    },
+    {
+      destroy: () =>
+        abortController.abort(`Component ${component.name} unmounted`),
+    },
+  )
   const formulaCache = createFormulaCache(component)
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
   const apis: Record<string, ContextApi> = {}
-  sortApiObjects(Object.entries(component.apis ?? {})).forEach(
-    ([name, api]) => {
-      if (isLegacyApi(api)) {
-        apis[name] = createLegacyAPI(api, {
+  sortApis(
+    Object.entries(component.apis ?? {}).filter(
+      (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
+    ),
+  ).forEach(([name, api]) => {
+    if (isLegacyApi(api)) {
+      apis[name] = createLegacyAPI(api, {
+        ...ctx,
+        apis,
+        component,
+        dataSignal: componentDataSignal,
+        abortSignal: abortController.signal,
+        isRootComponent: false,
+        formulaCache,
+        package: node.package ?? ctx.package,
+        triggerEvent: (eventTrigger, data) => {
+          const eventHandler = Object.values(node.events ?? {}).find(
+            (e) => e?.trigger === eventTrigger,
+          )
+          if (eventHandler) {
+            eventHandler.actions?.forEach((action) =>
+              handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
+            )
+          }
+        },
+      })
+    } else {
+      apis[name] = createAPI({
+        apiRequest: api,
+        ctx: {
           ...ctx,
           apis,
           component,
@@ -153,8 +213,8 @@ export function createComponent({
           formulaCache,
           package: node.package ?? ctx.package,
           triggerEvent: (eventTrigger, data) => {
-            const eventHandler = Object.values(node.events).find(
-              (e) => e.trigger === eventTrigger,
+            const eventHandler = Object.values(node.events ?? {}).find(
+              (e) => e?.trigger === eventTrigger,
             )
             if (eventHandler) {
               eventHandler.actions?.forEach((action) =>
@@ -162,39 +222,11 @@ export function createComponent({
               )
             }
           },
-        })
-      } else {
-        apis[name] = createAPI({
-          apiRequest: api,
-          ctx: {
-            ...ctx,
-            apis,
-            component,
-            dataSignal: componentDataSignal,
-            abortSignal: abortController.signal,
-            isRootComponent: false,
-            formulaCache,
-            package: node.package ?? ctx.package,
-            triggerEvent: (eventTrigger, data) => {
-              const eventHandler = Object.values(node.events).find(
-                (e) => e.trigger === eventTrigger,
-              )
-              if (eventHandler) {
-                eventHandler.actions?.forEach((action) =>
-                  handleAction(
-                    action,
-                    { ...dataSignal.get(), Event: data },
-                    ctx,
-                  ),
-                )
-              }
-            },
-          },
-          componentData: componentDataSignal.get(),
-        })
-      }
-    },
-  )
+        },
+        componentData: componentDataSignal.get(),
+      })
+    }
+  })
   Object.values(apis)
     .filter(isContextApiV2)
     .forEach((api) => {
@@ -202,8 +234,8 @@ export function createComponent({
     })
 
   const onEvent = (eventTrigger: string, data: any) => {
-    const eventHandler = Object.values(node.events).find(
-      (e) => e.trigger === eventTrigger,
+    const eventHandler = Object.values(node.events ?? {}).find(
+      (e) => e?.trigger === eventTrigger,
     )
     if (eventHandler) {
       eventHandler.actions?.forEach((action) =>
@@ -217,19 +249,25 @@ export function createComponent({
     // Subscribe to exposed formulas and update the component's data signal
     const formulaDataSignals = Object.fromEntries(
       Object.entries(component.formulas ?? {})
-        .filter(([, formula]) => formula.exposeInContext)
+        .filter(([, formula]) => formula?.exposeInContext)
         .map(([name, formula]) => [
           name,
           componentDataSignal.map((data) =>
-            applyFormula(formula.formula, {
-              data,
-              component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+            applyFormula(
+              (formula as ComponentFormula).formula,
+              {
+                data,
+                component,
+                formulaCache: ctx.formulaCache,
+                root: ctx.root,
+                package: ctx.package,
+                toddle: ctx.toddle,
+                env: ctx.env,
+                jsonPath: ctx.jsonPath,
+                reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+              },
+              ['formulas', name],
+            ),
           ),
         ]),
     )
@@ -252,8 +290,11 @@ export function createComponent({
   }
 
   const children: Record<string, Array<ComponentChild>> = {}
-  for (let i = 0; i < node.children.length; i++) {
-    const childId = node.children[i]
+  for (let i = 0; i < (node?.children ?? []).length; i++) {
+    const childId = node.children?.[i]
+    if (childId === undefined) {
+      continue
+    }
     const childNode = ctx.component.nodes?.[childId]
     const slotName = childNode?.slot ?? 'default'
     children[slotName] = children[slotName] ?? []
@@ -301,6 +342,8 @@ export function createComponent({
       node.id === 'root'
         ? { ...instance, [ctx.component.name]: 'root' }
         : { [ctx.component.name]: node.id ?? '' },
+    jsonPath: ctx.jsonPath,
+    reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   })
 
   // Custom properties instance overrides are added after the child tree is rendered to ensure correct order
@@ -314,10 +357,14 @@ export function createComponent({
         }),
         signal: dataSignal.map((data) =>
           appendUnit(
-            applyFormula(customProperty.formula, {
-              ...formulaCtx,
-              data,
-            }),
+            applyFormula(
+              customProperty.formula,
+              {
+                ...formulaCtx,
+                data,
+              },
+              ['customProperties', customPropertyName, 'formula'],
+            ),
             customProperty.unit,
           ),
         ),
@@ -337,10 +384,14 @@ export function createComponent({
           }),
           signal: dataSignal.map((data) =>
             appendUnit(
-              applyFormula(customProperty.formula, {
-                ...formulaCtx,
-                data,
-              }),
+              applyFormula(
+                customProperty.formula,
+                {
+                  ...formulaCtx,
+                  data,
+                },
+                ['customProperties', customPropertyName, 'formula'],
+              ),
               customProperty.unit,
             ),
           ),

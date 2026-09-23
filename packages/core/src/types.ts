@@ -37,6 +37,12 @@ export type ActionHandler<Args = unknown[]> = (
     ) => void
     env: ToddleEnv
     abortSignal: AbortSignal
+    stores?: {
+      theme: {
+        set: (value: string | null) => void
+        get: () => string | null
+      }
+    }
   },
   event?: Nullable<Event>,
 ) => void
@@ -85,7 +91,7 @@ export type ArgumentInputDataFunction = (
 
 export type CustomFormulaHandler = (
   name: string,
-  packageName: string | undefined,
+  packageName: string | null | undefined,
 ) => PluginFormula<FormulaHandlerV2> | undefined
 
 export type FormulaLookup = (name: string) => FormulaHandler | undefined

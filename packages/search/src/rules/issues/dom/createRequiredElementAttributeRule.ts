@@ -1,5 +1,5 @@
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import type { Level, Rule } from '../../../types'
+import type { IssueRule, Level } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 /**
@@ -19,7 +19,7 @@ export function createRequiredElementAttributeRule({
   attribute: string | string[]
   level?: Level
   allowEmptyString?: boolean
-}): Rule<{
+}): IssueRule<{
   tag: string
   attribute: string
 }> {
@@ -31,13 +31,13 @@ export function createRequiredElementAttributeRule({
     visit: (report, { path, nodeType, value }) => {
       if (
         nodeType === 'component-node' &&
-        value.type === 'element' &&
+        value?.type === 'element' &&
         value.tag === tag
       ) {
         const attributes = Array.isArray(attribute) ? attribute : [attribute]
         if (
           attributes.some((attr) => {
-            if (!isDefined(value.attrs[attr])) {
+            if (!isDefined(value.attrs?.[attr])) {
               return false
             }
             const { isStatic, result } = contextlessEvaluateFormula(

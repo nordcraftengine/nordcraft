@@ -1,8 +1,8 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
 const REGEX = /var\(\s*(--[\w-]+)/g
 
-export const noReferenceGlobalCSSVariableRule: Rule<{
+export const noReferenceGlobalCSSVariableRule: IssueRule<{
   name: string
 }> = {
   code: 'no-reference global css variable',
@@ -24,7 +24,7 @@ export const noReferenceGlobalCSSVariableRule: Rule<{
         const vars = new Set<string>()
         Object.entries(files.components).forEach(([_, component]) => {
           Object.values(component?.nodes ?? {}).forEach((node) => {
-            if (node.type === 'element' || node.type === 'component') {
+            if (node?.type === 'element' || node?.type === 'component') {
               ;[{ style: node.style }, ...(node.variants ?? [])].forEach(
                 ({ style }) => {
                   Object.values(style ?? {}).forEach((styleValue) => {
@@ -51,7 +51,7 @@ export const noReferenceGlobalCSSVariableRule: Rule<{
         Object.values(files.packages ?? {}).forEach((pkg) => {
           Object.values(pkg?.components ?? {}).forEach((component) => {
             Object.values(component?.nodes ?? {}).forEach((node) => {
-              if (node.type === 'element' || node.type === 'component') {
+              if (node?.type === 'element' || node?.type === 'component') {
                 ;[{ style: node.style }, ...(node.variants ?? [])].forEach(
                   ({ style }) => {
                     Object.values(style ?? {}).forEach((styleValue) => {

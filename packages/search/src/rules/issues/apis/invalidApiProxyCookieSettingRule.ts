@@ -1,8 +1,8 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import { get } from '@nordcraft/core/dist/utils/collections'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const invalidApiProxyCookieSettingRule: Rule<{ api: string }> = {
+export const invalidApiProxyCookieSettingRule: IssueRule<{ api: string }> = {
   code: 'invalid api proxy cookie setting',
   level: 'warning',
   category: 'Quality',

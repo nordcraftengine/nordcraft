@@ -123,10 +123,10 @@ export const interactiveContentElementDefinition = (
       return false
     }
     if ('whenAttributeIsPresent' in ic) {
-      return isDefined(element.attrs[ic.whenAttributeIsPresent])
+      return isDefined(element.attrs?.[ic.whenAttributeIsPresent])
     }
     if ('whenAttributeIsNot' in ic) {
-      const attributeFormula = element.attrs[ic.whenAttributeIsNot.attribute]
+      const attributeFormula = element.attrs?.[ic.whenAttributeIsNot.attribute]
       return (
         attributeFormula?.type === 'value' &&
         attributeFormula.value === ic.whenAttributeIsNot.value

@@ -61,8 +61,6 @@ const _omit = <T = object>(
     if (isDefined(key)) {
       clone[key] = _omit(clone[key], path, index + 1)
     }
-    return clone
-  }
 
   if (Array.isArray(collection)) {
     return (collection as any[]).toSpliced(Number(key), 1) as T
@@ -71,6 +69,7 @@ const _omit = <T = object>(
   const clone: any = isObject(collection) ? { ...collection } : {}
   if (isDefined(key)) {
     delete clone[key]
+    return clone
   }
   return clone as T
 }
@@ -108,7 +107,7 @@ export const groupBy = <T>(items: T[], f: (t: T) => string) => {
   return result
 }
 
-export const filterObject = <T>(
+export const filterObject = <T, T2 extends T = T>(
   object: Record<string, T>,
   f: (kv: [string, T]) => boolean,
 ): Record<string, T> => {
@@ -122,20 +121,23 @@ export const filterObject = <T>(
   return result
 }
 
-export function get<T = any>(
-  collection: T,
-  [head, ...rest]: Array<string | number>,
-): any {
-  const headItem = isDefined(head) ? (collection as any)?.[head] : undefined
-  if (rest.length === 0) {
-    return headItem
+export function get<T = any>(collection: T, path: Array<PropertyKey>): any {
+  let current: any = collection
+  const len = path.length
+  for (let i = 0; i < len; i++) {
+    const key = path[i] as PropertyKey
+    if (current === undefined || current === null) {
+      return undefined
+    }
+    current = current[key]
   }
-  return get(headItem, rest)
+
+  return current
 }
 
 export const set = <T = unknown>(
   collection: T,
-  key: Array<string | number>,
+  path: Array<PropertyKey>,
   value: any,
 ): T => {
   if (key.length === 0) {

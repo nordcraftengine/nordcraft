@@ -2,11 +2,11 @@ import { get, set } from '@nordcraft/core/dist/utils/collections'
 import type {
   ActionModelNode,
   FixFunctionArgs,
+  IssueRule,
   NodeType,
-  Rule,
 } from '../../../types'
 
-export const noPostNavigateAction: Rule<
+export const noPostNavigateAction: IssueRule<
   { parameter: string },
   NodeType,
   ActionModelNode

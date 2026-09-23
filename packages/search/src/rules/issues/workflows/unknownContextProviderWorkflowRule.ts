@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownContextProviderWorkflowRule: Rule<{
+export const unknownContextProviderWorkflowRule: IssueRule<{
   providerName: string
   workflowName: string
 }> = {
@@ -23,8 +23,9 @@ export const unknownContextProviderWorkflowRule: Rule<{
     if (!component) {
       return
     }
-    for (const workflowName of value.workflows) {
-      if (component.workflows?.[workflowName]?.exposeInContext !== true) {
+    for (const key of value.workflows) {
+      if (component.workflows?.[key]?.exposeInContext !== true) {
+        const workflowName = component.workflows?.[key]?.name ?? key
         report({
           path,
           info: {

@@ -1,11 +1,11 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const duplicateEventTriggerRule: Rule<{ trigger: string }> = {
+export const duplicateEventTriggerRule: IssueRule<{ trigger: string }> = {
   code: 'duplicate event trigger',
   level: 'warning',
   category: 'Quality',
   visit: (report, { nodeType, path, value }) => {
-    if (nodeType !== 'component-node' || value.type !== 'element') {
+    if (nodeType !== 'component-node' || value?.type !== 'element') {
       return
     }
     const eventTriggers = new Set<string>()

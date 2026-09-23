@@ -9,6 +9,7 @@ import type {
   ToddleEnv,
   ValueOperationValue,
 } from '@nordcraft/core/dist/formula/formula'
+import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
 import type {
   Toddle as NewToddle,
   Toddle,
@@ -84,6 +85,8 @@ export interface ComponentContext {
     theme: Signal<string | null>
   }
   toddle: Toddle<LocationSignal, PreviewShowSignal>
+  jsonPath: Array<string | number> | undefined
+  reportFormulaEvaluation?: FormulaEvaluationReporter | undefined
   env: ToddleEnv
 }
 

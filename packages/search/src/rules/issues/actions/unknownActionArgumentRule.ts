@@ -1,8 +1,8 @@
 import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const unknownActionArgumentRule: Rule<{ name: string }> = {
+export const unknownActionArgumentRule: IssueRule<{ name: string }> = {
   code: 'unknown action argument',
   level: 'warning',
   category: 'Unknown Reference',

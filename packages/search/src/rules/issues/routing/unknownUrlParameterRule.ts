@@ -1,7 +1,7 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownUrlParameterRule: Rule<{
-  name: string
+export const unknownUrlParameterRule: IssueRule<{
+  name: string | number
 }> = {
   code: 'unknown url parameter',
   level: 'error',

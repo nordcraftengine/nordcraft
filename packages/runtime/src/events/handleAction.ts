@@ -5,12 +5,16 @@ import type {
   SetMultiUrlParameterAction,
   SetURLParameterAction,
 } from '@nordcraft/core/dist/component/component.types'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { mapValues, omitKeys } from '@nordcraft/core/dist/utils/collections'
+import {
+  applyFormula,
+  type FormulaContext,
+} from '@nordcraft/core/dist/formula/formula'
+import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import type { ComponentContext, Location } from '../types'
+import { createFormulaContext } from '../utils/createFormulaContext'
 import { getLocationUrl } from '../utils/url'
 
 // eslint-disable-next-line max-params
@@ -25,6 +29,7 @@ export function handleAction(
     if (!action) {
       throw new Error('Action does not exist')
     }
+    const formulaContext = createFormulaContext(ctx, data)
     switch (action.type) {
       case 'Switch': {
         // find the first case that resolves to true.
@@ -32,15 +37,7 @@ export function handleAction(
         const actionList =
           action.cases?.find(({ condition }) =>
             toBoolean(
-              applyFormula(condition, {
-                data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-              }),
+              applyFormula(condition, formulaContext, ['cases', 'condition']),
             ),
           ) ?? action.default
         // handle all actions for the case
@@ -57,15 +54,8 @@ export function handleAction(
         break
       }
       case 'SetVariable': {
-        const value = applyFormula(action.data, {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        })
+        const value = applyFormula(action.data, formulaContext)
+
         ctx.dataSignal.update((data) => {
           return {
             ...data,
@@ -78,42 +68,18 @@ export function handleAction(
         break
       }
       case 'TriggerEvent': {
-        const payload = applyFormula(action.data, {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        })
+        const payload = applyFormula(action.data, formulaContext, ['data'])
         ctx.triggerEvent(action.event, payload)
         break
       }
       case 'TriggerWorkflowCallback': {
-        const payload = applyFormula(action.data, {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        })
+        const payload = applyFormula(action.data, formulaContext, ['data'])
         workflowCallback?.(action.event, payload)
         break
       }
       case 'SetURLParameter': {
         ctx.toddle.locationSignal.update((current) => {
-          const value = applyFormula(action.data, {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          })
+          const value = applyFormula(action.data, formulaContext, ['data'])
           // historyMode was previously not declared explicitly, and we default
           // to push for state changes and replace for query changes
           let historyMode: SetURLParameterAction['historyMode'] | undefined
@@ -179,15 +145,7 @@ export function handleAction(
           let historyMode: SetMultiUrlParameterAction['historyMode'] = 'replace'
           const queryUpdates: Record<string, string> = {}
           const pathUpdates: Record<string, string> = {}
-          const urlParameterCtx = {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          }
+          const urlParameterCtx: FormulaContext = formulaContext
           // Only match on p.type === 'param'
           const isValidPathParameter = (param: string) =>
             current.route?.path.some(
@@ -199,7 +157,11 @@ export function handleAction(
             )
 
           for (const [parameter, formula] of parameters) {
-            const value = applyFormula(formula, urlParameterCtx) ?? null
+            const value =
+              applyFormula(formula, urlParameterCtx, [
+                'parameters',
+                parameter,
+              ]) ?? null
             if (isValidPathParameter(parameter)) {
               historyMode = 'push'
               pathUpdates[parameter] = value as string
@@ -260,16 +222,16 @@ export function handleAction(
         if (isContextApiV2(api)) {
           // Evaluate potential inputs here to make sure the api have the right values
           // This is needed if the inputs are formulas referencing workflow parameters
-          const actionInputs = mapValues(action.inputs ?? {}, (input) =>
-            applyFormula(input.formula, {
-              data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+          const actionInputs = mapObject(
+            action.inputs ?? {},
+            ([key, input]) => [
+              key,
+              applyFormula(input.formula, formulaContext, [
+                'inputs',
+                key,
+                'formula',
+              ]),
+            ],
           )
           const actionModels = {
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -326,16 +288,16 @@ export function handleAction(
         break
       }
       case 'TriggerWorkflow': {
-        const parameters = mapValues(action.parameters ?? {}, (parameter) =>
-          applyFormula(parameter.formula, {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          }),
+        const parameters = mapObject(
+          action.parameters ?? {},
+          ([key, parameter]) => [
+            key,
+            applyFormula(parameter.formula, formulaContext, [
+              'parameters',
+              key,
+              'formula',
+            ]),
+          ],
         )
         const callbacks = action.callbacks
         if (action.contextProvider) {
@@ -365,19 +327,21 @@ export function handleAction(
               event,
               (callbackName, callbackData) => {
                 const callback = callbacks?.[callbackName]
-                callback?.actions?.forEach((action) =>
-                  handleAction(
-                    action,
-                    {
-                      ...data,
-                      ...ctx.dataSignal.get(),
-                      Parameters: parameters,
-                      Event: callbackData,
-                    },
-                    ctx,
-                    event,
-                    workflowCallback,
-                  ),
+                callback?.actions?.forEach(
+                  (action) =>
+                    action &&
+                    handleAction(
+                      action,
+                      {
+                        ...data,
+                        ...ctx.dataSignal.get(),
+                        Parameters: parameters,
+                        Event: callbackData,
+                      },
+                      ctx,
+                      event,
+                      workflowCallback,
+                    ),
                 )
               },
             ),
@@ -405,19 +369,21 @@ export function handleAction(
             event,
             (callbackName, callbackData) => {
               const callback = callbacks?.[callbackName]
-              callback?.actions?.forEach((action) =>
-                handleAction(
-                  action,
-                  {
-                    ...data,
-                    ...ctx.dataSignal.get(),
-                    Parameters: parameters,
-                    Event: callbackData,
-                  },
-                  ctx,
-                  event,
-                  workflowCallback,
-                ),
+              callback?.actions?.forEach(
+                (action) =>
+                  action &&
+                  handleAction(
+                    action,
+                    {
+                      ...data,
+                      ...ctx.dataSignal.get(),
+                      Parameters: parameters,
+                      Event: callbackData,
+                    },
+                    ctx,
+                    event,
+                    workflowCallback,
+                  ),
               )
             },
           ),
@@ -455,19 +421,15 @@ export function handleAction(
             const args = (action.arguments ?? []).reduce<
               Record<string, unknown>
             >(
-              (args, arg) =>
+              (args, arg, i) =>
                 arg
                   ? {
                       ...args,
-                      [arg.name]: applyFormula(arg.formula, {
-                        data,
-                        component: ctx.component,
-                        formulaCache: ctx.formulaCache,
-                        root: ctx.root,
-                        package: ctx.package,
-                        toddle: ctx.toddle,
-                        env: ctx.env,
-                      }),
+                      [arg.name]: applyFormula(arg.formula, formulaContext, [
+                        'arguments',
+                        i,
+                        'formula',
+                      ]),
                     }
                   : args,
               {},
@@ -511,26 +473,14 @@ export function handleAction(
               return
             }
             // First evaluate any arguments (input) to the action
-            const args = action.arguments?.map((arg) =>
-              applyFormula(arg?.formula, {
-                data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-              }),
+            const args = action.arguments?.map((arg, i) =>
+              applyFormula(arg?.formula, formulaContext, [
+                'arguments',
+                i,
+                'formula',
+              ]),
             ) ?? [
-              applyFormula(action.data, {
-                data,
-                component: ctx.component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-              }),
+              applyFormula(action.data, formulaContext, ['arguments', 'data']),
             ] // action.data is a fallback to handle an older version of the action spec.
             return legacyHandler(args, { ...ctx, triggerActionEvent }, event)
           }

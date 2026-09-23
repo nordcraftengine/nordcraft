@@ -2,13 +2,18 @@
 import type { LegacyComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import { mapHeadersToObject } from '@nordcraft/core/dist/api/headers'
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
-import { applyFormula, isFormula } from '@nordcraft/core/dist/formula/formula'
+import {
+  applyFormula,
+  isFormula,
+  type FormulaContext,
+} from '@nordcraft/core/dist/formula/formula'
 import type { Nullable } from '@nordcraft/core/dist/types'
-import { mapValues } from '@nordcraft/core/dist/utils/collections'
+import { mapObject } from '@nordcraft/core/dist/utils/collections'
 import { parseJSONWithDate } from '@nordcraft/core/dist/utils/json'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
+import { createFormulaContext } from '../utils/createFormulaContext'
 
 export type ApiRequest = {
   url: string
@@ -35,22 +40,18 @@ export function createLegacyAPI(
     api: LegacyComponentAPI,
     data: ComponentData,
   ): ApiRequest {
-    const formulaContext = {
-      data,
-      component: ctx.component,
-      formulaCache: ctx.formulaCache,
-      root: ctx.root,
-      package: ctx.package,
-      toddle: ctx.toddle,
-      env: ctx.env,
-    }
+    const formulaContext: FormulaContext = createFormulaContext(ctx, data)
 
     // construct the url
-    const baseUrl = applyFormula(api.url, formulaContext) ?? ''
+    const baseUrl = applyFormula(api.url, formulaContext, ['url']) ?? ''
     const urlPath =
       api.path && api.path.length > 0
         ? '/' +
-          api.path.map((p) => applyFormula(p.formula, formulaContext)).join('/')
+          api.path
+            .map((p, i) =>
+              applyFormula(p.formula, formulaContext, ['path', i, 'formula']),
+            )
+            .join('/')
         : ''
 
     // build querystring
@@ -60,33 +61,21 @@ export function createLegacyAPI(
         ? '?' +
           queryParams
             .map(
-              (param) =>
+              (param, i) =>
                 `${param.name}=${encodeURIComponent(
-                  applyFormula(param.formula, formulaContext),
+                  applyFormula(param.formula, formulaContext, [
+                    'queryParams',
+                    i,
+                    'formula',
+                  ]),
                 )}`,
             )
             .join('&')
         : ''
     const headers = isFormula(api.headers) // this is supporting a few legacy cases where the whole header object was set as a formula. This is no longer possible
-      ? applyFormula(api.headers, {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        })
-      : mapValues(api.headers ?? {}, (value) =>
-          applyFormula(value, {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-          }),
+      ? applyFormula(api.headers, formulaContext, ['headers'])
+      : mapObject(api.headers ?? {}, ([key, value]) =>
+          applyFormula(value, formulaContext, ['headers', key]),
         )
     const contentType = String(
       Object.entries(headers).find(
@@ -97,15 +86,7 @@ export function createLegacyAPI(
     const body =
       api.body && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
         ? encodeBody(
-            applyFormula(api.body, {
-              data,
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            }),
+            applyFormula(api.body, formulaContext, ['body']),
             contentType,
           )
         : undefined
@@ -286,15 +267,11 @@ export function createLegacyAPI(
           data: null,
           isLoading:
             api.autoFetch &&
-            applyFormula(api.autoFetch, {
-              data: ctx.dataSignal.get(),
-              component: ctx.component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: ctx.toddle,
-              env: ctx.env,
-            })
+            applyFormula(
+              api.autoFetch,
+              createFormulaContext(ctx, ctx.dataSignal.get()),
+              ['autoFetch'],
+            )
               ? true
               : false,
           error: null,
@@ -308,22 +285,18 @@ export function createLegacyAPI(
     payloadSignal.subscribe((body) => {
       if (
         api.autoFetch &&
-        applyFormula(api.autoFetch, {
-          data: ctx.dataSignal.get(),
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        })
+        applyFormula(
+          api.autoFetch,
+          createFormulaContext(ctx, ctx.dataSignal.get()),
+          ['autoFetch'],
+        )
       ) {
         // We should only lookup cached data for pages since
         // we don't fetch data for component APIs during SSR
         if (firstRun && ctx.isRootComponent) {
           firstRun = false
           const cached = ctx.toddle?.pageState?.Apis?.[api.name]
-          if (cached && cached.data) {
+          if (cached?.data) {
             if (typeof cached.data === 'string') {
               // Mimic the behavior from getBody and parse
               // the response to JSON if possible

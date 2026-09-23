@@ -1,0 +1,41 @@
+name: 'Deploy CSS parser'
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      # Only deploy css-parser when files in the packages/css-parser/ directory are changed
+      - 'packages/css-parser/**'
+      - '.github/workflows/deploy_css_parser.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build all packages
+        run: bun run build
+      - name: Build CSS parser
+        run: |
+          cd packages/css-parser
+          bun run build
+      - name: Upload CSS parser CSS file to R2
+        run: |
+          cd packages/css-parser
+          bun run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.R2_PUBLIC_UPLOAD_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}

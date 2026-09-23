@@ -13,6 +13,17 @@
       "type": {
         "type": "String"
       }
+    },
+    {
+      "name": "Date parsing",
+      "formula": {
+        "type": "value",
+        "value": false
+      },
+      "description": "Whether to attempt parsing date strings to Date objects. This can have a significant impact on performance, so it is disabled by default.",
+      "type": {
+        "type": "Boolean"
+      }
     }
   ],
   "output": {

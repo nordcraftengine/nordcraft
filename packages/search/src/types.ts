@@ -6,6 +6,7 @@ import type {
   ComponentEvent as _ComponentEvent,
   ActionModel,
   ActionModelActions,
+  AnimationKeyframe,
   Component,
   ComponentAttribute,
   ComponentNodeModel,
@@ -45,8 +46,13 @@ import type { NoReferenceAttributeRuleFix } from './rules/issues/attributes/noRe
 import type { UnknownComponentAttributeRuleFix } from './rules/issues/attributes/unknownComponentAttributeRule'
 import type { ChangeDataTypeFix } from './rules/issues/components/invalidComponentStructureRule'
 import type { NoReferenceComponentRuleFix } from './rules/issues/components/noReferenceComponentRule'
+import type { NoContextFormulaArgumentsRuleFix } from './rules/issues/context/noContextFormulaArgumentsRule'
+import type { NoReferenceContextFormulaRuleFix } from './rules/issues/context/noReferenceContextFormulaRule'
+import type { NoReferenceContextWorkflowRuleFix } from './rules/issues/context/noReferenceContextWorkflowRule'
+import type { UnknownContextFormulaRuleFix } from './rules/issues/context/unknownContextFormulaRule'
 import type { NoReferenceEventRuleFix } from './rules/issues/events/noReferenceEventRule'
 import type { LegacyFormulaRuleFix } from './rules/issues/formulas/legacyFormulaRule'
+import type { NamedComponentFormulaRuleFix } from './rules/issues/formulas/namedComponentFormulaRule'
 import type { NoReferenceComponentFormulaRuleFix } from './rules/issues/formulas/noReferenceComponentFormulaRule'
 import type { NoReferenceProjectFormulaRuleFix } from './rules/issues/formulas/noReferenceProjectFormulaRule'
 import type { NoStaticNodeConditionRuleFix } from './rules/issues/logic/noStaticNodeCondition'
@@ -54,11 +60,18 @@ import type { NoReferenceNodeRuleFix } from './rules/issues/miscellaneous/noRefe
 import type { NoReferenceProjectPackageRuleFix } from './rules/issues/miscellaneous/noReferencePackageRule'
 import type { InvalidStyleSyntaxRuleFix } from './rules/issues/style/invalidStyleSyntaxRule'
 import type { LegacyStyleVariableRuleFix } from './rules/issues/style/legacyStyleVariableRule'
-import type { AddToThemeFix } from './rules/issues/style/unknownCSSVariable'
+import type { NoReferenceAnimationRuleFix } from './rules/issues/style/noReferenceAnimationRule'
+import type {
+  AddToRootNodeFix,
+  AddToThemeFix,
+} from './rules/issues/style/unknownCSSVariable'
 import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noReferenceVariableRule'
+import type { NamedComponentWorkflowRuleFix } from './rules/issues/workflows/namedComponentWorkflowRule'
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
+import type { UnknownContextWorkflowRuleFix } from './rules/issues/workflows/unknownContextWorkflowRule'
 
 export type Code =
+  | 'animated style not in theme'
   | 'duplicate action argument name'
   | 'duplicate event trigger'
   | 'duplicate formula argument name'
@@ -67,6 +80,7 @@ export type Code =
   | 'duplicate workflow parameter'
   | 'image without dimension'
   | 'invalid api parser mode'
+  | 'invalid path formula'
   | 'invalid api proxy body setting'
   | 'invalid api proxy cookie setting'
   | 'invalid component structure'
@@ -77,9 +91,14 @@ export type Code =
   | 'legacy formula'
   | 'legacy style variable'
   | 'legacy theme'
+  | 'named component formula'
+  | 'named component workflow'
   | 'no context consumers'
+  | 'no context formula arguments'
   | 'no post navigate action'
   | 'no-console'
+  | 'no-empty url parameter name'
+  | 'no-reference animation'
   | 'no-reference api input'
   | 'no-reference api service'
   | 'no-reference api'
@@ -88,6 +107,8 @@ export type Code =
   | 'no-reference component formula'
   | 'no-reference component workflow'
   | 'no-reference component'
+  | 'no-reference context formula'
+  | 'no-reference context workflow'
   | 'no-reference event'
   | 'no-reference global css variable'
   | 'no-reference node'
@@ -96,6 +117,7 @@ export type Code =
   | 'no-reference project package'
   | 'no-reference variable'
   | 'no-static-node-condition'
+  | 'no-reference context formula'
   | 'no-unnecessary-condition-falsy'
   | 'no-unnecessary-condition-truthy'
   | 'non-empty void element'
@@ -155,7 +177,7 @@ export type Category =
 
 export type Level = 'error' | 'warning' | 'info'
 
-export type Result = {
+export type IssueResult = {
   path: (string | number)[]
   code: Code
   category: Category
@@ -163,6 +185,11 @@ export type Result = {
   details?: any
   fixes?: FixType[]
   info: ReportedIssueInfo
+}
+
+export type SearchResult = {
+  path: (string | number)[]
+  details?: any
 }
 
 export interface ApplicationCookie {
@@ -254,7 +281,7 @@ export type ComponentAPIInputNode = {
 export type ComponentWorkflowNode = {
   nodeType: 'component-workflow'
   value: {
-    name: string
+    name?: string
     parameters?: Nullable<
       {
         name: string
@@ -276,7 +303,7 @@ export type ComponentWorkflowNode = {
 export type ComponentFormulaNode = {
   nodeType: 'component-formula'
   value: {
-    name: string
+    name?: string
     arguments?: Nullable<
       {
         name: string
@@ -357,7 +384,7 @@ export type ComponentEvent = {
 
 export type ComponentNodeNode = {
   nodeType: 'component-node'
-  value: NodeModel
+  value?: NodeModel | null
   component: ToddleComponent<Function>
 } & Base
 
@@ -420,8 +447,18 @@ export type StyleNode = {
   }
 } & Base
 
+export type AnimationNode = {
+  nodeType: 'animation'
+  value: {
+    key: string
+    value: Record<string, AnimationKeyframe>
+  }
+  node: ComponentNodeModel | ElementNodeModel
+} & Base
+
 export type NodeType =
   | ActionModelNode
+  | AnimationNode
   | ComponentAPIInputNode
   | ComponentAPINode
   | ComponentAttributeNode
@@ -451,18 +488,25 @@ export type NodeType =
 
 export type FixType =
   | AddToThemeFix
+  | AddToRootNodeFix
   | ChangeDataTypeFix
   | DeleteFetchInputFix
   | InvalidStyleSyntaxRuleFix
   | LegacyActionRuleFix
   | LegacyFormulaRuleFix
   | LegacyStyleVariableRuleFix
+  | NoContextFormulaArgumentsRuleFix
   | NoPostNavigateActionRuleFix
+  | NoReferenceAnimationRuleFix
   | NoReferenceApiRuleFix
   | NoReferenceApiServiceRuleFix
   | NoReferenceAttributeRuleFix
+  | NamedComponentFormulaRuleFix
+  | NamedComponentWorkflowRuleFix
   | NoReferenceComponentFormulaRuleFix
   | NoReferenceComponentRuleFix
+  | NoReferenceContextFormulaRuleFix
+  | NoReferenceContextWorkflowRuleFix
   | NoReferenceEventRuleFix
   | NoReferenceNodeRuleFix
   | NoReferenceProjectActionRuleFix
@@ -474,13 +518,15 @@ export type FixType =
   | UnknownApiServiceRuleFix
   | UnknownComponentAttributeRuleFix
   | NoReferenceProjectPackageRuleFix
+  | UnknownContextFormulaRuleFix
+  | UnknownContextWorkflowRuleFix
 
 interface ReportedIssueInfo {
   title: string
   description: string
 }
 
-export interface Rule<
+export interface IssueRule<
   T = unknown,
   V extends NodeType = NodeType,
   N extends NodeType = V,
@@ -500,6 +546,16 @@ export interface Rule<
   ) => void
   fixes?: Partial<Record<FixType, FixFunction<N, T>>>
 }
+
+export interface SearchRule<T = unknown, V extends NodeType = NodeType> {
+  visit: (
+    report: (args: { path: (string | number)[]; details?: T }) => void,
+    data: V,
+    state?: ApplicationState | undefined,
+  ) => void
+}
+
+export type Rule = IssueRule | SearchRule
 
 export interface FixFunctionArgs<Data extends NodeType, Details = unknown> {
   data: Data
@@ -551,7 +607,8 @@ export interface FindProblemsArgs {
 
 export interface FindProblemsResponse {
   id: string
-  results: Result[]
+  results: IssueResult[]
+  complete?: true
 }
 
 export interface FixProblemsArgs {
@@ -567,4 +624,26 @@ export interface FixProblemsResponse {
   patch: Delta
   fixRule: Code
   fixType: FixType
+}
+
+export interface SearchArgs {
+  id: string
+  query: string
+  // Files are optional, to allow for updating the query without resending the files in cases where they have not changed
+  files?: ProjectFiles
+  options?: {
+    pathsToVisit?: string[][]
+    useExactPaths?: boolean
+    batchSize?: number | 'all' | 'per-file'
+    // disabling details can improve performance as they sometimes require extra computation
+    withDetails?: boolean
+  }
+}
+
+export interface SearchResponse {
+  id: string
+  results: SearchResult[]
+  complete?: boolean
+  cancelled?: boolean
+  cancelReason?: string
 }

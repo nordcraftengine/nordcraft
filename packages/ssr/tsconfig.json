@@ -9,13 +9,15 @@
     "noUncheckedIndexedAccess": true,
     "outDir": "dist",
     "preserveConstEnums": true,
+    "rootDir": "src",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "strictBuiltinIteratorReturn": true,
     "target": "ESNext",
+    "types": ["bun"],
     "verbatimModuleSyntax": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "**/*.test.ts"]
+  "exclude": ["node_modules"]
 }

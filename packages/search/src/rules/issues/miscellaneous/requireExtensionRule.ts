@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const requireExtensionRule: Rule<{
+export const requireExtensionRule: IssueRule<{
   name: string
 }> = {
   code: 'required extension',

@@ -1,8 +1,9 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type { Rule } from '../../../types'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceApiServiceRule: Rule<{ serviceName: string }> = {
+export const noReferenceApiServiceRule: IssueRule<{ serviceName: string }> = {
   code: 'no-reference api service',
   level: 'warning',
   category: 'No References',
@@ -23,7 +24,11 @@ export const noReferenceApiServiceRule: Rule<{ serviceName: string }> = {
           return
         }
         Object.values(component.apis ?? {}).forEach((api) => {
-          if (!isLegacyApi(api) && typeof api.service === 'string') {
+          if (
+            isDefined(api) &&
+            !isLegacyApi(api) &&
+            typeof api.service === 'string'
+          ) {
             usedServices.add(api.service)
           }
         })

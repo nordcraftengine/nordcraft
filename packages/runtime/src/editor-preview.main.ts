@@ -7,7 +7,10 @@ import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils
 import {
   HeadTagTypes,
   type Component,
+  type ComponentAttribute,
   type ComponentData,
+  type ComponentFormula,
+  type ComponentVariable,
   type MetaEntry,
 } from '@nordcraft/core/dist/component/component.types'
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
@@ -21,6 +24,7 @@ import {
 } from '@nordcraft/core/dist/formula/formula'
 import {
   type CodeFormula,
+  type FormulaEvaluationReporter,
   type PluginFormula,
   type ToddleFormula,
 } from '@nordcraft/core/dist/formula/formulaTypes'
@@ -31,7 +35,10 @@ import {
   getThemeEntries,
   renderThemeValues,
 } from '@nordcraft/core/dist/styling/theme'
-import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/theme.const'
+import {
+  THEME_COOKIE_NAME,
+  THEME_DATA_ATTRIBUTE,
+} from '@nordcraft/core/dist/styling/theme.const'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type {
   ActionHandler,
@@ -39,40 +46,68 @@ import type {
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
+  Nullable,
   PluginAction,
   PluginActionV2,
   Toddle,
 } from '@nordcraft/core/dist/types'
-import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
+import {
+  filterObject,
+  mapObject,
+  omitKeys,
+} from '@nordcraft/core/dist/utils/collections'
 import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import fastDeepEqual from 'fast-deep-equal'
+import { domToCanvas } from 'modern-screenshot'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
 import { createNode } from './components/createNode'
 import { isContextProvider } from './context/isContextProvider'
 import { createPanicScreen } from './debug/panicScreen'
 import { sendEditorToast } from './debug/sendEditorToast'
-import { dragEnded } from './editor/drag-drop/dragEnded'
-import { dragMove } from './editor/drag-drop/dragMove'
-import { dragReorder } from './editor/drag-drop/dragReorder'
-import { dragStarted } from './editor/drag-drop/dragStarted'
+import {
+  CSS_VAR_VIEWPORT_HEIGHT,
+  DATA_ATTR_VIEWPORT_HEIGHT,
+} from './editor/const'
+import {
+  handleDragAltToggle,
+  handleDragEnded,
+  handleDragMouseMove,
+  handleDragStarted,
+} from './editor/drag-drop/dragHandlers'
+import { throttleToIdleCallback } from './editor/editorUtils'
 import { introspectApiRequest } from './editor/graphql'
 import { isInputTarget } from './editor/input'
+import {
+  handleInsertEnded,
+  handleInsertMouseMove,
+  handleInsertStarted,
+} from './editor/insert/insertHandlers'
 import { updateComponentLinks } from './editor/links'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
+import { requestResizeCanvas } from './editor/resizeCanvas'
 import {
-  TextNodeComputedStyles,
-  type DragState,
-  type NordcraftPreviewEvent,
+  convertViewportUnitsToEmulatedViewportUnits,
+  insertStyles,
+  styleToCss,
+} from './editor/style'
+import { handleTextMouseDown } from './editor/text-selection/mouseDown'
+import { handleTextMouseMove } from './editor/text-selection/mouseMove'
+import { handleTextNodeSelection } from './editor/text-selection/selection'
+import type {
+  DragInsertState,
+  NordcraftPreviewEvent,
+  PointerState,
+  SelectionState,
 } from './editor/types'
+import { waitForViewportWidth } from './editor/viewportWidth'
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
-import { insertStyles, styleToCss } from './styles/style'
 import type {
   ComponentContext,
   ContextApiV2,
@@ -81,9 +116,13 @@ import type {
 } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
 import { getThemeSignal } from './utils/getThemeSignal'
+import { clamp, toSeconds } from './utils/helpers'
 import { markSelectedElement } from './utils/markSelectedElement'
-import { getNodeAndAncestors, isNodeOrAncestorConditional } from './utils/nodes'
-import { rectHasPoint } from './utils/rectHasPoint'
+import {
+  getNodeAndAncestors,
+  isNodeOrAncestorConditional,
+  stripNodeIdRepeatIndices,
+} from './utils/nodes'
 import {
   getScrollStateRestorer,
   storeScrollState,
@@ -221,6 +260,24 @@ export const createRoot = (
     testMode: false,
   })
   const themeSignal = signal<string | null>(null)
+  themeSignal.subscribe((theme) => {
+    if (isDefined(theme)) {
+      document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, theme)
+    } else {
+      document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE)
+    }
+    dataSignal.update((data) => ({
+      ...data,
+      Page: {
+        ...(data.Page ?? {}),
+        Theme: theme ?? null,
+      },
+    }))
+  })
+  const resizeCanvasOptions: {
+    viewport?: { height: number | null }
+    enabled?: boolean
+  } = {}
   window.toddle._preview = { showSignal }
   document.body.setAttribute('data-mode', 'design')
   let components: Component[] | null = null
@@ -230,6 +287,47 @@ export const createRoot = (
     ...(packageComponents ?? []),
   ]
   let component: Component | null = null
+  let componentFormulaData: Record<string, any> = {}
+
+  const reportFormulaEvaluation: FormulaEvaluationReporter = (
+    path,
+    data,
+    ctx,
+  ) => {
+    if (
+      data !== undefined &&
+      path.length > 0 &&
+      // We are currently skipping all children formulas to lower the scope of reporting to what the user can see in the canvas
+      ctx.component?.name === component?.name
+    ) {
+      try {
+        componentFormulaData[path.join('/')] = JSON.parse(JSON.stringify(data))
+      } catch {
+        componentFormulaData[path.join('/')] =
+          `[Unserializable value of type ${typeof data}]`
+      } finally {
+        reportComponentFormulaData()
+      }
+    }
+  }
+  const reportComponentFormulaData = throttleToIdleCallback(() => {
+    postMessageToEditor({
+      type: 'componentFormulaData',
+      data: componentFormulaData,
+      component: component?.name,
+    })
+    componentFormulaData = {}
+  })
+  const selectionState: SelectionState = {
+    anchor: null,
+    mode: 'char',
+  }
+  const pointerState: PointerState = {
+    lastPressPosition: { x: 0, y: 0 },
+    buttons: 0,
+    lastPressTime: 0,
+    pressCount: 0,
+  }
   let selectedNodeId: string | null = null
   let highlightedNodeId: string | null = null
   let styleVariantSelection: {
@@ -237,12 +335,16 @@ export const createRoot = (
     styleVariantIndex: number
   } | null = null
   let routeSignal: Signal<any> | null = null
-  let dragState: DragState | null = null
+  let dragState: DragInsertState | null = null
+  let insertState: DragInsertState | null = null
   let animationState: {
     animatedElementId: string | null
     time: number | null
     timingFunction?: string
     fillMode?: string
+    repeatedElementsValues: [{ delay: string; duration: string }]
+    timelineTime: { delay: string; duration: string }
+    iterationCount: string
   } | null = null
   let altKey = false
   let metaKey = false
@@ -298,6 +400,8 @@ export const createRoot = (
             )
             // Destroy the dataSignal (including subscribers) for the previous component
             dataSignal.destroy()
+            // Reset all evaluated formula data
+            componentFormulaData = {}
             // Re-subscribe all dataSignal subscribers
             setupDataSignalSubscribers()
             // Re-initialize the data signal for the new component
@@ -421,6 +525,9 @@ export const createRoot = (
           mode = message.data.mode
           document.body.setAttribute('data-mode', message.data.mode)
           updateConditionalElements()
+          window.dispatchEvent(new CustomEvent('selected-node-changed'))
+          requestResizeCanvas(resizeCanvasOptions)
+          syncOverlayRects()
           break
         }
         case 'attrs': {
@@ -453,87 +560,106 @@ export const createRoot = (
         case 'selection': {
           if (selectedNodeId !== message.data.selectedNodeId) {
             selectedNodeId = message.data.selectedNodeId ?? null
+            window.dispatchEvent(new CustomEvent('selected-node-changed'))
             clearSelectedStyleVariant()
 
             updateConditionalElements()
 
             const node = getDOMNodeFromNodeId(selectedNodeId)
             markSelectedElement(node)
-            const element =
-              component?.nodes?.[node?.getAttribute('data-node-id') ?? '']
             if (
               node &&
-              element &&
-              element.type === 'text' &&
-              element.value.type === 'value'
+              node instanceof HTMLElement &&
+              node.getAttribute('data-node-type') === 'text'
             ) {
-              const computedStyle = window.getComputedStyle(node)
-              postMessageToEditor({
-                type: 'textComputedStyle',
-                computedStyle: Object.fromEntries(
-                  Object.values(TextNodeComputedStyles).map((style) => [
-                    style,
-                    computedStyle.getPropertyValue(style),
-                  ]),
-                ),
-              })
-            } else if (node && node.getAttribute('data-node-type') !== 'text') {
-              // Reset computed style on blur
-              postMessageToEditor({
-                type: 'textComputedStyle',
-                computedStyle: {},
+              requestAnimationFrame(() => {
+                handleTextNodeSelection(node, {
+                  onInput: () => {
+                    syncOverlayRects()
+                  },
+                })
               })
             }
           }
-          return
-        }
-        case 'update_inner_text': {
-          const { innerText } = message.data
-          const selectedNode = getDOMNodeFromNodeId(selectedNodeId)
-          if (
-            selectedNode &&
-            selectedNode.getAttribute('data-node-type') === 'text'
-          ) {
-            ;(selectedNode as HTMLElement).innerText = innerText
-          }
+          syncOverlayRects()
           return
         }
         case 'highlight': {
-          highlightedNodeId = message.data.highlightedNodeId ?? null
+          const highlightId = message.data.highlightedNodeId
+          highlightedNodeId =
+            typeof highlightId === 'string'
+              ? highlightId
+                  .split('.')
+                  .map((part) => part.split('(')[0])
+                  .join('.')
+              : null
+          syncOverlayRects()
           return
         }
-        case 'mousemove':
-          if (dragState && !dragState.destroying) {
-            const { x, y } = message.data
-            dragState.lastCursorPosition = { x, y }
-            const draggingInsideContainer = rectHasPoint(
-              dragState.initialContainer.getBoundingClientRect(),
-              { x, y },
-            )
+        case 'mousedown': {
+          const { x, y } = message.data
+          const node = getDOMNodeFromNodeId(selectedNodeId)
 
-            // Move the element towards the cursor when out of bounds
-            const rect = dragState.element.getBoundingClientRect()
-            if (!rectHasPoint(rect, { x, y })) {
-              dragState.offset.x -= (x - (rect.left + rect.width / 2)) * 0.1
-              dragState.offset.y -= (y - (rect.top + rect.height / 2)) * 0.1
-            }
+          if (
+            node &&
+            node.getAttribute('data-node-type') === 'text' &&
+            node instanceof HTMLElement
+          ) {
+            handleTextMouseDown({
+              node,
+              x,
+              y,
+              pointerState,
+              selectionState,
+            })
+          }
+          break
+        }
 
-            if (draggingInsideContainer && !metaKey) {
-              dragReorder(dragState)
-            } else {
-              dragMove(
-                dragState,
-                metaKey
-                  ? [dragState.element]
-                  : [dragState.element, dragState.initialContainer],
+        case 'mousemove': {
+          if (['insert-div', 'insert-text'].includes(message.data.canvasTool)) {
+            if (insertState && !insertState.destroying) {
+              handleInsertMouseMove(message.data, insertState)
+              syncOverlayRects()
+              return
+            } else if (!insertState?.destroying) {
+              const elementType =
+                message.data.canvasTool === 'insert-div' ? 'div' : 'text'
+              insertState = handleInsertStarted(
+                message.data,
+                highlightedNodeId,
+                elementType,
               )
             }
-            dragState.element.style.setProperty(
-              'translate',
-              `${x - dragState.offset.x}px ${y - dragState.offset.y}px`,
-            )
+          }
+
+          if (dragState && !dragState.destroying) {
+            handleDragMouseMove(message.data, dragState, metaKey)
+            syncOverlayRects()
             return
           }
+
+          const node = getDOMNodeFromNodeId(selectedNodeId)
+          if (
+            node &&
+            node instanceof HTMLElement &&
+            node.getAttribute('data-node-type') === 'text'
+          ) {
+            const { x, y, buttons } = message.data
+            const handled = handleTextMouseMove({
+              node,
+              x,
+              y,
+              buttons,
+              pointerState,
+              selectionState,
+            })
+
+            if (handled) {
+              return
+            }
+          }
+        }
         case 'click':
         case 'dblclick':
           if (mode === 'test' || !component) {
@@ -565,7 +691,15 @@ export const createRoot = (
           })
 
           const id = element?.getAttribute('data-id') ?? null
-          if (type === 'click' && id !== selectedNodeId) {
+          const elementIsSameAsSelected = id && id === selectedNodeId
+          if (
+            elementIsSameAsSelected &&
+            element?.getAttribute('data-node-type') === 'text'
+          ) {
+            return
+          }
+
+          if (type === 'click') {
             if (message.data.metaKey) {
               // Figure out if the clicked element is a text element
               // or if one of its descendants is a text element
@@ -580,7 +714,7 @@ export const createRoot = (
                 } else {
                   const firstTextChild =
                     nodeLookup?.node.type === 'element'
-                      ? nodeLookup.node.children.find(
+                      ? nodeLookup.node.children?.find(
                           (c) => component?.nodes?.[c]?.type === 'text',
                         )
                       : undefined
@@ -599,9 +733,28 @@ export const createRoot = (
               })
             }
           } else if (type === 'mousemove' && id !== highlightedNodeId) {
+            // Do not send highlight if cursor is inside current selectedElement and current selected element is a text type
+            const selectedNode = getDOMNodeFromNodeId(selectedNodeId)
+            const selectedNodeIsText =
+              selectedNode?.getAttribute('data-node-type') === 'text'
+            const cursorInsideSelectedElement =
+              selectedNode instanceof HTMLElement &&
+              selectedNode.contains(document.elementFromPoint(x, y))
+            if (selectedNodeIsText && cursorInsideSelectedElement) {
+              // Highlight the text node if the cursor is inside the currently selected text node, even if the selected element has a different id than the text node (e.g. when clicking on a span inside a text node)
+              const nodeId = selectedNode.getAttribute('data-id')
+              postMessageToEditor({
+                type: 'highlight',
+                highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
+                exactHighlightedNodeId: nodeId,
+              })
+              return
+            }
+
             postMessageToEditor({
               type: 'highlight',
-              highlightedNodeId: id,
+              highlightedNodeId: stripNodeIdRepeatIndices(id),
+              exactHighlightedNodeId: id,
             })
           } else if (
             type === 'dblclick' &&
@@ -635,16 +788,34 @@ export const createRoot = (
         case 'style_variant_changed':
           const { variantIndex } = message.data
           updateSelectedStyleVariant(variantIndex)
+          requestResizeCanvas(resizeCanvasOptions)
+          syncOverlayRects()
           break
-        // We request manually instead of automatic to avoid mutation observer spam.
-        // Also, reporting automatically proved unreliable when elements' height was in %
         case 'report_document_scroll_size':
-          postMessageToEditor({
-            type: 'documentScrollSize',
-            scrollHeight: domNode.scrollHeight,
-            scrollWidth: domNode.scrollWidth,
+          requestResizeCanvas({
+            force: true,
           })
           break
+        case 'viewport_size': {
+          if (message.data.enabled) {
+            resizeCanvasOptions.enabled = true
+            resizeCanvasOptions.viewport = { height: message.data.height }
+            document.body.setAttribute(
+              DATA_ATTR_VIEWPORT_HEIGHT,
+              String(Math.round(Number(resizeCanvasOptions.viewport.height))),
+            )
+            domNode.style.setProperty(
+              CSS_VAR_VIEWPORT_HEIGHT,
+              String(Math.round(Number(resizeCanvasOptions.viewport.height))),
+            )
+            requestResizeCanvas(resizeCanvasOptions)
+          } else {
+            resizeCanvasOptions.enabled = false
+            domNode.style.removeProperty(CSS_VAR_VIEWPORT_HEIGHT)
+            document.body.removeAttribute(DATA_ATTR_VIEWPORT_HEIGHT)
+          }
+          break
+        }
         case 'reload':
           window.location.reload()
           break
@@ -675,6 +846,7 @@ export const createRoot = (
               package: ctx?.package,
               toddle: window.toddle,
               env,
+              jsonPath: [],
             }
             const introspectionResult = await introspectApiRequest({
               api,
@@ -690,94 +862,41 @@ export const createRoot = (
           break
         }
         case 'drag-started':
-          const draggedElement = getDOMNodeFromNodeId(selectedNodeId)
-          if (!draggedElement || !draggedElement.parentElement) {
-            return
-          }
-          const repeatedNodes = Array.from(
-            draggedElement.parentElement.children,
-          ).filter(
-            (node) =>
-              node instanceof HTMLElement &&
-              node.getAttribute('data-id')?.startsWith(selectedNodeId + '('),
-          ) as HTMLElement[]
-          dragState = dragStarted({
-            element: draggedElement as HTMLElement,
-            lastCursorPosition: { x: message.data.x, y: message.data.y },
-            repeatedNodes,
-            asCopy: altKey,
-          })
-          if (altKey) {
-            const nextRect = dragState.element.getBoundingClientRect()
-            dragState.offset.x += nextRect.left - dragState.initialRect.left
-            dragState.offset.y += nextRect.top - dragState.initialRect.top
-          }
-
+          dragState = handleDragStarted(message.data, selectedNodeId, altKey)
           break
         case 'drag-ended':
-          switch (dragState?.mode) {
-            case 'reorder':
-              const parentDataId =
-                dragState?.initialContainer.getAttribute('data-id')
-              const parentNodeId =
-                dragState?.initialContainer.getAttribute('data-node-id')
-              if (!parentDataId || !parentNodeId) {
-                return
-              }
-
-              const nextSibling = dragState?.element.nextElementSibling
-              const nextSiblingId = parseInt(
-                nextSibling?.getAttribute('data-id')?.split('.').at(-1) ?? '',
-              )
-
-              const rect = dragState?.element?.getBoundingClientRect()
-              if (
-                rect &&
-                !message.data.canceled &&
-                (nextSibling !== dragState?.initialNextSibling ||
-                  dragState?.copy)
-              ) {
-                void dragEnded(dragState, false).then(() => {
-                  postMessageToEditor({
-                    type: 'nodeMoved',
-                    copy: Boolean(dragState?.copy),
-                    parent: parentDataId,
-                    index: !isNaN(nextSiblingId)
-                      ? nextSiblingId
-                      : component?.nodes?.[parentNodeId]?.children?.length,
-                  })
-                  dragState = null
-                })
-              } else {
-                void dragEnded(dragState, true).then(() => {
-                  dragState = null
-                })
-              }
-              break
-            case 'insert':
-              const selectedPermutation =
-                dragState?.insertAreas?.[
-                  dragState?.selectedInsertAreaIndex ?? -1
-                ]
-              if (selectedPermutation && !message.data.canceled) {
-                void dragEnded(dragState, false).then(() => {
-                  postMessageToEditor({
-                    type: 'nodeMoved',
-                    copy: Boolean(dragState?.copy),
-                    parent: selectedPermutation?.parent.getAttribute('data-id'),
-                    index: selectedPermutation?.index,
-                  })
-                  dragState = null
-                })
-              } else {
-                void dragEnded(dragState, true).then(() => {
-                  dragState = null
-                })
-              }
-              break
-            case undefined:
-              // TODO: Handle the case where the drag state is undefined
-              break
+          if (dragState) {
+            const interval = setInterval(() => {
+              syncOverlayRects()
+            }, 1000 / 60)
+            void handleDragEnded(message.data, dragState, component).then(
+              (newState) => {
+                dragState = newState
+                clearInterval(interval)
+              },
+            )
+          }
+          break
+        case 'insert-started':
+          const elementType =
+            message.data.canvasTool === 'insert-div' ? 'div' : 'text'
+          insertState = handleInsertStarted(
+            message.data,
+            highlightedNodeId,
+            elementType,
+          )
+          break
+        case 'insert-ended':
+          if (insertState) {
+            const interval = setInterval(() => {
+              syncOverlayRects()
+            }, 1000 / 60)
+            void handleInsertEnded(message.data, insertState).then(
+              (newState) => {
+                insertState = newState
+                clearInterval(interval)
+              },
+            )
           }
           break
         case 'keydown':
@@ -788,22 +907,11 @@ export const createRoot = (
             !dragState.destroying &&
             message.data.altKey !== altKey
           ) {
-            const asCopy = message.data.altKey
-            const prevRect = dragState.element.getBoundingClientRect()
-            void dragEnded(dragState, true).then(() => {
-              if (!dragState) return
-              dragState = dragStarted({
-                element: dragState.element,
-                lastCursorPosition: dragState.lastCursorPosition,
-                repeatedNodes: dragState.repeatedNodes,
-                asCopy,
-                initialContainer: dragState.initialContainer,
-                initialNextSibling: dragState.initialNextSibling,
-              })
-              const nextRect = dragState.element.getBoundingClientRect()
-              dragState.offset.x += nextRect.left - prevRect.left
-              dragState.offset.y += nextRect.top - prevRect.top
-            })
+            void handleDragAltToggle(message.data.altKey, dragState).then(
+              (newState) => {
+                dragState = newState
+              },
+            )
           }
           altKey = message.data.altKey
           metaKey = message.data.metaKey
@@ -817,14 +925,42 @@ export const createRoot = (
 
           const { styles } = message.data
           const computedStyle = window.getComputedStyle(selectedNode)
+
           postMessageToEditor({
             type: 'computedStyle',
             computedStyle: Object.fromEntries(
-              (styles ?? []).map((style) => [
-                style,
-                computedStyle.getPropertyValue(style),
-              ]),
+              (styles ?? []).map((style) => {
+                const input = computedStyle.getPropertyValue(style)
+
+                const allValues = input.split(' ')
+
+                const result = allValues
+                  .map((value) => {
+                    // If it is a float or float with unit we want to round to 2 decimal
+                    if (value.match(/^(-?\d+)\.\d+([a-z]*|%?)$/)) {
+                      const split = value.match(/([0-9.]+)\s*(.*)/) ?? ''
+
+                      const number = split[1]
+                      const unit = split[2]
+
+                      const roundNumber = Number(Number(number).toFixed(2))
+                      const rounded = roundNumber.toString() + unit
+
+                      return rounded
+                    } else {
+                      return value
+                    }
+                  })
+                  .join(' ')
+
+                return [style, result]
+              }),
             ),
+            repeatedItemsValues: animationState?.repeatedElementsValues ?? [],
+            timelineTime: animationState?.timelineTime ?? {
+              delay: '0s',
+              duration: '0s',
+            },
           })
           break
 
@@ -842,7 +978,7 @@ export const createRoot = (
   ${Object.values(keyframes)
     .map(
       ({ key, value, position, easing }) =>
-        `${position * 100}% {
+        `${Number(position) * 100}% {
           ${key}: ${value};
           ${easing ? `animation-timing-function: ${easing};` : ''}
         }`,
@@ -852,10 +988,12 @@ export const createRoot = (
           )
           styleElem.setAttribute('data-timeline-keyframes', '')
           document.head.appendChild(styleElem)
+          syncOverlayRects()
           break
 
         case 'set_timeline_time':
           const { time, timingFunction, fillMode } = message.data
+
           cancelAnimationFrame(timelineTimeAnimationFrame)
           timelineTimeAnimationFrame = requestAnimationFrame(() => {
             const animatedElementChanged =
@@ -865,6 +1003,15 @@ export const createRoot = (
               time,
               timingFunction,
               fillMode,
+              repeatedElementsValues:
+                animationState?.repeatedElementsValues ?? [
+                  { delay: '0s', duration: '0s' },
+                ],
+              timelineTime: animationState?.timelineTime ?? {
+                delay: '0s',
+                duration: '1s',
+              },
+              iterationCount: animationState?.iterationCount ?? '1',
             }
 
             // Cleanup on null
@@ -872,21 +1019,22 @@ export const createRoot = (
               document.head
                 .querySelector('[data-id="preview-animation-styles"]')
                 ?.remove()
-              document.body.style.removeProperty('--editor-timeline-position')
-              document.body.style.removeProperty(
-                '--editor-timeline-timing-function',
-              )
-              document.body.style.removeProperty('--editor-timeline-fill-mode')
+
+              const style = document.body.style
+
+              // Remove all the properties that starts with --editor-timeline
+              for (const prop of style) {
+                if (prop.startsWith('--editor-timeline')) {
+                  style.removeProperty(prop)
+                }
+              }
               document.body.removeAttribute('data-animating')
               update()
               return
             }
 
             document.body.setAttribute('data-animating', 'true')
-            document.body.style.setProperty(
-              '--editor-timeline-position',
-              `${time}s`,
-            )
+
             document.body.style.setProperty(
               '--editor-timeline-timing-function',
               timingFunction ?? 'ease',
@@ -896,7 +1044,112 @@ export const createRoot = (
               fillMode ?? 'none',
             )
 
-            if (animatedElementChanged) {
+            const selectedNode = getDOMNodeFromNodeId(
+              animationState.animatedElementId,
+            )
+
+            let repeatedNodes: HTMLElement[] = []
+
+            if (selectedNode) {
+              if (selectedNode.parentElement) {
+                repeatedNodes = Array.from(
+                  selectedNode.parentElement.children,
+                ).filter(
+                  (node) =>
+                    node instanceof HTMLElement &&
+                    node
+                      .getAttribute('data-id')
+                      ?.startsWith(selectedNodeId + '('),
+                ) as HTMLElement[]
+              }
+              if (animatedElementChanged) {
+                const computedStyle = window.getComputedStyle(selectedNode)
+                animationState.iterationCount =
+                  computedStyle.animationIterationCount
+
+                animationState.repeatedElementsValues = [
+                  {
+                    delay: `${toSeconds(computedStyle.animationDelay)}s`,
+                    duration: `${toSeconds(computedStyle.animationDuration)}s`,
+                  },
+                ]
+                animationState.timelineTime = {
+                  delay: `${toSeconds(computedStyle.animationDelay)}s`,
+                  duration: `${toSeconds(computedStyle.animationDuration)}s`,
+                }
+
+                repeatedNodes.forEach((node) => {
+                  const nodeComputedStyle = window.getComputedStyle(node)
+                  animationState?.repeatedElementsValues.push({
+                    delay: `${toSeconds(nodeComputedStyle.animationDelay)}s`,
+                    duration: `${toSeconds(nodeComputedStyle.animationDuration)}s`,
+                  })
+                })
+              }
+            }
+
+            const animationDelay = parseFloat(
+              animationState.repeatedElementsValues[0].delay,
+            )
+            const animationDuration = parseFloat(
+              animationState.repeatedElementsValues[0].duration,
+            )
+
+            const timelineTime =
+              parseFloat(animationState.timelineTime.delay) +
+              parseFloat(animationState.timelineTime.duration)
+            const timelinePosition = time * timelineTime
+
+            const calculatedDelay = timelinePosition - animationDelay
+
+            const progressTime = clamp(
+              calculatedDelay,
+              0,
+              animationDelay + animationDuration,
+            )
+
+            document.body.style.setProperty(
+              '--editor-timeline-position-0',
+              `${progressTime}s`,
+            )
+            document.body.style.setProperty(
+              '--editor-timeline-duration-0',
+              `${animationDuration}s`,
+            )
+
+            repeatedNodes.forEach((node, index) => {
+              const animationDelay = animationState
+                ? parseFloat(
+                    animationState.repeatedElementsValues[index + 1].delay,
+                  )
+                : 0
+
+              const animationDuration = animationState
+                ? parseFloat(
+                    animationState.repeatedElementsValues[index + 1].duration,
+                  )
+                : 1
+
+              const calculatedDelay = timelinePosition - animationDelay
+
+              const progressTime = clamp(
+                calculatedDelay,
+                0,
+                animationDelay + animationDuration,
+              )
+
+              document.body.style.setProperty(
+                `--editor-timeline-position-${index + 1}`,
+                `${progressTime}s`,
+              )
+
+              document.body.style.setProperty(
+                `--editor-timeline-duration-${index + 1}`,
+                `${animationDuration}s`,
+              )
+            })
+
+            if (animatedElementChanged && animationState?.animatedElementId) {
               let styleTag = document.head.querySelector(
                 '[data-id="preview-animation-styles"]',
               )
@@ -905,16 +1158,28 @@ export const createRoot = (
                 styleTag.setAttribute('data-id', 'preview-animation-styles')
                 document.head.appendChild(styleTag)
               }
+              styleTag.innerHTML = `body[data-mode="design"] [data-id="${animationState.animatedElementId}"] {
+                  animation: preview_timeline var(--editor-timeline-duration-0) paused normal !important;
+                  animation-fill-mode: var(--editor-timeline-fill-mode) !important;
+                  animation-timing-function: var(--editor-timeline-timing-function) !important;
+                  animation-delay: calc(0s - var(--editor-timeline-position-0)) !important;
+                  animation-play-state: paused !important;
+                  animation-iteration-count: ${animationState.iterationCount} !important
+                }`
 
-              styleTag.innerHTML = `
-body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[data-mode="design"] [data-id="${animationState.animatedElementId}"] ~ [data-id^="${animationState.animatedElementId}("] {
-  animation: preview_timeline 1s paused normal !important;
-  animation-fill-mode: var(--editor-timeline-fill-mode) !important;
-  animation-timing-function: var(--editor-timeline-timing-function) !important;
-  animation-delay: calc(0s - var(--editor-timeline-position)) !important;
-  animation-play-state: paused !important;
-}`
+              repeatedNodes.forEach((node, index) => {
+                styleTag.innerHTML += `
+                    body[data-mode="design"] [data-id="${node.getAttribute('data-id')}"] {
+                      animation: preview_timeline var(--editor-timeline-duration-${index + 1}) paused normal !important;
+                      animation-fill-mode: var(--editor-timeline-fill-mode) !important;
+                      animation-timing-function: var(--editor-timeline-timing-function) !important;
+                      animation-delay: calc(0s - var(--editor-timeline-position-${index + 1})) !important;
+                      animation-play-state: paused !important;
+                      animation-iteration-count: ${animationState?.iterationCount ?? 1} !important
+                    }`
+              })
             }
+            syncOverlayRects()
           })
           break
         case 'preview_style':
@@ -1014,13 +1279,18 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               styleElement.innerHTML = cssBlocks.join('\n')
             } else {
               const previewStyles = Object.entries(previewStyleStyles)
-                .map(([key, value]) => `${key}: ${value} !important;`)
+                .map(
+                  ([key, value]) =>
+                    `${key}: ${convertViewportUnitsToEmulatedViewportUnits(value)} !important;`,
+                )
                 .join('\n')
               styleElement.innerHTML = `[data-id="${selectedNodeId}"]${pseudoElement}, [data-id="${selectedNodeId}"] ~ [data-id^="${selectedNodeId}("]${pseudoElement} {
     ${previewStyles}
     transition: none !important;
   }`
             }
+            requestResizeCanvas(resizeCanvasOptions)
+            syncOverlayRects()
           })
           break
         case 'preview_resources': {
@@ -1051,23 +1321,133 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               resourceElement.rel = 'stylesheet'
               resourceElement.href = resource.href
               document.head.appendChild(resourceElement)
+
+              // Sync canvas after the resource has loaded (if not already loaded)
+              if (!resourceElement.sheet) {
+                resourceElement.addEventListener('load', () => {
+                  requestResizeCanvas(resizeCanvasOptions)
+                  syncOverlayRects()
+                })
+              }
             })
+          requestResizeCanvas(resizeCanvasOptions)
+          syncOverlayRects()
           break
         }
         case 'preview_theme': {
           const { theme } = message.data
-          if (theme) {
-            document.body.setAttribute(THEME_DATA_ATTRIBUTE, theme)
-          } else {
-            document.body.removeAttribute(THEME_DATA_ATTRIBUTE)
+          themeSignal.set(theme)
+          const shouldDelete = theme === null || theme === ''
+          await cookieStore.set({
+            name: THEME_COOKIE_NAME,
+            value: theme ?? '',
+            path: '/',
+            expires: shouldDelete ? 0 : Date.now() + 1000 * 60 * 60 * 24, // 1 day
+            sameSite: 'none',
+          })
+          requestResizeCanvas(resizeCanvasOptions)
+          break
+        }
+        case 'capture_screenshot': {
+          const { id, viewportWidth } = message.data
+          let disableTransitionsStyle: HTMLStyleElement | null = null
+          // Set only if we actually ask the editor to resize, so we can ask
+          // it to put the width back afterwards - we can't rely on the
+          // editor's own restore logic getting this right.
+          let widthToRestore: number | null = null
+          try {
+            if (viewportWidth !== undefined) {
+              if (window.innerWidth !== viewportWidth) {
+                // We can't resize our own <iframe> element from in here - the
+                // preview iframe is cross-origin/sandboxed from the editor, so
+                // `window.frameElement` isn't accessible. Ask the editor to
+                // resize the actual iframe instead, then wait for the
+                // resulting native `resize` event rather than requiring an
+                // explicit reply.
+                widthToRestore = window.innerWidth
+                postMessageToEditor({
+                  type: 'requestViewportWidth',
+                  width: viewportWidth,
+                })
+                await waitForViewportWidth(viewportWidth)
+              }
+
+              // The editor's resize may have triggered CSS transitions on
+              // responsive layout changes; disable them so we capture the
+              // resting state at this width rather than a half-finished
+              // transition frame.
+              disableTransitionsStyle = document.createElement('style')
+              disableTransitionsStyle.textContent =
+                '*, *::before, *::after { transition: none !important; animation: none !important; }'
+              document.head.appendChild(disableTransitionsStyle)
+
+              // Let layout settle at the new width before capturing -
+              // getComputedStyle (used internally by domToCanvas) forces a
+              // synchronous layout flush, but a frame gives any resize-driven
+              // JS (ResizeObserver, matchMedia listeners, etc.) a chance to run.
+              await new Promise(requestAnimationFrame)
+            }
+
+            // Rasterize the full document (not just what's currently scrolled into
+            // view) by walking the DOM/computed styles rather than capturing the
+            // screen, so content below the fold is still included.
+            const target = document.documentElement
+            const canvas = await domToCanvas(target, {
+              width: target.scrollWidth,
+              height: target.scrollHeight,
+            })
+            const url = canvas.toDataURL('image/png')
+
+            postMessageToEditor({
+              type: 'screenshot',
+              id,
+              file: {
+                type: 'image/png',
+                size: url.length,
+                dimensions: { width: canvas.width, height: canvas.height },
+                url,
+              },
+            })
+          } catch (error) {
+            postMessageToEditor({
+              type: 'screenshot',
+              id,
+              file: null,
+              error: error instanceof Error ? error.message : String(error),
+            })
+          } finally {
+            disableTransitionsStyle?.remove()
+            if (widthToRestore !== null) {
+              postMessageToEditor({
+                type: 'requestViewportWidth',
+                width: widthToRestore,
+              })
+              try {
+                await waitForViewportWidth(widthToRestore)
+              } catch (error) {
+                console.error(
+                  'Failed to restore original viewport width',
+                  error,
+                )
+              }
+            }
           }
+          break
         }
       }
     },
   )
 
+  const resizeObserver = new ResizeObserver(() => {
+    requestResizeCanvas(resizeCanvasOptions)
+    syncOverlayRects()
+  })
+  resizeObserver.observe(domNode)
+  requestResizeCanvas(resizeCanvasOptions)
+
   window.addEventListener('beforeunload', () => {
     storeScrollState(component?.name)
+    resizeObserver.disconnect()
   })
 
   const updateStyle = (component: Component | null) => {
@@ -1138,19 +1518,28 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
                 .map(([customPropertyName, customProperty]) => [
                   customPropertyName,
                   appendUnit(
-                    applyFormula(customProperty.formula, {
-                      data: {
-                        Attributes: dataSignal.get().Attributes,
-                        Variables: dataSignal.get().Variables,
-                        Contexts: ctxDataSignal?.get().Contexts ?? {},
-                      },
-                      component: getCurrentComponent(),
-                      root: ctx?.root,
-                      formulaCache: {},
-                      package: ctx?.package,
-                      toddle: window.toddle,
-                      env,
-                    } as FormulaContext),
+                    applyFormula(
+                      customProperty.formula,
+                      {
+                        data: dataSignal.get(),
+                        component: getCurrentComponent(),
+                        root: ctx?.root,
+                        formulaCache: {},
+                        package: ctx?.package,
+                        toddle: window.toddle,
+                        env,
+                        // TODO: Ensure we have the node id here
+                        jsonPath: [
+                          'nodes',
+                          '<random id>',
+                          'variants',
+                          styleVariantSelection?.styleVariantIndex ?? 0,
+                          customPropertyName,
+                        ],
+                        reportFormulaEvaluation,
+                      } as FormulaContext,
+                      [],
+                    ),
                     customProperty.unit,
                   ),
                 ])
@@ -1198,7 +1587,10 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       fastDeepEqual(ctx?.component.attributes, _component.attributes) === false
     ) {
       Attributes = mapObject(
-        _component.attributes ?? {},
+        filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
+          _component.attributes ?? {},
+          ([_, attr]) => isDefined(attr),
+        ),
         ([name, { testValue }]) => [name, testValue],
       )
     }
@@ -1245,7 +1637,10 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       }
 
       Attributes = mapObject(
-        _component.attributes ?? {},
+        filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
+          _component.attributes ?? {},
+          ([_, attr]) => isDefined(attr),
+        ),
         ([name, { testValue }]) => [name, testValue],
       )
     }
@@ -1263,6 +1658,8 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
         package: ctx?.package,
         toddle: window.toddle,
         env,
+        jsonPath: ['route', 'info', 'meta'],
+        reportFormulaEvaluation,
       })
     }
     if (fastDeepEqual(_component.contexts, ctx?.component.contexts) === false) {
@@ -1293,8 +1690,13 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
             const formulaContext: FormulaContext = {
               data: {
                 Attributes: mapObject(
-                  providerComponent.attributes ?? {},
-                  ([name, attr]) => [name, attr.testValue],
+                  filterObject<
+                    Nullable<ComponentAttribute>,
+                    ComponentAttribute
+                  >(providerComponent.attributes ?? {}, ([_, attr]) =>
+                    isDefined(attr),
+                  ),
+                  ([name, { testValue }]) => [name, testValue],
                 ),
                 // Recursively resolve contexts providers before their children to build up the fake context tree in preview mode
                 Contexts: createStaticContextFromComponent(
@@ -1308,6 +1710,9 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               package: ctx?.package,
               toddle: window.toddle,
               env,
+              jsonPath: [],
+              // We don't evaluate formulas in context providers in preview mode currently
+              reportFormulaEvaluation: undefined,
             }
 
             // Pages can also be context-providers!
@@ -1327,10 +1732,16 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               }
             }
             formulaContext.data.Variables = mapObject(
-              providerComponent.variables ?? {},
+              filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+                providerComponent.variables ?? {},
+                ([_, variable]) => isDefined(variable),
+              ),
               ([name, variable]) => [
                 name,
-                applyFormula(variable.initialValue, formulaContext),
+                applyFormula(variable.initialValue, formulaContext, [
+                  'variables',
+                  name,
+                ]),
               ],
             )
 
@@ -1348,7 +1759,10 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
 
                   return [
                     formulaName,
-                    applyFormula(formula.formula, formulaContext),
+                    applyFormula(formula.formula, formulaContext, [
+                      'formulas',
+                      formulaName,
+                    ]),
                   ]
                 }),
               ),
@@ -1361,17 +1775,26 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       fastDeepEqual(_component.variables, ctx?.component.variables) === false
     ) {
       Variables = mapObject(
-        _component.variables ?? {},
+        filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+          _component.variables ?? {},
+          ([_, variable]) => isDefined(variable),
+        ),
         ([name, { initialValue }]) => [
           name,
-          applyFormula(initialValue, {
-            data: { Attributes, Contexts },
-            component: _component!,
-            root: document,
-            package: ctx?.package,
-            toddle: window.toddle,
-            env,
-          }),
+          applyFormula(
+            initialValue,
+            {
+              data: { Attributes, Contexts },
+              component: _component!,
+              root: document,
+              package: ctx?.package,
+              toddle: window.toddle,
+              env,
+              jsonPath: ctx?.jsonPath,
+              reportFormulaEvaluation,
+            },
+            ['variables', name],
+          ),
         ],
       )
     }
@@ -1391,8 +1814,14 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
         Contexts,
       }
     })
+    const defaultCtx =
+      forceRerender || !ctx
+        ? // If we are forcing a rerender, we need to create a new context with the new component and all components
+          // Otherwise, we might be using outdated context provider data signals etc.
+          createContext(_component, getAllComponents())
+        : ctx
     const newCtx: ComponentContext = {
-      ...(ctx ?? createContext(_component, getAllComponents())),
+      ...defaultCtx,
       component: _component,
     }
 
@@ -1412,6 +1841,9 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
     for (const api in newCtx.component.apis) {
       // check if the api has changed (ignoring onCompleted and onFailed).
       const apiInstance = newCtx.component.apis[api]
+      if (!apiInstance) {
+        continue
+      }
       const previousApiInstance = ctx?.component.apis?.[api]
       if (isLegacyApi(apiInstance)) {
         if (
@@ -1435,14 +1867,17 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
               ]),
             }
           })
-          newCtx.apis[api] = createLegacyAPI(apiInstance, newCtx)
+          newCtx.apis[api] = createLegacyAPI(apiInstance, {
+            ...newCtx,
+            jsonPath: ['apis', api],
+          })
         }
       } else {
         const existingApi = newCtx.apis[api] as ContextApiV2 | undefined
         if (!existingApi) {
           newCtx.apis[api] = createAPI({
             apiRequest: apiInstance,
-            ctx: newCtx,
+            ctx: { ...newCtx, jsonPath: ['apis', api] },
             componentData: dataSignal.get(),
           })
         } else {
@@ -1472,12 +1907,16 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       // Clear old root signal and create a new one to not keep old signals with previous root around
       ctxDataSignal?.destroy()
       ctxDataSignal = dataSignal.map((data) => data)
+      ctxDataSignal.subscribe(() => {
+        requestResizeCanvas(resizeCanvasOptions)
+        syncOverlayRects()
+      })
       try {
         const rootElem = createNode({
           id: 'root',
           path: '0',
           dataSignal: ctxDataSignal,
-          ctx: newCtx,
+          ctx: { ...newCtx, jsonPath: ['nodes', 'root'] },
           parentElement: domNode,
           instance: { [newCtx.component.name]: 'root' },
         })
@@ -1548,6 +1987,8 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       document.querySelector(`[data-id="${nodeId}"]`),
     )
     markSelectedElement(getDOMNodeFromNodeId(selectedNodeId))
+    requestResizeCanvas(resizeCanvasOptions)
+    syncOverlayRects()
   }
 
   const createContext = (
@@ -1581,6 +2022,8 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       package: undefined,
       toddle: window.toddle,
       env,
+      jsonPath: [], // TODO: decide if the component path is needed here
+      reportFormulaEvaluation,
     }
 
     setupThemeSubscription(ctx.component, ctx.dataSignal, env).subscribe(
@@ -1593,19 +2036,25 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
       // Subscribe to exposed formulas and update the component's data signal
       const formulaDataSignals = Object.fromEntries(
         Object.entries(component.formulas ?? {})
-          .filter(([, formula]) => formula.exposeInContext)
+          .filter(([, formula]) => formula?.exposeInContext)
           .map(([name, formula]) => [
             name,
             dataSignal.map((data) =>
-              applyFormula(formula.formula, {
-                data,
-                component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: window.toddle,
-                env,
-              }),
+              applyFormula(
+                (formula as ComponentFormula).formula,
+                {
+                  data,
+                  component,
+                  formulaCache: ctx.formulaCache,
+                  root: ctx.root,
+                  package: ctx.package,
+                  toddle: window.toddle,
+                  env,
+                  jsonPath: ctx.jsonPath,
+                  reportFormulaEvaluation,
+                },
+                ['formulas', name],
+              ),
             ),
           ]),
       )
@@ -1659,29 +2108,37 @@ body[data-mode="design"] [data-id="${animationState.animatedElementId}"], body[d
     })
   }
 
-  // Animations are first class citizens in Nordcraft, so we sync their overlay positions on each frame
-  ;(function syncOverlayRects(
-    prevSelectionRect?: ReturnType<typeof getRectData>,
-    prevHighlightedRect?: ReturnType<typeof getRectData>,
-  ) {
+  let prevSelectionRect: ReturnType<typeof getRectData>
+  let prevHighlightRect: ReturnType<typeof getRectData>
+
+  /**
+   * Sync the overlay positions with the editor.
+   * This is called on each frame to account for animations and other changes.
+   */
+  const syncOverlayRects = () => {
     const selectionRect = getRectData(getDOMNodeFromNodeId(selectedNodeId))
-    if (!fastDeepEqual(prevSelectionRect, selectionRect)) {
-      postMessageToEditor({
-        type: 'selectionRect',
-        rect: selectionRect,
-      })
-    }
-
     const highlightRect = getRectData(getDOMNodeFromNodeId(highlightedNodeId))
-    if (!fastDeepEqual(prevHighlightedRect, highlightRect)) {
-      postMessageToEditor({
-        type: 'highlightRect',
-        rect: highlightRect,
-      })
-    }
 
-    requestAnimationFrame(() => syncOverlayRects(selectionRect, highlightRect))
-  })()
+    const selectionChanged = !fastDeepEqual(prevSelectionRect, selectionRect)
+    const highlightChanged = !fastDeepEqual(prevHighlightRect, highlightRect)
+
+    if (selectionChanged || highlightChanged) {
+      prevSelectionRect = selectionRect
+      prevHighlightRect = highlightRect
+      if (selectionChanged) {
+        postMessageToEditor({
+          type: 'selectionRect',
+          rect: selectionRect,
+        })
+      }
+      if (highlightChanged) {
+        postMessageToEditor({
+          type: 'highlightRect',
+          rect: highlightRect,
+        })
+      }
+    }
+  }
 }
 
 const insertOrReplaceHeadNode = (id: string, node: Node) => {
@@ -1712,7 +2169,10 @@ const insertHeadTags = (
           <link
             data-meta-id="${id}"
             ${Object.entries(entry.attrs ?? {})
-              .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
+              .map(
+                ([key, value]) =>
+                  `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
+              )
               .join(' ')}
           />
         `),
@@ -1724,7 +2184,10 @@ const insertHeadTags = (
           <script
             data-meta-id="${id}"
             ${Object.entries(entry.attrs ?? {})
-              .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
+              .map(
+                ([key, value]) =>
+                  `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
+              )
               .join(' ')}
           >${applyFormula(entry.content ?? '', context)}</script>
         `),
@@ -1757,7 +2220,7 @@ export function getDOMNodeFromNodeId(
   }
 
   return document.querySelector(
-    `[data-id="${selectedNodeId}"]:not([data-component])`,
+    `[data-id="${stripNodeIdRepeatIndices(selectedNodeId)}"]:not([data-component])`,
   )
 }
 
@@ -1771,11 +2234,6 @@ function getNodeId(component: Component, path: string[]) {
     }
     const currentNode = component.nodes?.[currentId]
     if (!currentNode?.children) {
-      return null
-    }
-
-    // We only allow selecting the first element in a repeat (which does not have a repeat-index "()")
-    if (nextChild.endsWith(')')) {
       return null
     }
 
@@ -1922,19 +2380,6 @@ function setupThemeSubscription(
 ) {
   _themeRootSignal?.destroy()
   _themeRootSignal = getThemeSignal(component, dataSignal, env)
-  _themeRootSignal.subscribe((theme) => {
-    if (isDefined(theme)) {
-      document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, theme)
-    } else {
-      document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE)
-    }
-    dataSignal.update((data) => ({
-      ...data,
-      Page: {
-        Theme: theme ?? null,
-      },
-    }))
-  })
 
   return _themeRootSignal
 }

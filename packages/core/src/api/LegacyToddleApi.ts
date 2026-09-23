@@ -46,7 +46,7 @@ export class LegacyToddleApi<Handler> {
         case 'value':
           break
         case 'record':
-          formula.entries.forEach((entry) =>
+          formula.entries?.forEach((entry) =>
             visitFormulaReference(entry.formula),
           )
           break
@@ -61,7 +61,7 @@ export class LegacyToddleApi<Handler> {
           )
           break
         case 'switch':
-          formula.cases.forEach((c) => {
+          formula.cases?.forEach((c) => {
             visitFormulaReference(c.condition)
             visitFormulaReference(c.formula)
           })
@@ -134,6 +134,9 @@ export class LegacyToddleApi<Handler> {
   }
   get onFailed() {
     return this.api.onFailed
+  }
+  get dependsOn() {
+    return this.api.dependsOn
   }
   *formulasInApi(): Generator<{
     path: (string | number)[]

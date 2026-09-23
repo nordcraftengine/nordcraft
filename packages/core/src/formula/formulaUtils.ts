@@ -11,7 +11,7 @@ import { isFormula, isToddleFormula } from './formula'
 import type { GlobalFormulas } from './formulaTypes'
 
 export const valueFormula = (
-  value: string | number | boolean | null | object,
+  value: string | number | boolean | null | object | undefined,
 ): ValueOperation => ({
   type: 'value',
   value,
@@ -67,7 +67,7 @@ export function* getFormulasInFormula<Handler>({
     case 'value':
       break
     case 'record':
-      for (const [key, entry] of formula.entries.entries()) {
+      for (const [key, entry] of (formula.entries ?? []).entries()) {
         yield* getFormulasInFormula({
           formula: entry.formula,
           globalFormulas,
@@ -148,7 +148,7 @@ export function* getFormulasInFormula<Handler>({
       }
       break
     case 'switch':
-      for (const [key, c] of formula.cases.entries()) {
+      for (const [key, c] of formula.cases?.entries() ?? []) {
         yield* getFormulasInFormula({
           formula: c.condition,
           globalFormulas,
@@ -317,6 +317,23 @@ export function* getFormulasInAction<Handler>({
             visitedFormulas,
             packageName,
           })
+        }
+      }
+      for (const [callbackKey, callback] of Object.entries(
+        action.callbacks ?? {},
+      )) {
+        if (isDefined(callback?.actions)) {
+          for (const [key, a] of Object.entries(callback.actions)) {
+            if (isDefined(a)) {
+              yield* getFormulasInAction({
+                action: a,
+                globalFormulas,
+                path: [...path, 'callbacks', callbackKey, 'actions', key],
+                visitedFormulas,
+                packageName,
+              })
+            }
+          }
         }
       }
       break

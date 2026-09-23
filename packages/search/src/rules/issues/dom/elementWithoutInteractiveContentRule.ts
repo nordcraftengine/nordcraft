@@ -1,7 +1,7 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import {
   interactiveContentElementDefinition,
   type InteractiveContent,
@@ -9,7 +9,7 @@ import {
 
 const ELEMENTS_WITHOUT_INTERACTIVE_CONTENT = ['button', 'a']
 
-export const elementWithoutInteractiveContentRule: Rule<{
+export const elementWithoutInteractiveContentRule: IssueRule<{
   parentTag: string
   invalidChild: InteractiveContent
 }> = {
@@ -22,7 +22,7 @@ export const elementWithoutInteractiveContentRule: Rule<{
     }
     const { value, component, path, files } = args
     if (
-      value.type !== 'element' ||
+      value?.type !== 'element' ||
       !ELEMENTS_WITHOUT_INTERACTIVE_CONTENT.includes(value.tag)
     ) {
       return
@@ -32,6 +32,8 @@ export const elementWithoutInteractiveContentRule: Rule<{
       container: ToddleComponent<Function> | Component,
       children: string[],
       results: Array<InteractiveContent> = [],
+      visitedComponents: Set<string> = new Set(),
+      // eslint-disable-next-line max-params
     ): Array<InteractiveContent> => {
       return children.reduce((acc, childId) => {
         const child = container.nodes?.[childId]
@@ -48,26 +50,42 @@ export const elementWithoutInteractiveContentRule: Rule<{
         }
         const allResults = [...acc]
         if (child.type === 'component') {
+          const componentName = child.package
+            ? `${child.package}/${child.name}`
+            : child.name
+          if (visitedComponents.has(componentName)) {
+            return allResults
+          }
           const component = child.package
             ? files.packages?.[child.package]?.components?.[child.name]
             : files.components?.[child.name]
           if (!component) {
             return results
           }
+
+          const newVisited = new Set(visitedComponents)
+          newVisited.add(componentName)
+
           // Search children in the component's own nodes
           allResults.push(
             ...searchChildren(
               component,
               component.nodes?.['root']?.children ?? [],
-              acc,
+              [],
+              newVisited,
             ),
           )
         }
         // Search children in slot/component/element:
-        return searchChildren(container, child.children, allResults)
+        return searchChildren(
+          container,
+          child.children ?? [],
+          allResults,
+          visitedComponents,
+        )
       }, results)
     }
-    const childTags = searchChildren(component, value.children)
+    const childTags = searchChildren(component, value.children ?? [])
     if (childTags.length > 0) {
       childTags.forEach((ic) =>
         report({

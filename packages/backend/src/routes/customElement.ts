@@ -3,11 +3,12 @@ import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
 import { safeCustomElementName } from '@nordcraft/core/dist/utils/customElements'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
+import { getFontCssUrl } from '@nordcraft/ssr/dist/rendering/fonts'
 import { removeTestData } from '@nordcraft/ssr/dist/rendering/testData'
+import { transformRelativePaths } from '@nordcraft/ssr/dist/utils/media'
 import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
 import { replaceTagInNodes } from '@nordcraft/ssr/dist/utils/tags'
-import { getFontCssUrl } from '@nordcraft/ssr/src/rendering/fonts'
-import { transformRelativePaths } from '@nordcraft/ssr/src/utils/media'
+import { resolveClasses } from '@nordcraft/ssr/src/rendering/classes'
 import type { Context } from 'hono'
 import type { HonoEnv, HonoProject } from '../../hono'
 import type { PageLoader } from '../loaders/types'
@@ -84,14 +85,16 @@ export const customElement =
  *
  * Attributes:
  *
- * ${Object.entries(component.attributes ?? {})
-   .map(([, attr]) => `- ${attr.name}`)
+ * ${Object.values(component.attributes ?? {})
+   .filter(isDefined)
+   .map((attr) => `- ${attr.name}`)
    .join('\n * ')}
  *
  * Events:
  *
- * ${Object.entries(component.events ?? {})
-   .map(([, event]) => `- ${event.name}`)
+ * ${Object.values(component.events ?? {})
+   .filter(isDefined)
+   .map((event) => `- ${event.name}`)
    .join('\n * ')}
  */
 
@@ -197,7 +200,8 @@ defineComponents(${JSON.stringify([component.name])}, ${JSON.stringify({
         components: includedComponents
           .map(replaceTagInNodes(safeCustomElementName(component.name), 'div'))
           .map(removeTestData)
-          .map(transformRelativePaths(url.origin)),
+          .map(transformRelativePaths(url.origin))
+          .map(resolveClasses({ clearStyle: false })),
       })}, toddle);
 `
       ctx.header('Cache-Control', 'no-cache')

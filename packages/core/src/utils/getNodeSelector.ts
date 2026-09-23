@@ -1,3 +1,4 @@
+import { getPathClassName } from '../styling/className'
 import { variantSelector, type StyleVariant } from '../styling/variantSelector'
 import type { Nullable } from '../types'
 
@@ -17,16 +18,29 @@ export function getNodeSelector(
   path: string,
   { componentName, nodeId, variant }: NodeSelectorOptions = {},
 ): string {
-  let selector = `[data-id="${path}"]`
+  let selector = `.${getPathClassName(path)}`
   if (componentName) {
-    selector += `.${componentName}`
+    // Do not allow classes to start with a number, for example a page named "404" would result in a selector starting with a number which is invalid in CSS.
+    selector += startsWithNumber(componentName)
+      ? `._${componentName}`
+      : `.${componentName}`
   }
   if (nodeId) {
     selector += `\\:${nodeId}`
+  }
+  // Escape unescaped slashes in the path to avoid issues with CSS selector parsing
+  if (selector.indexOf('/') !== -1) {
+    selector = selector.replace(/(^|[^\\])\//g, '$1\\/')
   }
   if (variant) {
     selector += variantSelector(variant)
   }
 
   return selector
+}
+
+function startsWithNumber(str: string): boolean {
+  if (!str) return false
+  const code = str.charCodeAt(0)
+  return code >= 48 && code <= 57
 }

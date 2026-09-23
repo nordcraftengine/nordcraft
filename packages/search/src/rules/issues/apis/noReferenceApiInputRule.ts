@@ -1,7 +1,7 @@
 import { ToddleApiV2 } from '@nordcraft/core/dist/api/ToddleApiV2'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const noReferenceApiInputRule: Rule<{ inputName: string }> = {
+export const noReferenceApiInputRule: IssueRule<{ inputName: string }> = {
   code: 'no-reference api input',
   level: 'warning',
   category: 'No References',
@@ -28,7 +28,7 @@ export const noReferenceApiInputRule: Rule<{ inputName: string }> = {
         const referencedApiInputs = new Set<string>()
         for (const { formula } of apiFormulaReferences) {
           if (formula.type === 'path' && formula.path[0] === 'Args') {
-            referencedApiInputs.add(formula.path[1])
+            referencedApiInputs.add(formula.path[1] as string)
           }
         }
         return referencedApiInputs

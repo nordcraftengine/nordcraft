@@ -6,7 +6,7 @@ import {
 import { afterAll, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import { Hono } from 'hono'
 import { testClient } from 'hono/testing'
-import { proxyRequestHandler } from './apiProxy'
+import { normalizeIP, proxyRequestHandler } from './apiProxy'
 
 const spyFetch = spyOn(globalThis, 'fetch')
 
@@ -270,5 +270,25 @@ describe('API proxy', () => {
     )
     expect(res.status).toBe(200)
     expect(res.headers.get('Vary')).toBe(`Accept-Encoding, ${PROXY_URL_HEADER}`)
+  })
+
+  describe('normalizeIP', () => {
+    it('should remove ::ffff: prefix from IPv4-mapped IPv6 addresses', () => {
+      expect(normalizeIP('::ffff:127.0.0.1')).toBe('127.0.0.1')
+      expect(normalizeIP('::ffff:192.168.1.1')).toBe('192.168.1.1')
+    })
+
+    it('should return the address unchanged if no prefix is present', () => {
+      expect(normalizeIP('127.0.0.1')).toBe('127.0.0.1')
+      expect(normalizeIP('2001:db8::1')).toBe('2001:db8::1')
+    })
+
+    it('should return undefined if address is undefined', () => {
+      expect(normalizeIP(undefined)).toBe(undefined)
+    })
+
+    it('should return an empty string if address is an empty string', () => {
+      expect(normalizeIP('')).toBe('')
+    })
   })
 })

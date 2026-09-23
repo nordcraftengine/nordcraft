@@ -13,6 +13,7 @@ import { favicon } from './routes/favicon'
 import { fontRouter } from './routes/font'
 import { manifest } from './routes/manifest'
 import { pageHandler } from './routes/pageHandler'
+import { pageStateHandler } from './routes/pageState'
 import { robots } from './routes/robots'
 import { routeHandler } from './routes/routeHandler'
 import { serviceWorker } from './routes/serviceWorker'
@@ -34,6 +35,11 @@ export const getApp = <T extends Record<string, any>>(options: {
   initIsEqual()
 
   const app = new Hono<HonoEnv<T>>({ strict: false })
+
+  app.use(async (c, next) => {
+    c.set('app', app)
+    await next()
+  })
 
   app.use(
     timing({
@@ -62,6 +68,7 @@ export const getApp = <T extends Record<string, any>>(options: {
     ),
   )
   app.get('/.nordcraft/cookies/set-cookie', setCookieHandler)
+  app.get('/.nordcraft/page-state/:renderId{.+.js}', pageStateHandler)
 
   // Load project info and all routes for endpoints below to use
   app.use(...options.fileLoaders)
@@ -79,7 +86,7 @@ export const getApp = <T extends Record<string, any>>(options: {
   }
 
   // Load a route if it matches the URL
-  app.all('/*', routeHandler)
+  app.all('/*', routeHandler(options.getConnInfo))
 
   // Load default resource endpoints
   app.get('/sitemap.xml', sitemap)

@@ -13,7 +13,7 @@ export const componentIsReferenced = (
       Object.values(component?.nodes ?? {})
         .filter(
           (node) =>
-            node.type === 'component' &&
+            node?.type === 'component' &&
             // Do not add cyclical references
             node.name !== component?.name,
         )

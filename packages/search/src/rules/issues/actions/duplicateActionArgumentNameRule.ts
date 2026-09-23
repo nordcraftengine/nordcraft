@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const duplicateActionArgumentNameRule: Rule<{
+export const duplicateActionArgumentNameRule: IssueRule<{
   name: string
 }> = {
   code: 'duplicate action argument name',

@@ -23,6 +23,7 @@ export interface LegacyComponentAPI {
   onCompleted?: Nullable<EventModel>
   onFailed?: Nullable<EventModel>
   version?: never
+  dependsOn?: string[]
 }
 
 export interface LegacyApiStatus {
@@ -42,7 +43,11 @@ export enum ApiMethod {
   OPTIONS = 'OPTIONS',
 }
 
-export type RedirectStatusCode = 300 | 301 | 302 | 303 | 304 | 307 | 308
+export const REDIRECT_STATUS_CODES = [
+  300, 301, 302, 303, 304, 307, 308,
+] as const
+
+export type RedirectStatusCode = (typeof REDIRECT_STATUS_CODES)[number]
 
 export type ApiParserMode =
   | 'auto'
@@ -122,7 +127,7 @@ export interface ApiRequest extends ApiBase {
         // A redirect response will be returned if the formula returns a valid url
         formula: Formula
         // The status code used in the redirect response. Only relevant server side
-        statusCode?: Nullable<RedirectStatusCode>
+        statusCode?: Nullable<Formula>
         index: number
       }
     >
@@ -133,6 +138,7 @@ export interface ApiRequest extends ApiBase {
   isError?: Nullable<{ formula: Formula }>
   // Formula for determining when the request should time out
   timeout?: Nullable<{ formula: Formula }>
+  dependsOn?: string[]
 }
 
 export interface ApiStatus {

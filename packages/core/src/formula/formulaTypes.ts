@@ -1,5 +1,5 @@
 import type { Nullable } from '../types'
-import type { Formula } from './formula'
+import type { Formula, FormulaContext } from './formula'
 
 export interface BaseFormula {
   name: string
@@ -38,3 +38,9 @@ export interface GlobalFormulas<Handler = string | Function> {
     >
   >
 }
+
+export type FormulaEvaluationReporter = (
+  path: Array<string | number>,
+  result: any,
+  ctx: Pick<FormulaContext, 'component'>,
+) => void

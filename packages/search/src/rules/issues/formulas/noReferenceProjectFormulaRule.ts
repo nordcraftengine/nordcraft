@@ -1,8 +1,8 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 import { projectFormulaIsReferenced } from './projectFormulaIsReferenced.memo'
 
-export const noReferenceProjectFormulaRule: Rule<void> = {
+export const noReferenceProjectFormulaRule: IssueRule<void> = {
   code: 'no-reference project formula',
   level: 'warning',
   category: 'No References',

@@ -1,4 +1,4 @@
-import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { splitRoutes } from '@nordcraft/ssr/dist/utils/routes'
 import type { Context } from 'hono'
 import { getConnInfo } from 'hono/cloudflare-workers'
@@ -33,22 +33,16 @@ const loadProject = ({
     return projectLoader
   }
   projectLoadTime = new Date()
-  // eslint-disable-next-line no-async-promise-executor
   projectLoader = new Promise(async (resolve, reject) => {
     // Load files from Durable Object
     const id = ctx.env.BRANCH_STATE.idFromName(
       `/projects/${projectShortId}/branch/${branchName}`,
     )
     const branchState = ctx.env.BRANCH_STATE.get(id)
-    const doProject = (await branchState.getFiles(
+    const doProject = await (branchState as any).getFiles(
       projectShortId,
       branchName,
-    )) as
-      | {
-          project: ToddleProject
-          files: ProjectFiles
-        }
-      | undefined
+    )
     if (!doProject) {
       return reject('Project or branch not found')
     }

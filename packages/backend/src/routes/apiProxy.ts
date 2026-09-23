@@ -16,7 +16,7 @@ import {
 import {
   skipContentEncodingHeader,
   skipHopByHopHeaders,
-} from '@nordcraft/ssr/src/utils/headers'
+} from '@nordcraft/ssr/dist/utils/headers'
 import type { Context } from 'hono'
 import type { ConnInfo } from 'hono/conninfo'
 import { endTime, startTime } from 'hono/timing'
@@ -122,13 +122,11 @@ export const proxyRequestHandler =
       })
       let response: Response
       try {
-        // Remove the cf-connecting-ip header if the request is from localhost
-        // This is to prevent cf to throw an error when the requester ip is ::1
-        // Also remove the host header to prevent host mismatches
-        if ((request.headers.get('host') ?? '').startsWith('localhost')) {
-          request.headers.delete('cf-connecting-ip')
-          request.headers.delete('host')
-        }
+        // Always remove the host and cf-connecting-ip headers to prevent
+        // host mismatches on the outgoing request. fetch() will set the
+        // correct Host header based on the target URL automatically.
+        request.headers.delete('cf-connecting-ip')
+        request.headers.delete('host')
         const ip = normalizeIP(getConnInfo(c).remote.address)
         if (ip) {
           request.headers.set('X-Forwarded-For', ip)
@@ -171,7 +169,7 @@ export const proxyRequestHandler =
     }
   }
 
-const normalizeIP = (address?: string) => {
+export const normalizeIP = (address?: string) => {
   // Remove IPv4-mapped IPv6 prefix if present
   if (address?.startsWith('::ffff:')) {
     return address.substring(7)

@@ -1,5 +1,6 @@
 import { mapHeadersToObject } from '@nordcraft/core/dist/api/headers'
 import type {
+  ComponentVariable,
   PageComponent,
   PageRoute,
 } from '@nordcraft/core/dist/component/component.types'
@@ -12,7 +13,8 @@ import {
   isToddleFormula,
 } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import { mapValues } from '@nordcraft/core/dist/utils/collections'
+import type { Nullable } from '@nordcraft/core/dist/types'
+import { filterObject, mapValues } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import { getPathSegments } from '../routing/routing'
@@ -32,19 +34,19 @@ export const getPageFormulaContext = ({
   files,
 }: {
   branchName: string
-  component: PageComponent
+  component: PageComponent | undefined
   req: Request
   logErrors: boolean
   files: ProjectFiles
 }): FormulaContext & { env: ToddleServerEnv } => {
   const env = serverEnv({ req, branchName, logErrors })
   const { searchParamsWithDefaults, hash, combinedParams, url } = getParameters(
-    { route: component.route, req },
+    { route: component?.route, req },
   )
   const formulaContext: FormulaContext & { env: ToddleServerEnv } = {
     data: {
       Location: {
-        page: component.page ?? '',
+        page: component?.page ?? '',
         path: url.pathname,
         params: combinedParams,
         query: searchParamsWithDefaults,
@@ -54,7 +56,9 @@ export const getPageFormulaContext = ({
       // Path and query parameters are referenced in a flat structure in formulas
       // hence, we need to merge them. We prefer path parameters over query parameters
       // in case of naming collisions
-      'URL parameters': getDataUrlParameters({ route: component.route, req }),
+      'URL parameters': component?.route
+        ? getDataUrlParameters({ route: component.route, req })
+        : {},
       Apis: {} as Record<string, any>,
     },
     component,
@@ -64,17 +68,24 @@ export const getPageFormulaContext = ({
     toddle: getServerToddleObject(files),
   }
   formulaContext.data.Page = {
-    Theme: getThemeInitialValue(component, formulaContext, env),
+    Theme: component
+      ? getThemeInitialValue(component, formulaContext, env)
+      : null,
   }
   formulaContext.data.Variables = mapValues(
-    component.variables ?? {},
+    filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+      component?.variables ?? {},
+      ([_, variable]) => isDefined(variable),
+    ),
     ({ initialValue }) => {
       return applyFormula(initialValue, formulaContext)
     },
   )
   // Re-apply theme after variables have been initialized to ensure it has access to any variables if needed
   formulaContext.data.Page = {
-    Theme: getThemeInitialValue(component, formulaContext, env),
+    Theme: component
+      ? getThemeInitialValue(component, formulaContext, env)
+      : null,
   }
   return formulaContext
 }
@@ -92,7 +103,10 @@ export const getServerToddleObject = (
   )
   return {
     getFormula: (name: string) => coreFormulas[name],
-    getCustomFormula: (name: string, packageName: string | undefined) => {
+    getCustomFormula: (
+      name: string,
+      packageName: string | null | undefined,
+    ) => {
       let formula: PluginFormula<string> | undefined
 
       if (isDefined(packageName)) {

@@ -1,7 +1,7 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeNodeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceNodeRule: Rule<{ node: string }> = {
+export const noReferenceNodeRule: IssueRule<{ node: string }> = {
   code: 'no-reference node',
   level: 'warning',
   category: 'No References',
@@ -19,7 +19,7 @@ export const noReferenceNodeRule: Rule<{ node: string }> = {
       () =>
         new Set(
           Object.values(component.nodes ?? {}).flatMap(
-            (node) => node.children ?? [],
+            (node) => node?.children ?? [],
           ),
         ),
     )

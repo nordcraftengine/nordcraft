@@ -2,18 +2,49 @@
 import type { Component, ComponentData } from '../component/component.types'
 import type {
   CustomFormulaHandler,
-  FormulaHandler,
   FormulaLookup,
   NordcraftMetadata,
   Nullable,
   Runtime,
-  Toddle,
 } from '../types'
-import { isDefined, toBoolean } from '../utils/util'
-import { type PluginFormula, type ToddleFormula } from './formulaTypes'
+import { isDefined } from '../utils/util'
+import { applyAndFormula, applyEvaluateAllAndFormula } from './andFormula'
+import { applyApplyFormula } from './applyFormula'
+import { applyArrayFormula } from './arrayFormula'
+import {
+  type FormulaEvaluationReporter,
+  type PluginFormula,
+  type ToddleFormula,
+} from './formulaTypes'
+import { applyFunctionFormula } from './functionFormula'
+import { applyObjectFormula } from './objectFormula'
+import { applyEvaluateAllOrFormula, applyOrFormula } from './orFormula'
+import { applyPathFormula } from './pathFormula'
+import { applyRecordFormula } from './recordFormula'
+import {
+  applyEvaluateAllSwitchFormula,
+  applySwitchFormula,
+} from './switchFormula'
+
+// As we are evaluating all branches of "if", "or" & "and" formulas when reportFormulaEvaluation is provided,
+// we need to limit the depth to infinite loops as exit conditions are no longer used in recursive formulas.
+const MAX_REPORT_DEPTH = 64
+
+// Hoisted to avoid re-allocating the array for every formula evaluation
+const FORMULA_TYPES = [
+  'and',
+  'apply',
+  'array',
+  'function',
+  'object',
+  'or',
+  'path',
+  'record',
+  'switch',
+  'value',
+] as Formula['type'][]
 
 // Define the some objects types as union of ServerSide and ClientSide runtime types as applyFormula is used in both
-declare const document: Document | undefined
 type ShadowRoot = DocumentFragment
 
 interface BaseOperation extends NordcraftMetadata {
@@ -22,7 +53,7 @@ interface BaseOperation extends NordcraftMetadata {
 
 export interface PathOperation extends BaseOperation {
   type: 'path'
-  path: string[]
+  path: Array<string | number>
 }
 
 export interface FunctionArgument {
@@ -38,13 +69,13 @@ export interface FunctionOperation extends BaseOperation {
   name: string
   display_name?: Nullable<string>
   package?: Nullable<string>
-  arguments: FunctionArgument[]
+  arguments?: Nullable<FunctionArgument[]>
   variableArguments?: Nullable<boolean>
 }
 
 export interface RecordOperation extends BaseOperation {
   type: 'record'
-  entries: FunctionArgument[]
+  entries?: Nullable<FunctionArgument[]>
 }
 
 export interface ObjectOperation extends BaseOperation {
@@ -54,23 +85,23 @@ export interface ObjectOperation extends BaseOperation {
 
 export interface ArrayOperation extends BaseOperation {
   type: 'array'
-  arguments: Array<{ formula: Formula }>
+  arguments?: Nullable<Array<{ formula: Formula }>>
 }
 
 export interface OrOperation extends BaseOperation {
   type: 'or'
-  arguments: Array<{ formula: Formula }>
+  arguments?: Nullable<Array<{ formula: Formula }>>
 }
 
 export interface AndOperation extends BaseOperation {
   type: 'and'
-  arguments: Array<{ formula: Formula }>
+  arguments?: Nullable<Array<{ formula: Formula }>>
 }
 
 export interface ApplyOperation extends BaseOperation {
   type: 'apply'
   name: string
-  arguments: FunctionArgument[]
+  arguments?: Nullable<FunctionArgument[]>
 }
 
 export interface ValueOperation extends BaseOperation {
@@ -78,14 +109,22 @@ export interface ValueOperation extends BaseOperation {
   value: ValueOperationValue
 }
 
-export type ValueOperationValue = string | number | boolean | null | object
+export type ValueOperationValue =
+  | string
+  | number
+  | boolean
+  | null
+  | object
+  | undefined
 
 export interface SwitchOperation extends BaseOperation {
   type: 'switch'
-  cases: Array<{
-    condition: Formula
-    formula: Formula
-  }>
+  cases?: Nullable<
+    Array<{
+      condition: Formula
+      formula: Formula
+    }>
+  >
   default: Formula
 }
 
@@ -101,7 +140,7 @@ export type Formula =
   | ValueOperation
   | ApplyOperation
 
-export type FormulaContext = {
+export interface FormulaContext {
   component: Component | undefined
   formulaCache?: Nullable<
     Record<
@@ -120,6 +159,8 @@ export type FormulaContext = {
     getCustomFormula: CustomFormulaHandler
     errors: Error[]
   }
+  jsonPath?: Array<string | number> | undefined
+  reportFormulaEvaluation?: FormulaEvaluationReporter | undefined
   env: ToddleEnv | undefined
 }
 
@@ -152,16 +193,10 @@ export function isFormula(f: any): f is Formula {
     return false
   }
   return (
-    f.type === 'path' ||
-    f.type === 'function' ||
-    f.type === 'record' ||
-    f.type === 'object' ||
-    f.type === 'array' ||
-    f.type === 'or' ||
-    f.type === 'and' ||
-    f.type === 'apply' ||
-    f.type === 'value' ||
-    f.type === 'switch'
+    f &&
+    typeof f === 'object' &&
+    typeof f.type === 'string' &&
+    FORMULA_TYPES.includes(f.type)
   )
 }
 export function isFormulaApplyOperation(
@@ -179,243 +214,122 @@ export const isToddleFormula = <Handler>(
 export function applyFormula(
   formula: Formula | string | number | undefined | null | boolean,
   ctx: FormulaContext,
+  extendedPath?: Array<string | number> | undefined,
 ): any {
+  // Short-circuit when not reporting to avoid unnecessary overhead of creating new objects and function
+  if (!ctx.reportFormulaEvaluation) {
+    if (!isFormula(formula)) {
+      return formula
+    }
+    try {
+      switch (formula.type) {
+        case 'value':
+          return formula.value
+        case 'path':
+          return applyPathFormula(formula, ctx.data)
+        case 'switch':
+          return applySwitchFormula(formula, ctx)
+        case 'or':
+          return applyOrFormula(formula, ctx)
+        case 'and':
+          return applyAndFormula(formula, ctx)
+        case 'object':
+          return applyObjectFormula(formula, ctx)
+        case 'record':
+          return applyRecordFormula(formula, ctx)
+        case 'array':
+          return applyArrayFormula(formula, ctx)
+        case 'function':
+          return applyFunctionFormula(formula, ctx)
+        case 'apply':
+          return applyApplyFormula(formula, ctx)
+        default:
+          if (ctx.env?.logErrors) {
+            console.error('Could not recognize formula', formula)
+          }
+      }
+    } catch (e) {
+      if (ctx.env?.logErrors) {
+        console.error(e)
+      }
+      return null
+    }
+
+    return undefined
+  }
+
+  const jsonPath = [...(ctx.jsonPath ?? []), ...(extendedPath ?? [])]
+  const _ctx = { ...ctx, jsonPath }
+  const report = (value: any, p: Array<string | number> = jsonPath) => {
+    ctx.reportFormulaEvaluation?.(p, value, _ctx)
+    return value
+  }
+
   if (!isFormula(formula)) {
-    return formula
+    return report(formula)
   }
   try {
     switch (formula.type) {
-      case 'value':
-        return formula.value
+      case 'value': {
+        return report(formula.value)
+      }
       case 'path': {
-        let input: any = ctx.data
-        for (const key of formula.path) {
-          if (input && typeof input === 'object') {
-            input = input[key]
-          } else {
-            return null
-          }
-        }
-
-        return input
+        return report(applyPathFormula(formula, _ctx.data))
       }
       case 'switch': {
-        for (const branch of formula.cases) {
-          if (toBoolean(applyFormula(branch.condition, ctx))) {
-            return applyFormula(branch.formula, ctx)
-          }
+        if (
+          _ctx.reportFormulaEvaluation &&
+          _ctx.jsonPath.length < MAX_REPORT_DEPTH
+        ) {
+          return report(applyEvaluateAllSwitchFormula(formula, _ctx))
         }
-        return applyFormula(formula.default, ctx)
+        return applySwitchFormula(formula, _ctx)
       }
       case 'or': {
-        for (const entry of formula.arguments) {
-          if (toBoolean(applyFormula(entry.formula, ctx))) {
-            return true
-          }
+        if (
+          _ctx.reportFormulaEvaluation &&
+          _ctx.jsonPath.length < MAX_REPORT_DEPTH
+        ) {
+          return report(applyEvaluateAllOrFormula(formula, _ctx))
         }
-        return false
+        return applyOrFormula(formula, _ctx)
       }
       case 'and': {
-        for (const entry of formula.arguments) {
-          if (!toBoolean(applyFormula(entry.formula, ctx))) {
-            return false
-          }
+        if (
+          _ctx.reportFormulaEvaluation &&
+          _ctx.jsonPath.length < MAX_REPORT_DEPTH
+        ) {
+          return report(applyEvaluateAllAndFormula(formula, _ctx))
         }
-        return true
-      }
-      case 'function': {
-        const packageName = formula.package ?? ctx.package ?? undefined
-        const toddle =
-          ctx.toddle ??
-          ((globalThis as any).toddle as Toddle<unknown, unknown> | undefined)
-        const newFunc = toddle?.getCustomFormula(formula.name, packageName)
-        if (isDefined(newFunc)) {
-          ctx.package = packageName
-          const args: Record<string, unknown> = {}
-          const formulaArgs = formula.arguments
-          for (let i = 0; i < formulaArgs.length; i++) {
-            const arg = formulaArgs[i]!
-            const argName = arg.name ?? `${i}`
-            if (arg.isFunction) {
-              args[argName] = (Args: any) => {
-                const parentArgs = ctx.data.Args
-                return applyFormula(arg.formula, {
-                  ...ctx,
-                  data: {
-                    ...ctx.data,
-                    Args: parentArgs
-                      ? { ...Args, '@toddle.parent': parentArgs }
-                      : Args,
-                  },
-                })
-              }
-            } else {
-              args[argName] = applyFormula(arg.formula, ctx)
-            }
-          }
-          try {
-            if (isToddleFormula(newFunc)) {
-              return applyFormula(newFunc.formula, {
-                ...ctx,
-                data: { ...ctx.data, Args: args },
-              })
-            } else {
-              return newFunc.handler(args, {
-                root: ctx.root ?? document,
-                env: ctx.env,
-              } as any)
-            }
-          } catch (e) {
-            toddle.errors.push(e as Error)
-            if (ctx.env?.logErrors) {
-              console.error(e)
-            }
-            return null
-          }
-        } else {
-          // Lookup legacy formula
-          const legacyFunc: FormulaHandler | undefined = toddle?.getFormula(
-            formula.name,
-          )
-          if (typeof legacyFunc === 'function') {
-            const formulaArgs = formula.arguments ?? []
-            const args = new Array(formulaArgs.length)
-            for (let i = 0; i < formulaArgs.length; i++) {
-              const arg = formulaArgs[i]!
-              if (arg.isFunction) {
-                args[i] = (Args: any) => {
-                  const parentArgs = ctx.data.Args
-                  return applyFormula(arg.formula, {
-                    ...ctx,
-                    data: {
-                      ...ctx.data,
-                      Args: parentArgs
-                        ? { ...Args, '@toddle.parent': parentArgs }
-                        : Args,
-                    },
-                  })
-                }
-              } else {
-                args[i] = applyFormula(arg.formula, ctx)
-              }
-
-              // defaultTo can short circuit when first argument is truthy.
-              if (formula.name === '@toddle/defaultTo' && toBoolean(args[i])) {
-                break
-              }
-            }
-            try {
-              return legacyFunc(args, ctx as any)
-            } catch (e) {
-              toddle.errors.push(e as Error)
-              if (ctx.env?.logErrors) {
-                console.error(e)
-              }
-              return null
-            }
-          }
-        }
-        if (ctx.env?.logErrors) {
-          console.error(
-            `Could not find formula ${formula.name} in package ${
-              packageName ?? ''
-            }`,
-            formula,
-          )
-        }
-        return null
+        return applyAndFormula(formula, _ctx)
       }
       case 'object': {
-        const res: Record<string, any> = {}
-        const args = formula.arguments
-        if (args) {
-          for (let i = 0; i < args.length; i++) {
-            const entry = args[i]!
-            if (entry.name) {
-              res[entry.name] = applyFormula(entry.formula, ctx)
-            }
-          }
-        }
-        return res
+        return report(applyObjectFormula(formula, _ctx))
       }
       case 'record': {
         // object used to be called record, there are still examples in the wild.
-        const res: Record<string, any> = {}
-        const entries = formula.entries
-        for (let i = 0; i < entries.length; i++) {
-          const entry = entries[i]!
-          if (entry.name) {
-            res[entry.name] = applyFormula(entry.formula, ctx)
-          }
-        }
-        return res
+        return report(applyRecordFormula(formula, _ctx))
       }
-      case 'array':
-        return formula.arguments.map((entry) =>
-          applyFormula(entry.formula, ctx),
-        )
+      case 'array': {
+        return report(applyArrayFormula(formula, _ctx))
+      }
+      case 'function': {
+        return report(applyFunctionFormula(formula, _ctx))
+      }
       case 'apply': {
-        const componentFormula = ctx.component?.formulas?.[formula.name]
-        if (!componentFormula) {
-          if (ctx.env?.logErrors) {
-            console.log(
-              'Component does not have a formula with the name ',
-              formula.name,
-            )
-          }
-          return null
-        }
-        const Input: Record<string, any> = {}
-        const formulaArgs = formula.arguments
-        for (let i = 0; i < formulaArgs.length; i++) {
-          const arg = formulaArgs[i]!
-          if (arg.name) {
-            if (arg.isFunction) {
-              Input[arg.name] = (Args: any) => {
-                const parentArgs = ctx.data.Args
-                return applyFormula(arg.formula, {
-                  ...ctx,
-                  data: {
-                    ...ctx.data,
-                    Args: parentArgs
-                      ? { ...Args, '@toddle.parent': parentArgs }
-                      : Args,
-                  },
-                })
-              }
-            } else {
-              Input[arg.name] = applyFormula(arg.formula, ctx)
-            }
-          }
-        }
-        const parentArgs = ctx.data.Args
-        const data = {
-          ...ctx.data,
-          Args: parentArgs ? { ...Input, '@toddle.parent': parentArgs } : Input,
-        }
-        const cache = ctx.formulaCache?.[formula.name]?.get(data)
-
-        if (cache?.hit) {
-          return cache.data
-        } else {
-          const result = applyFormula(componentFormula.formula, {
-            ...ctx,
-            data,
-          })
-          ctx.formulaCache?.[formula.name]?.set(data, result)
-          return result
-        }
+        return report(applyApplyFormula(formula, _ctx))
       }
-
       default:
-        if (ctx.env?.logErrors) {
+        if (_ctx.env?.logErrors) {
           console.error('Could not recognize formula', formula)
         }
     }
   } catch (e) {
-    if (ctx.env?.logErrors) {
+    if (_ctx.env?.logErrors) {
       console.error(e)
     }
-    return null
+    return report(null)
   }
+
+  return report(undefined)
 }

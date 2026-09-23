@@ -1,15 +1,17 @@
 import {
   createApiRequest,
+  HttpMethodsWithAllowedBody,
   isApiError,
   requestHash,
-  sortApiEntries,
 } from '@nordcraft/core/dist/api/api'
-import type {
-  ApiParserMode,
-  ApiPerformance,
-  ApiStatus,
-  LegacyApiStatus,
-  RedirectStatusCode,
+import {
+  REDIRECT_STATUS_CODES,
+  type ApiMethod,
+  type ApiParserMode,
+  type ApiPerformance,
+  type ApiStatus,
+  type LegacyApiStatus,
+  type RedirectStatusCode,
 } from '@nordcraft/core/dist/api/apiTypes'
 import {
   isJsonHeader,
@@ -22,7 +24,11 @@ import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { easySort } from '@nordcraft/core/dist/utils/collections'
 import { validateUrl } from '@nordcraft/core/dist/utils/url'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import type { ApiCache, ApiEvaluator } from '@nordcraft/ssr/dist/rendering/api'
+import {
+  sortApiEntries,
+  type ApiCache,
+  type ApiEvaluator,
+} from '@nordcraft/ssr/dist/rendering/api'
 import {
   applyTemplateValues,
   sanitizeProxyHeaders,
@@ -39,7 +45,8 @@ export const evaluateComponentApis: ApiEvaluator = async ({
 
   // We only support v2 APIs in this function
   const sortedApis: [string, ToddleApiV2<string>][] = []
-  sortApiEntries(Object.entries(component.apis)).forEach(
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  sortApiEntries(Object.entries(component.apis ?? {})).forEach(
     ([key, api]) => api instanceof ToddleApiV2 && sortedApis.push([key, api]),
   )
 
@@ -48,7 +55,7 @@ export const evaluateComponentApis: ApiEvaluator = async ({
     await Promise.all(
       // Evaluate independent API requests in parallel
       sortedApis
-        .filter(([_, api]) => api.apiReferences.size === 0)
+        .filter(([_, api]) => api.dependsOn.length === 0)
         .map(async ([name, api]) => {
           const { response, cacheKey } = await fetchApi({
             api,
@@ -69,7 +76,7 @@ export const evaluateComponentApis: ApiEvaluator = async ({
     ...independentApiResponses,
   }
   const dependentApis = sortedApis.filter(
-    ([_, api]) => api.apiReferences.size > 0,
+    ([_, api]) => api.dependsOn.length > 0,
   )
   const dependentApiResponses: Record<string, LegacyApiStatus | ApiStatus> = {}
   for (const [_, api] of dependentApis) {
@@ -135,9 +142,7 @@ const fetchApi = async ({
   }
 
   const ssrEnabled = isDefined(api.server?.ssr?.enabled)
-    ? toBoolean(
-        applyFormula(api.server?.ssr?.enabled.formula, newFormulaContext),
-      )
+    ? toBoolean(applyFormula(api.server.ssr.enabled.formula, newFormulaContext))
     : false
 
   const autoFetch = isDefined(api.autoFetch)
@@ -182,6 +187,24 @@ const fetchApi = async ({
       applyTemplateValues(value, newFormulaContext.env?.request?.cookies ?? {}),
     )
   })
+
+  if (
+    HttpMethodsWithAllowedBody.includes(requestSettings.method as ApiMethod) &&
+    toBoolean(
+      applyFormula(
+        api.server?.proxy?.useTemplatesInBody?.formula,
+        newFormulaContext,
+      ),
+    )
+  ) {
+    // Adjust the body of the request
+    if (typeof requestSettings.body === 'string') {
+      requestSettings.body = applyTemplateValues(
+        requestSettings.body,
+        newFormulaContext.env?.request?.cookies ?? {},
+      )
+    }
+  }
 
   const request = new Request(requestUrl.href, {
     ...requestSettings,
@@ -277,7 +300,7 @@ const fetchApiV2 = async ({
     Object.values(api.redirectRules ?? {}),
     (rule) => rule.index,
   ).forEach((rule) => {
-    const location = applyFormula(rule.formula, {
+    const ruleContext: FormulaContext = {
       ...formulaContext,
       data: {
         ...formulaContext.data,
@@ -285,7 +308,8 @@ const fetchApiV2 = async ({
           [api.name]: apiStatus,
         },
       },
-    })
+    }
+    const location = applyFormula(rule.formula, ruleContext)
     if (typeof location === 'string') {
       const url = validateUrl({
         path: location,
@@ -293,10 +317,21 @@ const fetchApiV2 = async ({
       })
       if (url) {
         // Opt out early to avoid additional API requests/rendering
+        let statusCode = 302 as RedirectStatusCode
+        if (isDefined(rule.statusCode)) {
+          const statusCodeResult = applyFormula(rule.statusCode, ruleContext)
+          if (
+            typeof statusCodeResult === 'number' &&
+            REDIRECT_STATUS_CODES.includes(
+              statusCodeResult as RedirectStatusCode,
+            )
+          ) {
+            statusCode = statusCodeResult as RedirectStatusCode
+          }
+        }
         throw new RedirectError({
           url,
-          statusCode:
-            typeof rule.statusCode === 'number' ? rule.statusCode : undefined,
+          statusCode,
           componentName,
           apiName: api.name,
         })
@@ -339,12 +374,11 @@ export class RedirectError extends Error {
 
 const executeFetchCall = async (request: Request) => {
   try {
-    // Remove the cf-connecting-ip header if the request is from localhost
-    // This is to prevent cf to throw an error when the requester ip is ::1
-    if ((request.headers.get('host') ?? '').startsWith('localhost')) {
-      request.headers.delete('cf-connecting-ip')
-      request.headers.delete('host')
-    }
+    // Always remove the host and cf-connecting-ip headers to prevent
+    // host mismatches on the outgoing request. fetch() will set the
+    // correct Host header based on the target URL automatically.
+    request.headers.delete('cf-connecting-ip')
+    request.headers.delete('host')
     const response = await fetch(request)
     return response
   } catch (e: any) {

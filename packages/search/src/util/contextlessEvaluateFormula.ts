@@ -38,7 +38,7 @@ export const contextlessEvaluateFormula = (
     }
 
     case 'array': {
-      const results = formula.arguments.map((arg) =>
+      const results = (formula.arguments ?? []).map((arg) =>
         contextlessEvaluateFormula(arg.formula),
       )
 
@@ -49,7 +49,7 @@ export const contextlessEvaluateFormula = (
     }
 
     case 'record': {
-      const entries = Object.entries(formula.entries).map(
+      const entries = Object.entries(formula.entries ?? {}).map(
         ([key, arg]) => [key, contextlessEvaluateFormula(arg.formula)] as const,
       )
 
@@ -68,7 +68,7 @@ export const contextlessEvaluateFormula = (
     // - ANY condition is static and falsy
     // - EMPTY argument list is always true
     case 'and': {
-      const results = formula.arguments.map((arg) =>
+      const results = (formula.arguments ?? []).map((arg) =>
         contextlessEvaluateFormula(arg.formula),
       )
 
@@ -90,7 +90,7 @@ export const contextlessEvaluateFormula = (
     // - ALL conditions are static AND falsy
     // - EMPTY argument list is always false
     case 'or': {
-      const results = formula.arguments.map((arg) =>
+      const results = (formula.arguments ?? []).map((arg) =>
         contextlessEvaluateFormula(arg.formula),
       )
 

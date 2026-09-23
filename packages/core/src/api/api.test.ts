@@ -7,27 +7,31 @@ import {
   getRequestPath,
   getRequestQueryParams,
   getUrl,
+  isLegacyApi,
+  toFormData,
 } from './api'
 import type { ApiRequest } from './apiTypes'
 import { ApiMethod } from './apiTypes'
+import { LegacyToddleApi } from './LegacyToddleApi'
+import { ToddleApiV2 } from './ToddleApiV2'
 
 describe('getApiPath()', () => {
   test('it returns a valid url path string', () => {
-    expect(getRequestPath({}, undefined as any)).toBe('')
+    expect(getRequestPath({}, {} as any)).toBe('')
     expect(
       getRequestPath(
         {
           first: { formula: valueFormula('hello'), index: 0 },
           second: { formula: valueFormula('world'), index: 1 },
         },
-        undefined as any,
+        {} as any,
       ),
     ).toBe('hello/world')
   })
 })
 describe('getQueryParams()', () => {
   test('it returns a valid url path string', () => {
-    const emptyParams = getRequestQueryParams({}, undefined as any)
+    const emptyParams = getRequestQueryParams({}, {} as any)
     expect(emptyParams.size).toBe(0)
     const params = getRequestQueryParams(
       {
@@ -44,7 +48,7 @@ describe('getQueryParams()', () => {
           enabled: valueFormula(false),
         },
       },
-      undefined as any,
+      {} as any,
     )
     expect(params.get('q')).toBe('hello')
     expect(params.get('filter')).toBe('world')
@@ -59,7 +63,7 @@ describe('getQueryParams()', () => {
           enabled: valueFormula(true),
         },
       },
-      undefined as any,
+      {} as any,
     )
     expect(params.getAll('q')).toEqual(['hello', 'world'])
     expect(params.size).toBe(2)
@@ -72,7 +76,7 @@ describe('getQueryParams()', () => {
           enabled: valueFormula(true),
         },
       },
-      undefined as any,
+      {} as any,
     )
     expect(params.get('q[a]')).toEqual('hello')
     expect(params.get('q[b][c]')).toEqual('world')
@@ -95,7 +99,7 @@ describe('getUrl()', () => {
           },
         },
       },
-      undefined as any,
+      {} as any,
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/hello/world?q=test')
@@ -114,7 +118,7 @@ describe('getUrl()', () => {
           },
         },
       },
-      undefined as any,
+      {} as any,
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/test/path/hello/world?q=test')
@@ -128,7 +132,7 @@ describe('getUrl()', () => {
           b: { formula: valueFormula('world'), index: 1 },
         },
       },
-      undefined as any,
+      {} as any,
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/test/path/hello/world')
@@ -142,7 +146,7 @@ describe('getUrl()', () => {
           b: { formula: valueFormula('world'), index: 1 },
         },
       },
-      undefined as any,
+      {} as any,
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/88/hello/world')
@@ -156,7 +160,7 @@ describe('getUrl()', () => {
           b: { formula: valueFormula('world'), index: 1 },
         },
       },
-      undefined as any,
+      {} as any,
       'https://mysite.com',
     )
     expect(url.href).toBe('https://mysite.com/test/path/hello/world')
@@ -175,7 +179,7 @@ describe('getUrl()', () => {
           },
         },
       },
-      undefined as any,
+      {} as any,
       'https://mysite.com',
     )
     expect(url.href).toBe(
@@ -197,7 +201,7 @@ describe('getUrl()', () => {
         },
         hash: { formula: valueFormula('my-hash') },
       },
-      undefined as any,
+      {} as any,
       'https://mysite.com',
     )
     expect(url.hash).toBe('#my-hash')
@@ -210,7 +214,7 @@ describe('getApiHeaders()', () => {
   test('it returns valid headers', () => {
     const emptyParams = getRequestHeaders({
       apiHeaders: {},
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       defaultHeaders: undefined,
     })
     expect(emptyParams.entries.length).toBe(0)
@@ -219,7 +223,7 @@ describe('getApiHeaders()', () => {
         q: { formula: valueFormula('hello') },
         filter: { formula: valueFormula('world') },
       },
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       defaultHeaders: undefined,
     })
     expect(headers.get('q')).toBe('hello')
@@ -230,7 +234,7 @@ describe('getApiHeaders()', () => {
         q: { formula: valueFormula('hello') },
         filter: { formula: valueFormula('world') },
       },
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       defaultHeaders: new Headers([['accept-encoding', 'gzip']]),
     })
     expect(headersWithDefaults.get('q')).toBe('hello')
@@ -248,7 +252,7 @@ describe('getApiHeaders()', () => {
         },
         filter: { formula: valueFormula('world') },
       },
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       defaultHeaders: undefined,
     })
     expect(headers.get('q')).toBe('hello')
@@ -282,7 +286,7 @@ describe('createApiRequest', () => {
 
     const { url, requestSettings } = createApiRequest({
       api: apiRequest,
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       baseUrl,
       defaultHeaders: undefined,
     })
@@ -327,7 +331,7 @@ describe('createApiRequest', () => {
 
     const { url, requestSettings } = createApiRequest({
       api: apiRequest,
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       baseUrl,
       defaultHeaders: undefined,
     })
@@ -353,7 +357,7 @@ describe('getRequestBody', () => {
     }
     const body = getRequestBody({
       api: apiRequest,
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       headers: new Headers(),
       method: ApiMethod.POST,
     })
@@ -372,7 +376,7 @@ describe('getRequestBody', () => {
     }
     const body = getRequestBody({
       api: apiRequest,
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       headers: new Headers([
         ['Content-Type', 'application/x-www-form-urlencoded'],
       ]),
@@ -393,7 +397,7 @@ describe('getRequestBody', () => {
     }
     const body = getRequestBody({
       api: apiRequest,
-      formulaContext: undefined as any,
+      formulaContext: {} as any,
       headers: new Headers([['Content-Type', 'multipart/form-data']]),
       method: ApiMethod.POST,
     })
@@ -416,5 +420,116 @@ describe('getRequestBody', () => {
       method: ApiMethod.POST,
     })
     expect(body).toBeInstanceOf(File)
+  })
+})
+
+describe('toFormData()', () => {
+  it('converts a simple object to FormData', () => {
+    const body = {
+      name: 'John Doe',
+      age: 30,
+      active: true,
+    }
+    const formData = toFormData(body)
+    expect(formData.get('name')).toBe('John Doe')
+    expect(formData.get('age')).toBe('30')
+    expect(formData.get('active')).toBe('true')
+  })
+
+  it('handles arrays by appending multiple values', () => {
+    const body = {
+      tags: ['tag1', 'tag2'],
+    }
+    const formData = toFormData(body)
+    expect(formData.getAll('tags')).toEqual(['tag1', 'tag2'])
+  })
+
+  it('skips null and undefined values', () => {
+    const body = {
+      name: 'John Doe',
+      age: null,
+      active: undefined,
+    }
+    const formData = toFormData(body)
+    expect(formData.get('name')).toBe('John Doe')
+    expect(formData.has('age')).toBe(false)
+    expect(formData.has('active')).toBe(false)
+  })
+
+  it('handles nested objects by stringifying them', () => {
+    const body = {
+      user: { id: 1, name: 'John' },
+    }
+    const formData = toFormData(body)
+    expect(formData.get('user')).toBe(JSON.stringify(body.user))
+  })
+
+  it('handles File and Blob objects', () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const blob = new Blob(['blob content'], {
+      type: 'application/octet-stream',
+    })
+    const body = {
+      file,
+      blob,
+    }
+    const formData = toFormData(body)
+    expect(formData.get('file')).toBeInstanceOf(File)
+    expect((formData.get('file') as File).name).toBe('test.txt')
+    expect(formData.get('blob')).toBeInstanceOf(Blob)
+  })
+
+  it('skips unsupported value types', () => {
+    const body = {
+      fn: () => {},
+      valid: 'working',
+    }
+    const formData = toFormData(body)
+    expect(formData.has('fn')).toBe(false)
+    expect(formData.get('valid')).toBe('working')
+  })
+})
+describe('isLegacyApi()', () => {
+  test('it checks if an API is legacy', () => {
+    expect(
+      isLegacyApi({
+        name: 'Legacy API',
+        type: 'REST',
+      }),
+    ).toBe(true)
+    expect(
+      isLegacyApi({
+        name: 'New API',
+        type: 'http',
+        version: 2,
+        inputs: {},
+      }),
+    ).toBe(false)
+    expect(
+      isLegacyApi(
+        new LegacyToddleApi(
+          {
+            name: 'Legacy API',
+            type: 'REST',
+          },
+          'myLegacyApi',
+          {},
+        ),
+      ),
+    ).toBe(true)
+    expect(
+      isLegacyApi(
+        new ToddleApiV2(
+          {
+            name: 'New API',
+            type: 'http',
+            version: 2,
+            inputs: {},
+          },
+          'myNewApi',
+          {},
+        ),
+      ),
+    ).toBe(false)
   })
 })

@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownProjectFormulaRule: Rule<{ name: string }> = {
+export const unknownProjectFormulaRule: IssueRule<{ name: string }> = {
   code: 'unknown project formula',
   level: 'warning',
   category: 'Unknown Reference',

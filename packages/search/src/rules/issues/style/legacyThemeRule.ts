@@ -1,7 +1,7 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const legacyThemeRule: Rule = {
+export const legacyThemeRule: IssueRule = {
   code: 'legacy theme',
   level: 'warning',
   category: 'Deprecation',

@@ -1,9 +1,9 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 import { componentIsReferenced } from '../components/componentIsReferenced.memo'
 
-export const noReferenceAttributeInInstanceRule: Rule<void> = {
+export const noReferenceAttributeInInstanceRule: IssueRule<void> = {
   code: 'no-reference attribute in instance',
   level: 'info',
   category: 'No References',
@@ -33,9 +33,9 @@ export const noReferenceAttributeInInstanceRule: Rule<void> = {
       const attrs = new Set<string>()
       Object.values(args.files.components).forEach((otherComponent) =>
         Object.values(otherComponent?.nodes ?? {})
-          .filter((node) => node.type === 'component')
+          .filter((node) => node?.type === 'component')
           .forEach((instance) =>
-            Object.keys(instance.attrs).forEach((attr) => {
+            Object.keys(instance.attrs ?? {}).forEach((attr) => {
               attrs.add([instance.name, attr].join('/'))
             }),
           ),

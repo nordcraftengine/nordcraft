@@ -1,6 +1,8 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type {
+  Component,
+  PageComponent,
+} from '@nordcraft/core/dist/component/component.types'
 import { HeadTagTypes } from '@nordcraft/core/dist/component/component.types'
-import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
@@ -8,7 +10,7 @@ import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core/dist/styling/th
 import { easySort } from '@nordcraft/core/dist/utils/collections'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { validateUrl } from '@nordcraft/core/dist/utils/url'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { escapeAttrValue } from '../rendering/attributes'
 import type { ProjectFiles, ToddleProject } from '../ssr.types'
 import { isCloudflareImagePath } from '../utils/media'
@@ -41,7 +43,7 @@ export const getHeadItems = ({
   context: FormulaContext
   cssBasePath?: string
   files: ProjectFiles
-  page: ToddleComponent<string>
+  page: PageComponent
   resetStylesheetPath?: string
   pageStylesheetPath?: string
   project: ToddleProject
@@ -179,7 +181,7 @@ export const getHeadItems = ({
     const manifestUrl = urlWithCacheBuster('/manifest.json', cacheBuster)
     headItems.set(
       'link:manifest',
-      `<link rel="manifest" href="${escapeAttrValue(manifestUrl)}">`,
+      `<link rel="manifest" href="${escapeAttrValue(manifestUrl)}" />`,
     )
   } else {
     // Only add a default theme-color + msapplication-TileColor if there is no manifest declared
@@ -198,7 +200,7 @@ export const getHeadItems = ({
       Object.entries(m.attrs ?? {}).some(
         ([k, value]) =>
           ['name', 'property'].includes(k.toLowerCase()) &&
-          value.type === 'value' &&
+          value?.type === 'value' &&
           typeof value.value === 'string' &&
           value.value.toLowerCase() === nameOrProperty.toLowerCase(),
       ),
@@ -245,30 +247,21 @@ export const getHeadItems = ({
       'link:icon:32',
     ].every((k) => !hasCustomMeta(k))
   ) {
-    if (project.emoji) {
-      // Use emoji as icon
-      headItems.set(
-        'link:icon',
-        `<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${escapeAttrValue(
-          project.emoji,
-        )}</text></svg>">`,
-      )
-    }
     headItems.set(
       'link:mask-icon',
-      '<link rel="mask-icon" href="https://raw.githubusercontent.com/toddledev/resources/main/icons/safari-pinned-tab.svg" color="#171717">',
+      '<link rel="mask-icon" href="https://raw.githubusercontent.com/nordcraftengine/resources/main/icons/safari-pinned-tab.svg" color="#171717" />',
     )
     headItems.set(
       'link:apple-touch-icon',
-      '<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/toddledev/resources/main/icons/apple-touch-icon.png">',
+      '<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/nordcraftengine/resources/main/icons/apple-touch-icon.png" />',
     )
     headItems.set(
       'link:icon:16',
-      '<link rel="icon" type="image/png" sizes="16x16" href="https://raw.githubusercontent.com/toddledev/resources/main/icons/favicon-16x16.png">',
+      '<link rel="icon" type="image/png" sizes="16x16" href="https://raw.githubusercontent.com/nordcraftengine/resources/main/icons/favicon-16x16.png" />',
     )
     headItems.set(
       'link:icon:32',
-      '<link rel="icon" type="image/png" sizes="32x32" href="https://raw.githubusercontent.com/toddledev/resources/main/icons/favicon-32x32.png">',
+      '<link rel="icon" type="image/png" sizes="32x32" href="https://raw.githubusercontent.com/nordcraftengine/resources/main/icons/favicon-32x32.png" />',
     )
   }
   // Handle custom meta tags last to allow overriding defaults
@@ -277,44 +270,51 @@ export const getHeadItems = ({
       Object.entries(pageInfo.meta),
       // Sort by index if it exists
       ([_, meta]) => meta.index ?? Infinity,
-    ).forEach(([id, metaEntry]) => {
-      if (Object.values(HeadTagTypes).includes(metaEntry.tag)) {
-        // If the tag has a name or property attribute, we use that as the key
-        // to avoid duplicates and to ensure sorting of tags later
-        const key = Object.entries(metaEntry.attrs ?? {}).find(
-          ([key]) => key === 'name' || key === 'property',
-        )
-        const headItemKey: HeadItemType = `${metaEntry.tag}:${
-          isDefined(key) ? applyFormula(key[1], context) : (id ?? nanoid())
-        }`
-        headItems.set(
-          headItemKey,
-          // Add the id to the tag so it's easier to dynamically update it later
-          // from our runtime (main.ts)
-          `<${metaEntry.tag} data-toddle-id="${id}" ${Object.entries(
-            metaEntry.attrs ?? {},
+    )
+      .filter(
+        ([_, meta]) =>
+          // Only include enabled meta tags
+          !isDefined(meta.enabled) ||
+          toBoolean(applyFormula(meta.enabled, context)),
+      )
+      .forEach(([id, metaEntry]) => {
+        if (Object.values(HeadTagTypes).includes(metaEntry.tag)) {
+          // If the tag has a name or property attribute, we use that as the key
+          // to avoid duplicates and to ensure sorting of tags later
+          const key = Object.entries(metaEntry.attrs ?? {}).find(
+            ([key]) => key === 'name' || key === 'property',
           )
-            .map(([key, formula]) => {
-              const value = applyFormula(formula, context)
-              if (value === true) {
-                // If the value is true, we just return the key - this is useful
-                // for tags like <script async> where async doesn't have a value
-                return key
-              }
-              return `${key}="${escapeAttrValue(value)}"`
-            })
-            .join(' ')} ${
-            VOID_HTML_ELEMENTS.includes(metaEntry.tag)
-              ? `/>`
-              : `>${
-                  metaEntry.content
-                    ? applyFormula(metaEntry.content, context)
-                    : ''
-                }</${metaEntry.tag}>`
-          }`,
-        )
-      }
-    })
+          const headItemKey: HeadItemType = `${metaEntry.tag}:${
+            isDefined(key) ? applyFormula(key[1], context) : (id ?? nanoid())
+          }`
+          headItems.set(
+            headItemKey,
+            // Add the id to the tag so it's easier to dynamically update it later
+            // from our runtime (main.ts)
+            `<${metaEntry.tag} data-toddle-id="${id}" ${Object.entries(
+              metaEntry.attrs ?? {},
+            )
+              .map(([key, formula]) => {
+                const value = applyFormula(formula, context)
+                if (value === true) {
+                  // If the value is true, we just return the key - this is useful
+                  // for tags like <script async> where async doesn't have a value
+                  return key
+                }
+                return `${key}="${escapeAttrValue(value)}"`
+              })
+              .join(' ')} ${
+              VOID_HTML_ELEMENTS.includes(metaEntry.tag)
+                ? `/>`
+                : `>${
+                    metaEntry.content
+                      ? applyFormula(metaEntry.content, context)
+                      : ''
+                  }</${metaEntry.tag}>`
+            }`,
+          )
+        }
+      })
   }
   return headItems
 }

@@ -1,7 +1,7 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceAttributeRule: Rule<void> = {
+export const noReferenceAttributeRule: IssueRule<void> = {
   code: 'no-reference attribute',
   level: 'warning',
   category: 'No References',
@@ -23,7 +23,7 @@ export const noReferenceAttributeRule: Rule<void> = {
       const attrs = new Set<string>()
       for (const { formula } of component.formulasInComponent()) {
         if (formula.type === 'path' && formula.path[0] === 'Attributes') {
-          attrs.add(formula.path[1])
+          attrs.add(formula.path[1] as string)
         }
       }
 

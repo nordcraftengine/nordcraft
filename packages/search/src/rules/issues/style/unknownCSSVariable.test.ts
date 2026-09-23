@@ -1,4 +1,4 @@
-import type { ProjectFiles } from '@nordcraft/ssr/dist/src/ssr.types'
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
 import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'
@@ -109,6 +109,94 @@ describe('unknownCSSVariableRule', () => {
                   style: {
                     margin: 'var(--local-color)',
                     color: 'var(--own-color)',
+                  },
+                  events: {},
+                  classes: {},
+                  children: [],
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [unknownCSSVariableRule],
+      }),
+    )
+
+    expect(problems).toBeEmpty()
+  })
+
+  test('should not report CSS variables used on component instances or their children in slots when defined on the component root', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          themes: {
+            Default: {
+              fonts: [],
+              propertyDefinitions: {},
+            },
+          },
+          formulas: {},
+          components: {
+            'my-component': {
+              name: 'my-component',
+              nodes: {
+                root: {
+                  tag: 'div',
+                  type: 'element',
+                  attrs: {},
+                  style: {},
+                  events: {},
+                  classes: {},
+                  children: ['slot'],
+                  customProperties: {
+                    '--component-var': {
+                      formula: { type: 'value', value: 'red' },
+                    },
+                  },
+                },
+                slot: {
+                  type: 'slot',
+                  name: 'default',
+                  children: [],
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+            consumer: {
+              name: 'consumer',
+              nodes: {
+                root: {
+                  tag: 'div',
+                  type: 'element',
+                  attrs: {},
+                  style: {},
+                  events: {},
+                  classes: {},
+                  children: ['instance'],
+                },
+                instance: {
+                  type: 'component',
+                  name: 'my-component',
+                  attrs: {},
+                  style: {
+                    color: 'var(--component-var)',
+                  },
+                  events: {},
+                  children: ['child-in-slot'],
+                },
+                'child-in-slot': {
+                  tag: 'span',
+                  type: 'element',
+                  attrs: {},
+                  style: {
+                    background: 'var(--component-var)',
                   },
                   events: {},
                   classes: {},

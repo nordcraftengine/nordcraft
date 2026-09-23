@@ -1,7 +1,8 @@
 import { isLegacyApi } from '../api/api'
+import type { ComponentAPI } from '../api/apiTypes'
 import { LegacyToddleApi } from '../api/LegacyToddleApi'
 import { ToddleApiV2 } from '../api/ToddleApiV2'
-import type { Formula, FunctionOperation } from '../formula/formula'
+import { isFormula, type Formula } from '../formula/formula'
 import type { GlobalFormulas } from '../formula/formulaTypes'
 import {
   getFormulasInAction,
@@ -9,12 +10,7 @@ import {
 } from '../formula/formulaUtils'
 import { isDefined } from '../utils/util'
 import { getActionsInAction } from './actionUtils'
-import type {
-  ActionModel,
-  Component,
-  CustomActionModel,
-  NodeModel,
-} from './component.types'
+import type { ActionModel, Component, NodeModel } from './component.types'
 import { isPageComponent } from './isPageComponent'
 
 export class ToddleComponent<Handler> {
@@ -53,10 +49,8 @@ export class ToddleComponent<Handler> {
       if (components.has(node.name)) {
         return
       }
-      const component = this.getComponent(
-        node.name,
-        node.package ?? packageName,
-      )
+      const componentPackageName = node.package ?? packageName
+      const component = this.getComponent(node.name, componentPackageName)
       if (!component) {
         return
       }
@@ -65,57 +59,26 @@ export class ToddleComponent<Handler> {
         new ToddleComponent({
           component,
           getComponent: this.getComponent,
-          packageName: node.package ?? packageName,
+          packageName: componentPackageName,
           globalFormulas: this.globalFormulas,
         }),
       )
-      Object.values(component.nodes ?? {}).forEach(
-        visitNode(node.package ?? packageName),
-      )
+      Object.values(component.nodes ?? {}).forEach((node) => {
+        if (isDefined(node)) {
+          const nodePackageName =
+            (node.type === 'component' ? node.package : undefined) ??
+            componentPackageName ??
+            packageName
+          visitNode(nodePackageName)(node)
+        }
+      })
     }
-    Object.values(this.nodes ?? {}).forEach(visitNode())
+    Object.values(this.nodes ?? {}).forEach((node) => {
+      if (isDefined(node)) {
+        visitNode()(node)
+      }
+    })
     return [...components.values()]
-  }
-
-  get formulaReferences() {
-    return new Set(
-      Array.from(this.formulasInComponent())
-        .filter(
-          (
-            entry,
-          ): entry is {
-            path: (string | number)[]
-            formula: FunctionOperation
-            packageName?: string
-          } => entry.formula.type === 'function',
-        )
-        .flatMap((entry) => {
-          const refs = [entry.formula.name]
-          const packageName =
-            entry.formula.package ?? entry.packageName ?? this.packageName
-          if (
-            packageName &&
-            this.globalFormulas.packages?.[packageName]?.formulas?.[
-              entry.formula.name
-            ]
-          ) {
-            refs.push([packageName, entry.formula.name].join('/'))
-          }
-
-          return refs
-        }),
-    )
-  }
-
-  get actionReferences(): Set<string> {
-    return new Set(
-      Array.from(this.actionModelsInComponent())
-        .filter(
-          (entry): entry is [(string | number)[], CustomActionModel] =>
-            entry[1].type === 'Custom' || entry[1].type === undefined,
-        )
-        .map(([, a]) => [a.package, a.name].filter(isDefined).join('/')),
-    )
   }
 
   /**
@@ -366,6 +329,12 @@ export class ToddleComponent<Handler> {
       path: ['route', 'info', 'charset', 'formula'],
       packageName,
     })
+    yield* getFormulasInFormula({
+      formula: this.route?.info?.theme?.formula,
+      globalFormulas,
+      path: ['route', 'info', 'theme', 'formula'],
+      packageName,
+    })
     for (const [metaKey, meta] of Object.entries(
       this.route?.info?.meta ?? {},
     )) {
@@ -383,29 +352,59 @@ export class ToddleComponent<Handler> {
           packageName,
         })
       }
-    }
-    for (const [formulaKey, formula] of Object.entries(this.formulas ?? {})) {
       yield* getFormulasInFormula({
-        formula: formula.formula,
+        formula: meta.enabled,
         globalFormulas,
-        path: ['formulas', formulaKey, 'formula'],
+        path: ['route', 'info', 'meta', metaKey, 'enabled'],
         packageName,
       })
+    }
+    if (this.route?.response) {
+      yield* getFormulasInFormula({
+        formula: this.route.response.status,
+        globalFormulas,
+        path: ['route', 'response', 'status'],
+        packageName,
+      })
+      for (const [headerKey, header] of Object.entries(
+        this.route.response.headers ?? {},
+      )) {
+        if (isDefined(header) && isFormula(header)) {
+          yield* getFormulasInFormula({
+            formula: header,
+            globalFormulas,
+            path: ['route', 'response', 'headers', headerKey],
+            packageName,
+          })
+        }
+      }
+    }
+    for (const [formulaKey, formula] of Object.entries(this.formulas ?? {})) {
+      if (isDefined(formula)) {
+        yield* getFormulasInFormula({
+          formula: formula.formula,
+          globalFormulas,
+          path: ['formulas', formulaKey, 'formula'],
+          packageName,
+        })
+      }
     }
     for (const [variableKey, variable] of Object.entries(
       this.variables ?? {},
     )) {
-      yield* getFormulasInFormula({
-        formula: variable.initialValue,
-        globalFormulas,
-        path: ['variables', variableKey, 'initialValue'],
-        packageName,
-      })
+      if (isDefined(variable)) {
+        yield* getFormulasInFormula({
+          formula: variable.initialValue,
+          globalFormulas,
+          path: ['variables', variableKey, 'initialValue'],
+          packageName,
+        })
+      }
     }
     for (const [workflowKey, workflow] of Object.entries(
       this.workflows ?? {},
     )) {
-      for (const [actionKey, action] of workflow.actions.entries()) {
+      for (const [actionKey, action] of workflow?.actions.entries() ?? []) {
         yield* getFormulasInAction({
           action,
           globalFormulas,
@@ -438,7 +437,9 @@ export class ToddleComponent<Handler> {
       })
     }
     for (const [nodeKey, node] of Object.entries(this.nodes ?? {})) {
-      yield* visitNode(node, ['nodes', nodeKey])
+      if (isDefined(node)) {
+        yield* visitNode(node, ['nodes', nodeKey])
+      }
     }
   }
 
@@ -525,7 +526,9 @@ export class ToddleComponent<Handler> {
       ])
     }
     for (const [nodeKey, node] of Object.entries(this.nodes ?? {})) {
-      yield* visitNode(node, ['nodes', nodeKey])
+      if (isDefined(node)) {
+        yield* visitNode(node, ['nodes', nodeKey])
+      }
     }
   }
 
@@ -555,13 +558,14 @@ export class ToddleComponent<Handler> {
 
   get apis() {
     return Object.fromEntries(
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      Object.entries(this.component.apis ?? {}).map(([key, api]) => [
-        key,
-        isLegacyApi(api)
-          ? new LegacyToddleApi(api, key, this.globalFormulas)
-          : new ToddleApiV2(api, key, this.globalFormulas),
-      ]),
+      Object.entries(this.component.apis ?? {})
+        .filter((entry): entry is [string, ComponentAPI] => isDefined(entry[1]))
+        .map(([key, api]) => [
+          key,
+          isLegacyApi(api)
+            ? new LegacyToddleApi(api, key, this.globalFormulas)
+            : new ToddleApiV2(api, key, this.globalFormulas),
+        ]),
     )
   }
 

@@ -3,11 +3,20 @@ import type { CustomPropertyName } from '@nordcraft/core/dist/component/componen
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
 import { ToddleFormula } from '@nordcraft/core/dist/formula/ToddleFormula'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
-import type { AllRuleTypes } from './rules/issues/issueRules.index'
-import type { ApplicationState, FixType, NodeType, Result, Rule } from './types'
+import type {
+  ApplicationState,
+  FixType,
+  IssueResult,
+  IssueRule,
+  NodeType,
+  Rule,
+  SearchResult,
+  SearchRule,
+} from './types'
 import { shouldSearchExactPath, shouldVisitTree } from './util/helpers'
 
 interface FixOptions {
@@ -27,14 +36,21 @@ interface FixOptions {
  */
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: AllRuleTypes[]
+  rules: SearchRule<any, any>[]
+  pathsToVisit?: string[][]
+  useExactPaths?: boolean
+  withDetails?: boolean
+}): Generator<SearchResult>
+export function searchProject(args: {
+  files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
+  rules: IssueRule<any, any>[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
-}): Generator<Result>
+}): Generator<IssueResult>
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: AllRuleTypes[]
+  rules: IssueRule<any, any>[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
@@ -49,12 +65,12 @@ export function* searchProject({
   fixOptions,
 }: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: AllRuleTypes[]
+  rules: Rule[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
   fixOptions?: FixOptions
-}): Generator<Result | ProjectFiles | void> {
+}): Generator<SearchResult | IssueResult | ProjectFiles | void> {
   const memos = new Map<string, any>()
   const memo = (key: string | string[], fn: () => any) => {
     const stringKey = Array.isArray(key) ? key.join('/') : key
@@ -238,18 +254,18 @@ export function* searchProject({
 function visitNode(args: {
   args: {
     path: (string | number)[]
-    rules: Rule<any, any>[]
+    rules: Rule[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
   fixOptions: never
-}): Generator<Result>
+}): Generator<IssueResult>
 function visitNode(args: {
   args: {
     path: (string | number)[]
-    rules: Rule<any, any>[]
+    rules: Rule[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean
@@ -264,14 +280,14 @@ function* visitNode({
 }: {
   args: {
     path: (string | number)[]
-    rules: Rule<any, any>[]
+    rules: Rule[]
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
   fixOptions?: FixOptions
-}): Generator<Result | ProjectFiles | void> {
+}): Generator<IssueResult | ProjectFiles | void> {
   const { rules, pathsToVisit, useExactPaths, ...data } = args
   const { files, value, path, memo, nodeType } = data
   if (
@@ -288,11 +304,9 @@ function* visitNode({
     !useExactPaths ||
     shouldSearchExactPath({ path: data.path, pathsToVisit })
   ) {
-    const results: Result[] = []
+    const results: IssueResult[] | SearchResult[] = []
     let fixedFiles: ProjectFiles | undefined
-    for (const rule of rules) {
-      // eslint-disable-next-line no-console
-      console.timeStamp(`Visiting rule ${rule.code}`)
+    for (const rule of rules as (IssueRule & SearchRule)[]) {
       rule.visit(
         // Report callback used to report issues
         ({ path, details, fixes, info }) => {
@@ -316,16 +330,20 @@ function* visitNode({
               }
             }
           } else {
-            // We're in "report mode"
-            results.push({
-              code: rule.code,
-              category: rule.category,
-              level: rule.level,
-              path,
-              details,
-              fixes,
-              info,
-            })
+            // Optional filtering to remove undefined entries as different rule types have only subset of fields
+            results.push(
+              Object.fromEntries(
+                [
+                  ['code', rule.code],
+                  ['category', rule.category],
+                  ['level', rule.level],
+                  ['path', path],
+                  ['details', details],
+                  ['fixes', fixes],
+                  ['info', info],
+                ].filter(([, value]) => isDefined(value)),
+              ),
+            )
           }
         },
         data,
@@ -343,7 +361,7 @@ function* visitNode({
       }
     } else {
       for (const result of results) {
-        yield result
+        yield result as IssueResult & SearchResult
       }
     }
   }
@@ -353,6 +371,7 @@ function* visitNode({
     case 'action-model':
     case 'action-custom-model-argument':
     case 'action-custom-model-event':
+    case 'animation':
     case 'component-api-input':
     case 'component-api':
     case 'component-attribute':
@@ -385,43 +404,52 @@ function* visitNode({
       })
 
       for (const key in value.attributes) {
-        yield* visitNode({
-          args: {
-            nodeType: 'component-attribute',
-            value: value.attributes[key],
-            path: [...path, 'attributes', key],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-            component,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
+        const attribute = value.attributes[key]
+        if (isDefined(attribute)) {
+          yield* visitNode({
+            args: {
+              nodeType: 'component-attribute',
+              value: attribute,
+              path: [...path, 'attributes', key],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              component,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
       }
 
       for (const key in value.variables) {
-        yield* visitNode({
-          args: {
-            nodeType: 'component-variable',
-            value: value.variables[key],
-            path: [...path, 'variables', key],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-            component,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
+        const variable = value.variables[key]
+        if (isDefined(variable)) {
+          yield* visitNode({
+            args: {
+              nodeType: 'component-variable',
+              value: variable,
+              path: [...path, 'variables', key],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              component,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
       }
 
       for (const key in value.apis) {
         const api = value.apis[key]
+        if (!api) {
+          continue
+        }
         yield* visitNode({
           args: {
             nodeType: 'component-api',
@@ -460,39 +488,45 @@ function* visitNode({
       }
 
       for (const key in value.formulas) {
-        yield* visitNode({
-          args: {
-            nodeType: 'component-formula',
-            value: value.formulas[key],
-            path: [...path, 'formulas', key],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-            component,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
+        const formula = value.formulas[key]
+        if (isDefined(formula)) {
+          yield* visitNode({
+            args: {
+              nodeType: 'component-formula',
+              value: formula,
+              path: [...path, 'formulas', key],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              component,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
       }
 
       for (const key in value.workflows) {
-        yield* visitNode({
-          args: {
-            nodeType: 'component-workflow',
-            value: value.workflows[key],
-            path: [...path, 'workflows', key],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-            component,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
+        const workflow = value.workflows[key]
+        if (isDefined(workflow)) {
+          yield* visitNode({
+            args: {
+              nodeType: 'component-workflow',
+              value: workflow,
+              path: [...path, 'workflows', key],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              component,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
       }
 
       for (let i = 0; i < (value.events ?? []).length; i++) {
@@ -533,10 +567,11 @@ function* visitNode({
       }
 
       for (const key in value.nodes) {
+        const node = value.nodes[key]
         yield* visitNode({
           args: {
             nodeType: 'component-node',
-            value: value.nodes[key],
+            value: node,
             path: [...path, 'nodes', key],
             rules,
             files,
@@ -549,12 +584,12 @@ function* visitNode({
           fixOptions: fixOptions as any,
         })
         if (
-          value.nodes[key].type === 'component' ||
-          value.nodes[key].type === 'element'
+          isDefined(node) &&
+          (node.type === 'component' || node.type === 'element')
         ) {
           // Visit attributes on component and element nodes
-          for (const attrKey in value.nodes[key].attrs) {
-            const attr = value.nodes[key].attrs[attrKey]
+          for (const attrKey in node.attrs) {
+            const attr = node.attrs[attrKey]
             yield* visitNode({
               args: {
                 nodeType: 'component-node-attribute',
@@ -565,7 +600,7 @@ function* visitNode({
                 pathsToVisit,
                 useExactPaths,
                 memo,
-                node: value.nodes[key],
+                node: node,
               },
               state,
               fixOptions: fixOptions as any,
@@ -705,7 +740,7 @@ function* visitNode({
       break
 
     case 'component-node':
-      if (value.type === 'element' || value.type === 'component') {
+      if (value?.type === 'element' || value?.type === 'component') {
         for (const [styleKey, styleValue] of Object.entries(
           value.style ?? {},
         )) {
@@ -762,6 +797,31 @@ function* visitNode({
                   element: value,
                 },
                 path: [...path, 'customProperties', customPropertyKey],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
+          }
+        }
+
+        if (value.animations) {
+          for (const [animationKey, animation] of Object.entries(
+            value.animations,
+          )) {
+            yield* visitNode({
+              args: {
+                nodeType: 'animation',
+                node: value,
+                value: {
+                  key: animationKey,
+                  value: animation,
+                },
+                path: [...path, 'animations', animationKey],
                 rules,
                 files,
                 pathsToVisit,

@@ -1,7 +1,10 @@
-import { isLegacyApi, sortApiObjects } from '@nordcraft/core/dist/api/api'
+import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   Component,
   ComponentData,
+  ComponentFormula,
+  ComponentVariable,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
@@ -11,12 +14,13 @@ import {
   theme as defaultTheme,
   THEME_DATA_ATTRIBUTE,
 } from '@nordcraft/core/dist/styling/theme.const'
-import type { Toddle } from '@nordcraft/core/dist/types'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import type { Nullable, Toddle } from '@nordcraft/core/dist/types'
+import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
+import { sortApis } from '../api/sortApis'
 import { renderComponent } from '../components/renderComponent'
 import { isContextProvider } from '../context/isContextProvider'
 import type { Signal } from '../signal/signal'
@@ -37,6 +41,10 @@ export class ToddleComponent extends HTMLElement {
   #shadowRoot: ShadowRoot
   #signal: Signal<ComponentData>
   #files: { themes: Record<string, Theme> }
+  // Maps lowercased attribute names to their original case, so attributeChangedCallback
+  // (which receives lowercased names from observedAttributes) can look them up in the
+  // component's attributes without scanning the whole object on every change.
+  #attributeNames: Map<string, string>
 
   constructor(
     component: Component,
@@ -71,6 +79,12 @@ export class ToddleComponent extends HTMLElement {
     this.#files = {
       themes: options.themes,
     }
+    this.#attributeNames = new Map(
+      Object.keys(component.attributes ?? {}).map((key) => [
+        key.toLowerCase(),
+        key,
+      ]),
+    )
 
     // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
     const abortController = new AbortController()
@@ -97,23 +111,32 @@ export class ToddleComponent extends HTMLElement {
       package: undefined,
       toddle,
       env,
+      jsonPath: [],
     }
   }
 
   connectedCallback() {
-    sortApiObjects(Object.entries(this.#component.apis ?? {})).forEach(
-      ([name, api]) => {
-        if (isLegacyApi(api)) {
-          this.#ctx.apis[name] = createLegacyAPI(api, this.#ctx)
-        } else {
-          this.#ctx.apis[name] = createAPI({
-            apiRequest: api,
-            ctx: this.#ctx,
-            componentData: this.#signal.get(),
-          })
-        }
-      },
-    )
+    sortApis(
+      Object.entries(this.#component.apis ?? {}).filter(
+        (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
+      ),
+    ).forEach(([name, api]) => {
+      if (isLegacyApi(api)) {
+        this.#ctx.apis[name] = createLegacyAPI(api, {
+          ...this.#ctx,
+          jsonPath: ['apis', name],
+        })
+      } else {
+        this.#ctx.apis[name] = createAPI({
+          apiRequest: api,
+          ctx: {
+            ...this.#ctx,
+            jsonPath: ['apis', name],
+          },
+          componentData: this.#signal.get(),
+        })
+      }
+    })
     Object.values(this.#ctx.apis)
       .filter(isContextApiV2)
       .forEach((api) => {
@@ -125,19 +148,24 @@ export class ToddleComponent extends HTMLElement {
       // Subscribe to exposed formulas and update the component's data signal
       const formulaDataSignals = Object.fromEntries(
         Object.entries(this.#component.formulas ?? {})
-          .filter(([, formula]) => formula.exposeInContext)
+          .filter(([, formula]) => formula?.exposeInContext)
           .map(([name, formula]) => [
             name,
             this.#signal.map((data) =>
-              applyFormula(formula.formula, {
-                data,
-                component: this.#component,
-                formulaCache: this.#ctx.formulaCache,
-                root: this.#ctx.root,
-                package: this.#ctx.package,
-                toddle: this.#ctx.toddle,
-                env: this.#ctx.env,
-              }),
+              applyFormula(
+                (formula as ComponentFormula).formula,
+                {
+                  data,
+                  component: this.#component,
+                  formulaCache: this.#ctx.formulaCache,
+                  root: this.#ctx.root,
+                  package: this.#ctx.package,
+                  toddle: this.#ctx.toddle,
+                  env: this.#ctx.env,
+                  jsonPath: [],
+                },
+                ['formulas', name],
+              ),
             ),
           ]),
       )
@@ -269,9 +297,7 @@ export class ToddleComponent extends HTMLElement {
   }
 
   private getAttributeCaseInsensitive(name: string) {
-    const attributeName = Object.keys(this.#signal.get().Attributes).find(
-      (key) => key.toLowerCase() === name.toLowerCase(),
-    )
+    const attributeName = this.#attributeNames.get(name.toLowerCase())
 
     // This should never happen (TM) as we only observe attributes that are defined on the component
     if (!attributeName) {
@@ -312,7 +338,10 @@ export const createSignal = ({
     // Pages are not supported as custom elements, so no need to add location signal
     Location: undefined,
     Variables: mapObject(
-      component.variables ?? {},
+      filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+        component.variables ?? {},
+        ([_, variable]) => isDefined(variable),
+      ),
       ([name, { initialValue }]) => {
         if (!component) {
           throw new Error(`Component not found`)

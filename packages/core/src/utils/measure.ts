@@ -1,0 +1,84 @@
+const globalScope: any = typeof globalThis !== 'undefined' ? globalThis : window
+globalScope.__nc_measure_max_depth =
+  typeof sessionStorage !== 'undefined' &&
+  sessionStorage.getItem('__nc_measure_max_depth')
+    ? parseInt(sessionStorage.getItem('__nc_measure_max_depth')!)
+    : 10
+globalScope.__nc_measure_enabled =
+  typeof sessionStorage !== 'undefined' &&
+  sessionStorage.getItem('__nc_measure') === 'true'
+
+globalScope.__nc_enableMeasure = (enabled = true, maxDepth = 10) => {
+  if (enabled) {
+    sessionStorage.setItem('__nc_measure', 'true')
+    sessionStorage.setItem('__nc_measure_max_depth', String(maxDepth))
+  } else {
+    sessionStorage.removeItem('__nc_measure')
+    sessionStorage.removeItem('__nc_measure_max_depth')
+  }
+  globalScope.__nc_measure_enabled = enabled
+  globalScope.__nc_measure_max_depth = maxDepth
+}
+
+let measureCount = 0
+const STACK: string[] = []
+const NOOP = () => {}
+
+export const measure = (
+  key: string,
+  details: Record<string, unknown>,
+  type?: 'component',
+) => {
+  if (!globalScope.__nc_measure_enabled) {
+    return NOOP
+  }
+
+  const selfIndex = measureCount++
+  const selfStackSize = STACK.length
+  if (selfStackSize >= globalScope.__nc_measure_max_depth) {
+    return NOOP
+  }
+  if (STACK.length >= globalScope.__nc_measure_max_depth) {
+    return NOOP
+  }
+
+  const start = performance.now() + selfStackSize * 0.001
+  STACK.push(key)
+
+  let _stopped = false
+  return (extraDetails?: Record<string, unknown>) => {
+    if (_stopped) {
+      return
+    }
+
+    _stopped = true
+    const end = performance.now() + selfStackSize * 0.001
+    const mergedDetails = extraDetails
+      ? { ...details, ...extraDetails }
+      : details
+
+    performance.measure(key, {
+      start,
+      end,
+      detail: {
+        devtools: {
+          dataType: 'track-entry',
+          track: 'Nordcraft devtools',
+          color: COLOR_MAP[type as keyof typeof COLOR_MAP],
+          properties: [
+            ...Object.entries(mergedDetails).map(([k, v]) => [k, String(v)]),
+            ['Stack', STACK.join(' > ')],
+            ['Measure index', selfIndex],
+            ['Sub-measures', measureCount - selfIndex],
+          ],
+          tooltipText: `${selfIndex}. ${key}`,
+        },
+      },
+    })
+    STACK.pop()
+  }
+}
+
+const COLOR_MAP = {
+  component: 'secondary',
+}

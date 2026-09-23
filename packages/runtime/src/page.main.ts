@@ -1,7 +1,10 @@
-import { isLegacyApi, sortApiObjects } from '@nordcraft/core/dist/api/api'
+import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   Component,
   ComponentData,
+  ComponentFormula,
+  ComponentVariable,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
@@ -12,10 +15,11 @@ import type {
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
+  Nullable,
   PluginActionV2,
   Toddle,
 } from '@nordcraft/core/dist/types'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
@@ -25,6 +29,8 @@ import { match } from 'path-to-regexp'
 import { isContextApiV2 } from './api/apiUtils'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
+import { sortApis } from './api/sortApis'
+import { getDynamicMetaEntries } from './components/meta'
 import { renderComponent } from './components/renderComponent'
 import { isContextProvider } from './context/isContextProvider'
 import { initLogState, registerComponentToLogState } from './debug/logState'
@@ -165,18 +171,29 @@ export const createRoot = (domNode: HTMLElement) => {
     ...window.toddle.pageState,
     // Re-initialize variables since some of them might rely on client-side
     // state (e.g. localStorage, sensors etc.)
-    Variables: mapObject(component.variables ?? {}, ([name, variable]) => [
-      name,
-      applyFormula(variable.initialValue, {
-        data: window.toddle.pageState,
-        component,
-        formulaCache: {},
-        root: document,
-        package: undefined,
-        toddle: window.toddle,
-        env,
-      }),
-    ]),
+    Variables: mapObject(
+      filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+        component.variables ?? {},
+        ([_, variable]) => isDefined(variable),
+      ),
+      ([name, variable]) => [
+        name,
+        applyFormula(
+          variable.initialValue,
+          {
+            data: window.toddle.pageState,
+            component,
+            formulaCache: {},
+            root: document,
+            package: undefined,
+            toddle: window.toddle,
+            env,
+            jsonPath: [],
+          },
+          ['variables', name],
+        ),
+      ],
+    ),
   })
 
   registerComponentToLogState(component, dataSignal)
@@ -216,22 +233,31 @@ export const createRoot = (domNode: HTMLElement) => {
       console.info('EVENT FIRED', event, data),
     package: undefined,
     env,
+    jsonPath: [],
   }
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
-  sortApiObjects(Object.entries(component.apis ?? {})).forEach(
-    ([name, api]) => {
-      if (isLegacyApi(api)) {
-        ctx.apis[name] = createLegacyAPI(api, ctx)
-      } else {
-        ctx.apis[name] = createAPI({
-          apiRequest: api,
-          ctx,
-          componentData: dataSignal.get(),
-        })
-      }
-    },
-  )
+  sortApis(
+    Object.entries(component.apis ?? {}).filter(
+      (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
+    ),
+  ).forEach(([name, api]) => {
+    if (isLegacyApi(api)) {
+      ctx.apis[name] = createLegacyAPI(api, {
+        ...ctx,
+        jsonPath: ['apis', name],
+      })
+    } else {
+      ctx.apis[name] = createAPI({
+        apiRequest: api,
+        ctx: {
+          ...ctx,
+          jsonPath: ['apis', name],
+        },
+        componentData: dataSignal.get(),
+      })
+    }
+  })
   // Trigger actions for all APIs after all of them are created.
   Object.values(ctx.apis)
     .filter(isContextApiV2)
@@ -244,11 +270,11 @@ export const createRoot = (domNode: HTMLElement) => {
     // Subscribe to exposed formulas and update the component's data signal
     const formulaDataSignals = Object.fromEntries(
       Object.entries(component.formulas ?? {})
-        .filter(([, formula]) => formula.exposeInContext)
+        .filter(([, formula]) => formula?.exposeInContext)
         .map(([name, formula]) => [
           name,
           dataSignal.map((data) =>
-            applyFormula(formula.formula, {
+            applyFormula((formula as ComponentFormula).formula, {
               data,
               component,
               formulaCache: ctx.formulaCache,
@@ -374,7 +400,13 @@ const setupMetaUpdates = (
   if (dynamicLang) {
     dataSignal
       .map((data) =>
-        component ? applyFormula(langFormula, getFormulaContext(data)) : null,
+        component
+          ? applyFormula(langFormula, getFormulaContext(data), [
+              'route',
+              'info',
+              'language',
+            ])
+          : null,
       )
       .subscribe((newLang) => {
         if (isDefined(newLang) && document.documentElement.lang !== newLang) {
@@ -389,7 +421,13 @@ const setupMetaUpdates = (
   if (dynamicTitle) {
     dataSignal
       .map((data) =>
-        component ? applyFormula(titleFormula, getFormulaContext(data)) : null,
+        component
+          ? applyFormula(titleFormula, getFormulaContext(data), [
+              'route',
+              'info',
+              'title',
+            ])
+          : null,
       )
       .subscribe((newTitle) => {
         if (isDefined(newTitle) && document.title !== newTitle) {
@@ -402,14 +440,8 @@ const setupMetaUpdates = (
   const meta = component.route?.info?.meta
   const dynamicDescription =
     descriptionFormula && descriptionFormula.type !== 'value'
-  const dynamicMetaFormulas = Object.values(meta ?? {}).some(
-    (r) =>
-      r.content?.type !== 'value' ||
-      Object.values(
-        r.attrs ?? {}, // fallback to make sure we don't crash on legacy values
-      ).some((a) => a.type !== 'value'),
-  )
-  if (dynamicDescription || dynamicMetaFormulas) {
+  const dynamicMetaFormulas = getDynamicMetaEntries(meta)
+  if (dynamicDescription || Object.keys(dynamicMetaFormulas).length > 0) {
     const findMetaElement = (name: string) =>
       [...document.getElementsByTagName('meta')].find(
         (el) => el.name === name || el.getAttribute('property') === name,
@@ -460,7 +492,11 @@ const setupMetaUpdates = (
       dataSignal
         .map((data) =>
           component
-            ? applyFormula(descriptionFormula, getFormulaContext(data))
+            ? applyFormula(descriptionFormula, getFormulaContext(data), [
+                'route',
+                'info',
+                'description',
+              ])
             : null,
         )
         .subscribe((newDescription) => {
@@ -482,7 +518,7 @@ const setupMetaUpdates = (
                 Object.entries(m.attrs ?? {}).some(
                   ([k, value]) =>
                     k.toLowerCase() === 'property' &&
-                    value.type === 'value' &&
+                    value?.type === 'value' &&
                     typeof value.value === 'string' &&
                     value.value.toLowerCase() === 'og:description',
                 ),
@@ -503,16 +539,10 @@ const setupMetaUpdates = (
           }
         })
     }
-    if (dynamicMetaFormulas) {
-      Object.entries(meta ?? {})
-        // Filter out meta tags that have no dynamic formulas
-        .filter(
-          ([_, entry]) =>
-            // fallback to make sure we don't crash on legacy values.
-            entry.content?.type !== 'value' ||
-            Object.values(entry.attrs ?? {}).some((a) => a.type !== 'value'),
-        )
-        .forEach(([id, entry]) => {
+    if (Object.keys(dynamicMetaFormulas).length > 0) {
+      for (const id in dynamicMetaFormulas) {
+        const entry = dynamicMetaFormulas[id]
+        if (entry) {
           dataSignal
             .map((data) => {
               const context = getFormulaContext(data)
@@ -522,7 +552,14 @@ const setupMetaUpdates = (
                   component
                     ? {
                         ...agg,
-                        [key]: applyFormula(formula, context),
+                        [key]: applyFormula(formula, context, [
+                          'route',
+                          'info',
+                          'meta',
+                          id,
+                          'attrs',
+                          key,
+                        ]),
                       }
                     : agg,
                 {},
@@ -538,7 +575,8 @@ const setupMetaUpdates = (
               // Update the meta tags with the new values
               updateMetaElement({ tag: entry.tag, attrs, content }, id),
             )
-        })
+        }
+      }
     }
   }
 }

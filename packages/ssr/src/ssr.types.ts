@@ -24,7 +24,6 @@ export interface ToddleProject {
   description?: string | null
   short_id: string
   id: string
-  emoji?: string | null
   type: 'app' | 'package'
   thumbnail?: { path: string } | null
 }
@@ -39,13 +38,16 @@ export interface ProjectFiles {
   config?: {
     // See https://github.com/nordcraftengine/nordcraft/releases
     runtimeVersion?: string
-    theme: OldTheme
+    theme?: OldTheme
     meta?: {
       icon?: { formula: Formula }
       robots?: { formula: Formula }
       sitemap?: { formula: Formula }
       manifest?: { formula: Formula }
       serviceWorker?: { formula: Formula }
+    }
+    editorSettings?: {
+      snapSize?: number
     }
   }
   themes?: Record<string, Theme>
@@ -71,11 +73,29 @@ interface XanoApiService extends BaseApiService {
   type: 'xano'
 }
 
+interface DatoCmsApiService extends BaseApiService {
+  type: 'datocms'
+}
+
+interface UmbracoApiService extends BaseApiService {
+  type: 'umbraco'
+}
+
+interface ContentfulApiService extends BaseApiService {
+  type: 'contentful'
+}
+
 interface CustomApiService extends BaseApiService {
   type: 'custom'
 }
 
-export type ApiService = SupabaseApiService | XanoApiService | CustomApiService
+export type ApiService =
+  | ContentfulApiService
+  | CustomApiService
+  | DatoCmsApiService
+  | SupabaseApiService
+  | UmbracoApiService
+  | XanoApiService
 
 export type InstalledPackage = Pick<
   ProjectFiles,

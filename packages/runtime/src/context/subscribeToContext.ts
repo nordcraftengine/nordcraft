@@ -1,10 +1,13 @@
 import type {
   Component,
+  ComponentAttribute,
   ComponentData,
+  ComponentVariable,
 } from '@nordcraft/core/dist/component/component.types'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
+import type { Nullable } from '@nordcraft/core/dist/types'
+import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
@@ -73,7 +76,10 @@ export function subscribeToContext(
         const formulaContext: FormulaContext = {
           data: {
             Attributes: mapObject(
-              testProvider.attributes ?? {},
+              filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
+                testProvider.attributes ?? {},
+                ([_, attr]) => isDefined(attr),
+              ),
               ([name, attr]) => [name, attr.testValue],
             ),
           },
@@ -83,6 +89,8 @@ export function subscribeToContext(
           package: testProviderPackage ?? ctx?.package,
           toddle: ctx.toddle,
           env: ctx.env,
+          jsonPath: ctx.jsonPath,
+          reportFormulaEvaluation: ctx.reportFormulaEvaluation,
         }
 
         if (testProvider.route) {
@@ -99,10 +107,17 @@ export function subscribeToContext(
           }
         }
         formulaContext.data.Variables = mapObject(
-          testProvider.variables ?? {},
+          filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+            testProvider.variables ?? {},
+            ([_, variable]) => isDefined(variable),
+          ),
           ([name, variable]) => [
             name,
-            applyFormula(variable.initialValue, formulaContext),
+            applyFormula(variable.initialValue, {
+              ...formulaContext,
+              // We should not report formula evaluations for test data on context providers
+              reportFormulaEvaluation: undefined,
+            }),
           ],
         )
 
@@ -123,7 +138,11 @@ export function subscribeToContext(
 
                 return [
                   formulaName,
-                  applyFormula(formula.formula, formulaContext),
+                  applyFormula(formula.formula, {
+                    ...formulaContext,
+                    // We should not report formula evaluations for test data on context providers
+                    reportFormulaEvaluation: undefined,
+                  }),
                 ]
               }),
             ),

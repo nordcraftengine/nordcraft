@@ -1,5 +1,5 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 const nonStaticDimensionKeywords = ['', 'auto']
@@ -7,14 +7,14 @@ const nonStaticDimensionKeywords = ['', 'auto']
  * Lighthouse reports a similar issue:
  * https://web.dev/articles/optimize-cls?utm_source=lighthouse&utm_medium=devtools#images_without_dimensions
  */
-export const imageWithoutDimensionRule: Rule = {
+export const imageWithoutDimensionRule: IssueRule = {
   code: 'image without dimension',
   level: 'warning',
   category: 'Performance',
   visit: (report, { path, nodeType, value }) => {
     if (
       nodeType !== 'component-node' ||
-      value.type !== 'element' ||
+      value?.type !== 'element' ||
       !['img', 'source'].includes(value.tag)
     ) {
       return
@@ -24,13 +24,13 @@ export const imageWithoutDimensionRule: Rule = {
     let hasValidHeight = false
     let hasValidAspectRatio = false
 
-    if (isDefined(value.attrs.width)) {
+    if (isDefined(value.attrs?.width)) {
       const widthEval = contextlessEvaluateFormula(value.attrs.width)
       // If dynamic, we assume it is valid
       hasValidWidth ||= !widthEval.isStatic || checkValue(widthEval.result)
     }
 
-    if (isDefined(value.attrs.height)) {
+    if (isDefined(value.attrs?.height)) {
       const heightEval = contextlessEvaluateFormula(value.attrs.height)
       // If dynamic, we assume it is valid
       hasValidHeight ||= !heightEval.isStatic || checkValue(heightEval.result)

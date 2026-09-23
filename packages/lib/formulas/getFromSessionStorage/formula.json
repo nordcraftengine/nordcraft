@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/libFormula.schema.json",
   "name": "Get from Session Storage",
-  "description": "Read a value from session storage with the provided key.",
+  "description": "Read a value from session storage with the provided key.\nIf the value is a JSON string it is automatically parsed before it is returned.\nYou do not need to use the parseJSON formula",
   "cache": false,
   "arguments": [
     {

@@ -1,8 +1,8 @@
 import type {
+  Component,
   NodeModel,
   SlotNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
-import type { Nullable } from '@nordcraft/core/dist/types'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
 
@@ -14,6 +14,7 @@ export function createSlot({
   parentElement,
   instance,
   namespace,
+  slotRepeatIndex,
 }: NodeRenderer<SlotNodeModel>): ReadonlyArray<Element | Text> {
   const slotName = node.name ?? 'default'
   let children: Array<Element | Text> = []
@@ -30,6 +31,14 @@ export function createSlot({
         ctx.component.nodes,
       )
 
+      let path = child.path
+      if (slotComponentIndex > 0) {
+        path += `{${slotComponentIndex}}`
+      }
+      if (slotRepeatIndex && slotRepeatIndex > 0) {
+        path += `(${slotRepeatIndex})`
+      }
+
       return createNode({
         ...child,
         dataSignal: childDataSignal,
@@ -37,23 +46,21 @@ export function createSlot({
         ctx: {
           ...child.ctx,
           providers: ctx.providers,
+          jsonPath: ['nodes', child.id],
         },
         instance,
         namespace,
-        path:
-          slotComponentIndex > 0
-            ? `${child.path}(${slotComponentIndex})`
-            : child.path,
+        path,
       })
     })
   } else {
     // Otherwise, return placeholder content
-    children = node.children.flatMap((child, i) => {
+    children = (node.children ?? []).flatMap((child, i) => {
       return createNode({
         id: child,
         path: path + '.' + i,
         dataSignal,
-        ctx,
+        ctx: { ...ctx, jsonPath: ['nodes', child] },
         parentElement,
         instance,
         namespace,
@@ -80,13 +87,13 @@ export function createSlot({
 function getSlotComponentIndex(
   nodeName: string,
   node: NodeModel,
-  componentNodes: Nullable<Record<string, NodeModel>>,
+  componentNodes: Component['nodes'],
 ) {
   let slotsWithSameNameIndex = 0
   if (componentNodes) {
     for (const n in componentNodes) {
       const currentNode = componentNodes[n]
-      if (currentNode.type === 'slot' && currentNode.name === nodeName) {
+      if (currentNode?.type === 'slot' && currentNode.name === nodeName) {
         if (currentNode === node) {
           break
         }

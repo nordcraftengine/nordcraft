@@ -1,10 +1,10 @@
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { describe, expect, test } from 'bun:test'
-import '../../happydom'
+import '../happydom'
 import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
-import { customPropertiesStylesheet } from '../utils/subscribeCustomProperty'
+import { customPropertiesStylesheets } from '../utils/subscribeCustomProperty'
 import { createNode } from './createNode'
 
 describe('createNode()', () => {
@@ -46,7 +46,7 @@ describe('createNode()', () => {
     })
     expect(nodes.length).toBe(1)
     expect((nodes[0] as Element).outerHTML).toMatchInlineSnapshot(
-      `"<div data-node-id="test-node-id" data-id="test-node" data-component="My Component" class="cYXIdv"><span data-node-id="test-node-id.0" data-id="test-node.0" data-component="My Component" data-node-type="text">Item 1</span><span data-node-id="test-node-id.1" data-id="test-node.1" data-component="My Component" data-node-type="text">Item 2</span></div>"`,
+      `"<div data-node-id="test-node-id" data-id="test-node" data-component="My Component"><span data-node-id="test-node-id.0" data-id="test-node.0" data-component="My Component" data-node-type="text">Item 1</span><span data-node-id="test-node-id.1" data-id="test-node.1" data-component="My Component" data-node-type="text">Item 2</span></div>"`,
     )
   })
 
@@ -114,12 +114,10 @@ describe('createNode()', () => {
     })
 
     // Custom properties stylesheet should be created and have the custom property from the node
-    const sheet = customPropertiesStylesheet?.getStyleSheet()
+    const sheet = customPropertiesStylesheets.get(document)?.getStyleSheet()
     expect(sheet).toBeTruthy()
     expect(sheet?.cssRules.length).toBe(3)
-    expect(sheet?.cssRules[0].cssText).toBe(
-      '[data-id="0.0.0"] { --color: red; }',
-    )
+    expect(sheet?.cssRules[0].cssText).toBe('.pGfTH { --color: red; }')
 
     parentElement.append(...nodes)
 
@@ -186,12 +184,8 @@ describe('createNode()', () => {
     expect(sheet?.cssRules.length).toBe(2)
 
     // The rules should be correct for the remaining elements
-    expect(sheet?.cssRules[0].cssText).toBe(
-      '[data-id="0.0.0"] { --color: red; }',
-    )
-    expect(sheet?.cssRules[1].cssText).toBe(
-      '[data-id="0.0.0(2)"] { --color: red; }',
-    )
+    expect(sheet?.cssRules[0].cssText).toBe('.pGfTH { --color: red; }')
+    expect(sheet?.cssRules[1].cssText).toBe('.YomHY { --color: red; }')
 
     // Add the same item multiple times
     dataSignal.update((data) => {
@@ -675,12 +669,213 @@ describe('createNode()', () => {
       instance: {},
     })
 
-    const sheet = customPropertiesStylesheet?.getStyleSheet()
+    const sheet = customPropertiesStylesheets.get(ctx.root)?.getStyleSheet()
     // Test that the order makes sense
     expect(Array.from(sheet?.cssRules ?? []).map((r) => r.cssText)).toEqual([
-      `[data-id="0"] { --color: ${innermostColor}; }`,
-      `[data-id="0"].first_wrapper\\:root { --color: ${middleColor}; }`,
-      `[data-id="0"].My_Component\\:root { --color: ${outermostColor}; }`,
+      `.bnID { --color: ${innermostColor}; }`,
+      `.bnID.first_wrapper\\:root { --color: ${middleColor}; }`,
+      `.bnID.My_Component\\:root { --color: ${outermostColor}; }`,
     ])
+  })
+
+  test('it should add repeat index even if a new item is added at the beginning of a list, if that list have other items with repeat index', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        items: [{ id: '1' }, { id: '2' }],
+      },
+    })
+
+    const ctx = {
+      isRootComponent: false,
+      component: {
+        name: 'My Component',
+        nodes: {
+          repeat: {
+            type: 'element',
+            tag: 'div',
+            repeat: { type: 'path', path: ['Variables', 'items'] },
+            repeatKey: { type: 'path', path: ['ListItem', 'Item', 'id'] },
+            children: ['text'],
+            attrs: {},
+            events: {},
+          },
+          text: {
+            type: 'text',
+            value: { type: 'path', path: ['ListItem', 'Item', 'id'] },
+          },
+        },
+      },
+      root: document,
+      env: { runtime: 'page' },
+      formulaCache: {},
+      toddle: { getCustomFormula: () => undefined },
+    } as any as ComponentContext
+
+    const nodes = createNode({
+      ctx,
+      namespace: 'http://www.w3.org/1999/xhtml',
+      dataSignal,
+      id: 'repeat',
+      instance: {},
+      parentElement,
+      path: '0',
+    })
+    parentElement.append(...nodes)
+
+    expect(parentElement.children[0].getAttribute('data-id')).toBe('0')
+    expect(parentElement.children[1].getAttribute('data-id')).toBe('0(1)')
+
+    // Prepend new item
+    dataSignal.update((data) => ({
+      ...data,
+      Variables: {
+        ...data.Variables,
+        items: [{ id: '3' }, { id: '1' }, { id: '2' }],
+      },
+    }))
+
+    // First check that we have no duplicate data-ids
+    const dataIds = new Set<string>()
+    for (const child of parentElement.children) {
+      const dataId = child.getAttribute('data-id')
+      expect(dataId).toBeTruthy()
+      expect(
+        dataIds.has(dataId!),
+        `Duplicate data-id found: ${dataId}, all ids: ${[...parentElement.children].map((c) => c.getAttribute('data-id'))}`,
+      ).toBeFalsy()
+      dataIds.add(dataId!)
+    }
+
+    expect(parentElement.children[0].getAttribute('data-id')).toBe('0(2)')
+    expect(parentElement.children[1].getAttribute('data-id')).toBe('0')
+    expect(parentElement.children[2].getAttribute('data-id')).toBe('0(1)')
+  })
+
+  test('it should give slots unique ids even if they are repeated multiple times in the same component', () => {
+    // In this test, we have a div with a single default slot, but the div is repeated with a range node 3 times. We want to ensure that the slot gets a unique path
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        items: [1, 2, 3],
+      },
+    })
+
+    const ctx = {
+      isRootComponent: false,
+      component: {
+        name: 'My Component',
+        nodes: {
+          'repeat-node': {
+            type: 'element',
+            tag: 'div',
+            repeat: { type: 'path', path: ['Variables', 'items'] },
+            children: ['child-comp-1', 'child-comp-2'],
+            attrs: {},
+            events: {},
+          },
+          'child-comp-1': {
+            type: 'component',
+            name: 'Child',
+            children: ['slotted-span-1', 'slotted-span-2'],
+            attrs: {},
+            events: {},
+          },
+          'child-comp-2': {
+            type: 'component',
+            name: 'Child',
+            children: ['slotted-span-1', 'slotted-span-2'],
+            attrs: {},
+            events: {},
+          },
+          'slotted-span-1': {
+            type: 'element',
+            tag: 'span',
+            attrs: { class: { type: 'value', value: 'span-1' } },
+            events: {},
+            children: [],
+          },
+          'slotted-span-2': {
+            type: 'element',
+            tag: 'span',
+            attrs: { class: { type: 'value', value: 'span-2' } },
+            events: {},
+            children: [],
+          },
+        },
+      },
+      root: document,
+      stores: {
+        theme: signal('light'),
+      },
+      env: { runtime: 'page' },
+      formulaCache: {},
+      toddle: { getCustomFormula: () => undefined },
+      children: {},
+      providers: {},
+      components: [
+        {
+          name: 'Child',
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'div',
+              children: ['repeated-slot-1', 'repeated-slot-2'],
+              attrs: {},
+              events: {},
+            },
+            'repeated-slot-1': {
+              type: 'slot',
+              name: 'default',
+              repeat: { type: 'path', path: ['Variables', 'items'] },
+              children: [],
+              attrs: {},
+              events: {},
+            },
+            'repeated-slot-2': {
+              type: 'slot',
+              name: 'default',
+              repeat: { type: 'path', path: ['Variables', 'items'] },
+              children: [],
+              attrs: {},
+              events: {},
+            },
+          },
+          variables: {
+            items: { initialValue: { type: 'value', value: [1, 2, 3] } },
+          },
+        },
+      ],
+    } as any as ComponentContext
+
+    const nodes = createNode({
+      ctx,
+      namespace: 'http://www.w3.org/1999/xhtml',
+      dataSignal,
+      path: '0',
+      id: 'repeat-node',
+      parentElement,
+      instance: {},
+    })
+    parentElement.append(...nodes)
+
+    // Elements should have unique data-ids
+    const dataIds = new Set<string>()
+    const elements = parentElement.querySelectorAll('span')
+    for (const el of elements) {
+      const dataId = el.getAttribute('data-id')
+      expect(dataId).toBeTruthy()
+      expect(
+        dataIds.has(dataId!),
+        `Duplicate data-id found: ${dataId}, all ids: ${Array.from(dataIds).join(', ')}`,
+      ).toBeFalsy()
+      dataIds.add(dataId!)
+    }
   })
 })

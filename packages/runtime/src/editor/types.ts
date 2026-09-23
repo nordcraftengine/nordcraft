@@ -58,18 +58,26 @@ export type NordcraftPreviewEvent =
   | { type: 'selection'; selectedNodeId: string | null }
   | { type: 'highlight'; highlightedNodeId: string | null }
   | {
-      type: 'click' | 'mousemove' | 'dblclick'
+      type: 'click' | 'mousemove' | 'mousedown' | 'dblclick'
       metaKey: boolean
       x: number
       y: number
+      buttons: number
+      canvasTool: 'select' | 'pan' | 'insert-div' | 'insert-text'
     }
   | { type: 'report_document_scroll_size' }
-  | { type: 'update_inner_text'; innerText: string }
   | { type: 'reload' }
   | { type: 'fetch_api'; apiKey: string }
   | { type: 'introspect_qraphql_api'; apiKey: string }
   | { type: 'drag-started'; x: number; y: number }
   | { type: 'drag-ended'; canceled?: true }
+  | {
+      type: 'insert-started'
+      x: number
+      y: number
+      canvasTool: 'select' | 'pan' | 'insert-div' | 'insert-text'
+    }
+  | { type: 'insert-ended'; canceled?: true }
   | { type: 'keydown'; key: string; altKey: boolean; metaKey: boolean }
   | { type: 'keyup'; key: string; altKey: boolean; metaKey: boolean }
   | {
@@ -94,6 +102,7 @@ export type NordcraftPreviewEvent =
         | string
         | undefined
       fillMode: 'none' | 'forwards' | 'backwards' | 'both' | undefined
+      iteration: number
     }
   | {
       type: 'preview_style'
@@ -114,6 +123,12 @@ export type NordcraftPreviewEvent =
       type: 'preview_theme'
       theme: string | null
     }
+  | {
+      type: 'viewport_size'
+      height: number
+      enabled: boolean
+    }
+  | { type: 'capture_screenshot'; id: string; viewportWidth?: number }
 
 export type EditorPostMessageType =
   | {
@@ -127,6 +142,7 @@ export type EditorPostMessageType =
   | {
       type: 'highlight'
       highlightedNodeId: string | null
+      exactHighlightedNodeId?: string | null
     }
   | {
       type: 'navigate'
@@ -135,7 +151,6 @@ export type EditorPostMessageType =
   | {
       type: 'documentScrollSize'
       scrollHeight: number
-      scrollWidth: number
     }
   | {
       type: 'nodeMoved'
@@ -144,8 +159,18 @@ export type EditorPostMessageType =
       index?: number
     }
   | {
+      type: 'insertNode'
+      parent?: string | null
+      index?: number
+    }
+  | {
       type: 'computedStyle'
       computedStyle: Record<string, string>
+      repeatedItemsValues: {
+        delay: string
+        duration: string
+      }[]
+      timelineTime: { delay: string; duration: string }
     }
   | {
       type: 'style'
@@ -186,6 +211,11 @@ export type EditorPostMessageType =
     }
   | { type: 'data'; data: ComponentData }
   | {
+      type: 'componentFormulaData'
+      data: Record<string, any>
+      component?: string
+    }
+  | {
       type: 'selectionRect'
       rect: ReturnType<typeof getRectData>
     }
@@ -198,8 +228,28 @@ export type EditorPostMessageType =
       data: any
       apiKey: string
     }
+  | {
+      type: 'updateTextNodeContent'
+      innerText: string
+      nodeId: string | null
+    }
+  | {
+      type: 'screenshot'
+      id: string
+      file: {
+        type: string
+        size: number
+        dimensions: { width: number; height: number } | null
+        url: string
+      } | null
+      error?: string
+    }
+  | {
+      type: 'requestViewportWidth'
+      width: number
+    }
 
-export type DragState = {
+export type DragInsertState = {
   /**
    * Dragging elements within the initial container is a reorder operation while dragging elements outside the initial container is an insert operation.
    * While they share some common properties, we need to differentiate between the two to handle them differently.
@@ -227,7 +277,8 @@ export type DragState = {
 export type InsertArea = {
   layout: 'block' | 'inline'
   parent: Element
-  index: number
+  indexAll: number
+  indexSlot: number
   center: Point
   size: number
   direction: 1 | -1
@@ -275,4 +326,25 @@ export enum TextNodeComputedStyles {
   WRITING_MODE = 'writing-mode',
   LINE_BREAK = 'line-break',
   OVERFLOW_WRAP = 'overflow-wrap',
+}
+
+export type SelectionState = {
+  anchor: SelectionAnchor | null
+  mode: SelectionMode
+}
+
+export type SelectionMode = 'char' | 'word' | 'all'
+
+export type SelectionAnchor = {
+  node: Node
+  offset: number
+  wordStart: number
+  wordEnd: number
+}
+
+export type PointerState = {
+  lastPressPosition: Point
+  buttons: number
+  lastPressTime: number
+  pressCount: number
 }

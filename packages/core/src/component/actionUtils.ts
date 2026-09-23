@@ -17,8 +17,24 @@ export function* getActionsInAction(
     case 'SetURLParameters':
     case 'SetVariable':
     case 'TriggerEvent':
-    case 'TriggerWorkflow':
     case 'TriggerWorkflowCallback':
+      break
+    case 'TriggerWorkflow':
+      for (const [key, callback] of Object.entries(action.callbacks ?? {})) {
+        if (callback) {
+          for (const [aKey, a] of Object.entries(callback.actions ?? {})) {
+            if (a) {
+              yield* getActionsInAction(a, [
+                ...path,
+                'callbacks',
+                key,
+                'actions',
+                aKey,
+              ])
+            }
+          }
+        }
+      }
       break
     case 'Fetch':
       for (const [key, a] of Object.entries(action.onSuccess?.actions ?? {})) {

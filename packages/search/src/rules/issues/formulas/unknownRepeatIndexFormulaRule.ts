@@ -1,7 +1,7 @@
 import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownRepeatIndexFormulaRule: Rule = {
+export const unknownRepeatIndexFormulaRule: IssueRule = {
   code: 'unknown repeat index formula',
   level: 'error',
   category: 'Unknown Reference',
@@ -30,17 +30,17 @@ export const unknownRepeatIndexFormulaRule: Rule = {
       return
     }
     const findParentWithRepeat = (
-      args: [id: string, node: NodeModel] | undefined,
+      args: [id: string, node?: NodeModel | null] | undefined,
     ): NodeModel | undefined => {
       if (!args) {
         return
       }
       const [id, node] = args
-      if (node.repeat) {
+      if (node?.repeat) {
         return node
       }
       const parent = Object.entries(component.nodes ?? {}).find(([_, node]) =>
-        node.children?.includes(id),
+        node?.children?.includes(id),
       )
       return findParentWithRepeat(parent)
     }

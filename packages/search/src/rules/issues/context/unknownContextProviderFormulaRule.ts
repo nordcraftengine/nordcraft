@@ -1,6 +1,6 @@
-import type { Rule } from '../../../types'
+import type { IssueRule } from '../../../types'
 
-export const unknownContextProviderFormulaRule: Rule<{
+export const unknownContextProviderFormulaRule: IssueRule<{
   providerName: string
   formulaName: string
 }> = {
@@ -23,8 +23,9 @@ export const unknownContextProviderFormulaRule: Rule<{
     if (!component) {
       return
     }
-    for (const formulaName of value.formulas) {
-      if (component.formulas?.[formulaName]?.exposeInContext !== true) {
+    for (const key of value.formulas) {
+      if (component.formulas?.[key]?.exposeInContext !== true) {
+        const formulaName = component.formulas?.[key]?.name ?? key
         report({
           path,
           info: {
