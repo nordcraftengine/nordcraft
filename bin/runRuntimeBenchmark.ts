@@ -158,6 +158,24 @@ async function runBenchmark() {
     }
   }
 
+  const getFileSize = (filePath: string): number | null => {
+    try {
+      if (fs.existsSync(filePath)) {
+        return fs.statSync(filePath).size
+      }
+    } catch {
+      // Ignore
+    }
+    return null
+  }
+
+  const baseRuntimeBytes = getFileSize(
+    path.join(baseDistDir, 'page.main.esm.js'),
+  )
+  const headRuntimeBytes = getFileSize(
+    path.join(config.headDir, 'page.main.esm.js'),
+  )
+
   const baseSha = computeSha256(path.join(baseDistDir, 'page.main.esm.js'))
   const headSha = computeSha256(path.join(config.headDir, 'page.main.esm.js'))
   const isByteIdentical = Boolean(baseSha && headSha && baseSha === headSha)
@@ -346,24 +364,6 @@ async function runBenchmark() {
   if (createdWorktreePath) {
     cleanupWorktree(createdWorktreePath)
   }
-
-  const getFileSize = (filePath: string): number | null => {
-    try {
-      if (fs.existsSync(filePath)) {
-        return fs.statSync(filePath).size
-      }
-    } catch {
-      // Ignore
-    }
-    return null
-  }
-
-  const baseRuntimeBytes = getFileSize(
-    path.join(baseDistDir, 'page.main.esm.js'),
-  )
-  const headRuntimeBytes = getFileSize(
-    path.join(config.headDir, 'page.main.esm.js'),
-  )
 
   if (baseRuntimeBytes !== null && headRuntimeBytes !== null) {
     const deltaBytes = baseRuntimeBytes - headRuntimeBytes
