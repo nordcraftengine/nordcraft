@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { spawnSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import { chromium } from 'playwright'
@@ -72,6 +73,7 @@ function parseArgs() {
   const args = new Map<string, string>()
   for (const arg of process.argv.slice(2)) {
     const [key, value] = arg.split('=')
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     args.set(key, value ?? 'true')
   }
 
@@ -94,38 +96,37 @@ async function prepareBaseWorktree(baseRef: string): Promise<string> {
   const tmpDir = `/tmp/nordcraft-base-${Date.now()}`
   console.log(`Setting up base git worktree from ${baseRef} at ${tmpDir}...`)
 
-  const addProc = Bun.spawnSync(['git', 'worktree', 'add', tmpDir, baseRef])
-  if (addProc.exitCode !== 0) {
+  const addProc = spawnSync('git', ['worktree', 'add', tmpDir, baseRef])
+  if (addProc.status !== 0) {
     throw new Error(
       `Failed to create worktree: ${addProc.stderr.toString().trim()}`,
     )
   }
 
   console.log(`Installing dependencies in base worktree...`)
-  const installProc = Bun.spawnSync(['bun', 'install', '--frozen-lockfile'], {
+  const installProc = spawnSync('bun', ['install', '--frozen-lockfile'], {
     cwd: tmpDir,
   })
-  if (installProc.exitCode !== 0) {
+  if (installProc.status !== 0) {
     console.warn(
       `Warning during base bun install: ${installProc.stderr.toString().trim()}`,
     )
   }
 
   console.log(`Building runtime packages in base worktree...`)
-  const buildProc = Bun.spawnSync(['bun', 'run', 'build'], { cwd: tmpDir })
-  if (buildProc.exitCode !== 0) {
+  const buildProc = spawnSync('bun', ['run', 'build'], { cwd: tmpDir })
+  if (buildProc.status !== 0) {
     throw new Error(
       `Failed to build base packages: ${buildProc.stderr.toString().trim()}`,
     )
   }
-
   return path.join(tmpDir, 'packages/runtime/dist')
 }
 
 function cleanupWorktree(worktreeDir: string) {
   try {
     const parentDir = path.resolve(worktreeDir, '../../..')
-    Bun.spawnSync(['git', 'worktree', 'remove', parentDir, '--force'])
+    spawnSync('git', ['worktree', 'remove', parentDir, '--force'])
   } catch {
     // Ignore cleanup error
   }
@@ -309,6 +310,9 @@ async function runBenchmark() {
       noiseThresholdPercent: config.noiseThresholdPercent,
     })
 
+    const cleanTimeVerdict = timeResult.verdict.replace(' (Identical code)', '')
+    const cleanHeapVerdict = heapResult.verdict.replace(' (Identical code)', '')
+
     results.push({
       id: scenario.id,
       name: scenario.name,
@@ -330,9 +334,9 @@ async function runBenchmark() {
       deltaHeapKb,
       deltaHeapPercent,
       timeStatus: timeResult.status,
-      timeVerdict: timeResult.verdict,
+      timeVerdict: cleanTimeVerdict,
       heapStatus: heapResult.status,
-      heapVerdict: heapResult.verdict,
+      heapVerdict: cleanHeapVerdict,
     })
   }
 
@@ -343,40 +347,78 @@ async function runBenchmark() {
     cleanupWorktree(createdWorktreePath)
   }
 
+  const getFileSize = (filePath: string): number | null => {
+    try {
+      if (fs.existsSync(filePath)) {
+        return fs.statSync(filePath).size
+      }
+    } catch {
+      // Ignore
+    }
+    return null
+  }
+
+  const baseRuntimeBytes = getFileSize(
+    path.join(baseDistDir, 'page.main.esm.js'),
+  )
+  const headRuntimeBytes = getFileSize(
+    path.join(config.headDir, 'page.main.esm.js'),
+  )
+
+  if (baseRuntimeBytes !== null && headRuntimeBytes !== null) {
+    const deltaBytes = baseRuntimeBytes - headRuntimeBytes
+    const deltaPercent =
+      baseRuntimeBytes > 0 ? (deltaBytes / baseRuntimeBytes) * 100 : 0
+    let deltaStr = '0 B (0.0%)'
+    if (deltaBytes !== 0) {
+      const sign = deltaBytes > 0 ? '+' : '-'
+      const absBytes = Math.abs(deltaBytes)
+      const absPercent = Math.abs(deltaPercent)
+      const sizeStr =
+        absBytes >= 1024 ? formatKb(absBytes / 1024) : `${absBytes} B`
+      const pctStr =
+        absPercent < 0.1 && absPercent > 0
+          ? absPercent.toFixed(2)
+          : absPercent.toFixed(1)
+      deltaStr = `${sign}${sizeStr} (${sign}${pctStr}%)`
+    }
+    console.log(
+      `\nRuntime size: Base ${formatKb(baseRuntimeBytes / 1024)} vs. Head ${formatKb(headRuntimeBytes / 1024)} (Delta: ${deltaStr})`,
+    )
+  }
+
   // Print CLI Summary Table
   console.log(
     '\n==================================== BENCHMARK RESULTS ====================================',
   )
   console.log(
     'Case'.padEnd(17) +
-      'Base Time'.padStart(10) +
-      'Head Time'.padStart(10) +
-      'Time Delta'.padStart(11) +
-      '  Time Verdict'.padEnd(16) +
-      'Base Heap'.padStart(10) +
-      'Head Heap'.padStart(10) +
-      'Heap Delta'.padStart(11) +
+      'Base/Head time'.padStart(20) +
+      'Delta'.padStart(9) +
+      '  Time Verdict'.padEnd(18) +
+      'Base/Head heap'.padStart(21) +
+      'Delta'.padStart(11) +
       '  Heap Verdict',
   )
-  console.log('-'.repeat(105))
+  console.log('-'.repeat(110))
 
   for (const r of results) {
     const baseStr = `${r.baseMedianMs.toFixed(1)} ms`
     const headStr = `${r.headMedianMs.toFixed(1)} ms`
+    const timeCombined = `${baseStr} / ${headStr}`
     const deltaPctStr = `${r.deltaPercent >= 0 ? '+' : ''}${r.deltaPercent.toFixed(1)}%`
     const baseHeapStr = formatKb(r.baseHeapMedianKb)
     const headHeapStr = formatKb(r.headHeapMedianKb)
+    const heapCombined = `${baseHeapStr} / ${headHeapStr}`
     const deltaHeapStr = `${r.deltaHeapKb >= 0 ? '+' : ''}${formatKb(r.deltaHeapKb)}`
 
     console.log(
       r.id.padEnd(17) +
-        baseStr.padStart(10) +
-        headStr.padStart(10) +
-        deltaPctStr.padStart(11) +
+        timeCombined.padStart(20) +
+        deltaPctStr.padStart(9) +
         '  ' +
         r.timeVerdict.padEnd(16) +
-        baseHeapStr.padStart(10) +
-        headHeapStr.padStart(10) +
+        heapCombined.padStart(21) +
         deltaHeapStr.padStart(11) +
         '  ' +
         r.heapVerdict,
@@ -393,7 +435,6 @@ async function runBenchmark() {
   const markdownLines = [
     '## ⚡ Nordcraft Runtime Performance Benchmark',
     '',
-    `- **Methodology**: Headless Chromium • ${config.runs} Interleaved Trials • Forced Pre-run GC • ${config.warmup} Discarded Warmups`,
     `- **Noise & Equivalence Threshold**: ±${config.noiseThresholdPercent.toFixed(1)}% (Delta within CI or threshold reported as 1:1)`,
     `- **Bundle Identity**: ${isByteIdentical ? '`Identical build artifacts (1:1 confirmed)`' : '`Distinct build artifacts`'}`,
     '',
@@ -412,19 +453,21 @@ async function runBenchmark() {
   }
 
   markdownLines.push(
-    '| Scenario | Base Time | Head Time | Time Delta | 95% CI | Time Verdict | Base Heap | Head Heap | Heap Delta | Heap Verdict |',
-    '| :--- | ---: | ---: | ---: | :---: | :---: | ---: | ---: | ---: | :---: |',
+    '| Scenario | Base/Head time | Delta | 95% CI | Time Verdict | Base/Head heap | Delta | Heap Verdict |',
+    '| :--- | ---: | ---: | :---: | :---: | ---: | ---: | :---: |',
     ...results.map((r) => {
       const baseStr = `${r.baseMedianMs.toFixed(2)} ms`
       const headStr = `${r.headMedianMs.toFixed(2)} ms`
+      const timeCombined = `${baseStr} / ${headStr}`
       const deltaPctStr = `${r.deltaPercent >= 0 ? '+' : ''}${r.deltaPercent.toFixed(2)}%`
       const deltaMsStr = `${r.deltaMs >= 0 ? '+' : ''}${r.deltaMs.toFixed(2)} ms`
       const timeDeltaFull = `${deltaPctStr} (${deltaMsStr})`
       const ciStr = `[${r.ciLowPercent.toFixed(1)}%, ${r.ciHighPercent.toFixed(1)}%]`
       const baseHeapStr = formatKb(r.baseHeapMedianKb)
       const headHeapStr = formatKb(r.headHeapMedianKb)
+      const heapCombined = `${baseHeapStr} / ${headHeapStr}`
       const deltaHeapStr = `${r.deltaHeapKb >= 0 ? '+' : ''}${formatKb(r.deltaHeapKb)} (${r.deltaHeapPercent >= 0 ? '+' : ''}${r.deltaHeapPercent.toFixed(1)}%)`
-      return `| **${r.id}** | ${baseStr} | ${headStr} | ${timeDeltaFull} | ${ciStr} | ${r.timeVerdict} | ${baseHeapStr} | ${headHeapStr} | ${deltaHeapStr} | ${r.heapVerdict} |`
+      return `| **${r.id}** | ${timeCombined} | ${timeDeltaFull} | ${ciStr} | ${r.timeVerdict} | ${heapCombined} | ${deltaHeapStr} | ${r.heapVerdict} |`
     }),
     '',
   )

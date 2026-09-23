@@ -16,6 +16,12 @@ export function computeSha256(filePath: string): string | null {
   }
 }
 
+/**
+ * Computes the q-th quantile of an array of numbers.
+ * @param arr - The array of numbers.
+ * @param q - The quantile to compute (between 0 and 1).
+ * @returns The q-th quantile value.
+ */
 export function quantile(arr: number[], q: number) {
   if (arr.length === 0) return 0
   const sorted = [...arr].sort((a, b) => a - b)
@@ -28,20 +34,43 @@ export function quantile(arr: number[], q: number) {
   return sorted[base]
 }
 
+/**
+ * Computes the median of an array of numbers.
+ * @param arr - The array of numbers.
+ * @returns The median value.
+ */
 export function median(arr: number[]) {
   return quantile(arr, 0.5)
 }
 
+/**
+ * Computes the mean (average) of an array of numbers.
+ * @param arr - The array of numbers.
+ * @returns The mean value.
+ */
 export function mean(arr: number[]) {
   if (arr.length === 0) return 0
   return arr.reduce((a, b) => a + b, 0) / arr.length
 }
 
+/**
+ * Computes the variance of an array of numbers.
+ * @param arr - The array of numbers.
+ * @param m - The mean of the array.
+ * @returns The variance value.
+ */
 export function variance(arr: number[], m: number) {
   if (arr.length <= 1) return 0
   return arr.reduce((sum, x) => sum + Math.pow(x - m, 2), 0) / (arr.length - 1)
 }
 
+/**
+ * Computes the bootstrap confidence interval for the difference in medians between two arrays of numbers.
+ * @param base - The base array of numbers.
+ * @param head - The head array of numbers.
+ * @param iterations - The number of bootstrap iterations to perform (default is 1000).
+ * @returns An object containing the low and high bounds of the 95% confidence interval.
+ */
 export function bootstrapCi(base: number[], head: number[], iterations = 1000) {
   const diffs: number[] = []
   const nBase = base.length
@@ -70,6 +99,11 @@ export function bootstrapCi(base: number[], head: number[], iterations = 1000) {
   }
 }
 
+/**
+ * Computes the cumulative distribution function (CDF) of the standard normal distribution at a given value.
+ * @param x - The value at which to evaluate the CDF.
+ * @returns The probability that a standard normal random variable is less than or equal to x.
+ */
 export function normalCdf(x: number) {
   const b1 = 0.31938153
   const b2 = -0.356563782
@@ -98,6 +132,12 @@ export function normalCdf(x: number) {
   )
 }
 
+/**
+ * Performs Welch's t-test to compare the means of two arrays of numbers.
+ * @param base - The base array of numbers.
+ * @param head - The head array of numbers.
+ * @returns The p-value from Welch's t-test.
+ */
 export function welchTTest(base: number[], head: number[]) {
   const m1 = mean(base)
   const m2 = mean(head)
@@ -132,6 +172,11 @@ export interface TimeVerdictInput {
   ci: { low: number; high: number }
 }
 
+/**
+ * Evaluates the time verdict based on various performance metrics.
+ * @param param0 - The input object containing various metrics for evaluating the time verdict.
+ * @returns An object containing the status and verdict based on the evaluation.
+ */
 export function evaluateTimeVerdict({
   isByteIdentical,
   deltaPercent,
@@ -194,6 +239,11 @@ export interface HeapVerdictInput {
   noiseThresholdPercent?: number
 }
 
+/**
+ * Evaluates the heap verdict based on various performance metrics.
+ * @param param0 - The input object containing various metrics for evaluating the heap verdict.
+ * @returns An object containing the status and verdict based on the evaluation.
+ */
 export function evaluateHeapVerdict({
   isByteIdentical,
   deltaHeapPercent,
