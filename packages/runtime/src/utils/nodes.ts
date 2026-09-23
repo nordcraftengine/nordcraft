@@ -1,9 +1,7 @@
-/* eslint-disable no-console */
 import type {
   Component,
   NodeModel,
 } from '@nordcraft/core/dist/component/component.types'
-import { pathToString, stringToPath } from '@nordcraft/core/dist/utils/path'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { PATH } from '../constants'
 import type { Path } from '../types'
@@ -23,13 +21,14 @@ export const getNodeAndAncestors = (
   if (typeof id !== 'string' || id.length === 0) {
     return undefined
   }
-  const path = stringToPath(id)
+  const path = id.split('.')
+  const pathParsed = path.map((n) => parseInt(n))
   const ancestors: NodeWithNodeId[] = []
   // nodePath skips the root element as it's selected as the initial
   // value in the reduce below
-  const nodePath = path.slice(1)
+  const nodePath = pathParsed.slice(1)
   const node = nodePath.reduce(
-    (node: NodeModel | undefined | null, pathElement, i) => {
+    (node: NodeModel | undefined | null, childIndex, i) => {
       switch (node?.type) {
         // 'text' elements don't have any children
         case 'element':
@@ -40,10 +39,10 @@ export const getNodeAndAncestors = (
             ancestors.push({
               ...node,
               // Use the original path as origin to get correct nodeIds
-              nodeId: pathToString(path.slice(0, i + 1)),
+              nodeId: path.slice(0, i + 1).join('.'),
             })
           }
-          const index = node.children?.[pathElement.index]
+          const index = node.children?.[childIndex]
           if (index === undefined) {
             return undefined
           }
@@ -67,6 +66,28 @@ export const isNodeOrAncestorConditional = (
   nodeLookup?.node?.condition !== undefined ||
   nodeLookup?.ancestors.some((a) => a.condition !== undefined) === true
 
+function parseSiblingIndices(
+  path: Path | { index: number; repeatIndex?: number } | any[],
+): { index: number; repeatIndex: number } {
+  if (typeof path === 'object' && path !== null) {
+    if (Array.isArray(path)) {
+      const last = path[path.length - 1]
+      return { index: last?.index ?? 0, repeatIndex: last?.repeatIndex ?? 0 }
+    }
+    return { index: path.index, repeatIndex: path.repeatIndex ?? 0 }
+  }
+  const lastDot = path.lastIndexOf('.')
+  const lastPathPart = lastDot === -1 ? path : path.slice(lastDot + 1)
+  const parenIdx = lastPathPart.indexOf('(')
+  const index =
+    parenIdx === -1
+      ? parseInt(lastPathPart, 10)
+      : parseInt(lastPathPart.slice(0, parenIdx), 10)
+  const repeatIndex =
+    parenIdx === -1 ? 0 : parseInt(lastPathPart.slice(parenIdx + 1), 10)
+  return { index, repeatIndex }
+}
+
 /**
  * @returns The next sibling element or null if this is the last element. A nc sibling is a sibling with a higher index or the same index but a higher repeat index.
  */
@@ -74,21 +95,18 @@ export const getNextSiblingElement = (
   path: Path,
   parentElement: Element | ShadowRoot,
 ): Node | null => {
-  const lastPathPart = path[path.length - 1]
-  const index = lastPathPart.index
-  const repeatIndex = lastPathPart.repeatIndex ?? 0
+  const { index, repeatIndex } = parseSiblingIndices(path)
 
   // Find the first child that either has a higher index or a similar index, but higher repeat index
   for (const child of parentElement.childNodes) {
     const childPath = child[PATH]
-    if (!childPath || !Array.isArray(childPath)) {
+    if (!childPath) {
       continue
     }
-    const lastChildPathPart = childPath[childPath.length - 1]
-    const childIndex = lastChildPathPart.index
+    const { index: childIndex, repeatIndex: childRepeatIndex } =
+      parseSiblingIndices(childPath)
 
     if (childIndex === index) {
-      const childRepeatIndex = lastChildPathPart.repeatIndex ?? 0
       if (childRepeatIndex > repeatIndex) {
         return child
       }

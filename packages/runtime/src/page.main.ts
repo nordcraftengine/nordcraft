@@ -319,7 +319,7 @@ export const createRoot = (domNode: HTMLElement) => {
   const elements = renderComponent({
     ...ctx,
     providers,
-    path: [],
+    path: '0',
     package: undefined,
     onEvent: ctx.triggerEvent,
     parentElement: domNode,

@@ -31,21 +31,17 @@ export function createSlot({
         ctx.component.nodes,
       )
 
-      const childPath = [...child.path]
-      if (slotComponentIndex > 0 || slotRepeatIndex) {
-        const lastPart = { ...childPath[childPath.length - 1] }
-        if (slotComponentIndex > 0) {
-          lastPart.slotComponentIndex = slotComponentIndex
-        }
-        if (slotRepeatIndex && slotRepeatIndex > 0) {
-          lastPart.repeatIndex = slotRepeatIndex
-        }
-        childPath[childPath.length - 1] = lastPart
+      let path = child.path
+      if (slotComponentIndex > 0) {
+        path += `{${slotComponentIndex}}`
+      }
+      if (slotRepeatIndex && slotRepeatIndex > 0) {
+        path += `(${slotRepeatIndex})`
       }
 
       return createNode({
         ...child,
-        path: childPath,
+        path,
         dataSignal: childDataSignal,
         parentElement,
         ctx: {
@@ -62,15 +58,7 @@ export function createSlot({
     children = (node.children ?? []).flatMap((child, i) => {
       return createNode({
         id: child,
-        path: [
-          ...path,
-          {
-            index: i,
-            repeatIndex: 0,
-            slotName: 'default',
-            slotComponentIndex: 0,
-          },
-        ],
+        path: path + '.' + i,
         dataSignal,
         ctx: { ...ctx, jsonPath: ['nodes', child] },
         parentElement,

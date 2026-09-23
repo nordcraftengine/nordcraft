@@ -13,7 +13,6 @@ import {
 } from '@nordcraft/core/dist/styling/className'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
-import { pathToString } from '@nordcraft/core/dist/utils/path'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { PATH } from '../constants'
 import { handleAction } from '../events/handleAction'
@@ -73,14 +72,14 @@ export function createElement({
   elem.setAttribute('data-node-id', id)
   if (path) {
     elem[PATH] = path
-    if (ctx.env.runtime === 'preview') {
-      elem.setAttribute('data-id', pathToString(path))
+    if (ctx.env?.runtime === 'preview') {
+      elem.setAttribute('data-id', path)
     }
   }
   if (
     ctx.isRootComponent === false &&
     id !== 'root' &&
-    ctx.env.runtime === 'preview'
+    ctx.env?.runtime === 'preview'
   ) {
     elem.setAttribute('data-component', ctx.component.name)
   }
@@ -199,10 +198,9 @@ export function createElement({
       subscribeCustomProperty({
         customPropertyName,
         selector:
-          ctx.env.runtime === 'custom-element' &&
+          ctx.env?.runtime === 'custom-element' &&
           ctx.isRootComponent &&
-          path.length === 1 &&
-          path[0].index === 0
+          path === '0'
             ? `${nodeSelector}, :host`
             : nodeSelector,
         signal: dataSignal.map((data) => {
@@ -327,7 +325,7 @@ export function createElement({
         ...createNode({
           parentElement: elem,
           id: child,
-          path: [...path, { index: i }],
+          path: path + '.' + i,
           dataSignal,
           ctx: { ...ctx, jsonPath: ['nodes', child] },
           namespace,

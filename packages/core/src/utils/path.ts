@@ -1,6 +1,6 @@
-import type { Path } from '../types'
+import type { PathElement } from '../types'
 
-export function pathToString(path: Path): string {
+export function pathToString(path: PathElement[]): string {
   return path
     .map((element) => {
       let segment = element.index.toString()
@@ -18,7 +18,7 @@ export function pathToString(path: Path): string {
     .join('.')
 }
 
-export function stringToPath(path: string): Path {
+export function stringToPath(path: string): PathElement[] {
   if (!path) return []
 
   return path.split('.').map((segment) => {
@@ -39,6 +39,6 @@ export function stringToPath(path: string): Path {
       slotName,
       slotComponentIndex,
       repeatIndex,
-    } as Path[number]
+    } as PathElement
   })
 }

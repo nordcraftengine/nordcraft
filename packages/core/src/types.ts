@@ -103,7 +103,7 @@ export type PathElement = {
   slotComponentIndex?: number
 }
 
-export type Path = PathElement[]
+export type Path = string
 
 export interface Toddle<LocationSignal, ShowSignal> {
   project: string

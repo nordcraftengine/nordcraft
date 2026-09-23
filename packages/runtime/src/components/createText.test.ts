@@ -1,6 +1,7 @@
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { describe, expect, test } from 'bun:test'
+import '../happydom'
 import { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { createText } from './createText'
@@ -15,7 +16,7 @@ describe('createText()', () => {
       } as Partial<ComponentContext> as any,
       namespace: 'http://www.w3.org/1999/xhtml',
       dataSignal: undefined as any,
-      path: [{ index: 0 }],
+      path: '0',
       id: 'test-text-element-id',
       node: {
         type: 'text',
@@ -42,7 +43,7 @@ describe('createText()', () => {
       } as Partial<ComponentContext> as any,
       namespace: 'http://www.w3.org/2000/svg',
       dataSignal: undefined as any,
-      path: [{ index: 0 }],
+      path: '0',
       id: 'test-text-element-id',
       node: {
         type: 'text',
@@ -59,7 +60,7 @@ describe('createText()', () => {
         env: { runtime: 'preview' },
       } as Partial<ComponentContext> as any,
       dataSignal: undefined as any,
-      path: [{ index: 0 }],
+      path: '0',
       id: 'test-text-element-id',
       node: {
         type: 'text',
@@ -73,12 +74,9 @@ describe('createText()', () => {
       Attributes: { text: 'Hello world' },
     })
     const textElement = createText({
-      ctx: {
-        dataSignal,
-        env: { runtime: 'preview' },
-      } as Partial<ComponentContext> as any,
+      ctx: { dataSignal } as Partial<ComponentContext> as any,
       dataSignal,
-      path: [],
+      path: '',
       id: '',
       node: {
         type: 'text',
@@ -94,9 +92,9 @@ describe('createText()', () => {
   })
   test('Show formulas are not respected for text elements', () => {
     const textElement = createText({
-      ctx: { env: { runtime: 'preview' } } as Partial<ComponentContext> as any,
+      ctx: {} as Partial<ComponentContext> as any,
       dataSignal: undefined as any,
-      path: [],
+      path: '',
       id: '',
       node: {
         type: 'text',
@@ -108,9 +106,9 @@ describe('createText()', () => {
   })
   test('Repeat formulas are not respected for text elements', () => {
     const textElement = createText({
-      ctx: { env: { runtime: 'preview' } } as Partial<ComponentContext> as any,
+      ctx: {} as Partial<ComponentContext> as any,
       dataSignal: undefined as any,
-      path: [],
+      path: '',
       id: '',
       node: {
         type: 'text',

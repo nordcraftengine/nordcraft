@@ -1914,7 +1914,7 @@ export const createRoot = (
       try {
         const rootElem = createNode({
           id: 'root',
-          path: [{ index: 0 }], // editor expects the root to be at index 0
+          path: '0',
           dataSignal: ctxDataSignal,
           ctx: { ...newCtx, jsonPath: ['nodes', 'root'] },
           parentElement: domNode,

@@ -4,7 +4,6 @@ import type {
   TextNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { pathToString } from '@nordcraft/core/dist/utils/path'
 import { PATH } from '../constants'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, Path } from '../types'
@@ -40,10 +39,13 @@ export function createText({
   const { value } = node
   const elem = document.createElement('span')
   elem.setAttribute('data-node-id', id)
-  if (path && typeof id === 'string' && ctx.env.runtime === 'preview') {
-    elem.setAttribute('data-id', pathToString(path))
+  if (path) {
+    elem[PATH] = path
+    if (typeof id === 'string' && ctx.env?.runtime === 'preview') {
+      elem.setAttribute('data-id', path)
+    }
   }
-  if (ctx.isRootComponent === false) {
+  if (ctx.isRootComponent === false && ctx.env?.runtime === 'preview') {
     elem.setAttribute('data-component', ctx.component.name)
   }
   // data-node-type is required for reset-style targeting. Remove if we can get rid of/change reset-style.

@@ -49,7 +49,7 @@ export type PreviewShowSignal = Signal<{
   testMode: boolean
 }>
 
-interface ListItem {
+export interface ListItem {
   Item: unknown
   Index: number
   Parent?: ListItem

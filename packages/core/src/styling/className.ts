@@ -5,7 +5,6 @@ import type {
   NodeStyleModel,
 } from '../component/component.types'
 import type { Nullable, Path } from '../types'
-import { pathToString } from '../utils/path'
 import { appendUnit } from './customProperty'
 import { generateAlphabeticName, hash } from './hash'
 import type { StyleVariant } from './variantSelector'
@@ -38,13 +37,12 @@ export const getClassName = (
 const PATH_CLASSNAME_LOOKUP = new Map<string, string>()
 
 export const getPathClassName = (path: Path) => {
-  const pathAsString = pathToString(path)
-  const cached = PATH_CLASSNAME_LOOKUP.get(pathAsString)
+  const cached = PATH_CLASSNAME_LOOKUP.get(path)
   if (cached) {
     return cached
   }
-  const className = generateAlphabeticName(hash(pathAsString))
-  PATH_CLASSNAME_LOOKUP.set(pathAsString, className)
+  const className = generateAlphabeticName(hash(path))
+  PATH_CLASSNAME_LOOKUP.set(path, className)
   return className
 }
 

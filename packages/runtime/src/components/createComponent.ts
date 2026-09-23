@@ -305,10 +305,7 @@ export function createComponent({
     children[slotName] = children[slotName] ?? []
     children[slotName].push({
       id: childId,
-      path: [
-        ...path,
-        { index: i, slotName, repeatIndex: 0, slotComponentIndex: 0 },
-      ],
+      path: `${path}.${i}[${slotName}]`,
       dataSignal,
       ctx: {
         ...ctx,
