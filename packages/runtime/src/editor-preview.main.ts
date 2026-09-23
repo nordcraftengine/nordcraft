@@ -841,7 +841,6 @@ export const createRoot = (
           if (api && !isLegacyApi(api) && component) {
             const formulaContext: FormulaContext = {
               component,
-              data: dataSignal.get(),
               root: document,
               package: ctx?.package,
               toddle: window.toddle,
@@ -852,6 +851,7 @@ export const createRoot = (
               api,
               componentName: component.name,
               formulaContext,
+              data: dataSignal.get(),
             })
             postMessageToEditor({
               type: 'introspectionResult',
@@ -1651,16 +1651,19 @@ export const createRoot = (
       ) === false ||
       !ctx
     ) {
-      insertHeadTags(_component.route?.info?.meta ?? {}, {
-        component: _component,
-        data: { Attributes },
-        root: document,
-        package: ctx?.package,
-        toddle: window.toddle,
-        env,
-        jsonPath: ['route', 'info', 'meta'],
-        reportFormulaEvaluation,
-      })
+      insertHeadTags(
+        _component.route?.info?.meta ?? {},
+        {
+          component: _component,
+          root: document,
+          package: ctx?.package,
+          toddle: window.toddle,
+          env,
+          jsonPath: ['route', 'info', 'meta'],
+          reportFormulaEvaluation,
+        },
+        { Attributes },
+      )
     }
     if (fastDeepEqual(_component.contexts, ctx?.component.contexts) === false) {
       Contexts = (function createStaticContextFromComponent(
@@ -1688,22 +1691,6 @@ export const createRoot = (
 
             // TODO: Should we also run APIs for the provider?
             const formulaContext: FormulaContext = {
-              data: {
-                Attributes: mapObject(
-                  filterObject<
-                    Nullable<ComponentAttribute>,
-                    ComponentAttribute
-                  >(providerComponent.attributes ?? {}, ([_, attr]) =>
-                    isDefined(attr),
-                  ),
-                  ([name, { testValue }]) => [name, testValue],
-                ),
-                // Recursively resolve contexts providers before their children to build up the fake context tree in preview mode
-                Contexts: createStaticContextFromComponent(
-                  providerComponent,
-                  contextProvidersCreated ?? new Set(),
-                ),
-              },
               component: providerComponent,
               root: ctx?.root,
               formulaCache: {},
@@ -1714,12 +1701,26 @@ export const createRoot = (
               // We don't evaluate formulas in context providers in preview mode currently
               reportFormulaEvaluation: undefined,
             }
+            const providerData: ComponentData = {
+              Attributes: mapObject(
+                filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
+                  providerComponent.attributes ?? {},
+                  ([_, attr]) => isDefined(attr),
+                ),
+                ([name, { testValue }]) => [name, testValue],
+              ),
+              // Recursively resolve contexts providers before their children to build up the fake context tree in preview mode
+              Contexts: createStaticContextFromComponent(
+                providerComponent,
+                contextProvidersCreated ?? new Set(),
+              ),
+            }
 
             // Pages can also be context-providers!
             // Exposed formulas can derive their preview output from URL data,
             // so we must populate Url parameters with their test data
             if (providerComponent.route) {
-              formulaContext.data['URL parameters'] = {
+              providerData['URL parameters'] = {
                 ...Object.fromEntries(
                   providerComponent.route.path
                     .filter((p) => p.type === 'param')
@@ -1731,17 +1732,19 @@ export const createRoot = (
                 ),
               }
             }
-            formulaContext.data.Variables = mapObject(
+            providerData.Variables = mapObject(
               filterObject<Nullable<ComponentVariable>, ComponentVariable>(
                 providerComponent.variables ?? {},
                 ([_, variable]) => isDefined(variable),
               ),
               ([name, variable]) => [
                 name,
-                applyFormula(variable.initialValue, formulaContext, [
-                  'variables',
-                  name,
-                ]),
+                applyFormula(
+                  variable.initialValue,
+                  formulaContext,
+                  providerData,
+                  ['variables', name],
+                ),
               ],
             )
 
@@ -1759,10 +1762,12 @@ export const createRoot = (
 
                   return [
                     formulaName,
-                    applyFormula(formula.formula, formulaContext, [
-                      'formulas',
-                      formulaName,
-                    ]),
+                    applyFormula(
+                      formula.formula,
+                      formulaContext,
+                      providerData,
+                      ['formulas', formulaName],
+                    ),
                   ]
                 }),
               ),
@@ -1784,7 +1789,6 @@ export const createRoot = (
           applyFormula(
             initialValue,
             {
-              data: { Attributes, Contexts },
               component: _component!,
               root: document,
               package: ctx?.package,
@@ -1793,6 +1797,7 @@ export const createRoot = (
               jsonPath: ctx?.jsonPath,
               reportFormulaEvaluation,
             },
+            { Attributes, Contexts },
             ['variables', name],
           ),
         ],
@@ -2040,21 +2045,10 @@ export const createRoot = (
           .map(([name, formula]) => [
             name,
             dataSignal.map((data) =>
-              applyFormula(
-                (formula as ComponentFormula).formula,
-                {
-                  data,
-                  component,
-                  formulaCache: ctx.formulaCache,
-                  root: ctx.root,
-                  package: ctx.package,
-                  toddle: window.toddle,
-                  env,
-                  jsonPath: ctx.jsonPath,
-                  reportFormulaEvaluation,
-                },
-                ['formulas', name],
-              ),
+              applyFormula((formula as ComponentFormula).formula, ctx, data, [
+                'formulas',
+                name,
+              ]),
             ),
           ]),
       )
@@ -2153,6 +2147,7 @@ const insertOrReplaceHeadNode = (id: string, node: Node) => {
 const insertHeadTags = (
   entries: Record<string, MetaEntry>,
   context: FormulaContext,
+  data?: ComponentData,
 ) => {
   // Remove all tags that has a data-meta-id attribute that is not in the entries
   Array.from(document.head.querySelectorAll('[data-meta-id]'))
@@ -2171,7 +2166,7 @@ const insertHeadTags = (
             ${Object.entries(entry.attrs ?? {})
               .map(
                 ([key, value]) =>
-                  `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
+                  `${key}="${applyFormula(value, context, data, [id, 'attrs', key])}"`,
               )
               .join(' ')}
           />
@@ -2186,10 +2181,10 @@ const insertHeadTags = (
             ${Object.entries(entry.attrs ?? {})
               .map(
                 ([key, value]) =>
-                  `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
+                  `${key}="${applyFormula(value, context, data, [id, 'attrs', key])}"`,
               )
               .join(' ')}
-          >${applyFormula(entry.content ?? '', context)}</script>
+          >${applyFormula(entry.content ?? '', context, data)}</script>
         `),
         )
       case HeadTagTypes.Style:
@@ -2199,10 +2194,13 @@ const insertHeadTags = (
           <style
             data-meta-id="${id}"
             ${Object.entries(entry.attrs ?? {})
-              .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
+              .map(
+                ([key, value]) =>
+                  `${key}="${applyFormula(value, context, data)}"`,
+              )
               .join(' ')}
           >
-            ${applyFormula(entry.content ?? '', context)}
+            ${applyFormula(entry.content ?? '', context, data)}
           </style>
         `),
         )

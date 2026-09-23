@@ -181,7 +181,6 @@ export const createRoot = (domNode: HTMLElement) => {
         applyFormula(
           variable.initialValue,
           {
-            data: window.toddle.pageState,
             component,
             formulaCache: {},
             root: document,
@@ -190,6 +189,7 @@ export const createRoot = (domNode: HTMLElement) => {
             env,
             jsonPath: [],
           },
+          window.toddle.pageState,
           ['variables', name],
         ),
       ],
@@ -274,15 +274,7 @@ export const createRoot = (domNode: HTMLElement) => {
         .map(([name, formula]) => [
           name,
           dataSignal.map((data) =>
-            applyFormula((formula as ComponentFormula).formula, {
-              data,
-              component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: window.toddle,
-              env,
-            }),
+            applyFormula((formula as ComponentFormula).formula, ctx, data),
           ),
         ]),
     )
@@ -386,14 +378,13 @@ const setupMetaUpdates = (
   component: Component,
   dataSignal: Signal<ComponentData>,
 ) => {
-  const getFormulaContext = (data: ComponentData) => ({
-    data,
+  const formulaCtx = {
     component,
     root: document,
     package: undefined,
     toddle: window.toddle,
     env,
-  })
+  }
   // Handle dynamic updates of the document language
   const langFormula = component.route?.info?.language?.formula
   const dynamicLang = langFormula && langFormula.type !== 'value'
@@ -401,7 +392,7 @@ const setupMetaUpdates = (
     dataSignal
       .map((data) =>
         component
-          ? applyFormula(langFormula, getFormulaContext(data), [
+          ? applyFormula(langFormula, formulaCtx, data, [
               'route',
               'info',
               'language',
@@ -422,7 +413,7 @@ const setupMetaUpdates = (
     dataSignal
       .map((data) =>
         component
-          ? applyFormula(titleFormula, getFormulaContext(data), [
+          ? applyFormula(titleFormula, formulaCtx, data, [
               'route',
               'info',
               'title',
@@ -492,7 +483,7 @@ const setupMetaUpdates = (
       dataSignal
         .map((data) =>
           component
-            ? applyFormula(descriptionFormula, getFormulaContext(data), [
+            ? applyFormula(descriptionFormula, formulaCtx, data, [
                 'route',
                 'info',
                 'description',
@@ -545,14 +536,13 @@ const setupMetaUpdates = (
         if (entry) {
           dataSignal
             .map((data) => {
-              const context = getFormulaContext(data)
               // Return the new values for all attributes (we assume they're strings)
               const values = Object.entries(entry.attrs ?? {}).reduce(
                 (agg, [key, formula]) =>
                   component
                     ? {
                         ...agg,
-                        [key]: applyFormula(formula, context, [
+                        [key]: applyFormula(formula, formulaCtx, data, [
                           'route',
                           'info',
                           'meta',
@@ -567,7 +557,7 @@ const setupMetaUpdates = (
               return {
                 attrs: values,
                 content: entry.content
-                  ? applyFormula(entry.content, context)
+                  ? applyFormula(entry.content, formulaCtx, data)
                   : undefined,
               }
             })

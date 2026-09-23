@@ -84,12 +84,7 @@ export function createElement({
       const formula = node.classes[className].formula
       if (formula) {
         const classSignal = dataSignal.map((data) =>
-          toBoolean(
-            applyFormula(formula, {
-              ...formulaCtx,
-              data,
-            }),
-          ),
+          toBoolean(applyFormula(formula, formulaCtx, data)),
         )
         classSignal.subscribe((show) =>
           show
@@ -111,9 +106,10 @@ export function createElement({
     })
   }
 
-  Object.entries(node.attrs ?? {}).forEach(([attr, value]) => {
+  for (const attr in node.attrs) {
+    const value = node.attrs[attr]
     if (!isDefined(value)) {
-      return
+      continue
     }
     let o: Signal<any> | undefined
     const setupAttribute = () => {
@@ -122,14 +118,7 @@ export function createElement({
       } else {
         const attrPath = ['nodes', id, 'attrs', attr]
         o = dataSignal.map((data) => {
-          const val = applyFormula(
-            value,
-            {
-              ...formulaCtx,
-              data,
-            },
-            attrPath,
-          )
+          const val = applyFormula(value, formulaCtx, data, attrPath)
           ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
           return val
         })
@@ -154,19 +143,12 @@ export function createElement({
     } else {
       setupAttribute()
     }
-  })
+  }
   node['style-variables']?.forEach((styleVariable, i) => {
     const { name, formula, unit } = styleVariable
     const styleVarPath = ['nodes', id, 'style-variables', i, 'formula']
     const signal = dataSignal.map((data) => {
-      const value = applyFormula(
-        formula,
-        {
-          ...formulaCtx,
-          data,
-        },
-        styleVarPath,
-      )
+      const value = applyFormula(formula, formulaCtx, data, styleVarPath)
       ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
       return unit ? value + unit : value
     })
@@ -195,14 +177,7 @@ export function createElement({
             ? `${nodeSelector}, :host`
             : nodeSelector,
         signal: dataSignal.map((data) => {
-          const val = applyFormula(
-            formula,
-            {
-              ...formulaCtx,
-              data,
-            },
-            cpPath,
-          )
+          const val = applyFormula(formula, formulaCtx, data, cpPath)
           ctx.reportFormulaEvaluation?.(cpPath, val, ctx)
           return appendUnit(val, unit)
         }),
@@ -231,14 +206,7 @@ export function createElement({
           }),
           variant,
           signal: dataSignal.map((data) => {
-            const val = applyFormula(
-              formula,
-              {
-                ...formulaCtx,
-                data,
-              },
-              variantCpPath,
-            )
+            const val = applyFormula(formula, formulaCtx, data, variantCpPath)
             ctx.reportFormulaEvaluation?.(variantCpPath, val, ctx)
             return appendUnit(val, unit)
           }),
@@ -283,12 +251,7 @@ export function createElement({
           textValues.push(String(node.value.value))
         } else {
           const textSignal = dataSignal.map((data) => {
-            return String(
-              applyFormula(node.value, {
-                ...formulaCtx,
-                data,
-              }),
-            )
+            return String(applyFormula(node.value, formulaCtx, data))
           })
           textValues.push(textSignal)
         }

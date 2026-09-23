@@ -1,5 +1,7 @@
+/* eslint-disable max-params */
 import { mapHeadersToObject } from '@nordcraft/core/dist/api/headers'
 import type {
+  ComponentData,
   ComponentVariable,
   PageComponent,
   PageRoute,
@@ -38,56 +40,59 @@ export const getPageFormulaContext = ({
   req: Request
   logErrors: boolean
   files: ProjectFiles
-}): FormulaContext & { env: ToddleServerEnv } => {
+}): {
+  formulaContext: FormulaContext & { env: ToddleServerEnv }
+  data: ComponentData
+} => {
   const env = serverEnv({ req, branchName, logErrors })
   const { searchParamsWithDefaults, hash, combinedParams, url } = getParameters(
     { route: component?.route, req },
   )
   const formulaContext: FormulaContext & { env: ToddleServerEnv } = {
-    data: {
-      Location: {
-        page: component?.page ?? '',
-        path: url.pathname,
-        params: combinedParams,
-        query: searchParamsWithDefaults,
-        hash,
-      },
-      Attributes: combinedParams,
-      // Path and query parameters are referenced in a flat structure in formulas
-      // hence, we need to merge them. We prefer path parameters over query parameters
-      // in case of naming collisions
-      'URL parameters': component?.route
-        ? getDataUrlParameters({ route: component.route, req })
-        : {},
-      Apis: {} as Record<string, any>,
-    },
     component,
     root: null,
     package: undefined,
     env,
     toddle: getServerToddleObject(files),
   }
-  formulaContext.data.Page = {
+  const data: ComponentData = {
+    Location: {
+      page: component?.page ?? '',
+      path: url.pathname,
+      params: combinedParams,
+      query: searchParamsWithDefaults,
+      hash,
+    },
+    Attributes: combinedParams,
+    // Path and query parameters are referenced in a flat structure in formulas
+    // hence, we need to merge them. We prefer path parameters over query parameters
+    // in case of naming collisions
+    'URL parameters': component?.route
+      ? getDataUrlParameters({ route: component.route, req })
+      : {},
+    Apis: {} as Record<string, any>,
+  }
+  data.Page = {
     Theme: component
-      ? getThemeInitialValue(component, formulaContext, env)
+      ? getThemeInitialValue(component, formulaContext, env, data)
       : null,
   }
-  formulaContext.data.Variables = mapValues(
+  data.Variables = mapValues(
     filterObject<Nullable<ComponentVariable>, ComponentVariable>(
       component?.variables ?? {},
       ([_, variable]) => isDefined(variable),
     ),
     ({ initialValue }) => {
-      return applyFormula(initialValue, formulaContext)
+      return applyFormula(initialValue, formulaContext, data)
     },
   )
   // Re-apply theme after variables have been initialized to ensure it has access to any variables if needed
-  formulaContext.data.Page = {
+  data.Page = {
     Theme: component
-      ? getThemeInitialValue(component, formulaContext, env)
+      ? getThemeInitialValue(component, formulaContext, env, data)
       : null,
   }
-  return formulaContext
+  return { formulaContext, data }
 }
 
 export const getServerToddleObject = (
@@ -217,10 +222,11 @@ export const getThemeInitialValue = (
   component: PageComponent,
   formulaContext: FormulaContext,
   env: ToddleServerEnv,
+  data?: ComponentData,
 ): string | null => {
   const themeFormula = component.route.info?.theme?.formula
   if (themeFormula) {
-    return applyFormula(themeFormula, formulaContext)
+    return applyFormula(themeFormula, formulaContext, data)
   } else {
     // No theme set explicitly will default to system preference
     // Default theme (or initial value) is handled in CSS

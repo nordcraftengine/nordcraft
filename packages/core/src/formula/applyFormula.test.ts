@@ -149,6 +149,73 @@ describe('applyApplyFormula', () => {
     }
     expect(applyFormula(formula as any, ctx)).toBe('test')
   })
+
+  it('accepts data as a separate argument without modifying ctx', () => {
+    const pathFormula = {
+      type: 'path' as const,
+      path: ['Variables', 'count'],
+    }
+    const ctx: FormulaContext = {
+      ...createTestFormulaContext(),
+      component: { formulas: {}, name: 'Test' } as any,
+    }
+    expect(applyFormula(pathFormula, ctx, { Variables: { count: 42 } })).toBe(
+      42,
+    )
+  })
+
+  it('accepts data and path as separate arguments with reporting', () => {
+    const results: Record<string, any> = {}
+    const pathFormula = {
+      type: 'path' as const,
+      path: ['Variables', 'name'],
+    }
+    const ctx: FormulaContext = {
+      ...createTestFormulaContext(),
+      component: { formulas: {}, name: 'Test' } as any,
+      reportFormulaEvaluation: (path, result) => {
+        results[path.join('/')] = result
+      },
+    }
+    const data = { Variables: { name: 'Alice' } }
+    const result = applyFormula(pathFormula, ctx, data, [
+      'nodes',
+      'text',
+      'value',
+    ])
+    expect(result).toBe('Alice')
+    expect(results['nodes/text/value']).toBe('Alice')
+  })
+
+  it('evaluates apply formula with passed data without creating new ctx', () => {
+    const componentFormula: ComponentFormula = {
+      name: 'getVal',
+      formula: {
+        type: 'path',
+        path: ['Args', 'val'],
+      },
+      arguments: [{ name: 'val', testValue: 'default' }],
+    }
+    const formula: ApplyOperation = {
+      type: 'apply',
+      name: 'getVal',
+      arguments: [
+        {
+          name: 'val',
+          formula: { type: 'path', path: ['Variables', 'custom'] },
+        },
+      ],
+    }
+    const ctx: FormulaContext = {
+      ...createTestFormulaContext(),
+      component: {
+        formulas: { getVal: componentFormula },
+        name: 'Test',
+      } as any,
+    }
+    const data = { Variables: { custom: 'from-data-arg' } }
+    expect(applyFormula(formula, ctx, data)).toBe('from-data-arg')
+  })
 })
 
 describe('isFormula()', () => {

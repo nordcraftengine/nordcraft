@@ -1,3 +1,5 @@
+/* eslint-disable max-params */
+import type { ComponentData } from '../component/component.types'
 import type { Formula, FormulaContext } from '../formula/formula'
 import { applyFormula } from '../formula/formula'
 import type { Nullable } from '../types'
@@ -26,11 +28,13 @@ export const isLegacyApi = <Handler>(
 export const createApiRequest = <Handler>({
   api,
   formulaContext,
+  data,
   baseUrl,
   defaultHeaders,
 }: {
   api: ApiRequest | ToddleApiV2<Handler>
   formulaContext: FormulaContext
+  data?: ComponentData
   baseUrl?: Nullable<string>
   defaultHeaders: Headers | undefined
 }) => {
@@ -38,10 +42,12 @@ export const createApiRequest = <Handler>({
     api,
     { ...formulaContext, jsonPath: ['apis', api.name] },
     baseUrl,
+    data,
   )
   const requestSettings = getRequestSettings({
     api,
     formulaContext,
+    data,
     defaultHeaders,
   })
 
@@ -52,11 +58,12 @@ export const getUrl = (
   api: ApiBase,
   formulaContext: FormulaContext,
   baseUrl?: Nullable<string>,
+  data?: ComponentData,
 ): URL => {
   let urlPathname = ''
   let urlQueryParams = new URLSearchParams()
   let parsedUrl: URL | undefined
-  const url = applyFormula(api.url, formulaContext, ['url'])
+  const url = applyFormula(api.url, formulaContext, data, ['url'])
   if (['string', 'number'].includes(typeof url)) {
     const urlInput = typeof url === 'number' ? String(url) : url
     try {
@@ -67,17 +74,17 @@ export const getUrl = (
       // eslint-disable-next-line no-empty
     } catch {}
   }
-  const pathParams = getRequestPath(api.path, formulaContext)
+  const pathParams = getRequestPath(api.path, formulaContext, data)
   // Combine potential path parameters from the url declaration with the actual path parameters
   const path = `${urlPathname}${pathParams.length > 0 && !urlPathname.endsWith('/') ? '/' : ''}${pathParams}`
   // Combine potential query parameters from the url declaration with the actual query parameters
   const queryParams = new URLSearchParams([
     ...urlQueryParams,
-    ...getRequestQueryParams(api.queryParams, formulaContext),
+    ...getRequestQueryParams(api.queryParams, formulaContext, data),
   ])
   const queryString =
     [...queryParams.entries()].length > 0 ? `?${queryParams.toString()}` : ''
-  const hash = applyFormula(api.hash?.formula, formulaContext, [
+  const hash = applyFormula(api.hash?.formula, formulaContext, data, [
     'hash',
     'formula',
   ])
@@ -106,9 +113,10 @@ export const applyAbortSignal = (
   api: ApiRequest,
   requestSettings: RequestInit,
   formulaContext: FormulaContext,
+  data?: ComponentData,
 ) => {
   if (api.timeout) {
-    const timeout = applyFormula(api.timeout.formula, formulaContext, [
+    const timeout = applyFormula(api.timeout.formula, formulaContext, data, [
       'timeout',
       'formula',
     ])
@@ -121,10 +129,12 @@ export const applyAbortSignal = (
 const getRequestSettings = ({
   api,
   formulaContext,
+  data,
   defaultHeaders,
 }: {
   api: ApiRequest
   formulaContext: FormulaContext
+  data?: ComponentData
   defaultHeaders: Headers | undefined
 }): ToddleRequestInit => {
   const method = Object.values(ApiMethod).includes(api.method as ApiMethod)
@@ -133,9 +143,10 @@ const getRequestSettings = ({
   const headers = getRequestHeaders({
     apiHeaders: api.headers,
     formulaContext,
+    data,
     defaultHeaders,
   })
-  const body = getRequestBody({ api, formulaContext, headers, method })
+  const body = getRequestBody({ api, formulaContext, data, headers, method })
   if (headers.get('content-type') === 'multipart/form-data') {
     headers.delete('content-type')
   }
@@ -146,7 +157,7 @@ const getRequestSettings = ({
     body,
   }
 
-  applyAbortSignal(api, requestSettings, formulaContext)
+  applyAbortSignal(api, requestSettings, formulaContext, data)
 
   return requestSettings
 }
@@ -154,21 +165,23 @@ const getRequestSettings = ({
 export const getRequestPath = (
   path: ApiRequest['path'],
   formulaContext: FormulaContext,
+  data?: ComponentData,
 ): string =>
   sortObjectEntries(path ?? {}, ([_, p]) => p.index)
     .map(([parameterName, p]) =>
-      applyFormula(p.formula, formulaContext, ['path', parameterName]),
+      applyFormula(p.formula, formulaContext, data, ['path', parameterName]),
     )
     .join('/')
 
 export const getRequestQueryParams = (
   params: ApiRequest['queryParams'],
   formulaContext: FormulaContext,
+  data?: ComponentData,
 ): URLSearchParams => {
   const queryParams = new URLSearchParams()
   Object.entries(params ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
-      ? applyFormula(param.enabled, formulaContext, [
+      ? applyFormula(param.enabled, formulaContext, data, [
           'queryParams',
           key,
           'enabled',
@@ -178,7 +191,7 @@ export const getRequestQueryParams = (
       return
     }
 
-    const value = applyFormula(param.formula, formulaContext, [
+    const value = applyFormula(param.formula, formulaContext, data, [
       'queryParams',
       key,
       'formula',
@@ -212,19 +225,25 @@ export const getRequestQueryParams = (
 export const getRequestHeaders = ({
   apiHeaders,
   formulaContext,
+  data,
   defaultHeaders,
 }: {
   apiHeaders: ApiRequest['headers']
   formulaContext: FormulaContext
+  data?: ComponentData
   defaultHeaders: Headers | undefined
 }) => {
   const headers = new Headers(defaultHeaders)
   Object.entries(apiHeaders ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
-      ? applyFormula(param.enabled, formulaContext, ['headers', key, 'enabled'])
+      ? applyFormula(param.enabled, formulaContext, data, [
+          'headers',
+          key,
+          'enabled',
+        ])
       : true
     if (enabled) {
-      const value = applyFormula(param.formula, formulaContext, [
+      const value = applyFormula(param.formula, formulaContext, data, [
         'headers',
         key,
         'formula',
@@ -272,6 +291,7 @@ export const isApiError = ({
   apiName,
   response,
   formulaContext,
+  data,
   errorFormula,
   performance,
 }: {
@@ -283,17 +303,17 @@ export const isApiError = ({
     body: unknown
   }
   formulaContext: FormulaContext
+  data?: ComponentData
   performance: ApiPerformance
   errorFormula?: Nullable<{ formula: Formula }>
 }) => {
   const errorFormulaRes = errorFormula
-    ? applyFormula(errorFormula.formula, {
-        component: formulaContext.component,
-        package: formulaContext.package,
-        toddle: formulaContext.toddle,
-        data: {
+    ? applyFormula(
+        errorFormula.formula,
+        formulaContext,
+        {
           Attributes: {},
-          Args: formulaContext.data.Args,
+          Args: data?.Args,
           Apis: {
             // The errorFormula will only have access to the data of the current API
             [apiName]: {
@@ -308,10 +328,8 @@ export const isApiError = ({
             },
           },
         },
-        env: formulaContext.env,
-        jsonPath: ['apis', apiName, 'isError', 'formula'],
-        reportFormulaEvaluation: formulaContext.reportFormulaEvaluation,
-      })
+        ['apis', apiName, 'isError', 'formula'],
+      )
     : null
 
   if (errorFormulaRes === null || errorFormulaRes === undefined) {
@@ -323,11 +341,13 @@ export const isApiError = ({
 export const getRequestBody = ({
   api,
   formulaContext,
+  data,
   headers,
   method,
 }: {
   api: ApiRequest
   formulaContext: FormulaContext
+  data?: ComponentData
   headers: Headers
   method: ApiMethod
 }): FormData | string | undefined => {
@@ -335,7 +355,7 @@ export const getRequestBody = ({
     return
   }
 
-  const body = applyFormula(api.body, formulaContext, ['body'])
+  const body = applyFormula(api.body, formulaContext, data, ['body'])
   if (!body) {
     return
   }

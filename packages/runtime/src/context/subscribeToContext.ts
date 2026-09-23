@@ -74,15 +74,6 @@ export function subscribeToContext(
         // Derive the package name from the provider name as we do not have a real component to work with
         const [, testProviderPackage] = providerName.split('/').reverse()
         const formulaContext: FormulaContext = {
-          data: {
-            Attributes: mapObject(
-              filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
-                testProvider.attributes ?? {},
-                ([_, attr]) => isDefined(attr),
-              ),
-              ([name, attr]) => [name, attr.testValue],
-            ),
-          },
           component: testProvider,
           root: ctx?.root,
           formulaCache: {},
@@ -90,11 +81,21 @@ export function subscribeToContext(
           toddle: ctx.toddle,
           env: ctx.env,
           jsonPath: ctx.jsonPath,
-          reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+          // We should not report formula evaluations for test data on context providers
+          reportFormulaEvaluation: undefined,
+        }
+        const providerData: ComponentData = {
+          Attributes: mapObject(
+            filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
+              testProvider.attributes ?? {},
+              ([_, attr]) => isDefined(attr),
+            ),
+            ([name, attr]) => [name, attr.testValue],
+          ),
         }
 
         if (testProvider.route) {
-          formulaContext.data['URL parameters'] = {
+          providerData['URL parameters'] = {
             ...Object.fromEntries(
               testProvider.route.path
                 .filter((p) => p.type === 'param')
@@ -106,18 +107,14 @@ export function subscribeToContext(
             ]),
           }
         }
-        formulaContext.data.Variables = mapObject(
+        providerData.Variables = mapObject(
           filterObject<Nullable<ComponentVariable>, ComponentVariable>(
             testProvider.variables ?? {},
             ([_, variable]) => isDefined(variable),
           ),
           ([name, variable]) => [
             name,
-            applyFormula(variable.initialValue, {
-              ...formulaContext,
-              // We should not report formula evaluations for test data on context providers
-              reportFormulaEvaluation: undefined,
-            }),
+            applyFormula(variable.initialValue, formulaContext, providerData),
           ],
         )
 
@@ -138,11 +135,7 @@ export function subscribeToContext(
 
                 return [
                   formulaName,
-                  applyFormula(formula.formula, {
-                    ...formulaContext,
-                    // We should not report formula evaluations for test data on context providers
-                    reportFormulaEvaluation: undefined,
-                  }),
+                  applyFormula(formula.formula, formulaContext, providerData),
                 ]
               }),
             ),

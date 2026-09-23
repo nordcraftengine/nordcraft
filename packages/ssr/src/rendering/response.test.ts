@@ -3,12 +3,12 @@ import { describe, expect, test } from 'bun:test'
 import { evaluateResponseHeaders } from './response'
 
 describe('evaluateResponseHeaders', () => {
-  const mockFormulaContext = {
-    data: {
-      Page: {
-        Theme: 'dark',
-      },
+  const mockData = {
+    Page: {
+      Theme: 'dark',
     },
+  } as any
+  const mockFormulaContext = {
     reportFormulaEvaluation: () => {},
   } as unknown as FormulaContext
 
@@ -47,6 +47,7 @@ describe('evaluateResponseHeaders', () => {
     expect(
       evaluateResponseHeaders({
         formulaContext: mockFormulaContext,
+        data: mockData,
         responseHeaders: {
           'X-Theme': {
             type: 'path',

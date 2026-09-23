@@ -19,15 +19,15 @@ export const getThemeSignal = (
   const themeFormula = theme?.formula
   const dynamicTheme = themeFormula && themeFormula.type !== 'value'
   if (dynamicTheme) {
-    const sig = dataSignal.map<string | null>(() =>
-      applyFormula(themeFormula, {
-        data: dataSignal.get(),
-        component,
-        root: document,
-        package: undefined,
-        toddle: window.toddle,
-        env,
-      }),
+    const formulaCtx = {
+      component,
+      root: document,
+      package: undefined,
+      toddle: window.toddle,
+      env,
+    }
+    const sig = dataSignal.map<string | null>((data) =>
+      applyFormula(themeFormula, formulaCtx, data),
     )
 
     return sig

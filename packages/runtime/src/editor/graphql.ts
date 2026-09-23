@@ -3,6 +3,7 @@ import {
   HttpMethodsWithAllowedBody,
 } from '@nordcraft/core/dist/api/api'
 import { ApiMethod, type ApiRequest } from '@nordcraft/core/dist/api/apiTypes'
+import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { PROXY_URL_HEADER } from '@nordcraft/core/dist/utils/url'
 
@@ -105,10 +106,12 @@ export const introspectApiRequest = async ({
   api,
   componentName,
   formulaContext,
+  data,
 }: {
   api: ApiRequest
   componentName: string
   formulaContext: FormulaContext
+  data?: ComponentData
 }) => {
   const { url, requestSettings } = createApiRequest({
     api: {
@@ -127,6 +130,7 @@ export const introspectApiRequest = async ({
     baseUrl: window.origin,
     defaultHeaders: undefined,
     formulaContext,
+    data,
   })
   // We must proxy to be able to include cookies
   const proxyUrl = `/.toddle/omvej/components/${encodeURIComponent(

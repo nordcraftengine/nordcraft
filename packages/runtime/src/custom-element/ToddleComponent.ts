@@ -154,16 +154,8 @@ export class ToddleComponent extends HTMLElement {
             this.#signal.map((data) =>
               applyFormula(
                 (formula as ComponentFormula).formula,
-                {
-                  data,
-                  component: this.#component,
-                  formulaCache: this.#ctx.formulaCache,
-                  root: this.#ctx.root,
-                  package: this.#ctx.package,
-                  toddle: this.#ctx.toddle,
-                  env: this.#ctx.env,
-                  jsonPath: [],
-                },
+                this.#ctx,
+                data,
                 ['formulas', name],
               ),
             ),
@@ -348,16 +340,19 @@ export const createSignal = ({
         }
         return [
           name,
-          applyFormula(initialValue, {
-            data: {
+          applyFormula(
+            initialValue,
+            {
+              component: component,
+              root,
+              package: undefined,
+              toddle,
+              env,
+            },
+            {
               Attributes: {},
             },
-            component: component,
-            root,
-            package: undefined,
-            toddle,
-            env,
-          }),
+          ),
         ]
       },
     ),
