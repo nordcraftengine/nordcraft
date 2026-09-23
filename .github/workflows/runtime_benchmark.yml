@@ -1,0 +1,164 @@
+name: 'Runtime Benchmark'
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - '.github/workflows/runtime_benchmark.yml'
+      - 'benchmarks/**'
+      - 'bin/runRuntimeBenchmark.ts'
+      - 'packages/runtime/**'
+      - 'packages/lib/**'
+      - 'packages/core/**'
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+
+      - name: Install dependencies (head)
+        run: bun install --frozen-lockfile
+
+      - name: Build packages (head)
+        run: bun run build
+
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v6
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('bun.lock') }}
+
+      - name: Install Playwright Chromium & dependencies
+        run: bunx playwright install chromium --with-deps
+
+      - name: Run Runtime Benchmark
+        id: benchmark_run
+        run: |
+          bun bin/runRuntimeBenchmark.ts \
+            --base-ref=origin/main \
+            --runs=25 \
+            --warmup=5 \
+            --max-regression-percent=3.0 \
+            --max-regression-ms=1.0 \
+            --noise-threshold-percent=1.5 \
+            --fail-on-regression=false \
+            --export-markdown=/tmp/runtime-benchmark-report.md \
+            --export-json=/tmp/runtime-benchmark-report.json
+
+      - name: Publish Step Summary
+        run: |
+          if [ -f /tmp/runtime-benchmark-report.md ]; then
+            tee -a "$GITHUB_STEP_SUMMARY" < /tmp/runtime-benchmark-report.md
+          else
+            echo "## ⚡ Runtime Benchmark" >> "$GITHUB_STEP_SUMMARY"
+            echo "⚠️ Benchmark report could not be generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Comment on Pull Request
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('node:fs');
+            const reportPath = '/tmp/runtime-benchmark-report.md';
+            if (!fs.existsSync(reportPath)) {
+              console.log('No benchmark report found at', reportPath);
+              return;
+            }
+            const report = fs.readFileSync(reportPath, 'utf8');
+            const marker = '<!-- nordcraft-runtime-benchmark -->';
+            const body = `${marker}\n${report}`;
+
+            let prNumber = context.payload.pull_request?.number;
+
+            if (!prNumber) {
+              try {
+                const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  commit_sha: context.sha,
+                });
+                const openPr = prs.find((p) => p.state === 'open');
+                if (openPr) {
+                  prNumber = openPr.number;
+                }
+              } catch (e) {
+                console.log('Could not list PRs for commit:', e.message);
+              }
+            }
+
+            if (!prNumber) {
+              const branch = context.ref.replace('refs/heads/', '');
+              try {
+                const { data: prs } = await github.rest.pulls.list({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  head: `${context.repo.owner}:${branch}`,
+                  state: 'open',
+                });
+                if (prs.length > 0) {
+                  prNumber = prs[0].number;
+                }
+              } catch (e) {
+                console.log('Could not list PRs for branch:', e.message);
+              }
+            }
+
+            if (!prNumber) {
+              console.log('No associated open pull request found. Skipping PR comment.');
+              return;
+            }
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              per_page: 100,
+            });
+
+            const existing = comments.find((c) => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+              console.log(`Updated benchmark comment on PR #${prNumber}`);
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body,
+              });
+              console.log(`Created benchmark comment on PR #${prNumber}`);
+            }
+
+      - name: Upload benchmark artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-benchmark-report-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
+          path: |
+            /tmp/runtime-benchmark-report.md
+            /tmp/runtime-benchmark-report.json
