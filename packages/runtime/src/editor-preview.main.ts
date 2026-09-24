@@ -798,7 +798,7 @@ export const createRoot = (
             clearPreviewStyleTimeout = setTimeout(() => {
               clearPreviewStyleTimeout = undefined
               handleApplyPreviewStyle(previewData)
-            }, 50)
+            }, 100)
             break
           }
 

@@ -25,8 +25,9 @@ export const handleCanvasPointerEvent = (options: {
   }
 
   const { x, y, type } = event
+  const isMeta = Boolean(event.metaKey ?? metaKey)
   const elementsAtPoint = document.elementsFromPoint(x, y)
-  const element = elementsAtPoint.find((elem) => {
+  const isSelectable = (elem: Element): boolean => {
     const id = elem.getAttribute('data-id')
     if (
       typeof id !== 'string' ||
@@ -37,16 +38,22 @@ export const handleCanvasPointerEvent = (options: {
     }
     const nodeId = getNodeId(component, id.split('.').slice(1))
     const node = nodeId ? component?.nodes?.[nodeId] : undefined
-    if (!node) {
+    return Boolean(node)
+  }
+
+  const element = elementsAtPoint.find((elem) => {
+    if (!isSelectable(elem)) {
       return false
     }
     if (elem.getAttribute('data-node-type') === 'text') {
-      // For click events, only select text nodes if metaKey is pressed or it's a double-click.
-      // For mousemove (hover), always match so text nodes can be highlighted.
-      if (type === 'click') {
-        return metaKey
+      if (isMeta || type === 'dblclick') {
+        return true
       }
-      return true
+      const elemIndex = elementsAtPoint.indexOf(elem)
+      const hasParent = elementsAtPoint
+        .slice(elemIndex + 1)
+        .some((parent) => parent.contains(elem) && isSelectable(parent))
+      return !hasParent
     }
     return true
   })
@@ -69,7 +76,7 @@ export const handleCanvasPointerEvent = (options: {
   }
 
   if (type === 'click') {
-    if (event.metaKey) {
+    if (isMeta) {
       // Figure out if the clicked element is a text element
       // or if one of its descendants is a text element
       const nodeLookup = lookupNodeAndAncestors(component, id)
