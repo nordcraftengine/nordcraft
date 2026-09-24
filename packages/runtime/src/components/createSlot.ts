@@ -1,5 +1,6 @@
 import type { Component, NodeModel, SlotNodeModel } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
+import { identity } from '../signal/signal'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
 
@@ -33,8 +34,8 @@ export function createSlot({
     }
 
     children = ctx.children[slotName].flatMap((child, childIndex) => {
-      const childDataSignal = child.dataSignal.map((data) => data)
-      dataSignal.subscriptions.push(() => childDataSignal.destroy())
+      const childDataSignal = child.dataSignal.map(identity)
+      dataSignal.onDestroy(() => childDataSignal.destroy())
 
       let basePath = child.path
       if (slotPath.startsWith(`${child.path}.`)) {

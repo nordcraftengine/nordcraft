@@ -92,7 +92,7 @@ export class ToddleComponent extends HTMLElement {
 
     // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
     const abortController = new AbortController()
-    this.#signal.subscriptions.push(() =>
+    this.#signal.onDestroy(() =>
       abortController.abort(`Component ${component.name} unmounted`),
     )
 
