@@ -1,6 +1,6 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { getDOMNodeFromNodeId } from '../../editor-preview.main'
 import { rectHasPoint } from '../../utils/rectHasPoint'
+import { getDOMNodeFromNodeId } from '../dom'
 import { dragInsertEnded, dragInsertMove, dragInsertStarted } from '../helpers'
 import { postMessageToEditor } from '../postMessageToEditor'
 import type { DragInsertState } from '../types'

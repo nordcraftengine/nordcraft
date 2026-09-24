@@ -4,9 +4,9 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 
-type NodeWithNodeId = NodeModel & { nodeId: string }
+export type NodeWithNodeId = NodeModel & { nodeId: string }
 
-interface NodeAndAncestorLookup {
+export interface NodeAndAncestorLookup {
   node: NodeWithNodeId
   ancestors: NodeWithNodeId[]
 }

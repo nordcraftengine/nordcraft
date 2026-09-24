@@ -22,8 +22,18 @@ export function getRectData(selectedNode: Element | null | undefined) {
     borderBottomWidth,
     borderLeftWidth,
     borderRadius,
-    padding,
-    margin,
+    marginTop,
+    marginRight,
+    marginBottom,
+    marginLeft,
+    paddingTop,
+    paddingRight,
+    paddingBottom,
+    paddingLeft,
+    borderTopLeftRadius,
+    borderTopRightRadius,
+    borderBottomRightRadius,
+    borderBottomLeftRadius,
     flexDirection,
     gap,
     rowGap,
@@ -44,9 +54,26 @@ export function getRectData(selectedNode: Element | null | undefined) {
       borderBottomWidth || '0px',
       borderLeftWidth || '0px',
     ],
-    borderRadius: borderRadius.split(' '),
-    padding: padding.split(' '),
-    margin: margin.split(' '),
+    borderRadius: borderRadius
+      ? borderRadius.split(' ')
+      : [
+          borderTopLeftRadius || '0px',
+          borderTopRightRadius || '0px',
+          borderBottomRightRadius || '0px',
+          borderBottomLeftRadius || '0px',
+        ],
+    padding: [
+      paddingTop || '0px',
+      paddingRight || '0px',
+      paddingBottom || '0px',
+      paddingLeft || '0px',
+    ],
+    margin: [
+      marginTop || '0px',
+      marginRight || '0px',
+      marginBottom || '0px',
+      marginLeft || '0px',
+    ],
     gap: gap.split(' '),
     boxSizing,
     display,
@@ -92,12 +119,24 @@ const getBasicRectData = (node: Element) =>
   toRectData(getScaledIntrinsicRect(node).rect)
 
 function getParentRectData(parent: Element) {
-  const { rowGap, columnGap, padding } = getStyle(parent)
+  const {
+    rowGap,
+    columnGap,
+    paddingTop,
+    paddingRight,
+    paddingBottom,
+    paddingLeft,
+  } = getStyle(parent)
   return {
     ...getBasicRectData(parent),
     rowGap,
     columnGap,
-    padding: padding.split(' '),
+    padding: [
+      paddingTop || '0px',
+      paddingRight || '0px',
+      paddingBottom || '0px',
+      paddingLeft || '0px',
+    ],
   }
 }
 

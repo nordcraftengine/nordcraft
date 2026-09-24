@@ -1,5 +1,5 @@
-import { getDOMNodeFromNodeId } from '../../editor-preview.main'
 import { rectHasPoint } from '../../utils/rectHasPoint'
+import { getDOMNodeFromNodeId } from '../dom'
 import { removeDropHighlight } from '../drag-drop/dropHighlight'
 import { dragInsertEnded, dragInsertMove, dragInsertStarted } from '../helpers'
 import { postMessageToEditor } from '../postMessageToEditor'
