@@ -327,11 +327,9 @@ export function createElement({
     })
     elem.append(...childNodes)
   }
-  dataSignal.subscribe(() => {}, {
-    destroy: () => {
-      // TODO: Clean up event listeners, but after destruction of child signals (Maybe we need a "afterDestroy" hook on signals?)
-      elem.parentNode?.removeChild(elem)
-    },
+  dataSignal.onDestroy(() => {
+    // TODO: Clean up event listeners, but after destruction of child signals (Maybe we need a "afterDestroy" hook on signals?)
+    elem.parentNode?.removeChild(elem)
   })
 
   return elem

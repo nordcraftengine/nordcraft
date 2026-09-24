@@ -10,7 +10,7 @@ import type {
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { toBoolean } from '@nordcraft/core/dist/utils/util'
 import type { Signal } from '../signal/signal'
-import { signal } from '../signal/signal'
+import { identity, signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { getComponent } from '../utils/getComponent'
 import { ensureEfficientOrdering, getNextSiblingElement } from '../utils/nodes'
@@ -116,7 +116,7 @@ export function createNode({
     const toggle = (show: boolean) => {
       if (show && elements.length === 0) {
         childDataSignal?.destroy()
-        childDataSignal = dataSignal.map((data) => data)
+        childDataSignal = dataSignal.map(identity)
         elements.push(
           ...create({
             node,
