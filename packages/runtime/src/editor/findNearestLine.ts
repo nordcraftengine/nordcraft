@@ -1,4 +1,4 @@
-import type { Line, Point } from '../editor/types'
+import type { Line, Point } from './types'
 
 /**
  * Finds the nearest line to a given point from an array of lines.

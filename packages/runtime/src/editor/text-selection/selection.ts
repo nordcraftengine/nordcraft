@@ -1,5 +1,5 @@
-import { stripNodeIdRepeatIndices } from '../../utils/nodes'
-import { DATA_ATTR_ID, DATA_ATTR_NODE_ID } from '../const'
+import { DATA_ATTR_ID, DATA_ATTR_NODE_ID } from '@nordcraft/core/dist/const'
+import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from '../../utils/nodes'
 import { postMessageToEditor } from '../postMessageToEditor'
 
 export const handleTextNodeSelection = (
@@ -15,6 +15,7 @@ export const handleTextNodeSelection = (
     type: 'highlight',
     highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
     exactHighlightedNodeId: nodeId,
+    repeatNodeIndex: getRepeatNodeIndex(nodeId, node),
   })
 
   let isFinished = false

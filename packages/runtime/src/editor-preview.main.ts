@@ -63,6 +63,7 @@ import {
 } from './editor/insert/insertHandlers'
 import { initKeyListeners } from './editor/keyboard'
 import { updateComponentLinks } from './editor/links'
+import { markSelectedElement } from './editor/markSelectedElement'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
 import { applyPreviewResources } from './editor/previewResources'
@@ -74,6 +75,10 @@ import {
 import { handleRenderError } from './editor/renderError'
 import { requestResizeCanvas, resizeCanvas } from './editor/resizeCanvas'
 import { captureScreenshot } from './editor/screenshot'
+import {
+  getScrollStateRestorer,
+  storeScrollState,
+} from './editor/storeScrollState'
 import { insertStyles } from './editor/style'
 import { handleTextMouseDown } from './editor/text-selection/mouseDown'
 import { handleTextMouseMove } from './editor/text-selection/mouseMove'
@@ -97,12 +102,7 @@ import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
 import type { ComponentContext } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
-import { markSelectedElement } from './utils/markSelectedElement'
 import { stripNodeIdRepeatIndices } from './utils/nodes'
-import {
-  getScrollStateRestorer,
-  storeScrollState,
-} from './utils/storeScrollState'
 
 export { getDOMNodeFromNodeId } from './editor/dom'
 export { initGlobalObject } from './editor/global'
@@ -198,6 +198,7 @@ export const createRoot = (
   }
   let selectedNodeId: string | null = null
   let highlightedNodeId: string | null = null
+  let exactHighlightedNodeId: string | null = null
   let styleVariantSelection: {
     nodeId: string
     styleVariantIndex: number
@@ -533,6 +534,7 @@ export const createRoot = (
           highlightedNodeId = stripNodeIdRepeatIndices(
             message.data.highlightedNodeId,
           )
+          exactHighlightedNodeId = message.data.highlightedNodeId
           markHighlightedTextNode({
             highlightedNodeId: message.data.highlightedNodeId,
             selectedNodeId,
@@ -611,9 +613,11 @@ export const createRoot = (
             component,
             selectedNodeId,
             highlightedNodeId,
+            exactHighlightedNodeId,
             metaKey,
             onHighlight: (newHighlightedNodeId) => {
               highlightedNodeId = stripNodeIdRepeatIndices(newHighlightedNodeId)
+              exactHighlightedNodeId = newHighlightedNodeId
               markHighlightedTextNode({
                 highlightedNodeId: newHighlightedNodeId,
                 selectedNodeId,

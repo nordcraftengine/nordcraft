@@ -1,5 +1,5 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { stripNodeIdRepeatIndices } from '../utils/nodes'
+import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from '../utils/nodes'
 import {
   DATA_ATTR_COMPONENT,
   DATA_ATTR_ID,
@@ -21,11 +21,19 @@ export const handleCanvasPointerEvent = (options: {
   component: Component | null
   selectedNodeId: string | null
   highlightedNodeId: string | null
+  exactHighlightedNodeId?: string | null
   metaKey: boolean
   onHighlight?: (highlightedNodeId: string | null) => void
 }) => {
-  const { event, mode, component, selectedNodeId, highlightedNodeId, metaKey } =
-    options
+  const {
+    event,
+    mode,
+    component,
+    selectedNodeId,
+    highlightedNodeId,
+    exactHighlightedNodeId,
+    metaKey,
+  } = options
 
   if (mode === 'test' || !component) {
     return
@@ -66,7 +74,12 @@ export const handleCanvasPointerEvent = (options: {
   })
 
   const id = element?.getAttribute(DATA_ATTR_ID) ?? null
-  const elementIsSameAsSelected = id && id === selectedNodeId
+  const nodeLookup = lookupNodeAndAncestors(component, id)
+  const repeatNodeIndex = getRepeatNodeIndex(id, nodeLookup?.node ?? element)
+  const elementIsSameAsSelected =
+    id &&
+    (id === selectedNodeId ||
+      stripNodeIdRepeatIndices(id) === stripNodeIdRepeatIndices(selectedNodeId))
   if (
     elementIsSameAsSelected &&
     element?.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT
@@ -76,6 +89,7 @@ export const handleCanvasPointerEvent = (options: {
         type: 'highlight',
         highlightedNodeId: null,
         exactHighlightedNodeId: null,
+        repeatNodeIndex: null,
       })
       options.onHighlight?.(null)
     }
@@ -86,11 +100,11 @@ export const handleCanvasPointerEvent = (options: {
     if (isMeta) {
       // Figure out if the clicked element is a text element
       // or if one of its descendants is a text element
-      const nodeLookup = lookupNodeAndAncestors(component, id)
       if (nodeLookup?.node.type === 'text') {
         postMessageToEditor({
           type: 'selection',
-          selectedNodeId: id,
+          selectedNodeId: stripNodeIdRepeatIndices(id),
+          repeatNodeIndex,
         })
       } else {
         const firstTextChild =
@@ -102,17 +116,22 @@ export const handleCanvasPointerEvent = (options: {
         if (firstTextChild) {
           postMessageToEditor({
             type: 'selection',
-            selectedNodeId: `${id}.0`,
+            selectedNodeId: stripNodeIdRepeatIndices(`${id}.0`),
+            repeatNodeIndex,
           })
         }
       }
     } else {
       postMessageToEditor({
         type: 'selection',
-        selectedNodeId: id,
+        selectedNodeId: stripNodeIdRepeatIndices(id),
+        repeatNodeIndex,
       })
     }
-  } else if (type === 'mousemove' && id !== highlightedNodeId) {
+  } else if (
+    type === 'mousemove' &&
+    id !== (exactHighlightedNodeId ?? highlightedNodeId)
+  ) {
     // Do not send highlight if cursor is inside current selectedElement and current selected element is a text type
     const selectedNode = getDOMNodeFromNodeId(selectedNodeId)
     const selectedNodeIsText =
@@ -126,6 +145,7 @@ export const handleCanvasPointerEvent = (options: {
           type: 'highlight',
           highlightedNodeId: null,
           exactHighlightedNodeId: null,
+          repeatNodeIndex: null,
         })
         options.onHighlight?.(null)
       }
@@ -136,6 +156,7 @@ export const handleCanvasPointerEvent = (options: {
       type: 'highlight',
       highlightedNodeId: stripNodeIdRepeatIndices(id),
       exactHighlightedNodeId: id,
+      repeatNodeIndex,
     })
     options.onHighlight?.(id)
   } else if (
@@ -145,7 +166,6 @@ export const handleCanvasPointerEvent = (options: {
     mode === 'design'
   ) {
     // Figure out if the clicked element is a component
-    const nodeLookup = lookupNodeAndAncestors(component, id)
     if (nodeLookup?.node.type === 'component' && nodeLookup.node.name) {
       postMessageToEditor({
         type: 'navigate',
@@ -156,7 +176,8 @@ export const handleCanvasPointerEvent = (options: {
     else if (nodeLookup?.node.type === 'text') {
       postMessageToEditor({
         type: 'selection',
-        selectedNodeId: id,
+        selectedNodeId: stripNodeIdRepeatIndices(id),
+        repeatNodeIndex,
       })
     }
   }

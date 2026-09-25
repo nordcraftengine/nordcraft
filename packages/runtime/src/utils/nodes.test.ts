@@ -3,6 +3,7 @@ import '../happydom'
 import {
   ensureEfficientOrdering,
   getNextSiblingElement,
+  getRepeatNodeIndex,
   stripNodeIdRepeatIndices,
 } from './nodes'
 
@@ -246,5 +247,68 @@ describe('stripNodeIdRepeatIndices', () => {
 
   it('should handle nodeId with repeat and slot indices', () => {
     expect(stripNodeIdRepeatIndices('{0}(0)')).toBe('')
+  })
+})
+
+describe('getRepeatNodeIndex', () => {
+  it('should return null for null or undefined nodeId', () => {
+    expect(getRepeatNodeIndex(null)).toBeNull()
+    expect(getRepeatNodeIndex(undefined)).toBeNull()
+    expect(getRepeatNodeIndex('')).toBeNull()
+  })
+
+  it('should extract repeat index from nodeId with repeat index', () => {
+    expect(getRepeatNodeIndex('0.0(1)')).toBe(1)
+    expect(getRepeatNodeIndex('0.0(2)')).toBe(2)
+    expect(getRepeatNodeIndex('0.0(0)')).toBe(0)
+    expect(getRepeatNodeIndex('1.2(5).3')).toBe(5)
+    expect(getRepeatNodeIndex('1.2(3).4(7)')).toBe(7)
+  })
+
+  it('should return 0 for unindexed nodeId if node has repeat property', () => {
+    const repeatNode = {
+      type: 'element' as const,
+      tag: 'div',
+      repeat: { type: 'value' as const, value: [1, 2, 3] },
+    }
+    expect(getRepeatNodeIndex('0.0', repeatNode)).toBe(0)
+  })
+
+  it('should return null for unindexed nodeId if node does not have repeat property', () => {
+    const nonRepeatNode = {
+      type: 'element' as const,
+      tag: 'div',
+    }
+    expect(getRepeatNodeIndex('0.0', nonRepeatNode)).toBeNull()
+  })
+
+  it('should return 0 for unindexed element if it has repeat siblings in DOM', () => {
+    const parent = document.createElement('div')
+    const item0 = document.createElement('div')
+    item0.setAttribute('data-id', '0.0')
+    const item1 = document.createElement('div')
+    item1.setAttribute('data-id', '0.0(1)')
+    parent.appendChild(item0)
+    parent.appendChild(item1)
+    document.body.appendChild(parent)
+
+    expect(getRepeatNodeIndex('0.0', item0)).toBe(0)
+
+    document.body.removeChild(parent)
+  })
+
+  it('should return null for element without repeat siblings or repeat definition', () => {
+    const parent = document.createElement('div')
+    const item = document.createElement('div')
+    item.setAttribute('data-id', '0.0')
+    const other = document.createElement('div')
+    other.setAttribute('data-id', '0.1')
+    parent.appendChild(item)
+    parent.appendChild(other)
+    document.body.appendChild(parent)
+
+    expect(getRepeatNodeIndex('0.0', item)).toBeNull()
+
+    document.body.removeChild(parent)
   })
 })

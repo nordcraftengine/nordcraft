@@ -1,6 +1,5 @@
-import { findNearestLine } from '../utils/findNearestLine'
 import { isElementInViewport } from '../utils/isElementInViewport'
-import { stripNodeIdRepeatIndices } from '../utils/nodes'
+import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from '../utils/nodes'
 import { tryStartViewTransition } from '../utils/tryStartViewTransition'
 import { DRAG_REORDER_CLASSNAME } from './drag-drop/dragReorder'
 import {
@@ -9,6 +8,7 @@ import {
   setExternalDropHighlight,
 } from './drag-drop/dropHighlight'
 import { getInsertAreas } from './drag-drop/getInsertAreas'
+import { findNearestLine } from './findNearestLine'
 import type { DragInsertState, Point } from './types'
 
 const OVERLAP_OFFSET_PX = 100
@@ -215,6 +215,10 @@ export function dragInsertStarted({
       type: 'highlight',
       highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
       exactHighlightedNodeId: nodeId,
+      repeatNodeIndex: getRepeatNodeIndex(
+        nodeId,
+        dragInsertState.initialContainer,
+      ),
     },
     '*',
   )
@@ -397,6 +401,7 @@ export function dragInsertMove(
         type: 'highlight',
         highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
         exactHighlightedNodeId: nodeId,
+        repeatNodeIndex: getRepeatNodeIndex(nodeId, insertArea.parent),
       },
       '*',
     )

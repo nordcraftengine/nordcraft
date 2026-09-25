@@ -65,8 +65,16 @@ export type NordcraftPreviewEvent =
   | { type: 'theme'; theme: Record<string, OldTheme | Theme> }
   | { type: 'mode'; mode: EditorMode }
   | { type: 'attrs'; attrs: Record<string, unknown> }
-  | { type: 'selection'; selectedNodeId: string | null }
-  | { type: 'highlight'; highlightedNodeId: string | null }
+  | {
+      type: 'selection'
+      selectedNodeId: string | null
+      repeatNodeIndex?: number | null
+    }
+  | {
+      type: 'highlight'
+      highlightedNodeId: string | null
+      repeatNodeIndex?: number | null
+    }
   | {
       type: 'click' | 'mousemove' | 'mousedown' | 'dblclick'
       metaKey: boolean
@@ -148,11 +156,13 @@ export type EditorPostMessageType =
   | {
       type: 'selection'
       selectedNodeId: string | null
+      repeatNodeIndex?: number | null
     }
   | {
       type: 'highlight'
       highlightedNodeId: string | null
       exactHighlightedNodeId?: string | null
+      repeatNodeIndex?: number | null
     }
   | {
       type: 'navigate'

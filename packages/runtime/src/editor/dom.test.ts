@@ -263,4 +263,109 @@ describe('handleCanvasPointerEvent hover highlighting', () => {
     expect(highlightCalled).toBe(false)
     expect(textSpan.classList.contains(NC_EDITOR_HIGHLIGHTED_CLASS)).toBe(false)
   })
+
+  test('sends repeatNodeIndex when hovering and clicking repeat elements', () => {
+    const repeatComponent: Component = {
+      name: 'repeat-comp',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['repeatItem'],
+        },
+        repeatItem: {
+          type: 'element',
+          tag: 'div',
+          repeat: { type: 'value', value: [1, 2, 3] },
+        },
+      },
+    }
+
+    document.body.innerHTML = `
+      <div id="App">
+        <div data-id="0.0">Item 0</div>
+        <div data-id="0.0(1)">Item 1</div>
+        <div data-id="0.0(2)">Item 2</div>
+      </div>
+    `
+
+    const item1 = document.querySelector('[data-id="0.0(1)"]')!
+    const item0 = document.querySelector('[data-id="0.0"]')!
+
+    const postedMessages: any[] = []
+    const originalPostMessage = window.parent.postMessage
+    window.parent.postMessage = (msg: any) => {
+      postedMessages.push(msg)
+    }
+
+    try {
+      // 1. Hover item 1 (0.0(1))
+      document.elementsFromPoint = () => [item1]
+      handleCanvasPointerEvent({
+        event: { x: 10, y: 10, type: 'mousemove' },
+        mode: 'design',
+        component: repeatComponent,
+        selectedNodeId: null,
+        highlightedNodeId: null,
+        metaKey: false,
+      })
+
+      const highlightMsg1 = postedMessages.find((m) => m.type === 'highlight')
+      expect(highlightMsg1).toBeDefined()
+      expect(highlightMsg1.highlightedNodeId).toBe('0.0')
+      expect(highlightMsg1.exactHighlightedNodeId).toBe('0.0(1)')
+      expect(highlightMsg1.repeatNodeIndex).toBe(1)
+
+      // 2. Click item 1 (0.0(1))
+      handleCanvasPointerEvent({
+        event: { x: 10, y: 10, type: 'click' },
+        mode: 'design',
+        component: repeatComponent,
+        selectedNodeId: null,
+        highlightedNodeId: '0.0',
+        metaKey: false,
+      })
+
+      const selectMsg1 = postedMessages.find((m) => m.type === 'selection')
+      expect(selectMsg1).toBeDefined()
+      expect(selectMsg1.selectedNodeId).toBe('0.0')
+      expect(selectMsg1.repeatNodeIndex).toBe(1)
+
+      // 3. Hover item 0 (0.0)
+      postedMessages.length = 0
+      document.elementsFromPoint = () => [item0]
+      handleCanvasPointerEvent({
+        event: { x: 10, y: 10, type: 'mousemove' },
+        mode: 'design',
+        component: repeatComponent,
+        selectedNodeId: null,
+        highlightedNodeId: null,
+        exactHighlightedNodeId: '0.0(1)',
+        metaKey: false,
+      })
+
+      const highlightMsg0 = postedMessages.find((m) => m.type === 'highlight')
+      expect(highlightMsg0).toBeDefined()
+      expect(highlightMsg0.highlightedNodeId).toBe('0.0')
+      expect(highlightMsg0.exactHighlightedNodeId).toBe('0.0')
+      expect(highlightMsg0.repeatNodeIndex).toBe(0)
+
+      // 4. Click item 0 (0.0)
+      handleCanvasPointerEvent({
+        event: { x: 10, y: 10, type: 'click' },
+        mode: 'design',
+        component: repeatComponent,
+        selectedNodeId: null,
+        highlightedNodeId: '0.0',
+        metaKey: false,
+      })
+
+      const selectMsg0 = postedMessages.find((m) => m.type === 'selection')
+      expect(selectMsg0).toBeDefined()
+      expect(selectMsg0.selectedNodeId).toBe('0.0')
+      expect(selectMsg0.repeatNodeIndex).toBe(0)
+    } finally {
+      window.parent.postMessage = originalPostMessage
+    }
+  })
 })

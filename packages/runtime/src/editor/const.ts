@@ -1,8 +1,14 @@
+import { DATA_ATTR_ID } from '@nordcraft/core/dist/const'
+
+export {
+  DATA_ATTR_COMPONENT,
+  DATA_ATTR_ID,
+  DATA_ATTR_NODE_ID,
+  DATA_ATTR_NODE_TYPE,
+  DATA_NODE_TYPE_TEXT,
+} from '@nordcraft/core/dist/const'
+
 export const DATA_ATTR_VIEWPORT_HEIGHT = 'data-viewport-height'
-export const DATA_ATTR_NODE_TYPE = 'data-node-type'
-export const DATA_ATTR_ID = 'data-id'
-export const DATA_ATTR_NODE_ID = 'data-node-id'
-export const DATA_ATTR_COMPONENT = 'data-component'
 export const DATA_ATTR_SELECTED = 'data-selected'
 export const DATA_ATTR_REPEAT_SELECTED = 'data-repeat-selected'
 export const DATA_ATTR_MODE = 'data-mode'
@@ -10,8 +16,6 @@ export const DATA_ATTR_HASH = 'data-hash'
 export const DATA_ATTR_META_ID = 'data-meta-id'
 export const DATA_ATTR_ANIMATING = 'data-animating'
 export const DATA_ATTR_TIMELINE_KEYFRAMES = 'data-timeline-keyframes'
-
-export const DATA_NODE_TYPE_TEXT = 'text'
 
 export const DATA_ID_PREVIEW_RESOURCE = 'preview-resource'
 export const DATA_ID_SELECTED_NODE_STYLES = 'selected-node-styles'
