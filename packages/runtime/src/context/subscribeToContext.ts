@@ -35,7 +35,7 @@ export function subscribeToContext(
             return
           }
 
-          formulaDataSignal.subscribe((value) => {
+          componentDataSignal.subscribeTo(formulaDataSignal, (value) => {
             componentDataSignal.update((data) => ({
               ...data,
               Contexts: {

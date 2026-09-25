@@ -297,7 +297,7 @@ export const createRoot = (domNode: HTMLElement) => {
     }
   }
 
-  ctx.stores.theme.subscribe((newTheme) => {
+  dataSignal.subscribeTo(ctx.stores.theme, (newTheme) => {
     // The page's dataSignal also needs to be updated so that `Page.Theme` formulas works on page components
     dataSignal.update((data) => ({
       ...data,

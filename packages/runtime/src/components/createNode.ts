@@ -167,7 +167,8 @@ export function createNode({
       },
     })
     if (ctx.env.runtime === 'preview' && ctx.toddle._preview) {
-      ctx.toddle._preview.showSignal.subscribe(
+      showSignal.subscribeTo(
+        ctx.toddle._preview.showSignal,
         ({ displayedNodes, testMode }) => {
           if (displayedNodes.includes(path) && !testMode) {
             // only override the default show if we are in design mode (not test mode)
@@ -192,7 +193,6 @@ export function createNode({
       string | number,
       {
         dataSignal: Signal<ComponentData>
-        cleanup: () => void
         elements: ReadonlyArray<Element | Text>
       }
     >()
@@ -268,7 +268,6 @@ export function createNode({
         // Cleanup removed items' before rendering new items to ensure clean state
         repeatItems.forEach((item, key) => {
           if (!seenKeys.has(key)) {
-            item.cleanup()
             item.dataSignal.destroy()
             item.elements.forEach((e) => e.remove())
             if (defaultElement === key) {
@@ -281,7 +280,6 @@ export function createNode({
           string | number,
           {
             dataSignal: Signal<ComponentData>
-            cleanup: () => void
             elements: ReadonlyArray<Element | Text>
           }
         >()
@@ -303,7 +301,8 @@ export function createNode({
             })
           } else {
             const childDataSignal = signal<ComponentData>(childData)
-            const cleanup = dataSignal.subscribe(
+            childDataSignal.subscribeTo(
+              dataSignal,
               (data) => {
                 if (firstRun) {
                   return
@@ -346,7 +345,6 @@ export function createNode({
             const elements = node!.condition ? conditional(args) : create(args)
             newRepeatItems.set(childKey, {
               dataSignal: childDataSignal,
-              cleanup,
               elements,
             })
           }
@@ -375,7 +373,6 @@ export function createNode({
       {
         destroy: () =>
           Array.from(repeatItems.values()).forEach((e) => {
-            e.cleanup()
             e.dataSignal.destroy()
             e.elements.forEach((e) => e.remove())
           }),

@@ -121,7 +121,7 @@ export function createComponent({
 
   // Subscribe to global stores (currently only theme)
   // We subscribe before calculating variable initial values to ensure they can reference global store values
-  ctx.stores.theme.subscribe((newTheme) => {
+  componentDataSignal.subscribeTo(ctx.stores.theme, (newTheme) => {
     componentDataSignal.update((data) => ({
       ...data,
       Page: {
@@ -309,7 +309,8 @@ export function createComponent({
     })
   }
 
-  attributesSignal.subscribe(
+  componentDataSignal.subscribeTo(
+    attributesSignal,
     (Attributes) =>
       componentDataSignal.update((data) => ({
         ...data,

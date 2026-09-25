@@ -143,7 +143,7 @@ export function createElement({
       ctx.env.runtime === 'preview' &&
       ctx.toddle._preview
     ) {
-      ctx.toddle._preview.showSignal.subscribe(({ testMode }) => {
+      dataSignal.subscribeTo(ctx.toddle._preview.showSignal, ({ testMode }) => {
         if (testMode) {
           setupAttribute()
         } else {

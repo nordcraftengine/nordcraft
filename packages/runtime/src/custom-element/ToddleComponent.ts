@@ -182,7 +182,7 @@ export class ToddleComponent extends HTMLElement {
 
     this.#ctx.providers = providers
 
-    this.#ctx.stores.theme.subscribe((newTheme) => {
+    this.#signal.subscribeTo(this.#ctx.stores.theme, (newTheme) => {
       this.#signal.update((data) => ({
         ...data,
         Page: {
