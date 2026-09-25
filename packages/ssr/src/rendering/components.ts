@@ -758,6 +758,8 @@ export const renderPageBody = async ({
   req: Request
   projectId: string
 }) => {
+  // Wait for 100ms
+  await new Promise((resolve) => setTimeout(resolve, 100))
   const apiCache: ApiCache = {}
   const updateApiCache = (key: string, value: ApiStatus) =>
     (apiCache[key] = value)
