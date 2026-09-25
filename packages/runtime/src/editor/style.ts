@@ -16,6 +16,7 @@ import { isDefined } from '@nordcraft/core/dist/utils/util'
 import {
   CSS_VAR_SCROLL_HEIGHT,
   CSS_VAR_VIEWPORT_HEIGHT,
+  DATA_ATTR_HASH,
   DEFAULT_VIEWPORT_HEIGHT,
 } from './const'
 
@@ -80,7 +81,7 @@ export const insertStyles = (
     ])
 
     const styleElem = document.createElement('style')
-    styleElem.setAttribute('data-hash', classHash)
+    styleElem.setAttribute(DATA_ATTR_HASH, classHash)
     styleElem.appendChild(
       document.createTextNode(`
     ${renderVariant('.' + classHash, style)}
@@ -193,7 +194,9 @@ ${
 
   // Remove old styles.
   // We do not keep track of changes, so must remove all and re-add as order matters.
-  parent.querySelectorAll('[data-hash]').forEach((node) => node.remove())
+  parent
+    .querySelectorAll(`[${DATA_ATTR_HASH}]`)
+    .forEach((node) => node.remove())
 
   // Add new styles
   const fragment = document.createDocumentFragment()

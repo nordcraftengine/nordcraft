@@ -1,5 +1,13 @@
 import type { AnimationKeyframe } from '@nordcraft/core/dist/component/component.types'
 import { clamp, toSeconds } from '../utils/helpers'
+import {
+  DATA_ATTR_ANIMATING,
+  DATA_ATTR_ID,
+  DATA_ATTR_MODE,
+  DATA_ATTR_TIMELINE_KEYFRAMES,
+  DATA_ID_PREVIEW_ANIMATION_STYLES,
+  SELECTOR_PREVIEW_ANIMATION_STYLES,
+} from './const'
 import { getDOMNodeFromNodeId } from './dom'
 import { postMessageToEditor } from './postMessageToEditor'
 
@@ -67,7 +75,7 @@ export const handleSetTimelineKeyframes = (
   keyframes: Record<string, AnimationKeyframe> | null | undefined,
   syncOverlayRects: () => void,
 ) => {
-  document.head.querySelector('[data-timeline-keyframes]')?.remove()
+  document.head.querySelector(`[${DATA_ATTR_TIMELINE_KEYFRAMES}]`)?.remove()
   if (!keyframes) {
     return
   }
@@ -87,7 +95,7 @@ export const handleSetTimelineKeyframes = (
     .join('\n')}
 }`),
   )
-  styleElem.setAttribute('data-timeline-keyframes', '')
+  styleElem.setAttribute(DATA_ATTR_TIMELINE_KEYFRAMES, '')
   document.head.appendChild(styleElem)
   syncOverlayRects()
 }
@@ -124,9 +132,7 @@ export const handleSetTimelineTime = (options: {
 
   // Cleanup on null
   if (time === null) {
-    document.head
-      .querySelector('[data-id="preview-animation-styles"]')
-      ?.remove()
+    document.head.querySelector(SELECTOR_PREVIEW_ANIMATION_STYLES)?.remove()
 
     const style = document.body.style
 
@@ -136,12 +142,12 @@ export const handleSetTimelineTime = (options: {
         style.removeProperty(prop)
       }
     }
-    document.body.removeAttribute('data-animating')
+    document.body.removeAttribute(DATA_ATTR_ANIMATING)
     options.update()
     return animationState
   }
 
-  document.body.setAttribute('data-animating', 'true')
+  document.body.setAttribute(DATA_ATTR_ANIMATING, 'true')
 
   document.body.style.setProperty(
     '--editor-timeline-timing-function',
@@ -229,18 +235,18 @@ export const handleSetTimelineTime = (options: {
 
   if (animatedElementChanged && animationState.animatedElementId) {
     let styleTag = document.head.querySelector(
-      '[data-id="preview-animation-styles"]',
+      SELECTOR_PREVIEW_ANIMATION_STYLES,
     )
     if (!styleTag) {
       styleTag = document.createElement('style')
-      styleTag.setAttribute('data-id', 'preview-animation-styles')
+      styleTag.setAttribute(DATA_ATTR_ID, DATA_ID_PREVIEW_ANIMATION_STYLES)
       document.head.appendChild(styleTag)
     }
     const getTimelineRule = (
       nodeId: string,
       index: number,
       iterationCount: string | number,
-    ) => `body[data-mode="design"] [data-id="${nodeId}"] {
+    ) => `body[${DATA_ATTR_MODE}="design"] [${DATA_ATTR_ID}="${nodeId}"] {
   animation: preview_timeline var(--editor-timeline-duration-${index}) paused normal !important;
   animation-fill-mode: var(--editor-timeline-fill-mode) !important;
   animation-timing-function: var(--editor-timeline-timing-function) !important;

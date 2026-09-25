@@ -14,6 +14,13 @@ import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
+import {
+  DATA_ATTR_HASH,
+  DATA_ATTR_ID,
+  DATA_ATTR_MODE,
+  DATA_ID_SELECTED_NODE_STYLES,
+  SELECTOR_SELECTED_NODE_STYLES,
+} from './const'
 import { lookupNodeAndAncestors } from './dom'
 import { resizeCanvas } from './resizeCanvas'
 import {
@@ -27,7 +34,7 @@ export const clearSelectedStyleVariant = (
 ) => {
   if (styleVariantSelection) {
     const styleElem = document.head.querySelector(
-      `[data-hash="${styleVariantSelection.nodeId}"]`,
+      `[${DATA_ATTR_HASH}="${styleVariantSelection.nodeId}"]`,
     )
     if (styleElem) {
       document.head.removeChild(styleElem)
@@ -54,9 +61,7 @@ export const applyPreviewStyle = (options: {
 }) => {
   const { styles: previewStyleStyles, theme } = options.data
   // Update or create a new style tag and set the given styles with important priority
-  let styleElement = document.head.querySelector(
-    '[data-id="selected-node-styles"]',
-  )
+  let styleElement = document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)
 
   // Cleanup when null or empty styles are sent
   if (
@@ -71,7 +76,7 @@ export const applyPreviewStyle = (options: {
 
   if (!styleElement) {
     styleElement = document.createElement('style')
-    styleElement.setAttribute('data-id', 'selected-node-styles')
+    styleElement.setAttribute(DATA_ATTR_ID, DATA_ID_SELECTED_NODE_STYLES)
     document.head.appendChild(styleElement)
   }
 
@@ -121,7 +126,7 @@ export const applyPreviewStyle = (options: {
           `${key}: ${convertViewportUnitsToEmulatedViewportUnits(value)} !important;`,
       )
       .join('\n')
-    const newCss = `[data-id="${options.selectedNodeId}"]${pseudoElement}, [data-id="${options.selectedNodeId}"] ~ [data-id^="${options.selectedNodeId}("]${pseudoElement} {
+    const newCss = `[${DATA_ATTR_ID}="${options.selectedNodeId}"]${pseudoElement}, [${DATA_ATTR_ID}="${options.selectedNodeId}"] ~ [${DATA_ATTR_ID}^="${options.selectedNodeId}("]${pseudoElement} {
     ${previewStyles}
     transition: none !important;
   }`
@@ -207,10 +212,10 @@ export const updateSelectedStyleVariant = (options: {
       const pseudoElement = selectedStyleVariant.pseudoElement
         ? `::${selectedStyleVariant.pseudoElement}`
         : ''
-      styleElem.setAttribute('data-hash', options.selectedNodeId)
+      styleElem.setAttribute(DATA_ATTR_HASH, options.selectedNodeId)
       styleElem.appendChild(
         document.createTextNode(`
-                        body[data-mode="design"] [data-id="${options.selectedNodeId}"]${pseudoElement} {
+                        body[${DATA_ATTR_MODE}="design"] [${DATA_ATTR_ID}="${options.selectedNodeId}"]${pseudoElement} {
                           ${styleToCss({
                             ...(!pseudoElement && nodeLookup.node.style),
                             ...selectedStyleVariant.style,
@@ -220,7 +225,7 @@ export const updateSelectedStyleVariant = (options: {
                       `),
       )
       const existingStyleElement = document.head.querySelector(
-        `[data-hash="${options.selectedNodeId}"]`,
+        `[${DATA_ATTR_HASH}="${options.selectedNodeId}"]`,
       )
       if (existingStyleElement) {
         document.head.removeChild(existingStyleElement)

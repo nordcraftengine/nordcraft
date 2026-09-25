@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
 import '../happydom'
-import { CSS_VAR_SCROLL_HEIGHT } from './const'
+import { CSS_VAR_SCROLL_HEIGHT, SELECTOR_SELECTED_NODE_STYLES } from './const'
 import { applyPreviewStyle } from './previewStyle'
 
 describe('applyPreviewStyle', () => {
@@ -14,7 +14,7 @@ describe('applyPreviewStyle', () => {
 
   afterEach(() => {
     document.body.innerHTML = ''
-    document.head.querySelector('[data-id="selected-node-styles"]')?.remove()
+    document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
   })
 
   test('applies preview style, resizes canvas synchronously and syncs overlay rects in same turn', () => {
@@ -23,7 +23,7 @@ describe('applyPreviewStyle', () => {
       executionOrder.push('syncOverlayRects')
       // At this point, the style tag should already be applied and App's CSS var updated
       const styleTag = document.head.querySelector(
-        '[data-id="selected-node-styles"]',
+        SELECTOR_SELECTED_NODE_STYLES,
       )
       expect(styleTag).not.toBeNull()
       expect(styleTag?.textContent).toContain('margin-top: 25px !important;')
@@ -59,12 +59,12 @@ describe('applyPreviewStyle', () => {
     })
 
     expect(
-      document.head.querySelector('[data-id="selected-node-styles"]'),
+      document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES),
     ).not.toBeNull()
 
     const syncOverlayRects = mock(() => {
       expect(
-        document.head.querySelector('[data-id="selected-node-styles"]'),
+        document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES),
       ).toBeNull()
     })
 
@@ -92,12 +92,12 @@ describe('applyPreviewStyle', () => {
     })
 
     expect(
-      document.head.querySelector('[data-id="selected-node-styles"]'),
+      document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES),
     ).not.toBeNull()
 
     const syncOverlayRects = mock(() => {
       expect(
-        document.head.querySelector('[data-id="selected-node-styles"]'),
+        document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES),
       ).toBeNull()
     })
 

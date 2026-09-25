@@ -37,6 +37,7 @@ import {
   DATA_ATTR_NODE_TYPE,
   DATA_ATTR_VIEWPORT_HEIGHT,
   DATA_NODE_TYPE_TEXT,
+  SELECTOR_SELECTED_NODE_STYLES,
 } from './editor/const'
 import { createStaticContextFromComponent } from './editor/context'
 import {
@@ -302,9 +303,7 @@ export const createRoot = (
           // Re-initialize state, subscribers, signals and ctx when switching component
           // But only if a component was already loaded
           if (switchComponent && component) {
-            document.head
-              .querySelector('[data-id="selected-node-styles"]')
-              ?.remove()
+            document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
             // Store scroll state for the previous component
             storeScrollState(component?.name)
             // Remove all subscribers from the previous showSignal
@@ -370,9 +369,7 @@ export const createRoot = (
           update()
 
           // If update() didn't remove preview styles (e.g. nodes didn't change), clean them up now
-          document.head
-            .querySelector('[data-id="selected-node-styles"]')
-            ?.remove()
+          document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
 
           if (selectedNodeId) {
             if (styleVariantSelection) {
@@ -444,9 +441,7 @@ export const createRoot = (
             clearTimeout(clearPreviewStyleTimeout)
             clearPreviewStyleTimeout = undefined
           }
-          document.head
-            .querySelector('[data-id="selected-node-styles"]')
-            ?.remove()
+          document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
           mode = message.data.mode
           document.body.setAttribute(DATA_ATTR_MODE, message.data.mode)
           updateConditionalElements({
@@ -497,9 +492,7 @@ export const createRoot = (
               clearTimeout(clearPreviewStyleTimeout)
               clearPreviewStyleTimeout = undefined
             }
-            document.head
-              .querySelector('[data-id="selected-node-styles"]')
-              ?.remove()
+            document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
             selectedNodeId = message.data.selectedNodeId ?? null
             window.dispatchEvent(new CustomEvent('selected-node-changed'))
             clearSelectedStyleVariant(styleVariantSelection)
@@ -635,9 +628,7 @@ export const createRoot = (
             clearTimeout(clearPreviewStyleTimeout)
             clearPreviewStyleTimeout = undefined
           }
-          document.head
-            .querySelector('[data-id="selected-node-styles"]')
-            ?.remove()
+          document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
           const { variantIndex } = message.data
           handleUpdateSelectedStyleVariant(variantIndex)
           resizeCanvas(resizeCanvasOptions)
@@ -1004,7 +995,7 @@ export const createRoot = (
       updateStyle(newCtx.component)
 
       // Remove preview styles automatically when the component changes
-      document.head.querySelector('[data-id="selected-node-styles"]')?.remove()
+      document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
 
       Array.from(domNode.children).forEach((child) => {
         if (child.tagName !== 'SCRIPT') {

@@ -1,3 +1,8 @@
+import {
+  DATA_ATTR_ID,
+  DATA_ID_PREVIEW_RESOURCE,
+  SELECTOR_PREVIEW_RESOURCE,
+} from './const'
 import { requestResizeCanvas } from './resizeCanvas'
 
 export const applyPreviewResources = (
@@ -12,7 +17,7 @@ export const applyPreviewResources = (
 ) => {
   // Allow for temporarily adding preview resources (e.g. fonts).
   const resourceElements = Array.from(
-    document.head.querySelectorAll('[data-id="preview-resource"]'),
+    document.head.querySelectorAll(SELECTOR_PREVIEW_RESOURCE),
   )
   // Remove any resources that are no longer needed
   resourceElements.forEach((el) => {
@@ -32,7 +37,7 @@ export const applyPreviewResources = (
     )
     .forEach((resource) => {
       const resourceElement = document.createElement('link')
-      resourceElement.setAttribute('data-id', 'preview-resource')
+      resourceElement.setAttribute(DATA_ATTR_ID, DATA_ID_PREVIEW_RESOURCE)
       resourceElement.rel = 'stylesheet'
       resourceElement.href = resource.href
       document.head.appendChild(resourceElement)
