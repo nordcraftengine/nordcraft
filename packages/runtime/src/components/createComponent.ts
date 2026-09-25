@@ -159,16 +159,13 @@ export function createComponent({
 
   // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
   const abortController = new AbortController()
-  componentDataSignal.subscribe(
-    (data) => {
-      Object.entries(data.Variables ?? {}).forEach(([name, value]) => {
-        ctx.reportFormulaEvaluation?.(['variables', name], value, ctx)
-      })
-    },
-    {
-      destroy: () =>
-        abortController.abort(`Component ${component.name} unmounted`),
-    },
+  componentDataSignal.subscribe((data) => {
+    Object.entries(data.Variables ?? {}).forEach(([name, value]) => {
+      ctx.reportFormulaEvaluation?.(['variables', name], value, ctx)
+    })
+  })
+  componentDataSignal.onDestroy(() =>
+    abortController.abort(`Component ${component.name} unmounted`),
   )
   const formulaCache = createFormulaCache(component)
 
