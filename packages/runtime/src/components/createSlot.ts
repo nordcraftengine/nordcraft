@@ -41,6 +41,7 @@ export function createSlot({
 
       return createNode({
         ...child,
+        path,
         dataSignal: childDataSignal,
         parentElement,
         ctx: {
@@ -50,7 +51,6 @@ export function createSlot({
         },
         instance,
         namespace,
-        path,
       })
     })
   } else {

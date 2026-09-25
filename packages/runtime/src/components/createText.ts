@@ -4,14 +4,15 @@ import type {
   TextNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import { PATH } from '../constants'
 import type { Signal } from '../signal/signal'
-import type { ComponentContext } from '../types'
+import type { ComponentContext, Path } from '../types'
 
 export type RenderTextProps = {
   node: TextNodeModel
   dataSignal: Signal<ComponentData>
   id: string
-  path: string
+  path: Path
   namespace?: SupportedNamespaces
   ctx: ComponentContext
 }
@@ -32,18 +33,22 @@ export function createText({
 }: RenderTextProps): HTMLSpanElement | Text {
   // Span element is not valid outside of the default namespace
   if (namespace && namespace !== 'http://www.w3.org/1999/xhtml') {
-    return createTextNS({ node, dataSignal, ctx })
+    return createTextNS({ node, dataSignal, ctx, path })
   }
 
   const { value } = node
   const elem = document.createElement('span')
   elem.setAttribute('data-node-id', id)
-  if (typeof id === 'string') {
-    elem.setAttribute('data-id', path)
+  if (path) {
+    elem[PATH] = path
+    if (typeof id === 'string' && ctx.env?.runtime === 'preview') {
+      elem.setAttribute('data-id', path)
+    }
   }
-  if (ctx.isRootComponent === false) {
+  if (ctx.isRootComponent === false && ctx.env?.runtime === 'preview') {
     elem.setAttribute('data-component', ctx.component.name)
   }
+  // data-node-type is required for reset-style targeting. Remove if we can get rid of/change reset-style.
   elem.setAttribute('data-node-type', 'text')
   if (value.type !== 'value') {
     const sig = dataSignal.map((data) =>
@@ -87,9 +92,13 @@ export function createTextNS({
   node,
   dataSignal,
   ctx,
-}: Pick<RenderTextProps, 'node' | 'dataSignal' | 'ctx'>): Text {
+  path,
+}: Pick<RenderTextProps, 'node' | 'dataSignal' | 'ctx' | 'path'>): Text {
   const { value } = node
   const textNode = document.createTextNode('')
+  if (path) {
+    textNode[PATH] = path
+  }
   if (value.type !== 'value') {
     const sig = dataSignal.map((data) =>
       String(

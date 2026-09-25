@@ -11,7 +11,7 @@ import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { toBoolean } from '@nordcraft/core/dist/utils/util'
 import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
-import type { ComponentContext } from '../types'
+import type { ComponentContext, Path } from '../types'
 import { getComponent } from '../utils/getComponent'
 import { ensureEfficientOrdering, getNextSiblingElement } from '../utils/nodes'
 import { createComponent } from './createComponent'
@@ -31,7 +31,7 @@ export function createNode({
 }: {
   id: string
   dataSignal: Signal<ComponentData>
-  path: string
+  path: Path
   ctx: ComponentContext
   namespace?: SupportedNamespaces
   parentElement: Element | ShadowRoot
@@ -136,20 +136,6 @@ export function createNode({
           return
         }
 
-        if (!parentElement || ctx.root.contains(parentElement) === false) {
-          console.error(
-            `Conditional: Parent element does not exist for "${path}" This is likely due to the DOM being modified outside of Nordcraft.`,
-          )
-          return
-        }
-
-        if (parentElement.querySelector(`[data-id="${path}"]`)) {
-          console.warn(
-            `Conditional: Element with data-id="${path}" already exists. This is likely due to the DOM being modified outside of Nordcraft`,
-          )
-          return
-        }
-
         const nextPathElement = getNextSiblingElement(path, parentElement)
         for (const element of elements) {
           parentElement.insertBefore(element, nextPathElement)
@@ -166,7 +152,7 @@ export function createNode({
         childDataSignal?.destroy()
       },
     })
-    if (ctx.env.runtime === 'preview' && ctx.toddle._preview) {
+    if (ctx.env?.runtime === 'preview' && ctx.toddle._preview) {
       ctx.toddle._preview.showSignal.subscribe(
         ({ displayedNodes, testMode }) => {
           if (displayedNodes.includes(path) && !testMode) {
@@ -323,6 +309,7 @@ export function createNode({
 
             const repeatIndex =
               Key === '0' && !defaultElement ? undefined : ++lifetimeSize
+
             const args = {
               node: node!,
               id,
@@ -422,7 +409,7 @@ export type NodeRenderer<NodeType> = {
   node: NodeType
   dataSignal: Signal<ComponentData>
   id: string
-  path: string
+  path: Path
   ctx: ComponentContext
   namespace?: SupportedNamespaces
   parentElement: Element | ShadowRoot

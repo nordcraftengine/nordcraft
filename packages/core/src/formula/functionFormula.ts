@@ -23,36 +23,40 @@ export const applyFunctionFormula = (
     ((globalThis as any).toddle as Toddle<unknown, unknown> | undefined)
   )?.getCustomFormula(formula.name, packageName)
   if (isDefined(newFunc)) {
-    ctx.package = packageName
-    const args = (formula.arguments ?? []).reduce<Record<string, unknown>>(
-      (args, arg, i) => ({
-        ...args,
-        [arg.name ?? `${i}`]: arg.isFunction
-          ? (Args: any) =>
-              applyFormula(
-                arg.formula,
-                {
-                  ...ctx,
-                  data: {
-                    ...ctx.data,
-                    Args: ctx.data.Args
-                      ? { ...Args, '@toddle.parent': ctx.data.Args }
-                      : Args,
-                  },
+    const formulaCtx =
+      packageName !== ctx.package ? { ...ctx, package: packageName } : ctx
+    const formulaArgs = formula.arguments ?? []
+    const args: Record<string, unknown> = {}
+    for (let i = 0; i < formulaArgs.length; i++) {
+      const arg = formulaArgs[i]
+      if (!arg) {
+        continue
+      }
+      const key = arg.name ?? `${i}`
+      args[key] = arg.isFunction
+        ? (Args: any) =>
+            applyFormula(
+              arg.formula,
+              {
+                ...formulaCtx,
+                data: {
+                  ...formulaCtx.data,
+                  Args: formulaCtx.data?.Args
+                    ? { ...Args, '@toddle.parent': formulaCtx.data.Args }
+                    : Args,
                 },
-                ['arguments', i],
-              )
-          : applyFormula(arg.formula, ctx, ['arguments', i]),
-      }),
-      {},
-    )
+              },
+              ['arguments', i],
+            )
+        : applyFormula(arg.formula, formulaCtx, ['arguments', i])
+    }
     try {
       if (isToddleFormula(newFunc)) {
         return applyFormula(
           newFunc.formula,
           {
-            ...ctx,
-            data: { ...ctx.data, Args: args },
+            ...formulaCtx,
+            data: { ...formulaCtx.data, Args: args },
           },
           ['formula'],
         )
@@ -77,8 +81,11 @@ export const applyFunctionFormula = (
       ctx.toddle ?? ((globalThis as any).toddle as Toddle<unknown, unknown>)
     ).getFormula(formula.name)
     if (typeof legacyFunc === 'function') {
-      const args = (formula.arguments ?? []).map((arg, i) =>
-        arg.isFunction
+      const formulaArgs = formula.arguments ?? []
+      const args = new Array(formulaArgs.length)
+      for (let i = 0; i < formulaArgs.length; i++) {
+        const arg = formulaArgs[i]
+        args[i] = arg?.isFunction
           ? (Args: any) =>
               applyFormula(
                 arg.formula,
@@ -86,15 +93,17 @@ export const applyFunctionFormula = (
                   ...ctx,
                   data: {
                     ...ctx.data,
-                    Args: ctx.data.Args
+                    Args: ctx.data?.Args
                       ? { ...Args, '@toddle.parent': ctx.data.Args }
                       : Args,
                   },
                 },
                 ['arguments', i],
               )
-          : applyFormula(arg.formula, ctx, ['arguments', i]),
-      )
+          : arg
+            ? applyFormula(arg.formula, ctx, ['arguments', i])
+            : undefined
+      }
       try {
         return legacyFunc(args, ctx as any)
       } catch (e) {

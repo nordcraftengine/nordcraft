@@ -3,6 +3,8 @@ import type {
   NodeModel,
 } from '@nordcraft/core/dist/component/component.types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { PATH } from '../constants'
+import type { Path } from '../types'
 
 type NodeWithNodeId = NodeModel & { nodeId: string }
 
@@ -64,31 +66,51 @@ export const isNodeOrAncestorConditional = (
   nodeLookup?.node?.condition !== undefined ||
   nodeLookup?.ancestors.some((a) => a.condition !== undefined) === true
 
+function parseSiblingIndices(
+  path: Path | { index: number; repeatIndex?: number } | any[],
+): { index: number; repeatIndex: number } {
+  if (typeof path === 'object' && path !== null) {
+    if (Array.isArray(path)) {
+      const last = path[path.length - 1]
+      return { index: last?.index ?? 0, repeatIndex: last?.repeatIndex ?? 0 }
+    }
+    return { index: path.index, repeatIndex: path.repeatIndex ?? 0 }
+  }
+  const lastDot = path.lastIndexOf('.')
+  const lastPathPart = lastDot === -1 ? path : path.slice(lastDot + 1)
+  const parenIdx = lastPathPart.indexOf('(')
+  const index =
+    parenIdx === -1
+      ? parseInt(lastPathPart, 10)
+      : parseInt(lastPathPart.slice(0, parenIdx), 10)
+  const repeatIndex =
+    parenIdx === -1 ? 0 : parseInt(lastPathPart.slice(parenIdx + 1), 10)
+  return { index, repeatIndex }
+}
+
 /**
  * @returns The next sibling element or null if this is the last element. A nc sibling is a sibling with a higher index or the same index but a higher repeat index.
  */
 export const getNextSiblingElement = (
-  path: string,
+  path: Path,
   parentElement: Element | ShadowRoot,
-) => {
-  const pathParts = path.split('.')
-  const lastPathPart = pathParts.slice(-1)[0]
-  const index = parseInt(lastPathPart)
-  const repeatIndex = parseInt(String(lastPathPart.split('(')[1]))
+): Node | null => {
+  const { index, repeatIndex } = parseSiblingIndices(path)
 
   // Find the first child that either has a higher index or a similar index, but higher repeat index
-  for (const child of parentElement.children) {
-    const childPath = child.getAttribute('data-id')
-    const lastChildPathPart = childPath?.split('.').slice(-1)[0]
-    const childIndex = parseInt(String(lastChildPathPart))
-    if (
-      childIndex === index &&
-      parseInt(String(lastChildPathPart?.split('(')[1])) > repeatIndex
-    ) {
-      return child
+  for (const child of parentElement.childNodes) {
+    const childPath = child[PATH]
+    if (!childPath) {
+      continue
     }
+    const { index: childIndex, repeatIndex: childRepeatIndex } =
+      parseSiblingIndices(childPath)
 
-    if (childIndex > index) {
+    if (childIndex === index) {
+      if (childRepeatIndex > repeatIndex) {
+        return child
+      }
+    } else if (childIndex > index) {
       return child
     }
   }
@@ -103,8 +125,8 @@ export const getNextSiblingElement = (
  */
 export function ensureEfficientOrdering(
   parentElement: Element | ShadowRoot,
-  items: ReadonlyArray<Element | Text>,
-  nextElement: Element | Text | null = null,
+  items: ReadonlyArray<Node>,
+  nextElement: Node | null = null,
 ) {
   // Identify the starting point for comparisons.
   let insertBeforeElement = nextElement // If insertBeforeElement is null, items will be appended at the end.
@@ -125,7 +147,16 @@ export function ensureEfficientOrdering(
     } else {
       // The item is either not in the DOM or not in the correct position.
       // Insert the item before the insertBeforeElement (or append it if insertBeforeElement is null).
-      parentElement.insertBefore(item, insertBeforeElement)
+      if (
+        item.parentNode === parentElement &&
+        'moveBefore' in Element.prototype
+      ) {
+        // `moveBefore` is not yet supported in Safari and some older browsers,
+        // moveBefore actually moves the element in the DOM instead of removing and reinserting it, which is more efficient and preserves animation-, transition- and focus states.
+        parentElement.moveBefore(item, insertBeforeElement)
+      } else {
+        parentElement.insertBefore(item, insertBeforeElement)
+      }
     }
 
     // Update insertBeforeElement to the current item for the next iteration, as we need to insert subsequent items before this one.

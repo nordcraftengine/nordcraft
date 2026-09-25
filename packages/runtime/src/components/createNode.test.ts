@@ -1,6 +1,7 @@
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { describe, expect, test } from 'bun:test'
+import { PATH } from '../constants'
 import '../happydom'
 import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
@@ -13,6 +14,7 @@ describe('createNode()', () => {
     const nodes = createNode({
       ctx: {
         isRootComponent: false,
+        env: { runtime: 'preview' } as ToddleEnv,
         component: {
           name: 'My Component',
           nodes: {
@@ -127,11 +129,11 @@ describe('createNode()', () => {
     const element3 = parentElement.children[2]
 
     expect(element1.textContent).toBe('Item 1')
-    expect(element1.getAttribute('data-id')).toBe('0.0.0')
+    expect(element1[PATH]).toBe('0.0.0')
     expect(element2.textContent).toBe('Item 2')
-    expect(element2.getAttribute('data-id')).toBe('0.0.0(1)')
+    expect(element2[PATH]).toBe('0.0.0(1)')
     expect(element3.textContent).toBe('Item 3')
-    expect(element3.getAttribute('data-id')).toBe('0.0.0(2)')
+    expect(element3[PATH]).toBe('0.0.0(2)')
 
     // Shuffle the items: [3, 1, 2]
     dataSignal.update((data) => {
@@ -154,11 +156,11 @@ describe('createNode()', () => {
 
     // Check identities (do not use test-toBe for DOM nodes is annoying to compare and we are only interested in the reference match)
     expect(parentElement.children[0] === element3).toBeTruthy()
-    expect(parentElement.children[0].getAttribute('data-id')).toBe(`0.0.0(2)`)
+    expect(parentElement.children[0][PATH]).toBe(`0.0.0(2)`)
     expect(parentElement.children[1] === element1).toBeTruthy()
-    expect(parentElement.children[1].getAttribute('data-id')).toBe(`0.0.0`)
+    expect(parentElement.children[1][PATH]).toBe(`0.0.0`)
     expect(parentElement.children[2] === element2).toBeTruthy()
-    expect(parentElement.children[2].getAttribute('data-id')).toBe(`0.0.0(1)`)
+    expect(parentElement.children[2][PATH]).toBe(`0.0.0(1)`)
 
     // Remove last item in the list
     dataSignal.update((data) => {
@@ -173,9 +175,9 @@ describe('createNode()', () => {
 
     expect(parentElement.children.length).toBe(2)
     expect(parentElement.children[0] === element3).toBeTruthy()
-    expect(parentElement.children[0].getAttribute('data-id')).toBe(`0.0.0(2)`)
+    expect(parentElement.children[0][PATH]).toBe(`0.0.0(2)`)
     expect(parentElement.children[1] === element1).toBeTruthy()
-    expect(parentElement.children[1].getAttribute('data-id')).toBe(`0.0.0`)
+    expect(parentElement.children[1][PATH]).toBe(`0.0.0`)
 
     // Make sure element 2 is removed from the DOM
     expect(element2.parentElement === null).toBeTruthy()
@@ -203,11 +205,11 @@ describe('createNode()', () => {
     // Expect all data-ids to be unique
     const dataIds = new Set<string>()
     for (const child of parentElement.children) {
-      const dataId = child.getAttribute('data-id')
+      const dataId = child[PATH]
       expect(dataId).toBeTruthy()
       expect(
         dataIds.has(dataId!),
-        `Duplicate data-id found: ${dataId}, all ids: ${[...parentElement.children].map((c) => c.getAttribute('data-id'))}`,
+        `Duplicate data-id found: ${dataId}, all ids: ${[...parentElement.children].map((c) => c[PATH])}`,
       ).toBeFalsy()
       dataIds.add(dataId!)
     }
@@ -555,9 +557,9 @@ describe('createNode()', () => {
     expect(parentElement.children[1].textContent).toBe('Item 2')
     expect(parentElement.children[2].textContent).toBe('Item 3')
 
-    expect(parentElement.children[0].getAttribute('data-id')).toBe('0')
-    expect(parentElement.children[1].getAttribute('data-id')).toBe('0(1)')
-    expect(parentElement.children[2].getAttribute('data-id')).toBe('0(2)')
+    expect(parentElement.children[0][PATH]).toBe('0')
+    expect(parentElement.children[1][PATH]).toBe('0(1)')
+    expect(parentElement.children[2][PATH]).toBe('0(2)')
   })
 
   test('it should have correct order of custom properties overrides if a component root has deep instance styling', () => {
@@ -726,8 +728,8 @@ describe('createNode()', () => {
     })
     parentElement.append(...nodes)
 
-    expect(parentElement.children[0].getAttribute('data-id')).toBe('0')
-    expect(parentElement.children[1].getAttribute('data-id')).toBe('0(1)')
+    expect(parentElement.children[0][PATH]).toBe('0')
+    expect(parentElement.children[1][PATH]).toBe('0(1)')
 
     // Prepend new item
     dataSignal.update((data) => ({
@@ -741,18 +743,18 @@ describe('createNode()', () => {
     // First check that we have no duplicate data-ids
     const dataIds = new Set<string>()
     for (const child of parentElement.children) {
-      const dataId = child.getAttribute('data-id')
+      const dataId = child[PATH]
       expect(dataId).toBeTruthy()
       expect(
         dataIds.has(dataId!),
-        `Duplicate data-id found: ${dataId}, all ids: ${[...parentElement.children].map((c) => c.getAttribute('data-id'))}`,
+        `Duplicate data-id found: ${dataId}, all ids: ${[...parentElement.children].map((c) => c[PATH])}`,
       ).toBeFalsy()
       dataIds.add(dataId!)
     }
 
-    expect(parentElement.children[0].getAttribute('data-id')).toBe('0(2)')
-    expect(parentElement.children[1].getAttribute('data-id')).toBe('0')
-    expect(parentElement.children[2].getAttribute('data-id')).toBe('0(1)')
+    expect(parentElement.children[0][PATH]).toBe('0(2)')
+    expect(parentElement.children[1][PATH]).toBe('0')
+    expect(parentElement.children[2][PATH]).toBe('0(1)')
   })
 
   test('it should give slots unique ids even if they are repeated multiple times in the same component', () => {
@@ -869,7 +871,7 @@ describe('createNode()', () => {
     const dataIds = new Set<string>()
     const elements = parentElement.querySelectorAll('span')
     for (const el of elements) {
-      const dataId = el.getAttribute('data-id')
+      const dataId = el[PATH]
       expect(dataId).toBeTruthy()
       expect(
         dataIds.has(dataId!),

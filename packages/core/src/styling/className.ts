@@ -4,7 +4,7 @@ import type {
   ElementNodeModel,
   NodeStyleModel,
 } from '../component/component.types'
-import type { Nullable } from '../types'
+import type { Nullable, Path } from '../types'
 import { appendUnit } from './customProperty'
 import { generateAlphabeticName, hash } from './hash'
 import type { StyleVariant } from './variantSelector'
@@ -36,7 +36,7 @@ export const getClassName = (
 // Kept separate from CLASSNAME_LOOKUP to avoid key collisions between paths and stringified style objects.
 const PATH_CLASSNAME_LOOKUP = new Map<string, string>()
 
-export const getPathClassName = (path: string) => {
+export const getPathClassName = (path: Path) => {
   const cached = PATH_CLASSNAME_LOOKUP.get(path)
   if (cached) {
     return cached
