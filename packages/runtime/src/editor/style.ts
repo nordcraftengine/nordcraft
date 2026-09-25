@@ -13,7 +13,12 @@ import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
 import type { Nullable } from '@nordcraft/core/dist/types'
 import { omitKeys } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import { CSS_VAR_SCROLL_HEIGHT, CSS_VAR_VIEWPORT_HEIGHT } from './const'
+import {
+  CSS_VAR_SCROLL_HEIGHT,
+  CSS_VAR_VIEWPORT_HEIGHT,
+  DATA_ATTR_HASH,
+  DEFAULT_VIEWPORT_HEIGHT,
+} from './const'
 
 const LEGACY_BREAKPOINTS = {
   large: 1440,
@@ -76,7 +81,7 @@ export const insertStyles = (
     ])
 
     const styleElem = document.createElement('style')
-    styleElem.setAttribute('data-hash', classHash)
+    styleElem.setAttribute(DATA_ATTR_HASH, classHash)
     styleElem.appendChild(
       document.createTextNode(`
     ${renderVariant('.' + classHash, style)}
@@ -189,7 +194,9 @@ ${
 
   // Remove old styles.
   // We do not keep track of changes, so must remove all and re-add as order matters.
-  parent.querySelectorAll('[data-hash]').forEach((node) => node.remove())
+  parent
+    .querySelectorAll(`[${DATA_ATTR_HASH}]`)
+    .forEach((node) => node.remove())
 
   // Add new styles
   const fragment = document.createDocumentFragment()
@@ -268,6 +275,6 @@ export const convertViewportUnitsToEmulatedViewportUnits = (
   return value
     ?.toString()
     .replace(/([\d.]+)(vh|svh|lvh|dvh)/g, (_, num, unit) => {
-      return `calc(${num}${unit} * var(${CSS_VAR_VIEWPORT_HEIGHT}, var(${CSS_VAR_SCROLL_HEIGHT}, 740)) / var(${CSS_VAR_SCROLL_HEIGHT}, 740))`
+      return `calc(${num}${unit} * var(${CSS_VAR_VIEWPORT_HEIGHT}, var(${CSS_VAR_SCROLL_HEIGHT}, ${DEFAULT_VIEWPORT_HEIGHT})) / var(${CSS_VAR_SCROLL_HEIGHT}, ${DEFAULT_VIEWPORT_HEIGHT}))`
     })
 }

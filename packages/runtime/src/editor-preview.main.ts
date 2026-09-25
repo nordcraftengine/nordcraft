@@ -3,241 +3,109 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-fallthrough */
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
 import {
-  HeadTagTypes,
   type Component,
-  type ComponentAttribute,
   type ComponentData,
   type ComponentFormula,
-  type ComponentVariable,
-  type MetaEntry,
 } from '@nordcraft/core/dist/component/component.types'
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
-import type {
-  FormulaContext,
-  ToddleEnv,
-} from '@nordcraft/core/dist/formula/formula'
-import {
-  applyFormula,
-  isToddleFormula,
-} from '@nordcraft/core/dist/formula/formula'
-import {
-  type CodeFormula,
-  type FormulaEvaluationReporter,
-  type PluginFormula,
-  type ToddleFormula,
-} from '@nordcraft/core/dist/formula/formulaTypes'
-import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
-import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
-import {
-  getThemeCss,
-  getThemeEntries,
-  renderThemeValues,
-} from '@nordcraft/core/dist/styling/theme'
+import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
+import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
+import type { Theme } from '@nordcraft/core/dist/styling/theme'
 import {
   THEME_COOKIE_NAME,
   THEME_DATA_ATTRIBUTE,
 } from '@nordcraft/core/dist/styling/theme.const'
-import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
-import type {
-  ActionHandler,
-  ActionHandlerV2,
-  ArgumentInputDataFunction,
-  FormulaHandler,
-  FormulaHandlerV2,
-  Nullable,
-  PluginAction,
-  PluginActionV2,
-  Toddle,
-} from '@nordcraft/core/dist/types'
-import {
-  filterObject,
-  mapObject,
-  omitKeys,
-} from '@nordcraft/core/dist/utils/collections'
-import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import * as libActions from '@nordcraft/std-lib/dist/actions'
-import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import fastDeepEqual from 'fast-deep-equal'
-import { domToCanvas } from 'modern-screenshot'
-import { createLegacyAPI } from './api/createAPI'
-import { createAPI } from './api/createAPIv2'
 import { createNode } from './components/createNode'
 import { isContextProvider } from './context/isContextProvider'
-import { createPanicScreen } from './debug/panicScreen'
-import { sendEditorToast } from './debug/sendEditorToast'
+import { syncComponentApis } from './editor/api'
+import { handleCanvasPointerEvent } from './editor/canvasClick'
+import {
+  EMPTY_COMPONENT_DATA,
+  getAttributeTestValues,
+  getElementTypeFromCanvasTool,
+  getRouteParams,
+  getRouteQuery,
+  getVariableInitialValues,
+} from './editor/componentData'
 import {
   CSS_VAR_VIEWPORT_HEIGHT,
+  DATA_ATTR_MODE,
+  DATA_ATTR_NODE_TYPE,
   DATA_ATTR_VIEWPORT_HEIGHT,
+  DATA_NODE_TYPE_TEXT,
+  SELECTOR_SELECTED_NODE_STYLES,
 } from './editor/const'
+import { createStaticContextFromComponent } from './editor/context'
+import {
+  getCurrentComponent,
+  getDOMNodeFromNodeId,
+  markHighlightedTextNode,
+  updateConditionalElements,
+} from './editor/dom'
 import {
   handleDragAltToggle,
   handleDragEnded,
   handleDragMouseMove,
   handleDragStarted,
 } from './editor/drag-drop/dragHandlers'
-import { throttleToIdleCallback } from './editor/editorUtils'
+import { getFormattedTime, throttleToIdleCallback } from './editor/editorUtils'
+import { env, registerActions, registerFormulas } from './editor/global'
 import { introspectApiRequest } from './editor/graphql'
-import { isInputTarget } from './editor/input'
+import { insertHeadTags } from './editor/head'
 import {
   handleInsertEnded,
   handleInsertMouseMove,
   handleInsertStarted,
 } from './editor/insert/insertHandlers'
+import { initKeyListeners } from './editor/keyboard'
 import { updateComponentLinks } from './editor/links'
+import { markSelectedElement } from './editor/markSelectedElement'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
-import { requestResizeCanvas } from './editor/resizeCanvas'
+import { applyPreviewResources } from './editor/previewResources'
 import {
-  convertViewportUnitsToEmulatedViewportUnits,
-  insertStyles,
-  styleToCss,
-} from './editor/style'
+  applyPreviewStyle,
+  clearSelectedStyleVariant,
+  updateSelectedStyleVariant,
+} from './editor/previewStyle'
+import { handleRenderError } from './editor/renderError'
+import { requestResizeCanvas, resizeCanvas } from './editor/resizeCanvas'
+import { captureScreenshot } from './editor/screenshot'
+import {
+  getScrollStateRestorer,
+  storeScrollState,
+} from './editor/storeScrollState'
+import { insertStyles } from './editor/style'
 import { handleTextMouseDown } from './editor/text-selection/mouseDown'
 import { handleTextMouseMove } from './editor/text-selection/mouseMove'
 import { handleTextNodeSelection } from './editor/text-selection/selection'
+import { insertTheme, setupThemeSubscription } from './editor/theme'
+import {
+  handleGetComputedStyle,
+  handleSetTimelineKeyframes,
+  handleSetTimelineTime,
+  type AnimationState,
+} from './editor/timeline'
 import type {
   DragInsertState,
+  EditorMode,
   NordcraftPreviewEvent,
   PointerState,
   SelectionState,
 } from './editor/types'
-import { waitForViewportWidth } from './editor/viewportWidth'
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
-import type {
-  ComponentContext,
-  ContextApiV2,
-  LocationSignal,
-  PreviewShowSignal,
-} from './types'
+import type { ComponentContext } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
-import { getThemeSignal } from './utils/getThemeSignal'
-import { clamp, toSeconds } from './utils/helpers'
-import { markSelectedElement } from './utils/markSelectedElement'
-import {
-  getNodeAndAncestors,
-  isNodeOrAncestorConditional,
-  stripNodeIdRepeatIndices,
-} from './utils/nodes'
-import {
-  getScrollStateRestorer,
-  storeScrollState,
-} from './utils/storeScrollState'
+import { stripNodeIdRepeatIndices } from './utils/nodes'
 
-let env: ToddleEnv
-
-export const initGlobalObject = () => {
-  env = {
-    isServer: false,
-    branchName: window.__toddle.branch,
-    request: undefined,
-    runtime: 'preview',
-    logErrors: true,
-  }
-  window.toddle = (() => {
-    const legacyActions: Record<string, ActionHandler | undefined> = {}
-    const legacyFormulas: Record<string, FormulaHandler | undefined> = {}
-    const argumentInputDataList: Record<string, ArgumentInputDataFunction> = {}
-    const toddle: Toddle<LocationSignal, PreviewShowSignal> = {
-      isEqual: fastDeepEqual,
-      errors: [],
-      formulas: {},
-      actions: {},
-      registerAction: (name, handler) => {
-        if (legacyActions[name]) {
-          console.error('There already exists an action with the name ', name)
-          return
-        }
-        legacyActions[name] = handler
-      },
-      clearLegacyActions: () => {
-        Object.keys(legacyActions)
-          .filter((key) => !key.startsWith('@toddle/'))
-          .forEach((key) => {
-            delete legacyActions[key]
-          })
-      },
-      getAction: (name) => legacyActions[name],
-      registerFormula: (name, handler, getArgumentInputData) => {
-        if (legacyFormulas[name]) {
-          console.error('There already exists a formula with the name ', name)
-          return
-        }
-        legacyFormulas[name] = handler
-        if (getArgumentInputData) {
-          argumentInputDataList[name] = getArgumentInputData
-        }
-      },
-      clearLegacyFormulas: () => {
-        Object.keys(legacyFormulas)
-          .filter((key) => !key.startsWith('@toddle/'))
-          .forEach((key) => {
-            delete legacyFormulas[key]
-          })
-      },
-      getFormula: (name) => legacyFormulas[name],
-      getCustomAction: (name, packageName) => {
-        return (
-          toddle.actions[packageName ?? window.__toddle.project]?.[name] ??
-          toddle.actions[window.__toddle.project]?.[name]
-        )
-      },
-      getCustomFormula: (name, packageName) => {
-        return (
-          toddle.formulas[packageName ?? window.__toddle.project]?.[name] ??
-          toddle.formulas[window.__toddle.project]?.[name]
-        )
-      },
-      // eslint-disable-next-line max-params
-      getArgumentInputData: (formulaName, args, argIndex, data) =>
-        argumentInputDataList[formulaName]?.(args, argIndex, data) || data,
-      data: {},
-      eventLog: [],
-      project: window.__toddle.project,
-      branch: window.__toddle.branch,
-      commit: window.__toddle.commit,
-      components: window.__toddle.components,
-      pageState: window.__toddle.pageState,
-      locationSignal: signal<any>({
-        query: {},
-        params: {},
-      }),
-      env,
-    }
-    return toddle
-  })()
-
-  // load default formulas and actions
-  Object.entries(libFormulas).forEach(([name, module]) =>
-    window.toddle.registerFormula(
-      '@toddle/' + name,
-      module.default as FormulaHandler,
-      'getArgumentInputData' in module
-        ? module.getArgumentInputData
-        : undefined,
-    ),
-  )
-  Object.entries(libActions).forEach(([name, module]) =>
-    window.toddle.registerAction('@toddle/' + name, module.default),
-  )
-}
-
-const EMPTY_COMPONENT_DATA: ComponentData = {
-  Location: {
-    query: {},
-    params: {},
-    page: '/',
-    path: '/',
-    hash: '',
-  },
-  Attributes: {},
-  Variables: {},
-  Apis: {},
-}
+export { getDOMNodeFromNodeId } from './editor/dom'
+export { initGlobalObject } from './editor/global'
 
 // imported by "/.toddle/preview" (see worker/src/preview.ts)
 export const createRoot = (
@@ -251,7 +119,7 @@ export const createRoot = (
   let ctxDataSignal: Signal<ComponentData> | undefined
 
   let ctx: ComponentContext | null = null
-  let mode: 'design' | 'test' = 'design'
+  let mode: EditorMode = 'design'
   // Signal for overriding conditional elements when they're
   // selected in design mode and for reverting back to normal
   // in test mode
@@ -279,7 +147,7 @@ export const createRoot = (
     enabled?: boolean
   } = {}
   window.toddle._preview = { showSignal }
-  document.body.setAttribute('data-mode', 'design')
+  document.body.setAttribute(DATA_ATTR_MODE, 'design')
   let components: Component[] | null = null
   let packageComponents: Component[] | null = null
   const getAllComponents = () => [
@@ -330,6 +198,7 @@ export const createRoot = (
   }
   let selectedNodeId: string | null = null
   let highlightedNodeId: string | null = null
+  let exactHighlightedNodeId: string | null = null
   let styleVariantSelection: {
     nodeId: string
     styleVariantIndex: number
@@ -337,19 +206,10 @@ export const createRoot = (
   let routeSignal: Signal<any> | null = null
   let dragState: DragInsertState | null = null
   let insertState: DragInsertState | null = null
-  let animationState: {
-    animatedElementId: string | null
-    time: number | null
-    timingFunction?: string
-    fillMode?: string
-    repeatedElementsValues: [{ delay: string; duration: string }]
-    timelineTime: { delay: string; duration: string }
-    iterationCount: string
-  } | null = null
+  let animationState: AnimationState | null = null
   let altKey = false
   let metaKey = false
-  let previewStyleAnimationFrame = -1
-  let timelineTimeAnimationFrame = -1
+  let clearPreviewStyleTimeout: ReturnType<typeof setTimeout> | undefined
 
   const setupDataSignalSubscribers = () => {
     dataSignal.subscribe((data) => {
@@ -368,6 +228,58 @@ export const createRoot = (
   }
   setupDataSignalSubscribers()
 
+  const handleApplyPreviewStyle = (data: {
+    styles: Record<string, string> | null
+    theme?: {
+      key: string
+      value: Theme
+    }
+  }) => {
+    applyPreviewStyle({
+      data,
+      selectedNodeId,
+      component,
+      styleVariantSelection,
+      resizeCanvasOptions,
+      syncOverlayRects,
+    })
+  }
+
+  const handleUpdateSelectedStyleVariant = (variantIndex: number | null) => {
+    styleVariantSelection = updateSelectedStyleVariant({
+      variantIndex,
+      selectedNodeId,
+      component,
+      dataSignal,
+      ctx,
+      env,
+      getCurrentComponent: () =>
+        getCurrentComponent(component, selectedNodeId, mode),
+      reportFormulaEvaluation,
+      currentSelection: styleVariantSelection,
+    })
+  }
+
+  const runWithOverlaySync = async <T>(
+    action: () => Promise<T>,
+    onDone: (result: T) => void,
+  ) => {
+    const interval = setInterval(syncOverlayRects, 1000 / 60)
+    try {
+      const result = await action()
+      onDone(result)
+    } finally {
+      clearInterval(interval)
+    }
+  }
+
+  const updateContextComponents = () => {
+    if (ctx) {
+      ctx.components = getAllComponents()
+    }
+    updateStyle(component)
+  }
+
   window.addEventListener(
     'message',
     async (message: MessageEvent<NordcraftPreviewEvent>) => {
@@ -379,6 +291,10 @@ export const createRoot = (
           if (!message.data.component) {
             return
           }
+          if (clearPreviewStyleTimeout) {
+            clearTimeout(clearPreviewStyleTimeout)
+            clearPreviewStyleTimeout = undefined
+          }
           let scrollStateRestorer:
             | ReturnType<typeof getScrollStateRestorer>
             | undefined
@@ -388,6 +304,7 @@ export const createRoot = (
           // Re-initialize state, subscribers, signals and ctx when switching component
           // But only if a component was already loaded
           if (switchComponent && component) {
+            document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
             // Store scroll state for the previous component
             storeScrollState(component?.name)
             // Remove all subscribers from the previous showSignal
@@ -402,6 +319,12 @@ export const createRoot = (
             dataSignal.destroy()
             // Reset all evaluated formula data
             componentFormulaData = {}
+            highlightedNodeId = null
+            markHighlightedTextNode({
+              highlightedNodeId: null,
+              selectedNodeId: null,
+              mode,
+            })
             // Re-subscribe all dataSignal subscribers
             setupDataSignalSubscribers()
             // Re-initialize the data signal for the new component
@@ -446,9 +369,12 @@ export const createRoot = (
 
           update()
 
+          // If update() didn't remove preview styles (e.g. nodes didn't change), clean them up now
+          document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
+
           if (selectedNodeId) {
             if (styleVariantSelection) {
-              updateSelectedStyleVariant(
+              handleUpdateSelectedStyleVariant(
                 styleVariantSelection.styleVariantIndex,
               )
             }
@@ -467,12 +393,7 @@ export const createRoot = (
             components = (message.data.components as Component[]).map(
               updateComponentLinks,
             )
-            const allComponents = getAllComponents()
-            if (ctx) {
-              ctx.components = allComponents
-            }
-
-            updateStyle(component)
+            updateContextComponents()
             // Since changes to other components might affect the current component
             // (if context was changed or a component node should be re-rendered)
             update({ forceRerender: true })
@@ -501,12 +422,7 @@ export const createRoot = (
               )
               .map(updateComponentLinks)
 
-            const allComponents = getAllComponents()
-            if (ctx) {
-              ctx.components = allComponents
-            }
-
-            updateStyle(component)
+            updateContextComponents()
             update()
           }
 
@@ -522,12 +438,26 @@ export const createRoot = (
           break
         }
         case 'mode': {
+          if (clearPreviewStyleTimeout) {
+            clearTimeout(clearPreviewStyleTimeout)
+            clearPreviewStyleTimeout = undefined
+          }
+          document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
           mode = message.data.mode
-          document.body.setAttribute('data-mode', message.data.mode)
-          updateConditionalElements()
+          document.body.setAttribute(DATA_ATTR_MODE, message.data.mode)
+          updateConditionalElements({
+            selectedNodeId,
+            component,
+            mode,
+            showSignal,
+          })
+          markHighlightedTextNode({
+            highlightedNodeId,
+            selectedNodeId,
+            mode,
+          })
           window.dispatchEvent(new CustomEvent('selected-node-changed'))
-          requestResizeCanvas(resizeCanvasOptions)
-          syncOverlayRects()
+          requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
           break
         }
         case 'attrs': {
@@ -559,18 +489,34 @@ export const createRoot = (
         }
         case 'selection': {
           if (selectedNodeId !== message.data.selectedNodeId) {
+            if (clearPreviewStyleTimeout) {
+              clearTimeout(clearPreviewStyleTimeout)
+              clearPreviewStyleTimeout = undefined
+            }
+            document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
             selectedNodeId = message.data.selectedNodeId ?? null
             window.dispatchEvent(new CustomEvent('selected-node-changed'))
-            clearSelectedStyleVariant()
+            clearSelectedStyleVariant(styleVariantSelection)
+            styleVariantSelection = null
 
-            updateConditionalElements()
+            updateConditionalElements({
+              selectedNodeId,
+              component,
+              mode,
+              showSignal,
+            })
 
             const node = getDOMNodeFromNodeId(selectedNodeId)
             markSelectedElement(node)
+            markHighlightedTextNode({
+              highlightedNodeId,
+              selectedNodeId,
+              mode,
+            })
             if (
               node &&
               node instanceof HTMLElement &&
-              node.getAttribute('data-node-type') === 'text'
+              node.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT
             ) {
               requestAnimationFrame(() => {
                 handleTextNodeSelection(node, {
@@ -585,14 +531,15 @@ export const createRoot = (
           return
         }
         case 'highlight': {
-          const highlightId = message.data.highlightedNodeId
-          highlightedNodeId =
-            typeof highlightId === 'string'
-              ? highlightId
-                  .split('.')
-                  .map((part) => part.split('(')[0])
-                  .join('.')
-              : null
+          highlightedNodeId = stripNodeIdRepeatIndices(
+            message.data.highlightedNodeId,
+          )
+          exactHighlightedNodeId = message.data.highlightedNodeId
+          markHighlightedTextNode({
+            highlightedNodeId: message.data.highlightedNodeId,
+            selectedNodeId,
+            mode,
+          })
           syncOverlayRects()
           return
         }
@@ -602,7 +549,7 @@ export const createRoot = (
 
           if (
             node &&
-            node.getAttribute('data-node-type') === 'text' &&
+            node.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT &&
             node instanceof HTMLElement
           ) {
             handleTextMouseDown({
@@ -623,12 +570,10 @@ export const createRoot = (
               syncOverlayRects()
               return
             } else if (!insertState?.destroying) {
-              const elementType =
-                message.data.canvasTool === 'insert-div' ? 'div' : 'text'
               insertState = handleInsertStarted(
                 message.data,
                 highlightedNodeId,
-                elementType,
+                getElementTypeFromCanvasTool(message.data.canvasTool),
               )
             }
           }
@@ -643,7 +588,7 @@ export const createRoot = (
           if (
             node &&
             node instanceof HTMLElement &&
-            node.getAttribute('data-node-type') === 'text'
+            node.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT
           ) {
             const { x, y, buttons } = message.data
             const handled = handleTextMouseMove({
@@ -662,133 +607,35 @@ export const createRoot = (
         }
         case 'click':
         case 'dblclick':
-          if (mode === 'test' || !component) {
-            return
-          }
-          const { x, y, type } = message.data
-          const elementsAtPoint = document.elementsFromPoint(x, y)
-          const element = elementsAtPoint.find((elem) => {
-            const id = elem.getAttribute('data-id')
-            if (
-              typeof id !== 'string' ||
-              component === null ||
-              elem.getAttribute('data-component')
-            ) {
-              return false
-            }
-            const nodeId = getNodeId(component, id.split('.').slice(1))
-            const node = nodeId ? component?.nodes?.[nodeId] : undefined
-            if (!node) {
-              return false
-            }
-            if (elem.getAttribute('data-node-type') === 'text') {
-              return (
-                // Select text nodes if the meta key is pressed or the text node is double-clicked
-                metaKey || type === 'dblclick'
-              )
-            }
-            return true
+          handleCanvasPointerEvent({
+            event: message.data,
+            mode,
+            component,
+            selectedNodeId,
+            highlightedNodeId,
+            exactHighlightedNodeId,
+            metaKey,
+            onHighlight: (newHighlightedNodeId) => {
+              highlightedNodeId = stripNodeIdRepeatIndices(newHighlightedNodeId)
+              exactHighlightedNodeId = newHighlightedNodeId
+              markHighlightedTextNode({
+                highlightedNodeId: newHighlightedNodeId,
+                selectedNodeId,
+                mode,
+              })
+              syncOverlayRects()
+            },
           })
-
-          const id = element?.getAttribute('data-id') ?? null
-          const elementIsSameAsSelected = id && id === selectedNodeId
-          if (
-            elementIsSameAsSelected &&
-            element?.getAttribute('data-node-type') === 'text'
-          ) {
-            return
-          }
-
-          if (type === 'click') {
-            if (message.data.metaKey) {
-              // Figure out if the clicked element is a text element
-              // or if one of its descendants is a text element
-              const root = component.nodes?.root
-              if (root && id) {
-                const nodeLookup = getNodeAndAncestors(component, root, id)
-                if (nodeLookup?.node.type === 'text') {
-                  postMessageToEditor({
-                    type: 'selection',
-                    selectedNodeId: id,
-                  })
-                } else {
-                  const firstTextChild =
-                    nodeLookup?.node.type === 'element'
-                      ? nodeLookup.node.children?.find(
-                          (c) => component?.nodes?.[c]?.type === 'text',
-                        )
-                      : undefined
-                  if (firstTextChild) {
-                    postMessageToEditor({
-                      type: 'selection',
-                      selectedNodeId: `${id}.0`,
-                    })
-                  }
-                }
-              }
-            } else {
-              postMessageToEditor({
-                type: 'selection',
-                selectedNodeId: id,
-              })
-            }
-          } else if (type === 'mousemove' && id !== highlightedNodeId) {
-            // Do not send highlight if cursor is inside current selectedElement and current selected element is a text type
-            const selectedNode = getDOMNodeFromNodeId(selectedNodeId)
-            const selectedNodeIsText =
-              selectedNode?.getAttribute('data-node-type') === 'text'
-            const cursorInsideSelectedElement =
-              selectedNode instanceof HTMLElement &&
-              selectedNode.contains(document.elementFromPoint(x, y))
-            if (selectedNodeIsText && cursorInsideSelectedElement) {
-              // Highlight the text node if the cursor is inside the currently selected text node, even if the selected element has a different id than the text node (e.g. when clicking on a span inside a text node)
-              const nodeId = selectedNode.getAttribute('data-id')
-              postMessageToEditor({
-                type: 'highlight',
-                highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
-                exactHighlightedNodeId: nodeId,
-              })
-              return
-            }
-
-            postMessageToEditor({
-              type: 'highlight',
-              highlightedNodeId: stripNodeIdRepeatIndices(id),
-              exactHighlightedNodeId: id,
-            })
-          } else if (
-            type === 'dblclick' &&
-            id &&
-            // We only allow dblclick --> navigation if we're not in test mode
-            mode === 'design'
-          ) {
-            // Figure out if the clicked element is a component
-            const root = component.nodes?.root
-            if (root) {
-              const nodeLookup = getNodeAndAncestors(component, root, id)
-              if (
-                nodeLookup?.node.type === 'component' &&
-                nodeLookup.node.name
-              ) {
-                postMessageToEditor({
-                  type: 'navigate',
-                  name: nodeLookup.node.name,
-                })
-              }
-              // Double click on text node should select the text node for editing
-              else if (nodeLookup?.node.type === 'text') {
-                postMessageToEditor({
-                  type: 'selection',
-                  selectedNodeId: id,
-                })
-              }
-            }
-          }
           break
         case 'style_variant_changed':
+          if (clearPreviewStyleTimeout) {
+            clearTimeout(clearPreviewStyleTimeout)
+            clearPreviewStyleTimeout = undefined
+          }
+          document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
           const { variantIndex } = message.data
-          updateSelectedStyleVariant(variantIndex)
-          requestResizeCanvas(resizeCanvasOptions)
+          handleUpdateSelectedStyleVariant(variantIndex)
+          resizeCanvas(resizeCanvasOptions)
           syncOverlayRects()
           break
         case 'report_document_scroll_size':
@@ -800,19 +647,17 @@ export const createRoot = (
           if (message.data.enabled) {
             resizeCanvasOptions.enabled = true
             resizeCanvasOptions.viewport = { height: message.data.height }
-            document.body.setAttribute(
-              DATA_ATTR_VIEWPORT_HEIGHT,
-              String(Math.round(Number(resizeCanvasOptions.viewport.height))),
+            const heightStr = String(
+              Math.round(Number(resizeCanvasOptions.viewport.height)),
             )
-            domNode.style.setProperty(
-              CSS_VAR_VIEWPORT_HEIGHT,
-              String(Math.round(Number(resizeCanvasOptions.viewport.height))),
-            )
-            requestResizeCanvas(resizeCanvasOptions)
+            document.body.setAttribute(DATA_ATTR_VIEWPORT_HEIGHT, heightStr)
+            domNode.style.setProperty(CSS_VAR_VIEWPORT_HEIGHT, heightStr)
+            requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
           } else {
             resizeCanvasOptions.enabled = false
             domNode.style.removeProperty(CSS_VAR_VIEWPORT_HEIGHT)
             document.body.removeAttribute(DATA_ATTR_VIEWPORT_HEIGHT)
+            requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
           }
           break
         }
@@ -866,35 +711,31 @@ export const createRoot = (
           break
         case 'drag-ended':
           if (dragState) {
-            const interval = setInterval(() => {
-              syncOverlayRects()
-            }, 1000 / 60)
-            void handleDragEnded(message.data, dragState, component).then(
+            const data = message.data
+            const state = dragState
+            void runWithOverlaySync(
+              () => handleDragEnded(data, state, component),
               (newState) => {
                 dragState = newState
-                clearInterval(interval)
               },
             )
           }
           break
         case 'insert-started':
-          const elementType =
-            message.data.canvasTool === 'insert-div' ? 'div' : 'text'
           insertState = handleInsertStarted(
             message.data,
             highlightedNodeId,
-            elementType,
+            getElementTypeFromCanvasTool(message.data.canvasTool),
           )
           break
         case 'insert-ended':
           if (insertState) {
-            const interval = setInterval(() => {
-              syncOverlayRects()
-            }, 1000 / 60)
-            void handleInsertEnded(message.data, insertState).then(
+            const data = message.data
+            const state = insertState
+            void runWithOverlaySync(
+              () => handleInsertEnded(data, state),
               (newState) => {
                 insertState = newState
-                clearInterval(interval)
               },
             )
           }
@@ -918,420 +759,60 @@ export const createRoot = (
           break
 
         case 'get_computed_style':
-          const selectedNode = getDOMNodeFromNodeId(selectedNodeId)
-          if (!selectedNode) {
-            return
-          }
-
-          const { styles } = message.data
-          const computedStyle = window.getComputedStyle(selectedNode)
-
-          postMessageToEditor({
-            type: 'computedStyle',
-            computedStyle: Object.fromEntries(
-              (styles ?? []).map((style) => {
-                const input = computedStyle.getPropertyValue(style)
-
-                const allValues = input.split(' ')
-
-                const result = allValues
-                  .map((value) => {
-                    // If it is a float or float with unit we want to round to 2 decimal
-                    if (value.match(/^(-?\d+)\.\d+([a-z]*|%?)$/)) {
-                      const split = value.match(/([0-9.]+)\s*(.*)/) ?? ''
-
-                      const number = split[1]
-                      const unit = split[2]
-
-                      const roundNumber = Number(Number(number).toFixed(2))
-                      const rounded = roundNumber.toString() + unit
-
-                      return rounded
-                    } else {
-                      return value
-                    }
-                  })
-                  .join(' ')
-
-                return [style, result]
-              }),
-            ),
-            repeatedItemsValues: animationState?.repeatedElementsValues ?? [],
-            timelineTime: animationState?.timelineTime ?? {
-              delay: '0s',
-              duration: '0s',
-            },
-          })
+          handleGetComputedStyle(
+            selectedNodeId,
+            message.data.styles,
+            animationState,
+          )
           break
 
         case 'set_timeline_keyframes':
-          const { keyframes } = message.data
-          document.head.querySelector('[data-timeline-keyframes]')?.remove()
-          if (!keyframes) {
-            return
+          handleSetTimelineKeyframes(message.data.keyframes, syncOverlayRects)
+          break
+
+        case 'set_timeline_time': {
+          animationState = handleSetTimelineTime({
+            data: message.data,
+            selectedNodeId,
+            currentAnimationState: animationState,
+            update,
+            syncOverlayRects,
+          })
+          break
+        }
+        case 'preview_style': {
+          const previewData = message.data
+          const { styles: previewStyleStyles, theme } = previewData
+          const isEmpty =
+            !previewStyleStyles ||
+            (!theme && Object.keys(previewStyleStyles).length === 0)
+
+          if (isEmpty) {
+            if (clearPreviewStyleTimeout) {
+              clearTimeout(clearPreviewStyleTimeout)
+            }
+            // Delay clearing preview styles so that when a component update arrives
+            // (e.g. on committing a style change in the editor), the UI does not flicker
+            // between the preview style clearing and the component updating.
+            clearPreviewStyleTimeout = setTimeout(() => {
+              clearPreviewStyleTimeout = undefined
+              handleApplyPreviewStyle(previewData)
+            }, 100)
+            break
           }
 
-          const styleElem = document.createElement('style')
-          styleElem.appendChild(
-            document.createTextNode(`
-@keyframes preview_timeline {
-  ${Object.values(keyframes)
-    .map(
-      ({ key, value, position, easing }) =>
-        `${Number(position) * 100}% {
-          ${key}: ${value};
-          ${easing ? `animation-timing-function: ${easing};` : ''}
-        }`,
-    )
-    .join('\n')}
-}`),
-          )
-          styleElem.setAttribute('data-timeline-keyframes', '')
-          document.head.appendChild(styleElem)
-          syncOverlayRects()
+          if (clearPreviewStyleTimeout) {
+            clearTimeout(clearPreviewStyleTimeout)
+            clearPreviewStyleTimeout = undefined
+          }
+          handleApplyPreviewStyle(previewData)
           break
-
-        case 'set_timeline_time':
-          const { time, timingFunction, fillMode } = message.data
-
-          cancelAnimationFrame(timelineTimeAnimationFrame)
-          timelineTimeAnimationFrame = requestAnimationFrame(() => {
-            const animatedElementChanged =
-              animationState?.animatedElementId !== selectedNodeId
-            animationState = {
-              animatedElementId: time !== null ? selectedNodeId : null,
-              time,
-              timingFunction,
-              fillMode,
-              repeatedElementsValues:
-                animationState?.repeatedElementsValues ?? [
-                  { delay: '0s', duration: '0s' },
-                ],
-              timelineTime: animationState?.timelineTime ?? {
-                delay: '0s',
-                duration: '1s',
-              },
-              iterationCount: animationState?.iterationCount ?? '1',
-            }
-
-            // Cleanup on null
-            if (time === null) {
-              document.head
-                .querySelector('[data-id="preview-animation-styles"]')
-                ?.remove()
-
-              const style = document.body.style
-
-              // Remove all the properties that starts with --editor-timeline
-              for (const prop of style) {
-                if (prop.startsWith('--editor-timeline')) {
-                  style.removeProperty(prop)
-                }
-              }
-              document.body.removeAttribute('data-animating')
-              update()
-              return
-            }
-
-            document.body.setAttribute('data-animating', 'true')
-
-            document.body.style.setProperty(
-              '--editor-timeline-timing-function',
-              timingFunction ?? 'ease',
-            )
-            document.body.style.setProperty(
-              '--editor-timeline-fill-mode',
-              fillMode ?? 'none',
-            )
-
-            const selectedNode = getDOMNodeFromNodeId(
-              animationState.animatedElementId,
-            )
-
-            let repeatedNodes: HTMLElement[] = []
-
-            if (selectedNode) {
-              if (selectedNode.parentElement) {
-                repeatedNodes = Array.from(
-                  selectedNode.parentElement.children,
-                ).filter(
-                  (node) =>
-                    node instanceof HTMLElement &&
-                    node
-                      .getAttribute('data-id')
-                      ?.startsWith(selectedNodeId + '('),
-                ) as HTMLElement[]
-              }
-              if (animatedElementChanged) {
-                const computedStyle = window.getComputedStyle(selectedNode)
-                animationState.iterationCount =
-                  computedStyle.animationIterationCount
-
-                animationState.repeatedElementsValues = [
-                  {
-                    delay: `${toSeconds(computedStyle.animationDelay)}s`,
-                    duration: `${toSeconds(computedStyle.animationDuration)}s`,
-                  },
-                ]
-                animationState.timelineTime = {
-                  delay: `${toSeconds(computedStyle.animationDelay)}s`,
-                  duration: `${toSeconds(computedStyle.animationDuration)}s`,
-                }
-
-                repeatedNodes.forEach((node) => {
-                  const nodeComputedStyle = window.getComputedStyle(node)
-                  animationState?.repeatedElementsValues.push({
-                    delay: `${toSeconds(nodeComputedStyle.animationDelay)}s`,
-                    duration: `${toSeconds(nodeComputedStyle.animationDuration)}s`,
-                  })
-                })
-              }
-            }
-
-            const animationDelay = parseFloat(
-              animationState.repeatedElementsValues[0].delay,
-            )
-            const animationDuration = parseFloat(
-              animationState.repeatedElementsValues[0].duration,
-            )
-
-            const timelineTime =
-              parseFloat(animationState.timelineTime.delay) +
-              parseFloat(animationState.timelineTime.duration)
-            const timelinePosition = time * timelineTime
-
-            const calculatedDelay = timelinePosition - animationDelay
-
-            const progressTime = clamp(
-              calculatedDelay,
-              0,
-              animationDelay + animationDuration,
-            )
-
-            document.body.style.setProperty(
-              '--editor-timeline-position-0',
-              `${progressTime}s`,
-            )
-            document.body.style.setProperty(
-              '--editor-timeline-duration-0',
-              `${animationDuration}s`,
-            )
-
-            repeatedNodes.forEach((node, index) => {
-              const animationDelay = animationState
-                ? parseFloat(
-                    animationState.repeatedElementsValues[index + 1].delay,
-                  )
-                : 0
-
-              const animationDuration = animationState
-                ? parseFloat(
-                    animationState.repeatedElementsValues[index + 1].duration,
-                  )
-                : 1
-
-              const calculatedDelay = timelinePosition - animationDelay
-
-              const progressTime = clamp(
-                calculatedDelay,
-                0,
-                animationDelay + animationDuration,
-              )
-
-              document.body.style.setProperty(
-                `--editor-timeline-position-${index + 1}`,
-                `${progressTime}s`,
-              )
-
-              document.body.style.setProperty(
-                `--editor-timeline-duration-${index + 1}`,
-                `${animationDuration}s`,
-              )
-            })
-
-            if (animatedElementChanged && animationState?.animatedElementId) {
-              let styleTag = document.head.querySelector(
-                '[data-id="preview-animation-styles"]',
-              )
-              if (!styleTag) {
-                styleTag = document.createElement('style')
-                styleTag.setAttribute('data-id', 'preview-animation-styles')
-                document.head.appendChild(styleTag)
-              }
-              styleTag.innerHTML = `body[data-mode="design"] [data-id="${animationState.animatedElementId}"] {
-                  animation: preview_timeline var(--editor-timeline-duration-0) paused normal !important;
-                  animation-fill-mode: var(--editor-timeline-fill-mode) !important;
-                  animation-timing-function: var(--editor-timeline-timing-function) !important;
-                  animation-delay: calc(0s - var(--editor-timeline-position-0)) !important;
-                  animation-play-state: paused !important;
-                  animation-iteration-count: ${animationState.iterationCount} !important
-                }`
-
-              repeatedNodes.forEach((node, index) => {
-                styleTag.innerHTML += `
-                    body[data-mode="design"] [data-id="${node.getAttribute('data-id')}"] {
-                      animation: preview_timeline var(--editor-timeline-duration-${index + 1}) paused normal !important;
-                      animation-fill-mode: var(--editor-timeline-fill-mode) !important;
-                      animation-timing-function: var(--editor-timeline-timing-function) !important;
-                      animation-delay: calc(0s - var(--editor-timeline-position-${index + 1})) !important;
-                      animation-play-state: paused !important;
-                      animation-iteration-count: ${animationState?.iterationCount ?? 1} !important
-                    }`
-              })
-            }
-            syncOverlayRects()
-          })
-          break
-        case 'preview_style':
-          const { styles: previewStyleStyles, theme } = message.data
-          cancelAnimationFrame(previewStyleAnimationFrame)
-          previewStyleAnimationFrame = requestAnimationFrame(() => {
-            // Update or create a new style tag and set the given styles with important priority
-            let styleElement = document.head.querySelector(
-              '[data-id="selected-node-styles"]',
-            )
-
-            // Cleanup when null styles are sent
-            if (!previewStyleStyles) {
-              styleElement?.remove()
-              return
-            }
-
-            if (!styleElement) {
-              styleElement = document.createElement('style')
-              styleElement.setAttribute('data-id', 'selected-node-styles')
-              document.head.appendChild(styleElement)
-            }
-
-            // If style variant targets a pseudo-element, apply styles to it instead
-            let pseudoElement = ''
-            if (component && styleVariantSelection) {
-              const rootNode = component.nodes?.root
-              if (rootNode) {
-                const nodeLookup = getNodeAndAncestors(
-                  component,
-                  rootNode,
-                  styleVariantSelection.nodeId,
-                )
-
-                if (
-                  (nodeLookup?.node.type === 'element' ||
-                    nodeLookup?.node.type === 'component') &&
-                  nodeLookup.node.variants?.[
-                    styleVariantSelection.styleVariantIndex
-                  ].pseudoElement
-                ) {
-                  pseudoElement = `::${nodeLookup.node.variants[styleVariantSelection.styleVariantIndex].pseudoElement}`
-                }
-              }
-            }
-
-            // If theme property preview, then override happens at root level and with reasonable specificity.
-            // Otherwise, force (!important) the style directly on the element.
-            if (theme) {
-              theme.value.propertyDefinitions = Object.fromEntries(
-                Object.entries(theme.value.propertyDefinitions ?? {})
-                  .filter(([key]) => previewStyleStyles[key])
-                  .map(([key, val]) => [
-                    key,
-                    {
-                      ...val,
-                      values: {
-                        ...val.values,
-                        [theme.key]: previewStyleStyles[key],
-                      },
-                    },
-                  ]),
-              )
-              const cssBlocks: string[] = []
-              if (theme.key === theme.value.default) {
-                cssBlocks.push(
-                  renderThemeValues(
-                    `:host, :root`,
-                    getThemeEntries(theme.value, theme.key),
-                  ),
-                )
-              }
-              if (theme.key === theme.value.defaultDark) {
-                cssBlocks.push(
-                  renderThemeValues(
-                    `:host, :root`,
-                    getThemeEntries(theme.value, theme.key),
-                    '@media (prefers-color-scheme: dark)',
-                  ),
-                )
-              }
-              if (theme.key === theme.value.defaultLight) {
-                cssBlocks.push(
-                  renderThemeValues(
-                    `:host, :root`,
-                    getThemeEntries(theme.value, theme.key),
-                    '@media (prefers-color-scheme: light)',
-                  ),
-                )
-              }
-              cssBlocks.push(
-                renderThemeValues(
-                  `[${THEME_DATA_ATTRIBUTE}~="${theme.key}"]`,
-                  getThemeEntries(theme.value, theme.key),
-                ),
-              )
-              styleElement.innerHTML = cssBlocks.join('\n')
-            } else {
-              const previewStyles = Object.entries(previewStyleStyles)
-                .map(
-                  ([key, value]) =>
-                    `${key}: ${convertViewportUnitsToEmulatedViewportUnits(value)} !important;`,
-                )
-                .join('\n')
-              styleElement.innerHTML = `[data-id="${selectedNodeId}"]${pseudoElement}, [data-id="${selectedNodeId}"] ~ [data-id^="${selectedNodeId}("]${pseudoElement} {
-    ${previewStyles}
-    transition: none !important;
-  }`
-            }
-            requestResizeCanvas(resizeCanvasOptions)
-            syncOverlayRects()
-          })
-          break
+        }
         case 'preview_resources': {
-          const { resources } = message.data
-          // Allow for temporarily adding preview resources (e.g. fonts).
-          const resourceElements = Array.from(
-            document.head.querySelectorAll('[data-id="preview-resource"]'),
-          )
-          // Remove any resources that are no longer needed
-          resourceElements.forEach((el) => {
-            if (
-              resources.length === 0 ||
-              !resources.some((res) => res.href === el.getAttribute('href'))
-            ) {
-              el.remove()
-            }
+          applyPreviewResources(message.data.resources, {
+            resizeCanvasOptions,
+            syncOverlayRects,
           })
-          resources
-            .filter(
-              (resource) =>
-                !resourceElements.some(
-                  (el) => el.getAttribute('href') === resource.href,
-                ),
-            )
-            .forEach((resource) => {
-              const resourceElement = document.createElement('link')
-              resourceElement.setAttribute('data-id', 'preview-resource')
-              resourceElement.rel = 'stylesheet'
-              resourceElement.href = resource.href
-              document.head.appendChild(resourceElement)
-
-              // Sync canvas after the resource has loaded (if not already loaded)
-              if (!resourceElement.sheet) {
-                resourceElement.addEventListener('load', () => {
-                  requestResizeCanvas(resizeCanvasOptions)
-                  syncOverlayRects()
-                })
-              }
-            })
-          requestResizeCanvas(resizeCanvasOptions)
-          syncOverlayRects()
           break
         }
         case 'preview_theme': {
@@ -1349,89 +830,7 @@ export const createRoot = (
           break
         }
         case 'capture_screenshot': {
-          const { id, viewportWidth } = message.data
-          let disableTransitionsStyle: HTMLStyleElement | null = null
-          // Set only if we actually ask the editor to resize, so we can ask
-          // it to put the width back afterwards - we can't rely on the
-          // editor's own restore logic getting this right.
-          let widthToRestore: number | null = null
-          try {
-            if (viewportWidth !== undefined) {
-              if (window.innerWidth !== viewportWidth) {
-                // We can't resize our own <iframe> element from in here - the
-                // preview iframe is cross-origin/sandboxed from the editor, so
-                // `window.frameElement` isn't accessible. Ask the editor to
-                // resize the actual iframe instead, then wait for the
-                // resulting native `resize` event rather than requiring an
-                // explicit reply.
-                widthToRestore = window.innerWidth
-                postMessageToEditor({
-                  type: 'requestViewportWidth',
-                  width: viewportWidth,
-                })
-                await waitForViewportWidth(viewportWidth)
-              }
-
-              // The editor's resize may have triggered CSS transitions on
-              // responsive layout changes; disable them so we capture the
-              // resting state at this width rather than a half-finished
-              // transition frame.
-              disableTransitionsStyle = document.createElement('style')
-              disableTransitionsStyle.textContent =
-                '*, *::before, *::after { transition: none !important; animation: none !important; }'
-              document.head.appendChild(disableTransitionsStyle)
-
-              // Let layout settle at the new width before capturing -
-              // getComputedStyle (used internally by domToCanvas) forces a
-              // synchronous layout flush, but a frame gives any resize-driven
-              // JS (ResizeObserver, matchMedia listeners, etc.) a chance to run.
-              await new Promise(requestAnimationFrame)
-            }
-
-            // Rasterize the full document (not just what's currently scrolled into
-            // view) by walking the DOM/computed styles rather than capturing the
-            // screen, so content below the fold is still included.
-            const target = document.documentElement
-            const canvas = await domToCanvas(target, {
-              width: target.scrollWidth,
-              height: target.scrollHeight,
-            })
-            const url = canvas.toDataURL('image/png')
-
-            postMessageToEditor({
-              type: 'screenshot',
-              id,
-              file: {
-                type: 'image/png',
-                size: url.length,
-                dimensions: { width: canvas.width, height: canvas.height },
-                url,
-              },
-            })
-          } catch (error) {
-            postMessageToEditor({
-              type: 'screenshot',
-              id,
-              file: null,
-              error: error instanceof Error ? error.message : String(error),
-            })
-          } finally {
-            disableTransitionsStyle?.remove()
-            if (widthToRestore !== null) {
-              postMessageToEditor({
-                type: 'requestViewportWidth',
-                width: widthToRestore,
-              })
-              try {
-                await waitForViewportWidth(widthToRestore)
-              } catch (error) {
-                console.error(
-                  'Failed to restore original viewport width',
-                  error,
-                )
-              }
-            }
-          }
+          await captureScreenshot(message.data)
           break
         }
       }
@@ -1439,144 +838,28 @@ export const createRoot = (
   )
 
   const resizeObserver = new ResizeObserver(() => {
-    requestResizeCanvas(resizeCanvasOptions)
-    syncOverlayRects()
+    requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
   })
   resizeObserver.observe(domNode)
   requestResizeCanvas(resizeCanvasOptions)
 
   window.addEventListener('beforeunload', () => {
+    if (clearPreviewStyleTimeout) {
+      clearTimeout(clearPreviewStyleTimeout)
+      clearPreviewStyleTimeout = undefined
+    }
     storeScrollState(component?.name)
     resizeObserver.disconnect()
   })
 
-  const updateStyle = (component: Component | null) => {
-    if (component) {
-      insertStyles(document.head, component, getAllComponents())
-    }
-  }
-
-  /**
-   * Get the current representation of the component, but with
-   * updated conditions based on selectedNodeId and updated
-   * styling based on styleVariantSelection
-   */
-  const getCurrentComponent = (): Component | null => {
-    const _component = structuredClone(component)
-    if (!_component) {
-      return null
-    }
-    if (mode === 'design') {
-      if (selectedNodeId !== null) {
-        const root = _component?.nodes?.root
-        if (root) {
-          const nodeLookup = getNodeAndAncestors(
-            _component,
-            root,
-            selectedNodeId,
-          )
-          if (nodeLookup) {
-            if (isNodeOrAncestorConditional(nodeLookup)) {
-              // Show the selected node and all its ancestors by
-              // removing their "show" condition
-              nodeLookup.node.condition = undefined
-              nodeLookup.ancestors.forEach((a) => (a.condition = undefined))
-            }
-          }
-        }
-      }
-    }
-    return _component
-  }
-
-  const updateSelectedStyleVariant = (variantIndex: number | null) => {
-    clearSelectedStyleVariant()
-    if (selectedNodeId !== null && typeof variantIndex === 'number') {
-      styleVariantSelection = {
-        nodeId: selectedNodeId,
-        styleVariantIndex: variantIndex,
-      }
-      const root = component?.nodes?.root
-      if (root && component) {
-        const nodeLookup = getNodeAndAncestors(component, root, selectedNodeId)
-        if (nodeLookup) {
-          if (
-            styleVariantSelection?.nodeId === selectedNodeId &&
-            (nodeLookup.node.type === 'element' ||
-              nodeLookup.node.type === 'component')
-          ) {
-            const selectedStyleVariant =
-              nodeLookup.node.variants?.[
-                styleVariantSelection.styleVariantIndex
-              ] ?? ({ style: {} } as StyleVariant)
-            // Add a style element specific to the selected element which
-            // is only applied when the preview is in design mode
-            const styleVariantCustomProperties = Object.fromEntries(
-              Object.entries(
-                (selectedStyleVariant as StyleVariant).customProperties ?? {},
-              )
-                .map(([customPropertyName, customProperty]) => [
-                  customPropertyName,
-                  appendUnit(
-                    applyFormula(
-                      customProperty.formula,
-                      {
-                        data: dataSignal.get(),
-                        component: getCurrentComponent(),
-                        root: ctx?.root,
-                        formulaCache: {},
-                        package: ctx?.package,
-                        toddle: window.toddle,
-                        env,
-                        // TODO: Ensure we have the node id here
-                        jsonPath: [
-                          'nodes',
-                          '<random id>',
-                          'variants',
-                          styleVariantSelection?.styleVariantIndex ?? 0,
-                          customPropertyName,
-                        ],
-                        reportFormulaEvaluation,
-                      } as FormulaContext,
-                      [],
-                    ),
-                    customProperty.unit,
-                  ),
-                ])
-                .filter(([, value]) => isDefined(value)),
-            )
-
-            const styleElem = document.createElement('style')
-            const pseudoElement = selectedStyleVariant.pseudoElement
-              ? `::${selectedStyleVariant.pseudoElement}`
-              : ''
-            styleElem.setAttribute('data-hash', selectedNodeId)
-            styleElem.appendChild(
-              document.createTextNode(`
-                        body[data-mode="design"] [data-id="${selectedNodeId}"]${pseudoElement} {
-                          ${styleToCss({
-                            ...(!pseudoElement && nodeLookup.node.style),
-                            ...selectedStyleVariant.style,
-                            ...styleVariantCustomProperties,
-                          })}
-                        }
-                      `),
-            )
-            const existingStyleElement = document.head.querySelector(
-              `[data-hash="${selectedNodeId}"]`,
-            )
-            if (existingStyleElement) {
-              document.head.removeChild(existingStyleElement)
-            }
-            document.head.appendChild(styleElem)
-          }
-        }
-      }
+  const updateStyle = (comp: Component | null) => {
+    if (comp) {
+      insertStyles(document.head, comp, getAllComponents())
     }
   }
 
   const update = ({ forceRerender }: { forceRerender?: boolean } = {}) => {
-    const _component = getCurrentComponent()
+    const _component = getCurrentComponent(component, selectedNodeId, mode)
     if (!_component || !components || !packageComponents) {
       return
     }
@@ -1586,13 +869,7 @@ export const createRoot = (
     if (
       fastDeepEqual(ctx?.component.attributes, _component.attributes) === false
     ) {
-      Attributes = mapObject(
-        filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
-          _component.attributes ?? {},
-          ([_, attr]) => isDefined(attr),
-        ),
-        ([name, { testValue }]) => [name, testValue],
-      )
+      Attributes = getAttributeTestValues(_component.attributes)
     }
     if (
       _component.route &&
@@ -1608,18 +885,8 @@ export const createRoot = (
           return {
             ...location,
             route: _component.route,
-            params: Object.fromEntries(
-              _component.route.path
-                .filter((p) => p.type === 'param')
-                .map((p) => [p.name, p.testValue]),
-            ),
-            query: mapObject(
-              _component.route.query,
-              ([name, { testValue }]: [string, { testValue: string }]) => [
-                name,
-                testValue,
-              ],
-            ),
+            params: getRouteParams(_component.route),
+            query: getRouteQuery(_component.route),
           }
         })
 
@@ -1636,13 +903,7 @@ export const createRoot = (
         )
       }
 
-      Attributes = mapObject(
-        filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
-          _component.attributes ?? {},
-          ([_, attr]) => isDefined(attr),
-        ),
-        ([name, { testValue }]) => [name, testValue],
-      )
+      Attributes = getAttributeTestValues(_component.attributes)
     }
     if (
       fastDeepEqual(
@@ -1663,140 +924,29 @@ export const createRoot = (
       })
     }
     if (fastDeepEqual(_component.contexts, ctx?.component.contexts) === false) {
-      Contexts = (function createStaticContextFromComponent(
-        component: Component,
-        contextProvidersCreated?: Set<string>,
-      ) {
-        contextProvidersCreated?.add(component.name)
-        return mapObject(
-          component.contexts ?? {},
-          ([providerName, context]) => {
-            if (contextProvidersCreated?.has(providerName)) {
-              // Circular dependency detected in context-providers (ie. A -> B -> A -> ...), stop recursion
-              return [providerName, {}]
-            }
-
-            const providerComponent = getAllComponents().find(
-              (c) => c.name === providerName,
-            )
-            if (!providerComponent) {
-              console.warn(
-                `Could not find a provider-component named "${providerName}" in files`,
-              )
-              return [providerName, {}]
-            }
-
-            // TODO: Should we also run APIs for the provider?
-            const formulaContext: FormulaContext = {
-              data: {
-                Attributes: mapObject(
-                  filterObject<
-                    Nullable<ComponentAttribute>,
-                    ComponentAttribute
-                  >(providerComponent.attributes ?? {}, ([_, attr]) =>
-                    isDefined(attr),
-                  ),
-                  ([name, { testValue }]) => [name, testValue],
-                ),
-                // Recursively resolve contexts providers before their children to build up the fake context tree in preview mode
-                Contexts: createStaticContextFromComponent(
-                  providerComponent,
-                  contextProvidersCreated ?? new Set(),
-                ),
-              },
-              component: providerComponent,
-              root: ctx?.root,
-              formulaCache: {},
-              package: ctx?.package,
-              toddle: window.toddle,
-              env,
-              jsonPath: [],
-              // We don't evaluate formulas in context providers in preview mode currently
-              reportFormulaEvaluation: undefined,
-            }
-
-            // Pages can also be context-providers!
-            // Exposed formulas can derive their preview output from URL data,
-            // so we must populate Url parameters with their test data
-            if (providerComponent.route) {
-              formulaContext.data['URL parameters'] = {
-                ...Object.fromEntries(
-                  providerComponent.route.path
-                    .filter((p) => p.type === 'param')
-                    .map((p) => [p.name, p.testValue]),
-                ),
-                ...mapObject(
-                  providerComponent.route.query,
-                  ([name, { testValue }]) => [name, testValue],
-                ),
-              }
-            }
-            formulaContext.data.Variables = mapObject(
-              filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-                providerComponent.variables ?? {},
-                ([_, variable]) => isDefined(variable),
-              ),
-              ([name, variable]) => [
-                name,
-                applyFormula(variable.initialValue, formulaContext, [
-                  'variables',
-                  name,
-                ]),
-              ],
-            )
-
-            return [
-              providerName,
-              Object.fromEntries(
-                context.formulas.map((formulaName) => {
-                  const formula = providerComponent.formulas?.[formulaName]
-                  if (!formula) {
-                    console.warn(
-                      `Could not find formula "${formulaName}" in component "${providerName}"`,
-                    )
-                    return [formulaName, null]
-                  }
-
-                  return [
-                    formulaName,
-                    applyFormula(formula.formula, formulaContext, [
-                      'formulas',
-                      formulaName,
-                    ]),
-                  ]
-                }),
-              ),
-            ]
-          },
-        )
-      })(_component)
+      Contexts = createStaticContextFromComponent(
+        _component,
+        getAllComponents(),
+        {
+          root: ctx?.root,
+          package: ctx?.package,
+          env,
+        },
+      )
     }
     if (
       fastDeepEqual(_component.variables, ctx?.component.variables) === false
     ) {
-      Variables = mapObject(
-        filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-          _component.variables ?? {},
-          ([_, variable]) => isDefined(variable),
-        ),
-        ([name, { initialValue }]) => [
-          name,
-          applyFormula(
-            initialValue,
-            {
-              data: { Attributes, Contexts },
-              component: _component!,
-              root: document,
-              package: ctx?.package,
-              toddle: window.toddle,
-              env,
-              jsonPath: ctx?.jsonPath,
-              reportFormulaEvaluation,
-            },
-            ['variables', name],
-          ),
-        ],
-      )
+      Variables = getVariableInitialValues(_component.variables, {
+        data: { Attributes, Contexts },
+        component: _component,
+        root: document,
+        package: ctx?.package,
+        toddle: window.toddle,
+        env,
+        jsonPath: ctx?.jsonPath,
+        reportFormulaEvaluation,
+      })
     }
 
     dataSignal.update((data) => {
@@ -1838,54 +988,7 @@ export const createRoot = (
       )
     }
 
-    for (const api in newCtx.component.apis) {
-      // check if the api has changed (ignoring onCompleted and onFailed).
-      const apiInstance = newCtx.component.apis[api]
-      if (!apiInstance) {
-        continue
-      }
-      const previousApiInstance = ctx?.component.apis?.[api]
-      if (isLegacyApi(apiInstance)) {
-        if (
-          fastDeepEqual(
-            omitKeys(apiInstance, ['onCompleted', 'onFailed']),
-            previousApiInstance && isLegacyApi(previousApiInstance)
-              ? omitKeys(previousApiInstance, ['onCompleted', 'onFailed'])
-              : (previousApiInstance ?? {}),
-          ) === false
-        ) {
-          newCtx.apis[api]?.destroy()
-          dataSignal.update((data) => {
-            return {
-              ...data,
-              Apis: omitKeys(data.Apis ?? {}, [
-                ...Object.keys(data.Apis ?? {}).filter(
-                  // remove any data from an api that is not part of the component
-                  (key) => !newCtx.component.apis?.[key],
-                ),
-                api,
-              ]),
-            }
-          })
-          newCtx.apis[api] = createLegacyAPI(apiInstance, {
-            ...newCtx,
-            jsonPath: ['apis', api],
-          })
-        }
-      } else {
-        const existingApi = newCtx.apis[api] as ContextApiV2 | undefined
-        if (!existingApi) {
-          newCtx.apis[api] = createAPI({
-            apiRequest: apiInstance,
-            ctx: { ...newCtx, jsonPath: ['apis', api] },
-            componentData: dataSignal.get(),
-          })
-        } else {
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          existingApi?.update(apiInstance, dataSignal.get())
-        }
-      }
-    }
+    syncComponentApis(newCtx, ctx, dataSignal)
 
     if (
       forceRerender ||
@@ -1896,7 +999,7 @@ export const createRoot = (
       updateStyle(newCtx.component)
 
       // Remove preview styles automatically when the component changes
-      document.head.querySelector('[data-id="selected-node-styles"]')?.remove()
+      document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
 
       Array.from(domNode.children).forEach((child) => {
         if (child.tagName !== 'SCRIPT') {
@@ -1908,8 +1011,7 @@ export const createRoot = (
       ctxDataSignal?.destroy()
       ctxDataSignal = dataSignal.map((data) => data)
       ctxDataSignal.subscribe(() => {
-        requestResizeCanvas(resizeCanvasOptions)
-        syncOverlayRects()
+        requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
       })
       try {
         const rootElem = createNode({
@@ -1926,59 +1028,11 @@ export const createRoot = (
         })
         rootElem.forEach((elem) => domNode.appendChild(elem))
       } catch (error: unknown) {
-        const isPage = isPageComponent(newCtx.component)
-        let name = `Unexpected error while rendering ${isPage ? 'page' : 'component'}`
-        let message = error instanceof Error ? error.message : String(error)
-        let panic = false
-        if (error instanceof RangeError) {
-          // RangeError is unrecoverable
-          panic = true
-          name = 'Infinite loop detected'
-          message =
-            'RangeError (Maximum call stack size exceeded): Remove any circular dependencies or recursive calls (Try undoing your last change). This is most likely caused by a component, formula or action using itself.'
-        }
-
-        // This can be triggered by setting "type" on a select etc.
-        if (error instanceof TypeError) {
-          panic = true
-          name = 'TypeError'
-          message = `Type errors are often caused by:
-
-• Trying to set a read-only property (like "type" on a select element).
-
-• Trying to set a property on an undefined or null value.
-
-• Trying to access a property on an undefined or null value.
-
-• Trying to call a method on an undefined or null value.`
-        }
-
-        console.error(name, message, error)
-
-        if (panic) {
-          // Show error overlay in the editor until next update
-          const panicScreen = createPanicScreen({
-            name: name,
-            message,
-            isPage,
-            cause: error,
-          })
-
-          // Replace the inner HTML of the editor preview with the panic screen
-          domNode.innerHTML = ''
-          domNode.appendChild(panicScreen)
-        } else {
-          // Otherwise send a toast to the editor with the error (unknown errors may be recoverable), if not please add the error-type to the above
-          sendEditorToast(name, message, {
-            type: 'critical',
-          })
-        }
+        handleRenderError(error, newCtx.component, domNode)
       }
       postMessageToEditor({
         type: 'style',
-        time: new Intl.DateTimeFormat('en-GB', {
-          timeStyle: 'long',
-        }).format(new Date()),
+        time: getFormattedTime(),
       })
     }
 
@@ -1987,8 +1041,12 @@ export const createRoot = (
       document.querySelector(`[data-id="${nodeId}"]`),
     )
     markSelectedElement(getDOMNodeFromNodeId(selectedNodeId))
-    requestResizeCanvas(resizeCanvasOptions)
-    syncOverlayRects()
+    markHighlightedTextNode({
+      highlightedNodeId,
+      selectedNodeId,
+      mode,
+    })
+    requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
   }
 
   const createContext = (
@@ -2002,9 +1060,7 @@ export const createRoot = (
         postMessageToEditor({
           type: 'component event',
           event,
-          time: new Intl.DateTimeFormat('en-GB', {
-            timeStyle: 'long',
-          }).format(new Date()),
+          time: getFormattedTime(),
           data,
         })
       },
@@ -2074,40 +1130,6 @@ export const createRoot = (
 
   initKeyListeners()
 
-  const clearSelectedStyleVariant = () => {
-    if (styleVariantSelection) {
-      const styleElem = document.head.querySelector(
-        `[data-hash="${styleVariantSelection.nodeId}"]`,
-      )
-      if (styleElem) {
-        document.head.removeChild(styleElem)
-      }
-      styleVariantSelection = null
-    }
-  }
-
-  const updateConditionalElements = () => {
-    const displayedNodes: string[] = []
-    if (selectedNodeId && component) {
-      const root = component.nodes?.root
-      if (root) {
-        const nodeLookup = getNodeAndAncestors(component, root, selectedNodeId)
-        if (isNodeOrAncestorConditional(nodeLookup)) {
-          displayedNodes.push(selectedNodeId)
-          displayedNodes.push(
-            ...[...nodeLookup.ancestors, nodeLookup.node]
-              .filter((a) => a.condition)
-              .map((a) => a.nodeId),
-          )
-        }
-      }
-    }
-    showSignal.set({
-      displayedNodes,
-      testMode: mode === 'test',
-    })
-  }
-
   let prevSelectionRect: ReturnType<typeof getRectData>
   let prevHighlightRect: ReturnType<typeof getRectData>
 
@@ -2139,247 +1161,4 @@ export const createRoot = (
       }
     }
   }
-}
-
-const insertOrReplaceHeadNode = (id: string, node: Node) => {
-  const existing = document.head.querySelector(`[data-meta-id="${id}"]`)
-  if (existing) {
-    existing.replaceWith(node)
-  } else {
-    document.head.appendChild(node)
-  }
-}
-
-const insertHeadTags = (
-  entries: Record<string, MetaEntry>,
-  context: FormulaContext,
-) => {
-  // Remove all tags that has a data-meta-id attribute that is not in the entries
-  Array.from(document.head.querySelectorAll('[data-meta-id]'))
-    .filter((elem) => !entries[elem.getAttribute('data-meta-id')!])
-    .forEach((elem) => elem.remove())
-
-  // Skip anything that is not <link>, <style> or <script> tags, as they don't have any influence on the preview
-  Object.entries(entries).forEach(([id, entry]) => {
-    switch (entry.tag) {
-      case HeadTagTypes.Link:
-        return insertOrReplaceHeadNode(
-          id,
-          document.createRange().createContextualFragment(`
-          <link
-            data-meta-id="${id}"
-            ${Object.entries(entry.attrs ?? {})
-              .map(
-                ([key, value]) =>
-                  `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
-              )
-              .join(' ')}
-          />
-        `),
-        )
-      case HeadTagTypes.Script:
-        return insertOrReplaceHeadNode(
-          id,
-          document.createRange().createContextualFragment(`
-          <script
-            data-meta-id="${id}"
-            ${Object.entries(entry.attrs ?? {})
-              .map(
-                ([key, value]) =>
-                  `${key}="${applyFormula(value, context, [id, 'attrs', key])}"`,
-              )
-              .join(' ')}
-          >${applyFormula(entry.content ?? '', context)}</script>
-        `),
-        )
-      case HeadTagTypes.Style:
-        return insertOrReplaceHeadNode(
-          id,
-          document.createRange().createContextualFragment(`
-          <style
-            data-meta-id="${id}"
-            ${Object.entries(entry.attrs ?? {})
-              .map(([key, value]) => `${key}="${applyFormula(value, context)}"`)
-              .join(' ')}
-          >
-            ${applyFormula(entry.content ?? '', context)}
-          </style>
-        `),
-        )
-      default:
-        return
-    }
-  })
-}
-
-export function getDOMNodeFromNodeId(
-  selectedNodeId: string | null | undefined,
-) {
-  if (!selectedNodeId) {
-    return null
-  }
-
-  return document.querySelector(
-    `[data-id="${stripNodeIdRepeatIndices(selectedNodeId)}"]:not([data-component])`,
-  )
-}
-
-function getNodeId(component: Component, path: string[]) {
-  function getId(
-    [nextChild, ...path]: string[],
-    currentId: string | undefined,
-  ): string | null {
-    if (nextChild === undefined || currentId === undefined) {
-      return currentId ?? null
-    }
-    const currentNode = component.nodes?.[currentId]
-    if (!currentNode?.children) {
-      return null
-    }
-
-    return getId(path, currentNode.children[parseInt(nextChild)])
-  }
-  return getId(path, 'root')
-}
-
-const insertTheme = (
-  parent: HTMLElement,
-  themes: Record<string, OldTheme | Theme>,
-) => {
-  document.getElementById('theme-style')?.remove()
-  const styleElem = document.createElement('style')
-  styleElem.setAttribute('type', 'text/css')
-  styleElem.setAttribute('id', 'theme-style')
-  styleElem.innerHTML = getThemeCss(themes, {
-    includeResetStyle: false,
-    createFontFaces: true,
-  })
-  parent.appendChild(styleElem)
-}
-
-const initKeyListeners = () => {
-  document.addEventListener('keydown', (event) => {
-    if (isInputTarget(event)) {
-      return
-    }
-    switch (event.key) {
-      case 'k':
-        if (event.metaKey) {
-          event.preventDefault()
-        }
-    }
-    postMessageToEditor({
-      type: 'keydown',
-      event: {
-        key: event.key,
-        metaKey: event.metaKey,
-        shiftKey: event.shiftKey,
-        altKey: event.altKey,
-      },
-    })
-  })
-  document.addEventListener('keyup', (event) => {
-    if (isInputTarget(event)) {
-      return
-    }
-    postMessageToEditor({
-      type: 'keyup',
-      event: {
-        key: event.key,
-        metaKey: event.metaKey,
-        shiftKey: event.shiftKey,
-        altKey: event.altKey,
-      },
-    })
-  })
-  document.addEventListener('keypress', (event) => {
-    if (isInputTarget(event)) {
-      return
-    }
-    postMessageToEditor({
-      type: 'keypress',
-      event: {
-        key: event.key,
-        metaKey: event.metaKey,
-        shiftKey: event.shiftKey,
-        altKey: event.altKey,
-      },
-    })
-  })
-}
-
-const registerActions = (
-  allActions: Record<string, PluginAction>,
-  packageName?: string,
-) => {
-  const actions: Record<string, PluginActionV2> = {}
-  Object.entries(allActions ?? {}).forEach(([name, action]) => {
-    if (isLegacyPluginAction(action)) {
-      // Legacy actions are self-registering. We need to execute them to register them
-      Function(action.handler)()
-      return
-    }
-    // We need to convert the handler string into a real function
-    actions[name] = {
-      ...(action as PluginActionV2),
-      handler:
-        typeof action.handler === 'string'
-          ? (new Function(
-              'args, ctx',
-              `${action.handler}
-          return ${safeFunctionName(action.name)}(args, ctx)`,
-            ) as ActionHandlerV2)
-          : action.handler,
-    }
-  })
-  window.toddle.actions[packageName ?? window.__toddle.project] = actions
-}
-
-const registerFormulas = (
-  allFormulas: Record<
-    string,
-    ToddleFormula | CodeFormula<FormulaHandlerV2> | CodeFormula<string>
-  >,
-  packageName?: string,
-) => {
-  const formulas: Record<string, PluginFormula<FormulaHandlerV2>> = {}
-  Object.entries(allFormulas ?? {}).forEach(([name, formula]) => {
-    if (
-      !isToddleFormula<FormulaHandlerV2 | string>(formula) &&
-      typeof formula.name === 'string' &&
-      formula.version === undefined
-    ) {
-      // Legacy formulas are self-registering. We need to execute them to register them
-      Function(formula.handler as unknown as string)()
-      return
-    } else if (!isToddleFormula<FormulaHandlerV2 | string>(formula)) {
-      // For code formulas we need to convert the handler string into a real function
-      formulas[name] = {
-        ...formula,
-        handler:
-          typeof formula.handler === 'string'
-            ? (new Function(
-                'args, ctx',
-                `${formula.handler}
-                return ${safeFunctionName(formula.name)}(args, ctx)`,
-              ) as FormulaHandlerV2)
-            : formula.handler,
-      }
-      return
-    }
-    formulas[name] = formula as PluginFormula<FormulaHandlerV2>
-  })
-  window.toddle.formulas[packageName ?? window.__toddle.project] = formulas
-}
-
-let _themeRootSignal = null as Signal<string | null> | null
-function setupThemeSubscription(
-  component: Component,
-  dataSignal: Signal<ComponentData>,
-  env: ToddleEnv,
-) {
-  _themeRootSignal?.destroy()
-  _themeRootSignal = getThemeSignal(component, dataSignal, env)
-
-  return _themeRootSignal
 }

@@ -1,4 +1,5 @@
-import { stripNodeIdRepeatIndices } from '../../utils/nodes'
+import { DATA_ATTR_ID, DATA_ATTR_NODE_ID } from '@nordcraft/core/dist/const'
+import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from '../../utils/nodes'
 import { postMessageToEditor } from '../postMessageToEditor'
 
 export const handleTextNodeSelection = (
@@ -9,11 +10,12 @@ export const handleTextNodeSelection = (
 ) => {
   const initialContent = node.textContent
   node.contentEditable = 'plaintext-only'
-  const nodeId = node.getAttribute('data-id')
+  const nodeId = node.getAttribute(DATA_ATTR_ID)
   postMessageToEditor({
     type: 'highlight',
     highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
     exactHighlightedNodeId: nodeId,
+    repeatNodeIndex: getRepeatNodeIndex(nodeId, node),
   })
 
   let isFinished = false
@@ -61,7 +63,7 @@ export const handleTextNodeSelection = (
     postMessageToEditor({
       type: 'updateTextNodeContent',
       innerText: node.textContent,
-      nodeId: node.getAttribute('data-node-id'),
+      nodeId: node.getAttribute(DATA_ATTR_NODE_ID),
     })
   }
 

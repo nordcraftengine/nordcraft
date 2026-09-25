@@ -99,5 +99,7 @@ export const handleTextMouseDown = ({
   node.focus()
   if (node.getAttribute('contenteditable') !== 'plaintext-only') {
     handleTextNodeSelection(node)
+    selectionState.anchor = null
+    selectionState.mode = 'all'
   }
 }

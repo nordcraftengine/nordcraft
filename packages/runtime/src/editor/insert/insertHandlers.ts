@@ -1,14 +1,14 @@
-import { getDOMNodeFromNodeId } from '../../editor-preview.main'
 import { rectHasPoint } from '../../utils/rectHasPoint'
+import { getDOMNodeFromNodeId } from '../dom'
 import { removeDropHighlight } from '../drag-drop/dropHighlight'
 import { dragInsertEnded, dragInsertMove, dragInsertStarted } from '../helpers'
 import { postMessageToEditor } from '../postMessageToEditor'
-import type { DragInsertState } from '../types'
+import type { CanvasElementType, DragInsertState } from '../types'
 
 export const handleInsertStarted = (
   messageData: { x: number; y: number },
   highlightedNodeId: string | null,
-  elementType: 'text' | 'div',
+  elementType: CanvasElementType,
 ): DragInsertState | null => {
   const highlightedElement = getDOMNodeFromNodeId(highlightedNodeId)
   if (!highlightedElement?.parentElement) {

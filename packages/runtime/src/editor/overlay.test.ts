@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import '../happydom'
-import { getRectData } from './overlay'
+import { getRectData, getRepeatItemsData } from './overlay'
 
 describe('getRectData()', () => {
   test('it returns null if node is null', () => {
@@ -30,6 +30,33 @@ describe('getRectData()', () => {
     expect(data!.height).toBe(50)
     expect(data!.left).toBe(10)
     expect(data!.top).toBe(20)
+    expect(data!.border).toEqual(['0px', '0px', '0px', '0px'])
+    expect(data!.boundingClientRect).toEqual({
+      left: 10,
+      top: 20,
+      right: 110,
+      bottom: 70,
+      width: 100,
+      height: 50,
+      x: 10,
+      y: 20,
+    })
+
+    document.body.removeChild(el)
+  })
+
+  test('it returns border sizes in an array of size 4 [top, right, bottom, left]', () => {
+    const el = document.createElement('div')
+    document.body.appendChild(el)
+
+    el.style.borderTopWidth = '4px'
+    el.style.borderRightWidth = '8px'
+    el.style.borderBottomWidth = '10px'
+    el.style.borderLeftWidth = '5px'
+
+    const data = getRectData(el)
+    expect(data).not.toBeNull()
+    expect(data!.border).toEqual(['4px', '8px', '10px', '5px'])
 
     document.body.removeChild(el)
   })
@@ -133,6 +160,10 @@ describe('getRectData()', () => {
     expect(Math.abs(data!.height - 50)).toBeLessThan(0.1)
     expect(Math.abs(data!.left - 50)).toBeLessThan(0.1)
     expect(Math.abs(data!.top - 75)).toBeLessThan(0.1)
+    expect(data!.boundingClientRect.width).toBe(111.6025)
+    expect(data!.boundingClientRect.height).toBe(93.30125)
+    expect(data!.boundingClientRect.left).toBe(44.19875)
+    expect(data!.boundingClientRect.top).toBe(53.349375)
   })
 
   test.each([45, 135, 225, 315])(
@@ -734,6 +765,157 @@ describe('getRectData()', () => {
       expect(Math.abs(aabbCy - 250)).toBeGreaterThan(5)
       expect(Math.abs(cx - 250)).toBeLessThan(0.01)
       expect(Math.abs(cy - 250)).toBeLessThan(0.01)
+    })
+  })
+
+  describe('getRepeatItemsData()', () => {
+    test('it returns null if node has no data-id', () => {
+      const container = document.createElement('div')
+      const node = document.createElement('div')
+      container.appendChild(node)
+      document.body.appendChild(container)
+
+      expect(getRepeatItemsData(node)).toBeNull()
+      expect(getRectData(node)!.repeatItems).toBeNull()
+
+      document.body.removeChild(container)
+    })
+
+    test('it returns null if node has no parent', () => {
+      const node = document.createElement('div')
+      node.setAttribute('data-id', '0.0')
+
+      expect(getRepeatItemsData(node)).toBeNull()
+      expect(getRectData(node)!.repeatItems).toBeNull()
+    })
+
+    test('it returns null if node has no repeat siblings', () => {
+      const container = document.createElement('div')
+      const node = document.createElement('div')
+      node.setAttribute('data-id', '0.0')
+      const sibling = document.createElement('div')
+      sibling.setAttribute('data-id', '0.1')
+
+      container.appendChild(node)
+      container.appendChild(sibling)
+      document.body.appendChild(container)
+
+      expect(getRepeatItemsData(node)).toBeNull()
+      expect(getRectData(node)!.repeatItems).toBeNull()
+
+      document.body.removeChild(container)
+    })
+
+    test('it returns rect data for repeat items with (n) appended to data-id', () => {
+      const container = document.createElement('div')
+      const node = document.createElement('div')
+      node.setAttribute('data-id', '0.0')
+      node.getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        right: 100,
+        bottom: 50,
+        width: 100,
+        height: 50,
+        x: 0,
+        y: 0,
+        toJSON: () => {},
+      })
+
+      const repeat1 = document.createElement('div')
+      repeat1.setAttribute('data-id', '0.0(1)')
+      repeat1.getBoundingClientRect = () => ({
+        left: 0,
+        top: 60,
+        right: 100,
+        bottom: 110,
+        width: 100,
+        height: 50,
+        x: 0,
+        y: 60,
+        toJSON: () => {},
+      })
+
+      const repeat2 = document.createElement('div')
+      repeat2.setAttribute('data-id', '0.0(2)')
+      repeat2.getBoundingClientRect = () => ({
+        left: 0,
+        top: 120,
+        right: 100,
+        bottom: 170,
+        width: 100,
+        height: 50,
+        x: 0,
+        y: 120,
+        toJSON: () => {},
+      })
+
+      container.appendChild(node)
+      container.appendChild(repeat1)
+      container.appendChild(repeat2)
+      document.body.appendChild(container)
+
+      const repeatData = getRepeatItemsData(node)
+      expect(repeatData).not.toBeNull()
+      expect(repeatData).toHaveLength(2)
+      expect(repeatData![0]).toEqual({
+        left: 0,
+        top: 60,
+        right: 100,
+        bottom: 110,
+        width: 100,
+        height: 50,
+        x: 0,
+        y: 60,
+      })
+      expect(repeatData![1]).toEqual({
+        left: 0,
+        top: 120,
+        right: 100,
+        bottom: 170,
+        width: 100,
+        height: 50,
+        x: 0,
+        y: 120,
+      })
+
+      const fullData = getRectData(node)
+      expect(fullData!.repeatItems).toEqual(repeatData)
+
+      document.body.removeChild(container)
+    })
+
+    test('it does not include descendants of repeat items or unrelated siblings', () => {
+      const container = document.createElement('div')
+      const node = document.createElement('div')
+      node.setAttribute('data-id', '0.0')
+
+      const repeat1 = document.createElement('div')
+      repeat1.setAttribute('data-id', '0.0(1)')
+
+      // Nested child inside repeat1
+      const nestedChild = document.createElement('span')
+      nestedChild.setAttribute('data-id', '0.0(1).0')
+      repeat1.appendChild(nestedChild)
+
+      // Unrelated sibling with prefix match but different path
+      const unrelatedSibling = document.createElement('div')
+      unrelatedSibling.setAttribute('data-id', '0.00(1)')
+
+      const sibling2 = document.createElement('div')
+      sibling2.setAttribute('data-id', '0.0.1')
+
+      container.appendChild(node)
+      container.appendChild(repeat1)
+      container.appendChild(unrelatedSibling)
+      container.appendChild(sibling2)
+      document.body.appendChild(container)
+
+      const repeatData = getRepeatItemsData(node)
+      expect(repeatData).not.toBeNull()
+      expect(repeatData).toHaveLength(1)
+
+      document.body.removeChild(container)
     })
   })
 })
