@@ -36,7 +36,15 @@ export function createText({
   }
 
   const { value } = node
-  const elem = document.createElement('span')
+  let elem =
+    ctx.hydrate?.isHydrating &&
+    ctx.root.querySelector<HTMLElement>(`[data-hk="${path}"]`)
+  if (elem) {
+    elem.removeAttribute('data-hk')
+  } else {
+    elem = document.createElement('span')
+  }
+
   elem.setAttribute('data-node-id', id)
   if (typeof id === 'string') {
     elem.setAttribute('data-id', path)
