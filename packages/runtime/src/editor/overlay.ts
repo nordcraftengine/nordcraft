@@ -146,9 +146,7 @@ export function getRepeatItemsData(selectedNode: Element) {
     return null
   }
 
-  const parent =
-    selectedNode.parentElement ??
-    (selectedNode.parentNode as Element | DocumentFragment | ShadowRoot | null)
+  const parent = selectedNode.parentElement ?? selectedNode.parentNode
   if (!parent || !('children' in parent)) {
     return null
   }
@@ -330,10 +328,7 @@ function getTransformStyles(el: Element) {
     el instanceof HTMLElement || el instanceof SVGElement ? el.style : null
 
   const get = (name: 'transform' | 'rotate' | 'scale' | 'translate'): string =>
-    computed[name] ||
-    inline?.getPropertyValue(name) ||
-    (inline as any)?.[name] ||
-    'none'
+    computed[name] || inline?.getPropertyValue(name) || inline?.[name] || 'none'
 
   return {
     transform: get('transform'),

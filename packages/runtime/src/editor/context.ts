@@ -13,6 +13,28 @@ import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { getAttributeTestValues, getRouteTestValues } from './componentData'
 
+let cachedComponents: Component[] | null = null
+let componentMapCache = new Map<string, Component>()
+
+export function getComponentMap(
+  allComponents: Component[],
+): Map<string, Component> {
+  if (
+    allComponents !== cachedComponents &&
+    (allComponents.length !== cachedComponents?.length ||
+      allComponents.some((c, i) => c !== cachedComponents?.[i]))
+  ) {
+    cachedComponents = allComponents
+    componentMapCache = new Map(allComponents.map((c) => [c.name, c]))
+  }
+  return componentMapCache
+}
+
+export function resetComponentMapCache(): void {
+  cachedComponents = null
+  componentMapCache = new Map()
+}
+
 export function createStaticContextFromComponent(
   component: Component,
   allComponents: Component[],
@@ -21,18 +43,21 @@ export function createStaticContextFromComponent(
     package?: string
     env: ToddleEnv
     contextProvidersCreated?: Set<string>
+    componentMap?: Map<string, Component>
   },
 ): Record<string, Record<string, unknown>> {
   const contextProvidersCreated =
     options.contextProvidersCreated ?? new Set<string>()
   contextProvidersCreated.add(component.name)
+  const componentMap = options.componentMap ?? getComponentMap(allComponents)
+
   return mapObject(component.contexts ?? {}, ([providerName, context]) => {
     if (contextProvidersCreated.has(providerName)) {
       // Circular dependency detected in context-providers (ie. A -> B -> A -> ... or even just A -> A -> A ...), stop recursion
       return [providerName, {}]
     }
 
-    const providerComponent = allComponents.find((c) => c.name === providerName)
+    const providerComponent = componentMap.get(providerName)
     if (!providerComponent) {
       console.warn(
         `Could not find a provider-component named "${providerName}" in files`,
@@ -40,7 +65,6 @@ export function createStaticContextFromComponent(
       return [providerName, {}]
     }
 
-    // TODO: Should we also run APIs for the provider?
     const formulaContext: FormulaContext = {
       data: {
         Attributes: getAttributeTestValues(providerComponent.attributes),
@@ -51,6 +75,7 @@ export function createStaticContextFromComponent(
           {
             ...options,
             contextProvidersCreated,
+            componentMap,
           },
         ),
       },

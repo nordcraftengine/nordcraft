@@ -1,7 +1,14 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import { stripNodeIdRepeatIndices } from '../utils/nodes'
+import {
+  DATA_ATTR_COMPONENT,
+  DATA_ATTR_ID,
+  DATA_ATTR_NODE_TYPE,
+  DATA_NODE_TYPE_TEXT,
+} from './const'
 import { getDOMNodeFromNodeId, getNodeId, lookupNodeAndAncestors } from './dom'
 import { postMessageToEditor } from './postMessageToEditor'
+import type { EditorMode } from './types'
 
 export const handleCanvasPointerEvent = (options: {
   event: {
@@ -10,7 +17,7 @@ export const handleCanvasPointerEvent = (options: {
     type: string
     metaKey?: boolean
   }
-  mode: 'design' | 'test'
+  mode: EditorMode
   component: Component | null
   selectedNodeId: string | null
   highlightedNodeId: string | null
@@ -28,11 +35,11 @@ export const handleCanvasPointerEvent = (options: {
   const isMeta = Boolean(event.metaKey ?? metaKey)
   const elementsAtPoint = document.elementsFromPoint(x, y)
   const isSelectable = (elem: Element): boolean => {
-    const id = elem.getAttribute('data-id')
+    const id = elem.getAttribute(DATA_ATTR_ID)
     if (
       typeof id !== 'string' ||
       component === null ||
-      elem.getAttribute('data-component')
+      elem.getAttribute(DATA_ATTR_COMPONENT)
     ) {
       return false
     }
@@ -45,7 +52,7 @@ export const handleCanvasPointerEvent = (options: {
     if (!isSelectable(elem)) {
       return false
     }
-    if (elem.getAttribute('data-node-type') === 'text') {
+    if (elem.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT) {
       if (isMeta || type === 'dblclick') {
         return true
       }
@@ -58,11 +65,11 @@ export const handleCanvasPointerEvent = (options: {
     return true
   })
 
-  const id = element?.getAttribute('data-id') ?? null
+  const id = element?.getAttribute(DATA_ATTR_ID) ?? null
   const elementIsSameAsSelected = id && id === selectedNodeId
   if (
     elementIsSameAsSelected &&
-    element?.getAttribute('data-node-type') === 'text'
+    element?.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT
   ) {
     if (type === 'mousemove' && highlightedNodeId !== null) {
       postMessageToEditor({
@@ -109,7 +116,7 @@ export const handleCanvasPointerEvent = (options: {
     // Do not send highlight if cursor is inside current selectedElement and current selected element is a text type
     const selectedNode = getDOMNodeFromNodeId(selectedNodeId)
     const selectedNodeIsText =
-      selectedNode?.getAttribute('data-node-type') === 'text'
+      selectedNode?.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT
     const cursorInsideSelectedElement =
       selectedNode instanceof HTMLElement &&
       selectedNode.contains(document.elementFromPoint(x, y))

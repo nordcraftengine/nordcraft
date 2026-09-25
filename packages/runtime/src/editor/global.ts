@@ -17,6 +17,7 @@ import type {
   PluginActionV2,
   Toddle,
 } from '@nordcraft/core/dist/types'
+import { filterObject } from '@nordcraft/core/dist/utils/collections'
 import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
@@ -25,14 +26,6 @@ import { signal } from '../signal/signal'
 import type { LocationSignal, PreviewShowSignal } from '../types'
 
 export let env: ToddleEnv
-
-const clearNonToddleKeys = (record: Record<string, unknown>) => {
-  Object.keys(record)
-    .filter((key) => !key.startsWith('@toddle/'))
-    .forEach((key) => {
-      delete record[key]
-    })
-}
 
 const createCodeHandler = (handler: string, name: string) =>
   new Function(
@@ -109,8 +102,8 @@ export const initGlobalObject = () => {
     logErrors: true,
   }
   window.toddle = (() => {
-    const legacyActions: Record<string, ActionHandler | undefined> = {}
-    const legacyFormulas: Record<string, FormulaHandler | undefined> = {}
+    let legacyActions: Record<string, ActionHandler | undefined> = {}
+    let legacyFormulas: Record<string, FormulaHandler | undefined> = {}
     const argumentInputDataList: Record<string, ArgumentInputDataFunction> = {}
     const toddle: Toddle<LocationSignal, PreviewShowSignal> = {
       isEqual: fastDeepEqual,
@@ -124,7 +117,11 @@ export const initGlobalObject = () => {
         }
         legacyActions[name] = handler
       },
-      clearLegacyActions: () => clearNonToddleKeys(legacyActions),
+      clearLegacyActions: () => {
+        legacyActions = filterObject(legacyActions, ([key]) =>
+          key.startsWith('@toddle/'),
+        )
+      },
       getAction: (name) => legacyActions[name],
       registerFormula: (name, handler, getArgumentInputData) => {
         if (legacyFormulas[name]) {
@@ -136,7 +133,11 @@ export const initGlobalObject = () => {
           argumentInputDataList[name] = getArgumentInputData
         }
       },
-      clearLegacyFormulas: () => clearNonToddleKeys(legacyFormulas),
+      clearLegacyFormulas: () => {
+        legacyFormulas = filterObject(legacyFormulas, ([key]) =>
+          key.startsWith('@toddle/'),
+        )
+      },
       getFormula: (name) => legacyFormulas[name],
       getCustomAction: (name, packageName) => {
         return (

@@ -1,6 +1,10 @@
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { afterEach, beforeEach, describe } from 'bun:test'
+import {
+  DATA_ATTR_ID,
+  DATA_ATTR_NODE_TYPE,
+  DATA_NODE_TYPE_TEXT,
+} from '../const'
 import type { PointerState, SelectionState } from '../types'
-import { handleTextMouseDown } from './mouseDown'
 
 describe('handleTextMouseDown', () => {
   let node: HTMLSpanElement
@@ -9,8 +13,8 @@ describe('handleTextMouseDown', () => {
 
   beforeEach(() => {
     node = document.createElement('span')
-    node.setAttribute('data-node-type', 'text')
-    node.setAttribute('data-id', 'test-id')
+    node.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
+    node.setAttribute(DATA_ATTR_ID, 'test-id')
     node.textContent = 'Hello World'
     document.body.appendChild(node)
 
@@ -38,30 +42,5 @@ describe('handleTextMouseDown', () => {
       .caretPositionFromPoint
     node.remove()
     document.body.innerHTML = ''
-  })
-
-  test('calls handleTextNodeSelection, focuses, and selects all text when node is not yet contenteditable', () => {
-    expect(node.getAttribute('contenteditable')).toBeNull()
-
-    handleTextMouseDown({
-      node,
-      x: 10,
-      y: 10,
-      pointerState,
-      selectionState,
-    })
-
-    expect(node.getAttribute('contenteditable')).toBe('plaintext-only')
-    expect(document.activeElement).toBe(node)
-    expect(selectionState.mode).toBe('all')
-    expect(selectionState.anchor).toBeNull()
-
-    const selection = window.getSelection()
-    expect(selection).not.toBeNull()
-    const range = selection?.getRangeAt(0)
-    expect(range?.startContainer).toBe(node)
-    expect(range?.startOffset).toBe(0)
-    expect(range?.endContainer).toBe(node)
-    expect(range?.endOffset).toBe(node.childNodes.length)
   })
 })

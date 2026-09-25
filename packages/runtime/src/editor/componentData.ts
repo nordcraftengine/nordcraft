@@ -11,6 +11,7 @@ import {
 import type { Nullable } from '@nordcraft/core/dist/types'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { CanvasElementType, CanvasTool } from './types'
 
 export const EMPTY_COMPONENT_DATA: ComponentData = {
   Location: {
@@ -27,7 +28,7 @@ export const EMPTY_COMPONENT_DATA: ComponentData = {
 
 export const getAttributeTestValues = (
   attributes?: Nullable<Record<string, Nullable<ComponentAttribute>>>,
-): Record<string, unknown> =>
+) =>
   mapObject(
     filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
       attributes ?? {},
@@ -38,16 +39,17 @@ export const getAttributeTestValues = (
 
 export const getRouteParams = (
   route: NonNullable<Component['route']>,
-): Record<string, string> =>
-  Object.fromEntries(
-    route.path
-      .filter((p) => p.type === 'param')
-      .map((p) => [p.name, p.testValue]),
-  )
+): Record<string, string> => {
+  const params: Record<string, string> = {}
+  for (const p of route.path) {
+    if (p.type === 'param') {
+      params[p.name] = p.testValue
+    }
+  }
+  return params
+}
 
-export const getRouteQuery = (
-  route: NonNullable<Component['route']>,
-): Record<string, string> =>
+export const getRouteQuery = (route: NonNullable<Component['route']>) =>
   mapObject(
     route.query,
     ([name, { testValue }]: [string, { testValue: string }]) => [
@@ -62,13 +64,13 @@ export const getRouteTestValues = (route: NonNullable<Component['route']>) => ({
 })
 
 export const getElementTypeFromCanvasTool = (
-  canvasTool: string,
-): 'div' | 'text' => (canvasTool === 'insert-div' ? 'div' : 'text')
+  canvasTool: CanvasTool,
+): CanvasElementType => (canvasTool === 'insert-div' ? 'div' : 'text')
 
 export const getVariableInitialValues = (
   variables: Nullable<Record<string, Nullable<ComponentVariable>>>,
   context: FormulaContext,
-): Record<string, unknown> =>
+) =>
   mapObject(
     filterObject<Nullable<ComponentVariable>, ComponentVariable>(
       variables ?? {},

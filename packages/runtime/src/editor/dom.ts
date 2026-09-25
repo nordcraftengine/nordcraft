@@ -4,26 +4,34 @@ import {
   getNodeAndAncestors,
   isNodeOrAncestorConditional,
   stripNodeIdRepeatIndices,
-  type NodeAndAncestorLookup,
 } from '../utils/nodes'
+import {
+  DATA_ATTR_COMPONENT,
+  DATA_ATTR_ID,
+  DATA_ATTR_NODE_TYPE,
+  DATA_ATTR_REPEAT_SELECTED,
+  DATA_ATTR_SELECTED,
+  DATA_NODE_TYPE_TEXT,
+} from './const'
+import type { EditorMode } from './types'
 
 export function getDOMNodeFromNodeId(
   selectedNodeId: string | null | undefined,
-): Element | null {
+) {
   if (!selectedNodeId) {
     return null
   }
 
   return document.querySelector(
-    `[data-id="${stripNodeIdRepeatIndices(selectedNodeId)}"]:not([data-component])`,
+    `[${DATA_ATTR_ID}="${stripNodeIdRepeatIndices(selectedNodeId)}"]:not([${DATA_ATTR_COMPONENT}])`,
   )
 }
 
-export function getNodeId(component: Component, path: string[]): string | null {
+export function getNodeId(component: Component, path: string[]) {
   function getId(
     [nextChild, ...remainingPath]: string[],
     currentId: string | undefined,
-  ): string | null {
+  ) {
     if (nextChild === undefined || currentId === undefined) {
       return currentId ?? null
     }
@@ -40,7 +48,7 @@ export function getNodeId(component: Component, path: string[]): string | null {
 export const lookupNodeAndAncestors = (
   comp: Component | null,
   id: string | null,
-): NodeAndAncestorLookup | undefined => {
+) => {
   const root = comp?.nodes?.root
   if (!comp || !root || !id) {
     return undefined
@@ -55,12 +63,13 @@ export const lookupNodeAndAncestors = (
 export const getCurrentComponent = (
   component: Component | null,
   selectedNodeId: string | null,
-  mode: 'design' | 'test',
-): Component | null => {
-  const cloned = structuredClone(component)
-  if (!cloned) {
+  mode: EditorMode,
+) => {
+  if (!component) {
     return null
   }
+
+  const cloned = structuredClone(component)
   if (mode === 'design') {
     if (selectedNodeId !== null) {
       const nodeLookup = lookupNodeAndAncestors(cloned, selectedNodeId)
@@ -80,7 +89,7 @@ export const getCurrentComponent = (
 export const updateConditionalElements = (options: {
   selectedNodeId: string | null
   component: Component | null
-  mode: 'design' | 'test'
+  mode: EditorMode
   showSignal: Signal<{ displayedNodes: string[]; testMode: boolean }>
 }) => {
   const { selectedNodeId, component, mode, showSignal } = options
@@ -106,8 +115,8 @@ export const NC_EDITOR_HIGHLIGHTED_CLASS = 'nc-editor-highlighted'
 
 export function markHighlightedTextNode(options: {
   highlightedNodeId: string | null | undefined
-  selectedNodeId?: string | null | undefined
-  mode?: 'design' | 'test'
+  selectedNodeId: string | null | undefined
+  mode?: EditorMode
 }) {
   document.querySelectorAll(`.${NC_EDITOR_HIGHLIGHTED_CLASS}`).forEach((el) => {
     el.classList.remove(NC_EDITOR_HIGHLIGHTED_CLASS)
@@ -121,7 +130,7 @@ export function markHighlightedTextNode(options: {
 
   const node =
     document.querySelector(
-      `[data-id="${highlightedNodeId}"]:not([data-component])`,
+      `[${DATA_ATTR_ID}="${highlightedNodeId}"]:not([${DATA_ATTR_COMPONENT}])`,
     ) ?? getDOMNodeFromNodeId(highlightedNodeId)
 
   if (!node) {
@@ -129,14 +138,14 @@ export function markHighlightedTextNode(options: {
   }
 
   const isTextNode =
-    node.getAttribute('data-node-type') === 'text' &&
+    node.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT &&
     node.tagName.toLowerCase() === 'span'
   const isSelected =
-    node.hasAttribute('data-selected') ||
-    node.hasAttribute('data-repeat-selected') ||
+    node.hasAttribute(DATA_ATTR_SELECTED) ||
+    node.hasAttribute(DATA_ATTR_REPEAT_SELECTED) ||
     (Boolean(selectedNodeId) &&
       stripNodeIdRepeatIndices(selectedNodeId ?? null) ===
-        stripNodeIdRepeatIndices(node.getAttribute('data-id')))
+        stripNodeIdRepeatIndices(node.getAttribute(DATA_ATTR_ID)))
 
   if (isTextNode && !isSelected) {
     node.classList.add(NC_EDITOR_HIGHLIGHTED_CLASS)

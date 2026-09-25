@@ -12,6 +12,16 @@ import type {
 } from '@nordcraft/core/dist/types'
 import type { getRectData } from './overlay'
 
+export type EditorMode = 'design' | 'test'
+
+export type InsertDivTool = 'insert-div'
+export type InsertTextTool = 'insert-text'
+export type InsertCanvasTool = InsertDivTool | InsertTextTool
+export type CanvasTool = 'select' | 'pan' | InsertCanvasTool
+
+export type CanvasElementType = 'div' | 'text'
+export type InsertElementType = CanvasElementType
+
 export type NordcraftPreviewEvent =
   | {
       type: 'style_variant_changed'
@@ -53,7 +63,7 @@ export type NordcraftPreviewEvent =
       actions: Record<string, PluginActionV2 | PluginAction>
     }
   | { type: 'theme'; theme: Record<string, OldTheme | Theme> }
-  | { type: 'mode'; mode: 'design' | 'test' }
+  | { type: 'mode'; mode: EditorMode }
   | { type: 'attrs'; attrs: Record<string, unknown> }
   | { type: 'selection'; selectedNodeId: string | null }
   | { type: 'highlight'; highlightedNodeId: string | null }
@@ -63,7 +73,7 @@ export type NordcraftPreviewEvent =
       x: number
       y: number
       buttons: number
-      canvasTool: 'select' | 'pan' | 'insert-div' | 'insert-text'
+      canvasTool: CanvasTool
     }
   | { type: 'report_document_scroll_size' }
   | { type: 'reload' }
@@ -75,7 +85,7 @@ export type NordcraftPreviewEvent =
       type: 'insert-started'
       x: number
       y: number
-      canvasTool: 'select' | 'pan' | 'insert-div' | 'insert-text'
+      canvasTool: CanvasTool
     }
   | { type: 'insert-ended'; canceled?: true }
   | { type: 'keydown'; key: string; altKey: boolean; metaKey: boolean }

@@ -33,7 +33,10 @@ import {
 } from './editor/componentData'
 import {
   CSS_VAR_VIEWPORT_HEIGHT,
+  DATA_ATTR_MODE,
+  DATA_ATTR_NODE_TYPE,
   DATA_ATTR_VIEWPORT_HEIGHT,
+  DATA_NODE_TYPE_TEXT,
 } from './editor/const'
 import { createStaticContextFromComponent } from './editor/context'
 import {
@@ -83,6 +86,7 @@ import {
 } from './editor/timeline'
 import type {
   DragInsertState,
+  EditorMode,
   NordcraftPreviewEvent,
   PointerState,
   SelectionState,
@@ -114,7 +118,7 @@ export const createRoot = (
   let ctxDataSignal: Signal<ComponentData> | undefined
 
   let ctx: ComponentContext | null = null
-  let mode: 'design' | 'test' = 'design'
+  let mode: EditorMode = 'design'
   // Signal for overriding conditional elements when they're
   // selected in design mode and for reverting back to normal
   // in test mode
@@ -142,7 +146,7 @@ export const createRoot = (
     enabled?: boolean
   } = {}
   window.toddle._preview = { showSignal }
-  document.body.setAttribute('data-mode', 'design')
+  document.body.setAttribute(DATA_ATTR_MODE, 'design')
   let components: Component[] | null = null
   let packageComponents: Component[] | null = null
   const getAllComponents = () => [
@@ -444,7 +448,7 @@ export const createRoot = (
             .querySelector('[data-id="selected-node-styles"]')
             ?.remove()
           mode = message.data.mode
-          document.body.setAttribute('data-mode', message.data.mode)
+          document.body.setAttribute(DATA_ATTR_MODE, message.data.mode)
           updateConditionalElements({
             selectedNodeId,
             component,
@@ -518,7 +522,7 @@ export const createRoot = (
             if (
               node &&
               node instanceof HTMLElement &&
-              node.getAttribute('data-node-type') === 'text'
+              node.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT
             ) {
               requestAnimationFrame(() => {
                 handleTextNodeSelection(node, {
@@ -550,7 +554,7 @@ export const createRoot = (
 
           if (
             node &&
-            node.getAttribute('data-node-type') === 'text' &&
+            node.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT &&
             node instanceof HTMLElement
           ) {
             handleTextMouseDown({
@@ -589,7 +593,7 @@ export const createRoot = (
           if (
             node &&
             node instanceof HTMLElement &&
-            node.getAttribute('data-node-type') === 'text'
+            node.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT
           ) {
             const { x, y, buttons } = message.data
             const handled = handleTextMouseMove({

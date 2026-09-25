@@ -1,4 +1,4 @@
-import { CSS_VAR_SCROLL_HEIGHT } from './const'
+import { CSS_VAR_SCROLL_HEIGHT, DEFAULT_VIEWPORT_HEIGHT } from './const'
 import { postMessageToEditor } from './postMessageToEditor'
 
 export type ResizeCanvasOptions = {
@@ -82,7 +82,7 @@ export const resizeCanvas = (options: ResizeCanvasOptions = {}) => {
 
   _resizeCanvas({
     force: options.force ?? false,
-    viewport: { height: options.viewport?.height ?? 740 },
+    viewport: { height: options.viewport?.height ?? DEFAULT_VIEWPORT_HEIGHT },
   })
 
   flushPendingCallbacks()
@@ -117,7 +117,7 @@ export const requestResizeCanvas = (
     cancelRequestResizeCanvas = null
     _resizeCanvas({
       force: options.force ?? false,
-      viewport: { height: options.viewport?.height ?? 740 },
+      viewport: { height: options.viewport?.height ?? DEFAULT_VIEWPORT_HEIGHT },
     })
     flushPendingCallbacks()
   })
