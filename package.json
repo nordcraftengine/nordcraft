@@ -18,7 +18,7 @@
     "@types/bun": "1.4.2",
     "@typescript-eslint/eslint-plugin": "8.70.0",
     "@typescript-eslint/parser": "8.70.0",
-    "@typescript/native-preview": "7.0.0-dev.20260318.1",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "esbuild": "0.28.1",
     "eslint": "10.11.0",
     "happy-dom": "20.14.5",
