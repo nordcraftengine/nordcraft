@@ -62,7 +62,7 @@
         "@webref/elements": "2.7.1",
         "@webref/events": "1.20.0",
         "css-tree": "3.2.1",
-        "mdn-data": "2.29.0",
+        "mdn-data": "2.36.0",
       },
     },
     "packages/lib": {
@@ -527,7 +527,7 @@
 
     "locate-path": ["locate-path@6.0.0", "", { "dependencies": { "p-locate": "^5.0.0" } }, "sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw=="],
 
-    "mdn-data": ["mdn-data@2.29.0", "", {}, "sha512-pVxQFCcaYUEAH853+v7yoI/qzhxXSq1bTb9obMYGYAN1c3Hen+XDCEvr296XhstrwlSTNgOR7mCSD4JPjbJe5A=="],
+    "mdn-data": ["mdn-data@2.36.0", "", {}, "sha512-EdCTmJ/7XyvlyqkbL0iHDbK/4b1f1qsZb3+jSihfwfxepmeBfQB7m6nQj6iLv0te037dqYCkbQe+/q0PxWdIOA=="],
 
     "miniflare": ["miniflare@5.20260918.0-alpha", "", { "dependencies": { "@cspotcode/source-map-support": "0.8.1", "sharp": "0.35.4", "undici": "7.29.0", "workerd": "1.20260918.1", "ws": "8.21.0", "youch": "4.1.0-beta.10" } }, "sha512-vyIes7yW/OTzHtz4GhcBCTohZfqk2eQNiIkngZ07VRA5Qu24aNgW/TrFwlPkMLMjWDQ8R4JJBBHR/KX+liSDtg=="],
 
