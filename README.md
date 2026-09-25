@@ -28,6 +28,56 @@ Install using [bun](https://bun.sh/) by running `bun install`
 - Lint: `bun lint`
 - Check types: `bun typecheck`
 - Build: `bun run build` <-- builds all packages
+- Run one SSR case: `bun bin/ssrBenchmark.ts --case=formula --repeat=15 --json=true`
+- Compare an SSR branch with its base: `bun bin/runSsrBenchmarks.ts --base-ref=origin/main`
+- Compare previously captured benchmark directories: `bun run benchmark:ssr:compare --base-dir=/tmp/base --head-dir=/tmp/head`
+- Run benchmark unit tests: `bun run test:benchmarks`
+
+### SSR performance in PRs
+
+The SSR benchmark workflow runs on pull requests that change `packages/core/**`,
+`packages/ssr/**`, the shared benchmark code, or the benchmark runner. It builds a
+worktree for the PR base, runs persistent Bun workers for both revisions, and compares
+interleaved samples using the same statistics and verdicts as the runtime benchmark.
+
+- Workflow: `.github/workflows/ssr_benchmark.yml`
+- Cases included:
+  - `core.applyFormula (complex mix, 3k evals)`
+  - `ssr.renderPageBody (collections hot path)`
+  - `ssr.renderPageBody (example project HomePage)`
+- Samples are reported as milliseconds per operation. `--repeat` controls how many
+  case executions are included in each measured sample.
+- Reports contain median/IQR values, a 95% bootstrap confidence interval, a Welch
+  p-value, and a shared regression verdict.
+- A regression is reported only when it is statistically significant and exceeds both
+  the percentage and absolute thresholds.
+
+To run the full comparison locally:
+
+```sh
+bun bin/runSsrBenchmarks.ts \
+  --base-ref=origin/main \
+  --runs=25 \
+  --warmup=5 \
+  --repeat=15 \
+  --output-dir=/tmp/ssr-benchmark-data
+```
+
+The runner writes raw samples to `head/*.json` and `base/*.json`, plus
+`ssr-benchmark-report.md` and `ssr-benchmark-report.json`. Use
+`--export-markdown=...` and `--export-json=...` to choose the report paths. The
+default comparison uses `--base-ref=origin/main`; pass `--base-ref=` with
+`--skip-build=true` for a head-only run. Head-only results are labeled `A/A mode`
+rather than byte-identical. Use `--keep-worktree=true` while debugging worktree setup.
+
+Useful comparison options:
+
+- `--runs=20` (measured samples per case; default)
+- `--warmup=4` (warmup samples per case; default)
+- `--repeat=1` (executions per measured sample; default)
+- `--max-regression-percent=3.0 --max-regression-ms=1.0`
+- `--noise-threshold-percent=1.5`
+- `--fail-on-regression=false` (generate a report without failing the process)
 
 ## Status
 
