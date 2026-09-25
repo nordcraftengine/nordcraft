@@ -26,13 +26,9 @@ async function initHarness() {
   project = loadedProject
   nordcraftProject = loadedNordcraft
 
-  try {
-    customElementRuntime = await import(
-      `/bundle/${version}/custom-element.main.esm.js`
-    )
-  } catch (err) {
-    console.warn('Custom element runtime could not be loaded:', err)
-  }
+  customElementRuntime = await import(
+    `/bundle/${version}/custom-element.main.esm.js`
+  )
 
   window.__nordcraftProject = nordcraftProject
   window.__benchmarkProject = project
@@ -188,7 +184,7 @@ const cases = {
    */
   async 'custom-element'() {
     if (!customElementRuntime?.defineComponents) {
-      return
+      throw new Error('Custom element runtime is unavailable')
     }
 
     const app = document.getElementById('App')

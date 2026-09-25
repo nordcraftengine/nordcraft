@@ -11,9 +11,17 @@ on:
       - 'packages/runtime/**'
       - 'packages/lib/**'
       - 'packages/core/**'
+  pull_request:
+    paths:
+      - '.github/workflows/runtime_benchmark.yml'
+      - 'benchmarks/**'
+      - 'bin/runRuntimeBenchmark.ts'
+      - 'packages/runtime/**'
+      - 'packages/lib/**'
+      - 'packages/core/**'
 
 concurrency:
-  group: '${{ github.workflow }} @ ${{ github.head_ref || github.ref }}'
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
   cancel-in-progress: true
 
 permissions:
@@ -24,12 +32,35 @@ jobs:
   benchmark:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR head
+      - name: Checkout benchmark head
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
 
-      - name: Install bun
+      - name: Resolve base commit
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BASE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            BASE_SHA="$PR_BASE_SHA"
+          else
+            BASE_SHA="$PUSH_BASE_SHA"
+            if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+              BASE_SHA="origin/main"
+            fi
+          fi
+
+          if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            git fetch --no-tags origin "$BASE_SHA"
+          fi
+          echo "BASE_SHA=$BASE_SHA" >> "$GITHUB_ENV"
+
+      - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.2
@@ -42,7 +73,6 @@ jobs:
 
       - name: Cache Playwright Chromium
         uses: actions/cache@v6
-        id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('bun.lock') }}
@@ -52,19 +82,24 @@ jobs:
 
       - name: Run Runtime Benchmark
         id: benchmark_run
+        continue-on-error: true
         run: |
           bun bin/runRuntimeBenchmark.ts \
-            --base-ref=origin/main \
+            --base-ref="$BASE_SHA" \
             --runs=25 \
             --warmup=5 \
             --max-regression-percent=3.0 \
             --max-regression-ms=1.0 \
             --noise-threshold-percent=1.5 \
-            --fail-on-regression=false \
+            --bootstrap-iterations=1000 \
+            --bootstrap-seed=0 \
+            --fail-on-regression=true \
             --export-markdown=/tmp/runtime-benchmark-report.md \
             --export-json=/tmp/runtime-benchmark-report.json
 
-      - name: Publish Step Summary
+      - name: Publish step summary
+        if: always()
+        continue-on-error: true
         run: |
           if [ -f /tmp/runtime-benchmark-report.md ]; then
             tee -a "$GITHUB_STEP_SUMMARY" < /tmp/runtime-benchmark-report.md
@@ -73,84 +108,42 @@ jobs:
             echo "⚠️ Benchmark report could not be generated." >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Comment on Pull Request
+      - name: Comment on pull request
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
         uses: actions/github-script@v9
         with:
           script: |
-            const fs = require('node:fs');
-            const reportPath = '/tmp/runtime-benchmark-report.md';
-            if (!fs.existsSync(reportPath)) {
-              console.log('No benchmark report found at', reportPath);
-              return;
-            }
-            const report = fs.readFileSync(reportPath, 'utf8');
-            const marker = '<!-- nordcraft-runtime-benchmark -->';
-            const body = `${marker}\n${report}`;
-
-            let prNumber = context.payload.pull_request?.number;
-
-            if (!prNumber) {
-              try {
-                const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  commit_sha: context.sha,
-                });
-                const openPr = prs.find((p) => p.state === 'open');
-                if (openPr) {
-                  prNumber = openPr.number;
-                }
-              } catch (e) {
-                console.log('Could not list PRs for commit:', e.message);
-              }
-            }
-
-            if (!prNumber) {
-              const branch = context.ref.replace('refs/heads/', '');
-              try {
-                const { data: prs } = await github.rest.pulls.list({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  head: `${context.repo.owner}:${branch}`,
-                  state: 'open',
-                });
-                if (prs.length > 0) {
-                  prNumber = prs[0].number;
-                }
-              } catch (e) {
-                console.log('Could not list PRs for branch:', e.message);
-              }
-            }
-
-            if (!prNumber) {
-              console.log('No associated open pull request found. Skipping PR comment.');
-              return;
-            }
+            const fs = require('node:fs')
+            const reportPath = '/tmp/runtime-benchmark-report.md'
+            const report = fs.existsSync(reportPath)
+              ? fs.readFileSync(reportPath, 'utf8')
+              : '## Runtime Benchmark\n\n:warning: Benchmark report could not be generated. Check the workflow logs.'
+            const marker = '<!-- nordcraft-runtime-benchmark -->'
+            const body = `${marker}\n${report}`
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: prNumber,
+              issue_number: context.issue.number,
               per_page: 100,
-            });
+            })
+            const existing = comments.find((comment) => comment.body?.includes(marker))
 
-            const existing = comments.find((c) => c.body && c.body.includes(marker));
             if (existing) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: existing.id,
                 body,
-              });
-              console.log(`Updated benchmark comment on PR #${prNumber}`);
+              })
             } else {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: prNumber,
+                issue_number: context.issue.number,
                 body,
-              });
-              console.log(`Created benchmark comment on PR #${prNumber}`);
+              })
             }
 
       - name: Upload benchmark artifacts
@@ -162,3 +155,11 @@ jobs:
           path: |
             /tmp/runtime-benchmark-report.md
             /tmp/runtime-benchmark-report.json
+
+      - name: Enforce runtime benchmark result
+        if: always()
+        run: |
+          if [ "${{ steps.benchmark_run.outcome }}" != "success" ]; then
+            echo "Runtime benchmark failed or reported a regression." >&2
+            exit 1
+          fi

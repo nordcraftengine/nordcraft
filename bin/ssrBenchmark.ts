@@ -1,7 +1,20 @@
+import { createInterface } from 'node:readline'
+
+import {
+  getBoolean,
+  getNonNegativeInteger,
+  getOptionalString,
+  getPositiveInteger,
+  parseBenchmarkArgs,
+} from '../benchmarks/cli'
+import {
+  isSsrBenchmarkCaseId,
+  ssrBenchmarkUsage,
+  type SsrBenchmarkCaseId,
+} from '../benchmarks/ssrCases'
 import type {
   Component,
   ComponentData,
-  ComponentVariable,
   PageComponent,
 } from '../packages/core/dist/component/component.types'
 import type { FormulaContext } from '../packages/core/dist/formula/formula'
@@ -17,38 +30,74 @@ import {
 } from '../packages/ssr/dist/rendering/formulaContext'
 import type { ProjectFiles } from '../packages/ssr/dist/ssr.types'
 
-type ExampleProject = {
+type BenchmarkProject = {
   files: ProjectFiles
 }
 
-const args = new Map(
-  Bun.argv.slice(2).map((arg) => {
-    const [key, value] = arg.split('=')
-    return [key, value]
-  }),
-)
+type BenchmarkRunner = () => Promise<void>
 
-type CaseId = 'formula' | 'collections-hot-path' | 'example-project-homepage'
+type WorkerRequest = { type: 'close' } | { type: 'run'; count?: number }
 
-const repeatCount = Number(args.get('--repeat') ?? 1)
-if (!Number.isInteger(repeatCount) || repeatCount < 1) {
-  throw new Error('--repeat must be a positive integer')
-}
+type WorkerResponse = { timeMs: number } | { error: string }
 
-const isCaseId = (value: string | undefined): value is CaseId =>
-  value === 'formula' ||
-  value === 'collections-hot-path' ||
-  value === 'example-project-homepage'
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null
 
-const caseIdValue = args.get('--case')
-if (!isCaseId(caseIdValue)) {
-  throw new Error(
-    'Usage: bun bin/ssrBenchmark.ts --case=<formula|collections-hot-path|example-project-homepage>',
+const isWorkerRequest = (value: unknown): value is WorkerRequest => {
+  if (!isRecord(value) || typeof value.type !== 'string') {
+    return false
+  }
+  if (value.type === 'close') {
+    return !('count' in value)
+  }
+  return (
+    value.type === 'run' &&
+    (value.count === undefined ||
+      (typeof value.count === 'number' &&
+        Number.isInteger(value.count) &&
+        value.count >= 1))
   )
 }
-const caseId = caseIdValue
 
-const createFormulaCase = () => {
+type SsrArgs = {
+  caseId: SsrBenchmarkCaseId
+  repeat: number
+  isWorker: boolean
+  runs: number
+  warmup: number
+  outputPath?: string
+  json: boolean
+}
+
+export const parseSsrArgs = (
+  argv: readonly string[] = Bun.argv.slice(2),
+): SsrArgs => {
+  const args = parseBenchmarkArgs(argv)
+  const caseId = args.get('--case')
+  if (!isSsrBenchmarkCaseId(caseId)) {
+    throw new Error(`Usage: bun bin/ssrBenchmark.ts ${ssrBenchmarkUsage()}`)
+  }
+
+  return {
+    caseId,
+    repeat: getPositiveInteger(args, '--repeat', 1),
+    isWorker: getBoolean(args, '--worker', false),
+    runs: getPositiveInteger(args, '--runs', 1),
+    warmup: getNonNegativeInteger(args, '--warmup', 0),
+    outputPath: getOptionalString(args, '--output'),
+    json: getBoolean(args, '--json', false),
+  }
+}
+
+const loadProjectFixture = async (fileName: string) => {
+  const fixtureUrl = new URL(
+    `../benchmarks/browser/fixtures/${fileName}`,
+    import.meta.url,
+  )
+  return (await Bun.file(fixtureUrl).json()) as BenchmarkProject
+}
+
+const createFormulaCase = (): BenchmarkRunner => {
   const data: ComponentData & {
     values: Array<{
       id: number
@@ -212,7 +261,7 @@ const createFormulaCase = () => {
     }),
   }
 
-  return () => {
+  return async () => {
     let sum = 0
     for (let i = 0; i < 3_000; i++) {
       const index = i % data.values.length
@@ -229,303 +278,85 @@ const createFormulaCase = () => {
   }
 }
 
-const createCollectionsHotPathRenderCase = () => {
-  const items = Array.from({ length: 80 }, (_, i) => ({
-    title: `Card ${i}`,
-    subtitle: `Item ${i} subtitle`,
-    important: i % 7 === 0,
-    score: i,
-    weight: i % 13,
-  }))
+const isPageComponent = (
+  component: Component | undefined,
+): component is PageComponent =>
+  component?.route !== undefined && component.route !== null
 
-  const variables: Record<string, ComponentVariable> = {}
-  for (let i = 0; i < 24; i++) {
-    variables[`var${i}`] = {
-      initialValue: {
-        type: 'switch',
-        cases: [
-          {
-            condition: {
-              type: 'path',
-              path: ['Attributes', 'important'],
-            },
-            formula: {
-              type: 'object',
-              arguments: [
-                {
-                  name: 'kind',
-                  formula: {
-                    type: 'value',
-                    value: 'featured',
-                  },
-                },
-                {
-                  name: 'score',
-                  formula: {
-                    type: 'path',
-                    path: ['Attributes', 'score'],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-        default: {
-          type: 'object',
-          arguments: [
-            {
-              name: 'kind',
-              formula: {
-                type: 'value',
-                value: 'normal',
-              },
-            },
-            {
-              name: 'score',
-              formula: {
-                type: 'path',
-                path: ['Attributes', 'weight'],
-              },
-            },
-          ],
-        },
-      },
+const createCollectionsHotPathRenderCase =
+  async (): Promise<BenchmarkRunner> => {
+    const project = await loadProjectFixture('benchmark-project.json')
+    const files = project.files
+    const page = files.components.HomePage
+
+    if (!isPageComponent(page)) {
+      throw new Error('No HomePage component found in benchmark project')
     }
-  }
 
-  const itemComponent: Component = {
-    name: 'HeavyItem',
-    formulas: {
-      summary: {
-        name: 'summary',
-        exposeInContext: true,
-        formula: {
-          type: 'object',
-          arguments: [
-            {
-              name: 'title',
-              formula: {
-                type: 'path',
-                path: ['Attributes', 'title'],
-              },
-            },
-            {
-              name: 'priority',
-              formula: {
-                type: 'switch',
-                cases: [
-                  {
-                    condition: {
-                      type: 'path',
-                      path: ['Attributes', 'important'],
-                    },
-                    formula: {
-                      type: 'value',
-                      value: 'high',
-                    },
-                  },
-                ],
-                default: {
-                  type: 'value',
-                  value: 'normal',
-                },
-              },
-            },
-          ],
-        },
-      },
-    },
-    variables,
-    nodes: {
-      root: {
-        type: 'element',
-        tag: 'article',
-        attrs: {},
-        classes: {
-          featured: {
-            formula: {
-              type: 'path',
-              path: ['Attributes', 'important'],
-            },
-          },
-        },
-        events: {},
-        style: {},
-        children: ['title', 'subtitle', 'badge'],
-      },
-      title: {
-        type: 'text',
-        value: {
-          type: 'path',
-          path: ['Attributes', 'title'],
-        },
-      },
-      subtitle: {
-        type: 'text',
-        value: {
-          type: 'path',
-          path: ['Attributes', 'subtitle'],
-        },
-      },
-      badge: {
-        type: 'text',
-        value: {
-          type: 'switch',
-          cases: [
-            {
-              condition: {
-                type: 'path',
-                path: ['Attributes', 'important'],
-              },
-              formula: {
-                type: 'value',
-                value: 'important',
-              },
-            },
-          ],
-          default: {
-            type: 'value',
-            value: 'normal',
-          },
-        },
-      },
-    },
-    apis: {},
-    attributes: {
-      title: { name: 'title', testValue: 't' },
-      subtitle: { name: 'subtitle', testValue: 's' },
-      important: { name: 'important', testValue: true },
-      score: { name: 'score', testValue: 0 },
-      weight: { name: 'weight', testValue: 0 },
-    },
-    events: [],
-  }
-
-  const pageComponent: PageComponent = {
-    name: 'BenchmarkPage',
-    route: {
-      path: [],
-      query: {},
-    },
-    nodes: {
-      root: {
-        type: 'element',
-        tag: 'main',
-        attrs: {},
-        events: {},
-        style: {},
-        children: ['list'],
-      },
-      list: {
-        type: 'component',
-        name: 'HeavyItem',
-        repeat: {
-          type: 'path',
-          path: ['Attributes', 'items'],
-        },
-        attrs: {
-          title: {
-            type: 'path',
-            path: ['ListItem', 'Item', 'title'],
-          },
-          subtitle: {
-            type: 'path',
-            path: ['ListItem', 'Item', 'subtitle'],
-          },
-          important: {
-            type: 'path',
-            path: ['ListItem', 'Item', 'important'],
-          },
-          score: {
-            type: 'path',
-            path: ['ListItem', 'Item', 'score'],
-          },
-          weight: {
-            type: 'path',
-            path: ['ListItem', 'Item', 'weight'],
-          },
-        },
-        children: [],
-        events: {},
-        style: {},
-      },
-    },
-    formulas: {},
-    apis: {},
-    attributes: {
-      items: { name: 'items', testValue: [] },
-    },
-    variables: {},
-    events: [],
-  }
-
-  const files: ProjectFiles = {
-    components: {
-      BenchmarkPage: pageComponent,
-      HeavyItem: itemComponent,
-    },
-    formulas: {},
-    packages: {},
-  }
-
-  const req = new Request('http://localhost/benchmark')
-
-  return async () => {
-    const formulaContext = getPageFormulaContext({
-      component: pageComponent,
-      branchName: 'main',
-      req,
-      logErrors: false,
-      files,
+    const pageComponent: PageComponent = page
+    const items = Array.from({ length: 80 }, (_, i) => ({
+      id: `item-${i}`,
+      title: `Card ${i}`,
+    }))
+    const includedComponents = takeIncludedComponents({
+      packages: files.packages,
+      root: pageComponent,
+      includeRoot: true,
+      projectComponents: files.components,
     })
-    formulaContext.data.Attributes = {
-      ...(formulaContext.data.Attributes ?? {}),
-      items,
-    }
+    const req = new Request('http://localhost/benchmark')
 
-    const result = await renderPageBody({
-      component: pageComponent,
-      env: formulaContext.env,
-      evaluateComponentApis: async () => ({}),
-      files,
-      formulaContext,
-      includedComponents: [pageComponent, itemComponent],
-      req,
-      projectId: 'benchmark-project',
-    })
+    return async () => {
+      const formulaContext = getPageFormulaContext({
+        component: pageComponent,
+        branchName: 'main',
+        req,
+        logErrors: false,
+        files,
+      })
+      formulaContext.data.Variables = {
+        ...formulaContext.data.Variables,
+        items,
+      }
 
-    if (result.html.length === 0) {
-      throw new Error('Empty HTML from benchmark case')
+      const result = await renderPageBody({
+        component: pageComponent,
+        env: formulaContext.env,
+        evaluateComponentApis: async () => ({}),
+        files,
+        formulaContext,
+        includedComponents,
+        req,
+        projectId: 'benchmark-project',
+      })
+
+      if (result.html.length === 0) {
+        throw new Error('Empty HTML from collections benchmark case')
+      }
     }
   }
-}
 
-const createProjectRenderCase = async () => {
-  const projectPath = new URL(
-    '../packages/backend/__project__/nordcraft_website.json',
-    import.meta.url,
-  ).pathname
-  const exampleProject = JSON.parse(
-    await Bun.file(projectPath).text(),
-  ) as ExampleProject
-  const files = exampleProject.files
+const createProjectRenderCase = async (): Promise<BenchmarkRunner> => {
+  const project = await loadProjectFixture('nordcraft.com.json')
+  const files = project.files
   const page = files.components.nordcraft
 
-  if (!page || !page.route) {
+  if (!isPageComponent(page)) {
     throw new Error('No page component found in example project')
   }
 
+  const pageComponent: PageComponent = page
   const req = new Request('http://localhost/')
   const includedComponents = takeIncludedComponents({
     packages: files.packages,
-    root: page,
+    root: pageComponent,
     includeRoot: true,
     projectComponents: files.components,
   })
 
   return async () => {
     const formulaContext = getPageFormulaContext({
-      component: page,
+      component: pageComponent,
       branchName: 'main',
       req,
       logErrors: false,
@@ -533,14 +364,14 @@ const createProjectRenderCase = async () => {
     })
 
     const result = await renderPageBody({
-      component: page,
+      component: pageComponent,
       env: formulaContext.env,
       evaluateComponentApis: async () => ({}),
       files,
       formulaContext,
       includedComponents,
       req,
-      projectId: 'sample_test_os_project',
+      projectId: 'nordcraft',
     })
 
     if (result.html.length === 0) {
@@ -549,29 +380,114 @@ const createProjectRenderCase = async () => {
   }
 }
 
-switch (caseId) {
-  case 'formula': {
-    const runner = createFormulaCase()
-    for (let i = 0; i < repeatCount; i++) {
-      runner()
+export const createRunner = async (id: SsrBenchmarkCaseId) => {
+  switch (id) {
+    case 'formula':
+      return createFormulaCase()
+    case 'collections-hot-path':
+      return createCollectionsHotPathRenderCase()
+    case 'example-project-homepage':
+      return createProjectRenderCase()
+  }
+}
+
+const collectGarbage = () => {
+  if (typeof Bun !== 'undefined' && typeof Bun.gc === 'function') {
+    Bun.gc(true)
+  }
+}
+
+const measure = async (runner: BenchmarkRunner, repeat: number, count = 1) => {
+  collectGarbage()
+  const start = performance.now()
+  for (let i = 0; i < count * repeat; i++) {
+    await runner()
+  }
+  return (performance.now() - start) / (count * repeat)
+}
+
+const writeWorkerResponse = (response: WorkerResponse) => {
+  process.stdout.write(`${JSON.stringify(response)}\n`)
+}
+
+const runWorker = async (runner: BenchmarkRunner, repeat: number) => {
+  const input = createInterface({ input: process.stdin })
+
+  for await (const line of input) {
+    if (!line.trim()) {
+      continue
     }
-    break
-  }
-  case 'collections-hot-path': {
-    const runner = createCollectionsHotPathRenderCase()
-    for (let i = 0; i < repeatCount; i++) {
-      await runner()
+
+    let request: unknown
+    try {
+      request = JSON.parse(line) as unknown
+    } catch (error) {
+      writeWorkerResponse({
+        error: error instanceof Error ? error.message : String(error),
+      })
+      continue
     }
-    break
-  }
-  case 'example-project-homepage': {
-    const runner = await createProjectRenderCase()
-    for (let i = 0; i < repeatCount; i++) {
-      await runner()
+
+    if (!isWorkerRequest(request)) {
+      writeWorkerResponse({ error: 'Invalid worker request' })
+      continue
     }
-    break
+
+    if (request.type === 'close') {
+      break
+    }
+
+    if (request.type !== 'run') {
+      writeWorkerResponse({ error: `Unknown worker command: ${request.type}` })
+      continue
+    }
+
+    try {
+      const count = request.count ?? 1
+      if (!Number.isInteger(count) || count < 1) {
+        throw new Error('Worker run count must be a positive integer')
+      }
+      writeWorkerResponse({ timeMs: await measure(runner, repeat, count) })
+    } catch (error) {
+      writeWorkerResponse({
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
   }
-  default: {
-    throw new Error(`Unknown benchmark case: ${caseId}`)
+}
+
+const runDirect = async (runner: BenchmarkRunner, options: SsrArgs) => {
+  for (let i = 0; i < options.warmup; i++) {
+    await measure(runner, options.repeat)
   }
+
+  const timesMs: number[] = []
+  for (let i = 0; i < options.runs; i++) {
+    timesMs.push(await measure(runner, options.repeat))
+  }
+  const result = {
+    caseId: options.caseId,
+    repeat: options.repeat,
+    timesMs,
+  }
+
+  if (options.outputPath) {
+    await Bun.write(options.outputPath, `${JSON.stringify(result, null, 2)}\n`)
+  } else if (options.json) {
+    process.stdout.write(`${JSON.stringify(result)}\n`)
+  }
+}
+
+export const main = async (argv: readonly string[] = Bun.argv.slice(2)) => {
+  const options = parseSsrArgs(argv)
+  const runner = await createRunner(options.caseId)
+  if (options.isWorker) {
+    await runWorker(runner, options.repeat)
+  } else {
+    await runDirect(runner, options)
+  }
+}
+
+if (import.meta.main) {
+  await main()
 }

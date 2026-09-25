@@ -28,57 +28,56 @@ Install using [bun](https://bun.sh/) by running `bun install`
 - Lint: `bun lint`
 - Check types: `bun typecheck`
 - Build: `bun run build` <-- builds all packages
-- Benchmark SSR: `bun run benchmark:ssr`
-- Compare two benchmark runs: `bun run benchmark:ssr:compare --base=/tmp/base.json --head=/tmp/head.json`
-- Run full local benchmark suite: `bun run benchmark:ssr:run`
+- Run one SSR case: `bun bin/ssrBenchmark.ts --case=formula --repeat=15 --json=true`
+- Compare an SSR branch with its base: `bun bin/runSsrBenchmarks.ts --base-ref=origin/main`
+- Compare previously captured benchmark directories: `bun run benchmark:ssr:compare --base-dir=/tmp/base --head-dir=/tmp/head`
+- Run benchmark unit tests: `bun run test:benchmarks`
 
 ### SSR performance in PRs
 
-We run an SSR benchmark workflow on pull requests and compare median render times between the PR branch and the PR base commit.
-
-Benchmark timing/stats are measured by `hyperfine` and exported as one JSON file per case for both base and head.
-Each benchmark process also executes the selected case multiple times (`--repeat`) to make each run more stable.
+The SSR benchmark workflow runs on pull requests that change `packages/core/**`,
+`packages/ssr/**`, the shared benchmark code, or the benchmark runner. It builds a
+worktree for the PR base, runs persistent Bun workers for both revisions, and compares
+interleaved samples using the same statistics and verdicts as the runtime benchmark.
 
 - Workflow: `.github/workflows/ssr_benchmark.yml`
 - Cases included:
   - `core.applyFormula (complex mix, 3k evals)`
   - `ssr.renderPageBody (collections hot path)`
   - `ssr.renderPageBody (example project HomePage)`
-- Default regression threshold: `5%` and `1.0 ms` on median `ms/op`
-  - A benchmark only fails when both thresholds are exceeded, which reduces false positives on tiny absolute regressions.
+- Samples are reported as milliseconds per operation. `--repeat` controls how many
+  case executions are included in each measured sample.
+- Reports contain median/IQR values, a 95% bootstrap confidence interval, a Welch
+  p-value, and a shared regression verdict.
+- A regression is reported only when it is statistically significant and exceeds both
+  the percentage and absolute thresholds.
 
-To run locally and compare two branches manually:
+To run the full comparison locally:
 
-1. Generate a baseline file:
-   - `bun run build`
-   - `bun run benchmark:ssr --output=/tmp/ssr-base.json`
-2. Switch branch/commit and generate a head file:
-   - `bun run build`
-   - `bun run benchmark:ssr --output=/tmp/ssr-head.json`
-3. Compare:
-   - `bun run benchmark:ssr:compare --base-dir=/tmp/ssr-base --head-dir=/tmp/ssr-head --max-regression-percent=5 --max-regression-ms=1.0`
+```sh
+bun bin/runSsrBenchmarks.ts \
+  --base-ref=origin/main \
+  --runs=25 \
+  --warmup=5 \
+  --repeat=15 \
+  --output-dir=/tmp/ssr-benchmark-data
+```
 
-To generate local hyperfine outputs manually:
+The runner writes raw samples to `head/*.json` and `base/*.json`, plus
+`ssr-benchmark-report.md` and `ssr-benchmark-report.json`. Use
+`--export-markdown=...` and `--export-json=...` to choose the report paths. The
+default comparison uses `--base-ref=origin/main`; pass `--base-ref=` with
+`--skip-build=true` for a head-only run. Head-only results are labeled `A/A mode`
+rather than byte-identical. Use `--keep-worktree=true` while debugging worktree setup.
 
-- `mkdir -p /tmp/ssr-head /tmp/ssr-base`
-- `hyperfine --warmup 3 --runs 30 --export-json /tmp/ssr-head/formula.json 'bun bin/ssrBenchmark.ts --case=formula'`
-- `hyperfine --warmup 3 --runs 30 --export-json /tmp/ssr-head/collections-hot-path.json 'bun bin/ssrBenchmark.ts --case=collections-hot-path'`
-- `hyperfine --warmup 3 --runs 30 --export-json /tmp/ssr-head/example-project-homepage.json 'bun bin/ssrBenchmark.ts --case=example-project-homepage'`
+Useful comparison options:
 
-To run everything (and compare against `main`) with one command:
-
-- `bun run benchmark:ssr:run --base-ref=origin/main`
-- CI uses the same benchmark intensity as this command with explicit defaults: `--runs=40 --warmup=5 --repeat=15`.
-
-Useful options:
-
-- `--runs=50` (hyperfine runs per case)
-- `--warmup=5` (hyperfine warmup runs)
-- `--repeat=3` (number of case executions per hyperfine run)
-- `--output-dir=/tmp/my-ssr-bench` (persist outputs in a custom folder)
-- `--skip-build=true` (skip build/install if already prepared)
-  - Note: `--skip-build=true` only works when running head-only (without `--base-ref`).
-- `--max-regression-percent=5 --max-regression-ms=1.0` (comparison thresholds)
+- `--runs=20` (measured samples per case; default)
+- `--warmup=4` (warmup samples per case; default)
+- `--repeat=1` (executions per measured sample; default)
+- `--max-regression-percent=3.0 --max-regression-ms=1.0`
+- `--noise-threshold-percent=1.5`
+- `--fail-on-regression=false` (generate a report without failing the process)
 
 ## Status
 
