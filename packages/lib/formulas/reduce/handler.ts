@@ -9,16 +9,20 @@ const handler: FormulaHandler<unknown> = ([items, fx, init]) => {
     return null
   }
   if (Array.isArray(items)) {
-    return items.reduce(
-      (result, item, index) => fx({ result, item, index }),
-      init,
-    )
+    let result = init
+    for (let i = 0; i < items.length; i++) {
+      result = fx({ result, item: items[i], index: i })
+    }
+    return result
   }
   if (items && typeof items === 'object') {
-    return Object.entries(items).reduce(
-      (result, [key, value]) => fx({ result, key, value }),
-      init,
-    )
+    let result = init
+    for (const key in items) {
+      if (Object.prototype.hasOwnProperty.call(items, key)) {
+        result = fx({ result, key, value: (items as any)[key] })
+      }
+    }
+    return result
   }
   return null
 }
@@ -33,25 +37,27 @@ export const getArgumentInputData = (
     return input
   }
   if (Array.isArray(items)) {
-    return {
-      ...input,
-      Args: {
-        item: items[0],
-        index: 0,
-        result,
-      },
-    }
-  }
-  if (items && typeof items === 'object') {
-    const [first] = Object.entries(items)
-    if (first) {
+    if (items.length > 0) {
       return {
         ...input,
         Args: {
-          key: first[0],
-          value: first[1],
+          item: items[0],
+          index: 0,
           result,
         },
+      }
+    }
+  } else if (items && typeof items === 'object') {
+    for (const key in items) {
+      if (Object.prototype.hasOwnProperty.call(items, key)) {
+        return {
+          ...input,
+          Args: {
+            key,
+            value: (items as any)[key],
+            result,
+          },
+        }
       }
     }
   }

@@ -8,11 +8,12 @@ export const mapObject = <T, T2>(
   object: Record<string, T>,
   f: (kv: [string, T]) => [string, T2],
 ): Record<string, T2> => {
+  const keys = Object.keys(object)
   const result: Record<string, T2> = {}
-  for (const key in object) {
-    const v = object[key] as T
-    const [k, mappedV] = f([key, v])
-    result[k] = mappedV
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]!
+    const entry = f([key, object[key] as T])
+    result[entry[0]] = entry[1]
   }
   return result
 }
@@ -21,9 +22,11 @@ export const mapValues = <T, T2>(
   object: Record<string, T>,
   f: (value: T) => T2,
 ): Record<string, T2> => {
+  const keys = Object.keys(object)
   const result: Record<string, T2> = {}
-  for (const k in object) {
-    result[k] = f(object[k] as T)
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]!
+    result[key] = f(object[key] as T)
   }
   return result
 }
@@ -38,37 +41,63 @@ export const omit = <T = object>(
   collection: T,
   path: Array<PropertyKey>,
 ): T => {
-  const omitInternal = (coll: any, index: number): any => {
-    const key = path[index] as PropertyKey
-    if (index < path.length - 1) {
-      const clone = Array.isArray(coll) ? [...coll] : { ...coll }
-      clone[key] = omitInternal(clone[key], index + 1)
-      return clone
-    }
-
-    if (Array.isArray(coll)) {
-      const arrClone = [...coll]
-      arrClone.splice(Number(key), 1)
-      return arrClone
-    }
-
-    const clone = { ...coll }
-    delete clone[key]
-    return clone
+  if (path.length === 0) {
+    return collection
   }
-  if (path.length === 0) return collection
-  return omitInternal(collection, 0)
+  return _omit(collection, path, 0)
 }
 
+const _omit = <T = object>(
+  collection: T,
+  path: Array<PropertyKey>,
+  index: number,
+): T => {
+  const key = path[index]
+  const isLast = index === path.length - 1
+
+  if (!isLast) {
+    const clone: any = Array.isArray(collection)
+      ? (collection as any[]).slice()
+      : isObject(collection)
+        ? { ...collection }
+        : {}
+
+    if (isDefined(key)) {
+      clone[key] = _omit(clone[key], path, index + 1)
+    }
+    return clone
+  }
+
+  if (Array.isArray(collection)) {
+    return (collection as any[]).toSpliced(Number(key), 1) as T
+  }
+
+  const clone: any = isObject(collection) ? { ...collection } : {}
+  if (isDefined(key)) {
+    delete clone[key]
+  }
+  return clone as T
+}
+
+// Avoids the `delete` operator, which can force V8 to put an object into
+// "dictionary mode" and de-optimize property access. Instead we build the
+// result by copying only the keys we want to keep, using a Set for O(1)
+// membership checks.
 export const omitKeys = <T extends Record<string, any>>(
   object: T,
   keys: Array<keyof T>,
 ): T => {
-  const result = { ...object }
-  const len = keys.length
-  for (let i = 0; i < len; i++) {
-    const key = keys[i] as keyof T
-    delete result[key]
+  if (keys.length === 0) {
+    return { ...object }
+  }
+  const omitSet = new Set<keyof T>(keys)
+  const objectKeys = Object.keys(object) as Array<keyof T>
+  const result = {} as T
+  for (let i = 0; i < objectKeys.length; i++) {
+    const key = objectKeys[i]!
+    if (!omitSet.has(key)) {
+      result[key] = object[key]
+    }
   }
   return result
 }
@@ -78,33 +107,40 @@ type ValidPath<T> = [] | [keyof T, ...PropertyKey[]]
 export const omitPaths = <T extends Record<string, any>>(
   object: T,
   keys: Array<ValidPath<T>>,
-): T => keys.reduce((acc, key) => omit(acc, key), { ...object })
+): T => {
+  let result = object
+  for (let i = 0; i < keys.length; i++) {
+    result = omit(result, keys[i]!)
+  }
+  return result
+}
 
 export const groupBy = <T>(items: T[], f: (t: T) => string) => {
-  const result: Record<string, T[] | undefined> = Object.create(null)
-  const len = items.length
-  for (let i = 0; i < len; i++) {
-    const item = items[i] as T
+  const result: Record<string, T[]> = {}
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]!
     const key = f(item)
-    const existing = result[key]
-    if (existing === undefined) {
-      result[key] = [item]
+    const bucket = result[key]
+    if (bucket) {
+      bucket.push(item)
     } else {
-      existing.push(item)
+      result[key] = [item]
     }
   }
-  return result as Record<string, T[]>
+  return result
 }
 
 export const filterObject = <T, T2 extends T = T>(
   object: Record<string, T>,
   f: (kv: [string, T]) => boolean,
 ): Record<string, T2> => {
+  const keys = Object.keys(object)
   const result: Record<string, T2> = {}
-  for (const k in object) {
-    const v = object[k] as T
-    if (f([k, v])) {
-      result[k] = v as unknown as T2
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]!
+    const value = object[key]!
+    if (f([key, value])) {
+      result[key] = value as unknown as T2
     }
   }
   return result
@@ -129,27 +165,34 @@ export const set = <T = unknown>(
   path: Array<PropertyKey>,
   value: any,
 ): T => {
-  const len = path.length
-  if (len === 0) return collection
-
-  const recurse = (current: any, index: number): any => {
-    const head = path[index]
-    const clone: any = Array.isArray(current)
-      ? [...current]
-      : isObject(current)
-        ? { ...current }
-        : {}
-
-    if (index === len - 1) {
-      clone[head as any] = value
-      return clone
-    }
-
-    clone[head as any] = recurse(clone[head as any], index + 1)
-    return clone
+  if (path.length === 0) {
+    return collection
   }
+  return _set(collection, path, 0, value)
+}
 
-  return recurse(collection, 0) as T
+const _set = <T = unknown>(
+  collection: T,
+  path: Array<PropertyKey>,
+  index: number,
+  value: any,
+  // eslint-disable-next-line max-params
+): T => {
+  const head = path[index]
+  const isLast = index === path.length - 1
+
+  const clone: any = Array.isArray(collection)
+    ? (collection as any[]).slice()
+    : isObject(collection)
+      ? { ...collection }
+      : {}
+
+  // Cast to any, since it's actually possible to set a property with an undefined key on an object in Javascript
+  // and we don't want to introduce a breaking change
+  clone[head as any] = isLast
+    ? value
+    : _set(clone[head as any], path, index + 1, value)
+  return clone as T
 }
 
 export const sortObjectEntries = <T>(
@@ -158,19 +201,37 @@ export const sortObjectEntries = <T>(
   ascending = true,
 ): [string, T][] => easySort(Object.entries(object), f, ascending)
 
+// Uses a Schwartzian transform (decorate-sort-undecorate): the sort key is
+// computed exactly once per item up front, instead of being recomputed by
+// `f` on every comparison during the O(n log n) sort. This matters most
+// when `f` is non-trivial (property lookups, parsing, etc.).
 export const easySort = <T>(
   collection: T[],
   f: (item: T) => string | number | boolean,
   ascending = true,
-) =>
-  [...collection].sort((a, b) => {
-    const keyA = f(a)
-    const keyB = f(b)
+): T[] => {
+  const len = collection.length
+  const decorated: [string | number | boolean, T][] = new Array(len)
+  for (let i = 0; i < len; i++) {
+    const item = collection[i] as T
+    decorated[i] = [f(item), item]
+  }
+
+  decorated.sort((a, b) => {
+    const keyA = a[0]
+    const keyB = b[0]
     if (keyA === keyB) {
       return 0
     }
     return (keyA > keyB ? 1 : -1) * (ascending ? 1 : -1)
   })
+
+  const result: T[] = new Array(len)
+  for (let i = 0; i < len; i++) {
+    result[i] = decorated[i]![1]
+  }
+  return result
+}
 
 export const deepSortObject = (
   obj: any,
@@ -179,12 +240,24 @@ export const deepSortObject = (
     return obj
   }
   if (Array.isArray(obj)) {
-    return obj.map((val) => deepSortObject(val))
-  } else if (typeof obj === 'object' && Object.keys(obj).length > 0) {
-    return [...Object.keys(obj)].sort().reduce<any>((acc, key) => {
-      acc[key] = deepSortObject(obj[key])
-      return acc
-    }, {})
+    const len = obj.length
+    const result = new Array(len)
+    for (let i = 0; i < len; i++) {
+      result[i] = deepSortObject(obj[i])
+    }
+    return result
+  } else if (typeof obj === 'object') {
+    const keys = Object.keys(obj)
+    if (keys.length === 0) {
+      return obj
+    }
+    keys.sort()
+    const result: Record<string, any> = {}
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]!
+      result[key] = deepSortObject(obj[key])
+    }
+    return result
   }
   return obj
 }

@@ -189,6 +189,9 @@ export type ToddleEnv =
     }
 
 export function isFormula(f: any): f is Formula {
+  if (!f || typeof f !== 'object') {
+    return false
+  }
   return (
     f &&
     typeof f === 'object' &&
