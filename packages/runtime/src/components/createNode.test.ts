@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { describe, expect, test } from 'bun:test'
@@ -877,5 +878,730 @@ describe('createNode()', () => {
       ).toBeFalsy()
       dataIds.add(dataId!)
     }
+  })
+
+  test('it should give slots unique ids even when slots do not have an explicit name="default"', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {},
+    })
+
+    const ctx = {
+      isRootComponent: false,
+      component: {
+        name: 'My Component',
+        nodes: {
+          root: {
+            type: 'component',
+            name: 'ChildWithTwoSlots',
+            children: ['slotted-span'],
+            attrs: {},
+            events: {},
+          },
+          'slotted-span': {
+            type: 'element',
+            tag: 'span',
+            attrs: {},
+            events: {},
+            children: [],
+          },
+        },
+      },
+      root: document,
+      stores: {
+        theme: signal('light'),
+      },
+      env: { runtime: 'preview' },
+      formulaCache: {},
+      toddle: { getCustomFormula: () => undefined },
+      children: {},
+      providers: {},
+      components: [
+        {
+          name: 'ChildWithTwoSlots',
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'div',
+              children: ['slot-1', 'slot-2'],
+              attrs: {},
+              events: {},
+            },
+            'slot-1': {
+              type: 'slot',
+              children: [],
+              attrs: {},
+              events: {},
+            },
+            'slot-2': {
+              type: 'slot',
+              children: [],
+              attrs: {},
+              events: {},
+            },
+          },
+          variables: {},
+        },
+      ],
+    } as any as ComponentContext
+
+    const nodes = createNode({
+      ctx,
+      namespace: 'http://www.w3.org/1999/xhtml',
+      dataSignal,
+      path: '0',
+      id: 'root',
+      parentElement,
+      instance: {},
+    })
+    parentElement.append(...nodes)
+
+    const dataIds = new Set<string>()
+    const elements = parentElement.querySelectorAll('span')
+    expect(elements.length).toBe(2)
+    for (const el of elements) {
+      const dataId = el.getAttribute('data-id')
+      expect(dataId).toBeTruthy()
+      expect(
+        dataIds.has(dataId!),
+        `Duplicate data-id found: ${dataId}, all ids: ${Array.from(dataIds).join(', ')}`,
+      ).toBeFalsy()
+      dataIds.add(dataId!)
+    }
+  })
+
+  test('it should give unique ids when forwarding a slot through another component with multiple slots', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {},
+    })
+
+    const ctx = {
+      isRootComponent: false,
+      component: {
+        name: 'My Component',
+        nodes: {
+          root: {
+            type: 'component',
+            name: 'WrapperComp',
+            children: ['slotted-span'],
+            attrs: {},
+            events: {},
+          },
+          'slotted-span': {
+            type: 'element',
+            tag: 'span',
+            attrs: {},
+            events: {},
+            children: [],
+          },
+        },
+      },
+      root: document,
+      stores: {
+        theme: signal('light'),
+      },
+      env: { runtime: 'preview' },
+      formulaCache: {},
+      toddle: { getCustomFormula: () => undefined },
+      children: {},
+      providers: {},
+      components: [
+        {
+          name: 'WrapperComp',
+          nodes: {
+            root: {
+              type: 'component',
+              name: 'LayoutWithTwoSlots',
+              children: ['forwarded-slot'],
+              attrs: {},
+              events: {},
+            },
+            'forwarded-slot': {
+              type: 'slot',
+              name: 'default',
+              children: [],
+              attrs: {},
+              events: {},
+            },
+          },
+          variables: {},
+        },
+        {
+          name: 'LayoutWithTwoSlots',
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'div',
+              children: ['slot-1', 'slot-2'],
+              attrs: {},
+              events: {},
+            },
+            'slot-1': {
+              type: 'slot',
+              name: 'default',
+              children: [],
+              attrs: {},
+              events: {},
+            },
+            'slot-2': {
+              type: 'slot',
+              name: 'default',
+              children: [],
+              attrs: {},
+              events: {},
+            },
+          },
+          variables: {},
+        },
+      ],
+    } as any as ComponentContext
+
+    const nodes = createNode({
+      ctx,
+      namespace: 'http://www.w3.org/1999/xhtml',
+      dataSignal,
+      path: '0',
+      id: 'root',
+      parentElement,
+      instance: {},
+    })
+    parentElement.append(...nodes)
+
+    const dataIds = new Set<string>()
+    const elements = parentElement.querySelectorAll('span')
+    expect(elements.length).toBe(2)
+    for (const el of elements) {
+      const dataId = el.getAttribute('data-id')
+      expect(dataId).toBeTruthy()
+      expect(
+        dataIds.has(dataId!),
+        `Duplicate data-id found: ${dataId}, all ids: ${Array.from(dataIds).join(', ')}`,
+      ).toBeFalsy()
+      dataIds.add(dataId!)
+    }
+  })
+
+  test('conditional nodes inside slots in slots do not trigger duplicate element warning or missing parent error on toggle', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        show: true,
+      },
+    })
+
+    const warnLogs: string[] = []
+    const errorLogs: string[] = []
+    const origWarn = console.warn
+    const origError = console.error
+    console.warn = (...args: any[]) => {
+      warnLogs.push(args.join(' '))
+      origWarn(...args)
+    }
+    console.error = (...args: any[]) => {
+      errorLogs.push(args.join(' '))
+      origError(...args)
+    }
+
+    try {
+      const ctx = {
+        isRootComponent: false,
+        component: {
+          name: 'My Component',
+          nodes: {
+            root: {
+              type: 'component',
+              name: 'WrapperWithSlot',
+              children: ['conditional-div'],
+              attrs: {},
+              events: {},
+            },
+            'conditional-div': {
+              type: 'element',
+              tag: 'div',
+              condition: { type: 'path', path: ['Variables', 'show'] },
+              children: ['nested-conditional-span'],
+              attrs: {},
+              events: {},
+            },
+            'nested-conditional-span': {
+              type: 'element',
+              tag: 'span',
+              condition: { type: 'path', path: ['Variables', 'show'] },
+              children: [],
+              attrs: {},
+              events: {},
+            },
+          },
+        },
+        root: document,
+        stores: {
+          theme: signal('light'),
+        },
+        env: { runtime: 'preview' },
+        formulaCache: {},
+        toddle: { getCustomFormula: () => undefined },
+        children: {},
+        providers: {},
+        components: [
+          {
+            name: 'WrapperWithSlot',
+            nodes: {
+              root: {
+                type: 'component',
+                name: 'LayoutWithTwoDefaultSlots',
+                children: ['forwarded-slot'],
+                attrs: {},
+                events: {},
+              },
+              'forwarded-slot': {
+                type: 'slot',
+                children: [],
+                attrs: {},
+                events: {},
+              },
+            },
+            variables: {},
+          },
+          {
+            name: 'LayoutWithTwoDefaultSlots',
+            nodes: {
+              root: {
+                type: 'element',
+                tag: 'div',
+                children: ['slot-a', 'slot-b'],
+                attrs: {},
+                events: {},
+              },
+              'slot-a': {
+                type: 'slot',
+                children: [],
+                attrs: {},
+                events: {},
+              },
+              'slot-b': {
+                type: 'slot',
+                children: [],
+                attrs: {},
+                events: {},
+              },
+            },
+            variables: {},
+          },
+        ],
+      } as any as ComponentContext
+
+      const nodes = createNode({
+        ctx,
+        namespace: 'http://www.w3.org/1999/xhtml',
+        dataSignal,
+        path: '0',
+        id: 'root',
+        parentElement,
+        instance: {},
+      })
+      parentElement.append(...nodes)
+
+      // Both slots render the conditional div
+      const divs = parentElement.querySelectorAll(
+        '[data-node-id="conditional-div"]',
+      )
+      expect(divs.length).toBe(2)
+      expect(divs[0].getAttribute('data-id')).not.toBe(
+        divs[1].getAttribute('data-id'),
+      )
+
+      // Toggle condition to false and back to true
+      dataSignal.update((data) => ({
+        ...data,
+        Variables: { show: false },
+      }))
+
+      dataSignal.update((data) => ({
+        ...data,
+        Variables: { show: true },
+      }))
+
+      // Should not log "already exists" warning or "Parent element does not exist" error
+      const alreadyExistsWarnings = warnLogs.filter((log) =>
+        log.includes('already exists'),
+      )
+      const parentNotExistErrors = errorLogs.filter((log) =>
+        log.includes('Parent element does not exist'),
+      )
+
+      expect(alreadyExistsWarnings).toHaveLength(0)
+      expect(parentNotExistErrors).toHaveLength(0)
+    } finally {
+      console.warn = origWarn
+      console.error = origError
+    }
+  })
+
+  test('reproduce user warning with fragment root slots and nested providers', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        searchValue: null,
+      },
+    })
+
+    const warnLogs: string[] = []
+    const errorLogs: string[] = []
+    const origWarn = console.warn
+    const origError = console.error
+    console.warn = (...args: any[]) => {
+      warnLogs.push(args.join(' '))
+      origWarn(...args)
+    }
+    console.error = (...args: any[]) => {
+      errorLogs.push(args.join(' '))
+      origError(...args)
+    }
+
+    try {
+      // Structure 1: quick-actions-popover
+      // "root": slot "FRAGMENT", children: ["slot-child", "quick-actions-comp"]
+      const quickActionsPopover = {
+        name: 'quick-actions-popover',
+        nodes: {
+          root: {
+            name: 'FRAGMENT',
+            type: 'slot',
+            children: ['slot-child', 'quick-actions-comp'],
+          },
+          'slot-child': {
+            type: 'slot',
+            children: [],
+          },
+          'quick-actions-comp': {
+            name: 'quick-actions',
+            type: 'component',
+            children: [],
+            condition: {
+              type: 'function',
+              name: '@toddle/notEqual',
+              arguments: [
+                {
+                  name: 'First',
+                  formula: { type: 'path', path: ['Attributes', 'search'] },
+                },
+                {
+                  name: 'Second',
+                  formula: { type: 'value', value: null },
+                },
+              ],
+            },
+          },
+        },
+        variables: {},
+      }
+
+      // Structure 2: branch-actions-provider
+      // "root": slot "FRAGMENT", children: ["cArm5e3nCxl8IGIyNZUbM", "I2IfLdvxy24aPIzeTRPm1"]
+      const branchActionsProvider = {
+        name: 'branch-actions-provider',
+        nodes: {
+          root: {
+            name: 'FRAGMENT',
+            type: 'slot',
+            children: ['slot-child-2', 'delete-branch-dialog'],
+          },
+          'slot-child-2': {
+            type: 'slot',
+            children: [],
+          },
+          'delete-branch-dialog': {
+            name: 'delete-branch-dialog',
+            type: 'component',
+            children: [],
+            attrs: {},
+            events: {},
+          },
+        },
+        variables: {},
+      }
+
+      // Structure 3: file-search-provider
+      const fileSearchProvider = {
+        name: 'file-search-provider',
+        nodes: {
+          root: {
+            name: 'file-actions-provider',
+            type: 'component',
+            attrs: {
+              search: {
+                type: 'path',
+                path: ['Attributes', 'search'],
+              },
+            },
+            children: ['inner-branch-actions'],
+          },
+          'inner-branch-actions': {
+            name: 'branch-actions-provider',
+            type: 'component',
+            attrs: {
+              search: {
+                type: 'path',
+                path: ['Attributes', 'search'],
+              },
+            },
+            children: ['inner-quick-actions-popover'],
+          },
+          'inner-quick-actions-popover': {
+            name: 'quick-actions-popover',
+            type: 'component',
+            attrs: {
+              search: {
+                type: 'path',
+                path: ['Variables', 'searchValue'],
+              },
+            },
+            children: ['provider-slot'],
+          },
+          'provider-slot': {
+            type: 'slot',
+            children: [],
+          },
+        },
+        variables: {},
+      }
+
+      const fileActionsProvider = {
+        name: 'file-actions-provider',
+        nodes: {
+          root: {
+            name: 'FRAGMENT',
+            type: 'slot',
+            children: ['fap-slot'],
+          },
+          'fap-slot': {
+            type: 'slot',
+            children: [],
+          },
+        },
+        variables: {},
+      }
+
+      const deleteBranchDialog = {
+        name: 'delete-branch-dialog',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'dialog',
+            children: [],
+            attrs: {},
+            events: {},
+          },
+        },
+        variables: {},
+      }
+
+      const quickActions = {
+        name: 'quick-actions',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: ['qa-inner-conditional'],
+            attrs: {},
+            events: {},
+          },
+          'qa-inner-conditional': {
+            type: 'element',
+            tag: 'span',
+            condition: { type: 'value', value: true },
+            children: [],
+            attrs: {},
+            events: {},
+          },
+        },
+        variables: {},
+      }
+
+      // Page wraps file-search-provider which wraps another file-search-provider
+      const ctx = {
+        isRootComponent: false,
+        component: {
+          name: 'My Component',
+          nodes: {
+            root: {
+              type: 'component',
+              name: 'file-search-provider',
+              attrs: {
+                search: {
+                  type: 'path',
+                  path: ['Variables', 'searchValue'],
+                },
+              },
+              children: ['inner-provider'],
+            },
+            'inner-provider': {
+              type: 'component',
+              name: 'file-search-provider',
+              attrs: {
+                search: {
+                  type: 'path',
+                  path: ['Variables', 'searchValue'],
+                },
+              },
+              children: ['page-content'],
+            },
+            'page-content': {
+              type: 'element',
+              tag: 'main',
+              children: [],
+              attrs: {},
+              events: {},
+            },
+          },
+        },
+        root: document,
+        stores: {
+          theme: signal('light'),
+        },
+        env: { runtime: 'preview' },
+        formulaCache: {},
+        toddle: {
+          isEqual: (a: any, b: any) => a === b,
+          getCustomFormula: () => undefined,
+          getFormula: (name: string) => {
+            if (name === '@toddle/notEqual') {
+              return ([a, b]: [any, any]) => a !== b
+            }
+            return undefined
+          },
+          _preview: {
+            showSignal: signal({ displayedNodes: [], testMode: false }),
+          },
+        },
+        children: {},
+        providers: {},
+        components: [
+          fileSearchProvider,
+          fileActionsProvider,
+          branchActionsProvider,
+          quickActionsPopover,
+          deleteBranchDialog,
+          quickActions,
+        ],
+      } as any as ComponentContext
+
+      const nodes = createNode({
+        ctx,
+        namespace: 'http://www.w3.org/1999/xhtml',
+        dataSignal,
+        path: '0',
+        id: 'root',
+        parentElement,
+        instance: {},
+      })
+      parentElement.append(...nodes)
+
+      // Now toggle search value to trigger quick-actions condition
+      dataSignal.update((data) => ({
+        ...data,
+        Variables: { searchValue: 'test' },
+      }))
+
+      dataSignal.update((data) => ({
+        ...data,
+        Variables: { searchValue: null },
+      }))
+
+      dataSignal.update((data) => ({
+        ...data,
+        Variables: { searchValue: 'test' },
+      }))
+
+      const seenIds = new Set<string>()
+      for (const el of parentElement.querySelectorAll('[data-id]')) {
+        const id = el.getAttribute('data-id')!
+        expect(
+          seenIds.has(id),
+          `Duplicate data-id found: ${id}, all ids: ${Array.from(seenIds).join(', ')}`,
+        ).toBeFalsy()
+        seenIds.add(id)
+      }
+
+      const alreadyExistsWarnings = warnLogs.filter((log) =>
+        log.includes('already exists'),
+      )
+      const parentNotExistErrors = errorLogs.filter((log) =>
+        log.includes('Parent element does not exist'),
+      )
+
+      expect(alreadyExistsWarnings).toHaveLength(0)
+      expect(parentNotExistErrors).toHaveLength(0)
+    } finally {
+      console.warn = origWarn
+      console.error = origError
+    }
+  })
+
+  test('unmounting a conditional node removes its elements from the DOM and does not leave stale elements', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: { show: true },
+    })
+
+    const ctx = {
+      isRootComponent: false,
+      component: {
+        name: 'TestComp',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            condition: { type: 'path', path: ['Variables', 'show'] },
+            children: [],
+            attrs: {},
+            events: {},
+          },
+        },
+      },
+      root: document,
+      stores: { theme: signal('light') },
+      env: { runtime: 'page' },
+      formulaCache: {},
+      toddle: { getCustomFormula: () => undefined },
+      children: {},
+      providers: {},
+      components: [],
+    } as any as ComponentContext
+
+    const nodes = createNode({
+      ctx,
+      namespace: 'http://www.w3.org/1999/xhtml',
+      dataSignal,
+      path: '0',
+      id: 'root',
+      parentElement,
+      instance: {},
+    })
+    parentElement.append(...nodes)
+
+    expect(parentElement.querySelector('[data-id="0"]')).toBeTruthy()
+
+    // Destroy the dataSignal (e.g. unmounting component/slot)
+    dataSignal.destroy()
+
+    // Elements should be removed from parentElement on destroy
+    expect(parentElement.querySelector('[data-id="0"]')).toBeNull()
   })
 })

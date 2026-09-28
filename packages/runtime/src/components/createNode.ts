@@ -28,6 +28,7 @@ export function createNode({
   parentElement,
   instance,
   slotRepeatIndex,
+  slotSuffix,
 }: {
   id: string
   dataSignal: Signal<ComponentData>
@@ -37,6 +38,7 @@ export function createNode({
   parentElement: Element | ShadowRoot
   instance: Record<string, string>
   slotRepeatIndex?: number
+  slotSuffix?: string
 }): ReadonlyArray<Element | Text> {
   const node = ctx.component.nodes?.[id]
   if (!node) {
@@ -86,6 +88,8 @@ export function createNode({
     namespace,
     parentElement,
     instance,
+    slotRepeatIndex,
+    slotSuffix,
   }: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
     let firstRun = true
     let childDataSignal: Signal<ComponentData> | null = null
@@ -128,6 +132,7 @@ export function createNode({
             parentElement,
             instance,
             slotRepeatIndex,
+            slotSuffix,
           }),
         )
 
@@ -161,13 +166,17 @@ export function createNode({
       }
     }
 
+    let unsubscribePreview: (() => void) | undefined
     showSignal.subscribe(toggle, {
       destroy: () => {
+        unsubscribePreview?.()
         childDataSignal?.destroy()
+        elements.forEach((elem) => elem.remove())
+        elements.splice(0, elements.length)
       },
     })
     if (ctx.env.runtime === 'preview' && ctx.toddle._preview) {
-      ctx.toddle._preview.showSignal.subscribe(
+      unsubscribePreview = ctx.toddle._preview.showSignal.subscribe(
         ({ displayedNodes, testMode }) => {
           if (displayedNodes.includes(path) && !testMode) {
             // only override the default show if we are in design mode (not test mode)
@@ -403,6 +412,7 @@ export function createNode({
       parentElement,
       instance,
       slotRepeatIndex,
+      slotSuffix,
     })
   }
   return create({
@@ -415,6 +425,7 @@ export function createNode({
     parentElement,
     instance,
     slotRepeatIndex,
+    slotSuffix,
   })
 }
 
@@ -432,4 +443,5 @@ export type NodeRenderer<NodeType> = {
    * Note that the repeat index is reset at slot and component boundaries
    */
   slotRepeatIndex?: number
+  slotSuffix?: string
 }

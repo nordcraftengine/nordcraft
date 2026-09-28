@@ -34,6 +34,7 @@ export function createElement({
   namespace,
   instance,
   slotRepeatIndex,
+  slotSuffix,
 }: NodeRenderer<ElementNodeModel>): Element {
   const tag = getElementTagName(node, ctx, id)
   switch (tag) {
@@ -322,6 +323,7 @@ export function createElement({
           namespace,
           instance,
           slotRepeatIndex,
+          slotSuffix,
         }),
       )
     })

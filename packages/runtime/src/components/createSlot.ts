@@ -7,7 +7,7 @@ import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
 
 export function createSlot({
-  path,
+  path: slotPath,
   node,
   dataSignal,
   ctx,
@@ -15,29 +15,41 @@ export function createSlot({
   instance,
   namespace,
   slotRepeatIndex,
+  slotSuffix,
 }: NodeRenderer<SlotNodeModel>): ReadonlyArray<Element | Text> {
   const slotName = node.name ?? 'default'
   let children: Array<Element | Text> = []
   // Is slotted content provided?
   if (ctx.children[slotName]) {
-    children = ctx.children[slotName].flatMap((child) => {
+    const slotComponentIndex = getSlotComponentIndex(
+      slotName,
+      node,
+      ctx.component.nodes,
+    )
+
+    let currentSuffix = slotSuffix ?? ''
+    if (slotComponentIndex > 0) {
+      currentSuffix += `{${slotComponentIndex}}`
+    }
+    if (slotRepeatIndex && slotRepeatIndex > 0) {
+      currentSuffix += `(${slotRepeatIndex})`
+    }
+
+    children = ctx.children[slotName].flatMap((child, childIndex) => {
       const childDataSignal = child.dataSignal.map((data) => data)
       dataSignal.subscribe((data) => data, {
         destroy: () => childDataSignal.destroy(),
       })
-      const slotComponentIndex = getSlotComponentIndex(
-        slotName,
-        node,
-        ctx.component.nodes,
-      )
 
-      let path = child.path
-      if (slotComponentIndex > 0) {
-        path += `{${slotComponentIndex}}`
+      let basePath = child.path
+      if (slotPath.length > child.path.length) {
+        basePath = childIndex > 0 ? `${slotPath}.${childIndex}` : slotPath
       }
-      if (slotRepeatIndex && slotRepeatIndex > 0) {
-        path += `(${slotRepeatIndex})`
-      }
+
+      const path =
+        currentSuffix && !basePath.endsWith(currentSuffix)
+          ? basePath + currentSuffix
+          : basePath
 
       return createNode({
         ...child,
@@ -51,6 +63,8 @@ export function createSlot({
         instance,
         namespace,
         path,
+        slotRepeatIndex,
+        slotSuffix: currentSuffix || undefined,
       })
     })
   } else {
@@ -58,12 +72,14 @@ export function createSlot({
     children = (node.children ?? []).flatMap((child, i) => {
       return createNode({
         id: child,
-        path: path + '.' + i,
+        path: slotPath + '.' + i,
         dataSignal,
         ctx: { ...ctx, jsonPath: ['nodes', child] },
         parentElement,
         instance,
         namespace,
+        slotRepeatIndex,
+        slotSuffix,
       })
     })
   }
@@ -93,7 +109,10 @@ function getSlotComponentIndex(
   if (componentNodes) {
     for (const n in componentNodes) {
       const currentNode = componentNodes[n]
-      if (currentNode?.type === 'slot' && currentNode.name === nodeName) {
+      if (
+        currentNode?.type === 'slot' &&
+        (currentNode.name ?? 'default') === nodeName
+      ) {
         if (currentNode === node) {
           break
         }
