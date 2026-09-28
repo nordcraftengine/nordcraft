@@ -13,10 +13,10 @@ import {
   type SsrBenchmarkCaseId,
 } from '../benchmarks/ssrCases'
 import type {
-  Component,
   ComponentData,
   PageComponent,
 } from '../packages/core/dist/component/component.types'
+import { isPageComponent } from '../packages/core/dist/component/isPageComponent'
 import type { FormulaContext } from '../packages/core/dist/formula/formula'
 import {
   applyFormula,
@@ -278,18 +278,13 @@ const createFormulaCase = (): BenchmarkRunner => {
   }
 }
 
-const isPageComponent = (
-  component: Component | undefined,
-): component is PageComponent =>
-  component?.route !== undefined && component.route !== null
-
 const createCollectionsHotPathRenderCase =
   async (): Promise<BenchmarkRunner> => {
     const project = await loadProjectFixture('benchmark-project.json')
     const files = project.files
     const page = files.components.HomePage
 
-    if (!isPageComponent(page)) {
+    if (!page || !isPageComponent(page)) {
       throw new Error('No HomePage component found in benchmark project')
     }
 
@@ -341,7 +336,7 @@ const createProjectRenderCase = async (): Promise<BenchmarkRunner> => {
   const files = project.files
   const page = files.components.nordcraft
 
-  if (!isPageComponent(page)) {
+  if (!page || !isPageComponent(page)) {
     throw new Error('No page component found in example project')
   }
 
