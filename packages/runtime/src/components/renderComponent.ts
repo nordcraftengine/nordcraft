@@ -52,6 +52,8 @@ interface RenderComponentProps {
   env: ToddleEnv
   jsonPath: Array<string | number> | undefined
   reportFormulaEvaluation?: FormulaEvaluationReporter
+  slotRepeatIndex?: number
+  slotSuffix?: string
 }
 
 const BATCH_QUEUE = new BatchQueue()
@@ -78,6 +80,8 @@ export function renderComponent({
   env,
   jsonPath,
   reportFormulaEvaluation,
+  slotRepeatIndex,
+  slotSuffix,
 }: RenderComponentProps): ReadonlyArray<Element | Text> {
   const stopMeasure = measure(
     `Render component: ${component.name}`,
@@ -115,6 +119,8 @@ export function renderComponent({
     parentElement,
     namespace,
     instance,
+    slotRepeatIndex,
+    slotSuffix,
   })
   BATCH_QUEUE.add(() => {
     let prev: Record<string, any> | undefined

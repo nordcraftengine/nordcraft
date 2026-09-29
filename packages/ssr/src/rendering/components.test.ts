@@ -964,4 +964,289 @@ describe('renderPageBody', () => {
       `<div data-custom-id="custom_id_0_" data-id="0" data-node-id="root"></div>`,
     )
   })
+
+  test('should render unique data-ids for nested slots in components matching runtime convention', async () => {
+    const layoutWithTwoSlots: Component = {
+      name: 'LayoutWithTwoSlots',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['slot-1', 'slot-2'],
+          attrs: {},
+          events: {},
+        },
+        'slot-1': {
+          type: 'slot',
+          children: [],
+        },
+        'slot-2': {
+          type: 'slot',
+          children: [],
+        },
+      },
+    }
+
+    const wrapperComp: Component = {
+      name: 'WrapperComp',
+      nodes: {
+        root: {
+          type: 'component',
+          name: 'LayoutWithTwoSlots',
+          children: ['forwarded-slot'],
+          attrs: {},
+          events: {},
+        },
+        'forwarded-slot': {
+          type: 'slot',
+          children: [],
+        },
+      },
+    }
+
+    const pageComponent: PageComponent = {
+      name: 'PageComponent',
+      route: {
+        path: [],
+        query: {},
+      },
+      nodes: {
+        root: {
+          type: 'component',
+          name: 'WrapperComp',
+          children: ['slotted-span'],
+          attrs: {},
+          events: {},
+        },
+        'slotted-span': {
+          type: 'element',
+          tag: 'span',
+          attrs: {},
+          events: {},
+          children: [],
+        },
+      },
+    }
+
+    const { html } = await renderPageBody({
+      evaluateComponentApis: () => ({}) as any,
+      component: pageComponent as any,
+      formulaContext: getPageFormulaContext({
+        component: pageComponent as any,
+        branchName: 'main',
+        req: new Request('http://localhost'),
+        logErrors: true,
+        files: {
+          components: {
+            PageComponent: pageComponent,
+            WrapperComp: wrapperComp,
+            LayoutWithTwoSlots: layoutWithTwoSlots,
+          },
+        },
+      }),
+      env: {} as any,
+      files: {
+        components: {
+          PageComponent: pageComponent,
+          WrapperComp: wrapperComp,
+          LayoutWithTwoSlots: layoutWithTwoSlots,
+        },
+      } as any,
+      includedComponents: [pageComponent, wrapperComp, layoutWithTwoSlots],
+      projectId: 'test-project',
+      req: {} as any,
+    })
+
+    // Both instances of the slotted span should have unique data-ids (0.0[default] and 0.0[default]{1})
+    expect(html).toContain('data-id="0.0[default]"')
+    expect(html).toContain('data-id="0.0[default]{1}"')
+  })
+
+  test('should render unique data-ids for fragment root slots and nested providers', async () => {
+    const quickActions = {
+      name: 'quick-actions',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['qa-span'],
+          attrs: {},
+          events: {},
+        },
+        'qa-span': {
+          type: 'element',
+          tag: 'span',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+      },
+    }
+
+    const deleteBranchDialog = {
+      name: 'delete-branch-dialog',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'dialog',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+      },
+    }
+
+    const quickActionsPopover = {
+      name: 'quick-actions-popover',
+      nodes: {
+        root: {
+          name: 'FRAGMENT',
+          type: 'slot',
+          children: ['slot-child', 'quick-actions-comp'],
+        },
+        'slot-child': {
+          type: 'slot',
+          children: [],
+        },
+        'quick-actions-comp': {
+          name: 'quick-actions',
+          type: 'component',
+          children: [],
+        },
+      },
+    }
+
+    const branchActionsProvider = {
+      name: 'branch-actions-provider',
+      nodes: {
+        root: {
+          name: 'FRAGMENT',
+          type: 'slot',
+          children: ['slot-child-2', 'delete-branch-dialog'],
+        },
+        'slot-child-2': {
+          type: 'slot',
+          children: [],
+        },
+        'delete-branch-dialog': {
+          name: 'delete-branch-dialog',
+          type: 'component',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+      },
+    }
+
+    const fileActionsProvider = {
+      name: 'file-actions-provider',
+      nodes: {
+        root: {
+          name: 'FRAGMENT',
+          type: 'slot',
+          children: ['fap-slot'],
+        },
+        'fap-slot': {
+          type: 'slot',
+          children: [],
+        },
+      },
+    }
+
+    const fileSearchProvider = {
+      name: 'file-search-provider',
+      nodes: {
+        root: {
+          name: 'file-actions-provider',
+          type: 'component',
+          children: ['inner-branch-actions'],
+        },
+        'inner-branch-actions': {
+          name: 'branch-actions-provider',
+          type: 'component',
+          children: ['inner-quick-actions-popover'],
+        },
+        'inner-quick-actions-popover': {
+          name: 'quick-actions-popover',
+          type: 'component',
+          children: ['provider-slot'],
+        },
+        'provider-slot': {
+          type: 'slot',
+          children: [],
+        },
+      },
+    }
+
+    const pageComponent: PageComponent = {
+      name: 'PageComponent',
+      route: {
+        path: [],
+        query: {},
+      },
+      nodes: {
+        root: {
+          type: 'component',
+          name: 'file-search-provider',
+          children: ['inner-provider'],
+        },
+        'inner-provider': {
+          type: 'component',
+          name: 'file-search-provider',
+          children: ['page-content'],
+        },
+        'page-content': {
+          type: 'element',
+          tag: 'main',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+      },
+    }
+
+    const componentsMap: Record<string, any> = {
+      PageComponent: pageComponent,
+      'file-search-provider': fileSearchProvider,
+      'file-actions-provider': fileActionsProvider,
+      'branch-actions-provider': branchActionsProvider,
+      'quick-actions-popover': quickActionsPopover,
+      'delete-branch-dialog': deleteBranchDialog,
+      'quick-actions': quickActions,
+    }
+
+    const { html } = await renderPageBody({
+      evaluateComponentApis: () => ({}) as any,
+      component: pageComponent as any,
+      formulaContext: getPageFormulaContext({
+        component: pageComponent as any,
+        branchName: 'main',
+        req: new Request('http://localhost'),
+        logErrors: true,
+        files: {
+          components: componentsMap,
+        },
+      }),
+      env: {} as any,
+      files: {
+        components: componentsMap,
+      } as any,
+      includedComponents: Object.values(componentsMap) as Component[],
+      projectId: 'test-project',
+      req: {} as any,
+    })
+
+    const idMatches = [...html.matchAll(/data-id="([^"]+)"/g)].map((m) => m[1])
+    const seen = new Set<string>()
+    for (const id of idMatches) {
+      if (id !== undefined) {
+        expect(
+          seen.has(id),
+          `Duplicate data-id found in SSR: ${id}`,
+        ).toBeFalsy()
+        seen.add(id)
+      }
+    }
+    expect(seen.size).toBeGreaterThan(0)
+  })
 })

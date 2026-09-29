@@ -38,6 +38,8 @@ export type RenderComponentNodeProps = {
   parentElement: Element | ShadowRoot
   instance: Record<string, string>
   namespace?: SupportedNamespaces
+  slotRepeatIndex?: number
+  slotSuffix?: string
 }
 
 export function createComponent({
@@ -48,6 +50,8 @@ export function createComponent({
   parentElement,
   instance,
   namespace,
+  slotRepeatIndex,
+  slotSuffix,
 }: RenderComponentNodeProps): ReadonlyArray<Element | Text> {
   const nodeLookupKey = [ctx.package, node.name].filter(isDefined).join('/')
   const component = getComponent(
@@ -347,6 +351,8 @@ export function createComponent({
         : { [ctx.component.name]: node.id ?? '' },
     jsonPath: ctx.jsonPath,
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+    slotRepeatIndex,
+    slotSuffix,
   })
 
   // Custom properties instance overrides are added after the child tree is rendered to ensure correct order
