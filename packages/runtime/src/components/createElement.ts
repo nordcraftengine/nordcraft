@@ -68,18 +68,24 @@ export function createElement({
   }
 
   if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
-    const isDefaultSlot =
-      Object.values(ctx.component.nodes).filter(
-        (n) => n?.type === 'slot' && n.children?.includes(id),
-      ).length > 0
+    let isDefaultSlot = false
+    let hasSlotElements = false
+
+    for (const node of Object.values(ctx.component.nodes)) {
+      if (node?.type !== 'slot') continue
+
+      hasSlotElements = true
+
+      if (node.children?.includes(id)) {
+        isDefaultSlot = true
+      }
+
+      if (isDefaultSlot) break
+    }
 
     if (isDefaultSlot) {
       elem.setAttribute('data-node-default-slot', 'true')
     }
-
-    const hasSlotElements =
-      Object.values(ctx.component.nodes).filter((n) => n?.type === 'slot')
-        .length > 0
 
     if (hasSlotElements) {
       elem.setAttribute('data-has-slots-elements', 'true')
