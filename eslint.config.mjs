@@ -32,6 +32,7 @@ export default defineConfig([
       'eslint.config.mjs',
       'bun.lock',
       'examples/**/*',
+      'benchmarks/**/*.html',
       'packages/lib/actions.ts',
       'packages/lib/formulas.ts',
       'packages/css-parser/bin/**/*',

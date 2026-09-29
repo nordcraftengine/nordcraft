@@ -1,0 +1,1307 @@
+{
+  "id": "bench-project-001",
+  "name": "benchmark",
+  "project": {
+    "id": "proj-bench-001",
+    "name": "Benchmark Project",
+    "type": "app",
+    "emoji": "⚡",
+    "short_id": "bench_test_app",
+    "accounts": {
+      "id": "bench-org",
+      "name": "bench-org",
+      "account_plans": {
+        "plans": {
+          "custom_domains": false
+        },
+        "active": true
+      }
+    },
+    "thumbnail": null,
+    "description": null,
+    "published_at": null,
+    "custom_domains": false
+  },
+  "commit": "bench-commit-head",
+  "files": {
+    "components": {
+      "HomePage": {
+        "name": "HomePage",
+        "apis": {},
+        "variables": {
+          "items": {
+            "initialValue": {
+              "type": "value",
+              "value": []
+            }
+          }
+        },
+        "nodes": {
+          "root": {
+            "tag": "div",
+            "type": "element",
+            "attrs": {},
+            "style": {
+              "gap": "8px",
+              "color": "var(--grey-200, #E5E5E5)",
+              "min-height": "100%",
+              "align-items": "center",
+              "justify-content": "center",
+              "background-color": "var(--grey-900)"
+            },
+            "events": {},
+            "classes": {},
+            "children": [
+              "title-node",
+              "counter-comp-node",
+              "repeat-list-node",
+              "btn-populate-list",
+              "btn-clear-list"
+            ],
+            "styleVariables": {}
+          },
+          "title-node": {
+            "tag": "h1",
+            "type": "element",
+            "attrs": {},
+            "style": {
+              "color": "var(--grey-200, #E5E5E5)",
+              "font-size": "2.25rem",
+              "font-weight": "var(--font-weight-bold)"
+            },
+            "events": {},
+            "classes": {},
+            "children": ["title-text"],
+            "styleVariables": {}
+          },
+          "title-text": {
+            "type": "text",
+            "value": {
+              "type": "value",
+              "value": "Nordcraft Runtime Benchmark"
+            }
+          },
+          "counter-comp-node": {
+            "type": "component",
+            "name": "counter",
+            "attrs": {},
+            "events": {},
+            "children": [],
+            "repeat": null
+          },
+          "repeat-list-node": {
+            "tag": "ul",
+            "type": "element",
+            "attrs": {
+              "id": {
+                "type": "value",
+                "value": "benchmark-list"
+              }
+            },
+            "style": {
+              "display": "flex",
+              "flex-direction": "column",
+              "gap": "4px",
+              "max-height": "300px",
+              "overflow": "auto"
+            },
+            "events": {},
+            "classes": {},
+            "children": ["repeat-item-node"],
+            "styleVariables": {}
+          },
+          "repeat-item-node": {
+            "tag": "li",
+            "type": "element",
+            "repeat": {
+              "type": "path",
+              "path": ["Variables", "items"]
+            },
+            "repeatKey": {
+              "type": "path",
+              "path": ["ListItem", "Item", "id"]
+            },
+            "attrs": {},
+            "events": {},
+            "classes": {},
+            "children": ["repeat-item-text"],
+            "style": {
+              "padding": "4px 8px",
+              "border": "1px solid var(--grey-700)"
+            },
+            "styleVariables": {}
+          },
+          "repeat-item-text": {
+            "type": "text",
+            "value": {
+              "type": "path",
+              "path": ["ListItem", "Item", "title"]
+            }
+          },
+          "btn-populate-list": {
+            "tag": "button",
+            "type": "element",
+            "attrs": {
+              "id": {
+                "type": "value",
+                "value": "btn-populate-list"
+              }
+            },
+            "style": {
+              "display": "none"
+            },
+            "events": {
+              "click": {
+                "trigger": "click",
+                "actions": [
+                  {
+                    "type": "SetVariable",
+                    "variable": "items",
+                    "data": {
+                      "type": "value",
+                      "value": [
+                        {
+                          "id": "item-0",
+                          "title": "Item 0 Description"
+                        },
+                        {
+                          "id": "item-1",
+                          "title": "Item 1 Description"
+                        },
+                        {
+                          "id": "item-2",
+                          "title": "Item 2 Description"
+                        },
+                        {
+                          "id": "item-3",
+                          "title": "Item 3 Description"
+                        },
+                        {
+                          "id": "item-4",
+                          "title": "Item 4 Description"
+                        },
+                        {
+                          "id": "item-5",
+                          "title": "Item 5 Description"
+                        },
+                        {
+                          "id": "item-6",
+                          "title": "Item 6 Description"
+                        },
+                        {
+                          "id": "item-7",
+                          "title": "Item 7 Description"
+                        },
+                        {
+                          "id": "item-8",
+                          "title": "Item 8 Description"
+                        },
+                        {
+                          "id": "item-9",
+                          "title": "Item 9 Description"
+                        },
+                        {
+                          "id": "item-10",
+                          "title": "Item 10 Description"
+                        },
+                        {
+                          "id": "item-11",
+                          "title": "Item 11 Description"
+                        },
+                        {
+                          "id": "item-12",
+                          "title": "Item 12 Description"
+                        },
+                        {
+                          "id": "item-13",
+                          "title": "Item 13 Description"
+                        },
+                        {
+                          "id": "item-14",
+                          "title": "Item 14 Description"
+                        },
+                        {
+                          "id": "item-15",
+                          "title": "Item 15 Description"
+                        },
+                        {
+                          "id": "item-16",
+                          "title": "Item 16 Description"
+                        },
+                        {
+                          "id": "item-17",
+                          "title": "Item 17 Description"
+                        },
+                        {
+                          "id": "item-18",
+                          "title": "Item 18 Description"
+                        },
+                        {
+                          "id": "item-19",
+                          "title": "Item 19 Description"
+                        },
+                        {
+                          "id": "item-20",
+                          "title": "Item 20 Description"
+                        },
+                        {
+                          "id": "item-21",
+                          "title": "Item 21 Description"
+                        },
+                        {
+                          "id": "item-22",
+                          "title": "Item 22 Description"
+                        },
+                        {
+                          "id": "item-23",
+                          "title": "Item 23 Description"
+                        },
+                        {
+                          "id": "item-24",
+                          "title": "Item 24 Description"
+                        },
+                        {
+                          "id": "item-25",
+                          "title": "Item 25 Description"
+                        },
+                        {
+                          "id": "item-26",
+                          "title": "Item 26 Description"
+                        },
+                        {
+                          "id": "item-27",
+                          "title": "Item 27 Description"
+                        },
+                        {
+                          "id": "item-28",
+                          "title": "Item 28 Description"
+                        },
+                        {
+                          "id": "item-29",
+                          "title": "Item 29 Description"
+                        },
+                        {
+                          "id": "item-30",
+                          "title": "Item 30 Description"
+                        },
+                        {
+                          "id": "item-31",
+                          "title": "Item 31 Description"
+                        },
+                        {
+                          "id": "item-32",
+                          "title": "Item 32 Description"
+                        },
+                        {
+                          "id": "item-33",
+                          "title": "Item 33 Description"
+                        },
+                        {
+                          "id": "item-34",
+                          "title": "Item 34 Description"
+                        },
+                        {
+                          "id": "item-35",
+                          "title": "Item 35 Description"
+                        },
+                        {
+                          "id": "item-36",
+                          "title": "Item 36 Description"
+                        },
+                        {
+                          "id": "item-37",
+                          "title": "Item 37 Description"
+                        },
+                        {
+                          "id": "item-38",
+                          "title": "Item 38 Description"
+                        },
+                        {
+                          "id": "item-39",
+                          "title": "Item 39 Description"
+                        },
+                        {
+                          "id": "item-40",
+                          "title": "Item 40 Description"
+                        },
+                        {
+                          "id": "item-41",
+                          "title": "Item 41 Description"
+                        },
+                        {
+                          "id": "item-42",
+                          "title": "Item 42 Description"
+                        },
+                        {
+                          "id": "item-43",
+                          "title": "Item 43 Description"
+                        },
+                        {
+                          "id": "item-44",
+                          "title": "Item 44 Description"
+                        },
+                        {
+                          "id": "item-45",
+                          "title": "Item 45 Description"
+                        },
+                        {
+                          "id": "item-46",
+                          "title": "Item 46 Description"
+                        },
+                        {
+                          "id": "item-47",
+                          "title": "Item 47 Description"
+                        },
+                        {
+                          "id": "item-48",
+                          "title": "Item 48 Description"
+                        },
+                        {
+                          "id": "item-49",
+                          "title": "Item 49 Description"
+                        },
+                        {
+                          "id": "item-50",
+                          "title": "Item 50 Description"
+                        },
+                        {
+                          "id": "item-51",
+                          "title": "Item 51 Description"
+                        },
+                        {
+                          "id": "item-52",
+                          "title": "Item 52 Description"
+                        },
+                        {
+                          "id": "item-53",
+                          "title": "Item 53 Description"
+                        },
+                        {
+                          "id": "item-54",
+                          "title": "Item 54 Description"
+                        },
+                        {
+                          "id": "item-55",
+                          "title": "Item 55 Description"
+                        },
+                        {
+                          "id": "item-56",
+                          "title": "Item 56 Description"
+                        },
+                        {
+                          "id": "item-57",
+                          "title": "Item 57 Description"
+                        },
+                        {
+                          "id": "item-58",
+                          "title": "Item 58 Description"
+                        },
+                        {
+                          "id": "item-59",
+                          "title": "Item 59 Description"
+                        },
+                        {
+                          "id": "item-60",
+                          "title": "Item 60 Description"
+                        },
+                        {
+                          "id": "item-61",
+                          "title": "Item 61 Description"
+                        },
+                        {
+                          "id": "item-62",
+                          "title": "Item 62 Description"
+                        },
+                        {
+                          "id": "item-63",
+                          "title": "Item 63 Description"
+                        },
+                        {
+                          "id": "item-64",
+                          "title": "Item 64 Description"
+                        },
+                        {
+                          "id": "item-65",
+                          "title": "Item 65 Description"
+                        },
+                        {
+                          "id": "item-66",
+                          "title": "Item 66 Description"
+                        },
+                        {
+                          "id": "item-67",
+                          "title": "Item 67 Description"
+                        },
+                        {
+                          "id": "item-68",
+                          "title": "Item 68 Description"
+                        },
+                        {
+                          "id": "item-69",
+                          "title": "Item 69 Description"
+                        },
+                        {
+                          "id": "item-70",
+                          "title": "Item 70 Description"
+                        },
+                        {
+                          "id": "item-71",
+                          "title": "Item 71 Description"
+                        },
+                        {
+                          "id": "item-72",
+                          "title": "Item 72 Description"
+                        },
+                        {
+                          "id": "item-73",
+                          "title": "Item 73 Description"
+                        },
+                        {
+                          "id": "item-74",
+                          "title": "Item 74 Description"
+                        },
+                        {
+                          "id": "item-75",
+                          "title": "Item 75 Description"
+                        },
+                        {
+                          "id": "item-76",
+                          "title": "Item 76 Description"
+                        },
+                        {
+                          "id": "item-77",
+                          "title": "Item 77 Description"
+                        },
+                        {
+                          "id": "item-78",
+                          "title": "Item 78 Description"
+                        },
+                        {
+                          "id": "item-79",
+                          "title": "Item 79 Description"
+                        },
+                        {
+                          "id": "item-80",
+                          "title": "Item 80 Description"
+                        },
+                        {
+                          "id": "item-81",
+                          "title": "Item 81 Description"
+                        },
+                        {
+                          "id": "item-82",
+                          "title": "Item 82 Description"
+                        },
+                        {
+                          "id": "item-83",
+                          "title": "Item 83 Description"
+                        },
+                        {
+                          "id": "item-84",
+                          "title": "Item 84 Description"
+                        },
+                        {
+                          "id": "item-85",
+                          "title": "Item 85 Description"
+                        },
+                        {
+                          "id": "item-86",
+                          "title": "Item 86 Description"
+                        },
+                        {
+                          "id": "item-87",
+                          "title": "Item 87 Description"
+                        },
+                        {
+                          "id": "item-88",
+                          "title": "Item 88 Description"
+                        },
+                        {
+                          "id": "item-89",
+                          "title": "Item 89 Description"
+                        },
+                        {
+                          "id": "item-90",
+                          "title": "Item 90 Description"
+                        },
+                        {
+                          "id": "item-91",
+                          "title": "Item 91 Description"
+                        },
+                        {
+                          "id": "item-92",
+                          "title": "Item 92 Description"
+                        },
+                        {
+                          "id": "item-93",
+                          "title": "Item 93 Description"
+                        },
+                        {
+                          "id": "item-94",
+                          "title": "Item 94 Description"
+                        },
+                        {
+                          "id": "item-95",
+                          "title": "Item 95 Description"
+                        },
+                        {
+                          "id": "item-96",
+                          "title": "Item 96 Description"
+                        },
+                        {
+                          "id": "item-97",
+                          "title": "Item 97 Description"
+                        },
+                        {
+                          "id": "item-98",
+                          "title": "Item 98 Description"
+                        },
+                        {
+                          "id": "item-99",
+                          "title": "Item 99 Description"
+                        },
+                        {
+                          "id": "item-100",
+                          "title": "Item 100 Description"
+                        },
+                        {
+                          "id": "item-101",
+                          "title": "Item 101 Description"
+                        },
+                        {
+                          "id": "item-102",
+                          "title": "Item 102 Description"
+                        },
+                        {
+                          "id": "item-103",
+                          "title": "Item 103 Description"
+                        },
+                        {
+                          "id": "item-104",
+                          "title": "Item 104 Description"
+                        },
+                        {
+                          "id": "item-105",
+                          "title": "Item 105 Description"
+                        },
+                        {
+                          "id": "item-106",
+                          "title": "Item 106 Description"
+                        },
+                        {
+                          "id": "item-107",
+                          "title": "Item 107 Description"
+                        },
+                        {
+                          "id": "item-108",
+                          "title": "Item 108 Description"
+                        },
+                        {
+                          "id": "item-109",
+                          "title": "Item 109 Description"
+                        },
+                        {
+                          "id": "item-110",
+                          "title": "Item 110 Description"
+                        },
+                        {
+                          "id": "item-111",
+                          "title": "Item 111 Description"
+                        },
+                        {
+                          "id": "item-112",
+                          "title": "Item 112 Description"
+                        },
+                        {
+                          "id": "item-113",
+                          "title": "Item 113 Description"
+                        },
+                        {
+                          "id": "item-114",
+                          "title": "Item 114 Description"
+                        },
+                        {
+                          "id": "item-115",
+                          "title": "Item 115 Description"
+                        },
+                        {
+                          "id": "item-116",
+                          "title": "Item 116 Description"
+                        },
+                        {
+                          "id": "item-117",
+                          "title": "Item 117 Description"
+                        },
+                        {
+                          "id": "item-118",
+                          "title": "Item 118 Description"
+                        },
+                        {
+                          "id": "item-119",
+                          "title": "Item 119 Description"
+                        },
+                        {
+                          "id": "item-120",
+                          "title": "Item 120 Description"
+                        },
+                        {
+                          "id": "item-121",
+                          "title": "Item 121 Description"
+                        },
+                        {
+                          "id": "item-122",
+                          "title": "Item 122 Description"
+                        },
+                        {
+                          "id": "item-123",
+                          "title": "Item 123 Description"
+                        },
+                        {
+                          "id": "item-124",
+                          "title": "Item 124 Description"
+                        },
+                        {
+                          "id": "item-125",
+                          "title": "Item 125 Description"
+                        },
+                        {
+                          "id": "item-126",
+                          "title": "Item 126 Description"
+                        },
+                        {
+                          "id": "item-127",
+                          "title": "Item 127 Description"
+                        },
+                        {
+                          "id": "item-128",
+                          "title": "Item 128 Description"
+                        },
+                        {
+                          "id": "item-129",
+                          "title": "Item 129 Description"
+                        },
+                        {
+                          "id": "item-130",
+                          "title": "Item 130 Description"
+                        },
+                        {
+                          "id": "item-131",
+                          "title": "Item 131 Description"
+                        },
+                        {
+                          "id": "item-132",
+                          "title": "Item 132 Description"
+                        },
+                        {
+                          "id": "item-133",
+                          "title": "Item 133 Description"
+                        },
+                        {
+                          "id": "item-134",
+                          "title": "Item 134 Description"
+                        },
+                        {
+                          "id": "item-135",
+                          "title": "Item 135 Description"
+                        },
+                        {
+                          "id": "item-136",
+                          "title": "Item 136 Description"
+                        },
+                        {
+                          "id": "item-137",
+                          "title": "Item 137 Description"
+                        },
+                        {
+                          "id": "item-138",
+                          "title": "Item 138 Description"
+                        },
+                        {
+                          "id": "item-139",
+                          "title": "Item 139 Description"
+                        },
+                        {
+                          "id": "item-140",
+                          "title": "Item 140 Description"
+                        },
+                        {
+                          "id": "item-141",
+                          "title": "Item 141 Description"
+                        },
+                        {
+                          "id": "item-142",
+                          "title": "Item 142 Description"
+                        },
+                        {
+                          "id": "item-143",
+                          "title": "Item 143 Description"
+                        },
+                        {
+                          "id": "item-144",
+                          "title": "Item 144 Description"
+                        },
+                        {
+                          "id": "item-145",
+                          "title": "Item 145 Description"
+                        },
+                        {
+                          "id": "item-146",
+                          "title": "Item 146 Description"
+                        },
+                        {
+                          "id": "item-147",
+                          "title": "Item 147 Description"
+                        },
+                        {
+                          "id": "item-148",
+                          "title": "Item 148 Description"
+                        },
+                        {
+                          "id": "item-149",
+                          "title": "Item 149 Description"
+                        },
+                        {
+                          "id": "item-150",
+                          "title": "Item 150 Description"
+                        },
+                        {
+                          "id": "item-151",
+                          "title": "Item 151 Description"
+                        },
+                        {
+                          "id": "item-152",
+                          "title": "Item 152 Description"
+                        },
+                        {
+                          "id": "item-153",
+                          "title": "Item 153 Description"
+                        },
+                        {
+                          "id": "item-154",
+                          "title": "Item 154 Description"
+                        },
+                        {
+                          "id": "item-155",
+                          "title": "Item 155 Description"
+                        },
+                        {
+                          "id": "item-156",
+                          "title": "Item 156 Description"
+                        },
+                        {
+                          "id": "item-157",
+                          "title": "Item 157 Description"
+                        },
+                        {
+                          "id": "item-158",
+                          "title": "Item 158 Description"
+                        },
+                        {
+                          "id": "item-159",
+                          "title": "Item 159 Description"
+                        },
+                        {
+                          "id": "item-160",
+                          "title": "Item 160 Description"
+                        },
+                        {
+                          "id": "item-161",
+                          "title": "Item 161 Description"
+                        },
+                        {
+                          "id": "item-162",
+                          "title": "Item 162 Description"
+                        },
+                        {
+                          "id": "item-163",
+                          "title": "Item 163 Description"
+                        },
+                        {
+                          "id": "item-164",
+                          "title": "Item 164 Description"
+                        },
+                        {
+                          "id": "item-165",
+                          "title": "Item 165 Description"
+                        },
+                        {
+                          "id": "item-166",
+                          "title": "Item 166 Description"
+                        },
+                        {
+                          "id": "item-167",
+                          "title": "Item 167 Description"
+                        },
+                        {
+                          "id": "item-168",
+                          "title": "Item 168 Description"
+                        },
+                        {
+                          "id": "item-169",
+                          "title": "Item 169 Description"
+                        },
+                        {
+                          "id": "item-170",
+                          "title": "Item 170 Description"
+                        },
+                        {
+                          "id": "item-171",
+                          "title": "Item 171 Description"
+                        },
+                        {
+                          "id": "item-172",
+                          "title": "Item 172 Description"
+                        },
+                        {
+                          "id": "item-173",
+                          "title": "Item 173 Description"
+                        },
+                        {
+                          "id": "item-174",
+                          "title": "Item 174 Description"
+                        },
+                        {
+                          "id": "item-175",
+                          "title": "Item 175 Description"
+                        },
+                        {
+                          "id": "item-176",
+                          "title": "Item 176 Description"
+                        },
+                        {
+                          "id": "item-177",
+                          "title": "Item 177 Description"
+                        },
+                        {
+                          "id": "item-178",
+                          "title": "Item 178 Description"
+                        },
+                        {
+                          "id": "item-179",
+                          "title": "Item 179 Description"
+                        },
+                        {
+                          "id": "item-180",
+                          "title": "Item 180 Description"
+                        },
+                        {
+                          "id": "item-181",
+                          "title": "Item 181 Description"
+                        },
+                        {
+                          "id": "item-182",
+                          "title": "Item 182 Description"
+                        },
+                        {
+                          "id": "item-183",
+                          "title": "Item 183 Description"
+                        },
+                        {
+                          "id": "item-184",
+                          "title": "Item 184 Description"
+                        },
+                        {
+                          "id": "item-185",
+                          "title": "Item 185 Description"
+                        },
+                        {
+                          "id": "item-186",
+                          "title": "Item 186 Description"
+                        },
+                        {
+                          "id": "item-187",
+                          "title": "Item 187 Description"
+                        },
+                        {
+                          "id": "item-188",
+                          "title": "Item 188 Description"
+                        },
+                        {
+                          "id": "item-189",
+                          "title": "Item 189 Description"
+                        },
+                        {
+                          "id": "item-190",
+                          "title": "Item 190 Description"
+                        },
+                        {
+                          "id": "item-191",
+                          "title": "Item 191 Description"
+                        },
+                        {
+                          "id": "item-192",
+                          "title": "Item 192 Description"
+                        },
+                        {
+                          "id": "item-193",
+                          "title": "Item 193 Description"
+                        },
+                        {
+                          "id": "item-194",
+                          "title": "Item 194 Description"
+                        },
+                        {
+                          "id": "item-195",
+                          "title": "Item 195 Description"
+                        },
+                        {
+                          "id": "item-196",
+                          "title": "Item 196 Description"
+                        },
+                        {
+                          "id": "item-197",
+                          "title": "Item 197 Description"
+                        },
+                        {
+                          "id": "item-198",
+                          "title": "Item 198 Description"
+                        },
+                        {
+                          "id": "item-199",
+                          "title": "Item 199 Description"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "classes": {},
+            "children": [],
+            "styleVariables": {}
+          },
+          "btn-clear-list": {
+            "tag": "button",
+            "type": "element",
+            "attrs": {
+              "id": {
+                "type": "value",
+                "value": "btn-clear-list"
+              }
+            },
+            "style": {
+              "display": "none"
+            },
+            "events": {
+              "click": {
+                "trigger": "click",
+                "actions": [
+                  {
+                    "type": "SetVariable",
+                    "variable": "items",
+                    "data": {
+                      "type": "value",
+                      "value": []
+                    }
+                  }
+                ]
+              }
+            },
+            "classes": {},
+            "children": [],
+            "styleVariables": {}
+          }
+        },
+        "route": {
+          "info": {
+            "title": {
+              "formula": {
+                "type": "value",
+                "value": "Benchmark"
+              }
+            },
+            "description": {
+              "formula": {
+                "type": "value",
+                "value": "Runtime Performance Benchmark"
+              }
+            }
+          },
+          "path": [],
+          "query": {}
+        },
+        "events": [],
+        "onLoad": null,
+        "functions": {},
+        "attributes": {}
+      },
+      "counter": {
+        "name": "counter",
+        "apis": {},
+        "attributes": {},
+        "onLoad": null,
+        "events": [],
+        "formulas": {},
+        "variables": {
+          "count": {
+            "initialValue": {
+              "type": "function",
+              "name": "@toddle/number",
+              "arguments": [
+                {
+                  "name": "Input",
+                  "formula": {
+                    "type": "value",
+                    "value": 0
+                  },
+                  "type": {
+                    "type": "Any"
+                  }
+                }
+              ],
+              "display_name": "Number"
+            }
+          }
+        },
+        "nodes": {
+          "root": {
+            "type": "element",
+            "tag": "div",
+            "attrs": {
+              "id": {
+                "type": "value",
+                "value": "counter-root"
+              }
+            },
+            "classes": {},
+            "events": {},
+            "children": ["btn-dec", "count-display", "btn-inc"],
+            "style": {
+              "color": "var(--grey-200, #E5E5E5)",
+              "align-items": "center",
+              "justify-content": "start",
+              "flex-direction": "row",
+              "gap": "8px"
+            },
+            "styleVariables": {}
+          },
+          "count-display": {
+            "tag": "p",
+            "type": "element",
+            "attrs": {
+              "id": {
+                "type": "value",
+                "value": "count-value"
+              }
+            },
+            "style": {
+              "display": "inline-block"
+            },
+            "events": {},
+            "classes": {},
+            "children": ["count-text"],
+            "styleVariables": {}
+          },
+          "count-text": {
+            "type": "text",
+            "value": {
+              "type": "function",
+              "name": "@toddle/concatenate",
+              "arguments": [
+                {
+                  "name": "0",
+                  "formula": {
+                    "type": "value",
+                    "value": "Count: "
+                  },
+                  "type": {
+                    "type": "Union",
+                    "types": [
+                      {
+                        "type": "String"
+                      },
+                      {
+                        "type": "Array",
+                        "ofType": {
+                          "type": "Any"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "0",
+                  "formula": {
+                    "type": "path",
+                    "path": ["Variables", "count"]
+                  },
+                  "type": {
+                    "type": "Union",
+                    "types": [
+                      {
+                        "type": "String"
+                      },
+                      {
+                        "type": "Array",
+                        "ofType": {
+                          "type": "Any"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "variableArguments": true,
+              "display_name": "Concatenate"
+            }
+          },
+          "btn-inc": {
+            "tag": "button",
+            "type": "element",
+            "attrs": {
+              "id": {
+                "type": "value",
+                "value": "btn-inc"
+              }
+            },
+            "style": {
+              "color": "var(--grey-200, #E5E5E5)",
+              "border-radius": "6px",
+              "background-color": "var(--blue-600, #2563EB)",
+              "padding": "8px",
+              "cursor": "pointer"
+            },
+            "events": {
+              "click": {
+                "trigger": "click",
+                "actions": [
+                  {
+                    "type": "SetVariable",
+                    "variable": "count",
+                    "data": {
+                      "type": "function",
+                      "name": "@toddle/add",
+                      "arguments": [
+                        {
+                          "name": "0",
+                          "formula": {
+                            "type": "path",
+                            "path": ["Variables", "count"]
+                          },
+                          "type": {
+                            "type": "Number"
+                          }
+                        },
+                        {
+                          "name": "1",
+                          "formula": {
+                            "type": "value",
+                            "value": 1
+                          },
+                          "type": {
+                            "type": "Number"
+                          }
+                        }
+                      ],
+                      "variableArguments": true,
+                      "display_name": "Add"
+                    }
+                  }
+                ]
+              }
+            },
+            "classes": {},
+            "children": ["text-inc"],
+            "styleVariables": {}
+          },
+          "text-inc": {
+            "type": "text",
+            "value": {
+              "type": "value",
+              "value": "+"
+            }
+          },
+          "btn-dec": {
+            "tag": "button",
+            "type": "element",
+            "attrs": {
+              "id": {
+                "type": "value",
+                "value": "btn-dec"
+              }
+            },
+            "style": {
+              "color": "var(--grey-200, #E5E5E5)",
+              "border-radius": "6px",
+              "background-color": "var(--blue-600, #2563EB)",
+              "padding": "8px",
+              "cursor": "pointer"
+            },
+            "events": {
+              "click": {
+                "trigger": "click",
+                "actions": [
+                  {
+                    "type": "SetVariable",
+                    "variable": "count",
+                    "data": {
+                      "type": "function",
+                      "name": "@toddle/max",
+                      "arguments": [
+                        {
+                          "name": "0",
+                          "formula": {
+                            "type": "function",
+                            "name": "@toddle/minus",
+                            "arguments": [
+                              {
+                                "name": "Minuend",
+                                "formula": {
+                                  "type": "path",
+                                  "path": ["Variables", "count"]
+                                },
+                                "type": {
+                                  "type": "Number"
+                                }
+                              },
+                              {
+                                "name": "Substrahend",
+                                "formula": {
+                                  "type": "value",
+                                  "value": 1
+                                },
+                                "type": {
+                                  "type": "Number"
+                                }
+                              }
+                            ],
+                            "display_name": "Minus"
+                          },
+                          "type": {
+                            "type": "Number"
+                          }
+                        },
+                        {
+                          "name": "1",
+                          "formula": {
+                            "type": "value",
+                            "value": 0
+                          },
+                          "type": {
+                            "type": "Number"
+                          }
+                        }
+                      ],
+                      "variableArguments": true,
+                      "display_name": "Max"
+                    }
+                  }
+                ]
+              }
+            },
+            "classes": {},
+            "children": ["text-dec"],
+            "styleVariables": {}
+          },
+          "text-dec": {
+            "type": "text",
+            "value": {
+              "type": "value",
+              "value": "-"
+            }
+          }
+        }
+      }
+    }
+  }
+}

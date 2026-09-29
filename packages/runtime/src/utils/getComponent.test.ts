@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'bun:test'
-import { getComponent } from './getComponent'
 
 describe('getComponent', () => {
-  const compA = { name: 'A', value: 1 }
-  const compB = { name: 'B', value: 2 }
-  const compC = { name: 'C', value: 3 }
+  const compA = { name: 'A', value: 1 } as any
+  const compB = { name: 'B', value: 2 } as any
+  const compC = { name: 'C', value: 3 } as any
 
-  it('caches components after first call and ignores new list on subsequent calls with useCache=true', () => {
+  it('caches components after first call and ignores new list on subsequent calls with useCache=true', async () => {
+    // Import isolated module instance to ensure fresh componentMap in test
+    const { getComponent } = await import(
+      `./getComponent?t=${Math.random().toString(36).slice(2)}`
+    )
     // First call: cache is built from [compA, compB]
     expect(getComponent('A', [compA, compB])).toBe(compA)
     expect(getComponent('B', [compA, compB])).toBe(compB)
@@ -16,7 +19,10 @@ describe('getComponent', () => {
     expect(getComponent('A', [compC])).toBe(compA)
   })
 
-  it('does not use cache when useCache is false', () => {
+  it('does not use cache when useCache is false', async () => {
+    const { getComponent } = await import(
+      `./getComponent?t=${Math.random().toString(36).slice(2)}`
+    )
     // First call: should find compA in the list
     expect(getComponent('A', [compA, compB], false)).toBe(compA)
 
