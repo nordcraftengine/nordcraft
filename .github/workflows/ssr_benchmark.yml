@@ -1,24 +1,24 @@
-name: 'Runtime Benchmark'
+name: 'SSR Benchmark'
 
 on:
   push:
     branches-ignore:
       - main
     paths:
-      - '.github/workflows/runtime_benchmark.yml'
+      - '.github/workflows/ssr_benchmark.yml'
       - 'benchmarks/**'
-      - 'bin/runRuntimeBenchmark.ts'
-      - 'packages/runtime/**'
-      - 'packages/lib/**'
+      - 'bin/runSsrBenchmarks.ts'
+      - 'bin/ssrBenchmark.ts'
       - 'packages/core/**'
+      - 'packages/ssr/**'
   pull_request:
     paths:
-      - '.github/workflows/runtime_benchmark.yml'
+      - '.github/workflows/ssr_benchmark.yml'
       - 'benchmarks/**'
-      - 'bin/runRuntimeBenchmark.ts'
-      - 'packages/runtime/**'
-      - 'packages/lib/**'
+      - 'bin/runSsrBenchmarks.ts'
+      - 'bin/ssrBenchmark.ts'
       - 'packages/core/**'
+      - 'packages/ssr/**'
 
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
@@ -32,33 +32,20 @@ jobs:
   benchmark:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout benchmark head
+      - name: Checkout PR head
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
-      - name: Resolve base commit
+      - name: Ensure PR base commit is available
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PUSH_BASE_SHA: ${{ github.event.before }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          set -euo pipefail
-          if [ "$EVENT_NAME" = "pull_request" ]; then
-            BASE_SHA="$PR_BASE_SHA"
-          else
-            BASE_SHA="$PUSH_BASE_SHA"
-            if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
-              BASE_SHA="origin/main"
-            fi
-          fi
-
           if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
             git fetch --no-tags origin "$BASE_SHA"
           fi
-          echo "BASE_SHA=$BASE_SHA" >> "$GITHUB_ENV"
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
@@ -68,58 +55,48 @@ jobs:
       - name: Install dependencies (head)
         run: bun install --frozen-lockfile
 
-      - name: Build packages (head)
-        run: bun run build
-
-      - name: Cache Playwright Chromium
-        uses: actions/cache@v6
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('bun.lock') }}
-
-      - name: Install Playwright Chromium & dependencies
-        run: bunx playwright install chromium --with-deps
-
-      - name: Run Runtime Benchmark
+      - name: Run SSR benchmark
         id: benchmark_run
         continue-on-error: true
         run: |
-          bun bin/runRuntimeBenchmark.ts \
-            --base-ref="$BASE_SHA" \
+          bun bin/runSsrBenchmarks.ts \
+            --base-ref=${{ github.event.pull_request.base.sha }} \
             --runs=25 \
             --warmup=5 \
+            --repeat=15 \
             --max-regression-percent=3.0 \
             --max-regression-ms=1.0 \
             --noise-threshold-percent=1.5 \
             --bootstrap-iterations=1000 \
             --bootstrap-seed=0 \
             --fail-on-regression=true \
-            --export-markdown=/tmp/runtime-benchmark-report.md \
-            --export-json=/tmp/runtime-benchmark-report.json
+            --output-dir=/tmp/ssr-benchmark-data \
+            --export-markdown=/tmp/ssr-benchmark-report.md \
+            --export-json=/tmp/ssr-benchmark-report.json
 
       - name: Publish step summary
         if: always()
         continue-on-error: true
         run: |
-          if [ -f /tmp/runtime-benchmark-report.md ]; then
-            tee -a "$GITHUB_STEP_SUMMARY" < /tmp/runtime-benchmark-report.md
+          if [ -f /tmp/ssr-benchmark-report.md ]; then
+            tee -a "$GITHUB_STEP_SUMMARY" < /tmp/ssr-benchmark-report.md
           else
-            echo "## ⚡ Runtime Benchmark" >> "$GITHUB_STEP_SUMMARY"
+            echo "## ⚡ SSR Benchmark" >> "$GITHUB_STEP_SUMMARY"
             echo "⚠️ Benchmark report could not be generated." >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Comment on pull request
-        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         uses: actions/github-script@v9
         with:
           script: |
             const fs = require('node:fs')
-            const reportPath = '/tmp/runtime-benchmark-report.md'
+            const reportPath = '/tmp/ssr-benchmark-report.md'
             const report = fs.existsSync(reportPath)
               ? fs.readFileSync(reportPath, 'utf8')
-              : '## Runtime Benchmark\n\n:warning: Benchmark report could not be generated. Check the workflow logs.'
-            const marker = '<!-- nordcraft-runtime-benchmark -->'
+              : '## SSR Benchmark\n\n:warning: Benchmark report could not be generated. Check the workflow logs.'
+            const marker = '<!-- ssr-benchmark-report -->'
             const body = `${marker}\n${report}`
 
             const { data: comments } = await github.rest.issues.listComments({
@@ -150,16 +127,18 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: runtime-benchmark-report-${{ github.run_id }}-${{ github.run_attempt }}
+          name: ssr-benchmark-report-${{ github.run_id }}-${{ github.run_attempt }}
           if-no-files-found: warn
           path: |
-            /tmp/runtime-benchmark-report.md
-            /tmp/runtime-benchmark-report.json
+            /tmp/ssr-benchmark-report.md
+            /tmp/ssr-benchmark-report.json
+            /tmp/ssr-benchmark-data/head/*.json
+            /tmp/ssr-benchmark-data/base/*.json
 
-      - name: Enforce runtime benchmark result
+      - name: Clean up benchmark worktree
         if: always()
-        run: |
-          if [ "${{ steps.benchmark_run.outcome }}" != "success" ]; then
-            echo "Runtime benchmark failed or reported a regression." >&2
-            exit 1
-          fi
+        run: git worktree remove /tmp/ssr-benchmark-data/base-worktree --force || true
+
+      - name: Fail on benchmark regression
+        if: always() && steps.benchmark_run.outcome == 'failure'
+        run: exit 1
