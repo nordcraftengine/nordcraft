@@ -37,6 +37,15 @@ export function createText({
 
   const { value } = node
   const elem = document.createElement('span')
+
+  const isDefaultSlot =
+    Object.values(ctx.component.nodes ?? {}).filter(
+      (n) => n?.type === 'slot' && n.children?.includes(id),
+    ).length > 0
+
+  if (isDefaultSlot) {
+    elem.setAttribute('data-node-default-slot', 'true')
+  }
   elem.setAttribute('data-node-id', id)
   if (typeof id === 'string') {
     elem.setAttribute('data-id', path)

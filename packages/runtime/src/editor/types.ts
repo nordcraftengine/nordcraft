@@ -278,7 +278,7 @@ export type InsertArea = {
   layout: 'block' | 'inline'
   parent: Element
   indexAll: number
-  indexSlot: number
+  index: number
   center: Point
   size: number
   direction: 1 | -1

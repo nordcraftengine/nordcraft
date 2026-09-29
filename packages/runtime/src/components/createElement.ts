@@ -67,10 +67,31 @@ export function createElement({
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
 
+  const isDefaultSlot =
+    Object.values(ctx.component.nodes ?? {}).filter(
+      (n) => n?.type === 'slot' && n.children?.includes(id),
+    ).length > 0
+
+  if (isDefaultSlot) {
+    elem.setAttribute('data-node-default-slot', 'true')
+  }
+
   elem.setAttribute('data-node-id', id)
   if (path) {
     elem.setAttribute('data-id', path)
   }
+
+  if (ctx.isRootComponent) {
+    elem.setAttribute('data-is-root-component', 'true')
+  }
+  const hasSlotElements =
+    Object.values(ctx.component.nodes ?? {}).filter((n) => n?.type === 'slot')
+      .length > 0
+
+  if (hasSlotElements) {
+    elem.setAttribute('data-has-slots-elements', 'true')
+  }
+
   if (ctx.isRootComponent === false && id !== 'root') {
     elem.setAttribute('data-component', ctx.component.name)
   }

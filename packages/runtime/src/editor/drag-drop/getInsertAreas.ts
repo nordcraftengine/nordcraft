@@ -10,99 +10,120 @@ import type { InsertArea } from '../types'
  * - If the next sibling of an element follows the expected layout (not wrapped) a line is drawn between the two (taking gap/margin into consideration),
  * - If the next sibling is wrapped, a line is drawn both after and before the next element. Both lines inserts the dragged element at the same index.
  */
+
 export function getInsertAreas() {
   const insertAreas: Array<InsertArea> = []
-  Array.from(
+
+  const elementIds = Array.from(
     document.querySelectorAll(
-      '[data-id]:not([data-component]):is(:has(> :not([data-component])), [data-node-type])',
+      '[data-id]:is(:not([data-component]), [data-component][data-node-default-slot])',
     ),
   )
     .filter(
       (e) =>
         e.getAttribute('data-id')?.includes(')') === false &&
-        e.closest('[data-component]') === null,
+        e.parentElement?.closest('[data-component]') === null &&
+        e.parentElement?.closest(
+          '[data-node-id="root"]:not([data-has-slots-elements]):not([data-is-root-component])',
+        ) === null,
     )
     .map((e) => e.getAttribute('data-id'))
-    .forEach((id) => {
-      const element = getDOMNodeFromNodeId(id)
-      if (!element) {
-        // eslint-disable-next-line no-console
-        console.warn(`Element with path ${id} not found`)
-        return
-      }
 
+  // This means we have an empty page or comonent
+  if (elementIds.length === 0) {
+    const element = document.getElementById('App')
+    if (!element) {
+      // eslint-disable-next-line no-console
+      console.warn(`Element with id "App" not found`)
+    } else {
       const rect = element.getBoundingClientRect()
-      const parent = element.parentElement
-      if (!parent) {
-        return
-      }
 
-      const isVoid = isVoidElement(element)
+      insertAreas.push({
+        layout: 'block',
+        parent: element,
+        indexAll: 0,
+        index: 0,
+        center: {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        },
+        size: rect.width,
+        direction: 1,
+      })
+    }
+  }
+  elementIds.forEach((id) => {
+    const element = getDOMNodeFromNodeId(id, true)
 
-      if (!isVoid && !element.hasChildNodes()) {
-        insertAreas.push({
-          layout: 'block',
-          parent: element,
-          indexAll: 0,
-          indexSlot: 0,
-          center: {
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2,
-          },
-          size: rect.width,
-          direction: 1,
-        })
-      }
+    if (!element) {
+      // eslint-disable-next-line no-console
+      console.warn(`Element with path ${id} not found`)
+      return
+    }
 
-      const siblingsSlot = Array.from(parent.children).filter(
-        (c) =>
-          c.hasAttribute('data-node-id') &&
-          c.getAttribute('data-node-id')?.endsWith(')') === false &&
-          !c.hasAttribute('data-component'),
-      )
+    // If the only element in a component/page is Text
+    // we should not allow insert of another elements
+    if (
+      id === '0' &&
+      element.getAttribute('data-node-type') === 'text' &&
+      element.parentElement?.id === 'App'
+    ) {
+      // eslint-disable-next-line no-console
+      console.warn(`Is not possible to insert in a text element`)
+      return
+    }
+    const rect = element.getBoundingClientRect()
+    const parent = element.parentElement
+    if (!parent) {
+      return
+    }
 
-      const siblingsAll = Array.from(parent.children).filter(
-        (c) =>
-          c.hasAttribute('data-node-id') &&
-          c.getAttribute('data-node-id')?.endsWith(')') === false,
-      )
-      const indexAll = siblingsAll.indexOf(element)
+    const isVoid = isVoidElement(element)
 
-      const indexSlot = siblingsSlot.indexOf(element)
-      const nextRect = siblingsAll[indexAll + 1]?.getBoundingClientRect()
-      const prevRect = siblingsAll[indexAll - 1]?.getBoundingClientRect()
-      const isBlockLayout =
-        siblingsAll.length > 1 &&
-        siblingsAll
-          .map((c) => c.getBoundingClientRect())
-          .every(
-            (r, i, rects) =>
-              i === 0 ||
-              r.width + r.height === 0 ||
-              rects[i - 1].bottom <= r.top,
-          )
-      if (isBlockLayout) {
-        if (prevRect) {
-          if (prevRect.bottom <= rect.top) {
-            insertAreas.push({
-              layout: 'block',
-              parent,
-              indexAll,
-              indexSlot,
-              center: {
-                x: rect.left + rect.width / 2,
-                y: rect.top,
-              },
-              size: rect.width,
-              direction: -1,
-            })
-          }
-        } else if (siblingsAll.length > 0) {
+    if (!isVoid && !element.hasChildNodes()) {
+      insertAreas.push({
+        layout: 'block',
+        parent: element,
+        indexAll: 0,
+        index: 0,
+        center: {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        },
+        size: rect.width,
+        direction: 1,
+      })
+    }
+
+    const siblingsAll = Array.from(parent.children).filter(
+      (c) =>
+        c.hasAttribute('data-node-id') &&
+        c.getAttribute('data-node-id')?.endsWith(')') === false,
+    )
+
+    // It looks like this way of getting the index works fine
+    const index = Number(id?.replaceAll('[default]', '').split('.').at(-1))
+
+    const indexAll = siblingsAll.indexOf(element)
+
+    const nextRect = siblingsAll[indexAll + 1]?.getBoundingClientRect()
+    const prevRect = siblingsAll[indexAll - 1]?.getBoundingClientRect()
+    const isBlockLayout =
+      siblingsAll.length > 1 &&
+      siblingsAll
+        .map((c) => c.getBoundingClientRect())
+        .every(
+          (r, i, rects) =>
+            i === 0 || r.width + r.height === 0 || rects[i - 1].bottom <= r.top,
+        )
+    if (isBlockLayout) {
+      if (prevRect) {
+        if (prevRect.bottom <= rect.top) {
           insertAreas.push({
             layout: 'block',
             parent,
             indexAll,
-            indexSlot,
+            index,
             center: {
               x: rect.left + rect.width / 2,
               y: rect.top,
@@ -111,41 +132,41 @@ export function getInsertAreas() {
             direction: -1,
           })
         }
+      } else if (siblingsAll.length > 0) {
+        insertAreas.push({
+          layout: 'block',
+          parent,
+          indexAll,
+          index,
+          center: {
+            x: rect.left + rect.width / 2,
+            y: rect.top,
+          },
+          size: rect.width,
+          direction: -1,
+        })
+      }
 
-        if (nextRect) {
-          if (nextRect.top > rect.bottom) {
-            insertAreas.push({
-              layout: 'block',
-              parent,
-              indexAll: indexAll + 1,
-              indexSlot: indexSlot + 1,
-              center: {
-                x: rect.left + rect.width / 2,
-                y: (rect.bottom + nextRect.top) / 2,
-              },
-              size: rect.width,
-              direction: 1,
-            })
-          } else {
-            insertAreas.push({
-              layout: 'block',
-              parent,
-              indexAll: indexAll + 1,
-              indexSlot: indexSlot + 1,
-              center: {
-                x: rect.left + rect.width / 2,
-                y: rect.bottom,
-              },
-              size: rect.width,
-              direction: 1,
-            })
-          }
-        } else if (siblingsAll.length > 0) {
+      if (nextRect) {
+        if (nextRect.top > rect.bottom) {
           insertAreas.push({
             layout: 'block',
             parent,
             indexAll: indexAll + 1,
-            indexSlot: indexSlot + 1,
+            index: index + 1,
+            center: {
+              x: rect.left + rect.width / 2,
+              y: (rect.bottom + nextRect.top) / 2,
+            },
+            size: rect.width,
+            direction: 1,
+          })
+        } else {
+          insertAreas.push({
+            layout: 'block',
+            parent,
+            indexAll: indexAll + 1,
+            index: index + 1,
             center: {
               x: rect.left + rect.width / 2,
               y: rect.bottom,
@@ -154,28 +175,28 @@ export function getInsertAreas() {
             direction: 1,
           })
         }
-      } else {
-        if (prevRect) {
-          if (prevRect.right >= rect.left) {
-            insertAreas.push({
-              layout: 'inline',
-              parent,
-              indexAll,
-              indexSlot,
-              center: {
-                x: rect.left,
-                y: rect.top + rect.height / 2,
-              },
-              size: rect.height,
-              direction: -1,
-            })
-          }
-        } else if (siblingsAll.length > 0) {
+      } else if (siblingsAll.length > 0) {
+        insertAreas.push({
+          layout: 'block',
+          parent,
+          indexAll: indexAll + 1,
+          index: index + 1,
+          center: {
+            x: rect.left + rect.width / 2,
+            y: rect.bottom,
+          },
+          size: rect.width,
+          direction: 1,
+        })
+      }
+    } else {
+      if (prevRect) {
+        if (prevRect.right <= rect.left) {
           insertAreas.push({
             layout: 'inline',
             parent,
             indexAll,
-            indexSlot,
+            index,
             center: {
               x: rect.left,
               y: rect.top + rect.height / 2,
@@ -184,41 +205,41 @@ export function getInsertAreas() {
             direction: -1,
           })
         }
+      } else if (siblingsAll.length > 0) {
+        insertAreas.push({
+          layout: 'inline',
+          parent,
+          indexAll,
+          index,
+          center: {
+            x: rect.left,
+            y: rect.top + rect.height / 2,
+          },
+          size: rect.height,
+          direction: -1,
+        })
+      }
 
-        if (nextRect) {
-          if (nextRect.left > rect.right) {
-            insertAreas.push({
-              layout: 'inline',
-              parent,
-              indexAll: indexAll + 1,
-              indexSlot: indexSlot + 1,
-              center: {
-                x: (rect.right + nextRect.left) / 2,
-                y: nextRect.top + nextRect.height / 2,
-              },
-              size: rect.height,
-              direction: 1,
-            })
-          } else {
-            insertAreas.push({
-              layout: 'inline',
-              parent,
-              indexAll: indexAll + 1,
-              indexSlot: indexSlot + 1,
-              center: {
-                x: rect.right,
-                y: rect.top + rect.height / 2,
-              },
-              size: rect.height,
-              direction: 1,
-            })
-          }
-        } else if (siblingsAll.length > 0) {
+      if (nextRect) {
+        if (nextRect.left > rect.right) {
           insertAreas.push({
             layout: 'inline',
             parent,
             indexAll: indexAll + 1,
-            indexSlot: indexSlot + 1,
+            index: index + 1,
+            center: {
+              x: (rect.right + nextRect.left) / 2,
+              y: nextRect.top + nextRect.height / 2,
+            },
+            size: rect.height,
+            direction: 1,
+          })
+        } else {
+          insertAreas.push({
+            layout: 'inline',
+            parent,
+            indexAll: indexAll + 1,
+            index: index + 1,
             center: {
               x: rect.right,
               y: rect.top + rect.height / 2,
@@ -227,8 +248,22 @@ export function getInsertAreas() {
             direction: 1,
           })
         }
+      } else if (siblingsAll.length > 0) {
+        insertAreas.push({
+          layout: 'inline',
+          parent,
+          indexAll: indexAll + 1,
+          index: index + 1,
+          center: {
+            x: rect.right,
+            y: rect.top + rect.height / 2,
+          },
+          size: rect.height,
+          direction: 1,
+        })
       }
-    })
+    }
+  })
 
   return offsetDropLines(insertAreas)
 }

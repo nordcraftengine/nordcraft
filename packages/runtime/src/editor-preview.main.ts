@@ -2214,9 +2214,15 @@ const insertHeadTags = (
 
 export function getDOMNodeFromNodeId(
   selectedNodeId: string | null | undefined,
+  allowDataComponentAttr?: boolean,
 ) {
   if (!selectedNodeId) {
     return null
+  }
+  if (allowDataComponentAttr) {
+    return document.querySelector(
+      `[data-id="${stripNodeIdRepeatIndices(selectedNodeId)}"]`,
+    )
   }
 
   return document.querySelector(
