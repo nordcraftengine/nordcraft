@@ -162,6 +162,7 @@ export type EditorPostMessageType =
       type: 'insertNode'
       parent?: string | null
       index?: number
+      slot?: string
     }
   | {
       type: 'computedStyle'
@@ -279,6 +280,7 @@ export type InsertArea = {
   parent: Element
   indexAll: number
   index: number
+  slot?: string
   center: Point
   size: number
   direction: 1 | -1

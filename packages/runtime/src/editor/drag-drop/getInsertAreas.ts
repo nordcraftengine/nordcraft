@@ -78,6 +78,8 @@ export function getInsertAreas() {
       return
     }
 
+    const slotName = id?.match(/\[([^\]]*)\]/)?.[1]
+
     const isVoid = isVoidElement(element)
 
     if (!isVoid && !element.hasChildNodes()) {
@@ -86,6 +88,7 @@ export function getInsertAreas() {
         parent: element,
         indexAll: 0,
         index: 0,
+        slot: slotName,
         center: {
           x: rect.left + rect.width / 2,
           y: rect.top + rect.height / 2,
@@ -129,6 +132,7 @@ export function getInsertAreas() {
             parent,
             indexAll,
             index,
+            slot: slotName,
             center: {
               x: rect.left + rect.width / 2,
               y: rect.top,
@@ -143,6 +147,7 @@ export function getInsertAreas() {
           parent,
           indexAll,
           index,
+          slot: slotName,
           center: {
             x: rect.left + rect.width / 2,
             y: rect.top,
@@ -159,6 +164,7 @@ export function getInsertAreas() {
             parent,
             indexAll: indexAll + 1,
             index: index + 1,
+            slot: slotName,
             center: {
               x: rect.left + rect.width / 2,
               y: (rect.bottom + nextRect.top) / 2,
@@ -172,6 +178,7 @@ export function getInsertAreas() {
             parent,
             indexAll: indexAll + 1,
             index: index + 1,
+            slot: slotName,
             center: {
               x: rect.left + rect.width / 2,
               y: rect.bottom,
@@ -186,6 +193,7 @@ export function getInsertAreas() {
           parent,
           indexAll: indexAll + 1,
           index: index + 1,
+          slot: slotName,
           center: {
             x: rect.left + rect.width / 2,
             y: rect.bottom,
@@ -202,6 +210,7 @@ export function getInsertAreas() {
             parent,
             indexAll,
             index,
+            slot: slotName,
             center: {
               x: rect.left,
               y: rect.top + rect.height / 2,
@@ -216,6 +225,7 @@ export function getInsertAreas() {
           parent,
           indexAll,
           index,
+          slot: slotName,
           center: {
             x: rect.left,
             y: rect.top + rect.height / 2,
@@ -232,6 +242,7 @@ export function getInsertAreas() {
             parent,
             indexAll: indexAll + 1,
             index: index + 1,
+            slot: slotName,
             center: {
               x: (rect.right + nextRect.left) / 2,
               y: nextRect.top + nextRect.height / 2,
@@ -245,6 +256,7 @@ export function getInsertAreas() {
             parent,
             indexAll: indexAll + 1,
             index: index + 1,
+            slot: slotName,
             center: {
               x: rect.right,
               y: rect.top + rect.height / 2,
@@ -259,6 +271,7 @@ export function getInsertAreas() {
           parent,
           indexAll: indexAll + 1,
           index: index + 1,
+          slot: slotName,
           center: {
             x: rect.right,
             y: rect.top + rect.height / 2,

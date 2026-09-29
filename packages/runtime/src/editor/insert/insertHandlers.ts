@@ -74,6 +74,7 @@ export const handleInsertEnded = async (
       type: 'insertNode',
       parent: selectedPermutation.parent.getAttribute('data-id'),
       index: selectedPermutation.index,
+      slot: selectedPermutation.slot,
     })
     return null
   } else {
