@@ -311,10 +311,13 @@ export function createComponent({
 
   attributesSignal.subscribe(
     (Attributes) =>
-      componentDataSignal.update((data) => ({
-        ...data,
-        Attributes,
-      })),
+      componentDataSignal.update(
+        (data) => ({
+          ...data,
+          Attributes,
+        }),
+        { force: true },
+      ),
     { destroy: () => componentDataSignal.destroy() },
   )
 

@@ -19,8 +19,10 @@ export function subscribeToContext(
 ) {
   Object.entries(component.contexts ?? {}).forEach(
     ([providerName, context]) => {
-      const provider =
-        ctx.providers[[ctx.package, providerName].filter(isDefined).join('/')]
+      const providerKey = [ctx.package, providerName]
+        .filter(isDefined)
+        .join('/')
+      const provider = ctx.providers[providerKey] ?? ctx.providers[providerName]
 
       if (provider) {
         context.formulas.forEach((formulaName) => {
@@ -35,18 +37,29 @@ export function subscribeToContext(
             return
           }
 
-          formulaDataSignal.subscribe((value) => {
-            componentDataSignal.update((data) => ({
-              ...data,
-              Contexts: {
-                ...data.Contexts,
-                [providerName]: {
-                  ...data.Contexts?.[providerName],
-                  [formulaName]: value,
+          const unsubscribe = formulaDataSignal.subscribe((value) => {
+            const currentContexts = componentDataSignal.value.Contexts
+            if (currentContexts?.[providerName]?.[formulaName] === value) {
+              return
+            }
+
+            componentDataSignal.update(
+              (data) => ({
+                ...data,
+                Contexts: {
+                  ...data.Contexts,
+                  [providerName]: {
+                    ...data.Contexts?.[providerName],
+                    [formulaName]: value,
+                  },
                 },
-              },
-            }))
+              }),
+              // We know that the value has changed as we are just forwarding it,
+              // so we can safely force the update and skip any subsequent checks for equality
+              { force: true },
+            )
           })
+          componentDataSignal.subscriptions.push(unsubscribe)
         })
       }
 

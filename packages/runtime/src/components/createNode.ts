@@ -309,12 +309,15 @@ export function createNode({
                   return
                 }
 
-                childDataSignal.update(({ ListItem }) => {
-                  return {
-                    ...data,
-                    ListItem,
-                  }
-                })
+                childDataSignal.update(
+                  ({ ListItem }) => {
+                    return {
+                      ...data,
+                      ListItem,
+                    }
+                  },
+                  { force: true },
+                )
               },
               {
                 destroy: () => childDataSignal.destroy(),

@@ -67,6 +67,22 @@ const CASES = [
     id: 'custom-element',
     name: 'custom-element (define & mount 200 custom elements)',
   },
+  {
+    id: 'repeat-list-shuffle',
+    name: 'repeat-list-shuffle (20 cycles: re-sort & reorder 200 repeat items)',
+  },
+  {
+    id: 'lifecycle-churn',
+    name: 'lifecycle-churn (30 cycles: conditional mount & unmount of component subtree)',
+  },
+  {
+    id: 'style-variables',
+    name: 'style-variables (40 cycles: dynamic CSS custom properties across 200 nodes)',
+  },
+  {
+    id: 'context-propagation',
+    name: 'context-propagation (40 cycles: root context broadcast to 200 consumers)',
+  },
 ] as const
 
 function parseArgs() {
@@ -391,7 +407,7 @@ async function runBenchmark() {
     '\n==================================== BENCHMARK RESULTS ====================================',
   )
   console.log(
-    'Case'.padEnd(17) +
+    'Case'.padEnd(21) +
       'Base/Head time'.padStart(20) +
       'Delta'.padStart(9) +
       '  Time Verdict'.padEnd(18) +
@@ -399,7 +415,7 @@ async function runBenchmark() {
       'Delta'.padStart(11) +
       '  Heap Verdict',
   )
-  console.log('-'.repeat(110))
+  console.log('-'.repeat(114))
 
   for (const r of results) {
     const baseStr = `${r.baseMedianMs.toFixed(1)} ms`
@@ -412,7 +428,7 @@ async function runBenchmark() {
     const deltaHeapStr = `${r.deltaHeapKb >= 0 ? '+' : ''}${formatKb(r.deltaHeapKb)}`
 
     console.log(
-      r.id.padEnd(17) +
+      r.id.padEnd(21) +
         timeCombined.padStart(20) +
         deltaPctStr.padStart(9) +
         '  ' +
