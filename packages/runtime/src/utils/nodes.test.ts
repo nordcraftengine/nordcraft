@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import '../happydom'
-import {
-  ensureEfficientOrdering,
-  getNextSiblingElement,
-  stripNodeIdRepeatIndices,
-} from './nodes'
+import { ensureEfficientOrdering, getNextSiblingElement } from './nodes'
 
 describe('getNextSiblingElement', () => {
   it('should return null if there are no children', () => {
@@ -207,44 +203,5 @@ describe('ensureEfficientOrdering', () => {
     expect(parent.childNodes[0]).toBe(item3)
     expect(parent.childNodes[1]).toBe(item1)
     expect(parent.childNodes[2]).toBe(item2)
-  })
-})
-
-describe('stripNodeIdRepeatIndices', () => {
-  it('should return null if nodeId is null', () => {
-    expect(stripNodeIdRepeatIndices(null)).toBeNull()
-  })
-
-  it('should return null if nodeId is undefined', () => {
-    // @ts-expect-error testing undefined input
-    expect(stripNodeIdRepeatIndices(undefined)).toBeNull()
-  })
-
-  it('should return the same string if there are no repeat indices', () => {
-    expect(stripNodeIdRepeatIndices('1.2.3')).toBe('1.2.3')
-  })
-
-  it('should strip repeat indices from a single part', () => {
-    expect(stripNodeIdRepeatIndices('1(0)')).toBe('1')
-  })
-
-  it('should strip repeat indices from multiple parts', () => {
-    expect(stripNodeIdRepeatIndices('1.2(3).4(5)')).toBe('1.2.4')
-  })
-
-  it('should handle mixed parts with and without repeat indices', () => {
-    expect(stripNodeIdRepeatIndices('1.2(3).4.5(6)')).toBe('1.2.4.5')
-  })
-
-  it('should handle parts with multiple parentheses', () => {
-    expect(stripNodeIdRepeatIndices('1(0(1)).2(3)')).toBe('1.2')
-  })
-
-  it('should handle nodeId with only repeat indices', () => {
-    expect(stripNodeIdRepeatIndices('(0)')).toBe('')
-  })
-
-  it('should handle nodeId with repeat and slot indices', () => {
-    expect(stripNodeIdRepeatIndices('{0}(0)')).toBe('')
   })
 })

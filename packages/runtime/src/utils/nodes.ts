@@ -4,9 +4,9 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 
-type NodeWithNodeId = NodeModel & { nodeId: string }
+export type NodeWithNodeId = NodeModel & { nodeId: string }
 
-interface NodeAndAncestorLookup {
+export interface NodeAndAncestorLookup {
   node: NodeWithNodeId
   ancestors: NodeWithNodeId[]
 }
@@ -131,15 +131,4 @@ export function ensureEfficientOrdering(
     // Update insertBeforeElement to the current item for the next iteration, as we need to insert subsequent items before this one.
     insertBeforeElement = item
   }
-}
-
-export function stripNodeIdRepeatIndices(nodeId: string | null): string | null {
-  if (!nodeId) {
-    return null
-  }
-
-  return nodeId
-    .split('.')
-    .map((part) => part.split('(')[0].split('{')[0])
-    .join('.')
 }

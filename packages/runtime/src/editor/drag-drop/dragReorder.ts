@@ -1,6 +1,6 @@
 import { isElementInViewport } from '../../utils/isElementInViewport'
-import { stripNodeIdRepeatIndices } from '../../utils/nodes'
 import { tryStartViewTransition } from '../../utils/tryStartViewTransition'
+import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from '../dom'
 import { DRAG_MOVE_CLASSNAME, getBestPermutation } from '../helpers'
 import type { DragInsertState } from '../types'
 import { setDropHighlight } from './dropHighlight'
@@ -36,6 +36,7 @@ export async function dragReorder(dragState: DragInsertState | null) {
         type: 'highlight',
         highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
         exactHighlightedNodeId: nodeId,
+        repeatNodeIndex: getRepeatNodeIndex(nodeId, dragState.initialContainer),
       },
       '*',
     )

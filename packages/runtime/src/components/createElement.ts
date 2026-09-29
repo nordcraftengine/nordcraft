@@ -5,6 +5,11 @@ import type {
   NodeModel,
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
+import {
+  DATA_ATTR_COMPONENT,
+  DATA_ATTR_ID,
+  DATA_ATTR_NODE_ID,
+} from '@nordcraft/core/dist/const'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import {
   getClassName,
@@ -67,12 +72,12 @@ export function createElement({
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
 
-  elem.setAttribute('data-node-id', id)
+  elem.setAttribute(DATA_ATTR_NODE_ID, id)
   if (path) {
-    elem.setAttribute('data-id', path)
+    elem.setAttribute(DATA_ATTR_ID, path)
   }
   if (ctx.isRootComponent === false && id !== 'root') {
-    elem.setAttribute('data-component', ctx.component.name)
+    elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
   }
   // class names are baked during preprocessing, except for in editor-preview where we generate them on the fly
   if (node.style || node.variants?.some((v) => v.style)) {

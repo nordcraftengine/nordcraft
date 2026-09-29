@@ -3,6 +3,13 @@ import type {
   SupportedNamespaces,
   TextNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
+import {
+  DATA_ATTR_COMPONENT,
+  DATA_ATTR_ID,
+  DATA_ATTR_NODE_ID,
+  DATA_ATTR_NODE_TYPE,
+  DATA_NODE_TYPE_TEXT,
+} from '@nordcraft/core/dist/const'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
@@ -37,14 +44,14 @@ export function createText({
 
   const { value } = node
   const elem = document.createElement('span')
-  elem.setAttribute('data-node-id', id)
+  elem.setAttribute(DATA_ATTR_NODE_ID, id)
   if (typeof id === 'string') {
-    elem.setAttribute('data-id', path)
+    elem.setAttribute(DATA_ATTR_ID, path)
   }
   if (ctx.isRootComponent === false) {
-    elem.setAttribute('data-component', ctx.component.name)
+    elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
   }
-  elem.setAttribute('data-node-type', 'text')
+  elem.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
   if (value.type !== 'value') {
     const sig = dataSignal.map((data) =>
       String(

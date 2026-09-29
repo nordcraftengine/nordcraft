@@ -1,14 +1,15 @@
-import { getDOMNodeFromNodeId } from '../../editor-preview.main'
 import { rectHasPoint } from '../../utils/rectHasPoint'
+import { DATA_ATTR_SELECTED } from '../const'
+import { getDOMNodeFromNodeId } from '../dom'
 import { removeDropHighlight } from '../drag-drop/dropHighlight'
 import { dragInsertEnded, dragInsertMove, dragInsertStarted } from '../helpers'
 import { postMessageToEditor } from '../postMessageToEditor'
-import type { DragInsertState } from '../types'
+import type { CanvasElementType, DragInsertState } from '../types'
 
 export const handleInsertStarted = (
   messageData: { x: number; y: number },
   highlightedNodeId: string | null,
-  elementType: 'text' | 'div',
+  elementType: CanvasElementType,
 ): DragInsertState | null => {
   const highlightedElement = getDOMNodeFromNodeId(highlightedNodeId)
   if (!highlightedElement?.parentElement) {
@@ -21,7 +22,7 @@ export const handleInsertStarted = (
   ) as HTMLElement[]
 
   const divElement = document.createElement('div')
-  divElement.setAttribute('data-selected', 'true')
+  divElement.setAttribute(DATA_ATTR_SELECTED, 'true')
   divElement.style.minWidth = '1em'
   divElement.style.minHeight = '1em'
 

@@ -17,9 +17,23 @@ export function getRectData(selectedNode: Element | null | undefined) {
 
   const {
     display,
+    borderTopWidth,
+    borderRightWidth,
+    borderBottomWidth,
+    borderLeftWidth,
     borderRadius,
-    padding,
-    margin,
+    marginTop,
+    marginRight,
+    marginBottom,
+    marginLeft,
+    paddingTop,
+    paddingRight,
+    paddingBottom,
+    paddingLeft,
+    borderTopLeftRadius,
+    borderTopRightRadius,
+    borderBottomRightRadius,
+    borderBottomLeftRadius,
     flexDirection,
     gap,
     rowGap,
@@ -33,9 +47,33 @@ export function getRectData(selectedNode: Element | null | undefined) {
 
   return {
     ...toRectData(rect),
-    borderRadius: borderRadius.split(' '),
-    padding: padding.split(' '),
-    margin: margin.split(' '),
+    boundingClientRect: toRectData(selectedNode.getBoundingClientRect()),
+    border: [
+      borderTopWidth || '0px',
+      borderRightWidth || '0px',
+      borderBottomWidth || '0px',
+      borderLeftWidth || '0px',
+    ],
+    borderRadius: borderRadius
+      ? borderRadius.split(' ')
+      : [
+          borderTopLeftRadius || '0px',
+          borderTopRightRadius || '0px',
+          borderBottomRightRadius || '0px',
+          borderBottomLeftRadius || '0px',
+        ],
+    padding: [
+      paddingTop || '0px',
+      paddingRight || '0px',
+      paddingBottom || '0px',
+      paddingLeft || '0px',
+    ],
+    margin: [
+      marginTop || '0px',
+      marginRight || '0px',
+      marginBottom || '0px',
+      marginLeft || '0px',
+    ],
     gap: gap.split(' '),
     boxSizing,
     display,
@@ -51,6 +89,7 @@ export function getRectData(selectedNode: Element | null | undefined) {
         ? getParentRectData(parent)
         : null,
     children: Array.from(selectedNode.children).map(getBasicRectData),
+    repeatItems: getRepeatItemsData(selectedNode),
   }
 }
 
@@ -63,8 +102,8 @@ const toRectData = ({
   bottom,
   width,
   height,
-  x,
-  y,
+  x = left,
+  y = top,
 }: DOMRect) => ({
   left,
   top,
@@ -80,14 +119,55 @@ const getBasicRectData = (node: Element) =>
   toRectData(getScaledIntrinsicRect(node).rect)
 
 function getParentRectData(parent: Element) {
-  const { rowGap, columnGap, padding } = getStyle(parent)
+  const {
+    rowGap,
+    columnGap,
+    paddingTop,
+    paddingRight,
+    paddingBottom,
+    paddingLeft,
+  } = getStyle(parent)
   return {
     ...getBasicRectData(parent),
     rowGap,
     columnGap,
-    padding: padding.split(' '),
+    padding: [
+      paddingTop || '0px',
+      paddingRight || '0px',
+      paddingBottom || '0px',
+      paddingLeft || '0px',
+    ],
   }
 }
+
+export function getRepeatItemsData(selectedNode: Element) {
+  const path = selectedNode.getAttribute('data-id')
+  if (!path) {
+    return null
+  }
+
+  const parent = selectedNode.parentElement ?? selectedNode.parentNode
+  if (!parent || !('children' in parent)) {
+    return null
+  }
+
+  const repeatRegex = new RegExp(`^${escapeRegex(path)}\\(\\d+\\)$`)
+  const repeatNodes = Array.from(parent.children).filter((child) => {
+    if (child === selectedNode) {
+      return false
+    }
+    const id = child.getAttribute('data-id')
+    return id && repeatRegex.test(id)
+  })
+
+  if (repeatNodes.length === 0) {
+    return null
+  }
+
+  return repeatNodes.map(getBasicRectData)
+}
+
+const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 /** A `width` x `height` rect with the same centre as `around`. */
 const centeredRect = (around: DOMRect, width: number, height: number) =>
@@ -248,10 +328,7 @@ function getTransformStyles(el: Element) {
     el instanceof HTMLElement || el instanceof SVGElement ? el.style : null
 
   const get = (name: 'transform' | 'rotate' | 'scale' | 'translate'): string =>
-    computed[name] ||
-    inline?.getPropertyValue(name) ||
-    (inline as any)?.[name] ||
-    'none'
+    computed[name] || inline?.getPropertyValue(name) || inline?.[name] || 'none'
 
   return {
     transform: get('transform'),

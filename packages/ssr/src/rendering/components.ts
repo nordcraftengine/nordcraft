@@ -12,6 +12,12 @@ import type {
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
+import {
+  DATA_ATTR_ID,
+  DATA_ATTR_NODE_ID,
+  DATA_ATTR_NODE_TYPE,
+  DATA_NODE_TYPE_TEXT,
+} from '@nordcraft/core/dist/const'
 import type {
   FormulaContext,
   ToddleServerEnv,
@@ -146,7 +152,7 @@ const renderComponent = async ({
     switch (node.type) {
       case 'text': {
         if (!namespace || namespace === 'http://www.w3.org/1999/xhtml') {
-          return `<span data-node-type="text" data-node-id="${id}">${toEncodedText(
+          return `<span ${DATA_ATTR_NODE_TYPE}="${DATA_NODE_TYPE_TEXT}" ${DATA_ATTR_NODE_ID}="${id}">${toEncodedText(
             String(applyFormula(node.value, formulaContext)),
           )}</span>`
         }
@@ -302,8 +308,8 @@ const renderComponent = async ({
             : node.tag
         const attributes = [
           ...nodeAttrs,
-          `data-id="${path}"`,
-          `data-node-id="${escapeAttrValue(id)}"`,
+          `${DATA_ATTR_ID}="${path}"`,
+          `${DATA_ATTR_NODE_ID}="${escapeAttrValue(id)}"`,
         ]
         if (classList.length > 0) {
           attributes.push(`class="${escapeAttrValue(classList.join(' '))}"`)

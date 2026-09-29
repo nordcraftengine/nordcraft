@@ -1,3 +1,8 @@
+import {
+  DATA_ATTR_NODE_ID,
+  DATA_ATTR_NODE_TYPE,
+  DATA_NODE_TYPE_TEXT,
+} from '../const'
 import type { OldTheme } from './theme'
 
 export const CUSTOM_PROPERTIES_STYLESHEET_ID = 'nc-custom-properties'
@@ -24,7 +29,7 @@ export const RESET_STYLES = `
     margin:0;
   }
 
-  [data-node-id]:not([data-unset-toddle-styles],[data-node-type="text"],noscript,br,script,style,math,math *,link,template,meta,title,base), [data-node-id]:not([data-unset-toddle-styles],noscript)::before, [data-node-id]:not([data-unset-toddle-styles],noscript)::after {
+  [${DATA_ATTR_NODE_ID}]:not([data-unset-toddle-styles],[${DATA_ATTR_NODE_TYPE}="${DATA_NODE_TYPE_TEXT}"],noscript,br,script,style,math,math *,link,template,meta,title,base), [${DATA_ATTR_NODE_ID}]:not([data-unset-toddle-styles],noscript)::before, [${DATA_ATTR_NODE_ID}]:not([data-unset-toddle-styles],noscript)::after {
     display: flex;
     flex-direction: column;
     flex-grow: 0;
@@ -45,26 +50,26 @@ export const RESET_STYLES = `
     box-shadow: none;
   }
 
-  [data-node-id]:not([data-unset-toddle-styles]):is(p, h1, h2, h3, h4, h5, h6, label, span, strong, b, i, address, caption, code, cite, dt, dd, em, figcaption, legend, blockquote, abbr, pre, bdo, bdi) {
+  [${DATA_ATTR_NODE_ID}]:not([data-unset-toddle-styles]):is(p, h1, h2, h3, h4, h5, h6, label, span, strong, b, i, address, caption, code, cite, dt, dd, em, figcaption, legend, blockquote, abbr, pre, bdo, bdi) {
     display: inline-block;
     overflow-wrap: break-word;
     color: inherit;
   }
 
-  [data-node-id]:not([data-unset-toddle-styles]):is(input, button, textarea, select) {
+  [${DATA_ATTR_NODE_ID}]:not([data-unset-toddle-styles]):is(input, button, textarea, select) {
     outline: none;
   }
 
-  [data-node-id]:not([data-unset-toddle-styles]):is(a) {
+  [${DATA_ATTR_NODE_ID}]:not([data-unset-toddle-styles]):is(a) {
     color: inherit;
     text-decoration: none;
   }
 
-  [data-node-id]:not([data-unset-toddle-styles]):is(ul, ol, li) {
+  [${DATA_ATTR_NODE_ID}]:not([data-unset-toddle-styles]):is(ul, ol, li) {
     list-style: none;
   }
 
-  [data-node-id]:not([data-unset-toddle-styles]):is(span[data-node-type="text"]) {
+  [${DATA_ATTR_NODE_ID}]:not([data-unset-toddle-styles]):is(span[${DATA_ATTR_NODE_TYPE}="${DATA_NODE_TYPE_TEXT}"]) {
     font: inherit;
     display: inline;
     flex-direction: column;
