@@ -26,13 +26,9 @@ async function initHarness() {
   project = loadedProject
   nordcraftProject = loadedNordcraft
 
-  try {
-    customElementRuntime = await import(
-      `/bundle/${version}/custom-element.main.esm.js`
-    )
-  } catch (err) {
-    console.warn('Custom element runtime could not be loaded:', err)
-  }
+  customElementRuntime = await import(
+    `/bundle/${version}/custom-element.main.esm.js`
+  )
 
   window.__nordcraftProject = nordcraftProject
   window.__benchmarkProject = project
@@ -82,6 +78,22 @@ function setupPage(fixture, pageName, pageState = {}) {
 
 function setupNordcraftPage(pageName = 'nordcraft') {
   return setupPage(nordcraftProject, pageName)
+}
+
+function setupShufflePage() {
+  return setupPage(project, 'ShufflePage')
+}
+
+function setupLifecyclePage() {
+  return setupPage(project, 'LifecyclePage')
+}
+
+function setupStylesPage() {
+  return setupPage(project, 'StylesPage')
+}
+
+function setupContextPage() {
+  return setupPage(project, 'ContextPage')
 }
 
 function setupSyntheticEnvironment(itemsCount = 50) {
@@ -188,7 +200,7 @@ const cases = {
    */
   async 'custom-element'() {
     if (!customElementRuntime?.defineComponents) {
-      return
+      throw new Error('Custom element runtime is unavailable')
     }
 
     const app = document.getElementById('App')
@@ -213,6 +225,140 @@ const cases = {
     for (let i = 0; i < 200; i++) {
       const el = document.createElement('toddle-counter')
       app.appendChild(el)
+    }
+  },
+
+  /**
+   * Scenario 6: repeat-list-shuffle
+   * Renders 200 repeat items from a Range formula (each with a unique
+   * repeat-key and two sortable columns) and measures how quickly the DOM
+   * reorders the list across 20 clicks that alternate the sort column.
+   */
+  async 'repeat-list-shuffle'() {
+    const app = document.getElementById('App')
+    app.replaceChildren()
+    setupShufflePage()
+    project.runtime.createRoot(app)
+
+    const sortBtn = document.getElementById('btn-sort-list')
+    const listUl = document.getElementById('benchmark-shuffle-list')
+    if (!sortBtn || !listUl) {
+      throw new Error('Shuffle benchmark button or ul not found')
+    }
+    if (listUl.children.length !== 200) {
+      throw new Error(`Expected 200 items, got ${listUl.children.length}`)
+    }
+
+    const getOrder = () =>
+      Array.from(listUl.children)
+        .map((el) => el.getAttribute('data-id'))
+        .join(',')
+
+    const orderBefore = getOrder()
+    for (let i = 0; i < 20; i++) {
+      sortBtn.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true }),
+      )
+    }
+
+    if (listUl.children.length !== 200) {
+      throw new Error(
+        `Expected 200 items after shuffle, got ${listUl.children.length}`,
+      )
+    }
+    if (getOrder() === orderBefore) {
+      throw new Error('List order did not change after sorting')
+    }
+  },
+
+  /**
+   * Scenario 7: lifecycle-churn
+   * Measures 30 cycles of mounting and unmounting a 30+ node conditional
+   * component subtree with nested components, repeat lists, formulas, and event listeners.
+   */
+  async 'lifecycle-churn'() {
+    const app = document.getElementById('App')
+    app.replaceChildren()
+    setupLifecyclePage()
+    project.runtime.createRoot(app)
+
+    const toggleBtn = document.getElementById('btn-toggle-lifecycle')
+    if (!toggleBtn) {
+      throw new Error('btn-toggle-lifecycle not found')
+    }
+
+    for (let i = 0; i < 30; i++) {
+      toggleBtn.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true }),
+      )
+    }
+
+    const container = document.getElementById('lifecycle-container')
+    if (container) {
+      throw new Error(
+        'Expected lifecycle-container to be unmounted after 30 toggles',
+      )
+    }
+  },
+
+  /**
+   * Scenario 8: style-variables
+   * Measures 40 cycles of updating dynamic CSS custom properties
+   * across 200 repeated elements via CustomPropertyStyleSheet.
+   */
+  async 'style-variables'() {
+    const app = document.getElementById('App')
+    app.replaceChildren()
+    setupStylesPage()
+    project.runtime.createRoot(app)
+
+    const cycleBtn = document.getElementById('btn-cycle-styles')
+    const list = document.getElementById('styles-list')
+    if (!cycleBtn || !list) {
+      throw new Error('Styles benchmark button or list not found')
+    }
+    if (list.children.length !== 200) {
+      throw new Error(`Expected 200 items, got ${list.children.length}`)
+    }
+
+    for (let i = 0; i < 40; i++) {
+      cycleBtn.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true }),
+      )
+    }
+  },
+
+  /**
+   * Scenario 9: context-propagation
+   * Measures 40 cycles of updating a root context provider and propagating
+   * the new context values down to 200 deeply nested consumer components.
+   */
+  async 'context-propagation'() {
+    const app = document.getElementById('App')
+    app.replaceChildren()
+    setupContextPage()
+    project.runtime.createRoot(app)
+
+    const toggleBtn = document.getElementById('btn-toggle-context')
+    const list = document.getElementById('context-consumer-list')
+    if (!toggleBtn || !list) {
+      throw new Error('Context benchmark button or list not found')
+    }
+    if (list.children.length !== 200) {
+      throw new Error(`Expected 200 consumers, got ${list.children.length}`)
+    }
+
+    for (let i = 0; i < 40; i++) {
+      toggleBtn.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true }),
+      )
+    }
+
+    const firstItem = list.firstElementChild
+    if (!firstItem?.textContent?.includes('light-mode')) {
+      throw new Error(
+        `Expected consumer to have 'light-mode', got '${firstItem?.textContent}'`,
+      )
     }
   },
 }

@@ -12,6 +12,12 @@ import type {
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
+import {
+  DATA_ATTR_ID,
+  DATA_ATTR_NODE_ID,
+  DATA_ATTR_NODE_TYPE,
+  DATA_NODE_TYPE_TEXT,
+} from '@nordcraft/core/dist/const'
 import type {
   FormulaContext,
   ToddleServerEnv,
@@ -35,9 +41,41 @@ import type { ApiCache, ApiEvaluator } from './api'
 import { getNodeAttrs, toEncodedText } from './attributes'
 
 type CustomPropertyRule = `--${string}: ${string}`
+type SlottedContentOptions = {
+  slotRepeatIndex?: number
+  slotSuffix?: string
+  slotPath?: string
+}
+
 type SlottedContent =
   | string
-  | ((contexts: Record<string, Record<string, any>>) => Promise<string>)
+  | ((
+      contexts: Record<string, Record<string, any>>,
+      options?: SlottedContentOptions,
+    ) => Promise<string>)
+
+function getSlotComponentIndex(
+  nodeName: string,
+  node: NodeModel,
+  componentNodes: Component['nodes'],
+) {
+  let slotsWithSameNameIndex = 0
+  if (componentNodes) {
+    for (const n in componentNodes) {
+      const currentNode = componentNodes[n]
+      if (
+        currentNode?.type === 'slot' &&
+        (currentNode.name ?? 'default') === nodeName
+      ) {
+        if (currentNode === node) {
+          break
+        }
+        slotsWithSameNameIndex++
+      }
+    }
+  }
+  return slotsWithSameNameIndex
+}
 
 const renderComponent = async ({
   path,
@@ -57,6 +95,8 @@ const renderComponent = async ({
   updateApiCache,
   addCustomProperty,
   namespace,
+  slotRepeatIndex,
+  slotSuffix,
 }: {
   path: string
   apiCache: ApiCache
@@ -82,6 +122,8 @@ const renderComponent = async ({
     }>,
   ) => void
   namespace?: SupportedNamespaces
+  slotRepeatIndex?: number
+  slotSuffix?: string
 }): Promise<string> => {
   const renderNode = async ({
     id,
@@ -91,6 +133,8 @@ const renderComponent = async ({
     packageName,
     isComponentRootNode = false,
     namespace,
+    slotRepeatIndex,
+    slotSuffix,
   }: {
     id: string
     path: string
@@ -99,6 +143,8 @@ const renderComponent = async ({
     packageName: string | undefined
     isComponentRootNode?: boolean
     namespace?: SupportedNamespaces
+    slotRepeatIndex?: number
+    slotSuffix?: string
   }): Promise<string> => {
     if (!node) {
       return ''
@@ -131,6 +177,8 @@ const renderComponent = async ({
             },
             namespace,
             packageName,
+            slotRepeatIndex: Index || undefined,
+            slotSuffix,
           }),
         ),
       )
@@ -146,7 +194,7 @@ const renderComponent = async ({
     switch (node.type) {
       case 'text': {
         if (!namespace || namespace === 'http://www.w3.org/1999/xhtml') {
-          return `<span data-node-type="text" data-node-id="${id}">${toEncodedText(
+          return `<span ${DATA_ATTR_NODE_TYPE}="${DATA_NODE_TYPE_TEXT}" ${DATA_ATTR_NODE_ID}="${id}">${toEncodedText(
             String(applyFormula(node.value, formulaContext)),
           )}</span>`
         }
@@ -154,21 +202,40 @@ const renderComponent = async ({
         return toEncodedText(String(applyFormula(node.value, formulaContext)))
       }
       case 'slot': {
-        const defaultChild = children?.[node.name ?? 'default']
+        const slotName = node.name ?? 'default'
+        const defaultChild = children?.[slotName]
         if (defaultChild) {
+          const slotComponentIndex = getSlotComponentIndex(
+            slotName,
+            node,
+            component.nodes,
+          )
+          let currentSuffix = slotSuffix ?? ''
+          if (slotComponentIndex > 0) {
+            currentSuffix += `{${slotComponentIndex}}`
+          }
+          if (slotRepeatIndex && slotRepeatIndex > 0) {
+            currentSuffix += `(${slotRepeatIndex})`
+          }
           return typeof defaultChild === 'function'
-            ? await defaultChild(data.Contexts ?? {})
+            ? await defaultChild(data.Contexts ?? {}, {
+                slotRepeatIndex,
+                slotSuffix: currentSuffix || undefined,
+                slotPath: path,
+              })
             : defaultChild
         } else {
           const slotChildren = await Promise.all(
-            (node.children ?? []).map((child) =>
+            (node.children ?? []).map((child, i) =>
               renderNode({
                 id: child,
-                path: `${path}[${node.name ?? 'default'}]`,
+                path: `${path}.${i}`,
                 node: component.nodes?.[child],
                 data,
                 packageName,
                 namespace,
+                slotRepeatIndex,
+                slotSuffix,
               }),
             ),
           )
@@ -281,6 +348,8 @@ const renderComponent = async ({
                     node: component.nodes?.[child],
                     data,
                     packageName,
+                    slotRepeatIndex,
+                    slotSuffix,
                   }),
                 ),
               )
@@ -302,8 +371,8 @@ const renderComponent = async ({
             : node.tag
         const attributes = [
           ...nodeAttrs,
-          `data-id="${path}"`,
-          `data-node-id="${escapeAttrValue(id)}"`,
+          `${DATA_ATTR_ID}="${path}"`,
+          `${DATA_ATTR_NODE_ID}="${escapeAttrValue(id)}"`,
         ]
         if (classList.length > 0) {
           attributes.push(`class="${escapeAttrValue(classList.join(' '))}"`)
@@ -422,10 +491,25 @@ const renderComponent = async ({
                 ? (component.nodes?.[child]?.slot ?? 'default')
                 : 'default'
 
-            return (contexts: Record<string, Record<string, unknown>>) => {
+            return (
+              contexts: Record<string, Record<string, unknown>>,
+              options?: SlottedContentOptions,
+            ) => {
+              const currentSuffix = options?.slotSuffix ?? ''
+              let basePath = `${path}.${i}[${slotName}]`
+              if (
+                options?.slotPath &&
+                options.slotPath.length > basePath.length
+              ) {
+                basePath = i > 0 ? `${options.slotPath}.${i}` : options.slotPath
+              }
+              const finalPath =
+                currentSuffix && !basePath.endsWith(currentSuffix)
+                  ? `${basePath}${currentSuffix}`
+                  : basePath
               return renderNode({
                 id: child,
-                path: `${path}.${i}[${slotName}]`,
+                path: finalPath,
                 namespace,
                 node: component.nodes?.[child],
                 data: {
@@ -503,6 +587,8 @@ const renderComponent = async ({
                 },
                 // pass package name to child component if it's defined
                 packageName,
+                slotRepeatIndex: options?.slotRepeatIndex,
+                slotSuffix: currentSuffix || undefined,
               })
             }
           }),
@@ -524,8 +610,11 @@ const renderComponent = async ({
                 ? existing
                 : async () => existing as string
             // Handle multiple elements in the same slot by appending
-            children[slotName] = async (contexts) => {
-              return (await previous(contexts)) + (await renderFn(contexts))
+            children[slotName] = async (contexts, options) => {
+              return (
+                (await previous(contexts, options)) +
+                (await renderFn(contexts, options))
+              )
             }
           } else {
             children[slotName] = renderFn
@@ -605,6 +694,8 @@ const renderComponent = async ({
           namespace,
           evaluateComponentApis,
           req,
+          slotRepeatIndex,
+          slotSuffix,
         })
       }
     }
@@ -617,6 +708,8 @@ const renderComponent = async ({
     packageName,
     isComponentRootNode: true,
     namespace,
+    slotRepeatIndex,
+    slotSuffix,
   })
 }
 
@@ -640,6 +733,8 @@ const createComponent = async ({
   updateApiCache,
   addCustomProperty,
   namespace,
+  slotRepeatIndex,
+  slotSuffix,
 }: {
   path: string
   apiCache: ApiCache
@@ -664,6 +759,8 @@ const createComponent = async ({
   projectId: string
   req: Request
   namespace?: SupportedNamespaces
+  slotRepeatIndex?: number
+  slotSuffix?: string
   updateApiCache: (key: string, value: ApiStatus) => void
   addCustomProperty: (
     selector: string,
@@ -733,6 +830,8 @@ const createComponent = async ({
     toddle: formulaContext.toddle,
     updateApiCache,
     addCustomProperty,
+    slotRepeatIndex,
+    slotSuffix,
   })
 }
 

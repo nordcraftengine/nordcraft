@@ -1,4 +1,4 @@
-import { getDOMNodeFromNodeId } from '../../editor-preview.main'
+import { getDOMNodeFromNodeId } from '../dom'
 import { isVoidElement } from '../helpers'
 import type { InsertArea } from '../types'
 
