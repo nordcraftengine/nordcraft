@@ -4,6 +4,7 @@ import type {
   TextNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 
@@ -38,14 +39,29 @@ export function createText({
   const { value } = node
   const elem = document.createElement('span')
 
-  const isDefaultSlot =
-    Object.values(ctx.component.nodes ?? {}).filter(
-      (n) => n?.type === 'slot' && n.children?.includes(id),
-    ).length > 0
+  if (isDefined(ctx.component?.nodes)) {
+    const isDefaultSlot =
+      Object.values(ctx.component.nodes).filter(
+        (n) => n?.type === 'slot' && n.children?.includes(id),
+      ).length > 0
 
-  if (isDefaultSlot) {
-    elem.setAttribute('data-node-default-slot', 'true')
+    if (isDefaultSlot) {
+      elem.setAttribute('data-node-default-slot', 'true')
+    }
+
+    // This probably needs to be removed, since the text can't have any child elements
+    const hasSlotElements =
+      Object.values(ctx.component.nodes).filter((n) => n?.type === 'slot')
+        .length > 0
+
+    if (hasSlotElements) {
+      elem.setAttribute('data-has-slots-elements', 'true')
+    }
   }
+  if (ctx.isRootComponent) {
+    elem.setAttribute('data-is-root-component', 'true')
+  }
+
   elem.setAttribute('data-node-id', id)
   if (typeof id === 'string') {
     elem.setAttribute('data-id', path)
