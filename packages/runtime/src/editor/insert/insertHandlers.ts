@@ -1,4 +1,5 @@
 import { rectHasPoint } from '../../utils/rectHasPoint'
+import { DATA_ATTR_SELECTED } from '../const'
 import { getDOMNodeFromNodeId } from '../dom'
 import { removeDropHighlight } from '../drag-drop/dropHighlight'
 import { dragInsertEnded, dragInsertMove, dragInsertStarted } from '../helpers'
@@ -21,7 +22,7 @@ export const handleInsertStarted = (
   ) as HTMLElement[]
 
   const divElement = document.createElement('div')
-  divElement.setAttribute('data-selected', 'true')
+  divElement.setAttribute(DATA_ATTR_SELECTED, 'true')
   divElement.style.minWidth = '1em'
   divElement.style.minHeight = '1em'
 

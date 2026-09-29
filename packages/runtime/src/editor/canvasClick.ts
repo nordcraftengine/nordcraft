@@ -1,12 +1,17 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from '../utils/nodes'
 import {
   DATA_ATTR_COMPONENT,
   DATA_ATTR_ID,
   DATA_ATTR_NODE_TYPE,
   DATA_NODE_TYPE_TEXT,
 } from './const'
-import { getDOMNodeFromNodeId, getNodeId, lookupNodeAndAncestors } from './dom'
+import {
+  getDOMNodeFromNodeId,
+  getNodeId,
+  getRepeatNodeIndex,
+  lookupNodeAndAncestors,
+  stripNodeIdRepeatIndices,
+} from './dom'
 import { postMessageToEditor } from './postMessageToEditor'
 import type { EditorMode } from './types'
 

@@ -1,9 +1,11 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type {
+  Component,
+  NodeModel,
+} from '@nordcraft/core/dist/component/component.types'
 import type { Signal } from '../signal/signal'
 import {
   getNodeAndAncestors,
   isNodeOrAncestorConditional,
-  stripNodeIdRepeatIndices,
 } from '../utils/nodes'
 import {
   DATA_ATTR_COMPONENT,
@@ -14,6 +16,74 @@ import {
   DATA_NODE_TYPE_TEXT,
 } from './const'
 import type { EditorMode } from './types'
+
+export function stripNodeIdRepeatIndices(nodeId: string | null): string | null {
+  if (!nodeId) {
+    return null
+  }
+
+  return nodeId
+    .split('.')
+    .map((part) => part.split('(')[0].split('{')[0])
+    .join('.')
+}
+
+export const escapeRegex = (str: string) =>
+  str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+export function getRepeatNodeIndex(
+  nodeId: string | null | undefined,
+  nodeOrElement?: NodeModel | Element | null,
+): number | null {
+  if (!nodeId) {
+    return null
+  }
+
+  const matches = [...nodeId.matchAll(/\((\d+)\)/g)]
+  if (matches.length > 0) {
+    const lastMatch = matches[matches.length - 1]
+    return parseInt(lastMatch[1], 10)
+  }
+
+  if (nodeOrElement) {
+    if ('repeat' in nodeOrElement && Boolean(nodeOrElement.repeat)) {
+      return 0
+    }
+    if (typeof Element !== 'undefined' && nodeOrElement instanceof Element) {
+      const parent = nodeOrElement.parentElement ?? nodeOrElement.parentNode
+      if (parent && 'children' in parent) {
+        const repeatRegex = new RegExp(`^${escapeRegex(nodeId)}\\(\\d+\\)$`)
+        const hasRepeatSibling = Array.from(parent.children).some((child) => {
+          if (child === nodeOrElement) return false
+          const id = child.getAttribute(DATA_ATTR_ID)
+          return id && repeatRegex.test(id)
+        })
+        if (hasRepeatSibling) {
+          return 0
+        }
+      }
+    }
+  } else if (typeof document !== 'undefined') {
+    const elem = document.querySelector(
+      `[${DATA_ATTR_ID}="${nodeId}"]:not([${DATA_ATTR_COMPONENT}])`,
+    )
+    if (elem?.parentElement) {
+      const repeatRegex = new RegExp(`^${escapeRegex(nodeId)}\\(\\d+\\)$`)
+      const hasRepeatSibling = Array.from(elem.parentElement.children).some(
+        (child) => {
+          if (child === elem) return false
+          const id = child.getAttribute(DATA_ATTR_ID)
+          return id && repeatRegex.test(id)
+        },
+      )
+      if (hasRepeatSibling) {
+        return 0
+      }
+    }
+  }
+
+  return null
+}
 
 export function getDOMNodeFromNodeId(
   selectedNodeId: string | null | undefined,

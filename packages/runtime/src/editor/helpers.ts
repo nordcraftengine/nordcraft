@@ -1,6 +1,9 @@
 import { isElementInViewport } from '../utils/isElementInViewport'
-import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from '../utils/nodes'
 import { tryStartViewTransition } from '../utils/tryStartViewTransition'
+import {
+  getRepeatNodeIndex,
+  stripNodeIdRepeatIndices,
+} from './dom'
 import { DRAG_REORDER_CLASSNAME } from './drag-drop/dragReorder'
 import {
   removeDropHighlight,

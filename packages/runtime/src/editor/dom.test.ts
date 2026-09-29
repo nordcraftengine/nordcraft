@@ -1,7 +1,13 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, test } from 'bun:test'
 import { handleCanvasPointerEvent } from './canvasClick'
-import { markHighlightedTextNode, NC_EDITOR_HIGHLIGHTED_CLASS } from './dom'
+import { DATA_ATTR_SELECTED } from './const'
+import {
+  getRepeatNodeIndex,
+  markHighlightedTextNode,
+  NC_EDITOR_HIGHLIGHTED_CLASS,
+  stripNodeIdRepeatIndices,
+} from './dom'
 
 describe('markHighlightedTextNode', () => {
   beforeEach(() => {
@@ -43,7 +49,7 @@ describe('markHighlightedTextNode', () => {
 
   test('does not give class nc-editor-highlighted when the text node has data-selected="true"', () => {
     const textSpan = document.querySelector('[data-id="0.1"]')
-    textSpan?.setAttribute('data-selected', 'true')
+    textSpan?.setAttribute(DATA_ATTR_SELECTED, 'true')
 
     markHighlightedTextNode({
       highlightedNodeId: '0.1',
@@ -367,5 +373,107 @@ describe('handleCanvasPointerEvent hover highlighting', () => {
     } finally {
       window.parent.postMessage = originalPostMessage
     }
+  })
+})
+
+describe('stripNodeIdRepeatIndices', () => {
+  it('should return null if nodeId is null', () => {
+    expect(stripNodeIdRepeatIndices(null)).toBeNull()
+  })
+
+  it('should return null if nodeId is undefined', () => {
+    // @ts-expect-error testing undefined input
+    expect(stripNodeIdRepeatIndices(undefined)).toBeNull()
+  })
+
+  it('should return the same string if there are no repeat indices', () => {
+    expect(stripNodeIdRepeatIndices('1.2.3')).toBe('1.2.3')
+  })
+
+  it('should strip repeat indices from a single part', () => {
+    expect(stripNodeIdRepeatIndices('1(0)')).toBe('1')
+  })
+
+  it('should strip repeat indices from multiple parts', () => {
+    expect(stripNodeIdRepeatIndices('1.2(3).4(5)')).toBe('1.2.4')
+  })
+
+  it('should handle mixed parts with and without repeat indices', () => {
+    expect(stripNodeIdRepeatIndices('1.2(3).4.5(6)')).toBe('1.2.4.5')
+  })
+
+  it('should handle parts with multiple parentheses', () => {
+    expect(stripNodeIdRepeatIndices('1(0(1)).2(3)')).toBe('1.2')
+  })
+
+  it('should handle nodeId with only repeat indices', () => {
+    expect(stripNodeIdRepeatIndices('(0)')).toBe('')
+  })
+
+  it('should handle nodeId with repeat and slot indices', () => {
+    expect(stripNodeIdRepeatIndices('{0}(0)')).toBe('')
+  })
+})
+
+describe('getRepeatNodeIndex', () => {
+  it('should return null for null or undefined nodeId', () => {
+    expect(getRepeatNodeIndex(null)).toBeNull()
+    expect(getRepeatNodeIndex(undefined)).toBeNull()
+    expect(getRepeatNodeIndex('')).toBeNull()
+  })
+
+  it('should extract repeat index from nodeId with repeat index', () => {
+    expect(getRepeatNodeIndex('0.0(1)')).toBe(1)
+    expect(getRepeatNodeIndex('0.0(2)')).toBe(2)
+    expect(getRepeatNodeIndex('0.0(0)')).toBe(0)
+    expect(getRepeatNodeIndex('1.2(5).3')).toBe(5)
+    expect(getRepeatNodeIndex('1.2(3).4(7)')).toBe(7)
+  })
+
+  it('should return 0 for unindexed nodeId if node has repeat property', () => {
+    const repeatNode = {
+      type: 'element' as const,
+      tag: 'div',
+      repeat: { type: 'value' as const, value: [1, 2, 3] },
+    }
+    expect(getRepeatNodeIndex('0.0', repeatNode)).toBe(0)
+  })
+
+  it('should return null for unindexed nodeId if node does not have repeat property', () => {
+    const nonRepeatNode = {
+      type: 'element' as const,
+      tag: 'div',
+    }
+    expect(getRepeatNodeIndex('0.0', nonRepeatNode)).toBeNull()
+  })
+
+  it('should return 0 for unindexed element if it has repeat siblings in DOM', () => {
+    const parent = document.createElement('div')
+    const item0 = document.createElement('div')
+    item0.setAttribute('data-id', '0.0')
+    const item1 = document.createElement('div')
+    item1.setAttribute('data-id', '0.0(1)')
+    parent.appendChild(item0)
+    parent.appendChild(item1)
+    document.body.appendChild(parent)
+
+    expect(getRepeatNodeIndex('0.0', item0)).toBe(0)
+
+    document.body.removeChild(parent)
+  })
+
+  it('should return null for element without repeat siblings or repeat definition', () => {
+    const parent = document.createElement('div')
+    const item = document.createElement('div')
+    item.setAttribute('data-id', '0.0')
+    const other = document.createElement('div')
+    other.setAttribute('data-id', '0.1')
+    parent.appendChild(item)
+    parent.appendChild(other)
+    document.body.appendChild(parent)
+
+    expect(getRepeatNodeIndex('0.0', item)).toBeNull()
+
+    document.body.removeChild(parent)
   })
 })

@@ -44,6 +44,7 @@ import {
   getCurrentComponent,
   getDOMNodeFromNodeId,
   markHighlightedTextNode,
+  stripNodeIdRepeatIndices,
   updateConditionalElements,
 } from './editor/dom'
 import {
@@ -102,7 +103,6 @@ import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
 import type { ComponentContext } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
-import { stripNodeIdRepeatIndices } from './utils/nodes'
 
 export { getDOMNodeFromNodeId } from './editor/dom'
 export { initGlobalObject } from './editor/global'
