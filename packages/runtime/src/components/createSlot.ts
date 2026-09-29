@@ -3,6 +3,7 @@ import type {
   NodeModel,
   SlotNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
+import { identity } from '../signal/signal'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
 
@@ -21,10 +22,8 @@ export function createSlot({
   // Is slotted content provided?
   if (ctx.children[slotName]) {
     children = ctx.children[slotName].flatMap((child) => {
-      const childDataSignal = child.dataSignal.map((data) => data)
-      dataSignal.subscribe((data) => data, {
-        destroy: () => childDataSignal.destroy(),
-      })
+      const childDataSignal = child.dataSignal.map(identity)
+      dataSignal.onDestroy(() => childDataSignal.destroy())
       const slotComponentIndex = getSlotComponentIndex(
         slotName,
         node,

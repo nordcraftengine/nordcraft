@@ -31,6 +31,14 @@ import { getThemeSignal } from '../utils/getThemeSignal'
 /**
  * Base class for all toddle components
  */
+
+/**
+ * The stylesheet only depends on the component (and its dependencies/themes),
+ * which do not change during the process lifetime. Mounting many custom
+ * elements would otherwise duplicate a ~10KB CSS string per element.
+ */
+const stylesheetCache = new Map<string, string>()
+
 export class ToddleComponent extends HTMLElement {
   /**
    * Public reference to the toddle instance for debugging purposes. `el.toddle.errors` can be used to check for non-verbose errors.
@@ -88,10 +96,9 @@ export class ToddleComponent extends HTMLElement {
 
     // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
     const abortController = new AbortController()
-    this.#signal.subscribe(() => {}, {
-      destroy: () =>
-        abortController.abort(`Component ${component.name} unmounted`),
-    })
+    this.#signal.onDestroy(() =>
+      abortController.abort(`Component ${component.name} unmounted`),
+    )
 
     this.#ctx = {
       triggerEvent: this.dispatch.bind(this),
@@ -223,14 +230,18 @@ export class ToddleComponent extends HTMLElement {
     })
 
     this.#shadowRoot.innerHTML = ''
-    const styles = createStylesheet(
-      this.#ctx.component,
-      this.#ctx.components,
-      Object.entries(this.#files.themes ?? {}).length > 0
-        ? this.#files.themes
-        : { defaultTheme },
-      { includeResetStyle: true, createFontFaces: false },
-    )
+    let styles = stylesheetCache.get(this.#component.name)
+    if (!styles) {
+      styles = createStylesheet(
+        this.#ctx.component,
+        this.#ctx.components,
+        Object.entries(this.#files.themes ?? {}).length > 0
+          ? this.#files.themes
+          : { defaultTheme },
+        { includeResetStyle: true, createFontFaces: false },
+      )
+      stylesheetCache.set(this.#component.name, styles)
+    }
     const stylesElem = document.createElement('style')
     stylesElem.appendChild(document.createTextNode(styles))
     this.#shadowRoot.appendChild(stylesElem)

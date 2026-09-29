@@ -10,6 +10,30 @@ import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/theme.const'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { signal, type Signal } from '../signal/signal'
 
+// Theme signals based on the 'nc-theme' cookie are updated through a single
+// shared cookieStore listener. Registering one listener per call would (a) leak
+// every previously created theme signal (and the component tree reachable from
+// its subscribers, since the listener closure captures the signal) and (b) add
+// an event listener per mounted component.
+let activeCookieThemeSignal: Signal<string | null> | null = null
+let cookieListenerRegistered = false
+
+const handleCookieStoreChange = (event: CookieChangeEvent) => {
+  if (!activeCookieThemeSignal) {
+    return
+  }
+  for (const change of event.changed) {
+    if (change.name === THEME_COOKIE_NAME) {
+      activeCookieThemeSignal.set(change.value ?? null)
+    }
+  }
+  for (const removal of event.deleted) {
+    if (removal.name === THEME_COOKIE_NAME) {
+      activeCookieThemeSignal.set(null)
+    }
+  }
+}
+
 export const getThemeSignal = (
   component: Component,
   dataSignal: Signal<ComponentData>,
@@ -47,20 +71,16 @@ export const getThemeSignal = (
         ?.split('=')[1] ?? null
 
     const sig = signal<string | null>(initialThemeValue as string | null)
+    activeCookieThemeSignal = sig
+    sig.onDestroy(() => {
+      if (activeCookieThemeSignal === sig) {
+        activeCookieThemeSignal = null
+      }
+    })
     // Listen to cookie store API changes for 'nc-theme'
-    if ('cookieStore' in window) {
-      cookieStore.addEventListener('change', (event) => {
-        for (const change of event.changed) {
-          if (change.name === THEME_COOKIE_NAME) {
-            sig.set(change.value ?? null)
-          }
-        }
-        for (const removal of event.deleted) {
-          if (removal.name === THEME_COOKIE_NAME) {
-            sig.set(null)
-          }
-        }
-      })
+    if (!cookieListenerRegistered && 'cookieStore' in window) {
+      cookieListenerRegistered = true
+      cookieStore.addEventListener('change', handleCookieStoreChange)
     }
 
     return sig

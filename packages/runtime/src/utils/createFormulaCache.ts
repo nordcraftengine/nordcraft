@@ -29,7 +29,12 @@ export function createFormulaCache(component: Component): FormulaCache {
       const { canCache, keys } = f.memoize
         ? getFormulaCacheConfig(f.formula, component)
         : { canCache: false, keys: [] }
-      let cacheInput: any
+      // Only retain the values of the compared keys instead of the entire data
+      // object, so the cache does not pin a full ComponentData snapshot in memory.
+      // The slot array is preallocated once and reused across `set` calls to
+      // avoid allocating a new array for every formula evaluation.
+      const cacheInput: any[] = new Array(keys.length)
+      let hasCache = false
       let cacheData: any
 
       return [
@@ -38,10 +43,8 @@ export function createFormulaCache(component: Component): FormulaCache {
           get: (data: ComponentData) => {
             if (
               canCache &&
-              cacheInput &&
-              keys.every((key) => {
-                return get(data, key) === get(cacheInput, key)
-              })
+              hasCache &&
+              keys.every((key, i) => get(data, key) === cacheInput[i])
             ) {
               return { hit: true, data: cacheData }
             }
@@ -49,7 +52,10 @@ export function createFormulaCache(component: Component): FormulaCache {
           },
           set: (data: ComponentData, result: any) => {
             if (canCache) {
-              cacheInput = data
+              for (let i = 0; i < keys.length; i++) {
+                cacheInput[i] = get(data, keys[i])
+              }
+              hasCache = true
               cacheData = result
             }
           },
