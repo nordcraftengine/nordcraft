@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import '../happydom'
-import {
-  ensureEfficientOrdering,
-  getNextSiblingElement,
-} from './nodes'
+import { ensureEfficientOrdering, getNextSiblingElement } from './nodes'
 
 describe('getNextSiblingElement', () => {
   it('should return null if there are no children', () => {
@@ -208,4 +205,3 @@ describe('ensureEfficientOrdering', () => {
     expect(parent.childNodes[2]).toBe(item2)
   })
 })
-

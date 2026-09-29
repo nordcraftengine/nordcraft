@@ -1,6 +1,6 @@
 import { isElementInViewport } from '../../utils/isElementInViewport'
-import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from '../dom'
 import { tryStartViewTransition } from '../../utils/tryStartViewTransition'
+import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from '../dom'
 import { DRAG_MOVE_CLASSNAME, getBestPermutation } from '../helpers'
 import type { DragInsertState } from '../types'
 import { setDropHighlight } from './dropHighlight'

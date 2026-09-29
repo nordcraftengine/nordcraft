@@ -28,9 +28,11 @@ export function markSelectedElement(node: Element | null) {
 
     const dataId = node.getAttribute(DATA_ATTR_ID)
     if (dataId) {
-      document.querySelectorAll(`[${DATA_ATTR_ID}^="${dataId}("]`).forEach((el) => {
-        el.setAttribute(DATA_ATTR_REPEAT_SELECTED, 'true')
-      })
+      document
+        .querySelectorAll(`[${DATA_ATTR_ID}^="${dataId}("]`)
+        .forEach((el) => {
+          el.setAttribute(DATA_ATTR_REPEAT_SELECTED, 'true')
+        })
     }
   }
 }
