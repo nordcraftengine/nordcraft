@@ -17,14 +17,14 @@ export class Signal<T> {
   get() {
     return this.value
   }
-  set(value: T) {
+  set(value: T, options?: { force?: boolean }) {
     // Short circuit and skip expensive `deepEqual` if there are not currently any subscribers
     if (this.subscribers.size === 0) {
       this.value = value
       return
     }
 
-    if (fastDeepEqual(value, this.value) === false) {
+    if (options?.force || fastDeepEqual(value, this.value) === false) {
       this.value = value
       for (const subscriber of this.subscribers) {
         subscriber.notify(this.value)
@@ -32,8 +32,8 @@ export class Signal<T> {
     }
   }
 
-  update(f: (current: T) => T) {
-    this.set(f(this.value))
+  update(f: (current: T) => T, options?: { force?: boolean }) {
+    this.set(f(this.value), options)
   }
   subscribe(notify: (value: T) => void, config?: { destroy?: () => void }) {
     const subscriber = { notify, destroy: config?.destroy }

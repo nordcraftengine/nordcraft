@@ -895,11 +895,14 @@ export const createRoot = (
         })
 
         routeSignal.subscribe((route) =>
-          dataSignal.update((data) => ({
-            ...data,
-            'URL parameters': route,
-            Attributes: route,
-          })),
+          dataSignal.update(
+            (data) => ({
+              ...data,
+              'URL parameters': route,
+              Attributes: route,
+            }),
+            { force: true },
+          ),
         )
       }
 

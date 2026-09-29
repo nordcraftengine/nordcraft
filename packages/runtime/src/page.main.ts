@@ -199,11 +199,14 @@ export const createRoot = (domNode: HTMLElement) => {
   registerComponentToLogState(component, dataSignal)
 
   routeSignal.subscribe((route) =>
-    dataSignal.update((data) => ({
-      ...data,
-      'URL parameters': route as Record<string, string>,
-      Attributes: route,
-    })),
+    dataSignal.update(
+      (data) => ({
+        ...data,
+        'URL parameters': route as Record<string, string>,
+        Attributes: route,
+      }),
+      { force: true },
+    ),
   )
 
   // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
