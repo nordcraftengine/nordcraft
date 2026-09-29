@@ -569,7 +569,7 @@ async function runBenchmark() {
   }
 
   let deltaSizeStr = '0 B (0.0%)'
-  const deltaBytes = baseRuntimeBytes - headRuntimeBytes
+  const deltaBytes = headRuntimeBytes - baseRuntimeBytes
   const deltaPercent =
     baseRuntimeBytes > 0 ? (deltaBytes / baseRuntimeBytes) * 100 : 0
   if (deltaBytes !== 0) {
