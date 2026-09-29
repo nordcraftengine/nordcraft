@@ -68,7 +68,7 @@ export function createElement({
   }
 
   if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
-    let isDefaultSlot = false
+    let slotName: string | undefined | null
     let hasSlotElements = false
 
     for (const node of Object.values(ctx.component.nodes)) {
@@ -77,14 +77,14 @@ export function createElement({
       hasSlotElements = true
 
       if (node.children?.includes(id)) {
-        isDefaultSlot = true
+        slotName = node?.name
       }
 
-      if (isDefaultSlot) break
+      if (slotName) break
     }
 
-    if (isDefaultSlot) {
-      elem.setAttribute('data-node-default-slot', 'true')
+    if (isDefined(slotName)) {
+      elem.setAttribute('data-node-slot-name', slotName)
     }
 
     if (hasSlotElements) {

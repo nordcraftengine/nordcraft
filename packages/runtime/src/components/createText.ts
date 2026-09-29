@@ -40,7 +40,7 @@ export function createText({
   const elem = document.createElement('span')
 
   if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
-    let isDefaultSlot = false
+    let slotName: string | undefined | null
     let hasSlotElements = false
 
     for (const node of Object.values(ctx.component.nodes)) {
@@ -49,14 +49,14 @@ export function createText({
       hasSlotElements = true
 
       if (node.children?.includes(id)) {
-        isDefaultSlot = true
+        slotName = node?.name
       }
 
-      if (isDefaultSlot) break
+      if (slotName) break
     }
 
-    if (isDefaultSlot) {
-      elem.setAttribute('data-node-default-slot', 'true')
+    if (slotName) {
+      elem.setAttribute('data-node-slot-name', slotName)
     }
 
     // This probably needs to be removed, since the text can't have any child elements

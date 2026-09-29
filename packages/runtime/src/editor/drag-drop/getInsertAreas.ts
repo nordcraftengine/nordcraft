@@ -16,7 +16,7 @@ export function getInsertAreas() {
 
   const elementIds = Array.from(
     document.querySelectorAll(
-      '[data-id]:is(:not([data-component]), [data-component][data-node-default-slot])',
+      '[data-id]:is(:not([data-component]), [data-component][data-node-slot-name])',
     ),
   )
     .filter(
@@ -78,7 +78,9 @@ export function getInsertAreas() {
       return
     }
 
-    const slotName = id?.match(/\[([^\]]*)\]/)?.[1]
+    const slotName =
+      element.getAttribute('data-node-slot-name') ??
+      id?.match(/\[([^\]]*)\]/)?.[1]
 
     const isVoid = isVoidElement(element)
 
