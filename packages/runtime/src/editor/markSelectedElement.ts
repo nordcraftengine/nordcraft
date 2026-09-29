@@ -1,9 +1,17 @@
+import {
+  DATA_ATTR_ID,
+  DATA_ATTR_REPEAT_SELECTED,
+  DATA_ATTR_SELECTED,
+  SELECTOR_REPEAT_SELECTED,
+  SELECTOR_SELECTED,
+} from './const'
+
 function clearSelectedElements() {
-  document.querySelectorAll('[data-selected="true"]').forEach((el) => {
-    el.removeAttribute('data-selected')
+  document.querySelectorAll(SELECTOR_SELECTED).forEach((el) => {
+    el.removeAttribute(DATA_ATTR_SELECTED)
   })
-  document.querySelectorAll('[data-repeat-selected="true"]').forEach((el) => {
-    el.removeAttribute('data-repeat-selected')
+  document.querySelectorAll(SELECTOR_REPEAT_SELECTED).forEach((el) => {
+    el.removeAttribute(DATA_ATTR_REPEAT_SELECTED)
   })
 }
 
@@ -13,15 +21,15 @@ export function markSelectedElement(node: Element | null) {
     return
   }
 
-  if (!node.hasAttribute('data-selected')) {
+  if (!node.hasAttribute(DATA_ATTR_SELECTED)) {
     clearSelectedElements()
 
-    node.setAttribute('data-selected', 'true')
+    node.setAttribute(DATA_ATTR_SELECTED, 'true')
 
-    const dataId = node.getAttribute('data-id')
+    const dataId = node.getAttribute(DATA_ATTR_ID)
     if (dataId) {
-      document.querySelectorAll(`[data-id^="${dataId}("]`).forEach((el) => {
-        el.setAttribute('data-repeat-selected', 'true')
+      document.querySelectorAll(`[${DATA_ATTR_ID}^="${dataId}("]`).forEach((el) => {
+        el.setAttribute(DATA_ATTR_REPEAT_SELECTED, 'true')
       })
     }
   }

@@ -17,6 +17,9 @@ export const DATA_ATTR_META_ID = 'data-meta-id'
 export const DATA_ATTR_ANIMATING = 'data-animating'
 export const DATA_ATTR_TIMELINE_KEYFRAMES = 'data-timeline-keyframes'
 
+export const SELECTOR_SELECTED = `[${DATA_ATTR_SELECTED}="true"]`
+export const SELECTOR_REPEAT_SELECTED = `[${DATA_ATTR_REPEAT_SELECTED}="true"]`
+
 export const DATA_ID_PREVIEW_RESOURCE = 'preview-resource'
 export const DATA_ID_SELECTED_NODE_STYLES = 'selected-node-styles'
 export const DATA_ID_PREVIEW_ANIMATION_STYLES = 'preview-animation-styles'
