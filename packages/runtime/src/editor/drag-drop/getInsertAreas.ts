@@ -29,7 +29,7 @@ export function getInsertAreas() {
     )
     .map((e) => e.getAttribute('data-id'))
 
-  // This means we have an empty page or comonent
+  // This means we have an empty page or component
   if (elementIds.length === 0) {
     const element = document.getElementById('App')
     if (!element) {
