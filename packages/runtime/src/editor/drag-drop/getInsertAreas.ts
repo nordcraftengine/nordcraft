@@ -102,7 +102,12 @@ export function getInsertAreas() {
     )
 
     // It looks like this way of getting the index works fine
-    const index = Number(id?.replaceAll('[default]', '').split('.').at(-1))
+    const index = Number(
+      id
+        ?.replace(/\[[^\]]*\]/g, '')
+        .split('.')
+        .at(-1),
+    )
 
     const indexAll = siblingsAll.indexOf(element)
 
