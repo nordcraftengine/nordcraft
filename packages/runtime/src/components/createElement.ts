@@ -67,7 +67,7 @@ export function createElement({
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
 
-  if (ctx.env.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
+  if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
     const isDefaultSlot =
       Object.values(ctx.component.nodes).filter(
         (n) => n?.type === 'slot' && n.children?.includes(id),
