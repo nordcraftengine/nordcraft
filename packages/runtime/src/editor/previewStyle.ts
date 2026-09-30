@@ -176,7 +176,6 @@ export const updateSelectedStyleVariant = (options: {
               applyFormula(
                 customProperty.formula,
                 {
-                  data: options.dataSignal.get(),
                   component: options.getCurrentComponent(),
                   root: options.ctx?.root,
                   formulaCache: {},
@@ -192,7 +191,8 @@ export const updateSelectedStyleVariant = (options: {
                     customPropertyName,
                   ],
                   reportFormulaEvaluation: options.reportFormulaEvaluation,
-                } as FormulaContext,
+                } as Omit<FormulaContext, 'data'>,
+                options.dataSignal.get(),
                 [],
               ),
               customProperty.unit,

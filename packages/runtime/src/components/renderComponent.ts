@@ -6,7 +6,11 @@ import type {
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Toddle } from '@nordcraft/core/dist/types'
-import { measure } from '@nordcraft/core/dist/utils/measure'
+import {
+  isMeasureEnabled,
+  measure,
+  noopMeasure,
+} from '@nordcraft/core/dist/utils/measure'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
@@ -83,14 +87,16 @@ export function renderComponent({
   slotRepeatIndex,
   slotSuffix,
 }: RenderComponentProps): ReadonlyArray<Element | Text> {
-  const stopMeasure = measure(
-    `Render component: ${component.name}`,
-    {
-      component: component.name,
-      path,
-    },
-    'component',
-  )
+  const stopMeasure = isMeasureEnabled()
+    ? measure(
+        `Render component: ${component.name}`,
+        {
+          component: component.name,
+          path,
+        },
+        'component',
+      )
+    : noopMeasure
   const ctx: ComponentContext = {
     triggerEvent: onEvent,
     component,

@@ -93,24 +93,12 @@ export function createNode({
   }: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
     let firstRun = true
     let childDataSignal: Signal<ComponentData> | null = null
+    const conditionPath = ctx.reportFormulaEvaluation
+      ? ['nodes', id, 'condition']
+      : undefined
     const showSignal = dataSignal.map((data) => {
-      const conditionPath = ['nodes', id, 'condition']
       const show = toBoolean(
-        applyFormula(
-          node.condition,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          conditionPath,
-        ),
+        applyFormula(node.condition, ctx, data, conditionPath),
       )
 
       return show
@@ -205,26 +193,28 @@ export function createNode({
         elements: ReadonlyArray<Element | Text>
       }
     >()
+    const listPath = ctx.reportFormulaEvaluation
+      ? ['nodes', id, 'repeat']
+      : undefined
+    const repeatKeyPath = ctx.reportFormulaEvaluation
+      ? ['nodes', id, 'repeatKey']
+      : undefined
     const repeatSignal = dataSignal.map((data) => {
-      const listPath = ['nodes', id, 'repeat']
-      const list = applyFormula(
-        node?.repeat,
-        {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        },
-        listPath,
-      )
+      const list = applyFormula(node?.repeat, ctx, data, listPath)
 
-      if (typeof list !== 'object') {
+      if (typeof list !== 'object' || list === null) {
         return []
       }
-      return Object.entries(list ?? {})
+      // Fast path for arrays (the common repeat case): avoid the
+      // intermediate string-key conversion of `Object.entries(array)`.
+      if (Array.isArray(list)) {
+        const entries = new Array<[string, unknown]>(list.length)
+        for (let i = 0; i < list.length; i++) {
+          entries[i] = [String(i), list[i]]
+        }
+        return entries
+      }
+      return Object.entries(list)
     })
 
     repeatSignal.subscribe(
@@ -246,21 +236,8 @@ export function createNode({
               Key,
             },
           }
-          const repeatKeyPath = ['nodes', id, 'repeatKey']
           let childKey = node?.repeatKey
-            ? applyFormula(
-                node.repeatKey,
-                {
-                  data: childData,
-                  component: ctx.component,
-                  formulaCache: ctx.formulaCache,
-                  root: ctx.root,
-                  package: ctx.package,
-                  toddle: ctx.toddle,
-                  env: ctx.env,
-                },
-                repeatKeyPath,
-              )
+            ? applyFormula(node.repeatKey, ctx, childData, repeatKeyPath)
             : Key
 
           if (seenKeys.has(childKey)) {

@@ -18,7 +18,7 @@ describe('applyObjectFormula', () => {
       ],
     }
     const ctx = createTestFormulaContext()
-    expect(applyObjectFormula(formula, ctx)).toEqual({
+    expect(applyObjectFormula(formula, ctx, ctx.data)).toEqual({
       a: 1,
       b: 'hello',
       c: true,
@@ -31,7 +31,7 @@ describe('applyObjectFormula', () => {
       arguments: undefined,
     }
     const ctx = createTestFormulaContext()
-    expect(applyObjectFormula(formula, ctx)).toEqual({})
+    expect(applyObjectFormula(formula, ctx, ctx.data)).toEqual({})
   })
 
   it('evaluates all formulas and reports results in "report" mode', () => {
@@ -47,7 +47,7 @@ describe('applyObjectFormula', () => {
       {},
       (path, result) => (results[path.join('/')] = result),
     )
-    expect(applyObjectFormula(formula, ctx)).toEqual({ x: 'foo', y: 'bar' })
+    expect(applyObjectFormula(formula, ctx, ctx.data)).toEqual({ x: 'foo', y: 'bar' })
     expect(results).toMatchObject({
       'arguments/0/formula': 'foo',
       'arguments/1/formula': 'bar',
