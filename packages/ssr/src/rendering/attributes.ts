@@ -79,9 +79,8 @@ export function getNodeAttrs({
   const styleVariables = Object.values(node['style-variables'] ?? {}).map(
     (styleVariable) => {
       return `--${styleVariable.name}: ${
-        String(
-          applyFormula(styleVariable.formula, ssrFormulaCtx, data),
-        ) + (styleVariable.unit ?? '')
+        String(applyFormula(styleVariable.formula, ssrFormulaCtx, data)) +
+        (styleVariable.unit ?? '')
       }`
     },
   )
