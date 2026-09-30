@@ -53,7 +53,7 @@ export function createComponent({
   slotRepeatIndex,
   slotSuffix,
 }: RenderComponentNodeProps): ReadonlyArray<Element | Text> {
-  const nodeLookupKey = [ctx.package, node.name].filter(isDefined).join('/')
+  const nodeLookupKey = ctx.package ? `${ctx.package}/${node.name}` : node.name
   const component = getComponent(
     nodeLookupKey,
     ctx.components,
@@ -159,17 +159,29 @@ export function createComponent({
 
   // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
   const abortController = new AbortController()
-  componentDataSignal.subscribe(
-    (data) => {
-      Object.entries(data.Variables ?? {}).forEach(([name, value]) => {
-        ctx.reportFormulaEvaluation?.(['variables', name], value, ctx)
-      })
-    },
-    {
-      destroy: () =>
-        abortController.abort(`Component ${component.name} unmounted`),
-    },
-  )
+  if (ctx.reportFormulaEvaluation) {
+    const report = ctx.reportFormulaEvaluation
+    const reportCtx = ctx
+    componentDataSignal.subscribe(
+      (data) => {
+        const vars = data.Variables
+        if (vars) {
+          for (const name in vars) {
+            report(['variables', name], vars[name], reportCtx)
+          }
+        }
+      },
+      {
+        destroy: () =>
+          abortController.abort(`Component ${component.name} unmounted`),
+      },
+    )
+  } else {
+    // Destroy-only cleanup via `subscriptions` (no empty notify on updates).
+    componentDataSignal.subscriptions.push(() =>
+      abortController.abort(`Component ${component.name} unmounted`),
+    )
+  }
   const formulaCache = createFormulaCache(component)
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other

@@ -276,8 +276,8 @@ export function createNode({
           const existingItem = repeatItems.get(childKey)
           if (existingItem) {
             newRepeatItems.set(childKey, existingItem)
-            existingItem.dataSignal.update((data) => {
-              return {
+            existingItem.dataSignal.update(
+              (data) => ({
                 ...data,
                 ListItem: {
                   ...parentListItemInfo,
@@ -285,8 +285,10 @@ export function createNode({
                   Index: Number(i),
                   Key,
                 },
-              }
-            })
+              }),
+              // We can skip deep equality check as we know the ListItem object is always a fresh object with potentially new Index/Item.
+              { force: true },
+            )
           } else {
             const childDataSignal = signal<ComponentData>(childData)
             const cleanup = dataSignal.subscribe(

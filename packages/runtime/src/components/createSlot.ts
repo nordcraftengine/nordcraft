@@ -37,9 +37,7 @@ export function createSlot({
 
     children = ctx.children[slotName].flatMap((child, childIndex) => {
       const childDataSignal = child.dataSignal.map((data) => data)
-      dataSignal.subscribe((data) => data, {
-        destroy: () => childDataSignal.destroy(),
-      })
+      dataSignal.subscriptions.push(() => childDataSignal.destroy())
 
       let basePath = child.path
       if (slotPath.startsWith(`${child.path}.`)) {
