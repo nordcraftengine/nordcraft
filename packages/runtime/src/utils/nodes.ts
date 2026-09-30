@@ -71,24 +71,43 @@ export const getNextSiblingElement = (
   path: string,
   parentElement: Element | ShadowRoot,
 ) => {
-  const pathParts = path.split('.')
-  const lastPathPart = pathParts.slice(-1)[0]
-  const index = parseInt(lastPathPart)
-  const repeatIndex = parseInt(String(lastPathPart.split('(')[1]))
+  // Parse `path` without allocating intermediate arrays:
+  // path format is e.g. "0.3.12" or "0.3(5).12(7)"
+  const lastDot = path.lastIndexOf('.')
+  const lastPathPart =
+    lastDot === -1 ? path : path.slice(lastDot + 1)
+  const parenIndex = lastPathPart.indexOf('(')
+  const index =
+    parenIndex === -1
+      ? parseInt(lastPathPart)
+      : parseInt(lastPathPart.slice(0, parenIndex))
+  const repeatIndex =
+    parenIndex === -1 ? NaN : parseInt(lastPathPart.slice(parenIndex + 1))
 
-  // Find the first child that either has a higher index or a similar index, but higher repeat index
-  for (const child of parentElement.children) {
+  // Indexed loop over HTMLCollection avoids iterator allocation from `for..of`
+  const children = parentElement.children
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]!
     const childPath = child.getAttribute('data-id')
-    const lastChildPathPart = childPath?.split('.').slice(-1)[0]
-    const childIndex = parseInt(String(lastChildPathPart))
-    if (
-      childIndex === index &&
-      parseInt(String(lastChildPathPart?.split('(')[1])) > repeatIndex
-    ) {
-      return child
+    if (childPath === null) {
+      continue
     }
-
-    if (childIndex > index) {
+    const childLastDot = childPath.lastIndexOf('.')
+    const lastChildPathPart =
+      childLastDot === -1 ? childPath : childPath.slice(childLastDot + 1)
+    const childParenIndex = lastChildPathPart.indexOf('(')
+    const childIndex =
+      childParenIndex === -1
+        ? parseInt(lastChildPathPart)
+        : parseInt(lastChildPathPart.slice(0, childParenIndex))
+    if (childIndex === index) {
+      if (
+        childParenIndex !== -1 &&
+        parseInt(lastChildPathPart.slice(childParenIndex + 1)) > repeatIndex
+      ) {
+        return child
+      }
+    } else if (childIndex > index) {
       return child
     }
   }
