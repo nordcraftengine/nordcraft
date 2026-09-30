@@ -121,58 +121,65 @@ export function renderComponent({
     id: 'root',
     path,
     dataSignal,
-    ctx: { ...ctx, jsonPath: ['nodes', 'root'] },
+    ctx:
+      ctx.reportFormulaEvaluation || ctx.jsonPath
+        ? { ...ctx, jsonPath: ['nodes', 'root'] }
+        : ctx,
     parentElement,
     namespace,
     instance,
     slotRepeatIndex,
     slotSuffix,
   })
-  BATCH_QUEUE.add(() => {
-    let prev: Record<string, any> | undefined
-    if (
-      component.onAttributeChange?.actions &&
-      component.onAttributeChange.actions.length > 0
-    ) {
-      dataSignal
-        .map((data) => data.Attributes)
-        .subscribe((props) => {
-          if (prev) {
-            component.onAttributeChange?.actions?.forEach((action) => {
-              void handleAction(
-                action,
-                dataSignal.get(),
-                ctx,
-                new CustomEvent('attribute-change', {
-                  detail: Object.entries(props).reduce(
-                    (
-                      changes: Record<string, { current: any; new: any }>,
-                      [key, value],
-                    ) => {
-                      if (
-                        fastDeepEqual(value, prev![key]) === false &&
-                        component.attributes?.[key]?.name
-                      ) {
-                        changes[component.attributes?.[key]?.name] = {
-                          current: prev![key],
-                          new: value,
+  const hasAttributeChangeActions =
+    (component.onAttributeChange?.actions?.length ?? 0) > 0
+  const hasOnLoadActions = (component.onLoad?.actions?.length ?? 0) > 0
+  if (hasAttributeChangeActions || hasOnLoadActions) {
+    BATCH_QUEUE.add(() => {
+      let prev: Record<string, any> | undefined
+      if (hasAttributeChangeActions) {
+        dataSignal
+          .map((data) => data.Attributes)
+          .subscribe((props) => {
+            if (prev) {
+              component.onAttributeChange?.actions?.forEach((action) => {
+                void handleAction(
+                  action,
+                  dataSignal.get(),
+                  ctx,
+                  new CustomEvent('attribute-change', {
+                    detail: Object.entries(props).reduce(
+                      (
+                        changes: Record<string, { current: any; new: any }>,
+                        [key, value],
+                      ) => {
+                        if (
+                          fastDeepEqual(value, prev![key]) === false &&
+                          component.attributes?.[key]?.name
+                        ) {
+                          changes[component.attributes?.[key]?.name] = {
+                            current: prev![key],
+                            new: value,
+                          }
                         }
-                      }
-                      return changes
-                    },
-                    {},
-                  ),
-                }),
-              )
-            })
-          }
-          prev = props
+                        return changes
+                      },
+                      {},
+                    ),
+                  }),
+                )
+              })
+            }
+            prev = props
+          })
+      }
+      if (hasOnLoadActions) {
+        component.onLoad?.actions?.forEach((action) => {
+          void handleAction(action, dataSignal.get(), ctx)
         })
-    }
-    component.onLoad?.actions?.forEach((action) => {
-      void handleAction(action, dataSignal.get(), ctx)
+      }
     })
-  })
+  }
   stopMeasure()
   return rootElem
 }

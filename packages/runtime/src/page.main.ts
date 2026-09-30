@@ -211,10 +211,9 @@ export const createRoot = (domNode: HTMLElement) => {
 
   // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
   const abortController = new AbortController()
-  dataSignal.subscribe(() => {}, {
-    destroy: () =>
-      abortController.abort(`Component ${component.name} unmounted`),
-  })
+  dataSignal.subscriptions.push(() =>
+    abortController.abort(`Component ${component.name} unmounted`),
+  )
 
   const ctx: ComponentContext = {
     component,
