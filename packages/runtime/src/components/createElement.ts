@@ -73,6 +73,10 @@ export function createElement({
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
 
+  if (id === '-PtqFGOvObBY3CAcvnOZo') {
+    console.log('ctx', ctx)
+  }
+
   if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
     let slotName: string | undefined | null
     let hasSlotElements = false
@@ -83,7 +87,7 @@ export function createElement({
       hasSlotElements = true
 
       if (node.children?.includes(id)) {
-        slotName = node?.name
+        slotName = node?.name ?? 'default'
       }
 
       if (slotName) break

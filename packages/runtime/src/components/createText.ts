@@ -57,7 +57,7 @@ export function createText({
       hasSlotElements = true
 
       if (node.children?.includes(id)) {
-        slotName = node?.name
+        slotName = node?.name ?? 'default'
       }
 
       if (slotName) break
