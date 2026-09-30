@@ -71,8 +71,6 @@ export const handleInsertEnded = async (
   if (selectedPermutation && !messageData.canceled) {
     await dragInsertEnded(insertState, false)
 
-    console.log('selectedPermutation', selectedPermutation)
-
     postMessageToEditor({
       type: 'insertNode',
       parent: selectedPermutation.parent.getAttribute('data-id'),
