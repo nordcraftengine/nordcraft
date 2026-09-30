@@ -41,8 +41,13 @@ jobs:
         run: bun run build
       - name: Prepare assets
         run: bun bin/prepareReleaseAssets.ts
-      - name: Upload
+      - name: Upload to GitHub release
         run: gh release upload ${{ inputs.version }} ./dist/*
+      - name: Upload assets to R2
+        run: bun bin/uploadReleaseAssetsToR2.ts ${{ inputs.version }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.R2_PUBLIC_UPLOAD_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   announce_release:
