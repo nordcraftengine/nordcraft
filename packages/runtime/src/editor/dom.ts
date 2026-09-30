@@ -88,18 +88,20 @@ export function getRepeatNodeIndex(
 export function getDOMNodeFromNodeId(
   selectedNodeId: string | null | undefined,
   allowDataComponentAttr?: boolean,
+  keepRepeatIndices?: boolean,
 ) {
   if (!selectedNodeId) {
     return null
   }
+  const nodeId = keepRepeatIndices
+    ? selectedNodeId
+    : stripNodeIdRepeatIndices(selectedNodeId)
   if (allowDataComponentAttr) {
-    return document.querySelector(
-      `[${DATA_ATTR_ID}="${stripNodeIdRepeatIndices(selectedNodeId)}"]`,
-    )
+    return document.querySelector(`[${DATA_ATTR_ID}="${nodeId}"]`)
   }
 
   return document.querySelector(
-    `[${DATA_ATTR_ID}="${stripNodeIdRepeatIndices(selectedNodeId)}"]:not([${DATA_ATTR_COMPONENT}])`,
+    `[${DATA_ATTR_ID}="${nodeId}"]:not([${DATA_ATTR_COMPONENT}])`,
   )
 }
 

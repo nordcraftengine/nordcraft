@@ -53,7 +53,7 @@ export function getInsertAreas() {
     }
   }
   elementIds.forEach((id) => {
-    const element = getDOMNodeFromNodeId(id, true)
+    const element = getDOMNodeFromNodeId(id, true, true)
 
     if (!element) {
       // eslint-disable-next-line no-console
@@ -109,7 +109,7 @@ export function getInsertAreas() {
     // It looks like this way of getting the index works fine
     const index = Number(
       id
-        ?.replace(/\[[^\]]*\]/g, '')
+        ?.replace(/\[[^\]]*\]|\{[^}]*\}/g, '')
         .split('.')
         .at(-1),
     )
