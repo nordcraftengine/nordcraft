@@ -110,12 +110,11 @@ export function createComponent({
           data: null,
           isLoading:
             api!.autoFetch &&
-            applyFormula(
-              api!.autoFetch,
-              apiFormulaCtx,
-              dataSignal.get(),
-              ['apis', name, 'autoFetch'],
-            )
+            applyFormula(api!.autoFetch, apiFormulaCtx, dataSignal.get(), [
+              'apis',
+              name,
+              'autoFetch',
+            ])
               ? true
               : false,
           error: null,
@@ -364,12 +363,11 @@ export function createComponent({
         }),
         signal: dataSignal.map((data) =>
           appendUnit(
-            applyFormula(
-              customProperty.formula,
-              formulaCtx,
-              data,
-              ['customProperties', customPropertyName, 'formula'],
-            ),
+            applyFormula(customProperty.formula, formulaCtx, data, [
+              'customProperties',
+              customPropertyName,
+              'formula',
+            ]),
             customProperty.unit,
           ),
         ),
@@ -389,12 +387,11 @@ export function createComponent({
           }),
           signal: dataSignal.map((data) =>
             appendUnit(
-              applyFormula(
-                customProperty.formula,
-                formulaCtx,
-                data,
-                ['customProperties', customPropertyName, 'formula'],
-              ),
+              applyFormula(customProperty.formula, formulaCtx, data, [
+                'customProperties',
+                customPropertyName,
+                'formula',
+              ]),
               customProperty.unit,
             ),
           ),
