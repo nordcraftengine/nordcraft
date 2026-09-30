@@ -452,7 +452,7 @@ describe('getRectData()', () => {
 
       const data = getRectData(el)
 
-      const oMatrix = new DOMMatrix(data!.rotate)
+      const oMatrix = new DOMMatrix(data!.matrix)
       const oCenterX = data!.left + data!.width / 2
       const oCenterY = data!.top + data!.height / 2
 

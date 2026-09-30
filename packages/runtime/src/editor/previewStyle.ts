@@ -22,7 +22,6 @@ import {
   SELECTOR_SELECTED_NODE_STYLES,
 } from './const'
 import { lookupNodeAndAncestors } from './dom'
-import { resizeCanvas } from './resizeCanvas'
 import {
   convertViewportUnitsToEmulatedViewportUnits,
   styleToCss,
@@ -53,10 +52,6 @@ export const applyPreviewStyle = (options: {
   selectedNodeId: string | null
   component: Component | null
   styleVariantSelection: { nodeId: string; styleVariantIndex: number } | null
-  resizeCanvasOptions: {
-    viewport?: { height: number | null }
-    enabled?: boolean
-  }
   syncOverlayRects: () => void
 }) => {
   const { styles: previewStyleStyles, theme } = options.data
@@ -69,7 +64,6 @@ export const applyPreviewStyle = (options: {
     (!theme && Object.keys(previewStyleStyles).length === 0)
   ) {
     styleElement?.remove()
-    resizeCanvas(options.resizeCanvasOptions)
     options.syncOverlayRects()
     return
   }
@@ -134,7 +128,6 @@ export const applyPreviewStyle = (options: {
       styleElement.textContent = newCss
     }
   }
-  resizeCanvas(options.resizeCanvasOptions)
   options.syncOverlayRects()
 }
 

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
 import '../happydom'
-import { CSS_VAR_SCROLL_HEIGHT, SELECTOR_SELECTED_NODE_STYLES } from './const'
+import { SELECTOR_SELECTED_NODE_STYLES } from './const'
 import { applyPreviewStyle } from './previewStyle'
 
 describe('applyPreviewStyle', () => {
@@ -17,21 +17,16 @@ describe('applyPreviewStyle', () => {
     document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
   })
 
-  test('applies preview style, resizes canvas synchronously and syncs overlay rects in same turn', () => {
+  test('applies preview style and syncs overlay rects in same turn without resizing canvas', () => {
     const executionOrder: string[] = []
     const syncOverlayRects = mock(() => {
       executionOrder.push('syncOverlayRects')
-      // At this point, the style tag should already be applied and App's CSS var updated
+      // At this point, the style tag should already be applied
       const styleTag = document.head.querySelector(
         SELECTOR_SELECTED_NODE_STYLES,
       )
       expect(styleTag).not.toBeNull()
       expect(styleTag?.textContent).toContain('margin-top: 25px !important;')
-      expect(
-        document
-          .getElementById('App')!
-          .style.getPropertyValue(CSS_VAR_SCROLL_HEIGHT),
-      ).toBe('740')
     })
 
     applyPreviewStyle({
@@ -39,7 +34,6 @@ describe('applyPreviewStyle', () => {
       selectedNodeId: 'test-node',
       component: null,
       styleVariantSelection: null,
-      resizeCanvasOptions: { enabled: true, viewport: { height: 740 } },
       syncOverlayRects,
     })
 
@@ -47,14 +41,13 @@ describe('applyPreviewStyle', () => {
     expect(executionOrder).toEqual(['syncOverlayRects'])
   })
 
-  test('cleans up style and resizes canvas synchronously when styles are null', () => {
+  test('cleans up style and syncs overlay rects when styles are null', () => {
     // First apply style
     applyPreviewStyle({
       data: { styles: { 'margin-top': '20px' } },
       selectedNodeId: 'test-node',
       component: null,
       styleVariantSelection: null,
-      resizeCanvasOptions: { enabled: true, viewport: { height: 740 } },
       syncOverlayRects: () => {},
     })
 
@@ -73,21 +66,19 @@ describe('applyPreviewStyle', () => {
       selectedNodeId: 'test-node',
       component: null,
       styleVariantSelection: null,
-      resizeCanvasOptions: { enabled: true, viewport: { height: 740 } },
       syncOverlayRects,
     })
 
     expect(syncOverlayRects).toHaveBeenCalledTimes(1)
   })
 
-  test('cleans up style and resizes canvas synchronously when styles are empty object', () => {
+  test('cleans up style and syncs overlay rects when styles are empty object', () => {
     // First apply style
     applyPreviewStyle({
       data: { styles: { 'margin-top': '20px' } },
       selectedNodeId: 'test-node',
       component: null,
       styleVariantSelection: null,
-      resizeCanvasOptions: { enabled: true, viewport: { height: 740 } },
       syncOverlayRects: () => {},
     })
 
@@ -106,7 +97,6 @@ describe('applyPreviewStyle', () => {
       selectedNodeId: 'test-node',
       component: null,
       styleVariantSelection: null,
-      resizeCanvasOptions: { enabled: true, viewport: { height: 740 } },
       syncOverlayRects,
     })
 
