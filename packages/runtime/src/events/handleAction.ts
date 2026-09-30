@@ -59,17 +59,29 @@ export function handleAction(
         break
       }
       case 'SetVariable': {
+        const current = ctx.dataSignal.get().Variables?.[action.variable]
         const value = applyFormula(action.data, formulaContext, data)
 
-        ctx.dataSignal.update((data) => {
-          return {
-            ...data,
-            Variables: {
-              ...data.Variables,
-              [action.variable]: value,
-            },
-          }
-        })
+        // Short-circuit as it is cheaper to check just the value than performing a deep update
+        // on the entire new state. We can then `{ force: true }` to skip deep equality check in signal.
+        if (fastDeepEqual(current, value)) {
+          break
+        }
+
+        ctx.dataSignal.update(
+          (data) => {
+            return {
+              ...data,
+              Variables: {
+                ...data.Variables,
+                [action.variable]: value,
+              },
+            }
+          },
+          {
+            force: true,
+          },
+        )
         break
       }
       case 'TriggerEvent': {
