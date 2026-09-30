@@ -8,13 +8,11 @@ import {
   DATA_ATTR_COMPONENT,
   DATA_ATTR_ID,
   DATA_ATTR_NODE_ID,
+  DATA_ATTR_NODE_TYPE,
+  DATA_NODE_TYPE_TEXT,
 } from '@nordcraft/core/dist/const'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import {
-  DATA_ATTR_NODE_TYPE,
-  DATA_NODE_TYPE_TEXT,
-} from '@nordcraft/core/src/const'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 
