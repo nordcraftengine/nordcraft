@@ -49,7 +49,11 @@ export function createLegacyAPI(
         ? '/' +
           api.path
             .map((p, i) =>
-              applyFormula(p.formula, formulaContext, data, ['path', i, 'formula']),
+              applyFormula(p.formula, formulaContext, data, [
+                'path',
+                i,
+                'formula',
+              ]),
             )
             .join('/')
         : ''
@@ -267,12 +271,9 @@ export function createLegacyAPI(
           data: null,
           isLoading:
             api.autoFetch &&
-            applyFormula(
-              api.autoFetch,
-              createFormulaContext(ctx, data),
-              data,
-              ['autoFetch'],
-            )
+            applyFormula(api.autoFetch, createFormulaContext(ctx, data), data, [
+              'autoFetch',
+            ])
               ? true
               : false,
           error: null,

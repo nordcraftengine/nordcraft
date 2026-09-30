@@ -47,7 +47,10 @@ describe('applyObjectFormula', () => {
       {},
       (path, result) => (results[path.join('/')] = result),
     )
-    expect(applyObjectFormula(formula, ctx, ctx.data)).toEqual({ x: 'foo', y: 'bar' })
+    expect(applyObjectFormula(formula, ctx, ctx.data)).toEqual({
+      x: 'foo',
+      y: 'bar',
+    })
     expect(results).toMatchObject({
       'arguments/0/formula': 'foo',
       'arguments/1/formula': 'bar',

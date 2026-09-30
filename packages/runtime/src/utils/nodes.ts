@@ -74,8 +74,7 @@ export const getNextSiblingElement = (
   // Parse `path` without allocating intermediate arrays:
   // path format is e.g. "0.3.12" or "0.3(5).12(7)"
   const lastDot = path.lastIndexOf('.')
-  const lastPathPart =
-    lastDot === -1 ? path : path.slice(lastDot + 1)
+  const lastPathPart = lastDot === -1 ? path : path.slice(lastDot + 1)
   const parenIndex = lastPathPart.indexOf('(')
   const index =
     parenIndex === -1
