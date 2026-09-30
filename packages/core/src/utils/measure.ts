@@ -26,8 +26,7 @@ const NOOP = () => {}
 
 export const noopMeasure = NOOP
 
-export const isMeasureEnabled = () =>
-  globalScope.__nc_measure_enabled === true
+export const isMeasureEnabled = () => globalScope.__nc_measure_enabled === true
 
 export const measure = (
   key: string,

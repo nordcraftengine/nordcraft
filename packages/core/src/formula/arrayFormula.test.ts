@@ -18,7 +18,11 @@ describe('applyArrayFormula', () => {
       ],
     }
     const ctx = createTestFormulaContext()
-    expect(applyArrayFormula(formula, ctx, ctx.data)).toEqual([1, 'hello', true])
+    expect(applyArrayFormula(formula, ctx, ctx.data)).toEqual([
+      1,
+      'hello',
+      true,
+    ])
   })
 
   it('returns an empty array if arguments is empty', () => {
