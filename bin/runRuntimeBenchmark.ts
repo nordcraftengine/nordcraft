@@ -120,18 +120,22 @@ export const RUNTIME_BENCHMARK_CASES = [
   {
     id: 'repeat-list-shuffle',
     name: 'repeat-list-shuffle (20 cycles: re-sort & reorder 200 repeat items)',
+    bundles: ['page.main.esm.js'] as const,
   },
   {
     id: 'lifecycle-churn',
     name: 'lifecycle-churn (30 cycles: conditional mount & unmount of component subtree)',
+    bundles: ['page.main.esm.js'] as const,
   },
   {
     id: 'style-variables',
     name: 'style-variables (40 cycles: dynamic CSS custom properties across 200 nodes)',
+    bundles: ['page.main.esm.js'] as const,
   },
   {
     id: 'context-propagation',
     name: 'context-propagation (40 cycles: root context broadcast to 200 consumers)',
+    bundles: ['page.main.esm.js'] as const,
   },
 ] as const
 
