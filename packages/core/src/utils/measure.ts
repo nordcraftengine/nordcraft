@@ -24,6 +24,11 @@ let measureCount = 0
 const STACK: string[] = []
 const NOOP = () => {}
 
+export const noopMeasure = NOOP
+
+export const isMeasureEnabled = () =>
+  globalScope.__nc_measure_enabled === true
+
 export const measure = (
   key: string,
   details: Record<string, unknown>,
