@@ -5,6 +5,7 @@ import path from 'path'
 import {
   getR2UploadTargets,
   IMMUTABLE_CACHE_CONTROL,
+  isValidReleaseVersion,
   JSON_CONTENT_TYPE,
   LATEST_CACHE_CONTROL,
   RELEASE_ASSETS,
@@ -13,6 +14,29 @@ import {
 } from './uploadReleaseAssetsToR2'
 
 describe('uploadReleaseAssetsToR2', () => {
+  describe('isValidReleaseVersion', () => {
+    test('accepts valid version formats', () => {
+      expect(isValidReleaseVersion('latest')).toBe(true)
+      expect(isValidReleaseVersion('1.0.0')).toBe(true)
+      expect(isValidReleaseVersion('v1.0.0')).toBe(true)
+      expect(isValidReleaseVersion('2.0.21')).toBe(true)
+      expect(isValidReleaseVersion('v2.0.21')).toBe(true)
+      expect(isValidReleaseVersion('1.2.3.4')).toBe(true)
+      expect(isValidReleaseVersion('543c325')).toBe(true) // 7-char git sha
+      expect(
+        isValidReleaseVersion('543c325441ef328c7f8f4ffb2e20d5cc9a0edf66'),
+      ).toBe(true) // 40-char git sha
+    })
+
+    test('rejects invalid version formats', () => {
+      expect(isValidReleaseVersion('')).toBe(false)
+      expect(isValidReleaseVersion('   ')).toBe(false)
+      expect(isValidReleaseVersion('invalid')).toBe(false)
+      expect(isValidReleaseVersion('1.2.3.alpha')).toBe(false)
+      expect(isValidReleaseVersion('123')).toBe(false) // not latest, no dot, too short for sha
+      expect(isValidReleaseVersion('123456')).toBe(false) // 6 chars (sha requires >= 7)
+    })
+  })
   describe('getR2UploadTargets', () => {
     test('generates version and latest targets for each release asset with default options', () => {
       const targets = getR2UploadTargets('1.2.3', { distDir: '/fake/dist' })

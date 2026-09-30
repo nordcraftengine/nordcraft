@@ -17,6 +17,19 @@ export const IMMUTABLE_CACHE_CONTROL = 'public, max-age=31536000, immutable'
 export const LATEST_CACHE_CONTROL = 'public, max-age=21600'
 export const JSON_CONTENT_TYPE = 'application/json'
 
+export const isValidReleaseVersion = (version: string) => {
+  const trimmed = version.trim()
+  const withoutV = trimmed.startsWith('v') ? trimmed.slice(1) : trimmed
+
+  return (
+    trimmed === 'latest' ||
+    (withoutV.length > 0 &&
+      withoutV.includes('.') &&
+      withoutV.split('.').every((p) => /^\d+$/.test(p))) ||
+    /^[0-9a-f]{7,40}$/i.test(trimmed)
+  )
+}
+
 export const getR2UploadTargets = (
   version: string,
   options?: {
@@ -107,7 +120,11 @@ export const uploadReleaseAssetsToR2 = (
     ) => void
   },
 ) => {
-  if (!version || typeof version !== 'string' || !version.trim()) {
+  if (
+    !version ||
+    typeof version !== 'string' ||
+    !isValidReleaseVersion(version)
+  ) {
     throw new Error('A valid release version is required')
   }
 
@@ -137,6 +154,13 @@ if (import.meta.main) {
   }
 
   const version = args[0].trim()
+  if (!isValidReleaseVersion(version)) {
+    console.error(
+      `Invalid release version "${version}". Expected a semver (e.g. 1.2.3), commit hash, or "latest".`,
+    )
+    process.exit(1)
+  }
+
   try {
     uploadReleaseAssetsToR2(version)
     console.log(`Successfully uploaded release assets for ${version} to R2!`)
