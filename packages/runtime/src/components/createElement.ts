@@ -174,21 +174,14 @@ export function createElement({
 
   const customProperties = node.customProperties ?? {}
   for (const customPropertyName in customProperties) {
-    const { formula, unit } = customProperties[
-      customPropertyName as keyof typeof customProperties
-    ]!
+    const { formula, unit } =
+      customProperties[customPropertyName as keyof typeof customProperties]!
     if (!formulaHasValue(formula)) {
       continue
     }
     hasDynamicCustomProperties = true
     const cpPath = ctx.reportFormulaEvaluation
-      ? [
-          'nodes',
-          id,
-          'customProperties',
-          customPropertyName,
-          'formula',
-        ]
+      ? ['nodes', id, 'customProperties', customPropertyName, 'formula']
       : undefined
     const nodeSelector = getNodeSelector(path)
     subscribeCustomProperty({
@@ -213,9 +206,10 @@ export function createElement({
   node.variants?.forEach((variant, variantIndex) => {
     const variantCustomProperties = variant.customProperties ?? {}
     for (const customPropertyName in variantCustomProperties) {
-      const { formula, unit } = variantCustomProperties[
-        customPropertyName as keyof typeof variantCustomProperties
-      ]!
+      const { formula, unit } =
+        variantCustomProperties[
+          customPropertyName as keyof typeof variantCustomProperties
+        ]!
       if (!formulaHasValue(formula)) {
         continue
       }

@@ -50,7 +50,12 @@ export const applyFunctionFormula = (
               },
               report ? ['arguments', i] : undefined,
             )
-        : applyFormula(arg.formula, activeCtx, data, report ? ['arguments', i] : undefined)
+        : applyFormula(
+            arg.formula,
+            activeCtx,
+            data,
+            report ? ['arguments', i] : undefined,
+          )
     }
     try {
       if (isToddleFormula(newFunc)) {
