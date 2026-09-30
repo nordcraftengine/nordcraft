@@ -84,6 +84,7 @@ export type Code =
   | 'invalid api proxy cookie setting'
   | 'invalid component formula reference'
   | 'invalid component structure'
+  | 'invalid context formula reference'
   | 'invalid element child'
   | 'invalid path formula'
   | 'invalid project formula reference'
