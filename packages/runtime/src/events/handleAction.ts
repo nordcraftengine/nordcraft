@@ -29,6 +29,8 @@ export function handleAction(
     if (!action) {
       throw new Error('Action does not exist')
     }
+
+    // TODO: data is not being used but is bundled with the formula context. Consider removing it from createFormulaContext
     const formulaContext = createFormulaContext(ctx, data)
     switch (action.type) {
       case 'Switch': {
@@ -37,7 +39,10 @@ export function handleAction(
         const actionList =
           action.cases?.find(({ condition }) =>
             toBoolean(
-              applyFormula(condition, formulaContext, ['cases', 'condition']),
+              applyFormula(condition, formulaContext, data, [
+                'cases',
+                'condition',
+              ]),
             ),
           ) ?? action.default
         // handle all actions for the case
@@ -54,7 +59,7 @@ export function handleAction(
         break
       }
       case 'SetVariable': {
-        const value = applyFormula(action.data, formulaContext)
+        const value = applyFormula(action.data, formulaContext, data)
 
         ctx.dataSignal.update((data) => {
           return {
@@ -68,18 +73,24 @@ export function handleAction(
         break
       }
       case 'TriggerEvent': {
-        const payload = applyFormula(action.data, formulaContext, ['data'])
+        const payload = applyFormula(action.data, formulaContext, data, [
+          'data',
+        ])
         ctx.triggerEvent(action.event, payload)
         break
       }
       case 'TriggerWorkflowCallback': {
-        const payload = applyFormula(action.data, formulaContext, ['data'])
+        const payload = applyFormula(action.data, formulaContext, data, [
+          'data',
+        ])
         workflowCallback?.(action.event, payload)
         break
       }
       case 'SetURLParameter': {
         ctx.toddle.locationSignal.update((current) => {
-          const value = applyFormula(action.data, formulaContext, ['data'])
+          const value = applyFormula(action.data, formulaContext, data, [
+            'data',
+          ])
           // historyMode was previously not declared explicitly, and we default
           // to push for state changes and replace for query changes
           let historyMode: SetURLParameterAction['historyMode'] | undefined
@@ -158,7 +169,7 @@ export function handleAction(
 
           for (const [parameter, formula] of parameters) {
             const value =
-              applyFormula(formula, urlParameterCtx, [
+              applyFormula(formula, urlParameterCtx, data, [
                 'parameters',
                 parameter,
               ]) ?? null
@@ -226,7 +237,7 @@ export function handleAction(
             action.inputs ?? {},
             ([key, input]) => [
               key,
-              applyFormula(input.formula, formulaContext, [
+              applyFormula(input.formula, formulaContext, data, [
                 'inputs',
                 key,
                 'formula',
@@ -292,7 +303,7 @@ export function handleAction(
           action.parameters ?? {},
           ([key, parameter]) => [
             key,
-            applyFormula(parameter.formula, formulaContext, [
+            applyFormula(parameter.formula, formulaContext, data, [
               'parameters',
               key,
               'formula',
@@ -425,11 +436,12 @@ export function handleAction(
                 arg
                   ? {
                       ...args,
-                      [arg.name]: applyFormula(arg.formula, formulaContext, [
-                        'arguments',
-                        i,
-                        'formula',
-                      ]),
+                      [arg.name]: applyFormula(
+                        arg.formula,
+                        formulaContext,
+                        data,
+                        ['arguments', i, 'formula'],
+                      ),
                     }
                   : args,
               {},
@@ -474,13 +486,16 @@ export function handleAction(
             }
             // First evaluate any arguments (input) to the action
             const args = action.arguments?.map((arg, i) =>
-              applyFormula(arg?.formula, formulaContext, [
+              applyFormula(arg?.formula, formulaContext, data, [
                 'arguments',
                 i,
                 'formula',
               ]),
             ) ?? [
-              applyFormula(action.data, formulaContext, ['arguments', 'data']),
+              applyFormula(action.data, formulaContext, data, [
+                'arguments',
+                'data',
+              ]),
             ] // action.data is a fallback to handle an older version of the action spec.
             return legacyHandler(args, { ...ctx, triggerActionEvent }, event)
           }

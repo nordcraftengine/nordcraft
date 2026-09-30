@@ -522,10 +522,15 @@ const renderComponent = async ({
                         .filter(([, formula]) => formula?.exposeInContext)
                         .map(([key, formula]) => [
                           key,
-                          applyFormula((formula as ComponentFormula).formula, {
-                            component: childComponent,
-                            package: _packageName,
-                            data: {
+                          applyFormula(
+                            (formula as ComponentFormula).formula,
+                            {
+                              component: childComponent,
+                              package: _packageName,
+                              env,
+                              toddle,
+                            },
+                            {
                               Contexts: {
                                 ...data.Contexts,
                                 ...Object.fromEntries(
@@ -538,16 +543,16 @@ const renderComponent = async ({
                                       applyFormula(
                                         (formula as ComponentFormula).formula,
                                         {
-                                          data: {
-                                            Attributes: attrs,
-                                            Apis: { ...data.Apis, ...apis },
-                                            Location: data.Location,
-                                            Page: data.Page,
-                                          },
                                           component,
                                           package: _packageName,
                                           env,
                                           toddle,
+                                        },
+                                        {
+                                          Attributes: attrs,
+                                          Apis: { ...data.Apis, ...apis },
+                                          Location: data.Location,
+                                          Page: data.Page,
                                         },
                                       ),
                                     ]),
@@ -564,23 +569,24 @@ const renderComponent = async ({
                                   ([_, variable]) => isDefined(variable),
                                 ),
                                 ({ initialValue }) => {
-                                  return applyFormula(initialValue, {
-                                    data: {
+                                  return applyFormula(
+                                    initialValue,
+                                    {
+                                      component,
+                                      package: _packageName,
+                                      env,
+                                      toddle,
+                                    },
+                                    {
                                       Attributes: attrs,
                                       Location: data.Location,
                                       Page: data.Page,
                                     },
-                                    component,
-                                    package: _packageName,
-                                    env,
-                                    toddle,
-                                  })
+                                  )
                                 },
                               ),
                             },
-                            env,
-                            toddle,
-                          }),
+                          ),
                         ]),
                     ),
                   },
@@ -786,10 +792,7 @@ const createComponent = async ({
       ([_, variable]) => isDefined(variable),
     ),
     ({ initialValue }) => {
-      return applyFormula(initialValue, {
-        ...formulaContext,
-        data,
-      })
+      return applyFormula(initialValue, formulaContext, data)
     },
   )
 
@@ -803,10 +806,11 @@ const createComponent = async ({
           .filter(([, formula]) => formula?.exposeInContext)
           .map(([key, formula]) => [
             key,
-            applyFormula((formula as ComponentFormula).formula, {
-              ...formulaContext,
+            applyFormula(
+              (formula as ComponentFormula).formula,
+              formulaContext,
               data,
-            }),
+            ),
           ]),
       ),
     },

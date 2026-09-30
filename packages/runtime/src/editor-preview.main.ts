@@ -1093,6 +1093,16 @@ export const createRoot = (
 
     if (isContextProvider(component)) {
       // Subscribe to exposed formulas and update the component's data signal
+      const previewProviderFormulaCtx = {
+        component,
+        formulaCache: ctx.formulaCache,
+        root: ctx.root,
+        package: ctx.package,
+        toddle: window.toddle,
+        env,
+        jsonPath: ctx.jsonPath,
+        reportFormulaEvaluation,
+      }
       const formulaDataSignals = Object.fromEntries(
         Object.entries(component.formulas ?? {})
           .filter(([, formula]) => formula?.exposeInContext)
@@ -1101,17 +1111,8 @@ export const createRoot = (
             dataSignal.map((data) =>
               applyFormula(
                 (formula as ComponentFormula).formula,
-                {
-                  data,
-                  component,
-                  formulaCache: ctx.formulaCache,
-                  root: ctx.root,
-                  package: ctx.package,
-                  toddle: window.toddle,
-                  env,
-                  jsonPath: ctx.jsonPath,
-                  reportFormulaEvaluation,
-                },
+                previewProviderFormulaCtx,
+                data,
                 ['formulas', name],
               ),
             ),

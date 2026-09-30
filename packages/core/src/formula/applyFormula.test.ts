@@ -33,7 +33,7 @@ describe('applyApplyFormula', () => {
       },
     }
     // The result should be the result of the inner formula (here, just the value of b)
-    expect(applyFormula(formula, ctx, [])).toEqual(true)
+    expect(applyFormula(formula, ctx, ctx.data, [])).toEqual(true)
   })
   it('applies a formula from the component with arguments', () => {
     const componentFormula: ComponentFormula = {
@@ -84,7 +84,7 @@ describe('applyApplyFormula', () => {
       },
     }
     // The result should be the result of the inner formula (here, just the value of b)
-    expect(applyFormula(formula, ctx, [])).toEqual(5)
+    expect(applyFormula(formula, ctx, ctx.data, [])).toEqual(5)
   })
 
   it('returns null if the formula does not exist in the component', () => {
@@ -98,7 +98,7 @@ describe('applyApplyFormula', () => {
       component: { formulas: {} } as any,
       env: { logErrors: true } as any,
     }
-    expect(applyApplyFormula(formula, ctx)).toBeNull()
+    expect(applyApplyFormula(formula, ctx, ctx.data)).toBeNull()
   })
 
   it('returns cached result if available', () => {
@@ -125,7 +125,7 @@ describe('applyApplyFormula', () => {
         },
       },
     }
-    expect(applyApplyFormula(formula, ctx)).toBe('from-cache')
+    expect(applyApplyFormula(formula, ctx, ctx.data)).toBe('from-cache')
   })
 
   it('can use built in formulas', () => {
@@ -147,7 +147,7 @@ describe('applyApplyFormula', () => {
         formulas: {},
       } as any,
     }
-    expect(applyFormula(formula as any, ctx)).toBe('test')
+    expect(applyFormula(formula as any, ctx, ctx.data)).toBe('test')
   })
 })
 

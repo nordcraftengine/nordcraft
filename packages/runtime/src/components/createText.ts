@@ -53,24 +53,9 @@ export function createText({
   }
   elem.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
   if (value.type !== 'value') {
+    const valuePath = ctx.reportFormulaEvaluation ? ['value'] : undefined
     const sig = dataSignal.map((data) =>
-      String(
-        applyFormula(
-          value,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          ['value'],
-        ),
-      ),
+      String(applyFormula(value, ctx, data, valuePath)),
     )
     sig.subscribe((value) => {
       elem.innerText = value
@@ -98,24 +83,19 @@ export function createTextNS({
   const { value } = node
   const textNode = document.createTextNode('')
   if (value.type !== 'value') {
+    const valuePathNS = ctx.reportFormulaEvaluation ? ['value'] : undefined
+    const formulaCtxNS = {
+      component: ctx.component,
+      formulaCache: ctx.formulaCache,
+      root: ctx.root,
+      package: ctx.package,
+      toddle: ctx.toddle,
+      env: ctx.env,
+      jsonPath: ctx.jsonPath,
+      reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+    }
     const sig = dataSignal.map((data) =>
-      String(
-        applyFormula(
-          value,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          ['value'],
-        ),
-      ),
+      String(applyFormula(value, formulaCtxNS, data, valuePathNS)),
     )
     sig.subscribe((value) => {
       textNode.nodeValue = value
