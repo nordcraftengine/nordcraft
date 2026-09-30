@@ -120,12 +120,7 @@ export function createElement({
       const formula = node.classes[className].formula
       if (formula) {
         const classSignal = dataSignal.map((data) =>
-          toBoolean(
-            applyFormula(formula, {
-              ...formulaCtx,
-              data,
-            }),
-          ),
+          toBoolean(applyFormula(formula, formulaCtx, data)),
         )
         classSignal.subscribe((show) =>
           show
@@ -140,33 +135,33 @@ export function createElement({
 
   let hasDynamicCustomProperties = false
   if (instance && id === 'root') {
-    Object.entries(instance).forEach(([key, value]) => {
+    for (const key in instance) {
+      const value = instance[key]
       initialClasses.push(toValidClassName(`${key}:${value}`))
       // TODO: We should forward info on whether the instance has dynamic custom properties, but for now we assume that if the instance has any custom properties, they are dynamic.
       hasDynamicCustomProperties = true
-    })
+    }
   }
 
-  Object.entries(node.attrs ?? {}).forEach(([attr, value]) => {
+  const attrs = node.attrs ?? {}
+  for (const attr in attrs) {
+    const value = attrs[attr]
     if (!isDefined(value)) {
-      return
+      continue
     }
     let o: Signal<any> | undefined
     const setupAttribute = () => {
       if (value.type === 'value') {
         setAttribute(elem, attr, value?.value)
       } else {
-        const attrPath = ['nodes', id, 'attrs', attr]
+        const attrPath = ctx.reportFormulaEvaluation
+          ? ['nodes', id, 'attrs', attr]
+          : undefined
         o = dataSignal.map((data) => {
-          const val = applyFormula(
-            value,
-            {
-              ...formulaCtx,
-              data,
-            },
-            attrPath,
-          )
-          ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
+          const val = applyFormula(value, formulaCtx, data, attrPath)
+          if (attrPath) {
+            ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
+          }
           return val
         })
         o.subscribe((val) => {
@@ -190,97 +185,98 @@ export function createElement({
     } else {
       setupAttribute()
     }
-  })
+  }
   node['style-variables']?.forEach((styleVariable, i) => {
     const { name, formula, unit } = styleVariable
-    const styleVarPath = ['nodes', id, 'style-variables', i, 'formula']
+    const styleVarPath = ctx.reportFormulaEvaluation
+      ? ['nodes', id, 'style-variables', i, 'formula']
+      : undefined
     const signal = dataSignal.map((data) => {
-      const value = applyFormula(
-        formula,
-        {
-          ...formulaCtx,
-          data,
-        },
-        styleVarPath,
-      )
-      ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
+      const value = applyFormula(formula, formulaCtx, data, styleVarPath)
+      if (styleVarPath) {
+        ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
+      }
       return unit ? value + unit : value
     })
 
     signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
   })
 
-  Object.entries(node.customProperties ?? {})
-    .filter(([_, { formula }]) => formulaHasValue(formula))
-    .forEach(([customPropertyName, { formula, unit }]) => {
-      hasDynamicCustomProperties = true
-      const cpPath = [
-        'nodes',
-        id,
-        'customProperties',
-        customPropertyName,
-        'formula',
-      ]
-      const nodeSelector = getNodeSelector(path)
-      subscribeCustomProperty({
-        customPropertyName,
-        selector:
-          ctx.env.runtime === 'custom-element' &&
-          ctx.isRootComponent &&
-          path === '0'
-            ? `${nodeSelector}, :host`
-            : nodeSelector,
-        signal: dataSignal.map((data) => {
-          const val = applyFormula(
-            formula,
-            {
-              ...formulaCtx,
-              data,
-            },
-            cpPath,
-          )
-          ctx.reportFormulaEvaluation?.(cpPath, val, ctx)
-          return appendUnit(val, unit)
-        }),
-        root: ctx.root,
-      })
-    })
-
-  node.variants?.forEach((variant, variantIndex) => {
-    Object.entries(variant.customProperties ?? {})
-      .filter(([_, { formula }]) => formulaHasValue(formula))
-      .forEach(([customPropertyName, { formula, unit }]) => {
-        hasDynamicCustomProperties = true
-        const variantCpPath = [
+  const customProperties = node.customProperties ?? {}
+  for (const customPropertyName in customProperties) {
+    const { formula, unit } = customProperties[
+      customPropertyName as keyof typeof customProperties
+    ]!
+    if (!formulaHasValue(formula)) {
+      continue
+    }
+    hasDynamicCustomProperties = true
+    const cpPath = ctx.reportFormulaEvaluation
+      ? [
           'nodes',
           id,
-          'variants',
-          variantIndex,
           'customProperties',
           customPropertyName,
           'formula',
         ]
-        subscribeCustomProperty({
-          customPropertyName,
-          selector: getNodeSelector(path, {
-            variant,
-          }),
+      : undefined
+    const nodeSelector = getNodeSelector(path)
+    subscribeCustomProperty({
+      customPropertyName,
+      selector:
+        ctx.env.runtime === 'custom-element' &&
+        ctx.isRootComponent &&
+        path === '0'
+          ? `${nodeSelector}, :host`
+          : nodeSelector,
+      signal: dataSignal.map((data) => {
+        const val = applyFormula(formula, formulaCtx, data, cpPath)
+        if (cpPath) {
+          ctx.reportFormulaEvaluation?.(cpPath, val, ctx)
+        }
+        return appendUnit(val, unit)
+      }),
+      root: ctx.root,
+    })
+  }
+
+  node.variants?.forEach((variant, variantIndex) => {
+    const variantCustomProperties = variant.customProperties ?? {}
+    for (const customPropertyName in variantCustomProperties) {
+      const { formula, unit } = variantCustomProperties[
+        customPropertyName as keyof typeof variantCustomProperties
+      ]!
+      if (!formulaHasValue(formula)) {
+        continue
+      }
+      hasDynamicCustomProperties = true
+      const variantCpPath = ctx.reportFormulaEvaluation
+        ? [
+            'nodes',
+            id,
+            'variants',
+            variantIndex,
+            'customProperties',
+            customPropertyName,
+            'formula',
+          ]
+        : undefined
+      subscribeCustomProperty({
+        customPropertyName,
+        selector: getNodeSelector(path, {
           variant,
-          signal: dataSignal.map((data) => {
-            const val = applyFormula(
-              formula,
-              {
-                ...formulaCtx,
-                data,
-              },
-              variantCpPath,
-            )
+        }),
+        variant,
+        signal: dataSignal.map((data) => {
+          const val = applyFormula(formula, formulaCtx, data, variantCpPath)
+          if (variantCpPath) {
             ctx.reportFormulaEvaluation?.(variantCpPath, val, ctx)
-            return appendUnit(val, unit)
-          }),
-          root: ctx.root,
-        })
+          }
+          return appendUnit(val, unit)
+        }),
+        root: ctx.root,
       })
+    }
   })
 
   if (path && hasDynamicCustomProperties) {
@@ -319,12 +315,7 @@ export function createElement({
           textValues.push(String(node.value.value))
         } else {
           const textSignal = dataSignal.map((data) => {
-            return String(
-              applyFormula(node.value, {
-                ...formulaCtx,
-                data,
-              }),
-            )
+            return String(applyFormula(node.value, formulaCtx, data))
           })
           textValues.push(textSignal)
         }

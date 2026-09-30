@@ -105,7 +105,7 @@ export function createStaticContextFromComponent(
       ),
       ([name, variable]) => [
         name,
-        applyFormula(variable.initialValue, formulaContext, [
+        applyFormula(variable.initialValue, formulaContext, undefined, [
           'variables',
           name,
         ]),
@@ -126,7 +126,7 @@ export function createStaticContextFromComponent(
 
           return [
             formulaName,
-            applyFormula(formula.formula, formulaContext, [
+            applyFormula(formula.formula, formulaContext, undefined, [
               'formulas',
               formulaName,
             ]),
