@@ -13,13 +13,26 @@ export const RELEASE_ASSETS = [
   'css-property-keywords.json',
 ] as const
 
+export const IMMUTABLE_CACHE_CONTROL = 'public, max-age=31536000, immutable'
+export const LATEST_CACHE_CONTROL = 'public, max-age=21600'
+export const JSON_CONTENT_TYPE = 'application/json'
+
 export const getR2UploadTargets = (
   version: string,
-  options?: { bucket?: string; prefix?: string; distDir?: string },
+  options?: {
+    bucket?: string
+    prefix?: string
+    distDir?: string
+    versionCacheControl?: string
+    latestCacheControl?: string
+  },
 ) => {
   const bucket = options?.bucket ?? process.env.R2_BUCKET_NAME ?? 'public'
   const prefix = options?.prefix ?? 'editor'
   const dist = options?.distDir ?? path.resolve(__dirname, '../dist')
+  const versionCacheControl =
+    options?.versionCacheControl ?? IMMUTABLE_CACHE_CONTROL
+  const latestCacheControl = options?.latestCacheControl ?? LATEST_CACHE_CONTROL
 
   return RELEASE_ASSETS.flatMap((filename) => {
     const filePath = path.resolve(dist, filename)
@@ -27,10 +40,14 @@ export const getR2UploadTargets = (
       {
         filePath,
         destination: `${bucket}/${prefix}/${version}/${filename}`,
+        contentType: JSON_CONTENT_TYPE,
+        cacheControl: versionCacheControl,
       },
       {
         filePath,
         destination: `${bucket}/${prefix}/latest/${filename}`,
+        contentType: JSON_CONTENT_TYPE,
+        cacheControl: latestCacheControl,
       },
     ]
   })
@@ -39,25 +56,36 @@ export const getR2UploadTargets = (
 export const uploadFileToR2 = (
   destination: string,
   filePath: string,
-  exec: (
-    command: string,
-    args: string[],
-    options: { stdio: 'inherit' },
-  ) => { status: number | null } = spawnSync,
+  options?: {
+    contentType?: string
+    cacheControl?: string
+    exec?: (
+      command: string,
+      args: string[],
+      options: { stdio: 'inherit' },
+    ) => { status: number | null }
+  },
 ) => {
-  const result = exec(
-    'bunx',
-    [
-      'wrangler',
-      'r2',
-      'object',
-      'put',
-      destination,
-      `--file=${filePath}`,
-      '--remote',
-    ],
-    { stdio: 'inherit' },
-  )
+  const exec = options?.exec ?? spawnSync
+  const args = [
+    'wrangler',
+    'r2',
+    'object',
+    'put',
+    destination,
+    `--file=${filePath}`,
+    '--remote',
+  ]
+
+  if (options?.contentType) {
+    args.push(`--content-type=${options.contentType}`)
+  }
+
+  if (options?.cacheControl) {
+    args.push(`--cache-control=${options.cacheControl}`)
+  }
+
+  const result = exec('bunx', args, { stdio: 'inherit' })
 
   if (result.status !== 0) {
     throw new Error(`Failed to upload ${filePath} to ${destination}`)
@@ -70,7 +98,13 @@ export const uploadReleaseAssetsToR2 = (
     bucket?: string
     prefix?: string
     distDir?: string
-    uploader?: (destination: string, filePath: string) => void
+    versionCacheControl?: string
+    latestCacheControl?: string
+    uploader?: (
+      destination: string,
+      filePath: string,
+      metadata?: { contentType?: string; cacheControl?: string },
+    ) => void
   },
 ) => {
   if (!version || typeof version !== 'string' || !version.trim()) {
@@ -87,9 +121,11 @@ export const uploadReleaseAssetsToR2 = (
     }
   }
 
-  for (const { filePath, destination } of targets) {
-    console.log(`Uploading ${filePath} -> ${destination}`)
-    uploader(destination, filePath)
+  for (const { filePath, destination, contentType, cacheControl } of targets) {
+    console.log(
+      `Uploading ${filePath} -> ${destination} (Content-Type: ${contentType}, Cache-Control: ${cacheControl})`,
+    )
+    uploader(destination, filePath, { contentType, cacheControl })
   }
 }
 

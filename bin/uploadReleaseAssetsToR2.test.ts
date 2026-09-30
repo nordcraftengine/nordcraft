@@ -4,6 +4,9 @@ import os from 'os'
 import path from 'path'
 import {
   getR2UploadTargets,
+  IMMUTABLE_CACHE_CONTROL,
+  JSON_CONTENT_TYPE,
+  LATEST_CACHE_CONTROL,
   RELEASE_ASSETS,
   uploadFileToR2,
   uploadReleaseAssetsToR2,
@@ -19,26 +22,38 @@ describe('uploadReleaseAssetsToR2', () => {
         {
           filePath: '/fake/dist/elements.json',
           destination: 'public/editor/1.2.3/elements.json',
+          contentType: JSON_CONTENT_TYPE,
+          cacheControl: IMMUTABLE_CACHE_CONTROL,
         },
         {
           filePath: '/fake/dist/elements.json',
           destination: 'public/editor/latest/elements.json',
+          contentType: JSON_CONTENT_TYPE,
+          cacheControl: LATEST_CACHE_CONTROL,
         },
         {
           filePath: '/fake/dist/interfaces.json',
           destination: 'public/editor/1.2.3/interfaces.json',
+          contentType: JSON_CONTENT_TYPE,
+          cacheControl: IMMUTABLE_CACHE_CONTROL,
         },
         {
           filePath: '/fake/dist/interfaces.json',
           destination: 'public/editor/latest/interfaces.json',
+          contentType: JSON_CONTENT_TYPE,
+          cacheControl: LATEST_CACHE_CONTROL,
         },
         {
           filePath: '/fake/dist/css-property-keywords.json',
           destination: 'public/editor/1.2.3/css-property-keywords.json',
+          contentType: JSON_CONTENT_TYPE,
+          cacheControl: IMMUTABLE_CACHE_CONTROL,
         },
         {
           filePath: '/fake/dist/css-property-keywords.json',
           destination: 'public/editor/latest/css-property-keywords.json',
+          contentType: JSON_CONTENT_TYPE,
+          cacheControl: LATEST_CACHE_CONTROL,
         },
       ])
     })
@@ -53,16 +68,20 @@ describe('uploadReleaseAssetsToR2', () => {
       expect(targets[0]).toEqual({
         filePath: '/custom/dist/elements.json',
         destination: 'my-assets/custom-prefix/2.0.0/elements.json',
+        contentType: JSON_CONTENT_TYPE,
+        cacheControl: IMMUTABLE_CACHE_CONTROL,
       })
       expect(targets[1]).toEqual({
         filePath: '/custom/dist/elements.json',
         destination: 'my-assets/custom-prefix/latest/elements.json',
+        contentType: JSON_CONTENT_TYPE,
+        cacheControl: LATEST_CACHE_CONTROL,
       })
     })
   })
 
   describe('uploadFileToR2', () => {
-    test('invokes wrangler with expected arguments', () => {
+    test('invokes wrangler with expected arguments including content-type and cache-control', () => {
       let executedCommand: {
         command: string
         args: string[]
@@ -81,7 +100,11 @@ describe('uploadReleaseAssetsToR2', () => {
       uploadFileToR2(
         'public/editor/latest/elements.json',
         '/path/to/elements.json',
-        mockExec,
+        {
+          contentType: 'application/json',
+          cacheControl: 'public, max-age=21600',
+          exec: mockExec,
+        },
       )
 
       expect(executedCommand).not.toBeNull()
@@ -94,6 +117,8 @@ describe('uploadReleaseAssetsToR2', () => {
         'public/editor/latest/elements.json',
         '--file=/path/to/elements.json',
         '--remote',
+        '--content-type=application/json',
+        '--cache-control=public, max-age=21600',
       ])
     })
 
@@ -104,7 +129,7 @@ describe('uploadReleaseAssetsToR2', () => {
         uploadFileToR2(
           'public/editor/latest/elements.json',
           '/path/to/elements.json',
-          failingExec,
+          { exec: failingExec },
         ),
       ).toThrow(
         'Failed to upload /path/to/elements.json to public/editor/latest/elements.json',
@@ -142,9 +167,17 @@ describe('uploadReleaseAssetsToR2', () => {
           fs.writeFileSync(path.join(tmpDir, file), '{}')
         }
 
-        const uploaded: Array<{ destination: string; filePath: string }> = []
-        const mockUploader = (destination: string, filePath: string) => {
-          uploaded.push({ destination, filePath })
+        const uploaded: Array<{
+          destination: string
+          filePath: string
+          metadata?: { contentType?: string; cacheControl?: string }
+        }> = []
+        const mockUploader = (
+          destination: string,
+          filePath: string,
+          metadata?: { contentType?: string; cacheControl?: string },
+        ) => {
+          uploaded.push({ destination, filePath, metadata })
         }
 
         uploadReleaseAssetsToR2('1.0.0', {
@@ -161,6 +194,14 @@ describe('uploadReleaseAssetsToR2', () => {
           'public/editor/1.0.0/css-property-keywords.json',
           'public/editor/latest/css-property-keywords.json',
         ])
+        expect(uploaded[0].metadata).toEqual({
+          contentType: 'application/json',
+          cacheControl: 'public, max-age=31536000, immutable',
+        })
+        expect(uploaded[1].metadata).toEqual({
+          contentType: 'application/json',
+          cacheControl: 'public, max-age=21600',
+        })
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true })
       }
