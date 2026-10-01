@@ -4,6 +4,23 @@ import { escapeRegex } from './dom'
 
 type Scale = [x: number, y: number]
 
+type Point = { x: number; y: number }
+
+/** Centre point of a rect. */
+const centre = ({
+  left,
+  top,
+  width,
+  height,
+}: Pick<DOMRect, 'left' | 'top' | 'width' | 'height'>): Point => ({
+  x: left + width / 2,
+  y: top + height / 2,
+})
+
+/** A `w` x `h` rect centred on `c`. */
+const rectFromCentre = (c: Point, w: number, h: number) =>
+  new DOMRect(c.x - w / 2, c.y - h / 2, w, h)
+
 /**
  * Measures an element so an overlay can be drawn on top of it that matches exactly.
  *
@@ -221,12 +238,7 @@ export function getRepeatItemsData(
 
 /** A `width` x `height` rect with the same centre as `around`. */
 const centeredRect = (around: DOMRect, width: number, height: number) =>
-  new DOMRect(
-    around.left + (around.width - width) / 2,
-    around.top + (around.height - height) / 2,
-    width,
-    height,
-  )
+  rectFromCentre(centre(around), width, height)
 
 function getPerspectiveProvider(node: Element): Element | null {
   for (
@@ -262,12 +274,13 @@ function getPerspectiveInfo(provider: Element) {
     new DOMPoint(originX - width / 2, originY - height / 2),
   )
   const raw = provider.getBoundingClientRect()
+  const rawCentre = centre(raw)
 
   return {
     d,
     perspective,
-    ox: raw.left + raw.width / 2 + offset.x,
-    oy: raw.top + raw.height / 2 + offset.y,
+    ox: rawCentre.x + offset.x,
+    oy: rawCentre.y + offset.y,
   }
 }
 
@@ -303,10 +316,8 @@ function getPerspectiveCenter(
   height: number,
   rect: DOMRect,
 ) {
-  const aabbCenter = {
-    cx: rect.left + rect.width / 2,
-    cy: rect.top + rect.height / 2,
-  }
+  const { x: cx, y: cy } = centre(rect)
+  const aabbCenter = { cx, cy }
   const provider = getPerspectiveProvider(node)
   const info = provider && getPerspectiveInfo(provider)
   if (!info) {
@@ -612,7 +623,7 @@ function getIntrinsicRect(
         ? node.offsetHeight * scaleY
         : rect.height
     const { cx, cy } = getPerspectiveCenter(node, matrix, width, height, rect)
-    return new DOMRect(cx - width / 2, cy - height / 2, width, height)
+    return rectFromCentre({ x: cx, y: cy }, width, height)
   }
 
   const [a, b, c, d] = [matrix.a, matrix.b, matrix.c, matrix.d].map(Math.abs)
@@ -733,8 +744,6 @@ function getInheritedMatrix(node: Element): string {
 // Exact overlay for 3D / perspective chains
 // ---------------------------------------------------------------------------
 
-type Point = { x: number; y: number }
-
 const CORNERS = [
   [-1, -1],
   [1, -1],
@@ -791,10 +800,7 @@ function solveLayoutCentre(
   const misfit = (c: Point) =>
     projectedBounds(worldAt(c), c, w, h).map((v, i) => want[i] - v)
 
-  let c = {
-    x: target.left + target.width / 2,
-    y: target.top + target.height / 2,
-  }
+  let c = centre(target)
   for (let i = 0; i < 10; i++) {
     const r = misfit(c)
     const jx = misfit({ x: c.x + 1, y: c.y }).map((v, k) => r[k] - v)
@@ -886,7 +892,8 @@ function getFrame(
   // Layout centre of `el` -> its accumulated matrix
   const place = (c: Point) => {
     const [ox, oy] = parseOrigin(style.transformOrigin || '50% 50%', w, h)
-    let m = about(own, [c.x - w / 2 + ox, c.y - h / 2 + oy, 0])
+    const topLeft = rectFromCentre(c, w, h)
+    let m = about(own, [topLeft.x + ox, topLeft.y + oy, 0])
     if (parent) {
       if (parent.perspective > 0) {
         const [px, py] = parseOrigin(
@@ -894,11 +901,12 @@ function getFrame(
           parent.w,
           parent.h,
         )
+        const parentTopLeft = rectFromCentre(parent.c, parent.w, parent.h)
         const persp = new DOMMatrix()
         persp.m34 = -1 / parent.perspective
         m = about(persp, [
-          parent.c.x - parent.w / 2 + px,
-          parent.c.y - parent.h / 2 + py,
+          parentTopLeft.x + px,
+          parentTopLeft.y + py,
           0,
         ]).multiply(m)
       }
@@ -978,7 +986,7 @@ function getExactOverlay(node: Element, cache: FrameCache = new Map()) {
   }
 
   return {
-    rect: new DOMRect(c.x - w / 2, c.y - h / 2, w, h),
+    rect: rectFromCentre(c, w, h),
     rotate: matrix.toString(),
   }
 }
