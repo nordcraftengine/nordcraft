@@ -177,6 +177,7 @@ export type EditorPostMessageType =
       copy: boolean
       parent?: string | null
       index?: number
+      slot?: string
     }
   | {
       type: 'insertNode'

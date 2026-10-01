@@ -73,6 +73,7 @@ export function createElement({
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
 
+  // This is editor only logic and we should move out of the runtime bundle when possible
   if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
     let slotName: string | undefined | null
     let hasSlotElements = false
@@ -93,7 +94,7 @@ export function createElement({
       elem.setAttribute('data-node-slot-name', slotName)
     }
 
-    if (hasSlotElements) {
+    if (hasSlotElements && id === 'root') {
       elem.setAttribute('data-has-slots-elements', 'true')
     }
   }

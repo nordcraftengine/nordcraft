@@ -29,29 +29,28 @@ export function getInsertAreas() {
     )
     .map((e) => e.getAttribute('data-id'))
 
-  // This means we have an empty page or component
-  if (elementIds.length === 0) {
-    const element = document.getElementById('App')
-    if (!element) {
-      // eslint-disable-next-line no-console
-      console.warn(`Element with id "App" not found`)
-    } else {
-      const rect = element.getBoundingClientRect()
+  const elementApp = document.getElementById('App')
+  if (!elementApp) {
+    // eslint-disable-next-line no-console
+    console.warn(`Element with id "App" not found`)
+  } else if (elementApp.children.length === 0) {
+    // This means we have an empty page or component
+    const rect = elementApp.getBoundingClientRect()
 
-      insertAreas.push({
-        layout: 'block',
-        parent: element,
-        indexAll: 0,
-        index: 0,
-        center: {
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-        },
-        size: rect.width,
-        direction: 1,
-      })
-    }
+    insertAreas.push({
+      layout: 'block',
+      parent: elementApp,
+      indexAll: 0,
+      index: 0,
+      center: {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      },
+      size: rect.width,
+      direction: 1,
+    })
   }
+
   elementIds.forEach((id) => {
     const element = getDOMNodeFromNodeId(id, true, true)
 

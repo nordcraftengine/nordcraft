@@ -148,6 +148,7 @@ export const handleDragEnded = async (
           copy: Boolean(dragState?.copy),
           parent: selectedPermutation?.parent.getAttribute('data-id'),
           index: selectedPermutation?.index,
+          slot: selectedPermutation?.slot,
         })
         return null
       } else {

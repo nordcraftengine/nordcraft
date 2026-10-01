@@ -47,14 +47,12 @@ export function createText({
   const { value } = node
   const elem = document.createElement('span')
 
+  // This is editor only logic and we should move out of the runtime bundle when possible
   if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
     let slotName: string | undefined | null
-    let hasSlotElements = false
 
     for (const node of Object.values(ctx.component.nodes)) {
       if (node?.type !== 'slot') continue
-
-      hasSlotElements = true
 
       if (node.children?.includes(id)) {
         slotName = node?.name ?? 'default'
@@ -65,11 +63,6 @@ export function createText({
 
     if (slotName) {
       elem.setAttribute('data-node-slot-name', slotName)
-    }
-
-    // This probably needs to be removed, since the text can't have any child elements
-    if (hasSlotElements) {
-      elem.setAttribute('data-has-slots-elements', 'true')
     }
   }
   if (ctx.isRootComponent) {
