@@ -18,13 +18,11 @@ import {
 import {
   computeSha256,
   evaluateHeapVerdict,
-  formatBenchmarkAveragesSummary,
   formatKb,
   formatMs,
   formatPercent,
   hasInformativeTimingSamples,
   median,
-  summarizeBenchmarkAverages,
   summarizeTimeBenchmark,
 } from '../benchmarks/stats'
 
@@ -204,7 +202,6 @@ export const renderRuntimeMarkdown = ({
   baseRuntimeCompressedBytes,
   headRuntimeCompressedBytes,
   deltaCompressedSizeStr,
-  averagesSummary,
 }: {
   config: RuntimeConfig
   results: Array<
@@ -232,7 +229,6 @@ export const renderRuntimeMarkdown = ({
   baseRuntimeCompressedBytes?: number
   headRuntimeCompressedBytes?: number
   deltaCompressedSizeStr?: string
-  averagesSummary?: ReturnType<typeof summarizeBenchmarkAverages>
 }) => {
   if (isRuntimeClean(results)) {
     return RUNTIME_CLEAN_MARKDOWN
@@ -291,13 +287,6 @@ export const renderRuntimeMarkdown = ({
     }),
     '',
   )
-
-  if (averagesSummary) {
-    markdownLines.push(
-      `_${formatBenchmarkAveragesSummary(averagesSummary)}_`,
-      '',
-    )
-  }
 
   return markdownLines.join('\n')
 }
@@ -798,13 +787,6 @@ async function runBenchmark() {
     '===========================================================================================\n',
   )
 
-  const averagesSummary = summarizeBenchmarkAverages({
-    timeDeltas: results.map((r) => r.deltaPercent),
-    heapDeltas: results.map((r) => r.deltaHeapPercent),
-    noiseThresholdPercent: config.noiseThresholdPercent,
-  })
-  console.log(formatBenchmarkAveragesSummary(averagesSummary))
-
   // Format Markdown
   const hasRegressions = results.some(
     (r) => r.timeStatus === 'regression' || r.heapStatus === 'regression',
@@ -819,7 +801,6 @@ async function runBenchmark() {
     baseRuntimeCompressedBytes,
     headRuntimeCompressedBytes,
     deltaCompressedSizeStr,
-    averagesSummary,
   })
 
   if (config.exportMarkdown) {
@@ -853,7 +834,6 @@ async function runBenchmark() {
             headCompressedBytes: headRuntimeCompressedBytes,
             compressedDelta: deltaCompressedSizeStr,
           },
-          averages: averagesSummary,
           results,
         },
         null,
