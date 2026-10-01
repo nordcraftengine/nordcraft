@@ -348,6 +348,86 @@ export function formatPercent(value: number) {
     : 'n/a'
 }
 
+export function averageFinite(values: readonly number[]): number {
+  const finite = values.filter((value) => Number.isFinite(value))
+  if (finite.length === 0) return Number.NaN
+  return finite.reduce((sum, value) => sum + value, 0) / finite.length
+}
+
+export function isWithinErrorMargin(
+  averageDeltaPercent: number,
+  noiseThresholdPercent: number,
+): boolean {
+  if (!Number.isFinite(averageDeltaPercent)) return false
+  if (!Number.isFinite(noiseThresholdPercent)) return false
+  return Math.abs(averageDeltaPercent) <= noiseThresholdPercent
+}
+
+export interface BenchmarkAverageSummary {
+  scenarioCount: number
+  averageTimeDeltaPercent: number
+  averageHeapDeltaPercent?: number
+  noiseThresholdPercent: number
+  timeWithinErrorMargin: boolean
+  heapWithinErrorMargin?: boolean
+}
+
+export function summarizeBenchmarkAverages({
+  timeDeltas,
+  heapDeltas,
+  noiseThresholdPercent,
+}: {
+  timeDeltas: readonly number[]
+  heapDeltas?: readonly number[]
+  noiseThresholdPercent: number
+}): BenchmarkAverageSummary {
+  const averageTimeDeltaPercent = averageFinite(timeDeltas)
+  const averageHeapDeltaPercent =
+    heapDeltas === undefined ? undefined : averageFinite(heapDeltas)
+  return {
+    scenarioCount: timeDeltas.length,
+    averageTimeDeltaPercent,
+    averageHeapDeltaPercent,
+    noiseThresholdPercent,
+    timeWithinErrorMargin: isWithinErrorMargin(
+      averageTimeDeltaPercent,
+      noiseThresholdPercent,
+    ),
+    heapWithinErrorMargin:
+      averageHeapDeltaPercent === undefined
+        ? undefined
+        : isWithinErrorMargin(averageHeapDeltaPercent, noiseThresholdPercent),
+  }
+}
+
+const formatAverageDirection = (
+  averageDeltaPercent: number,
+  fasterLabel = 'faster',
+  slowerLabel = 'slower',
+): string => {
+  if (!Number.isFinite(averageDeltaPercent)) return 'n/a'
+  const abs = Math.abs(averageDeltaPercent).toFixed(1)
+  if (averageDeltaPercent < 0) return `${abs}% ${fasterLabel}`
+  if (averageDeltaPercent > 0) return `${abs}% ${slowerLabel}`
+  return 'no change'
+}
+
+export function formatBenchmarkAveragesSummary(
+  summary: BenchmarkAverageSummary,
+): string {
+  const threshold = `±${summary.noiseThresholdPercent.toFixed(1)}%`
+  const timePart = Number.isFinite(summary.averageTimeDeltaPercent)
+    ? `Time: ${formatAverageDirection(summary.averageTimeDeltaPercent)}${summary.timeWithinErrorMargin ? ` — within error margin (${threshold})` : ''}`
+    : 'time n/a'
+  const heapPart =
+    summary.averageHeapDeltaPercent === undefined
+      ? ''
+      : Number.isFinite(summary.averageHeapDeltaPercent)
+        ? `Heap:${formatAverageDirection(summary.averageHeapDeltaPercent, 'smaller', 'larger')}${summary.heapWithinErrorMargin ? ` — within error margin (${threshold})` : ''}`
+        : ''
+  return `Benchmark averages (${summary.scenarioCount} scenarios):\n${timePart}\n${heapPart}.`
+}
+
 export interface TimeVerdictInput {
   isByteIdentical: boolean
   isAATest?: boolean

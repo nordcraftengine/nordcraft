@@ -20,9 +20,11 @@ import {
   type SsrBenchmarkCaseId,
 } from '../benchmarks/ssrCases'
 import {
+  formatBenchmarkAveragesSummary,
   formatMs,
   formatPercent,
   hasInformativeTimingSamples,
+  summarizeBenchmarkAverages,
   summarizeTimeBenchmark,
 } from '../benchmarks/stats'
 
@@ -575,6 +577,11 @@ const writeReport = async ({
   const hasInconclusive = results.some(
     (result) => result.timeStatus === 'inconclusive',
   )
+  const averagesSummary = summarizeBenchmarkAverages({
+    timeDeltas: results.map((result) => result.deltaPercent),
+    noiseThresholdPercent: config.noiseThresholdPercent,
+  })
+  const averagesLine = formatBenchmarkAveragesSummary(averagesSummary)
   const markdownLines = [
     '## ⚡ Nordcraft SSR Performance Benchmark',
     '',
@@ -602,6 +609,8 @@ const writeReport = async ({
       const ci = `${formatPercent(result.ciLowPercent)} / ${formatPercent(result.ciHighPercent)}`
       return `| **${result.id}** | ${base} | ${head} | ${delta} | ${ci} | ${result.pValue.toExponential(2)} | ${result.timeVerdict} |`
     }),
+    '',
+    `_${averagesLine}_`,
     '',
   ]
 
@@ -631,6 +640,7 @@ const writeReport = async ({
           failOnRegression: config.failOnRegression,
         },
         results,
+        averages: averagesSummary,
       },
       null,
       2,
@@ -662,6 +672,7 @@ const writeReport = async ({
   console.log(
     '===========================================================================================\n',
   )
+  console.log(averagesLine)
   console.log(`Markdown report written to: ${markdownPath}`)
   console.log(`JSON report written to: ${jsonPath}`)
 

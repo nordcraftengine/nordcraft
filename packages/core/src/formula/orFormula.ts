@@ -1,3 +1,4 @@
+import '../compileTime'
 import type { ComponentData } from '../component/component.types'
 import { toBoolean } from '../utils/util'
 import {
@@ -12,23 +13,21 @@ export const applyOrFormula = (
   data: ComponentData,
 ) => {
   const args = formula.arguments ?? []
-  if (ctx.reportFormulaEvaluation) {
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i]
-      if (
-        toBoolean(
-          applyFormula(arg?.formula, ctx, data, ['arguments', i, 'formula']),
-        )
-      ) {
-        return true
-      }
-    }
-  } else {
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i]
-      if (toBoolean(applyFormula(arg?.formula, ctx, data, undefined))) {
-        return true
-      }
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]
+    if (
+      toBoolean(
+        applyFormula(
+          arg?.formula,
+          ctx,
+          data,
+          IS_PREVIEW && ctx.reportFormulaEvaluation
+            ? ['arguments', i, 'formula']
+            : undefined,
+        ),
+      )
+    ) {
+      return true
     }
   }
   return false

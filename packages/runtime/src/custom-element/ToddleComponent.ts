@@ -1,5 +1,6 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
+import '@nordcraft/core/dist/compileTime'
 import type {
   Component,
   ComponentData,
@@ -10,13 +11,12 @@ import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
 import type { Theme } from '@nordcraft/core/dist/styling/theme'
-import {
-  theme as defaultTheme,
-  THEME_DATA_ATTRIBUTE,
-} from '@nordcraft/core/dist/styling/theme.const'
+import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
+import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/themeAttributes.const'
 import type { Nullable, Toddle } from '@nordcraft/core/dist/types'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
@@ -111,7 +111,7 @@ export class ToddleComponent extends HTMLElement {
       package: undefined,
       toddle,
       env,
-      jsonPath: [],
+      ...(IS_PREVIEW ? { jsonPath: [] } : {}),
     }
   }
 
@@ -124,14 +124,14 @@ export class ToddleComponent extends HTMLElement {
       if (isLegacyApi(api)) {
         this.#ctx.apis[name] = createLegacyAPI(api, {
           ...this.#ctx,
-          jsonPath: ['apis', name],
+          ...(IS_PREVIEW ? { jsonPath: ['apis', name] } : {}),
         })
       } else {
         this.#ctx.apis[name] = createAPI({
           apiRequest: api,
           ctx: {
             ...this.#ctx,
-            jsonPath: ['apis', name],
+            ...(IS_PREVIEW ? { jsonPath: ['apis', name] } : {}),
           },
           componentData: this.#signal.get(),
         })
@@ -153,7 +153,7 @@ export class ToddleComponent extends HTMLElement {
         package: this.#ctx.package,
         toddle: this.#ctx.toddle,
         env: this.#ctx.env,
-        jsonPath: [],
+        ...(IS_PREVIEW ? { jsonPath: [] } : {}),
       }
       const formulaDataSignals = Object.fromEntries(
         Object.entries(this.#component.formulas ?? {})
@@ -165,7 +165,7 @@ export class ToddleComponent extends HTMLElement {
                 (formula as ComponentFormula).formula,
                 toddleFormulaCtx,
                 data,
-                ['formulas', name],
+                IS_PREVIEW ? ['formulas', name] : undefined,
               ),
             ),
           ]),
@@ -184,13 +184,18 @@ export class ToddleComponent extends HTMLElement {
     this.#ctx.providers = providers
 
     this.#ctx.stores.theme.subscribe((newTheme) => {
-      this.#signal.update((data) => ({
-        ...data,
-        Page: {
-          ...(data.Page ?? {}),
-          Theme: newTheme,
-        },
-      }))
+      if (this.#signal.get().Page?.Theme !== newTheme) {
+        this.#signal.update(
+          (data) => ({
+            ...data,
+            Page: {
+              ...(data.Page ?? {}),
+              Theme: newTheme,
+            },
+          }),
+          { force: true },
+        )
+      }
       if (isDefined(newTheme)) {
         this.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
       } else {
@@ -257,13 +262,18 @@ export class ToddleComponent extends HTMLElement {
     }
 
     // Update the signal with complex value
-    this.#signal.set({
-      ...this.#signal.get(),
-      Attributes: {
-        ...this.#signal.get().Attributes,
-        [name]: value,
-      },
-    })
+    if (fastDeepEqual(this.#signal.get().Attributes?.[name], value) === false) {
+      this.#signal.set(
+        {
+          ...this.#signal.get(),
+          Attributes: {
+            ...this.#signal.get().Attributes,
+            [name]: value,
+          },
+        },
+        { force: true },
+      )
+    }
 
     return this
   }
@@ -288,13 +298,23 @@ export class ToddleComponent extends HTMLElement {
       return
     }
 
-    this.#signal.set({
-      ...this.#signal.get(),
-      Attributes: {
-        ...this.#signal.get().Attributes,
-        [attributeName]: newValue,
-      },
-    })
+    if (
+      fastDeepEqual(
+        this.#signal.get().Attributes?.[attributeName],
+        newValue,
+      ) === false
+    ) {
+      this.#signal.set(
+        {
+          ...this.#signal.get(),
+          Attributes: {
+            ...this.#signal.get().Attributes,
+            [attributeName]: newValue,
+          },
+        },
+        { force: true },
+      )
+    }
   }
 
   private getAttributeCaseInsensitive(name: string) {
