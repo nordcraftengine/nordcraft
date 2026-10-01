@@ -155,6 +155,7 @@ export const createRoot = (
     ...(packageComponents ?? []),
   ]
   let component: Component | null = null
+  let hasLoadedContent = false
   let componentFormulaData: Record<string, any> = {}
 
   const reportFormulaEvaluation: FormulaEvaluationReporter = (
@@ -240,7 +241,6 @@ export const createRoot = (
       selectedNodeId,
       component,
       styleVariantSelection,
-      resizeCanvasOptions,
       syncOverlayRects,
     })
   }
@@ -330,6 +330,7 @@ export const createRoot = (
             // Re-initialize the data signal for the new component
             ctxDataSignal?.destroy()
             ctx = null
+            hasLoadedContent = false
           }
 
           component = updateComponentLinks(message.data.component)
@@ -652,7 +653,10 @@ export const createRoot = (
             )
             document.body.setAttribute(DATA_ATTR_VIEWPORT_HEIGHT, heightStr)
             domNode.style.setProperty(CSS_VAR_VIEWPORT_HEIGHT, heightStr)
-            requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
+            requestResizeCanvas(
+              { ...resizeCanvasOptions, force: true },
+              syncOverlayRects,
+            )
           } else {
             resizeCanvasOptions.enabled = false
             domNode.style.removeProperty(CSS_VAR_VIEWPORT_HEIGHT)
@@ -837,7 +841,14 @@ export const createRoot = (
     },
   )
 
+  const hasLivePreviewStyle = () =>
+    Boolean(document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES))
+
   const resizeObserver = new ResizeObserver(() => {
+    if (hasLivePreviewStyle()) {
+      syncOverlayRects()
+      return
+    }
     requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
   })
   resizeObserver.observe(domNode)
@@ -1049,7 +1060,27 @@ export const createRoot = (
       selectedNodeId,
       mode,
     })
-    requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
+    if (!hasLoadedContent) {
+      hasLoadedContent = true
+      requestResizeCanvas(
+        { ...resizeCanvasOptions, force: true },
+        syncOverlayRects,
+      )
+      requestAnimationFrame(() => {
+        requestResizeCanvas(
+          { ...resizeCanvasOptions, force: true },
+          syncOverlayRects,
+        )
+      })
+      void document.fonts?.ready?.then(() => {
+        requestResizeCanvas(
+          { ...resizeCanvasOptions, force: true },
+          syncOverlayRects,
+        )
+      })
+    } else {
+      requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
+    }
   }
 
   const createContext = (
