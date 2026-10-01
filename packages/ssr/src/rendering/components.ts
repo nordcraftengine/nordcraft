@@ -35,10 +35,9 @@ import { filterObject, mapValues } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import { escapeAttrValue } from 'xss'
 import type { ProjectFiles } from '../ssr.types'
 import type { ApiCache, ApiEvaluator } from './api'
-import { getNodeAttrs, toEncodedText } from './attributes'
+import { escapeAttrValue, getNodeAttrs, toEncodedText } from './attributes'
 
 type CustomPropertyRule = `--${string}: ${string}`
 type SlottedContentOptions = {
@@ -163,12 +162,13 @@ const renderComponent = async ({
         return ''
       }
 
+      const nodeWithoutRepeat = { ...node, repeat: undefined }
       const nodeItems = await Promise.all(
         items.map((Item, Index) =>
           renderNode({
             id,
             path: Index ? `${path}(${Index})` : path,
-            node: { ...node, repeat: undefined },
+            node: nodeWithoutRepeat,
             data: {
               ...data,
               ListItem: data.ListItem
@@ -243,7 +243,8 @@ const renderComponent = async ({
         }
       }
       case 'element': {
-        switch (node.tag.toLocaleLowerCase()) {
+        const lowerTag = node.tag.toLocaleLowerCase()
+        switch (lowerTag) {
           case 'script': {
             // we do not want to run scripts twice.
             return ''
@@ -258,27 +259,24 @@ const renderComponent = async ({
           }
         }
 
-        const nodeAttrs = getNodeAttrs({
-          node,
-          data,
-          component,
-          packageName,
-          env,
-          toddle,
-        })
+        const nodeAttrs = getNodeAttrs({ node, formulaContext })
         const classList: string[] = []
-        const [style, variants] = getStaticStyleAndVariants(node)
-        if (style || variants) {
-          classList.push(getClassName([style, variants]))
+        // Fast path: Skip entirely when empty.
+        if (node.style || node.customProperties || node.variants) {
+          const [style, variants] = getStaticStyleAndVariants(node)
+          if (style || variants) {
+            classList.push(getClassName([style, variants]))
+          }
         }
 
-        classList.push(
-          ...Object.entries(node.classes ?? {})
-            .filter(([_, { formula }]) =>
-              toBoolean(applyFormula(formula, formulaContext)),
-            )
-            .map(([className]) => className),
-        )
+        if (node.classes) {
+          for (const className in node.classes) {
+            const { formula } = node.classes[className]!
+            if (toBoolean(applyFormula(formula, formulaContext))) {
+              classList.push(className)
+            }
+          }
+        }
         let hasDynamicCustomProperties = false
         if (id === 'root' && instance && Object.keys(instance).length > 0) {
           classList.push(
@@ -288,12 +286,14 @@ const renderComponent = async ({
           )
           hasDynamicCustomProperties = true
         }
-        Object.entries(node.customProperties ?? {})
-          .filter(
+        if (node.customProperties) {
+          for (const customPropertyName in node.customProperties) {
+            const customProperty =
+              node.customProperties[customPropertyName as `--${string}`]!
             // Only prerender dynamic properties here as static properties are already part of class-styling.
-            ([_, customProperty]) => customProperty.formula?.type !== 'value',
-          )
-          .forEach(([customPropertyName, customProperty]) => {
+            if (customProperty.formula?.type === 'value') {
+              continue
+            }
             hasDynamicCustomProperties = true
             const value = appendUnit(
               applyFormula(customProperty.formula, formulaContext),
@@ -305,14 +305,20 @@ const renderComponent = async ({
                 `${customPropertyName}: ${value}` as CustomPropertyRule,
               )
             }
-          })
+          }
+        }
 
-        node.variants?.forEach((variant) => {
-          Object.entries(variant.customProperties ?? {})
-            .filter(
-              ([_, customProperty]) => customProperty.formula?.type !== 'value',
-            )
-            .forEach(([customPropertyName, customProperty]) => {
+        if (node.variants) {
+          for (const variant of node.variants) {
+            if (!variant.customProperties) {
+              continue
+            }
+            for (const customPropertyName in variant.customProperties) {
+              const customProperty =
+                variant.customProperties[customPropertyName as `--${string}`]!
+              if (customProperty.formula?.type === 'value') {
+                continue
+              }
               hasDynamicCustomProperties = true
               // style-variables on variants are always version 2
               const value = appendUnit(
@@ -326,8 +332,9 @@ const renderComponent = async ({
                   variant,
                 )
               }
-            })
-        })
+            }
+          }
+        }
 
         if (hasDynamicCustomProperties) {
           classList.push(getPathClassName(path))
@@ -335,9 +342,7 @@ const renderComponent = async ({
 
         let innerHTML = ''
 
-        if (
-          ['script', 'style'].includes(node.tag.toLocaleLowerCase()) === false
-        ) {
+        if (lowerTag !== 'script' && lowerTag !== 'style') {
           const childNodes = node.children
             ? await Promise.all(
                 node.children.map((child, i) =>
@@ -356,7 +361,7 @@ const renderComponent = async ({
             : []
           innerHTML = childNodes.join('')
         }
-        if (node.tag.toLocaleLowerCase() === 'style') {
+        if (lowerTag === 'style') {
           // render style content as text
           const textNode = node.children?.[0]
             ? component.nodes?.[node.children[0]]
