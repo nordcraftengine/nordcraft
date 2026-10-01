@@ -16,7 +16,7 @@ import type { Theme } from '@nordcraft/core/dist/styling/theme'
 import {
   THEME_COOKIE_NAME,
   THEME_DATA_ATTRIBUTE,
-} from '@nordcraft/core/dist/styling/theme.const'
+} from '@nordcraft/core/dist/styling/themeAttributes.const'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import fastDeepEqual from 'fast-deep-equal'
 import { createNode } from './components/createNode'
@@ -65,8 +65,10 @@ import {
 import { initKeyListeners } from './editor/keyboard'
 import { updateComponentLinks } from './editor/links'
 import { markSelectedElement } from './editor/markSelectedElement'
+import { providerContextMock } from './editor/mockProviderContext'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
+import { handlePreviewAutofocus } from './editor/previewAutofocus'
 import { applyPreviewResources } from './editor/previewResources'
 import {
   applyPreviewStyle,
@@ -146,7 +148,11 @@ export const createRoot = (
     viewport?: { height: number | null }
     enabled?: boolean
   } = {}
-  window.toddle._preview = { showSignal }
+  window.toddle._preview = {
+    showSignal,
+    providerContextMock,
+    handleAutofocus: handlePreviewAutofocus,
+  }
   document.body.setAttribute(DATA_ATTR_MODE, 'design')
   let components: Component[] | null = null
   let packageComponents: Component[] | null = null

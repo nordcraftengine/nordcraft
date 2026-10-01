@@ -1,3 +1,4 @@
+import '@nordcraft/core/dist/compileTime'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 
 /**
@@ -53,7 +54,7 @@ export function setAttribute(
         if (
           // autofocus often does not work in the editor
           attr === 'autofocus' &&
-          document.body.getAttribute('data-mode') !== 'design'
+          (!IS_PREVIEW || document.body.getAttribute('data-mode') !== 'design')
         ) {
           setTimeout(() => elem.focus(), 100)
         }

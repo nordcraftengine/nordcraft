@@ -1,5 +1,6 @@
 /* eslint-disable max-params */
 /* eslint-disable no-console */
+import '../compileTime'
 import type { Component, ComponentData } from '../component/component.types'
 import type {
   CustomFormulaHandler,
@@ -247,120 +248,119 @@ export function applyFormula(
 ): any {
   const _data = (data ?? ctx.data) as ComponentData
 
-  // Short-circuit when not reporting to avoid unnecessary overhead of creating new objects and function
-  if (!ctx.reportFormulaEvaluation) {
+  if (IS_PREVIEW && ctx.reportFormulaEvaluation) {
+    const jsonPath = [...(ctx.jsonPath ?? []), ...(extendedPath ?? [])]
+    const _ctx = { ...ctx, jsonPath }
+    const report = (value: any, p: Array<string | number> = jsonPath) => {
+      ctx.reportFormulaEvaluation?.(p, value, _ctx)
+      return value
+    }
+
     if (!isFormula(formula)) {
-      return formula
+      return report(formula)
     }
     try {
       switch (formula.type) {
-        case 'value':
-          return formula.value
-        case 'path':
-          return applyPathFormula(formula, _data)
-        case 'switch':
-          return applySwitchFormula(formula, ctx, _data)
-        case 'or':
-          return applyOrFormula(formula, ctx, _data)
-        case 'and':
-          return applyAndFormula(formula, ctx, _data)
-        case 'object':
-          return applyObjectFormula(formula, ctx, _data)
-        case 'record':
-          return applyRecordFormula(formula, ctx, _data)
-        case 'array':
-          return applyArrayFormula(formula, ctx, _data)
-        case 'function':
-          return applyFunctionFormula(formula, ctx, _data)
-        case 'apply':
-          return applyApplyFormula(formula, ctx, _data)
+        case 'value': {
+          return report(formula.value)
+        }
+        case 'path': {
+          return report(applyPathFormula(formula, _data))
+        }
+        case 'switch': {
+          if (
+            _ctx.reportFormulaEvaluation &&
+            _ctx.jsonPath.length < MAX_REPORT_DEPTH
+          ) {
+            return report(applyEvaluateAllSwitchFormula(formula, _ctx, _data))
+          }
+          return applySwitchFormula(formula, _ctx, _data)
+        }
+        case 'or': {
+          if (
+            _ctx.reportFormulaEvaluation &&
+            _ctx.jsonPath.length < MAX_REPORT_DEPTH
+          ) {
+            return report(applyEvaluateAllOrFormula(formula, _ctx, _data))
+          }
+          return applyOrFormula(formula, _ctx, _data)
+        }
+        case 'and': {
+          if (
+            _ctx.reportFormulaEvaluation &&
+            _ctx.jsonPath.length < MAX_REPORT_DEPTH
+          ) {
+            return report(applyEvaluateAllAndFormula(formula, _ctx, _data))
+          }
+          return applyAndFormula(formula, _ctx, _data)
+        }
+        case 'object': {
+          return report(applyObjectFormula(formula, _ctx, _data))
+        }
+        case 'record': {
+          // object used to be called record, there are still examples in the wild.
+          return report(applyRecordFormula(formula, _ctx, _data))
+        }
+        case 'array': {
+          return report(applyArrayFormula(formula, _ctx, _data))
+        }
+        case 'function': {
+          return report(applyFunctionFormula(formula, _ctx, _data))
+        }
+        case 'apply': {
+          return report(applyApplyFormula(formula, _ctx, _data))
+        }
         default:
-          if (ctx.env?.logErrors) {
+          if (_ctx.env?.logErrors) {
             console.error('Could not recognize formula', formula)
           }
       }
     } catch (e) {
-      if (ctx.env?.logErrors) {
+      if (_ctx.env?.logErrors) {
         console.error(e)
       }
-      return null
+      return report(null)
     }
 
-    return undefined
-  }
-
-  const jsonPath = [...(ctx.jsonPath ?? []), ...(extendedPath ?? [])]
-  const _ctx = { ...ctx, jsonPath }
-  const report = (value: any, p: Array<string | number> = jsonPath) => {
-    ctx.reportFormulaEvaluation?.(p, value, _ctx)
-    return value
+    return report(undefined)
   }
 
   if (!isFormula(formula)) {
-    return report(formula)
+    return formula
   }
   try {
     switch (formula.type) {
-      case 'value': {
-        return report(formula.value)
-      }
-      case 'path': {
-        return report(applyPathFormula(formula, _data))
-      }
-      case 'switch': {
-        if (
-          _ctx.reportFormulaEvaluation &&
-          _ctx.jsonPath.length < MAX_REPORT_DEPTH
-        ) {
-          return report(applyEvaluateAllSwitchFormula(formula, _ctx, _data))
-        }
-        return applySwitchFormula(formula, _ctx, _data)
-      }
-      case 'or': {
-        if (
-          _ctx.reportFormulaEvaluation &&
-          _ctx.jsonPath.length < MAX_REPORT_DEPTH
-        ) {
-          return report(applyEvaluateAllOrFormula(formula, _ctx, _data))
-        }
-        return applyOrFormula(formula, _ctx, _data)
-      }
-      case 'and': {
-        if (
-          _ctx.reportFormulaEvaluation &&
-          _ctx.jsonPath.length < MAX_REPORT_DEPTH
-        ) {
-          return report(applyEvaluateAllAndFormula(formula, _ctx, _data))
-        }
-        return applyAndFormula(formula, _ctx, _data)
-      }
-      case 'object': {
-        return report(applyObjectFormula(formula, _ctx, _data))
-      }
-      case 'record': {
-        // object used to be called record, there are still examples in the wild.
-        return report(applyRecordFormula(formula, _ctx, _data))
-      }
-      case 'array': {
-        return report(applyArrayFormula(formula, _ctx, _data))
-      }
-      case 'function': {
-        return report(applyFunctionFormula(formula, _ctx, _data))
-      }
-      case 'apply': {
-        return report(applyApplyFormula(formula, _ctx, _data))
-      }
+      case 'value':
+        return formula.value
+      case 'path':
+        return applyPathFormula(formula, _data)
+      case 'switch':
+        return applySwitchFormula(formula, ctx, _data)
+      case 'or':
+        return applyOrFormula(formula, ctx, _data)
+      case 'and':
+        return applyAndFormula(formula, ctx, _data)
+      case 'object':
+        return applyObjectFormula(formula, ctx, _data)
+      case 'record':
+        return applyRecordFormula(formula, ctx, _data)
+      case 'array':
+        return applyArrayFormula(formula, ctx, _data)
+      case 'function':
+        return applyFunctionFormula(formula, ctx, _data)
+      case 'apply':
+        return applyApplyFormula(formula, ctx, _data)
       default:
-        if (_ctx.env?.logErrors) {
+        if (ctx.env?.logErrors) {
           console.error('Could not recognize formula', formula)
         }
     }
   } catch (e) {
-    if (_ctx.env?.logErrors) {
+    if (ctx.env?.logErrors) {
       console.error(e)
     }
-    return report(null)
+    return null
   }
 
-  return report(undefined)
+  return undefined
 }

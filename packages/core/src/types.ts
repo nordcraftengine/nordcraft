@@ -140,6 +140,8 @@ export interface Toddle<LocationSignal, ShowSignal> {
   pageState: ComponentData
   _preview?: {
     showSignal: ShowSignal
+    providerContextMock?: (args: any) => void
+    handleAutofocus?: (args: any) => void
   }
   // We temporarily expose the env here until we add a new version of
   // the APPLY_FORMULA function that can handle the env as an argument

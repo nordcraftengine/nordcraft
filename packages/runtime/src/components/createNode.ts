@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import '@nordcraft/core/dist/compileTime'
 import type {
   ComponentData,
   ElementNodeModel,
@@ -52,11 +53,8 @@ export function createNode({
         return [createElement(props as NodeRenderer<ElementNodeModel>)]
       case 'component': {
         const isLocalComponent =
-          getComponent(
-            props.node.name,
-            ctx.components,
-            ctx.env.runtime !== 'preview',
-          ) !== undefined
+          getComponent(props.node.name, ctx.components, !IS_PREVIEW) !==
+          undefined
         return createComponent({
           ...props,
           node: { ...props.node, id }, // we need the node id for instance classes
@@ -67,7 +65,9 @@ export function createNode({
               (isLocalComponent ? undefined : ctx.package),
             // Skip sub-component formula evaluation for now as editor only needs the scope for the selected component
             // TODO: Letting the AI get the state of a deep component may be useful in the future, but we need a better way at precising scope for it to not overwhelm it.
-            reportFormulaEvaluation: undefined,
+            ...(IS_PREVIEW && ctx.reportFormulaEvaluation
+              ? { reportFormulaEvaluation: undefined }
+              : {}),
           },
           parentElement,
         })
@@ -93,9 +93,10 @@ export function createNode({
   }: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
     let firstRun = true
     let childDataSignal: Signal<ComponentData> | null = null
-    const conditionPath = ctx.reportFormulaEvaluation
-      ? ['nodes', id, 'condition']
-      : undefined
+    const conditionPath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['nodes', id, 'condition']
+        : undefined
     const showSignal = dataSignal.map((data) => {
       const show = toBoolean(
         applyFormula(node.condition, ctx, data, conditionPath),
@@ -163,8 +164,8 @@ export function createNode({
         elements.splice(0, elements.length)
       },
     })
-    if (ctx.env.runtime === 'preview' && ctx.toddle._preview) {
-      unsubscribePreview = ctx.toddle._preview.showSignal.subscribe(
+    if (IS_PREVIEW) {
+      unsubscribePreview = ctx.toddle._preview?.showSignal.subscribe(
         ({ displayedNodes, testMode }) => {
           if (displayedNodes.includes(path) && !testMode) {
             // only override the default show if we are in design mode (not test mode)
@@ -193,12 +194,14 @@ export function createNode({
         elements: ReadonlyArray<Element | Text>
       }
     >()
-    const listPath = ctx.reportFormulaEvaluation
-      ? ['nodes', id, 'repeat']
-      : undefined
-    const repeatKeyPath = ctx.reportFormulaEvaluation
-      ? ['nodes', id, 'repeatKey']
-      : undefined
+    const listPath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['nodes', id, 'repeat']
+        : undefined
+    const repeatKeyPath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['nodes', id, 'repeatKey']
+        : undefined
     const repeatSignal = dataSignal.map((data) => {
       const list = applyFormula(node?.repeat, ctx, data, listPath)
 

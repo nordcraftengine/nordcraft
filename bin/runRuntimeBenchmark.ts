@@ -2,6 +2,7 @@
 import { spawnSync } from 'child_process'
 import { randomUUID } from 'crypto'
 import fs from 'fs'
+import { brotliCompressSync } from 'node:zlib'
 import path from 'path'
 import { chromium, type Browser, type Page } from 'playwright'
 import { fileURLToPath } from 'url'
@@ -17,11 +18,13 @@ import {
 import {
   computeSha256,
   evaluateHeapVerdict,
+  formatBenchmarkAveragesSummary,
   formatKb,
   formatMs,
   formatPercent,
   hasInformativeTimingSamples,
   median,
+  summarizeBenchmarkAverages,
   summarizeTimeBenchmark,
 } from '../benchmarks/stats'
 
@@ -149,6 +152,34 @@ export const areRuntimeBundlesIdentical = (
     const headSha = computeSha256(path.join(headDistDir, bundle))
     return Boolean(baseSha && headSha && baseSha === headSha)
   })
+
+export const getCompressedSize = (filePath: string): number => {
+  try {
+    return brotliCompressSync(fs.readFileSync(filePath)).length
+  } catch {
+    throw new Error(`Failed to get compressed size for ${filePath}`)
+  }
+}
+
+export const formatSizeDelta = (
+  baseBytes: number,
+  headBytes: number,
+): string => {
+  const deltaBytes = headBytes - baseBytes
+  const deltaPercent = baseBytes > 0 ? (deltaBytes / baseBytes) * 100 : 0
+  if (deltaBytes === 0) {
+    return '0 B (0.0%)'
+  }
+  const sign = deltaBytes > 0 ? '+' : '-'
+  const absBytes = Math.abs(deltaBytes)
+  const absPercent = Math.abs(deltaPercent)
+  const sizeStr = absBytes >= 1024 ? formatKb(absBytes / 1024) : `${absBytes} B`
+  const pctStr =
+    absPercent < 0.1 && absPercent > 0
+      ? absPercent.toFixed(2)
+      : absPercent.toFixed(1)
+  return `${sign}${sizeStr} (${sign}${pctStr}%)`
+}
 
 export type RuntimeConfig = {
   baseRef?: string
@@ -320,6 +351,8 @@ async function runBenchmark() {
   let browser: Browser | undefined
   let baseRuntimeBytes = 0
   let headRuntimeBytes = 0
+  let baseRuntimeCompressedBytes = 0
+  let headRuntimeCompressedBytes = 0
   let isPageBundleIdentical = false
   try {
     const getFileSize = (filePath: string) => {
@@ -336,6 +369,12 @@ async function runBenchmark() {
 
     baseRuntimeBytes = getFileSize(path.join(baseDistDir, 'page.main.esm.js'))
     headRuntimeBytes = getFileSize(
+      path.join(config.headDir, 'page.main.esm.js'),
+    )
+    baseRuntimeCompressedBytes = getCompressedSize(
+      path.join(baseDistDir, 'page.main.esm.js'),
+    )
+    headRuntimeCompressedBytes = getCompressedSize(
       path.join(config.headDir, 'page.main.esm.js'),
     )
     const bundleIdentities = new Map<string, boolean>()
@@ -588,24 +627,13 @@ async function runBenchmark() {
     }
   }
 
-  let deltaSizeStr = '0 B (0.0%)'
-  const deltaBytes = headRuntimeBytes - baseRuntimeBytes
-  const deltaPercent =
-    baseRuntimeBytes > 0 ? (deltaBytes / baseRuntimeBytes) * 100 : 0
-  if (deltaBytes !== 0) {
-    const sign = deltaBytes > 0 ? '+' : '-'
-    const absBytes = Math.abs(deltaBytes)
-    const absPercent = Math.abs(deltaPercent)
-    const sizeStr =
-      absBytes >= 1024 ? formatKb(absBytes / 1024) : `${absBytes} B`
-    const pctStr =
-      absPercent < 0.1 && absPercent > 0
-        ? absPercent.toFixed(2)
-        : absPercent.toFixed(1)
-    deltaSizeStr = `${sign}${sizeStr} (${sign}${pctStr}%)`
-  }
+  const deltaSizeStr = formatSizeDelta(baseRuntimeBytes, headRuntimeBytes)
+  const deltaCompressedSizeStr = formatSizeDelta(
+    baseRuntimeCompressedBytes,
+    headRuntimeCompressedBytes,
+  )
   console.log(
-    `\nRuntime size: Base ${formatKb(baseRuntimeBytes / 1024)} vs. Head ${formatKb(headRuntimeBytes / 1024)} (Delta: ${deltaSizeStr})`,
+    `\nRuntime size: Base ${formatKb(baseRuntimeBytes / 1024)} (${formatKb(baseRuntimeCompressedBytes / 1024)} compressed) vs. Head ${formatKb(headRuntimeBytes / 1024)} (${formatKb(headRuntimeCompressedBytes / 1024)} compressed); Delta: ${deltaSizeStr} (${deltaCompressedSizeStr} compressed)`,
   )
 
   // Print CLI Summary Table
@@ -649,6 +677,13 @@ async function runBenchmark() {
     '===========================================================================================\n',
   )
 
+  const averagesSummary = summarizeBenchmarkAverages({
+    timeDeltas: results.map((r) => r.deltaPercent),
+    heapDeltas: results.map((r) => r.deltaHeapPercent),
+    noiseThresholdPercent: config.noiseThresholdPercent,
+  })
+  console.log(formatBenchmarkAveragesSummary(averagesSummary))
+
   // Format Markdown
   const hasRegressions = results.some(
     (r) => r.timeStatus === 'regression' || r.heapStatus === 'regression',
@@ -661,6 +696,7 @@ async function runBenchmark() {
     `- **Base ref**: ${config.baseRef ?? 'head-only A/A'}`,
     `- **Page Bundle Identity**: ${isPageBundleIdentical ? '`Identical build artifacts (1:1 confirmed)`' : '`Distinct build artifacts`'}`,
     `- **Runtime Size**: Base ${formatKb(baseRuntimeBytes / 1024)} vs. Head ${formatKb(headRuntimeBytes / 1024)} (Delta: ${deltaSizeStr})`,
+    `- **Runtime Size (compressed)**: Base ${formatKb(baseRuntimeCompressedBytes / 1024)} vs. Head ${formatKb(headRuntimeCompressedBytes / 1024)} (Delta: ${deltaCompressedSizeStr})`,
     '',
   ]
 
@@ -693,6 +729,8 @@ async function runBenchmark() {
       return `| **${r.id}** | ${timeCombined} | ${timeDeltaFull} | ${r.timeVerdict} | ${heapCombined} | ${deltaHeapStr} | ${r.heapVerdict} |`
     }),
     '',
+    `_${formatBenchmarkAveragesSummary(averagesSummary)}_`,
+    '',
   )
 
   const markdownContent = markdownLines.join('\n')
@@ -720,6 +758,15 @@ async function runBenchmark() {
           },
           isByteIdentical: isPageBundleIdentical,
           isAATest,
+          runtimeSize: {
+            baseBytes: baseRuntimeBytes,
+            headBytes: headRuntimeBytes,
+            delta: deltaSizeStr,
+            baseCompressedBytes: baseRuntimeCompressedBytes,
+            headCompressedBytes: headRuntimeCompressedBytes,
+            compressedDelta: deltaCompressedSizeStr,
+          },
+          averages: averagesSummary,
           results,
         },
         null,
