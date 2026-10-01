@@ -18,13 +18,11 @@ import {
 import {
   computeSha256,
   evaluateHeapVerdict,
-  formatBenchmarkAveragesSummary,
   formatKb,
   formatMs,
   formatPercent,
   hasInformativeTimingSamples,
   median,
-  summarizeBenchmarkAverages,
   summarizeTimeBenchmark,
 } from '../benchmarks/stats'
 
@@ -677,13 +675,6 @@ async function runBenchmark() {
     '===========================================================================================\n',
   )
 
-  const averagesSummary = summarizeBenchmarkAverages({
-    timeDeltas: results.map((r) => r.deltaPercent),
-    heapDeltas: results.map((r) => r.deltaHeapPercent),
-    noiseThresholdPercent: config.noiseThresholdPercent,
-  })
-  console.log(formatBenchmarkAveragesSummary(averagesSummary))
-
   // Format Markdown
   const hasRegressions = results.some(
     (r) => r.timeStatus === 'regression' || r.heapStatus === 'regression',
@@ -728,9 +719,6 @@ async function runBenchmark() {
       const deltaHeapStr = `${r.deltaHeapKb >= 0 ? '+' : ''}${formatKb(r.deltaHeapKb)} (${r.deltaHeapPercent >= 0 ? '+' : ''}${r.deltaHeapPercent.toFixed(1)}%)`
       return `| **${r.id}** | ${timeCombined} | ${timeDeltaFull} | ${r.timeVerdict} | ${heapCombined} | ${deltaHeapStr} | ${r.heapVerdict} |`
     }),
-    '',
-    `_${formatBenchmarkAveragesSummary(averagesSummary)}_`,
-    '',
   )
 
   const markdownContent = markdownLines.join('\n')
@@ -766,7 +754,6 @@ async function runBenchmark() {
             headCompressedBytes: headRuntimeCompressedBytes,
             compressedDelta: deltaCompressedSizeStr,
           },
-          averages: averagesSummary,
           results,
         },
         null,

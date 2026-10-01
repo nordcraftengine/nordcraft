@@ -14,9 +14,7 @@ import {
   type SsrBenchmarkCaseId,
 } from '../benchmarks/ssrCases'
 import {
-  formatBenchmarkAveragesSummary,
   hasInformativeTimingSamples,
-  summarizeBenchmarkAverages,
   summarizeTimeBenchmark,
   type TimeBenchmarkResult,
 } from '../benchmarks/stats'
@@ -299,19 +297,13 @@ export const compareBenchmarkDirectories = async (config: CompareConfig) => {
       compareCase({ caseId: id, name, config }),
     ),
   )
-  const averagesSummary = summarizeBenchmarkAverages({
-    timeDeltas: rows.map((row) => row.deltaPercent),
-    noiseThresholdPercent: config.noiseThresholdPercent,
-  })
-  const averagesLine = formatBenchmarkAveragesSummary(averagesSummary)
   const markdown = `${renderMarkdown(rows, config)}\n\n_${averagesLine}_`
   if (config.outputPath) {
     await Bun.write(config.outputPath, `${markdown}\n`)
   } else {
     console.log(markdown)
   }
-  console.log(averagesLine)
-  return { rows, markdown, averages: averagesSummary }
+  return { rows, markdown }
 }
 
 export const main = async (argv: readonly string[] = Bun.argv.slice(2)) => {
