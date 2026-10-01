@@ -297,7 +297,7 @@ export const compareBenchmarkDirectories = async (config: CompareConfig) => {
       compareCase({ caseId: id, name, config }),
     ),
   )
-  const markdown = `${renderMarkdown(rows, config)}\n\n_${averagesLine}_`
+  const markdown = renderMarkdown(rows, config)
   if (config.outputPath) {
     await Bun.write(config.outputPath, `${markdown}\n`)
   } else {
