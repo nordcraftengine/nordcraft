@@ -1,3 +1,4 @@
+import '@nordcraft/core/dist/compileTime'
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import type { ComponentContext } from '../types'
@@ -29,11 +30,15 @@ export function createFormulaContext(
     package: ctx.package,
     toddle: ctx.toddle,
     env: ctx.env,
-    jsonPath: options?.jsonPath ?? ctx.jsonPath,
-  }
-
-  if (options?.includeReportFormulaEvaluation !== false) {
-    formulaContext.reportFormulaEvaluation = ctx.reportFormulaEvaluation
+    ...(IS_PREVIEW
+      ? {
+          jsonPath: options?.jsonPath ?? ctx.jsonPath,
+          reportFormulaEvaluation:
+            options?.includeReportFormulaEvaluation !== false
+              ? ctx.reportFormulaEvaluation
+              : undefined,
+        }
+      : {}),
   }
 
   return formulaContext

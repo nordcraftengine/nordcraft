@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import '../compileTime'
 import type { ComponentData } from '../component/component.types'
 import { isMeasureEnabled, measure, noopMeasure } from '../utils/measure'
 import {
@@ -29,7 +30,6 @@ export const applyApplyFormula = (
       })
     : noopMeasure
   const applyArgs = formula.arguments ?? []
-  const shouldReport = ctx.reportFormulaEvaluation ? true : false
   const Input: Record<string, unknown> = {}
   for (let i = 0; i < applyArgs.length; i++) {
     const arg = applyArgs[i]!
@@ -44,14 +44,18 @@ export const applyApplyFormula = (
             ...data,
             Args: data.Args ? { ...Args, '@toddle.parent': data.Args } : Args,
           },
-          shouldReport ? ['arguments', argIndex] : undefined,
+          IS_PREVIEW && ctx.reportFormulaEvaluation
+            ? ['arguments', argIndex]
+            : undefined,
         )
     } else {
       Input[arg.name as string] = applyFormula(
         arg.formula,
         ctx,
         data,
-        shouldReport ? ['arguments', i] : undefined,
+        IS_PREVIEW && ctx.reportFormulaEvaluation
+          ? ['arguments', i]
+          : undefined,
       )
     }
   }
@@ -69,7 +73,7 @@ export const applyApplyFormula = (
       componentFormula.formula,
       ctx,
       nextData,
-      shouldReport ? ['formula'] : undefined,
+      IS_PREVIEW && ctx.reportFormulaEvaluation ? ['formula'] : undefined,
     )
     ctx.formulaCache?.[formula.name]?.set(nextData, result)
     stopMeasure({ cache: 'miss' })

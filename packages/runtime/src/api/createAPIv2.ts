@@ -19,6 +19,7 @@ import {
   isTextHeader,
   mapHeadersToObject,
 } from '@nordcraft/core/dist/api/headers'
+import '@nordcraft/core/dist/compileTime'
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type {
   Formula,
@@ -36,6 +37,7 @@ import {
   validateUrl,
 } from '@nordcraft/core/dist/utils/url'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
@@ -107,10 +109,12 @@ export function createAPI({
     const evaluatedInputs = Object.entries(api.inputs).reduce<
       Record<string, unknown>
     >((acc, [key, value]) => {
-      acc[key] = applyFormula(value.formula, formulaContext, undefined, [
-        'inputs',
-        key,
-      ])
+      acc[key] = applyFormula(
+        value.formula,
+        formulaContext,
+        undefined,
+        IS_PREVIEW ? ['inputs', key] : undefined,
+      )
       return acc
     }, {})
 
@@ -137,17 +141,19 @@ export function createAPI({
           [api.name]: ctx.dataSignal.get().Apis?.[api.name] as ApiStatus,
         },
       }
-      const location = applyFormula(rule.formula, formulaContext, ruleData, [
-        'redirectRules',
-        ruleName,
-      ])
+      const location = applyFormula(
+        rule.formula,
+        formulaContext,
+        ruleData,
+        IS_PREVIEW ? ['redirectRules', ruleName] : undefined,
+      )
       if (typeof location === 'string') {
         const url = validateUrl({
           path: location,
           origin: window.location.origin,
         })
         if (url) {
-          if (ctx.env.runtime === 'preview') {
+          if (IS_PREVIEW) {
             // Attempt to notify the parent about the failed navigation attempt
             window.parent?.postMessage(
               { type: 'blockedNavigation', url: url.href },
@@ -258,11 +264,33 @@ export function createAPI({
       return
     }
 
-    ctx.dataSignal.set({
-      ...ctx.dataSignal.get(),
-      Apis: {
-        ...ctx.dataSignal.get().Apis,
-        [api.name]: {
+    const value = {
+      isLoading: false,
+      data: data.body,
+      error: null,
+      response: {
+        status: data.status,
+        headers: data.headers,
+        performance,
+      },
+    }
+    if (fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
+      ctx.dataSignal.set(
+        {
+          ...ctx.dataSignal.get(),
+          Apis: {
+            ...ctx.dataSignal.get().Apis,
+            [api.name]: value,
+          },
+        },
+        { force: true },
+      )
+    }
+
+    if (IS_PREVIEW) {
+      ctx.reportFormulaEvaluation?.(
+        ['apis', api.name],
+        {
           isLoading: false,
           data: data.body,
           error: null,
@@ -272,12 +300,13 @@ export function createAPI({
             performance,
           },
         },
-      },
-    })
+        ctx,
+      )
+    }
 
-    ctx.reportFormulaEvaluation?.(
-      ['apis', api.name],
-      {
+    const appliedRedirectRule = handleRedirectRules(api, componentData)
+    if (appliedRedirectRule) {
+      const redirectValue = {
         isLoading: false,
         data: data.body,
         error: null,
@@ -285,32 +314,24 @@ export function createAPI({
           status: data.status,
           headers: data.headers,
           performance,
+          ...(IS_PREVIEW ? { debug: { appliedRedirectRule } } : {}),
         },
-      },
-      ctx,
-    )
-
-    const appliedRedirectRule = handleRedirectRules(api, componentData)
-    if (appliedRedirectRule) {
-      ctx.dataSignal.set({
-        ...ctx.dataSignal.get(),
-        Apis: {
-          ...ctx.dataSignal.get().Apis,
-          [api.name]: {
-            isLoading: false,
-            data: data.body,
-            error: null,
-            response: {
-              status: data.status,
-              headers: data.headers,
-              performance,
-              ...(ctx.env.runtime === 'preview'
-                ? { debug: { appliedRedirectRule } }
-                : {}),
+      }
+      if (
+        fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], redirectValue) ===
+        false
+      ) {
+        ctx.dataSignal.set(
+          {
+            ...ctx.dataSignal.get(),
+            Apis: {
+              ...ctx.dataSignal.get().Apis,
+              [api.name]: redirectValue,
             },
           },
-        },
-      })
+          { force: true },
+        )
+      }
     }
   }
 
@@ -337,11 +358,33 @@ export function createAPI({
     ) {
       return
     }
-    ctx.dataSignal.set({
-      ...ctx.dataSignal.get(),
-      Apis: {
-        ...ctx.dataSignal.get().Apis,
-        [api.name]: {
+    const value = {
+      isLoading: false,
+      data: null,
+      error: data.body,
+      response: {
+        status: data.status,
+        headers: data.headers,
+        performance,
+      },
+    }
+    if (fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
+      ctx.dataSignal.set(
+        {
+          ...ctx.dataSignal.get(),
+          Apis: {
+            ...ctx.dataSignal.get().Apis,
+            [api.name]: value,
+          },
+        },
+        { force: true },
+      )
+    }
+
+    if (IS_PREVIEW) {
+      ctx.reportFormulaEvaluation?.(
+        ['apis', api.name],
+        {
           isLoading: false,
           data: null,
           error: data.body,
@@ -351,12 +394,13 @@ export function createAPI({
             performance,
           },
         },
-      },
-    })
+        ctx,
+      )
+    }
 
-    ctx.reportFormulaEvaluation?.(
-      ['apis', api.name],
-      {
+    const appliedRedirectRule = handleRedirectRules(api, componentData)
+    if (appliedRedirectRule) {
+      const redirectValue = {
         isLoading: false,
         data: null,
         error: data.body,
@@ -364,32 +408,24 @@ export function createAPI({
           status: data.status,
           headers: data.headers,
           performance,
+          ...(IS_PREVIEW ? { debug: { appliedRedirectRule } } : {}),
         },
-      },
-      ctx,
-    )
-
-    const appliedRedirectRule = handleRedirectRules(api, componentData)
-    if (appliedRedirectRule) {
-      ctx.dataSignal.set({
-        ...ctx.dataSignal.get(),
-        Apis: {
-          ...ctx.dataSignal.get().Apis,
-          [api.name]: {
-            isLoading: false,
-            data: null,
-            error: data.body,
-            response: {
-              status: data.status,
-              headers: data.headers,
-              performance,
-              ...(ctx.env.runtime === 'preview'
-                ? { debug: { appliedRedirectRule } }
-                : {}),
+      }
+      if (
+        fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], redirectValue) ===
+        false
+      ) {
+        ctx.dataSignal.set(
+          {
+            ...ctx.dataSignal.get(),
+            Apis: {
+              ...ctx.dataSignal.get().Apis,
+              [api.name]: redirectValue,
             },
           },
-        },
-      })
+          { force: true },
+        )
+      }
     }
   }
 
@@ -413,27 +449,37 @@ export function createAPI({
         responseStart: null,
         responseEnd: null,
       }
-      ctx.dataSignal.set({
-        ...ctx.dataSignal.get(),
-        Apis: {
-          ...ctx.dataSignal.get().Apis,
-          [api.name]: {
+      const value = {
+        isLoading: true,
+        data: ctx.dataSignal.get().Apis?.[api.name]?.data ?? null,
+        error: null,
+      }
+      if (
+        fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false
+      ) {
+        ctx.dataSignal.set(
+          {
+            ...ctx.dataSignal.get(),
+            Apis: {
+              ...ctx.dataSignal.get().Apis,
+              [api.name]: value,
+            },
+          },
+          { force: true },
+        )
+      }
+
+      if (IS_PREVIEW) {
+        ctx.reportFormulaEvaluation?.(
+          ['apis', api.name],
+          {
             isLoading: true,
             data: ctx.dataSignal.get().Apis?.[api.name]?.data ?? null,
             error: null,
           },
-        },
-      })
-
-      ctx.reportFormulaEvaluation?.(
-        ['apis', api.name],
-        {
-          isLoading: true,
-          data: ctx.dataSignal.get().Apis?.[api.name]?.data ?? null,
-          error: null,
-        },
-        ctx,
-      )
+          ctx,
+        )
+      }
 
       let response
 
@@ -444,7 +490,7 @@ export function createAPI({
               api.server.proxy.enabled.formula,
               proxyFormulaCtx,
               undefined,
-              ['server', 'proxy', 'enabled'],
+              IS_PREVIEW ? ['server', 'proxy', 'enabled'] : undefined,
             ) ?? false)
           : false
 
@@ -468,7 +514,9 @@ export function createAPI({
               api.server?.proxy?.useTemplatesInBody?.formula,
               proxyFormulaCtx,
               undefined,
-              ['server', 'proxy', 'useTemplatesInBody'],
+              IS_PREVIEW
+                ? ['server', 'proxy', 'useTemplatesInBody']
+                : undefined,
             ),
           )
           if (allowBodyTemplateValues) {
@@ -533,7 +581,7 @@ export function createAPI({
               api.client?.debounce?.formula,
               debounceCtx,
               undefined,
-              ['client', 'debounce'],
+              IS_PREVIEW ? ['client', 'debounce'] : undefined,
             )
           })(),
         )
@@ -841,20 +889,29 @@ export function createAPI({
         this.chunks.push(parsedChunk)
         // Only emit the data if there are any listeners
         if (parsedChunk) {
-          ctx.dataSignal.set({
-            ...ctx.dataSignal.get(),
-            Apis: {
-              ...ctx.dataSignal.get().Apis,
-              [api.name]: {
-                isLoading: true,
-                data: parseChunksForData(this.chunks),
-                error: null,
-                response: {
-                  headers: mapHeadersToObject(res.headers),
+          const value = {
+            isLoading: true,
+            data: parseChunksForData(this.chunks),
+            error: null,
+            response: {
+              headers: mapHeadersToObject(res.headers),
+            },
+          }
+          if (
+            fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) ===
+            false
+          ) {
+            ctx.dataSignal.set(
+              {
+                ...ctx.dataSignal.get(),
+                Apis: {
+                  ...ctx.dataSignal.get().Apis,
+                  [api.name]: value,
                 },
               },
-            },
-          })
+              { force: true },
+            )
+          }
           if ((api.client?.onMessage?.actions ?? []).length > 0) {
             triggerActions({
               eventName: 'message',
@@ -1030,7 +1087,7 @@ export function createAPI({
     const payloadContext = getFormulaContext(api, data)
     const request = constructRequest(api, data)
 
-    if (ctx.reportFormulaEvaluation) {
+    if (IS_PREVIEW && ctx.reportFormulaEvaluation) {
       const apiStatus = data.Apis?.[api.name]
       if (apiStatus) {
         ctx.reportFormulaEvaluation(['apis', api.name], apiStatus, ctx)
@@ -1042,13 +1099,18 @@ export function createAPI({
       // Serialize the Headers object to be able to compare changes
       headers: Array.from(request.requestSettings.headers.entries()),
       autoFetch: api.autoFetch
-        ? applyFormula(api.autoFetch, payloadContext, undefined, ['autoFetch'])
+        ? applyFormula(
+            api.autoFetch,
+            payloadContext,
+            undefined,
+            IS_PREVIEW ? ['autoFetch'] : undefined,
+          )
         : false,
       proxy: applyFormula(
         api.server?.proxy?.enabled.formula,
         payloadContext,
         undefined,
-        ['proxy'],
+        IS_PREVIEW ? ['proxy'] : undefined,
       ),
     }
   })
@@ -1105,7 +1167,12 @@ export function createAPI({
     } else {
       const initialFormulaCtx = getFormulaContext(api, initialComponentData)
       if (
-        applyFormula(api.autoFetch, initialFormulaCtx, undefined, ['autoFetch'])
+        applyFormula(
+          api.autoFetch,
+          initialFormulaCtx,
+          undefined,
+          IS_PREVIEW ? ['autoFetch'] : undefined,
+        )
       ) {
         // Execute will set the initial status of the api in the dataSignal
         await execute({
@@ -1117,19 +1184,24 @@ export function createAPI({
       } else if (!ctx.dataSignal.get().Apis?.[api.name]) {
         // If the api is not set in the dataSignal, we need to initialize it.
         // If it is set and autoFetch is false, we do not want to reset it.
-        ctx.dataSignal.update((data) => {
-          return {
-            ...data,
-            Apis: {
-              ...(data.Apis ?? {}),
-              [api.name]: {
-                isLoading: false,
-                data: null,
-                error: null,
+        // We know the value has changed (a new key is added), so we can safely
+        // `{ force: true }` to skip deep equality check in signal.
+        ctx.dataSignal.update(
+          (data) => {
+            return {
+              ...data,
+              Apis: {
+                ...(data.Apis ?? {}),
+                [api.name]: {
+                  isLoading: false,
+                  data: null,
+                  error: null,
+                },
               },
-            },
-          }
-        })
+            }
+          },
+          { force: true },
+        )
       }
     }
   })
@@ -1211,7 +1283,12 @@ export function createAPI({
       const updateContext = getFormulaContext(api, componentData)
       const autoFetch =
         api.autoFetch &&
-        applyFormula(api.autoFetch, updateContext, undefined, ['autoFetch'])
+        applyFormula(
+          api.autoFetch,
+          updateContext,
+          undefined,
+          IS_PREVIEW ? ['autoFetch'] : undefined,
+        )
       if (autoFetch) {
         const request = constructRequest(newApi, componentData)
         payloadSignal?.set({
@@ -1222,7 +1299,7 @@ export function createAPI({
             newApi.server?.proxy?.enabled.formula,
             updateContext,
             undefined,
-            ['proxy'],
+            IS_PREVIEW ? ['proxy'] : undefined,
           ),
           // Serialize the Headers object to be able to compare changes
           headers: Array.from(request.requestSettings.headers.entries()),

@@ -1,3 +1,4 @@
+import '@nordcraft/core/dist/compileTime'
 import type {
   Component,
   ComponentData,
@@ -54,7 +55,7 @@ interface RenderComponentProps {
   toddle: Toddle<LocationSignal, PreviewShowSignal>
   namespace?: SupportedNamespaces
   env: ToddleEnv
-  jsonPath: Array<string | number> | undefined
+  jsonPath?: Array<string | number> | undefined
   reportFormulaEvaluation?: FormulaEvaluationReporter
   slotRepeatIndex?: number
   slotSuffix?: string
@@ -113,8 +114,7 @@ export function renderComponent({
     package: packageName,
     toddle,
     env,
-    jsonPath,
-    reportFormulaEvaluation,
+    ...(IS_PREVIEW ? { jsonPath, reportFormulaEvaluation } : {}),
   }
 
   const rootElem = createNode({
@@ -122,7 +122,7 @@ export function renderComponent({
     path,
     dataSignal,
     ctx:
-      ctx.reportFormulaEvaluation || ctx.jsonPath
+      IS_PREVIEW && (ctx.reportFormulaEvaluation || ctx.jsonPath)
         ? { ...ctx, jsonPath: ['nodes', 'root'] }
         : ctx,
     parentElement,

@@ -1,3 +1,4 @@
+import '../compileTime'
 import type { ComponentData } from '../component/component.types'
 import { toBoolean } from '../utils/util'
 import {
@@ -13,34 +14,36 @@ export const applySwitchFormula = (
 ) => {
   // Evaluates cases until one matches
   const cases = formula.cases ?? []
-  if (ctx.reportFormulaEvaluation) {
-    for (let i = 0; i < cases.length; i++) {
-      const switchCase = cases[i]
-      if (
-        toBoolean(
-          applyFormula(switchCase?.condition, ctx, data, [
-            'cases',
-            i,
-            'condition',
-          ]),
-        )
-      ) {
-        return applyFormula(switchCase?.formula, ctx, data, [
-          'cases',
-          i,
-          'formula',
-        ])
-      }
-    }
-    return applyFormula(formula.default, ctx, data, ['default'])
-  }
   for (let i = 0; i < cases.length; i++) {
     const switchCase = cases[i]
-    if (toBoolean(applyFormula(switchCase?.condition, ctx, data, undefined))) {
-      return applyFormula(switchCase?.formula, ctx, data, undefined)
+    if (
+      toBoolean(
+        applyFormula(
+          switchCase?.condition,
+          ctx,
+          data,
+          IS_PREVIEW && ctx.reportFormulaEvaluation
+            ? ['cases', i, 'condition']
+            : undefined,
+        ),
+      )
+    ) {
+      return applyFormula(
+        switchCase?.formula,
+        ctx,
+        data,
+        IS_PREVIEW && ctx.reportFormulaEvaluation
+          ? ['cases', i, 'formula']
+          : undefined,
+      )
     }
   }
-  return applyFormula(formula.default, ctx, data, undefined)
+  return applyFormula(
+    formula.default,
+    ctx,
+    data,
+    IS_PREVIEW && ctx.reportFormulaEvaluation ? ['default'] : undefined,
+  )
 }
 
 export const applyEvaluateAllSwitchFormula = (

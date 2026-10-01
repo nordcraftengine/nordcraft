@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import '../compileTime'
 import type { ComponentData } from '../component/component.types'
 import type { FormulaHandler, Toddle } from '../types'
 import { isMeasureEnabled, measure, noopMeasure } from '../utils/measure'
@@ -33,7 +34,6 @@ export const applyFunctionFormula = (
   )?.getCustomFormula(formula.name, packageName)
   if (isDefined(newFunc)) {
     const formulaArgs = formula.arguments ?? []
-    const report = ctx.reportFormulaEvaluation ? true : false
     const args: Record<string, unknown> = {}
     for (let i = 0; i < formulaArgs.length; i++) {
       const arg = formulaArgs[i]!
@@ -48,13 +48,17 @@ export const applyFunctionFormula = (
                   ? { ...Args, '@toddle.parent': data.Args }
                   : Args,
               },
-              report ? ['arguments', i] : undefined,
+              IS_PREVIEW && ctx.reportFormulaEvaluation
+                ? ['arguments', i]
+                : undefined,
             )
         : applyFormula(
             arg.formula,
             activeCtx,
             data,
-            report ? ['arguments', i] : undefined,
+            IS_PREVIEW && ctx.reportFormulaEvaluation
+              ? ['arguments', i]
+              : undefined,
           )
     }
     try {
@@ -63,7 +67,7 @@ export const applyFunctionFormula = (
           newFunc.formula,
           activeCtx,
           { ...data, Args: args },
-          report ? ['formula'] : undefined,
+          IS_PREVIEW && ctx.reportFormulaEvaluation ? ['formula'] : undefined,
         )
       } else {
         return newFunc.handler(args, {
@@ -87,7 +91,6 @@ export const applyFunctionFormula = (
     ).getFormula(formula.name)
     if (typeof legacyFunc === 'function') {
       const legacyArgs = formula.arguments ?? []
-      const legacyReport = ctx.reportFormulaEvaluation ? true : false
       const args: unknown[] = new Array(legacyArgs.length)
       for (let i = 0; i < legacyArgs.length; i++) {
         const arg = legacyArgs[i]!
@@ -102,13 +105,17 @@ export const applyFunctionFormula = (
                     ? { ...Args, '@toddle.parent': data.Args }
                     : Args,
                 },
-                legacyReport ? ['arguments', i] : undefined,
+                IS_PREVIEW && ctx.reportFormulaEvaluation
+                  ? ['arguments', i]
+                  : undefined,
               )
           : applyFormula(
               arg.formula,
               activeCtx,
               data,
-              legacyReport ? ['arguments', i] : undefined,
+              IS_PREVIEW && ctx.reportFormulaEvaluation
+                ? ['arguments', i]
+                : undefined,
             )
       }
       try {
