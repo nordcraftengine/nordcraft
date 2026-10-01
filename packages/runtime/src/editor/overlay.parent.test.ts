@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { afterEach, describe, expect, test } from 'bun:test'
 import '../happydom'
 import { getRectData } from './overlay'
