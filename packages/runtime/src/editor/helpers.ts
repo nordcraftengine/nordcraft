@@ -9,7 +9,7 @@ import {
 } from './drag-drop/dropHighlight'
 import { getInsertAreas } from './drag-drop/getInsertAreas'
 import { findNearestLine } from './findNearestLine'
-import type { DragInsertState, Point } from './types'
+import type { DragInsertState, InsertArea, Point } from './types'
 
 const OVERLAP_OFFSET_PX = 100
 export const DRAG_MOVE_CLASSNAME = '__drag-mode--move'
@@ -373,6 +373,9 @@ export function dragInsertMove(
         y1: line.center.y,
         x2: line.center.x + line.size / 2,
         y2: line.center.y,
+        slotName: line.slot ?? null,
+        parent: line.parent,
+        index: line.index,
       }
     } else {
       return {
@@ -380,35 +383,46 @@ export function dragInsertMove(
         y1: line.center.y - line.size / 2,
         x2: line.center.x,
         y2: line.center.y + line.size / 2,
+        slotName: line.slot ?? null,
+        parent: line.parent,
+        index: line.index,
       }
     }
   })
-  const { nearestLine, projectionPoint } = findNearestLine(
+  const { nearestLines, projectionPoint } = findNearestLine(
     lines ?? [],
     dragInsertState.lastCursorPosition,
   )
-  if (!nearestLine || !dragInsertState.insertAreas || !lines) {
+
+  if (nearestLines.length === 0 || !dragInsertState.insertAreas || !lines) {
     return
   }
 
-  const insertArea = dragInsertState.insertAreas.at(lines.indexOf(nearestLine))
-  if (insertArea) {
+  const insertAreas: InsertArea[] = []
+
+  nearestLines.map((nl) => {
+    const area = dragInsertState.insertAreas?.at(lines.indexOf(nl))
+    if (area) {
+      insertAreas.push(area)
+    }
+  })
+
+  if (insertAreas.length > 0) {
     dragInsertState.selectedInsertAreaIndex =
-      dragInsertState.insertAreas?.indexOf(insertArea)
-    const nodeId = insertArea.parent.getAttribute('data-id')
+      dragInsertState.insertAreas?.indexOf(insertAreas[0])
+
+    const nodeId = insertAreas[0].parent.getAttribute('data-id')
     window.parent?.postMessage(
       {
         type: 'highlight',
         highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
         exactHighlightedNodeId: nodeId,
-        repeatNodeIndex: getRepeatNodeIndex(nodeId, insertArea.parent),
+        repeatNodeIndex: getRepeatNodeIndex(nodeId, insertAreas[0].parent),
       },
       '*',
     )
     setExternalDropHighlight({
-      layout: insertArea.layout,
-      center: insertArea.center,
-      length: insertArea.size > 0 ? insertArea.size : 6,
+      insertAreas,
       color: dragInsertState.elementType === 'component' ? 'D946EF' : '2563EB',
       projectionPoint,
     })

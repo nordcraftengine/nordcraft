@@ -113,6 +113,11 @@ export function getInsertAreas() {
         .at(-1),
     )
 
+    const defaultSlotContent = element.hasAttribute('data-node-slot-name')
+    if (defaultSlotContent && index > 0) {
+      return
+    }
+
     const indexAll = siblingsAll.indexOf(element)
 
     const nextRect = siblingsAll[indexAll + 1]?.getBoundingClientRect()
@@ -158,22 +163,39 @@ export function getInsertAreas() {
         })
       }
 
-      if (nextRect) {
-        if (nextRect.top > rect.bottom) {
-          insertAreas.push({
-            layout: 'block',
-            parent,
-            indexAll: indexAll + 1,
-            index: index + 1,
-            slot: slotName,
-            center: {
-              x: rect.left + rect.width / 2,
-              y: (rect.bottom + nextRect.top) / 2,
-            },
-            size: rect.width,
-            direction: 1,
-          })
-        } else {
+      // If it's the first element in the slot we don't want to show the line after the element
+      if (!defaultSlotContent || index !== 0) {
+        if (nextRect) {
+          if (nextRect.top > rect.bottom) {
+            insertAreas.push({
+              layout: 'block',
+              parent,
+              indexAll: indexAll + 1,
+              index: index + 1,
+              slot: slotName,
+              center: {
+                x: rect.left + rect.width / 2,
+                y: (rect.bottom + nextRect.top) / 2,
+              },
+              size: rect.width,
+              direction: 1,
+            })
+          } else {
+            insertAreas.push({
+              layout: 'block',
+              parent,
+              indexAll: indexAll + 1,
+              index: index + 1,
+              slot: slotName,
+              center: {
+                x: rect.left + rect.width / 2,
+                y: rect.bottom,
+              },
+              size: rect.width,
+              direction: 1,
+            })
+          }
+        } else if (siblingsAll.length > 0) {
           insertAreas.push({
             layout: 'block',
             parent,
@@ -188,20 +210,6 @@ export function getInsertAreas() {
             direction: 1,
           })
         }
-      } else if (siblingsAll.length > 0) {
-        insertAreas.push({
-          layout: 'block',
-          parent,
-          indexAll: indexAll + 1,
-          index: index + 1,
-          slot: slotName,
-          center: {
-            x: rect.left + rect.width / 2,
-            y: rect.bottom,
-          },
-          size: rect.width,
-          direction: 1,
-        })
       }
     } else {
       if (prevRect) {
@@ -235,23 +243,39 @@ export function getInsertAreas() {
           direction: -1,
         })
       }
-
-      if (nextRect) {
-        if (nextRect.left > rect.right) {
-          insertAreas.push({
-            layout: 'inline',
-            parent,
-            indexAll: indexAll + 1,
-            index: index + 1,
-            slot: slotName,
-            center: {
-              x: (rect.right + nextRect.left) / 2,
-              y: nextRect.top + nextRect.height / 2,
-            },
-            size: rect.height,
-            direction: 1,
-          })
-        } else {
+      // If it's the first element in the slot we don't want to show the line after the element
+      if (!defaultSlotContent || index !== 0) {
+        if (nextRect) {
+          if (nextRect.left > rect.right) {
+            insertAreas.push({
+              layout: 'inline',
+              parent,
+              indexAll: indexAll + 1,
+              index: index + 1,
+              slot: slotName,
+              center: {
+                x: (rect.right + nextRect.left) / 2,
+                y: nextRect.top + nextRect.height / 2,
+              },
+              size: rect.height,
+              direction: 1,
+            })
+          } else {
+            insertAreas.push({
+              layout: 'inline',
+              parent,
+              indexAll: indexAll + 1,
+              index: index + 1,
+              slot: slotName,
+              center: {
+                x: rect.right,
+                y: rect.top + rect.height / 2,
+              },
+              size: rect.height,
+              direction: 1,
+            })
+          }
+        } else if (siblingsAll.length > 0) {
           insertAreas.push({
             layout: 'inline',
             parent,
@@ -266,20 +290,6 @@ export function getInsertAreas() {
             direction: 1,
           })
         }
-      } else if (siblingsAll.length > 0) {
-        insertAreas.push({
-          layout: 'inline',
-          parent,
-          indexAll: indexAll + 1,
-          index: index + 1,
-          slot: slotName,
-          center: {
-            x: rect.right,
-            y: rect.top + rect.height / 2,
-          },
-          size: rect.height,
-          direction: 1,
-        })
       }
     }
   })
