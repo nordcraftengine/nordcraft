@@ -17,6 +17,7 @@ import type {
   SearchResult,
   SearchRule,
 } from './types'
+import { applyFixResult } from './util/applyFix'
 import { shouldSearchExactPath, shouldVisitTree } from './util/helpers'
 
 interface FixOptions {
@@ -326,7 +327,7 @@ function* visitNode({
                 { data: { ...data, path }, details, state },
               )
               if (ruleFixes) {
-                fixedFiles = ruleFixes
+                fixedFiles = applyFixResult(data.files, ruleFixes)
               }
             }
           } else {

@@ -39,13 +39,7 @@ export const addContextSubscription: FixFunction<
   }
 
   return {
-    ...files,
-    components: {
-      ...files.components,
-      [componentName]: {
-        ...component,
-        contexts: updatedContexts,
-      },
-    },
+    path: ['components', componentName, 'contexts'],
+    value: updatedContexts,
   }
 }

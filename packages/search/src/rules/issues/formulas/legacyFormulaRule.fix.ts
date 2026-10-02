@@ -5,7 +5,7 @@ import type {
   OrOperation,
   SwitchOperation,
 } from '@nordcraft/core/dist/formula/formula'
-import { omitKeys, set } from '@nordcraft/core/dist/utils/collections'
+import { omitKeys } from '@nordcraft/core/dist/utils/collections'
 import type { FixFunction, FormulaNode } from '../../../types'
 import {
   ARRAY_ARGUMENT_MAPPINGS,
@@ -28,7 +28,7 @@ export const replaceLegacyFormula: FixFunction<
           return argument
         }),
       }
-      return set(data.files, data.path, andFormula)
+      return { path: data.path, value: andFormula }
     }
     case 'CONCAT': {
       const newConcatFormula: FunctionOperation = {
@@ -36,7 +36,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/concatenate',
         display_name: 'Concatenate',
       }
-      return set(data.files, data.path, newConcatFormula)
+      return { path: data.path, value: newConcatFormula }
     }
     case 'DEFAULT': {
       const newDefaultFormula: FunctionOperation = {
@@ -46,7 +46,7 @@ export const replaceLegacyFormula: FixFunction<
         variableArguments: true,
         display_name: 'Default to',
       }
-      return set(data.files, data.path, newDefaultFormula)
+      return { path: data.path, value: newDefaultFormula }
     }
     case 'DELETE': {
       const newDeleteFormula: FunctionOperation = {
@@ -54,7 +54,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/deleteKey',
         display_name: 'Delete',
       }
-      return set(data.files, data.path, newDeleteFormula)
+      return { path: data.path, value: newDeleteFormula }
     }
     case 'DROP_LAST': {
       const newDropLastFormula: FunctionOperation = {
@@ -65,7 +65,7 @@ export const replaceLegacyFormula: FixFunction<
           ? renameArguments(ARRAY_ARGUMENT_MAPPINGS, data.value.arguments)
           : data.value.arguments,
       }
-      return set(data.files, data.path, newDropLastFormula)
+      return { path: data.path, value: newDropLastFormula }
     }
     case 'EQ': {
       const newEqualsFormula: FunctionOperation = {
@@ -73,7 +73,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/equals',
         display_name: 'Equals',
       }
-      return set(data.files, data.path, newEqualsFormula)
+      return { path: data.path, value: newEqualsFormula }
     }
     case 'FIND INDEX': {
       const newFindIndexFormula: FunctionOperation = {
@@ -85,7 +85,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newFindIndexFormula)
+      return { path: data.path, value: newFindIndexFormula }
     }
     case 'FLAT': {
       const newFlattenFormula: FunctionOperation = {
@@ -97,7 +97,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newFlattenFormula)
+      return { path: data.path, value: newFlattenFormula }
     }
     case 'GT': {
       const newGreaterThanFormula: FunctionOperation = {
@@ -105,7 +105,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/greaterThan',
         display_name: 'Greater than',
       }
-      return set(data.files, data.path, newGreaterThanFormula)
+      return { path: data.path, value: newGreaterThanFormula }
     }
     case 'GTE': {
       const newGreaterOrEqualFormula: FunctionOperation = {
@@ -113,7 +113,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/greaterOrEqueal',
         display_name: 'Greater or equal',
       }
-      return set(data.files, data.path, newGreaterOrEqualFormula)
+      return { path: data.path, value: newGreaterOrEqualFormula }
     }
     case 'GROUP_BY': {
       const newGroupbyFormula: FunctionOperation = {
@@ -125,7 +125,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newGroupbyFormula)
+      return { path: data.path, value: newGroupbyFormula }
     }
     case 'IF': {
       const legacyIfFormula = omitKeys(data.value, ['arguments', 'name'])
@@ -142,7 +142,7 @@ export const replaceLegacyFormula: FixFunction<
         ],
         default: ifArguments[2]?.formula,
       }
-      return set(data.files, data.path, switchFormula)
+      return { path: data.path, value: switchFormula }
     }
     case 'INDEX OF': {
       const newIndexofFormula: FunctionOperation = {
@@ -154,7 +154,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newIndexofFormula)
+      return { path: data.path, value: newIndexofFormula }
     }
     case 'JSON_PARSE': {
       const newJsonParseFormula: FunctionOperation = {
@@ -166,7 +166,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newJsonParseFormula)
+      return { path: data.path, value: newJsonParseFormula }
     }
     case 'KEY_BY': {
       const newKeyByFormula: FunctionOperation = {
@@ -181,14 +181,14 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newKeyByFormula)
+      return { path: data.path, value: newKeyByFormula }
     }
     case 'LIST': {
       const newArrayFormula: ArrayOperation = {
         type: 'array',
         arguments: data.value.arguments,
       }
-      return set(data.files, data.path, newArrayFormula)
+      return { path: data.path, value: newArrayFormula }
     }
     case 'LOWER': {
       const newLowercaseFormula: FunctionOperation = {
@@ -196,7 +196,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/lowercase',
         display_name: 'Lower case',
       }
-      return set(data.files, data.path, newLowercaseFormula)
+      return { path: data.path, value: newLowercaseFormula }
     }
     case 'LT': {
       const newLessThanFormula: FunctionOperation = {
@@ -204,7 +204,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/lessThan',
         display_name: 'Less than',
       }
-      return set(data.files, data.path, newLessThanFormula)
+      return { path: data.path, value: newLessThanFormula }
     }
     case 'LTE': {
       const newLessOrEqualFormula: FunctionOperation = {
@@ -212,7 +212,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/lessOrEqual',
         display_name: 'Less or equal',
       }
-      return set(data.files, data.path, newLessOrEqualFormula)
+      return { path: data.path, value: newLessOrEqualFormula }
     }
     case 'MOD': {
       const newModuloFormula: FunctionOperation = {
@@ -224,7 +224,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/modulo',
         display_name: 'Modulo',
       }
-      return set(data.files, data.path, newModuloFormula)
+      return { path: data.path, value: newModuloFormula }
     }
     case 'NEQ': {
       const newNotEqualFormula: FunctionOperation = {
@@ -232,7 +232,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/notEqual',
         display_name: 'Not equal',
       }
-      return set(data.files, data.path, newNotEqualFormula)
+      return { path: data.path, value: newNotEqualFormula }
     }
     case 'OR': {
       const { name, ...legacyOrFormula } = data.value
@@ -245,7 +245,7 @@ export const replaceLegacyFormula: FixFunction<
           return argument
         }),
       }
-      return set(data.files, data.path, andFormula)
+      return { path: data.path, value: andFormula }
     }
     case 'RANDOM': {
       const newRandomNumberFormula: FunctionOperation = {
@@ -253,7 +253,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/randomNumber',
         display_name: 'Random number',
       }
-      return set(data.files, data.path, newRandomNumberFormula)
+      return { path: data.path, value: newRandomNumberFormula }
     }
     case 'SIZE': {
       const newSizeFormula: FunctionOperation = {
@@ -261,7 +261,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/size',
         display_name: 'Size',
       }
-      return set(data.files, data.path, newSizeFormula)
+      return { path: data.path, value: newSizeFormula }
     }
     case 'SQRT': {
       const newSqrtFormula: FunctionOperation = {
@@ -269,7 +269,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/squareRoot',
         display_name: 'Square Root',
       }
-      return set(data.files, data.path, newSqrtFormula)
+      return { path: data.path, value: newSqrtFormula }
     }
     case 'STARTS_WITH': {
       const newStartsWithFormula: FunctionOperation = {
@@ -278,7 +278,7 @@ export const replaceLegacyFormula: FixFunction<
         display_name: 'Starts with',
         arguments: renameArguments({ Input: 'String' }, data.value.arguments),
       }
-      return set(data.files, data.path, newStartsWithFormula)
+      return { path: data.path, value: newStartsWithFormula }
     }
     case 'TAKE_LAST': {
       const newTakeLastFormula: FunctionOperation = {
@@ -290,7 +290,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newTakeLastFormula)
+      return { path: data.path, value: newTakeLastFormula }
     }
     case 'TYPE':
       // We can't autofix this one as the types have changed
@@ -305,7 +305,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newUpperFormula)
+      return { path: data.path, value: newUpperFormula }
     }
     case 'URI_ENCODE': {
       const newUriEncodeFormula: FunctionOperation = {
@@ -319,7 +319,7 @@ export const replaceLegacyFormula: FixFunction<
           name: arg.name === 'URI' ? 'URIComponent' : arg.name,
         })),
       }
-      return set(data.files, data.path, newUriEncodeFormula)
+      return { path: data.path, value: newUriEncodeFormula }
     }
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
@@ -332,7 +332,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/absolute',
         display_name: 'Absolute',
       }
-      return set(data.files, data.path, newAbsoluteFormula)
+      return { path: data.path, value: newAbsoluteFormula }
     }
     case 'ADD': {
       const newAddFormula: FunctionOperation = {
@@ -340,7 +340,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/add',
         display_name: 'Add',
       }
-      return set(data.files, data.path, newAddFormula)
+      return { path: data.path, value: newAddFormula }
     }
     case 'APPEND': {
       const newAppendFormula: FunctionOperation = {
@@ -348,7 +348,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/append',
         display_name: 'Append',
       }
-      return set(data.files, data.path, newAppendFormula)
+      return { path: data.path, value: newAppendFormula }
     }
     case 'CLAMP': {
       const newClampFormula: FunctionOperation = {
@@ -356,7 +356,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/clamp',
         display_name: 'Clamp',
       }
-      return set(data.files, data.path, newClampFormula)
+      return { path: data.path, value: newClampFormula }
     }
     case 'DIVIDE': {
       const newDivideFormula: FunctionOperation = {
@@ -364,7 +364,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/divide',
         display_name: 'Divide',
       }
-      return set(data.files, data.path, newDivideFormula)
+      return { path: data.path, value: newDivideFormula }
     }
     case 'DROP': {
       const newDropFormula: FunctionOperation = {
@@ -372,7 +372,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/drop',
         display_name: 'Drop',
       }
-      return set(data.files, data.path, newDropFormula)
+      return { path: data.path, value: newDropFormula }
     }
     case 'ENTRIES': {
       const newEntriesFormula: FunctionOperation = {
@@ -380,7 +380,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/entries',
         display_name: 'Entries',
       }
-      return set(data.files, data.path, newEntriesFormula)
+      return { path: data.path, value: newEntriesFormula }
     }
     case 'EVERY': {
       const newEveryFormula: FunctionOperation = {
@@ -392,7 +392,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newEveryFormula)
+      return { path: data.path, value: newEveryFormula }
     }
     case 'FILTER': {
       const newFilterFormula: FunctionOperation = {
@@ -404,7 +404,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newFilterFormula)
+      return { path: data.path, value: newFilterFormula }
     }
     case 'FIND': {
       const newFindFormula: FunctionOperation = {
@@ -416,7 +416,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newFindFormula)
+      return { path: data.path, value: newFindFormula }
     }
     case 'FROMENTRIES': {
       const newFromentriesFormula: FunctionOperation = {
@@ -428,7 +428,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newFromentriesFormula)
+      return { path: data.path, value: newFromentriesFormula }
     }
     case 'GET': {
       const newGetFormula: FunctionOperation = {
@@ -436,7 +436,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/get',
         display_name: 'Get',
       }
-      return set(data.files, data.path, newGetFormula)
+      return { path: data.path, value: newGetFormula }
     }
     case 'INCLUDES': {
       const newIncludesFormula: FunctionOperation = {
@@ -448,7 +448,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newIncludesFormula)
+      return { path: data.path, value: newIncludesFormula }
     }
     case 'JOIN': {
       const newJoinFormula: FunctionOperation = {
@@ -460,7 +460,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newJoinFormula)
+      return { path: data.path, value: newJoinFormula }
     }
     case 'MAP': {
       const newMapFormula: FunctionOperation = {
@@ -475,7 +475,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newMapFormula)
+      return { path: data.path, value: newMapFormula }
     }
     case 'MAX': {
       const newMaxFormula: FunctionOperation = {
@@ -487,7 +487,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newMaxFormula)
+      return { path: data.path, value: newMaxFormula }
     }
     case 'MIN': {
       const newMinFormula: FunctionOperation = {
@@ -499,7 +499,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newMinFormula)
+      return { path: data.path, value: newMinFormula }
     }
     case 'MINUS': {
       const newMinusFormula: FunctionOperation = {
@@ -507,7 +507,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/minus',
         display_name: 'Minus',
       }
-      return set(data.files, data.path, newMinusFormula)
+      return { path: data.path, value: newMinusFormula }
     }
     case 'MULTIPLY': {
       const newMultiplyFormula: FunctionOperation = {
@@ -515,7 +515,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/multiply',
         display_name: 'Multiply',
       }
-      return set(data.files, data.path, newMultiplyFormula)
+      return { path: data.path, value: newMultiplyFormula }
     }
     case 'NOT': {
       const newNotFormula: FunctionOperation = {
@@ -523,7 +523,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/not',
         display_name: 'Not',
       }
-      return set(data.files, data.path, newNotFormula)
+      return { path: data.path, value: newNotFormula }
     }
     case 'NUMBER': {
       const newNumberFormula: FunctionOperation = {
@@ -531,7 +531,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/number',
         display_name: 'Number',
       }
-      return set(data.files, data.path, newNumberFormula)
+      return { path: data.path, value: newNumberFormula }
     }
     case 'RANGE': {
       const newRangeFormula: FunctionOperation = {
@@ -545,7 +545,7 @@ export const replaceLegacyFormula: FixFunction<
           name: i === 1 && typeof arg.name !== 'string' ? 'Max' : arg.name,
         })),
       }
-      return set(data.files, data.path, newRangeFormula)
+      return { path: data.path, value: newRangeFormula }
     }
     case 'REDUCE': {
       const newReduceFormula: FunctionOperation = {
@@ -557,7 +557,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newReduceFormula)
+      return { path: data.path, value: newReduceFormula }
     }
     case 'REPLACEALL': {
       const newReplaceallFormula: FunctionOperation = {
@@ -570,7 +570,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newReplaceallFormula)
+      return { path: data.path, value: newReplaceallFormula }
     }
     case 'REVERSE': {
       const newReverseFormula: FunctionOperation = {
@@ -582,7 +582,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newReverseFormula)
+      return { path: data.path, value: newReverseFormula }
     }
     case 'ROUND': {
       const newRoundFormula: FunctionOperation = {
@@ -590,7 +590,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/round',
         display_name: 'Round',
       }
-      return set(data.files, data.path, newRoundFormula)
+      return { path: data.path, value: newRoundFormula }
     }
     case 'SET': {
       const newSetFormula: FunctionOperation = {
@@ -598,7 +598,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/set',
         display_name: 'Set',
       }
-      return set(data.files, data.path, newSetFormula)
+      return { path: data.path, value: newSetFormula }
     }
     case 'SOME': {
       const newSomeFormula: FunctionOperation = {
@@ -610,7 +610,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newSomeFormula)
+      return { path: data.path, value: newSomeFormula }
     }
     case 'SPLIT': {
       const newSplitFormula: FunctionOperation = {
@@ -618,7 +618,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/split',
         display_name: 'Split',
       }
-      return set(data.files, data.path, newSplitFormula)
+      return { path: data.path, value: newSplitFormula }
     }
     case 'STRING': {
       const newStringFormula: FunctionOperation = {
@@ -626,7 +626,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/string',
         display_name: 'String',
       }
-      return set(data.files, data.path, newStringFormula)
+      return { path: data.path, value: newStringFormula }
     }
     case 'SUM': {
       const newSumFormula: FunctionOperation = {
@@ -634,7 +634,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/sum',
         display_name: 'Sum',
       }
-      return set(data.files, data.path, newSumFormula)
+      return { path: data.path, value: newSumFormula }
     }
     case 'TAKE': {
       const newTakeFormula: FunctionOperation = {
@@ -646,7 +646,7 @@ export const replaceLegacyFormula: FixFunction<
           data.value.arguments,
         ),
       }
-      return set(data.files, data.path, newTakeFormula)
+      return { path: data.path, value: newTakeFormula }
     }
     case 'TRIM': {
       const newTrimFormula: FunctionOperation = {
@@ -654,7 +654,7 @@ export const replaceLegacyFormula: FixFunction<
         name: '@toddle/trim',
         display_name: 'Trim',
       }
-      return set(data.files, data.path, newTrimFormula)
+      return { path: data.path, value: newTrimFormula }
     }
   }
 }

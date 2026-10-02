@@ -10,8 +10,10 @@ import type {
 } from '@nordcraft/core/dist/formula/formula'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
+import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'
 import type { IssueResult } from '../../../types'
+import { applyFixResult } from '../../../util/applyFix'
 import { namedComponentFormulaRule } from './namedComponentFormulaRule'
 import { renameNamedComponentFormulaFix } from './namedComponentFormulaRule.fix'
 
@@ -127,7 +129,7 @@ describe('namedComponentFormulaRule', () => {
     )
     const issue = problems[0] as IssueResult
 
-    const updatedFiles = renameNamedComponentFormulaFix({
+    const fixResult = renameNamedComponentFormulaFix({
       data: {
         nodeType: 'component-formula',
         path: issue.path,
@@ -147,8 +149,9 @@ describe('namedComponentFormulaRule', () => {
       details: issue.details,
     })
 
-    expect(updatedFiles).toBeDefined()
-    const myComp = updatedFiles!.components.MyComponent!
+    expect(fixResult).toBeDefined()
+    const updatedFiles = applyFixResult(files, fixResult)
+    const myComp = updatedFiles.components.MyComponent!
     // Key updated
     expect(myComp.formulas?.newName).toBeDefined()
     expect(myComp.formulas?.oldKey).toBeUndefined()
@@ -237,7 +240,7 @@ describe('namedComponentFormulaRule', () => {
     )
     const issue = problems[0] as IssueResult
 
-    const updatedFiles = renameNamedComponentFormulaFix({
+    const fixResult = renameNamedComponentFormulaFix({
       data: {
         nodeType: 'component-formula',
         path: issue.path,
@@ -257,8 +260,9 @@ describe('namedComponentFormulaRule', () => {
       details: issue.details,
     })
 
-    expect(updatedFiles).toBeDefined()
-    const myComp = updatedFiles!.components.MyComponent!
+    expect(fixResult).toBeDefined()
+    const updatedFiles = applyFixResult(sameKeyFiles, fixResult)
+    const myComp = updatedFiles.components.MyComponent!
     // Formula is kept
     expect(myComp.formulas?.sameKey).toBeDefined()
     // Name is removed
@@ -284,5 +288,70 @@ describe('namedComponentFormulaRule', () => {
       'MyComponent',
       'sameKey',
     ])
+  })
+
+  test('fixProject fixes all named component formulas across iterations', () => {
+    const multiFormulaFiles: ProjectFiles = {
+      components: {
+        MyComponent: {
+          name: 'MyComponent',
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'div',
+              attrs: {
+                f1Ref: {
+                  type: 'apply',
+                  name: 'old1',
+                  arguments: [],
+                },
+                f2Ref: {
+                  type: 'apply',
+                  name: 'old2',
+                  arguments: [],
+                },
+              },
+            },
+          },
+          formulas: {
+            old1: {
+              name: 'new1',
+              formula: { type: 'value', value: 1 },
+              arguments: [],
+            },
+            old2: {
+              name: 'new2',
+              formula: { type: 'value', value: 2 },
+              arguments: [],
+            },
+          },
+        },
+      },
+    }
+
+    const fixedFiles = fixProject({
+      files: multiFormulaFiles,
+      rule: namedComponentFormulaRule,
+      fixType: 'rename-named-component-formula',
+    })
+
+    const comp = fixedFiles.components.MyComponent!
+    // Both formulas renamed
+    expect(comp.formulas?.new1).toBeDefined()
+    expect(comp.formulas?.new2).toBeDefined()
+    expect(comp.formulas?.old1).toBeUndefined()
+    expect(comp.formulas?.old2).toBeUndefined()
+    expect(comp.formulas?.new1?.name).toBeUndefined()
+    expect(comp.formulas?.new2?.name).toBeUndefined()
+
+    // References updated
+    const rootNode = comp.nodes?.['root'] as ElementNodeModel
+    expect((rootNode.attrs?.f1Ref as ApplyOperation).name).toBe('new1')
+    expect((rootNode.attrs?.f2Ref as ApplyOperation).name).toBe('new2')
+
+    // Original files should not have been mutated
+    expect(
+      multiFormulaFiles.components.MyComponent?.formulas?.old1,
+    ).toBeDefined()
   })
 })

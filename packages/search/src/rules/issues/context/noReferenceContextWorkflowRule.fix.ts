@@ -1,4 +1,3 @@
-import { set } from '@nordcraft/core/dist/utils/collections'
 import type { ComponentContext, FixFunction } from '../../../types'
 
 export const removeContextWorkflowSubscription: FixFunction<
@@ -35,16 +34,14 @@ export const removeContextWorkflowSubscription: FixFunction<
   ) {
     // If no formulas or workflows remain, we can remove the entire context subscription
     const { [providerName]: _, ...updatedContexts } = contexts
-    return set(
-      files,
-      ['components', componentName, 'contexts'],
-      updatedContexts,
-    )
+    return {
+      path: ['components', componentName, 'contexts'],
+      value: updatedContexts,
+    }
   }
 
-  return set(
-    files,
-    ['components', componentName, 'contexts', providerName, 'workflows'],
-    updatedWorkflows,
-  )
+  return {
+    path: ['components', componentName, 'contexts', providerName, 'workflows'],
+    value: updatedWorkflows,
+  }
 }

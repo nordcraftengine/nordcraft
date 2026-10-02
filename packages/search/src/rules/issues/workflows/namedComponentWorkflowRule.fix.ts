@@ -1,7 +1,9 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import { get } from '@nordcraft/core/dist/utils/collections'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-import type { ComponentWorkflowNode, FixFunction } from '../../../types'
+import type {
+  ComponentWorkflowNode,
+  FileUpdate,
+  FixFunction,
+} from '../../../types'
 
 export const renameNamedComponentWorkflowFix: FixFunction<
   ComponentWorkflowNode,
@@ -15,8 +17,7 @@ export const renameNamedComponentWorkflowFix: FixFunction<
   const { name: newKey, workflowKey: oldKey } = details
   const componentName = String(path[1])
 
-  const updatedFiles = structuredClone(files) as ProjectFiles
-  const component = updatedFiles.components[componentName]
+  const component = files.components[componentName]
 
   if (!component?.workflows) {
     return
@@ -27,17 +28,34 @@ export const renameNamedComponentWorkflowFix: FixFunction<
   if (!workflow) {
     return
   }
-  delete workflow.name
 
-  if (String(oldKey) !== newKey) {
-    component.workflows[newKey] = { ...workflow }
-    delete component.workflows[oldKey]
+  // 1. If oldKey === newKey, we only need to delete the `name` property.
+  // No references need to be updated since the workflow key is unchanged.
+  if (String(oldKey) === newKey) {
+    return [
+      {
+        path: ['components', componentName, 'workflows', oldKey, 'name'],
+        delete: true,
+      },
+    ]
   }
 
-  const getComponent = (name: string) => updatedFiles.components[name]
+  const { name: _, ...cleanWorkflow } = workflow
+  const updates: FileUpdate[] = [
+    {
+      path: ['components', componentName, 'workflows', newKey],
+      value: cleanWorkflow,
+    },
+    {
+      path: ['components', componentName, 'workflows', oldKey],
+      delete: true,
+    },
+  ]
+
+  const getComponent = (name: string) => files.components[name]
   const globalFormulas = {
-    formulas: updatedFiles.formulas,
-    packages: updatedFiles.packages,
+    formulas: files.formulas,
+    packages: files.packages,
   }
 
   // 2. Update all references within the same component
@@ -56,20 +74,30 @@ export const renameNamedComponentWorkflowFix: FixFunction<
       action.type === 'TriggerWorkflow' &&
       action.workflow === String(oldKey)
     ) {
-      const fullPath = ['components', componentName, ...actionPath]
-      const currentAction = get(updatedFiles, fullPath)
-      if (
-        currentAction?.type === 'TriggerWorkflow' &&
-        currentAction.workflow === String(oldKey)
-      ) {
-        currentAction.workflow = newKey
-      }
+      const targetPath =
+        String(oldKey) !== newKey &&
+        actionPath[0] === 'workflows' &&
+        String(actionPath[1]) === String(oldKey)
+          ? [
+              'components',
+              componentName,
+              'workflows',
+              newKey,
+              ...actionPath.slice(2),
+              'workflow',
+            ]
+          : ['components', componentName, ...actionPath, 'workflow']
+
+      updates.push({
+        path: targetPath,
+        value: newKey,
+      })
     }
   }
 
   // 3. Update context consumer references
   for (const [otherComponentName, otherComponent] of Object.entries(
-    updatedFiles.components,
+    files.components,
   )) {
     const context = otherComponent?.contexts?.[componentName]
     const workflowIndex = context?.workflows.indexOf(String(oldKey))
@@ -78,7 +106,17 @@ export const renameNamedComponentWorkflowFix: FixFunction<
     }
 
     // Update context subscriptions
-    context.workflows[workflowIndex] = newKey
+    updates.push({
+      path: [
+        'components',
+        otherComponentName,
+        'contexts',
+        componentName,
+        'workflows',
+        workflowIndex,
+      ],
+      value: newKey,
+    })
 
     // Update TriggerWorkflow actions referencing this context provider
     const otherToddleComponent = new ToddleComponent({
@@ -97,18 +135,13 @@ export const renameNamedComponentWorkflowFix: FixFunction<
         action.contextProvider === componentName &&
         action.workflow === String(oldKey)
       ) {
-        const fullPath = ['components', otherComponentName, ...actionPath]
-        const currentAction = get(updatedFiles, fullPath)
-        if (
-          currentAction?.type === 'TriggerWorkflow' &&
-          currentAction.contextProvider === componentName &&
-          currentAction.workflow === String(oldKey)
-        ) {
-          currentAction.workflow = newKey
-        }
+        updates.push({
+          path: ['components', otherComponentName, ...actionPath, 'workflow'],
+          value: newKey,
+        })
       }
     }
   }
 
-  return updatedFiles
+  return updates
 }
