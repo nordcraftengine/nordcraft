@@ -24,7 +24,7 @@ describe('findNearestLine', () => {
         slotName: null,
         parent,
         index: 0,
-        direction: -1,
+        direction: 1,
       },
       {
         x1: 2,
