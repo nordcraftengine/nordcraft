@@ -1,4 +1,3 @@
-import { set } from '@nordcraft/core/dist/utils/collections'
 import type { ComponentFormulaNode, FixFunction } from '../../../types'
 
 export const removeContextFormulaArguments: FixFunction<
@@ -13,5 +12,8 @@ export const removeContextFormulaArguments: FixFunction<
     return
   }
 
-  return set(files, [...path, 'arguments'], null)
+  return {
+    path: [...path, 'arguments'],
+    value: null,
+  }
 }

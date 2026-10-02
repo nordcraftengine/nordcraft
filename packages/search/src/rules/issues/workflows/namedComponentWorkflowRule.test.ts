@@ -5,8 +5,10 @@ import type {
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
+import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'
 import type { IssueResult } from '../../../types'
+import { applyFixResult } from '../../../util/applyFix'
 import { namedComponentWorkflowRule } from './namedComponentWorkflowRule'
 import { renameNamedComponentWorkflowFix } from './namedComponentWorkflowRule.fix'
 
@@ -95,7 +97,7 @@ describe('namedComponentWorkflowRule', () => {
     )
     const issue = problems[0] as IssueResult
 
-    const updatedFiles = renameNamedComponentWorkflowFix({
+    const fixResult = renameNamedComponentWorkflowFix({
       data: {
         nodeType: 'component-workflow',
         path: issue.path,
@@ -115,8 +117,9 @@ describe('namedComponentWorkflowRule', () => {
       details: issue.details,
     })
 
-    expect(updatedFiles).toBeDefined()
-    const myComp = updatedFiles!.components.MyComponent!
+    expect(fixResult).toBeDefined()
+    const updatedFiles = applyFixResult(files, fixResult)
+    const myComp = updatedFiles.components.MyComponent!
     // Key updated
     expect(myComp.workflows?.newName).toBeDefined()
     expect(myComp.workflows?.oldKey).toBeUndefined()
@@ -196,7 +199,7 @@ describe('namedComponentWorkflowRule', () => {
     )
     const issue = problems[0] as IssueResult
 
-    const updatedFiles = renameNamedComponentWorkflowFix({
+    const fixResult = renameNamedComponentWorkflowFix({
       data: {
         nodeType: 'component-workflow',
         path: issue.path,
@@ -216,8 +219,9 @@ describe('namedComponentWorkflowRule', () => {
       details: issue.details,
     })
 
-    expect(updatedFiles).toBeDefined()
-    const myComp = updatedFiles!.components.MyComponent!
+    expect(fixResult).toBeDefined()
+    const updatedFiles = applyFixResult(sameKeyFiles, fixResult)
+    const myComp = updatedFiles.components.MyComponent!
     // Workflow is kept
     expect(myComp.workflows?.sameKey).toBeDefined()
     // Name removed
@@ -234,5 +238,73 @@ describe('namedComponentWorkflowRule', () => {
     const consumerAction = consumer.nodes?.root?.events?.click
       ?.actions?.[0] as WorkflowActionModel
     expect(consumerAction.workflow).toBe('sameKey')
+  })
+
+  test('fixProject fixes all named component workflows across iterations', () => {
+    const multiWorkflowFiles: ProjectFiles = {
+      components: {
+        MyComponent: {
+          name: 'MyComponent',
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'div',
+              events: {
+                click: {
+                  trigger: 'click',
+                  actions: [
+                    {
+                      type: 'TriggerWorkflow',
+                      workflow: 'old1',
+                    },
+                    {
+                      type: 'TriggerWorkflow',
+                      workflow: 'old2',
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          workflows: {
+            old1: {
+              name: 'new1',
+              actions: [],
+              parameters: [],
+            },
+            old2: {
+              name: 'new2',
+              actions: [],
+              parameters: [],
+            },
+          },
+        },
+      },
+    }
+
+    const fixedFiles = fixProject({
+      files: multiWorkflowFiles,
+      rule: namedComponentWorkflowRule,
+      fixType: 'rename-named-component-workflow',
+    })
+
+    const comp = fixedFiles.components.MyComponent!
+    // Both workflows renamed
+    expect(comp.workflows?.new1).toBeDefined()
+    expect(comp.workflows?.new2).toBeDefined()
+    expect(comp.workflows?.old1).toBeUndefined()
+    expect(comp.workflows?.old2).toBeUndefined()
+    expect(comp.workflows?.new1?.name).toBeUndefined()
+    expect(comp.workflows?.new2?.name).toBeUndefined()
+
+    // References updated
+    const rootActions = comp.nodes?.['root']?.events?.click?.actions as any[]
+    expect(rootActions[0].workflow).toBe('new1')
+    expect(rootActions[1].workflow).toBe('new2')
+
+    // Original files should not have been mutated
+    expect(
+      multiWorkflowFiles.components.MyComponent?.workflows?.old1,
+    ).toBeDefined()
   })
 })

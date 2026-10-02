@@ -563,9 +563,15 @@ export interface FixFunctionArgs<Data extends NodeType, Details = unknown> {
   state?: ApplicationState
 }
 
+export type FileUpdate =
+  | { path: (string | number)[]; value: unknown; delete?: false }
+  | { path: (string | number)[]; delete: true; value?: never }
+
+export type FixResult = FileUpdate | FileUpdate[] | void
+
 export type FixFunction<Data extends NodeType, Details = unknown> = (
   args: FixFunctionArgs<Data, Details>,
-) => ProjectFiles | void
+) => FixResult
 
 export type Options = {
   /**

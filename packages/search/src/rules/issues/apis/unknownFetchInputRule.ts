@@ -55,7 +55,7 @@ function deleteUnknownFetchInputFix(
 ): ReturnType<FixFunction<ActionModelNode, { name: string }>> {
   const inputToRemove = args.details?.name
   if (typeof inputToRemove !== 'string') {
-    return args.data.files
+    return
   }
   return removeFromPathFix({
     ...args,

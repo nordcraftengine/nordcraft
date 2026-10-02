@@ -1,10 +1,10 @@
 import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
-import { get, omit, set } from '@nordcraft/core/dist/utils/collections'
+import { get } from '@nordcraft/core/dist/utils/collections'
 import type { FixFunction, NodeType } from '../types'
 
 export const removeFromPathFix: FixFunction<NodeType> = ({
-  data: { path, files },
-}) => omit(files, path)
+  data: { path },
+}) => ({ path, delete: true })
 
 /**
  * Same as removeFromPathFix, but also cleans up any references to the removed node.
@@ -37,5 +37,5 @@ export const removeNodeFromPathFix: FixFunction<NodeType> = ({ data }) => {
 
   removeNodeAndChildren(nodeId)
 
-  return set(data.files, componentNodesPath, nodes)
+  return { path: componentNodesPath, value: nodes }
 }

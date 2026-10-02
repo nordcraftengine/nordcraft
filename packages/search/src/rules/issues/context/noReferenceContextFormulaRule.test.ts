@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../../searchProject'
+import { applyFixResult } from '../../../util/applyFix'
 import { noReferenceContextFormulaRule } from './noReferenceContextFormulaRule'
 
 describe('noReferenceContextFormulaRule', () => {
@@ -111,13 +112,14 @@ describe('noReferenceContextFormulaRule', () => {
       noReferenceContextFormulaRule.fixes?.[
         'remove-context-formula-subscription'
       ]
-    const result = fix?.({
+    const fixResult = fix?.({
       data: {
-        files: files as any,
+        files,
         path: ['components', 'consumer'],
       } as any,
-      details: unusedProblem?.details as any,
+      details: unusedProblem?.details,
     })
+    const result = applyFixResult(files, fixResult)
 
     expect(result?.components.consumer?.contexts?.provider1.formulas).toEqual([
       'usedFormula',
@@ -161,13 +163,14 @@ describe('noReferenceContextFormulaRule', () => {
       noReferenceContextFormulaRule.fixes?.[
         'remove-context-formula-subscription'
       ]
-    const result = fix?.({
+    const fixResult = fix?.({
       data: {
-        files: files as any,
+        files,
         path: ['components', 'consumer'],
       } as any,
-      details: unusedProblem?.details as any,
+      details: unusedProblem?.details,
     })
+    const result = applyFixResult(files, fixResult)
 
     expect(result?.components.consumer?.contexts).toEqual({})
   })
