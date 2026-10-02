@@ -60,27 +60,21 @@ export function getInsertAreas() {
       return
     }
 
-    // If the only element in a component/page is Text
-    // we should not allow insert of another elements
-    if (
-      id === '0' &&
-      element.getAttribute('data-node-type') === 'text' &&
-      element.parentElement?.id === 'App'
-    ) {
-      // eslint-disable-next-line no-console
-      console.warn(`Is not possible to insert in a text element`)
-      return
-    }
+    if (id === '0' && element.parentElement?.id === 'App') {
+      // If the only element in a component/page is Text
+      // we should not allow insert of another elements
+      if (element.getAttribute('data-node-type') === 'text') {
+        // eslint-disable-next-line no-console
+        console.warn(`Is not possible to insert in a text element`)
+        return
+      }
 
-    // We don't allow inserting another root element
-    if (
-      id === '0' &&
-      element.hasChildNodes() &&
-      element.parentElement?.id === 'App'
-    ) {
-      // eslint-disable-next-line no-console
-      console.warn(`Is not possible to another root element`)
-      return
+      // We don't allow inserting another root element
+      if (element.hasChildNodes()) {
+        // eslint-disable-next-line no-console
+        console.warn(`Is not possible to another root element`)
+        return
+      }
     }
 
     const rect = element.getBoundingClientRect()
