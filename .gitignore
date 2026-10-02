@@ -184,3 +184,5 @@ publish/
 
 # bun.lock is defined in root
 packages/**/bun.lock
+
+.worktrees/

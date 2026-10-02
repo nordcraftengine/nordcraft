@@ -172,4 +172,117 @@ describe('namedComponentFormulaRule', () => {
       'newName',
     ])
   })
+
+  test('fix keeps formula and removes name property when key is the same as name', () => {
+    const formulaWithSameKey: ComponentFormula = {
+      name: 'sameKey',
+      formula: {
+        type: 'apply',
+        name: 'sameKey',
+        arguments: [],
+      },
+      arguments: [],
+    }
+
+    const sameKeyFiles: ProjectFiles = {
+      components: {
+        MyComponent: {
+          name: 'MyComponent',
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'div',
+              attrs: {
+                text: {
+                  type: 'apply',
+                  name: 'sameKey',
+                  arguments: [],
+                },
+              },
+            },
+          },
+          formulas: {
+            sameKey: formulaWithSameKey,
+          },
+        },
+        Consumer: {
+          name: 'Consumer',
+          contexts: {
+            MyComponent: {
+              formulas: ['sameKey'],
+              workflows: [],
+            },
+          },
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'span',
+              attrs: {
+                content: {
+                  type: 'path',
+                  path: ['Contexts', 'MyComponent', 'sameKey'],
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const problems = Array.from(
+      searchProject({
+        files: sameKeyFiles,
+        rules: [namedComponentFormulaRule],
+      }),
+    )
+    const issue = problems[0] as IssueResult
+
+    const updatedFiles = renameNamedComponentFormulaFix({
+      data: {
+        nodeType: 'component-formula',
+        path: issue.path,
+        files: sameKeyFiles,
+        value: formulaWithSameKey,
+        component: new ToddleComponent<Function>({
+          component: sameKeyFiles.components.MyComponent!,
+          getComponent: (name) => sameKeyFiles.components[name],
+          packageName: undefined,
+          globalFormulas: {
+            formulas: {},
+            packages: {},
+          },
+        }),
+        memo: () => ({}) as any,
+      },
+      details: issue.details,
+    })
+
+    expect(updatedFiles).toBeDefined()
+    const myComp = updatedFiles!.components.MyComponent!
+    // Formula is kept
+    expect(myComp.formulas?.sameKey).toBeDefined()
+    // Name is removed
+    expect(myComp.formulas?.sameKey?.name).toBeUndefined()
+    expect(myComp.formulas?.sameKey?.formula).toEqual({
+      type: 'apply',
+      name: 'sameKey',
+      arguments: [],
+    })
+
+    // Internal reference updated / preserved
+    const node = myComp.nodes?.['root'] as ElementNodeModel
+    const nodePathFormula = node.attrs?.text as ApplyOperation
+    expect(nodePathFormula.name).toBe('sameKey')
+
+    // Context consumer preserved / updated
+    const consumer = updatedFiles!.components.Consumer as Component
+    expect(consumer.contexts?.MyComponent.formulas).toContain('sameKey')
+    const consumerNode = consumer.nodes?.['root'] as ElementNodeModel
+    const consumerNodePathFormula = consumerNode.attrs?.content as PathOperation
+    expect(consumerNodePathFormula.path).toEqual([
+      'Contexts',
+      'MyComponent',
+      'sameKey',
+    ])
+  })
 })

@@ -24,9 +24,13 @@ export const renameNamedComponentFormulaFix: FixFunction<
 
   // 1. Update the formula key and remove the name property
   const formula = component.formulas[oldKey]
-  if (formula) {
+  if (!formula) {
+    return
+  }
+  delete formula.name
+
+  if (String(oldKey) !== newKey) {
     component.formulas[newKey] = { ...formula }
-    delete component.formulas[newKey].name
     delete component.formulas[oldKey]
   }
 
