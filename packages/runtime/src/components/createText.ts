@@ -1,3 +1,4 @@
+import '@nordcraft/core/dist/compileTime'
 import type {
   ComponentData,
   SupportedNamespaces,
@@ -78,34 +79,22 @@ export function createText({
   }
   elem.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
   if (value.type !== 'value') {
+    const valuePath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
     const sig = dataSignal.map((data) =>
-      String(
-        applyFormula(
-          value,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          ['value'],
-        ),
-      ),
+      String(applyFormula(value, ctx, data, valuePath)),
     )
     sig.subscribe((value) => {
       elem.innerText = value
     })
   } else {
-    ctx.reportFormulaEvaluation?.(
-      [...(ctx.jsonPath ?? []), 'value'],
-      value.value,
-      ctx,
-    )
+    if (IS_PREVIEW) {
+      ctx.reportFormulaEvaluation?.(
+        [...(ctx.jsonPath ?? []), 'value'],
+        value.value,
+        ctx,
+      )
+    }
     elem.innerText = String(value.value)
   }
   return elem
@@ -123,24 +112,10 @@ export function createTextNS({
   const { value } = node
   const textNode = document.createTextNode('')
   if (value.type !== 'value') {
+    const valuePathNS =
+      IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
     const sig = dataSignal.map((data) =>
-      String(
-        applyFormula(
-          value,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          ['value'],
-        ),
-      ),
+      String(applyFormula(value, ctx, data, valuePathNS)),
     )
     sig.subscribe((value) => {
       textNode.nodeValue = value

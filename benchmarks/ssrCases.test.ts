@@ -11,15 +11,21 @@ describe('SSR benchmark cases', () => {
       'formula',
       'collections-hot-path',
       'example-project-homepage',
+      'example-pricing-page',
+      'repeat-large-list',
+      'style-variables',
+      'context-propagation',
+      'conditional-subtree',
     ])
     expect(isSsrBenchmarkCaseId('formula')).toBe(true)
+    expect(isSsrBenchmarkCaseId('style-variables')).toBe(true)
     expect(isSsrBenchmarkCaseId('not-a-case')).toBe(false)
     expect(isSsrBenchmarkCaseId(undefined)).toBe(false)
   })
 
   test('builds usage text from the shared case list', () => {
     expect(ssrBenchmarkUsage()).toBe(
-      '--case=<formula|collections-hot-path|example-project-homepage>',
+      '--case=<formula|collections-hot-path|example-project-homepage|example-pricing-page|repeat-large-list|style-variables|context-propagation|conditional-subtree>',
     )
   })
 })

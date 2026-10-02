@@ -1,3 +1,4 @@
+import '../compileTime'
 import type { Formula, FormulaContext } from '../formula/formula'
 import { applyFormula } from '../formula/formula'
 import type { Nullable } from '../types'
@@ -36,7 +37,10 @@ export const createApiRequest = <Handler>({
 }) => {
   const url = getUrl(
     api,
-    { ...formulaContext, jsonPath: ['apis', api.name] },
+    {
+      ...formulaContext,
+      ...(IS_PREVIEW ? { jsonPath: ['apis', api.name] } : {}),
+    },
     baseUrl,
   )
   const requestSettings = getRequestSettings({
@@ -56,7 +60,12 @@ export const getUrl = (
   let urlPathname = ''
   let urlQueryParams = new URLSearchParams()
   let parsedUrl: URL | undefined
-  const url = applyFormula(api.url, formulaContext, ['url'])
+  const url = applyFormula(
+    api.url,
+    formulaContext,
+    undefined,
+    IS_PREVIEW ? ['url'] : undefined,
+  )
   if (['string', 'number'].includes(typeof url)) {
     const urlInput = typeof url === 'number' ? String(url) : url
     try {
@@ -77,10 +86,12 @@ export const getUrl = (
   ])
   const queryString =
     [...queryParams.entries()].length > 0 ? `?${queryParams.toString()}` : ''
-  const hash = applyFormula(api.hash?.formula, formulaContext, [
-    'hash',
-    'formula',
-  ])
+  const hash = applyFormula(
+    api.hash?.formula,
+    formulaContext,
+    undefined,
+    IS_PREVIEW ? ['hash', 'formula'] : undefined,
+  )
   const hashString =
     typeof hash === 'string' && hash.length > 0 ? `#${hash}` : ''
   if (parsedUrl) {
@@ -108,10 +119,12 @@ export const applyAbortSignal = (
   formulaContext: FormulaContext,
 ) => {
   if (api.timeout) {
-    const timeout = applyFormula(api.timeout.formula, formulaContext, [
-      'timeout',
-      'formula',
-    ])
+    const timeout = applyFormula(
+      api.timeout.formula,
+      formulaContext,
+      undefined,
+      IS_PREVIEW ? ['timeout', 'formula'] : undefined,
+    )
     if (typeof timeout === 'number' && !Number.isNaN(timeout) && timeout > 0) {
       requestSettings.signal = AbortSignal.timeout(timeout)
     }
@@ -157,7 +170,12 @@ export const getRequestPath = (
 ): string =>
   sortObjectEntries(path ?? {}, ([_, p]) => p.index)
     .map(([parameterName, p]) =>
-      applyFormula(p.formula, formulaContext, ['path', parameterName]),
+      applyFormula(
+        p.formula,
+        formulaContext,
+        undefined,
+        IS_PREVIEW ? ['path', parameterName] : undefined,
+      ),
     )
     .join('/')
 
@@ -168,21 +186,23 @@ export const getRequestQueryParams = (
   const queryParams = new URLSearchParams()
   Object.entries(params ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
-      ? applyFormula(param.enabled, formulaContext, [
-          'queryParams',
-          key,
-          'enabled',
-        ])
+      ? applyFormula(
+          param.enabled,
+          formulaContext,
+          undefined,
+          IS_PREVIEW ? ['queryParams', key, 'enabled'] : undefined,
+        )
       : true
     if (!enabled) {
       return
     }
 
-    const value = applyFormula(param.formula, formulaContext, [
-      'queryParams',
-      key,
-      'formula',
-    ])
+    const value = applyFormula(
+      param.formula,
+      formulaContext,
+      undefined,
+      IS_PREVIEW ? ['queryParams', key, 'formula'] : undefined,
+    )
     if (!isDefined(value)) {
       // Ignore null/undefined values
       return
@@ -221,14 +241,20 @@ export const getRequestHeaders = ({
   const headers = new Headers(defaultHeaders)
   Object.entries(apiHeaders ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
-      ? applyFormula(param.enabled, formulaContext, ['headers', key, 'enabled'])
+      ? applyFormula(
+          param.enabled,
+          formulaContext,
+          undefined,
+          IS_PREVIEW ? ['headers', key, 'enabled'] : undefined,
+        )
       : true
     if (enabled) {
-      const value = applyFormula(param.formula, formulaContext, [
-        'headers',
-        key,
-        'formula',
-      ])
+      const value = applyFormula(
+        param.formula,
+        formulaContext,
+        undefined,
+        IS_PREVIEW ? ['headers', key, 'formula'] : undefined,
+      )
       if (isDefined(value)) {
         try {
           headers.set(
@@ -287,11 +313,21 @@ export const isApiError = ({
   errorFormula?: Nullable<{ formula: Formula }>
 }) => {
   const errorFormulaRes = errorFormula
-    ? applyFormula(errorFormula.formula, {
-        component: formulaContext.component,
-        package: formulaContext.package,
-        toddle: formulaContext.toddle,
-        data: {
+    ? applyFormula(
+        errorFormula.formula,
+        {
+          component: formulaContext.component,
+          package: formulaContext.package,
+          toddle: formulaContext.toddle,
+          env: formulaContext.env,
+          ...(IS_PREVIEW
+            ? {
+                jsonPath: ['apis', apiName, 'isError', 'formula'],
+                reportFormulaEvaluation: formulaContext.reportFormulaEvaluation,
+              }
+            : {}),
+        },
+        {
           Attributes: {},
           Args: formulaContext.data.Args,
           Apis: {
@@ -308,10 +344,7 @@ export const isApiError = ({
             },
           },
         },
-        env: formulaContext.env,
-        jsonPath: ['apis', apiName, 'isError', 'formula'],
-        reportFormulaEvaluation: formulaContext.reportFormulaEvaluation,
-      })
+      )
     : null
 
   if (errorFormulaRes === null || errorFormulaRes === undefined) {
@@ -335,7 +368,12 @@ export const getRequestBody = ({
     return
   }
 
-  const body = applyFormula(api.body, formulaContext, ['body'])
+  const body = applyFormula(
+    api.body,
+    formulaContext,
+    undefined,
+    IS_PREVIEW ? ['body'] : undefined,
+  )
   if (!body) {
     return
   }

@@ -9,7 +9,7 @@ import {
   getThemeEntries,
   renderThemeValues,
 } from '@nordcraft/core/dist/styling/theme'
-import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/theme.const'
+import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/themeAttributes.const'
 import type { Signal } from '../signal/signal'
 import { getThemeSignal } from '../utils/getThemeSignal'
 

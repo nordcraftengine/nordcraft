@@ -85,7 +85,7 @@ export interface ComponentContext {
     theme: Signal<string | null>
   }
   toddle: Toddle<LocationSignal, PreviewShowSignal>
-  jsonPath: Array<string | number> | undefined
+  jsonPath?: Array<string | number> | undefined
   reportFormulaEvaluation?: FormulaEvaluationReporter | undefined
   env: ToddleEnv
 }

@@ -140,7 +140,15 @@ const FALLBACK_VALUES: Record<CssSyntax | CssCustomSyntax, string> = {
   '*': '',
 }
 
-export const appendUnit = (value: any, unit: Nullable<string>) =>
-  isDefined(value) && isDefined(unit) && !String(value).endsWith(unit)
-    ? `${value}${unit}`
-    : value
+export const appendUnit = (value: any, unit: Nullable<string>) => {
+  if (!isDefined(value) || !isDefined(unit)) {
+    return value
+  }
+
+  if (typeof value === 'number') {
+    return `${value}${unit}`
+  }
+
+  const str = String(value)
+  return str.endsWith(unit) ? value : `${str}${unit}`
+}

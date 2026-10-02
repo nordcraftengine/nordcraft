@@ -1,3 +1,4 @@
+import '@nordcraft/core/dist/compileTime'
 import type {
   Component,
   ComponentData,
@@ -6,7 +7,11 @@ import type {
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Toddle } from '@nordcraft/core/dist/types'
-import { measure } from '@nordcraft/core/dist/utils/measure'
+import {
+  isMeasureEnabled,
+  measure,
+  noopMeasure,
+} from '@nordcraft/core/dist/utils/measure'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
@@ -50,7 +55,7 @@ interface RenderComponentProps {
   toddle: Toddle<LocationSignal, PreviewShowSignal>
   namespace?: SupportedNamespaces
   env: ToddleEnv
-  jsonPath: Array<string | number> | undefined
+  jsonPath?: Array<string | number> | undefined
   reportFormulaEvaluation?: FormulaEvaluationReporter
   slotRepeatIndex?: number
   slotSuffix?: string
@@ -83,14 +88,16 @@ export function renderComponent({
   slotRepeatIndex,
   slotSuffix,
 }: RenderComponentProps): ReadonlyArray<Element | Text> {
-  const stopMeasure = measure(
-    `Render component: ${component.name}`,
-    {
-      component: component.name,
-      path,
-    },
-    'component',
-  )
+  const stopMeasure = isMeasureEnabled()
+    ? measure(
+        `Render component: ${component.name}`,
+        {
+          component: component.name,
+          path,
+        },
+        'component',
+      )
+    : noopMeasure
   const ctx: ComponentContext = {
     triggerEvent: onEvent,
     component,
@@ -107,66 +114,72 @@ export function renderComponent({
     package: packageName,
     toddle,
     env,
-    jsonPath,
-    reportFormulaEvaluation,
+    ...(IS_PREVIEW ? { jsonPath, reportFormulaEvaluation } : {}),
   }
 
   const rootElem = createNode({
     id: 'root',
     path,
     dataSignal,
-    ctx: { ...ctx, jsonPath: ['nodes', 'root'] },
+    ctx:
+      IS_PREVIEW && (ctx.reportFormulaEvaluation || ctx.jsonPath)
+        ? { ...ctx, jsonPath: ['nodes', 'root'] }
+        : ctx,
     parentElement,
     namespace,
     instance,
     slotRepeatIndex,
     slotSuffix,
   })
-  BATCH_QUEUE.add(() => {
-    let prev: Record<string, any> | undefined
-    if (
-      component.onAttributeChange?.actions &&
-      component.onAttributeChange.actions.length > 0
-    ) {
-      dataSignal
-        .map((data) => data.Attributes)
-        .subscribe((props) => {
-          if (prev) {
-            component.onAttributeChange?.actions?.forEach((action) => {
-              void handleAction(
-                action,
-                dataSignal.get(),
-                ctx,
-                new CustomEvent('attribute-change', {
-                  detail: Object.entries(props).reduce(
-                    (
-                      changes: Record<string, { current: any; new: any }>,
-                      [key, value],
-                    ) => {
-                      if (
-                        fastDeepEqual(value, prev![key]) === false &&
-                        component.attributes?.[key]?.name
-                      ) {
-                        changes[component.attributes?.[key]?.name] = {
-                          current: prev![key],
-                          new: value,
+  const hasAttributeChangeActions =
+    (component.onAttributeChange?.actions?.length ?? 0) > 0
+  const hasOnLoadActions = (component.onLoad?.actions?.length ?? 0) > 0
+  if (hasAttributeChangeActions || hasOnLoadActions) {
+    BATCH_QUEUE.add(() => {
+      let prev: Record<string, any> | undefined
+      if (hasAttributeChangeActions) {
+        dataSignal
+          .map((data) => data.Attributes)
+          .subscribe((props) => {
+            if (prev) {
+              component.onAttributeChange?.actions?.forEach((action) => {
+                void handleAction(
+                  action,
+                  dataSignal.get(),
+                  ctx,
+                  new CustomEvent('attribute-change', {
+                    detail: Object.entries(props).reduce(
+                      (
+                        changes: Record<string, { current: any; new: any }>,
+                        [key, value],
+                      ) => {
+                        if (
+                          fastDeepEqual(value, prev![key]) === false &&
+                          component.attributes?.[key]?.name
+                        ) {
+                          changes[component.attributes?.[key]?.name] = {
+                            current: prev![key],
+                            new: value,
+                          }
                         }
-                      }
-                      return changes
-                    },
-                    {},
-                  ),
-                }),
-              )
-            })
-          }
-          prev = props
+                        return changes
+                      },
+                      {},
+                    ),
+                  }),
+                )
+              })
+            }
+            prev = props
+          })
+      }
+      if (hasOnLoadActions) {
+        component.onLoad?.actions?.forEach((action) => {
+          void handleAction(action, dataSignal.get(), ctx)
         })
-    }
-    component.onLoad?.actions?.forEach((action) => {
-      void handleAction(action, dataSignal.get(), ctx)
+      }
     })
-  })
+  }
   stopMeasure()
   return rootElem
 }

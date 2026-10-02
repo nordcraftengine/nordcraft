@@ -30,7 +30,7 @@ export const insertHeadTags = (
     Object.entries(attrs ?? {})
       .map(
         ([key, value]) =>
-          `${key}="${applyFormula(value, context, jsonPathPrefix ? [jsonPathPrefix, 'attrs', key] : undefined)}"`,
+          `${key}="${applyFormula(value, context, undefined, jsonPathPrefix ? [jsonPathPrefix, 'attrs', key] : undefined)}"`,
       )
       .join(' ')
 

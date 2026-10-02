@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import '@nordcraft/core/dist/compileTime'
 import type {
   ComponentData,
   ElementNodeModel,
@@ -52,11 +53,8 @@ export function createNode({
         return [createElement(props as NodeRenderer<ElementNodeModel>)]
       case 'component': {
         const isLocalComponent =
-          getComponent(
-            props.node.name,
-            ctx.components,
-            ctx.env.runtime !== 'preview',
-          ) !== undefined
+          getComponent(props.node.name, ctx.components, !IS_PREVIEW) !==
+          undefined
         return createComponent({
           ...props,
           node: { ...props.node, id }, // we need the node id for instance classes
@@ -67,7 +65,9 @@ export function createNode({
               (isLocalComponent ? undefined : ctx.package),
             // Skip sub-component formula evaluation for now as editor only needs the scope for the selected component
             // TODO: Letting the AI get the state of a deep component may be useful in the future, but we need a better way at precising scope for it to not overwhelm it.
-            reportFormulaEvaluation: undefined,
+            ...(IS_PREVIEW && ctx.reportFormulaEvaluation
+              ? { reportFormulaEvaluation: undefined }
+              : {}),
           },
           parentElement,
         })
@@ -93,24 +93,13 @@ export function createNode({
   }: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
     let firstRun = true
     let childDataSignal: Signal<ComponentData> | null = null
+    const conditionPath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['nodes', id, 'condition']
+        : undefined
     const showSignal = dataSignal.map((data) => {
-      const conditionPath = ['nodes', id, 'condition']
       const show = toBoolean(
-        applyFormula(
-          node.condition,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          conditionPath,
-        ),
+        applyFormula(node.condition, ctx, data, conditionPath),
       )
 
       return show
@@ -175,8 +164,8 @@ export function createNode({
         elements.splice(0, elements.length)
       },
     })
-    if (ctx.env.runtime === 'preview' && ctx.toddle._preview) {
-      unsubscribePreview = ctx.toddle._preview.showSignal.subscribe(
+    if (IS_PREVIEW) {
+      unsubscribePreview = ctx.toddle._preview?.showSignal.subscribe(
         ({ displayedNodes, testMode }) => {
           if (displayedNodes.includes(path) && !testMode) {
             // only override the default show if we are in design mode (not test mode)
@@ -205,26 +194,30 @@ export function createNode({
         elements: ReadonlyArray<Element | Text>
       }
     >()
+    const listPath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['nodes', id, 'repeat']
+        : undefined
+    const repeatKeyPath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['nodes', id, 'repeatKey']
+        : undefined
     const repeatSignal = dataSignal.map((data) => {
-      const listPath = ['nodes', id, 'repeat']
-      const list = applyFormula(
-        node?.repeat,
-        {
-          data,
-          component: ctx.component,
-          formulaCache: ctx.formulaCache,
-          root: ctx.root,
-          package: ctx.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-        },
-        listPath,
-      )
+      const list = applyFormula(node?.repeat, ctx, data, listPath)
 
-      if (typeof list !== 'object') {
+      if (typeof list !== 'object' || list === null) {
         return []
       }
-      return Object.entries(list ?? {})
+      // Fast path for arrays (the common repeat case): avoid the
+      // intermediate string-key conversion of `Object.entries(array)`.
+      if (Array.isArray(list)) {
+        const entries = new Array<[string, unknown]>(list.length)
+        for (let i = 0; i < list.length; i++) {
+          entries[i] = [String(i), list[i]]
+        }
+        return entries
+      }
+      return Object.entries(list)
     })
 
     repeatSignal.subscribe(
@@ -246,21 +239,8 @@ export function createNode({
               Key,
             },
           }
-          const repeatKeyPath = ['nodes', id, 'repeatKey']
           let childKey = node?.repeatKey
-            ? applyFormula(
-                node.repeatKey,
-                {
-                  data: childData,
-                  component: ctx.component,
-                  formulaCache: ctx.formulaCache,
-                  root: ctx.root,
-                  package: ctx.package,
-                  toddle: ctx.toddle,
-                  env: ctx.env,
-                },
-                repeatKeyPath,
-              )
+            ? applyFormula(node.repeatKey, ctx, childData, repeatKeyPath)
             : Key
 
           if (seenKeys.has(childKey)) {
@@ -299,8 +279,8 @@ export function createNode({
           const existingItem = repeatItems.get(childKey)
           if (existingItem) {
             newRepeatItems.set(childKey, existingItem)
-            existingItem.dataSignal.update((data) => {
-              return {
+            existingItem.dataSignal.update(
+              (data) => ({
                 ...data,
                 ListItem: {
                   ...parentListItemInfo,
@@ -308,8 +288,10 @@ export function createNode({
                   Index: Number(i),
                   Key,
                 },
-              }
-            })
+              }),
+              // We can skip deep equality check as we know the ListItem object is always a fresh object with potentially new Index/Item.
+              { force: true },
+            )
           } else {
             const childDataSignal = signal<ComponentData>(childData)
             const cleanup = dataSignal.subscribe(

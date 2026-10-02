@@ -78,6 +78,6 @@ export const getVariableInitialValues = (
     ),
     ([name, { initialValue }]) => [
       name,
-      applyFormula(initialValue, context, ['variables', name]),
+      applyFormula(initialValue, context, undefined, ['variables', name]),
     ],
   )

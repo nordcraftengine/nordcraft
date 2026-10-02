@@ -48,22 +48,26 @@ export const getPathClassName = (path: string) => {
 
 const getStaticCustomPropertyStyles = (
   customProperties: Record<`--${string}`, CustomProperty> | undefined,
-) =>
-  Object.fromEntries(
-    Object.entries(customProperties ?? {})
-      .filter(([, value]) => value.formula?.type === 'value')
-      .map(([key, value]) => [
-        key,
-        appendUnit(
-          value.formula?.type === 'value' ? value.formula.value : undefined,
-          value.unit,
-        ),
-      ]),
-  )
+) => {
+  if (!customProperties) {
+    return {}
+  }
+  const result: Record<string, any> = {}
+  for (const key in customProperties) {
+    const value = customProperties[key as `--${string}`]!
+    if (value.formula?.type === 'value') {
+      result[key] = appendUnit(value.formula.value, value.unit)
+    }
+  }
+  return result
+}
 const mergeStaticStyle = (
   style: NodeStyleModel | undefined | null,
   customProperties: Record<`--${string}`, CustomProperty> | undefined,
 ): Nullable<NodeStyleModel> => {
+  if (!style && !customProperties) {
+    return undefined
+  }
   const staticStyles = getStaticCustomPropertyStyles(customProperties)
   const merged = { ...staticStyles, ...style }
   return Object.keys(merged).length > 0 ? merged : undefined
@@ -76,10 +80,23 @@ export const getStaticStyleAndVariants = (
     node.variants ??
     (node.style?.variants as unknown as StyleVariant[] | undefined)
 
-  const staticStyle = mergeStaticStyle(node.style, node.customProperties ?? {})
+  if (!node.style && !node.customProperties && !variants) {
+    return [undefined, undefined] as [
+      Nullable<NodeStyleModel>,
+      Nullable<StyleVariant[]>,
+    ]
+  }
+
+  const staticStyle = mergeStaticStyle(
+    node.style,
+    node.customProperties ?? undefined,
+  )
   const mappedVariants = variants?.map((variant) => ({
     ...variant,
-    style: mergeStaticStyle(variant.style, variant.customProperties ?? {}),
+    style: mergeStaticStyle(
+      variant.style,
+      variant.customProperties ?? undefined,
+    ),
   }))
 
   return [

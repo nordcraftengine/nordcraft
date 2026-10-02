@@ -348,6 +348,30 @@ export function formatPercent(value: number) {
     : 'n/a'
 }
 
+export function averageFinite(values: readonly number[]): number {
+  const finite = values.filter((value) => Number.isFinite(value))
+  if (finite.length === 0) return Number.NaN
+  return finite.reduce((sum, value) => sum + value, 0) / finite.length
+}
+
+export function isWithinErrorMargin(
+  averageDeltaPercent: number,
+  noiseThresholdPercent: number,
+): boolean {
+  if (!Number.isFinite(averageDeltaPercent)) return false
+  if (!Number.isFinite(noiseThresholdPercent)) return false
+  return Math.abs(averageDeltaPercent) <= noiseThresholdPercent
+}
+
+export interface BenchmarkAverageSummary {
+  scenarioCount: number
+  averageTimeDeltaPercent: number
+  averageHeapDeltaPercent?: number
+  noiseThresholdPercent: number
+  timeWithinErrorMargin: boolean
+  heapWithinErrorMargin?: boolean
+}
+
 export interface TimeVerdictInput {
   isByteIdentical: boolean
   isAATest?: boolean
