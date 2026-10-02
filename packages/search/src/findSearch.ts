@@ -1,5 +1,6 @@
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { createFieldSearchRule } from './rules/search/fieldSearchRule'
+import { querySearchRules } from './rules/search/searchRegistry'
 import { searchProject } from './searchProject'
 import type {
   SearchArgs,
@@ -42,20 +43,29 @@ export async function findSearch(
   }
 
   const rules: SearchRule[] = []
-  rules.push(
-    createFieldSearchRule({
-      query,
-      withDetails: options.withDetails ?? true,
-      skippedFields:
-        (query.startsWith('<') && query.includes('>')) ||
-        (query.startsWith('"') && query.endsWith('"'))
-          ? {}
-          : {
-              // Random generated ids are disabled for non-programmatic or exact matching
-              'component-node': ['children'],
-            },
-    }),
-  )
+  for (const registeredRule of querySearchRules) {
+    if (registeredRule.shouldRun(query)) {
+      rules.push(registeredRule.create(query))
+    }
+  }
+
+  // If no rules matched the query, we default to a field search rule
+  if (rules.length === 0) {
+    rules.push(
+      createFieldSearchRule({
+        query,
+        withDetails: options.withDetails ?? true,
+        skippedFields:
+          (query.startsWith('<') && query.includes('>')) ||
+          (query.startsWith('"') && query.endsWith('"'))
+            ? {}
+            : {
+                // Random generated ids are disabled
+                'component-node': ['children'],
+              },
+      }),
+    )
+  }
 
   let batch: SearchResult[] = []
   let fileType: string | number | undefined
