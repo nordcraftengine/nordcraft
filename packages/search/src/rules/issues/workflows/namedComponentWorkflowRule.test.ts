@@ -136,4 +136,103 @@ describe('namedComponentWorkflowRule', () => {
       ?.actions?.[0] as WorkflowActionModel
     expect(consumerAction.workflow).toBe('newName')
   })
+
+  test('fix keeps workflow and removes name property when key is the same as name', () => {
+    const sameKeyWorkflow = {
+      name: 'sameKey',
+      actions: [
+        {
+          type: 'TriggerWorkflow',
+          workflow: 'sameKey',
+        },
+      ],
+      parameters: [],
+      callbacks: [],
+    }
+
+    const sameKeyFiles: ProjectFiles = {
+      components: {
+        MyComponent: {
+          name: 'MyComponent',
+          nodes: {},
+          workflows: {
+            sameKey: sameKeyWorkflow as any,
+          },
+        },
+        Consumer: {
+          name: 'Consumer',
+          contexts: {
+            MyComponent: {
+              formulas: [],
+              workflows: ['sameKey'],
+            },
+          },
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'button',
+              events: {
+                click: {
+                  actions: [
+                    {
+                      type: 'TriggerWorkflow',
+                      contextProvider: 'MyComponent',
+                      workflow: 'sameKey',
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const problems = Array.from(
+      searchProject({
+        files: sameKeyFiles,
+        rules: [namedComponentWorkflowRule],
+      }),
+    )
+    const issue = problems[0] as IssueResult
+
+    const updatedFiles = renameNamedComponentWorkflowFix({
+      data: {
+        nodeType: 'component-workflow',
+        path: issue.path,
+        files: sameKeyFiles,
+        value: sameKeyWorkflow as any,
+        component: new ToddleComponent<Function>({
+          component: sameKeyFiles.components.MyComponent!,
+          getComponent: (name) => sameKeyFiles.components[name],
+          packageName: undefined,
+          globalFormulas: {
+            formulas: {},
+            packages: {},
+          },
+        }),
+        memo: () => ({}) as any,
+      },
+      details: issue.details,
+    })
+
+    expect(updatedFiles).toBeDefined()
+    const myComp = updatedFiles!.components.MyComponent!
+    // Workflow is kept
+    expect(myComp.workflows?.sameKey).toBeDefined()
+    // Name removed
+    expect(myComp.workflows?.sameKey?.name).toBeUndefined()
+
+    // Internal reference preserved / updated
+    const internalAction = myComp.workflows?.sameKey
+      ?.actions[0] as WorkflowActionModel
+    expect(internalAction.workflow).toBe('sameKey')
+
+    // Context consumer preserved / updated
+    const consumer = updatedFiles!.components.Consumer as Component
+    expect(consumer.contexts?.MyComponent.workflows).toContain('sameKey')
+    const consumerAction = consumer.nodes?.root?.events?.click
+      ?.actions?.[0] as WorkflowActionModel
+    expect(consumerAction.workflow).toBe('sameKey')
+  })
 })

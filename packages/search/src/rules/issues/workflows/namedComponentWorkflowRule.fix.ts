@@ -24,9 +24,13 @@ export const renameNamedComponentWorkflowFix: FixFunction<
 
   // 1. Update the workflow key and remove the name property
   const workflow = component.workflows[oldKey]
-  if (workflow) {
+  if (!workflow) {
+    return
+  }
+  delete workflow.name
+
+  if (String(oldKey) !== newKey) {
     component.workflows[newKey] = { ...workflow }
-    delete component.workflows[newKey].name
     delete component.workflows[oldKey]
   }
 
