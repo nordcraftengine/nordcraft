@@ -39,7 +39,8 @@ export function findNearestLine(
       if (
         line.slotName === nearestLine.slotName &&
         parentDataId === nearesLineParentDataId &&
-        line.index === nearestLine.index
+        line.index === nearestLine.index &&
+        line.direction === nearestLine.direction
       ) {
         return line
       }
