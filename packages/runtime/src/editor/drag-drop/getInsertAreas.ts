@@ -71,11 +71,25 @@ export function getInsertAreas() {
       console.warn(`Is not possible to insert in a text element`)
       return
     }
+
+    // We don't allow inserting another root element
+    if (
+      id === '0' &&
+      element.hasChildNodes() &&
+      element.parentElement?.id === 'App'
+    ) {
+      // eslint-disable-next-line no-console
+      console.warn(`Is not possible to another root element`)
+      return
+    }
+
     const rect = element.getBoundingClientRect()
     const parent = element.parentElement
     if (!parent) {
       return
     }
+
+    const defaultSlotContent = element.hasAttribute('data-node-slot-name')
 
     const slotName =
       element.getAttribute('data-node-slot-name') ??
@@ -83,7 +97,7 @@ export function getInsertAreas() {
 
     const isVoid = isVoidElement(element)
 
-    if (!isVoid && !element.hasChildNodes()) {
+    if (!isVoid && !element.hasChildNodes() && !defaultSlotContent) {
       insertAreas.push({
         layout: 'block',
         parent: element,
@@ -113,7 +127,6 @@ export function getInsertAreas() {
         .at(-1),
     )
 
-    const defaultSlotContent = element.hasAttribute('data-node-slot-name')
     if (defaultSlotContent && index > 0) {
       return
     }
