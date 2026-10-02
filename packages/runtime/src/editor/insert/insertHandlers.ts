@@ -11,7 +11,8 @@ export const handleInsertStarted = (
   highlightedNodeId: string | null,
   elementType: CanvasElementType,
 ): DragInsertState | null => {
-  const highlightedElement = getDOMNodeFromNodeId(highlightedNodeId)
+  const highlightedElement =
+    getDOMNodeFromNodeId(highlightedNodeId) ?? document.getElementById('App')
   if (!highlightedElement?.parentElement) {
     return null
   }
@@ -73,7 +74,8 @@ export const handleInsertEnded = async (
     postMessageToEditor({
       type: 'insertNode',
       parent: selectedPermutation.parent.getAttribute('data-id'),
-      index: selectedPermutation.indexSlot,
+      index: selectedPermutation.index,
+      slot: selectedPermutation.slot,
     })
     return null
   } else {

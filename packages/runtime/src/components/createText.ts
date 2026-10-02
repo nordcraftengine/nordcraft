@@ -3,6 +3,7 @@ import type {
   SupportedNamespaces,
   TextNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
+
 import {
   DATA_ATTR_COMPONENT,
   DATA_ATTR_ID,
@@ -11,6 +12,7 @@ import {
   DATA_NODE_TYPE_TEXT,
 } from '@nordcraft/core/dist/const'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 
@@ -44,6 +46,29 @@ export function createText({
 
   const { value } = node
   const elem = document.createElement('span')
+
+  // This is editor only logic and we should move out of the runtime bundle when possible
+  if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
+    let slotName: string | undefined | null
+
+    for (const node of Object.values(ctx.component.nodes)) {
+      if (node?.type !== 'slot') continue
+
+      if (node.children?.includes(id)) {
+        slotName = node?.name ?? 'default'
+      }
+
+      if (slotName) break
+    }
+
+    if (slotName) {
+      elem.setAttribute('data-node-slot-name', slotName)
+    }
+  }
+  if (ctx.isRootComponent) {
+    elem.setAttribute('data-is-root-component', 'true')
+  }
+
   elem.setAttribute(DATA_ATTR_NODE_ID, id)
   if (typeof id === 'string') {
     elem.setAttribute(DATA_ATTR_ID, path)

@@ -177,11 +177,13 @@ export type EditorPostMessageType =
       copy: boolean
       parent?: string | null
       index?: number
+      slot?: string
     }
   | {
       type: 'insertNode'
       parent?: string | null
       index?: number
+      slot?: string
     }
   | {
       type: 'computedStyle'
@@ -298,14 +300,23 @@ export type InsertArea = {
   layout: 'block' | 'inline'
   parent: Element
   indexAll: number
-  indexSlot: number
+  index: number
+  slot?: string
   center: Point
   size: number
   direction: 1 | -1
 }
 
 export type Point = { x: number; y: number }
-export type Line = { x1: number; y1: number; x2: number; y2: number }
+export type Line = {
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  slotName: string | null
+  parent: Element
+  index: number
+}
 
 /**
  * Styles required for rendering the same exact text again somewhere else (on a overlay rect in the editor)

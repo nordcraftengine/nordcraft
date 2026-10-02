@@ -73,10 +73,40 @@ export function createElement({
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
 
+  // This is editor only logic and we should move out of the runtime bundle when possible
+  if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
+    let slotName: string | undefined | null
+    let hasSlotElements = false
+
+    for (const node of Object.values(ctx.component.nodes)) {
+      if (node?.type !== 'slot') continue
+
+      hasSlotElements = true
+
+      if (node.children?.includes(id)) {
+        slotName = node?.name ?? 'default'
+      }
+
+      if (slotName) break
+    }
+
+    if (isDefined(slotName)) {
+      elem.setAttribute('data-node-slot-name', slotName)
+    }
+
+    if (hasSlotElements && id === 'root') {
+      elem.setAttribute('data-has-slots-elements', 'true')
+    }
+  }
+  if (ctx.isRootComponent) {
+    elem.setAttribute('data-is-root-component', 'true')
+  }
+
   elem.setAttribute(DATA_ATTR_NODE_ID, id)
   if (path) {
     elem.setAttribute(DATA_ATTR_ID, path)
   }
+
   if (ctx.isRootComponent === false && id !== 'root') {
     elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
   }

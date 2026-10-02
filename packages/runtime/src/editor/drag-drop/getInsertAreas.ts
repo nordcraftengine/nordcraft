@@ -10,99 +10,142 @@ import type { InsertArea } from '../types'
  * - If the next sibling of an element follows the expected layout (not wrapped) a line is drawn between the two (taking gap/margin into consideration),
  * - If the next sibling is wrapped, a line is drawn both after and before the next element. Both lines inserts the dragged element at the same index.
  */
+
 export function getInsertAreas() {
   const insertAreas: Array<InsertArea> = []
-  Array.from(
+
+  const elementIds = Array.from(
     document.querySelectorAll(
-      '[data-id]:not([data-component]):is(:has(> :not([data-component])), [data-node-type])',
+      '[data-id]:is(:not([data-component]), [data-component][data-node-slot-name])',
     ),
   )
     .filter(
       (e) =>
         e.getAttribute('data-id')?.includes(')') === false &&
-        e.closest('[data-component]') === null,
+        e.parentElement?.closest('[data-component]') === null &&
+        e.parentElement?.closest(
+          '[data-node-id="root"]:not([data-has-slots-elements]):not([data-is-root-component])',
+        ) === null,
     )
     .map((e) => e.getAttribute('data-id'))
-    .forEach((id) => {
-      const element = getDOMNodeFromNodeId(id)
-      if (!element) {
+
+  const elementApp = document.getElementById('App')
+  if (!elementApp) {
+    // eslint-disable-next-line no-console
+    console.warn(`Element with id "App" not found`)
+  } else if (elementApp.children.length === 0) {
+    // This means we have an empty page or component
+    const rect = elementApp.getBoundingClientRect()
+
+    insertAreas.push({
+      layout: 'block',
+      parent: elementApp,
+      indexAll: 0,
+      index: 0,
+      center: {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      },
+      size: rect.width,
+      direction: 1,
+    })
+  }
+
+  elementIds.forEach((id) => {
+    const element = getDOMNodeFromNodeId(id, true, true)
+
+    if (!element) {
+      // eslint-disable-next-line no-console
+      console.warn(`Element with path ${id} not found`)
+      return
+    }
+
+    if (id === '0' && element.parentElement?.id === 'App') {
+      // If the only element in a component/page is Text
+      // we should not allow insert of another elements
+      if (element.getAttribute('data-node-type') === 'text') {
         // eslint-disable-next-line no-console
-        console.warn(`Element with path ${id} not found`)
+        console.warn(`Is not possible to insert in a text element`)
         return
       }
 
-      const rect = element.getBoundingClientRect()
-      const parent = element.parentElement
-      if (!parent) {
+      // We don't allow inserting another root element
+      if (element.hasChildNodes()) {
+        // eslint-disable-next-line no-console
+        console.warn(`Is not possible to another root element`)
         return
       }
+    }
 
-      const isVoid = isVoidElement(element)
+    const rect = element.getBoundingClientRect()
+    const parent = element.parentElement
+    if (!parent) {
+      return
+    }
 
-      if (!isVoid && !element.hasChildNodes()) {
-        insertAreas.push({
-          layout: 'block',
-          parent: element,
-          indexAll: 0,
-          indexSlot: 0,
-          center: {
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2,
-          },
-          size: rect.width,
-          direction: 1,
-        })
-      }
+    const defaultSlotContent = element.hasAttribute('data-node-slot-name')
 
-      const siblingsSlot = Array.from(parent.children).filter(
-        (c) =>
-          c.hasAttribute('data-node-id') &&
-          c.getAttribute('data-node-id')?.endsWith(')') === false &&
-          !c.hasAttribute('data-component'),
-      )
+    const slotName =
+      element.getAttribute('data-node-slot-name') ??
+      id?.match(/\[([^\]]*)\]/)?.[1]
 
-      const siblingsAll = Array.from(parent.children).filter(
-        (c) =>
-          c.hasAttribute('data-node-id') &&
-          c.getAttribute('data-node-id')?.endsWith(')') === false,
-      )
-      const indexAll = siblingsAll.indexOf(element)
+    const isVoid = isVoidElement(element)
 
-      const indexSlot = siblingsSlot.indexOf(element)
-      const nextRect = siblingsAll[indexAll + 1]?.getBoundingClientRect()
-      const prevRect = siblingsAll[indexAll - 1]?.getBoundingClientRect()
-      const isBlockLayout =
-        siblingsAll.length > 1 &&
-        siblingsAll
-          .map((c) => c.getBoundingClientRect())
-          .every(
-            (r, i, rects) =>
-              i === 0 ||
-              r.width + r.height === 0 ||
-              rects[i - 1].bottom <= r.top,
-          )
-      if (isBlockLayout) {
-        if (prevRect) {
-          if (prevRect.bottom <= rect.top) {
-            insertAreas.push({
-              layout: 'block',
-              parent,
-              indexAll,
-              indexSlot,
-              center: {
-                x: rect.left + rect.width / 2,
-                y: rect.top,
-              },
-              size: rect.width,
-              direction: -1,
-            })
-          }
-        } else if (siblingsAll.length > 0) {
+    if (!isVoid && !element.hasChildNodes() && !defaultSlotContent) {
+      insertAreas.push({
+        layout: 'block',
+        parent: element,
+        indexAll: 0,
+        index: 0,
+        slot: slotName,
+        center: {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        },
+        size: rect.width,
+        direction: 1,
+      })
+    }
+
+    const siblingsAll = Array.from(parent.children).filter(
+      (c) =>
+        c.hasAttribute('data-node-id') &&
+        c.getAttribute('data-node-id')?.endsWith(')') === false,
+    )
+
+    // It looks like this way of getting the index works fine
+    const index = Number(
+      id
+        ?.replace(/\[[^\]]*\]|\{[^}]*\}/g, '')
+        .split('.')
+        .at(-1),
+    )
+
+    if (defaultSlotContent && index > 0) {
+      return
+    }
+
+    const indexAll = siblingsAll.indexOf(element)
+
+    const nextRect = siblingsAll[indexAll + 1]?.getBoundingClientRect()
+    const prevRect = siblingsAll[indexAll - 1]?.getBoundingClientRect()
+    const isBlockLayout =
+      siblingsAll.length > 1 &&
+      siblingsAll
+        .map((c) => c.getBoundingClientRect())
+        .every(
+          (r, i, rects) =>
+            i === 0 || r.width + r.height === 0 || rects[i - 1].bottom <= r.top,
+        )
+    if (isBlockLayout) {
+      if (prevRect) {
+        if (prevRect.bottom <= rect.top) {
           insertAreas.push({
             layout: 'block',
             parent,
             indexAll,
-            indexSlot,
+            index,
+            slot: slotName,
             center: {
               x: rect.left + rect.width / 2,
               y: rect.top,
@@ -111,14 +154,32 @@ export function getInsertAreas() {
             direction: -1,
           })
         }
+      } else if (siblingsAll.length > 0) {
+        insertAreas.push({
+          layout: 'block',
+          parent,
+          indexAll,
+          index,
+          slot: slotName,
+          center: {
+            x: rect.left + rect.width / 2,
+            y: rect.top,
+          },
+          size: rect.width,
+          direction: -1,
+        })
+      }
 
+      // If it's the first element in the slot we don't want to show the line after the element
+      if (!defaultSlotContent || index !== 0) {
         if (nextRect) {
           if (nextRect.top > rect.bottom) {
             insertAreas.push({
               layout: 'block',
               parent,
               indexAll: indexAll + 1,
-              indexSlot: indexSlot + 1,
+              index: index + 1,
+              slot: slotName,
               center: {
                 x: rect.left + rect.width / 2,
                 y: (rect.bottom + nextRect.top) / 2,
@@ -131,7 +192,8 @@ export function getInsertAreas() {
               layout: 'block',
               parent,
               indexAll: indexAll + 1,
-              indexSlot: indexSlot + 1,
+              index: index + 1,
+              slot: slotName,
               center: {
                 x: rect.left + rect.width / 2,
                 y: rect.bottom,
@@ -145,7 +207,8 @@ export function getInsertAreas() {
             layout: 'block',
             parent,
             indexAll: indexAll + 1,
-            indexSlot: indexSlot + 1,
+            index: index + 1,
+            slot: slotName,
             center: {
               x: rect.left + rect.width / 2,
               y: rect.bottom,
@@ -154,28 +217,16 @@ export function getInsertAreas() {
             direction: 1,
           })
         }
-      } else {
-        if (prevRect) {
-          if (prevRect.right >= rect.left) {
-            insertAreas.push({
-              layout: 'inline',
-              parent,
-              indexAll,
-              indexSlot,
-              center: {
-                x: rect.left,
-                y: rect.top + rect.height / 2,
-              },
-              size: rect.height,
-              direction: -1,
-            })
-          }
-        } else if (siblingsAll.length > 0) {
+      }
+    } else {
+      if (prevRect) {
+        if (prevRect.right <= rect.left) {
           insertAreas.push({
             layout: 'inline',
             parent,
             indexAll,
-            indexSlot,
+            index,
+            slot: slotName,
             center: {
               x: rect.left,
               y: rect.top + rect.height / 2,
@@ -184,14 +235,31 @@ export function getInsertAreas() {
             direction: -1,
           })
         }
-
+      } else if (siblingsAll.length > 0) {
+        insertAreas.push({
+          layout: 'inline',
+          parent,
+          indexAll,
+          index,
+          slot: slotName,
+          center: {
+            x: rect.left,
+            y: rect.top + rect.height / 2,
+          },
+          size: rect.height,
+          direction: -1,
+        })
+      }
+      // If it's the first element in the slot we don't want to show the line after the element
+      if (!defaultSlotContent || index !== 0) {
         if (nextRect) {
           if (nextRect.left > rect.right) {
             insertAreas.push({
               layout: 'inline',
               parent,
               indexAll: indexAll + 1,
-              indexSlot: indexSlot + 1,
+              index: index + 1,
+              slot: slotName,
               center: {
                 x: (rect.right + nextRect.left) / 2,
                 y: nextRect.top + nextRect.height / 2,
@@ -204,7 +272,8 @@ export function getInsertAreas() {
               layout: 'inline',
               parent,
               indexAll: indexAll + 1,
-              indexSlot: indexSlot + 1,
+              index: index + 1,
+              slot: slotName,
               center: {
                 x: rect.right,
                 y: rect.top + rect.height / 2,
@@ -218,7 +287,8 @@ export function getInsertAreas() {
             layout: 'inline',
             parent,
             indexAll: indexAll + 1,
-            indexSlot: indexSlot + 1,
+            index: index + 1,
+            slot: slotName,
             center: {
               x: rect.right,
               y: rect.top + rect.height / 2,
@@ -228,7 +298,8 @@ export function getInsertAreas() {
           })
         }
       }
-    })
+    }
+  })
 
   return offsetDropLines(insertAreas)
 }
