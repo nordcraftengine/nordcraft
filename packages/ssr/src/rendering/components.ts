@@ -497,10 +497,7 @@ const renderComponent = async ({
             ) => {
               const currentSuffix = options?.slotSuffix ?? ''
               let basePath = `${path}.${i}[${slotName}]`
-              if (
-                options?.slotPath &&
-                options.slotPath.length > basePath.length
-              ) {
+              if (options?.slotPath?.startsWith(`${basePath}.`)) {
                 basePath = i > 0 ? `${options.slotPath}.${i}` : options.slotPath
               }
               const finalPath =

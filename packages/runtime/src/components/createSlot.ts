@@ -42,7 +42,7 @@ export function createSlot({
       })
 
       let basePath = child.path
-      if (slotPath.length > child.path.length) {
+      if (slotPath.startsWith(`${child.path}.`)) {
         basePath = childIndex > 0 ? `${slotPath}.${childIndex}` : slotPath
       }
 
