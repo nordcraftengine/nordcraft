@@ -1,6 +1,8 @@
 import type { Component, NodeModel } from '@nordcraft/core'
 import { isDefined } from '@nordcraft/core'
 
+const CAN_MOVE = typeof (document.body as any).moveBefore === 'function'
+
 export type NodeWithNodeId = NodeModel & { nodeId: string }
 
 export interface NodeAndAncestorLookup {
@@ -148,7 +150,11 @@ export function ensureEfficientOrdering(
     } else {
       // The item is either not in the DOM or not in the correct position.
       // Insert the item before the insertBeforeElement (or append it if insertBeforeElement is null).
-      parentElement.insertBefore(item, insertBeforeElement)
+      if (CAN_MOVE) {
+        parentElement.moveBefore(item, insertBeforeElement)
+      } else {
+        parentElement.insertBefore(item, insertBeforeElement)
+      }
     }
 
     // Update insertBeforeElement to the current item for the next iteration, as we need to insert subsequent items before this one.
