@@ -89,7 +89,7 @@ export function createText({
       String(applyFormula(value, ctx, data, valuePath)),
     )
     sig.subscribe((value) => {
-      elem.innerText = value
+      elem.textContent = value
     })
   } else {
     if (IS_PREVIEW) {
@@ -99,7 +99,7 @@ export function createText({
         ctx,
       )
     }
-    elem.innerText = String(value.value)
+    elem.textContent = String(value.value)
   }
   return elem
 }
