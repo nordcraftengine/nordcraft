@@ -154,20 +154,6 @@ export function createNode({
           return
         }
 
-        if (!parentElement || ctx.root.contains(parentElement) === false) {
-          console.error(
-            `Conditional: Parent element does not exist for "${path}" This is likely due to the DOM being modified outside of Nordcraft.`,
-          )
-          return
-        }
-
-        if (parentElement.querySelector(`[data-id="${path}"]`)) {
-          console.warn(
-            `Conditional: Element with data-id="${path}" already exists. This is likely due to the DOM being modified outside of Nordcraft`,
-          )
-          return
-        }
-
         const nextPathElement = getNextSiblingElement(path, parentElement)
         const fragment = document.createDocumentFragment()
         for (const element of elements) {
@@ -426,13 +412,6 @@ export function createNode({
         return
       }
 
-      if (!parentElement || ctx.root.contains(parentElement) === false) {
-        console.error(
-          `Repeat: Parent element does not exist for ${path}. This is likely due to the DOM being modified outside of Nordcraft.`,
-        )
-        return
-      }
-
       ensureEfficientOrdering(
         parentElement,
         orderedElements,
@@ -444,10 +423,32 @@ export function createNode({
       updateRepeatList(evaluateRepeatEntries(dataSignal.get()))
       dataSignal.subscriptions.push(destroyRepeatItems)
     } else {
-      const repeatSignal = dataSignal.map(evaluateRepeatEntries)
-      repeatSignal.subscribe(updateRepeatList, {
-        destroy: destroyRepeatItems,
-      })
+      let prevEntries: Array<[string, unknown]> | null = null
+      dataSignal.subscribe(
+        (data) => {
+          const entries = evaluateRepeatEntries(data)
+          const prev = prevEntries
+          if (prev !== null && entries.length === prev.length) {
+            let unchanged = true
+            for (let i = 0; i < entries.length; i++) {
+              const entry = entries[i]!
+              const prevEntry = prev[i]!
+              if (entry[0] !== prevEntry[0] || entry[1] !== prevEntry[1]) {
+                unchanged = false
+                break
+              }
+            }
+            if (unchanged) {
+              return
+            }
+          }
+          prevEntries = entries
+          updateRepeatList(entries)
+        },
+        {
+          destroy: destroyRepeatItems,
+        },
+      )
     }
 
     // We utilize that the signal subscription runs synchronously above,
