@@ -1,55 +1,57 @@
 import type {
   Component,
   ComponentData,
-  ComponentFormula,
   Formula,
   FunctionOperation,
-  Nullable,
 } from '@nordcraft/core'
-import { filterObject, get, isDefined, mapObject } from '@nordcraft/core'
+import { get, isDefined } from '@nordcraft/core'
 import type { FormulaCache } from '../types'
 
 export function createFormulaCache(component: Component): FormulaCache {
   if (!isDefined(component.formulas)) {
     return {}
   }
-  return mapObject(
-    filterObject<Nullable<ComponentFormula>, ComponentFormula>(
-      component.formulas,
-      ([_, f]) => isDefined(f),
-    ),
-    ([name, f]) => {
-      const { canCache, keys } = f.memoize
-        ? getFormulaCacheConfig(f.formula, component)
-        : { canCache: false, keys: [] }
-      let cacheInput: any
-      let cacheData: any
+  const cache: FormulaCache = {}
+  const formulas = component.formulas
+  for (const name in formulas) {
+    const f = formulas[name]
+    if (!isDefined(f)) {
+      continue
+    }
+    const { canCache, keys } = f.memoize
+      ? getFormulaCacheConfig(f.formula, component)
+      : NO_CACHE
+    let cacheInput: any
+    let cacheData: any
 
-      return [
-        name,
-        {
-          get: (data: ComponentData) => {
-            if (
-              canCache &&
-              cacheInput &&
-              keys.every((key) => {
-                return get(data, key) === get(cacheInput, key)
-              })
-            ) {
-              return { hit: true, data: cacheData }
-            }
-            return { hit: false }
-          },
-          set: (data: ComponentData, result: any) => {
-            if (canCache) {
-              cacheInput = data
-              cacheData = result
-            }
-          },
-        },
-      ]
-    },
-  )
+    cache[name] = {
+      get: (data: ComponentData) => {
+        if (
+          canCache &&
+          cacheInput &&
+          keys.every((key) => {
+            return get(data, key) === get(cacheInput, key)
+          })
+        ) {
+          return { hit: true, data: cacheData }
+        }
+        return { hit: false }
+      },
+      set: (data: ComponentData, result: any) => {
+        if (canCache) {
+          cacheInput = data
+          cacheData = result
+        }
+      },
+    }
+  }
+  return cache
+}
+
+// Shared "not cacheable" config: `keys` is only read, never mutated.
+const NO_CACHE: { canCache: false; keys: Array<Array<string | number>> } = {
+  canCache: false,
+  keys: [],
 }
 
 function getFormulaCacheConfig(formula: Formula, component: Component) {

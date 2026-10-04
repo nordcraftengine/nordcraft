@@ -5,10 +5,8 @@ import type {
   ComponentAPI,
   ComponentData,
   ComponentFormula,
-  ComponentVariable,
   FormulaHandler,
   FormulaHandlerV2,
-  Nullable,
   PluginActionV2,
   PluginFormula,
   Toddle,
@@ -16,10 +14,8 @@ import type {
 } from '@nordcraft/core'
 import {
   applyFormula,
-  filterObject,
   isDefined,
   isLegacyApi,
-  mapObject,
   THEME_DATA_ATTRIBUTE,
   VOID_HTML_ELEMENTS,
 } from '@nordcraft/core'
@@ -32,11 +28,6 @@ import { isContextApiV2 } from './api/apiUtils'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
 import { sortApis } from './api/sortApis'
-import {
-  createHydrationState,
-  reconcileHydratedChildren,
-  sweepUnhydratedNodes,
-} from './components/hydration'
 import { getDynamicMetaEntries } from './components/meta'
 import { renderComponent } from './components/renderComponent'
 import { isContextProvider } from './context/isContextProvider'
@@ -174,31 +165,31 @@ export const createRoot = (domNode: HTMLElement) => {
     return { ...query, ...params }
   })
 
-  const dataSignal = signal<ComponentData>({
-    ...window.toddle.pageState,
-    // Re-initialize variables since some of them might rely on client-side
-    // state (e.g. localStorage, sensors etc.)
-    Variables: mapObject(
-      filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-        component.variables ?? {},
-        ([_, variable]) => isDefined(variable),
-      ),
-      ([name, variable]) => [
-        name,
-        applyFormula(
+  const rootFormulaCtx = {
+    component,
+    formulaCache: {},
+    root: document,
+    package: undefined,
+    toddle: window.toddle,
+    env,
+  }
+  const rootVariables: Record<string, unknown> = {}
+  const pageVariables = component.variables
+  if (pageVariables) {
+    for (const name in pageVariables) {
+      const variable = pageVariables[name]
+      if (isDefined(variable)) {
+        rootVariables[name] = applyFormula(
           variable.initialValue,
-          {
-            component,
-            formulaCache: {},
-            root: document,
-            package: undefined,
-            toddle: window.toddle,
-            env,
-          },
+          rootFormulaCtx,
           window.toddle.pageState,
-        ),
-      ],
-    ),
+        )
+      }
+    }
+  }
+  const dataSignal = signal<ComponentData>({
+    ...window.__toddle.pageState,
+    Variables: rootVariables,
   })
 
   registerComponentToLogState(component, dataSignal)
@@ -311,8 +302,6 @@ export const createRoot = (domNode: HTMLElement) => {
   // We can only setup meta updates after the dataSignal has been initiated with API data etc.
   setupMetaUpdates(component, dataSignal)
 
-  const hydration =
-    domNode.children.length > 0 ? createHydrationState() : undefined
   const elements = renderComponent({
     ...ctx,
     providers,
@@ -321,19 +310,11 @@ export const createRoot = (domNode: HTMLElement) => {
     onEvent: ctx.triggerEvent,
     parentElement: domNode,
     instance: {},
-    hydration,
   })
-  if (hydration) {
-    // Reconcile adopted and fallback-created root elements in forward order,
-    // then sweep stale SSR leftovers.
-    reconcileHydratedChildren(domNode, elements, hydration)
-    sweepUnhydratedNodes(domNode, hydration)
-  } else {
-    domNode.innerText = ''
-    elements.forEach((elem) => {
-      domNode.appendChild(elem)
-    })
-  }
+  domNode.textContent = ''
+  elements.forEach((elem) => {
+    domNode.appendChild(elem)
+  })
   window.__toddle.isPageLoaded = true
 }
 

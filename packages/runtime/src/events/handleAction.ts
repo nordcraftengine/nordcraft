@@ -350,10 +350,11 @@ export function handleAction(
         )
         const callbacks = action.callbacks
         if (action.contextProvider) {
+          const providerKey = isDefined(ctx.package)
+            ? `${ctx.package}/${action.contextProvider}`
+            : action.contextProvider
           const provider =
-            ctx.providers[
-              [ctx.package, action.contextProvider].filter(isDefined).join('/')
-            ] ?? ctx.providers[action.contextProvider]
+            ctx.providers[providerKey] ?? ctx.providers[action.contextProvider]
           const workflow = provider?.component.workflows?.[action.workflow]
           if (!workflow) {
             if (provider) {

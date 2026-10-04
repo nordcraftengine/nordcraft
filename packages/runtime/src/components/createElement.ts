@@ -26,22 +26,20 @@ import type { ComponentContext } from '../types'
 import { formulaHasValue } from '../utils/formulaHasValue'
 import { getDragData } from '../utils/getDragData'
 import { getElementTagName } from '../utils/getElementTagName'
+import { isStaticFormula } from '../utils/isStaticFormula'
 import { setAttribute } from '../utils/setAttribute'
-import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
+import {
+  subscribeCustomProperty,
+  subscribeStaticCustomProperty,
+} from '../utils/subscribeCustomProperty'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
-import { claimHydratedChild, reconcileHydratedChildren } from './hydration'
 
 // Cache class names by node definition object. Repeat items share the same
 // node reference, so this avoids re-stringifying/hashing identical style
 // objects hundreds of times per list render. WeakMap entries are collected
 // when cloned page components are discarded.
 const classNameByNode = new WeakMap<object, string>()
-
-function parseClassList(val: unknown): string[] | undefined {
-  const classes = toBoolean(val) ? String(val).trim() : ''
-  return classes ? classes.split(/\s+/) : undefined
-}
 
 export function createElement({
   node,
@@ -50,11 +48,9 @@ export function createElement({
   path,
   ctx,
   namespace,
-  parentElement,
   instance,
   slotRepeatIndex,
   slotSuffix,
-  hydration,
 }: NodeRenderer<ElementNodeModel>): Element {
   const tag = getElementTagName(node, ctx, id)
   switch (tag) {
@@ -73,38 +69,10 @@ export function createElement({
     namespace = String(node.attrs['xmlns'].value) as SupportedNamespaces
   }
 
-  const claimed =
-    IS_PAGE && hydration && !hydration.sealed
-      ? (claimHydratedChild(parentElement, path, hydration, tag) as
-          | HTMLElement
-          | SVGElement
-          | MathMLElement
-          | null)
-      : null
-  const elem =
-    claimed ??
-    (namespace
-      ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
-      : document.createElement(tag))
-  if (IS_PAGE && hydration && !hydration.sealed && !claimed) {
-    hydration.adopted.add(elem)
-  }
-  const nodeTag = node.tag.toLocaleLowerCase()
-  if (
-    IS_PAGE &&
-    claimed &&
-    ((namespace && namespace !== 'http://www.w3.org/1999/xhtml') ||
-      nodeTag === 'option')
-  ) {
-    // Raw text inside svg/math or parser-stripped <option> text has no stable
-    // anchors, so remove any SSR text nodes while keeping child elements intact.
-    for (let i = elem.childNodes.length - 1; i >= 0; i--) {
-      const childNode = elem.childNodes[i]!
-      if (childNode.nodeType === Node.TEXT_NODE) {
-        childNode.remove()
-      }
-    }
-  }
+  const elem = namespace
+    ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
+    : document.createElement(tag)
+  const initialClasses: string[] = []
 
   const formulaCtx =
     IS_PREVIEW && (ctx.reportFormulaEvaluation || ctx.jsonPath)
@@ -168,43 +136,49 @@ export function createElement({
       }
     }
   }
-  if (!claimed) {
-    if (ctx.isRootComponent) {
-      elem.setAttribute('data-is-root-component', 'true')
-    }
-    elem.setAttribute(DATA_ATTR_NODE_ID, id)
-    if (path) {
-      elem.setAttribute(DATA_ATTR_ID, path)
-    }
-    if (ctx.isRootComponent === false && id !== 'root') {
-      elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
-    }
+  if (ctx.isRootComponent) {
+    elem.setAttribute('data-is-root-component', 'true')
   }
 
-  if (!claimed) {
-    const cachedClass = classNameByNode.get(node)
-    if (cachedClass !== undefined) {
-      elem.classList.add(cachedClass)
-    } else if (node.style || node.variants?.some((v) => v.style)) {
-      const classHash = getClassName([node.style, node.variants])
-      classNameByNode.set(node, classHash)
-      elem.classList.add(classHash)
-    }
+  elem.setAttribute(DATA_ATTR_NODE_ID, id)
+  if (path) {
+    elem.setAttribute(DATA_ATTR_ID, path)
+  }
+
+  if (ctx.isRootComponent === false && id !== 'root') {
+    elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
+  }
+  // class names are baked during preprocessing, except for in editor-preview where we generate them on the fly
+  // Check the per-node cache first to avoid the `variants.some(...)` closure
+  // + JSON.stringify on every repeat instance (200x per list).
+  const cachedClass = classNameByNode.get(node)
+  if (cachedClass !== undefined) {
+    initialClasses.push(cachedClass)
+  } else if (node.style || node.variants?.some((v) => v.style)) {
+    const classHash = getClassName([node.style, node.variants])
+    classNameByNode.set(node, classHash)
+    initialClasses.push(classHash)
   }
   if (node.classes) {
     for (const className in node.classes) {
       const formula = node.classes[className].formula
       if (formula) {
-        const classSignal = dataSignal.map((data) =>
-          toBoolean(applyFormula(formula, formulaCtx, data)),
-        )
-        classSignal.subscribe((show) =>
-          show
-            ? elem.classList.add(className)
-            : elem.classList.remove(className),
-        )
+        if (isStaticFormula(formula)) {
+          if (toBoolean(formula.value)) {
+            initialClasses.push(className)
+          }
+        } else {
+          const classSignal = dataSignal.map((data) =>
+            toBoolean(applyFormula(formula, formulaCtx, data)),
+          )
+          classSignal.subscribe((show) =>
+            show
+              ? elem.classList.add(className)
+              : elem.classList.remove(className),
+          )
+        }
       } else {
-        elem.classList.add(className)
+        initialClasses.push(className)
       }
     }
   }
@@ -212,51 +186,119 @@ export function createElement({
   let hasDynamicCustomProperties = false
   if (instance && id === 'root') {
     for (const key in instance) {
-      if (!claimed) {
-        elem.classList.add(toValidClassName(`${key}:${instance[key]}`))
-      }
+      const value = instance[key]
+      initialClasses.push(toValidClassName(`${key}:${value}`))
       // TODO: We should forward info on whether the instance has dynamic custom properties, but for now we assume that if the instance has any custom properties, they are dynamic.
       hasDynamicCustomProperties = true
     }
   }
 
-  const customProperties = node.customProperties
-  if (customProperties) {
-    for (const customPropertyName in customProperties) {
-      const { formula, unit } =
-        customProperties[customPropertyName as keyof typeof customProperties]!
-      if (!formulaHasValue(formula)) {
-        continue
-      }
-      hasDynamicCustomProperties = true
-      const cpPath =
+  const attrs = node.attrs ?? {}
+  for (const attr in attrs) {
+    const value = attrs[attr]
+    if (!isDefined(value)) {
+      continue
+    }
+    if (IS_PREVIEW && attr === 'autofocus' && ctx.toddle._preview) {
+      handlePreviewAutofocus({
+        elem,
+        attr,
+        value,
+        dataSignal,
+        id,
+        ctx,
+      })
+      continue
+    }
+    if (value.type === 'value') {
+      setAttribute(elem, attr, value.value)
+    } else {
+      const attrPath =
         IS_PREVIEW && ctx.reportFormulaEvaluation
-          ? ['nodes', id, 'customProperties', customPropertyName, 'formula']
+          ? ['nodes', id, 'attrs', attr]
           : undefined
-      const nodeSelector = getNodeSelector(path)
-      subscribeCustomProperty({
+      const o = dataSignal.map((data) => {
+        const val = applyFormula(value, formulaCtx, data, attrPath)
+        if (IS_PREVIEW && attrPath) {
+          ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
+        }
+        return val
+      })
+      o.subscribe((val) => {
+        setAttribute(elem, attr, val)
+      })
+    }
+  }
+  node['style-variables']?.forEach((styleVariable, i) => {
+    const { name, formula, unit } = styleVariable
+    if (isStaticFormula(formula)) {
+      const staticValue: any = formula.value
+      elem.style.setProperty(
+        `--${name}`,
+        unit ? staticValue + unit : staticValue,
+      )
+      return
+    }
+    const styleVarPath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['nodes', id, 'style-variables', i, 'formula']
+        : undefined
+    const styleSignal = dataSignal.map((data) => {
+      const value = applyFormula(formula, formulaCtx, data, styleVarPath)
+      if (IS_PREVIEW && styleVarPath) {
+        ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
+      }
+      return unit ? value + unit : value
+    })
+
+    styleSignal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
+  })
+
+  const customProperties = node.customProperties ?? {}
+  for (const customPropertyName in customProperties) {
+    const { formula, unit } =
+      customProperties[customPropertyName as keyof typeof customProperties]!
+    if (!formulaHasValue(formula)) {
+      continue
+    }
+    hasDynamicCustomProperties = true
+    const cpPath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['nodes', id, 'customProperties', customPropertyName, 'formula']
+        : undefined
+    const nodeSelector = getNodeSelector(path)
+    if (isStaticFormula(formula)) {
+      subscribeStaticCustomProperty({
         customPropertyName,
         selector:
           IS_CUSTOM_ELEMENT && ctx.isRootComponent && path === '0'
             ? `${nodeSelector}, :host`
             : nodeSelector,
-        signal: dataSignal.map((data) => {
-          const val = applyFormula(formula, formulaCtx, data, cpPath)
-          if (IS_PREVIEW && cpPath) {
-            ctx.reportFormulaEvaluation?.(cpPath, val, ctx)
-          }
-          return appendUnit(val, unit)
-        }),
+        value: appendUnit(formula.value, unit),
         root: ctx.root,
+        dataSignal,
       })
+      continue
     }
+    subscribeCustomProperty({
+      customPropertyName,
+      selector:
+        IS_CUSTOM_ELEMENT && ctx.isRootComponent && path === '0'
+          ? `${nodeSelector}, :host`
+          : nodeSelector,
+      signal: dataSignal.map((data) => {
+        const val = applyFormula(formula, formulaCtx, data, cpPath)
+        if (IS_PREVIEW && cpPath) {
+          ctx.reportFormulaEvaluation?.(cpPath, val, ctx)
+        }
+        return appendUnit(val, unit)
+      }),
+      root: ctx.root,
+    })
   }
 
   node.variants?.forEach((variant, variantIndex) => {
-    const variantCustomProperties = variant.customProperties
-    if (!variantCustomProperties) {
-      return
-    }
+    const variantCustomProperties = variant.customProperties ?? {}
     for (const customPropertyName in variantCustomProperties) {
       const { formula, unit } =
         variantCustomProperties[
@@ -278,11 +320,23 @@ export function createElement({
               'formula',
             ]
           : undefined
+      const variantSelector = getNodeSelector(path, {
+        variant,
+      })
+      if (isStaticFormula(formula)) {
+        subscribeStaticCustomProperty({
+          customPropertyName,
+          selector: variantSelector,
+          value: appendUnit(formula.value, unit),
+          variant,
+          root: ctx.root,
+          dataSignal,
+        })
+        continue
+      }
       subscribeCustomProperty({
         customPropertyName,
-        selector: getNodeSelector(path, {
-          variant,
-        }),
+        selector: variantSelector,
         variant,
         signal: dataSignal.map((data) => {
           const val = applyFormula(formula, formulaCtx, data, variantCpPath)
@@ -296,97 +350,13 @@ export function createElement({
     }
   })
 
-  if (!claimed && path && hasDynamicCustomProperties) {
-    elem.classList.add(getPathClassName(path))
+  if (path && hasDynamicCustomProperties) {
+    initialClasses.push(getPathClassName(path))
   }
 
-  const attrs = node.attrs
-  if (attrs) {
-    for (const attr in attrs) {
-      const value = attrs[attr]
-      if (!isDefined(value)) {
-        continue
-      }
-      if (
-        attr === DATA_ATTR_ID ||
-        attr === DATA_ATTR_NODE_ID ||
-        attr === DATA_ATTR_COMPONENT
-      ) {
-        continue
-      }
-      if (IS_PREVIEW && attr === 'autofocus' && ctx.toddle._preview) {
-        handlePreviewAutofocus({
-          elem,
-          attr,
-          value,
-          dataSignal,
-          id,
-          ctx,
-        })
-        continue
-      }
-      if (value.type === 'value') {
-        if (!claimed || attr === 'value') {
-          if (attr === 'class') {
-            const classes = parseClassList(value.value)
-            if (classes) {
-              elem.classList.add(...classes)
-            }
-          } else {
-            setAttribute(elem, attr, value.value)
-          }
-        }
-      } else {
-        const attrPath =
-          IS_PREVIEW && ctx.reportFormulaEvaluation
-            ? ['nodes', id, 'attrs', attr]
-            : undefined
-        const o = dataSignal.map((data) => {
-          const val = applyFormula(value, formulaCtx, data, attrPath)
-          if (IS_PREVIEW && attrPath) {
-            ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
-          }
-          return val
-        })
-        if (attr === 'class') {
-          // Track and update only the classes coming from `attrs.class` via
-          // classList so we don't overwrite or remove built-in classes (style
-          // hashes, node.classes, instance classes, and custom property path classes).
-          let prevClasses: string[] | undefined
-          o.subscribe((val) => {
-            if (prevClasses) {
-              elem.classList.remove(...prevClasses)
-            }
-            prevClasses = parseClassList(val)
-            if (prevClasses) {
-              elem.classList.add(...prevClasses)
-            }
-          })
-        } else {
-          o.subscribe((val) => {
-            setAttribute(elem, attr, val)
-          })
-        }
-      }
-    }
+  if (initialClasses.length > 0) {
+    elem.classList.add(...initialClasses)
   }
-
-  node['style-variables']?.forEach((styleVariable, i) => {
-    const { name, formula, unit } = styleVariable
-    const styleVarPath =
-      IS_PREVIEW && ctx.reportFormulaEvaluation
-        ? ['nodes', id, 'style-variables', i, 'formula']
-        : undefined
-    const signal = dataSignal.map((data) => {
-      const value = applyFormula(formula, formulaCtx, data, styleVarPath)
-      if (IS_PREVIEW && styleVarPath) {
-        ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
-      }
-      return unit ? value + unit : value
-    })
-
-    signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
-  })
 
   for (const key in node.events) {
     const event = node.events[key]
@@ -403,6 +373,7 @@ export function createElement({
 
   // for script, style & SVG<text> tags we only render text child.
   // this can be removed once we fix the editor to handle raw text nodes without wrapping <span>
+  const nodeTag = node.tag.toLocaleLowerCase()
   if (nodeTag === 'script' || nodeTag === 'style') {
     const textValues: Array<Signal<string> | string> = []
     ;(node.children ?? [])
@@ -436,16 +407,15 @@ export function createElement({
             .join('')
         })
       })
-  } else if (node.children?.length) {
+  } else {
     const childNodes: (Element | Text)[] = []
-    const children = node.children
+    const children = node.children ?? []
     for (let i = 0; i < children.length; i++) {
       const child = children[i]!
-      const childPath = path + '.' + i
       const nodes = createNode({
         parentElement: elem,
         id: child,
-        path: childPath,
+        path: path + '.' + i,
         dataSignal,
         ctx:
           IS_PREVIEW && ctx.reportFormulaEvaluation
@@ -455,19 +425,12 @@ export function createElement({
         instance,
         slotRepeatIndex,
         slotSuffix,
-        hydration,
       })
       for (let j = 0; j < nodes.length; j++) {
         childNodes.push(nodes[j]!)
       }
     }
-    if (!IS_PAGE || !claimed || elem.childNodes.length === 0) {
-      for (let i = 0; i < childNodes.length; i++) {
-        elem.appendChild(childNodes[i]!)
-      }
-    } else {
-      reconcileHydratedChildren(elem, childNodes, hydration!)
-    }
+    elem.append(...childNodes)
   }
   dataSignal.subscriptions.push(() => {
     // TODO: Clean up event listeners, but after destruction of child signals (Maybe we need a "afterDestroy" hook on signals?)

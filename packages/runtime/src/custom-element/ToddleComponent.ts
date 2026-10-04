@@ -31,8 +31,7 @@ import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentContext, LocationSignal } from '../types'
 import { getThemeSignal } from '../utils/getThemeSignal'
-
-const stylesheetCache = new WeakMap<Component, string>()
+import { isStaticFormula } from '../utils/isStaticFormula'
 
 /**
  * Base class for all toddle components
@@ -51,7 +50,6 @@ export class ToddleComponent extends HTMLElement {
   // (which receives lowercased names from observedAttributes) can look them up in the
   // component's attributes without scanning the whole object on every change.
   #attributeNames: Map<string, string>
-  #isSettingAttribute = false
 
   constructor(
     component: Component,
@@ -122,41 +120,6 @@ export class ToddleComponent extends HTMLElement {
   }
 
   connectedCallback() {
-    this.#ctx.stores.theme.subscribe((newTheme) => {
-      if (this.#signal.get().Page?.Theme !== newTheme) {
-        this.#signal.update(
-          (data) => ({
-            ...data,
-            Page: {
-              ...(data.Page ?? {}),
-              Theme: newTheme,
-            },
-          }),
-          { force: true },
-        )
-      }
-      if (isDefined(newTheme)) {
-        this.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
-      } else {
-        this.removeAttribute(THEME_DATA_ATTRIBUTE)
-      }
-    })
-
-    // Re-evaluate variable initial values now that initial DOM attributes and theme are populated
-    this.#signal.update((data) => ({
-      ...data,
-      Variables: mapObject(
-        filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-          this.#component.variables ?? {},
-          ([_, variable]) => isDefined(variable),
-        ),
-        ([name, { initialValue }]) => [
-          name,
-          applyFormula(initialValue, this.#ctx, data),
-        ],
-      ),
-    }))
-
     sortApis(
       Object.entries(this.#component.apis ?? {}).filter(
         (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
@@ -177,11 +140,14 @@ export class ToddleComponent extends HTMLElement {
         })
       }
     })
-    Object.values(this.#ctx.apis)
-      .filter(isContextApiV2)
-      .forEach((api) => {
+    // Plain loop: `Object.values(...).filter(...)` allocated two arrays per
+    // custom element even when there are no APIs at all.
+    for (const name in this.#ctx.apis) {
+      const api = this.#ctx.apis[name]
+      if (api && isContextApiV2(api)) {
         api.triggerActions(this.#signal.get())
-      })
+      }
+    }
 
     let providers = this.#ctx.providers
     if (isContextProvider(this.#component)) {
@@ -189,17 +155,28 @@ export class ToddleComponent extends HTMLElement {
       const formulaDataSignals = Object.fromEntries(
         Object.entries(this.#component.formulas ?? {})
           .filter(([, formula]) => formula?.exposeInContext)
-          .map(([name, formula]) => [
-            name,
-            this.#signal.map((data) =>
-              applyFormula(
-                (formula as ComponentFormula).formula,
-                this.#ctx,
-                data,
-                IS_PREVIEW ? ['formulas', name] : undefined,
+          .map(([name, formula]) => {
+            const exposed = (formula as ComponentFormula).formula
+            // Static exposed formula: evaluate once into a detached signal
+            // (see createComponent).
+            if (isStaticFormula(exposed)) {
+              return [
+                name,
+                signal(applyFormula(exposed, this.#ctx, this.#signal.get())),
+              ]
+            }
+            return [
+              name,
+              this.#signal.map((data) =>
+                applyFormula(
+                  exposed,
+                  this.#ctx,
+                  data,
+                  IS_PREVIEW ? ['formulas', name] : undefined,
+                ),
               ),
-            ),
-          ]),
+            ]
+          }),
       )
 
       providers = {
@@ -213,6 +190,26 @@ export class ToddleComponent extends HTMLElement {
     }
 
     this.#ctx.providers = providers
+
+    this.#ctx.stores.theme.subscribe((newTheme) => {
+      if (this.#signal.get().Page?.Theme !== newTheme) {
+        this.#signal.update(
+          (data) => ({
+            ...data,
+            Page: {
+              ...(data.Page ?? {}),
+              Theme: newTheme,
+            },
+          }),
+          { force: true },
+        )
+      }
+      if (isDefined(newTheme)) {
+        this.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
+      } else {
+        this.removeAttribute(THEME_DATA_ATTRIBUTE)
+      }
+    })
     this.render()
   }
 
@@ -240,18 +237,14 @@ export class ToddleComponent extends HTMLElement {
     })
 
     this.#shadowRoot.innerHTML = ''
-    let styles = stylesheetCache.get(this.#ctx.component)
-    if (styles === undefined) {
-      styles = createStylesheet(
-        this.#ctx.component,
-        this.#ctx.components,
-        Object.entries(this.#files.themes ?? {}).length > 0
-          ? this.#files.themes
-          : { defaultTheme },
-        { includeResetStyle: true, createFontFaces: false },
-      )
-      stylesheetCache.set(this.#ctx.component, styles)
-    }
+    const styles = createStylesheet(
+      this.#ctx.component,
+      this.#ctx.components,
+      Object.entries(this.#files.themes ?? {}).length > 0
+        ? this.#files.themes
+        : { defaultTheme },
+      { includeResetStyle: true, createFontFaces: false },
+    )
     const stylesElem = document.createElement('style')
     stylesElem.appendChild(document.createTextNode(styles))
     this.#shadowRoot.appendChild(stylesElem)
@@ -263,35 +256,27 @@ export class ToddleComponent extends HTMLElement {
 
   // Overload the setAttribute method to allow setting complex attributes
   setAttribute(name: string, value: unknown) {
-    if (typeof value === 'string') {
-      super.setAttribute(name, value)
-      // Return early, as signal is updated through attributeChangedCallback on string values
-      return this
+    switch (typeof value) {
+      case 'number':
+        super.setAttribute(name, String(value))
+        break
+      case 'string':
+        super.setAttribute(name, value)
+        // Return early, as signal is updated through attributeChangedCallback on string values
+        return this
+      default:
+        super.setAttribute(name, `[Object ${typeof value}]`)
+        break
     }
-
-    this.#isSettingAttribute = true
-    try {
-      super.setAttribute(
-        name,
-        typeof value === 'number' ? String(value) : `[Object ${typeof value}]`,
-      )
-    } finally {
-      this.#isSettingAttribute = false
-    }
-
-    const attributeName = this.#attributeNames.get(name.toLowerCase()) ?? name
 
     // Update the signal with complex value
-    if (
-      fastDeepEqual(this.#signal.get().Attributes?.[attributeName], value) ===
-      false
-    ) {
+    if (fastDeepEqual(this.#signal.get().Attributes?.[name], value) === false) {
       this.#signal.set(
         {
           ...this.#signal.get(),
           Attributes: {
             ...this.#signal.get().Attributes,
-            [attributeName]: value,
+            [name]: value,
           },
         },
         { force: true },
@@ -303,18 +288,23 @@ export class ToddleComponent extends HTMLElement {
 
   // Overload the getAttribute method to point to source of truth (the signal)
   getAttribute<T>(name: string) {
-    const attributeName = this.#attributeNames.get(name.toLowerCase()) ?? name
     return (
-      (this.#signal.get().Attributes?.[attributeName] as T) ??
-      super.getAttribute(name)
+      (this.#signal.get().Attributes?.[name] as T) || super.getAttribute(name)
     )
   }
 
   attributeChangedCallback(name: string, oldValue: never, newValue: string) {
-    if (this.#isSettingAttribute) {
+    const attributeName = this.getAttributeCaseInsensitive(name)
+    const currentRawValue = this.getAttribute(attributeName)
+    // Is this is a complex value that has already been set by `setAttribute`
+    if (newValue === '[Object object]') {
       return
     }
-    const attributeName = this.getAttributeCaseInsensitive(name)
+
+    //Has this just been set by `setAttribute` as a number
+    if (parseFloat(newValue) === currentRawValue) {
+      return
+    }
 
     if (
       fastDeepEqual(
