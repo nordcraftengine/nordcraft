@@ -5,7 +5,6 @@ import type {
   Component,
   ComponentData,
   ComponentFormula,
-  ComponentVariable,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
@@ -16,11 +15,9 @@ import type {
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
-  Nullable,
   PluginActionV2,
   Toddle,
 } from '@nordcraft/core/dist/types'
-import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
@@ -168,31 +165,31 @@ export const createRoot = (domNode: HTMLElement) => {
     return { ...query, ...params }
   })
 
-  const dataSignal = signal<ComponentData>({
-    ...window.toddle.pageState,
-    // Re-initialize variables since some of them might rely on client-side
-    // state (e.g. localStorage, sensors etc.)
-    Variables: mapObject(
-      filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-        component.variables ?? {},
-        ([_, variable]) => isDefined(variable),
-      ),
-      ([name, variable]) => [
-        name,
-        applyFormula(
+  const rootFormulaCtx = {
+    component,
+    formulaCache: {},
+    root: document,
+    package: undefined,
+    toddle: window.toddle,
+    env,
+  }
+  const rootVariables: Record<string, unknown> = {}
+  const pageVariables = component.variables
+  if (pageVariables) {
+    for (const name in pageVariables) {
+      const variable = pageVariables[name]
+      if (isDefined(variable)) {
+        rootVariables[name] = applyFormula(
           variable.initialValue,
-          {
-            component,
-            formulaCache: {},
-            root: document,
-            package: undefined,
-            toddle: window.toddle,
-            env,
-          },
+          rootFormulaCtx,
           window.toddle.pageState,
-        ),
-      ],
-    ),
+        )
+      }
+    }
+  }
+  const dataSignal = signal<ComponentData>({
+    ...window.__toddle.pageState,
+    Variables: rootVariables,
   })
 
   registerComponentToLogState(component, dataSignal)
@@ -326,7 +323,7 @@ export const createRoot = (domNode: HTMLElement) => {
     parentElement: domNode,
     instance: {},
   })
-  domNode.innerText = ''
+  domNode.textContent = ''
   elements.forEach((elem) => {
     domNode.appendChild(elem)
   })

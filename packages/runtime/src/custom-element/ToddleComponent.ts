@@ -27,6 +27,7 @@ import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentContext, LocationSignal } from '../types'
 import { getThemeSignal } from '../utils/getThemeSignal'
+import { isStaticFormula } from '../utils/isStaticFormula'
 
 /**
  * Base class for all toddle components
@@ -137,11 +138,14 @@ export class ToddleComponent extends HTMLElement {
         })
       }
     })
-    Object.values(this.#ctx.apis)
-      .filter(isContextApiV2)
-      .forEach((api) => {
+    // Plain loop: `Object.values(...).filter(...)` allocated two arrays per
+    // custom element even when there are no APIs at all.
+    for (const name in this.#ctx.apis) {
+      const api = this.#ctx.apis[name]
+      if (api && isContextApiV2(api)) {
         api.triggerActions(this.#signal.get())
-      })
+      }
+    }
 
     let providers = this.#ctx.providers
     if (isContextProvider(this.#component)) {
@@ -158,17 +162,30 @@ export class ToddleComponent extends HTMLElement {
       const formulaDataSignals = Object.fromEntries(
         Object.entries(this.#component.formulas ?? {})
           .filter(([, formula]) => formula?.exposeInContext)
-          .map(([name, formula]) => [
-            name,
-            this.#signal.map((data) =>
-              applyFormula(
-                (formula as ComponentFormula).formula,
-                toddleFormulaCtx,
-                data,
-                IS_PREVIEW ? ['formulas', name] : undefined,
+          .map(([name, formula]) => {
+            const exposed = (formula as ComponentFormula).formula
+            // Static exposed formula: evaluate once into a detached signal
+            // (see createComponent).
+            if (isStaticFormula(exposed)) {
+              return [
+                name,
+                signal(
+                  applyFormula(exposed, toddleFormulaCtx, this.#signal.get()),
+                ),
+              ]
+            }
+            return [
+              name,
+              this.#signal.map((data) =>
+                applyFormula(
+                  exposed,
+                  toddleFormulaCtx,
+                  data,
+                  IS_PREVIEW ? ['formulas', name] : undefined,
+                ),
               ),
-            ),
-          ]),
+            ]
+          }),
       )
 
       providers = {

@@ -26,8 +26,12 @@ import type { ComponentContext } from '../types'
 import { formulaHasValue } from '../utils/formulaHasValue'
 import { getDragData } from '../utils/getDragData'
 import { getElementTagName } from '../utils/getElementTagName'
+import { isStaticFormula } from '../utils/isStaticFormula'
 import { setAttribute } from '../utils/setAttribute'
-import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
+import {
+  subscribeCustomProperty,
+  subscribeStaticCustomProperty,
+} from '../utils/subscribeCustomProperty'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
 
@@ -135,14 +139,20 @@ export function createElement({
     for (const className in node.classes) {
       const formula = node.classes[className].formula
       if (formula) {
-        const classSignal = dataSignal.map((data) =>
-          toBoolean(applyFormula(formula, formulaCtx, data)),
-        )
-        classSignal.subscribe((show) =>
-          show
-            ? elem.classList.add(className)
-            : elem.classList.remove(className),
-        )
+        if (isStaticFormula(formula)) {
+          if (toBoolean(formula.value)) {
+            initialClasses.push(className)
+          }
+        } else {
+          const classSignal = dataSignal.map((data) =>
+            toBoolean(applyFormula(formula, formulaCtx, data)),
+          )
+          classSignal.subscribe((show) =>
+            show
+              ? elem.classList.add(className)
+              : elem.classList.remove(className),
+          )
+        }
       } else {
         initialClasses.push(className)
       }
@@ -202,11 +212,19 @@ export function createElement({
   }
   node['style-variables']?.forEach((styleVariable, i) => {
     const { name, formula, unit } = styleVariable
+    if (isStaticFormula(formula)) {
+      const staticValue: any = formula.value
+      elem.style.setProperty(
+        `--${name}`,
+        unit ? staticValue + unit : staticValue,
+      )
+      return
+    }
     const styleVarPath =
       IS_PREVIEW && ctx.reportFormulaEvaluation
         ? ['nodes', id, 'style-variables', i, 'formula']
         : undefined
-    const signal = dataSignal.map((data) => {
+    const styleSignal = dataSignal.map((data) => {
       const value = applyFormula(formula, formulaCtx, data, styleVarPath)
       if (IS_PREVIEW && styleVarPath) {
         ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
@@ -214,7 +232,7 @@ export function createElement({
       return unit ? value + unit : value
     })
 
-    signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
+    styleSignal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
   })
 
   const customProperties = node.customProperties ?? {}
@@ -230,6 +248,19 @@ export function createElement({
         ? ['nodes', id, 'customProperties', customPropertyName, 'formula']
         : undefined
     const nodeSelector = getNodeSelector(path)
+    if (isStaticFormula(formula)) {
+      subscribeStaticCustomProperty({
+        customPropertyName,
+        selector:
+          IS_CUSTOM_ELEMENT && ctx.isRootComponent && path === '0'
+            ? `${nodeSelector}, :host`
+            : nodeSelector,
+        value: appendUnit(formula.value, unit),
+        root: ctx.root,
+        dataSignal,
+      })
+      continue
+    }
     subscribeCustomProperty({
       customPropertyName,
       selector:
@@ -270,11 +301,23 @@ export function createElement({
               'formula',
             ]
           : undefined
+      const variantSelector = getNodeSelector(path, {
+        variant,
+      })
+      if (isStaticFormula(formula)) {
+        subscribeStaticCustomProperty({
+          customPropertyName,
+          selector: variantSelector,
+          value: appendUnit(formula.value, unit),
+          variant,
+          root: ctx.root,
+          dataSignal,
+        })
+        continue
+      }
       subscribeCustomProperty({
         customPropertyName,
-        selector: getNodeSelector(path, {
-          variant,
-        }),
+        selector: variantSelector,
         variant,
         signal: dataSignal.map((data) => {
           const val = applyFormula(formula, formulaCtx, data, variantCpPath)

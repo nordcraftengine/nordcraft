@@ -31,8 +31,9 @@ export function handleAction(
       throw new Error('Action does not exist')
     }
 
-    // TODO: data is not being used but is bundled with the formula context. Consider removing it from createFormulaContext
-    const formulaContext = createFormulaContext(ctx, data)
+    const formulaContext: FormulaContext = IS_PREVIEW
+      ? createFormulaContext(ctx, data)
+      : (ctx as unknown as FormulaContext)
     switch (action.type) {
       case 'Switch': {
         // find the first case that resolves to true.
@@ -353,10 +354,11 @@ export function handleAction(
         )
         const callbacks = action.callbacks
         if (action.contextProvider) {
+          const providerKey = isDefined(ctx.package)
+            ? `${ctx.package}/${action.contextProvider}`
+            : action.contextProvider
           const provider =
-            ctx.providers[
-              [ctx.package, action.contextProvider].filter(isDefined).join('/')
-            ] ?? ctx.providers[action.contextProvider]
+            ctx.providers[providerKey] ?? ctx.providers[action.contextProvider]
           const workflow = provider?.component.workflows?.[action.workflow]
           if (!workflow) {
             if (provider) {
