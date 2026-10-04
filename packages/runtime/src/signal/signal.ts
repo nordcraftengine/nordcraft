@@ -57,7 +57,7 @@ export class Signal<T> {
     for (const subscription of this.subscriptions) {
       subscription()
     }
-    this.subscriptions.splice(0, this.subscriptions.length)
+    this.subscriptions.length = 0
     this.destroying = false
   }
   cleanSubscribers() {

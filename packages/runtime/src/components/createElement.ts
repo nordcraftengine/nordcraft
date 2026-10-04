@@ -87,8 +87,11 @@ export function createElement({
         }
       : ctx
 
-  // This is editor only logic and we should move out of the runtime bundle when possible
-  if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
+  if (
+    IS_PREVIEW &&
+    ctx.env?.runtime === 'preview' &&
+    isDefined(ctx.component?.nodes)
+  ) {
     let slotName: string | undefined | null
     let hasSlotElements = false
 
@@ -112,16 +115,16 @@ export function createElement({
       elem.setAttribute('data-has-slots-elements', 'true')
     }
   }
-  if (ctx.isRootComponent) {
+  if (IS_PREVIEW && ctx.isRootComponent) {
     elem.setAttribute('data-is-root-component', 'true')
   }
-
-  elem.setAttribute(DATA_ATTR_NODE_ID, id)
+  if (IS_PREVIEW) {
+    elem.setAttribute(DATA_ATTR_NODE_ID, id)
+  }
   if (path) {
     elem.setAttribute(DATA_ATTR_ID, path)
   }
-
-  if (ctx.isRootComponent === false && id !== 'root') {
+  if (IS_PREVIEW && ctx.isRootComponent === false && id !== 'root') {
     elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
   }
   // class names are baked during preprocessing, except for in editor-preview where we generate them on the fly
@@ -335,8 +338,10 @@ export function createElement({
     initialClasses.push(getPathClassName(path))
   }
 
-  if (initialClasses.length > 0) {
-    elem.classList.add(...initialClasses)
+  // Index loop instead of `classList.add(...classes)`: avoids allocating
+  // the spread arguments object on every element creation (Preact-style).
+  for (let i = 0; i < initialClasses.length; i++) {
+    elem.classList.add(initialClasses[i]!)
   }
 
   for (const key in node.events) {
@@ -411,7 +416,11 @@ export function createElement({
         childNodes.push(nodes[j]!)
       }
     }
-    elem.append(...childNodes)
+    // Index loop over `appendChild` instead of `append(...childNodes)`:
+    // same DOM result for Node items, without the spread allocation.
+    for (let i = 0; i < childNodes.length; i++) {
+      elem.appendChild(childNodes[i]!)
+    }
   }
   dataSignal.subscriptions.push(() => {
     // TODO: Clean up event listeners, but after destruction of child signals (Maybe we need a "afterDestroy" hook on signals?)
@@ -432,29 +441,39 @@ const getEventHandler =
     ctx: ComponentContext
   }) =>
   (e: Event) => {
+    // Hoisted out of the per-action loop: event payload extraction is
+    // idempotent and event-scoped, so running it once per event instead of
+    // once per action is behavior-identical and cheaper.
+    if (e instanceof DragEvent) {
+      ;(e as any).data = getDragData(e)
+    }
+    if (e instanceof ClipboardEvent) {
+      try {
+        ;(e as any).data = Array.from(e.clipboardData?.items ?? []).reduce<
+          Record<string, any>
+        >((dragData, item) => {
+          try {
+            dragData[item.type] = JSON.parse(
+              e.clipboardData?.getData(item.type) as any,
+            )
+          } catch {
+            dragData[item.type] = e.clipboardData?.getData(item.type)
+          }
+          return dragData
+        }, {})
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Could not get paste data', e)
+      }
+    }
+    // NOTE: signal notifications used to be batched (coalesced) across the
+    // actions of one event. That changed observable timing — a later action
+    // (or a custom formula in a later SetVariable) could observe DOM/side
+    // effects that the earlier action's cascade had not produced yet (e.g. a
+    // custom action measuring an element resized by the first action).
+    // Actions therefore run sequentially with the full cascade between them,
+    // exactly as before batching existed.
     event?.actions?.forEach((action) => {
-      if (e instanceof DragEvent) {
-        ;(e as any).data = getDragData(e)
-      }
-      if (e instanceof ClipboardEvent) {
-        try {
-          ;(e as any).data = Array.from(e.clipboardData?.items ?? []).reduce<
-            Record<string, any>
-          >((dragData, item) => {
-            try {
-              dragData[item.type] = JSON.parse(
-                e.clipboardData?.getData(item.type) as any,
-              )
-            } catch {
-              dragData[item.type] = e.clipboardData?.getData(item.type)
-            }
-            return dragData
-          }, {})
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error('Could not get paste data', e)
-        }
-      }
       void handleAction(action, { ...dataSignal.get(), Event: e }, ctx, e)
     })
     return false
