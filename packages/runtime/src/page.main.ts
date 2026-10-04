@@ -5,10 +5,8 @@ import type {
   ComponentAPI,
   ComponentData,
   ComponentFormula,
-  ComponentVariable,
   FormulaHandler,
   FormulaHandlerV2,
-  Nullable,
   PluginActionV2,
   PluginFormula,
   Toddle,
@@ -16,10 +14,8 @@ import type {
 } from '@nordcraft/core'
 import {
   applyFormula,
-  filterObject,
   isDefined,
   isLegacyApi,
-  mapObject,
   THEME_DATA_ATTRIBUTE,
   VOID_HTML_ELEMENTS,
 } from '@nordcraft/core'
@@ -169,31 +165,31 @@ export const createRoot = (domNode: HTMLElement) => {
     return { ...query, ...params }
   })
 
-  const dataSignal = signal<ComponentData>({
-    ...window.toddle.pageState,
-    // Re-initialize variables since some of them might rely on client-side
-    // state (e.g. localStorage, sensors etc.)
-    Variables: mapObject(
-      filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-        component.variables ?? {},
-        ([_, variable]) => isDefined(variable),
-      ),
-      ([name, variable]) => [
-        name,
-        applyFormula(
+  const rootFormulaCtx = {
+    component,
+    formulaCache: {},
+    root: document,
+    package: undefined,
+    toddle: window.toddle,
+    env,
+  }
+  const rootVariables: Record<string, unknown> = {}
+  const pageVariables = component.variables
+  if (pageVariables) {
+    for (const name in pageVariables) {
+      const variable = pageVariables[name]
+      if (isDefined(variable)) {
+        rootVariables[name] = applyFormula(
           variable.initialValue,
-          {
-            component,
-            formulaCache: {},
-            root: document,
-            package: undefined,
-            toddle: window.toddle,
-            env,
-          },
+          rootFormulaCtx,
           window.toddle.pageState,
-        ),
-      ],
-    ),
+        )
+      }
+    }
+  }
+  const dataSignal = signal<ComponentData>({
+    ...window.__toddle.pageState,
+    Variables: rootVariables,
   })
 
   registerComponentToLogState(component, dataSignal)
@@ -315,7 +311,7 @@ export const createRoot = (domNode: HTMLElement) => {
     parentElement: domNode,
     instance: {},
   })
-  domNode.innerText = ''
+  domNode.textContent = ''
   elements.forEach((elem) => {
     domNode.appendChild(elem)
   })
