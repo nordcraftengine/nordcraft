@@ -218,6 +218,32 @@ const startWorker = ({
     stderr += chunk
   })
 
+  let exitPromise: Promise<number | null> | undefined
+  const getExitPromise = () => {
+    if (exitPromise) {
+      return exitPromise
+    }
+    if (child.exitCode !== null || child.signalCode !== null) {
+      exitPromise = Promise.resolve(child.exitCode)
+      return exitPromise
+    }
+    exitPromise = new Promise<number | null>((resolveExit) => {
+      child.once('exit', (code) => resolveExit(code))
+    })
+    return exitPromise
+  }
+
+  const waitForExit = async (timeoutMs?: number) => {
+    const exit = getExitPromise()
+    if (timeoutMs === undefined) {
+      return exit
+    }
+    const timeout = new Promise<null>((resolveTimeout) => {
+      setTimeout(() => resolveTimeout(null), timeoutMs)
+    })
+    return Promise.race([exit, timeout])
+  }
+
   const responseLines = createInterface({ input: child.stdout })
   const responses = responseLines[Symbol.asyncIterator]()
   let processError: Error | undefined
@@ -291,7 +317,13 @@ const startWorker = ({
           child.kill()
         }
       }
+      const exitCode = await waitForExit(5_000)
       responseLines.close()
+      if (exitCode !== 0) {
+        throw new Error(
+          `Issues benchmark worker exited with code ${exitCode ?? 'unknown'}${stderr ? `: ${stderr}` : ''}`,
+        )
+      }
     },
   }
 }
