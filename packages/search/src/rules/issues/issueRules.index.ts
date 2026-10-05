@@ -4,12 +4,10 @@ import attributeRules from './attributes/attributeRules.index'
 import componentRules from './components/componentRules.index'
 import contextRules from './context/contextRules.index'
 import domRules from './dom/domRules.index'
-import duplicateRules from './duplicate/duplicateRules.index'
 import eventRules from './events/eventRules.index'
 import formulaRules from './formulas/formulaRules.index'
 import logicRules from './logic/logicRules.index'
 import miscRules from './miscellaneous/miscRules.index'
-import repeatRules from './repeat/repeatRules.index'
 import routingRules from './routing/routingRules.index'
 import slotRules from './slots/slotRules.index'
 import styleRules from './style/styleRules.index'
@@ -23,12 +21,10 @@ export type AllRuleTypes =
   | (typeof componentRules)[number]
   | (typeof contextRules)[number]
   | (typeof domRules)[number]
-  | (typeof duplicateRules)[number]
   | (typeof eventRules)[number]
   | (typeof formulaRules)[number]
   | (typeof logicRules)[number]
   | (typeof miscRules)[number]
-  | (typeof repeatRules)[number]
   | (typeof routingRules)[number]
   | (typeof slotRules)[number]
   | (typeof styleRules)[number]
@@ -42,12 +38,10 @@ export const ISSUE_RULES: AllRuleTypes[] = [
   ...componentRules,
   ...contextRules,
   ...domRules,
-  ...duplicateRules,
   ...eventRules,
   ...formulaRules,
   ...logicRules,
   ...miscRules,
-  ...repeatRules,
   ...routingRules,
   ...slotRules,
   ...styleRules,

@@ -5,15 +5,11 @@ import { unknownRepeatItemFormulaRule } from '../formulas/unknownRepeatItemFormu
 import { noStaticNodeCondition } from './noStaticNodeCondition'
 import { noUnnecessaryConditionFalsy } from './noUnnecessaryConditionFalsy'
 import { noUnnecessaryConditionTruthy } from './noUnnecessaryConditionTruthy'
-import { noUnreachableActionSwitchCaseRule } from './noUnreachableActionSwitchCaseRule'
-import { noUnreachableSwitchCaseRule } from './noUnreachableSwitchCaseRule'
 
 export default [
   noStaticNodeCondition,
   noUnnecessaryConditionFalsy,
   noUnnecessaryConditionTruthy,
-  noUnreachableSwitchCaseRule,
-  noUnreachableActionSwitchCaseRule,
   unknownFormulaRule,
   unknownProjectFormulaRule,
   unknownRepeatIndexFormulaRule,
