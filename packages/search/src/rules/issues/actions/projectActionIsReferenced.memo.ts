@@ -3,6 +3,7 @@ import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { MemoFn } from '../../../types'
+import { getActionsInComponent } from '../../../util/componentTraversal'
 
 export const projectActionIsReferenced = (
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>,
@@ -11,9 +12,12 @@ export const projectActionIsReferenced = (
   const usedActions = memo('all-used-project-actions', () => {
     const usedActions = new Set<string>()
     for (const component of Object.values(files.components)) {
+      if (!component) {
+        continue
+      }
       const c = new ToddleComponent({
         // Enforce that the component is not undefined since we're iterating
-        component: component!,
+        component: component,
         getComponent: (name, packageName) =>
           packageName
             ? files.packages?.[packageName]?.components[name]
@@ -24,7 +28,7 @@ export const projectActionIsReferenced = (
           packages: files.packages,
         },
       })
-      for (const [, action] of c.actionModelsInComponent()) {
+      for (const { action } of getActionsInComponent(memo, c)) {
         if (
           action.type === 'Custom' ||
           action.type === ('function' as any) ||
