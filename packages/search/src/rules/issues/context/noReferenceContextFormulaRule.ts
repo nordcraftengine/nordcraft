@@ -20,7 +20,7 @@ export const noReferenceContextFormulaRule: IssueRule<
       return
     }
 
-    if (Object.keys(value.formulas).length === 0) {
+    if (!value.formulas || Object.keys(value.formulas).length === 0) {
       return
     }
 

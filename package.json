@@ -28,6 +28,7 @@
   },
   "scripts": {
     "benchmark:runtime": "bun bin/runRuntimeBenchmark.ts",
+    "benchmark:issues": "bun bin/runIssuesBenchmark.ts",
     "build": "cd packages/core && bun run build && cd ../lib && bun run build && cd ../ssr && bun run build && cd ../search && bun run build && cd ../runtime && bun run build",
     "benchmark:ssr": "bun bin/ssrBenchmark.ts --case=formula",
     "benchmark:ssr:compare": "bun bin/compareBenchmarks.ts",
