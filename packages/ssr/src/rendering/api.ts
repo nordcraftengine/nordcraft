@@ -8,7 +8,7 @@ import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import type { Nullable } from '@nordcraft/core/dist/types'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
-import { isDefined } from '@nordcraft/core/src/utils/util'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '../ssr.types'
 
 export type ApiCache = Record<string, ApiStatus>
