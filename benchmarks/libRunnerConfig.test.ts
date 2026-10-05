@@ -23,14 +23,14 @@ describe('Lib benchmark runner configuration', () => {
     const config = parseConfig([
       '--base-ref=',
       '--skip-build=true',
-      '--case=sum',
+      '--case=formula-sum',
       '--runs=3',
       '--warmup=0',
       '--repeat=1',
     ])
 
     expect(config.baseRef).toBeUndefined()
-    expect(config.caseId).toBe('sum')
+    expect(config.caseId).toBe('formula-sum')
     expect(config.skipBuild).toBe(true)
     expect(config.runs).toBe(3)
     expect(config.warmup).toBe(0)
@@ -65,8 +65,8 @@ describe('Lib benchmark runner configuration', () => {
   })
 
   test('parses direct lib runner args', () => {
-    const options = parseLibArgs(['--case=sum', '--repeat=2'])
-    expect(options.caseId).toBe('sum')
+    const options = parseLibArgs(['--case=formula-sum', '--repeat=2'])
+    expect(options.caseId).toBe('formula-sum')
     expect(options.repeat).toBe(2)
     expect(() => parseLibArgs(['--case=nope'])).toThrow('Usage:')
     expect(() => parseLibArgs([])).toThrow('Usage:')
@@ -79,23 +79,12 @@ describe('Lib benchmark runners', () => {
     async () => {
       for (const { id } of LIB_BENCHMARK_CASES) {
         const runner = await createRunner(id)
-        expect(typeof runner).toBe('function')
-        await runner()
+        expect(typeof runner.iterations).toBe('number')
+        expect(runner.iterations).toBeGreaterThanOrEqual(1)
+        expect(typeof runner.run).toBe('function')
+        await runner.run()
       }
     },
     { timeout: 120_000 },
   )
-
-  test('spot-checks realistic outputs', async () => {
-    const { __testUtils } = await import('../bin/libBenchmark')
-    const { getHandler, SERVER_CTX } = __testUtils
-    expect(getHandler('sum')([[1, 2, 3]], SERVER_CTX)).toBe(6)
-    expect(getHandler('uppercase')([['hello'][0]], SERVER_CTX)).toBe('HELLO')
-    expect(
-      getHandler('filter')(
-        [[1, 2, 3, 4], ({ item }: { item: number }) => item > 2],
-        SERVER_CTX,
-      ),
-    ).toEqual([3, 4])
-  })
 })

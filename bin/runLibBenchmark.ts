@@ -181,6 +181,7 @@ const copyBenchmarkAssets = (worktree: string) => {
     'bin/libBenchmark.ts',
     'benchmarks/cli.ts',
     'benchmarks/libCases.ts',
+    'benchmarks/libFixtures.ts',
     'benchmarks/stats.ts',
   ]
 
@@ -193,16 +194,19 @@ const copyBenchmarkAssets = (worktree: string) => {
 }
 
 const preflightBuiltArtifacts = (cwd: string) => {
+  // The lib benchmark imports std-lib handlers from source so base and head
+  // are measured on their own revision without stale dist output.
   const requiredArtifacts = [
-    'packages/lib/dist/formulas.js',
-    'packages/core/dist/utils/util.js',
+    'packages/lib/formulas.ts',
+    'packages/lib/actions.ts',
+    'benchmarks/libFixtures.ts',
   ]
   const missing = requiredArtifacts.filter(
     (artifact) => !existsSync(resolve(cwd, artifact)),
   )
   if (missing.length > 0) {
     throw new Error(
-      `Missing built lib benchmark artifacts in ${cwd}: ${missing.join(', ')}. Run 'bun run build' before benchmarking.`,
+      `Missing lib benchmark sources in ${cwd}: ${missing.join(', ')}.`,
     )
   }
 }
@@ -593,7 +597,7 @@ const writeReport = async ({
     `- **Worker response deadline**: ${config.responseTimeoutMs} ms`,
     `- **Bootstrap**: ${config.bootstrapIterations} iterations, seed ${config.bootstrapSeed}`,
     `- **Mode**: ${config.baseRef ? 'base/head comparison' : 'A/A (head-only; no independent base)'}`,
-    `- **Cases**: ${results.length} std-lib formulas`,
+    `- **Cases**: ${results.length} std-lib functions`,
     '',
     hasRegressions
       ? '> ⚠️ **Warning**: Performance regression detected above threshold in one or more scenarios.'
