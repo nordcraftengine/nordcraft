@@ -408,10 +408,16 @@ const formatVerdict = (status: string) => {
   }
 }
 
-const writeReport = (
-  results: Array<Awaited<ReturnType<typeof runCase>>>,
-  baseRef?: string,
-) => {
+const writeReport = async ({
+  config,
+  results,
+}: {
+  config: Config
+  results: Array<Awaited<ReturnType<typeof runCase>>>
+}) => {
+  const hasRegressions = results.some(
+    (result) => result.timeStatus === 'regression',
+  )
   const rows = results.map((result) => {
     const ciLow = formatPercent(result.ciLowPercent)
     const ciHigh = formatPercent(result.ciHighPercent)
@@ -422,8 +428,12 @@ const writeReport = (
   const markdown = [
     '## ⚡ Issues Search & Autofix Performance Benchmark',
     '',
-    `- **Base ref**: \`${baseRef ?? 'none (standalone)'}\``,
+    `- **Base ref**: \`${config.baseRef ?? 'none (standalone)'}\``,
     `- **Head ref**: current branch`,
+    '',
+    hasRegressions
+      ? '> ⚠️ **Warning**: Performance regression detected above threshold in one or more scenarios.'
+      : '> ✅ **No regressions detected**. Search and autofix performance is 1:1, stable, or improved.',
     '',
     '| Benchmark Case | Base Median | Head Median | Delta % | 95% CI | p-value | Verdict |',
     '|---|---|---|---|---|---|---|',
@@ -431,6 +441,48 @@ const writeReport = (
   ].join('\n')
 
   console.log(`\n${markdown}\n`)
+
+  if (config.exportMarkdown) {
+    mkdirSync(dirname(config.exportMarkdown), { recursive: true })
+    await Bun.write(config.exportMarkdown, `${markdown}\n`)
+  }
+
+  if (config.exportJson) {
+    mkdirSync(dirname(config.exportJson), { recursive: true })
+    await Bun.write(
+      config.exportJson,
+      `${JSON.stringify(
+        {
+          status: hasRegressions ? 'regression' : 'pass',
+          config,
+          results,
+        },
+        null,
+        2,
+      )}\n`,
+    )
+  }
+
+  if (config.outputDir) {
+    const headDir = join(config.outputDir, 'head')
+    const baseDir = join(config.outputDir, 'base')
+    mkdirSync(headDir, { recursive: true })
+    mkdirSync(baseDir, { recursive: true })
+    for (const result of results) {
+      await Bun.write(
+        join(headDir, `${result.id}.json`),
+        `${JSON.stringify({ caseId: result.id, timesMs: result.headTimes }, null, 2)}\n`,
+      )
+      await Bun.write(
+        join(baseDir, `${result.id}.json`),
+        `${JSON.stringify({ caseId: result.id, timesMs: result.baseTimes }, null, 2)}\n`,
+      )
+    }
+  }
+
+  if (config.failOnRegression && hasRegressions) {
+    throw new Error('Performance regression detected above threshold.')
+  }
 }
 
 export async function main() {
@@ -476,7 +528,7 @@ export async function main() {
       )
     }
 
-    writeReport(results, config.baseRef)
+    await writeReport({ config, results })
   } finally {
     if (baseWorktree && !config.keepWorktree) {
       console.log(`Cleaning up base worktree...`)
