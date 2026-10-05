@@ -376,6 +376,7 @@ export function dragInsertMove(
         slotName: line.slot ?? null,
         parent: line.parent,
         index: line.index,
+        direction: line.direction,
       }
     } else {
       return {
@@ -386,6 +387,7 @@ export function dragInsertMove(
         slotName: line.slot ?? null,
         parent: line.parent,
         index: line.index,
+        direction: line.direction,
       }
     }
   })

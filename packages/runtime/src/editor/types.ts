@@ -316,6 +316,7 @@ export type Line = {
   slotName: string | null
   parent: Element
   index: number
+  direction: 1 | -1
 }
 
 /**
