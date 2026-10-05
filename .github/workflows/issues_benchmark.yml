@@ -1,9 +1,7 @@
 name: 'Issues Benchmark'
 
 on:
-  push:
-    branches-ignore:
-      - main
+  pull_request:
     paths:
       - '.github/workflows/issues_benchmark.yml'
       - 'benchmarks/**'
@@ -34,20 +32,9 @@ jobs:
 
       - name: Resolve base commit
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PUSH_BASE_SHA: ${{ github.event.before }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           set -euo pipefail
-          if [ "$EVENT_NAME" = "pull_request" ]; then
-            BASE_SHA="$PR_BASE_SHA"
-          else
-            BASE_SHA="$PUSH_BASE_SHA"
-            if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
-              BASE_SHA="origin/main"
-            fi
-          fi
-
           if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
             git fetch --no-tags origin "$BASE_SHA"
           fi

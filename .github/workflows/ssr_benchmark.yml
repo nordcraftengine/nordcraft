@@ -1,9 +1,7 @@
 name: 'SSR Benchmark'
 
 on:
-  push:
-    branches-ignore:
-      - main
+  pull_request:
     paths:
       - '.github/workflows/ssr_benchmark.yml'
       - 'benchmarks/**'
