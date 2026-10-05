@@ -26,6 +26,7 @@ import {
   hasInformativeTimingSamples,
   summarizeTimeBenchmark,
 } from '../benchmarks/stats'
+import { profileRules, type ProfileReport } from './issuesBenchmark'
 
 export type Config = {
   baseRef?: string
@@ -33,6 +34,7 @@ export type Config = {
   runs: number
   warmup: number
   repeat: number
+  profile: boolean
   noiseThresholdPercent: number
   maxRegressionPercent: number
   maxRegressionMs: number
@@ -45,6 +47,7 @@ export type Config = {
   keepWorktree: boolean
   exportJson?: string
   exportMarkdown?: string
+  exportProfileJson?: string
 }
 
 export type WorkerResponse = { timeMs: number } | { error: string }
@@ -77,6 +80,7 @@ export const parseConfig = (
     runs: getPositiveInteger(args, '--runs', 10),
     warmup: getNonNegativeInteger(args, '--warmup', 2),
     repeat: getPositiveInteger(args, '--repeat', 1),
+    profile: getBoolean(args, '--profile', true),
     noiseThresholdPercent: getNumber(args, '--noise-threshold', 2.0),
     maxRegressionPercent: getNumber(args, '--max-regression', 5.0),
     maxRegressionMs: getNumber(args, '--max-regression-ms', 5.0),
@@ -97,6 +101,7 @@ export const parseConfig = (
     keepWorktree: getBoolean(args, '--keep-worktree', false),
     exportJson: getOptionalString(args, '--export-json'),
     exportMarkdown: getOptionalString(args, '--export-markdown'),
+    exportProfileJson: getOptionalString(args, '--export-profile-json'),
   }
 
   if (config.runs < 2) {
@@ -444,9 +449,11 @@ const formatVerdict = (status: string) => {
 const writeReport = async ({
   config,
   results,
+  profileReport,
 }: {
   config: Config
   results: Array<Awaited<ReturnType<typeof runCase>>>
+  profileReport?: ProfileReport
 }) => {
   const hasRegressions = results.some(
     (result) => result.timeStatus === 'regression',
@@ -458,7 +465,7 @@ const writeReport = async ({
     return `| ${result.name} | ${formatMs(result.baseMedianMs)} | ${formatMs(result.headMedianMs)} | ${formatPercent(result.deltaPercent)} | [${ciLow}, ${ciHigh}] | ${pValue} | ${formatVerdict(result.timeStatus)} |`
   })
 
-  const markdown = [
+  const markdownLines = [
     '## ⚡ Issues Search & Autofix Performance Benchmark',
     '',
     `- **Base ref**: \`${config.baseRef ?? 'none (standalone)'}\``,
@@ -471,8 +478,34 @@ const writeReport = async ({
     '| Benchmark Case | Base Median | Head Median | Delta % | 95% CI | p-value | Verdict |',
     '|---|---|---|---|---|---|---|',
     ...rows,
-  ].join('\n')
+  ]
 
+  if (profileReport) {
+    const runUrl = process.env.GITHUB_RUN_ID
+      ? `${process.env.GITHUB_SERVER_URL ?? 'https://github.com'}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+      : undefined
+    const artifactLink = runUrl
+      ? `[download workflow artifacts](${runUrl})`
+      : 'the attached workflow artifacts (`issues-benchmark-report`)'
+
+    const top5 = profileReport.rules.slice(0, 5)
+    const top5Rows = top5.map((t) => {
+      return `| \`${t.code}\` | ${t.category} | ${t.durationMs.toFixed(2)} ms | ${t.percentOfTotal.toFixed(1)}% | ${t.issuesFound} |`
+    })
+
+    markdownLines.push(
+      '',
+      `### ⏱️ Top 5 Most Expensive Rules (Real-world \`nordcraft.com\`, Total: ${profileReport.totalDurationMs.toFixed(2)} ms)`,
+      '',
+      '| Rule Code | Category | Time (ms) | % of Total | Issues Found |',
+      '|---|---|---|---|---|',
+      ...top5Rows,
+      '',
+      `> 📊 Full profiling breakdown across all ${profileReport.rules.length} rules is saved in \`issues-benchmark-profile.json\` (${artifactLink}).`,
+    )
+  }
+
+  const markdown = markdownLines.join('\n')
   console.log(`\n${markdown}\n`)
 
   if (config.exportMarkdown) {
@@ -489,10 +522,25 @@ const writeReport = async ({
           status: hasRegressions ? 'regression' : 'pass',
           config,
           results,
+          profile: profileReport,
         },
         null,
         2,
       )}\n`,
+    )
+  }
+
+  const profileJsonPath =
+    config.exportProfileJson ??
+    (config.exportJson
+      ? join(dirname(config.exportJson), 'issues-benchmark-profile.json')
+      : undefined)
+
+  if (profileJsonPath && profileReport) {
+    mkdirSync(dirname(profileJsonPath), { recursive: true })
+    await Bun.write(
+      profileJsonPath,
+      `${JSON.stringify(profileReport, null, 2)}\n`,
     )
   }
 
@@ -561,7 +609,13 @@ export async function main() {
       )
     }
 
-    await writeReport({ config, results })
+    let profileReport: ProfileReport | undefined
+    if (config.profile) {
+      console.log(`\n== Profiling Individual Issue Rules on nordcraft.com ==`)
+      profileReport = await profileRules()
+    }
+
+    await writeReport({ config, results, profileReport })
   } finally {
     if (baseWorktree && !config.keepWorktree) {
       console.log(`Cleaning up base worktree...`)

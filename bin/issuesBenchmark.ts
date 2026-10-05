@@ -97,6 +97,9 @@ const loadProjectFixture = async (fileName: string) => {
   const fixture = (await Bun.file(fixtureUrl).json()) as { files: ProjectFiles }
   // Ensure contexts have formulas & workflows arrays so rules in base don't throw on undefined
   for (const comp of Object.values(fixture.files.components ?? {})) {
+    if (!comp) {
+      continue
+    }
     for (const ctx of Object.values(comp.contexts ?? {})) {
       if (!ctx.workflows) {
         ctx.workflows = []
@@ -420,12 +423,21 @@ const runDirect = async (runner: BenchmarkRunner, options: IssuesArgs) => {
   }
 }
 
-export const runProfile = async (json = false) => {
-  const fixture = await loadProjectFixture('nordcraft.com.json')
-  console.log(
-    'Profiling individual issue rules on real-world nordcraft.com fixture...',
-  )
+export type RuleProfileResult = {
+  code: string
+  category: string
+  durationMs: number
+  percentOfTotal: number
+  issuesFound: number
+}
 
+export type ProfileReport = {
+  totalDurationMs: number
+  rules: RuleProfileResult[]
+}
+
+export const profileRules = async (): Promise<ProfileReport> => {
+  const fixture = await loadProjectFixture('nordcraft.com.json')
   const timings: Array<{
     code: string
     category: string
@@ -454,27 +466,35 @@ export const runProfile = async (json = false) => {
   }
 
   timings.sort((a, b) => b.durationMs - a.durationMs)
-  const totalDuration = timings.reduce((acc, t) => acc + t.durationMs, 0)
+  const totalDurationMs = timings.reduce((acc, t) => acc + t.durationMs, 0)
+
+  return {
+    totalDurationMs,
+    rules: timings.map((t) => ({
+      ...t,
+      percentOfTotal: (t.durationMs / totalDurationMs) * 100,
+    })),
+  }
+}
+
+export const runProfile = async (json = false) => {
+  console.log(
+    'Profiling individual issue rules on real-world nordcraft.com fixture...',
+  )
+  const report = await profileRules()
 
   if (json) {
-    console.log(
-      JSON.stringify(
-        { totalDurationMs: totalDuration, rules: timings },
-        null,
-        2,
-      ),
-    )
+    console.log(JSON.stringify(report, null, 2))
     return
   }
 
-  const rows = timings.map((t) => {
-    const percent = ((t.durationMs / totalDuration) * 100).toFixed(1)
-    return `| ${t.code} | ${t.category} | ${t.durationMs.toFixed(2)} ms | ${percent}% | ${t.issuesFound} |`
+  const rows = report.rules.map((t) => {
+    return `| ${t.code} | ${t.category} | ${t.durationMs.toFixed(2)} ms | ${t.percentOfTotal.toFixed(1)}% | ${t.issuesFound} |`
   })
 
   const markdown = [
     '',
-    `## ⏱️ Issue Rules Profile (Real-world nordcraft.com, Total: ${totalDuration.toFixed(2)} ms)`,
+    `## ⏱️ Issue Rules Profile (Real-world nordcraft.com, Total: ${report.totalDurationMs.toFixed(2)} ms)`,
     '',
     '| Rule Code | Category | Time (ms) | % of Total | Issues Found |',
     '|---|---|---|---|---|',

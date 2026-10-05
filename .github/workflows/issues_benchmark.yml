@@ -150,6 +150,7 @@ jobs:
           path: |
             /tmp/issues-benchmark-report.md
             /tmp/issues-benchmark-report.json
+            /tmp/issues-benchmark-profile.json
             /tmp/issues-benchmark-data/head/*.json
             /tmp/issues-benchmark-data/base/*.json
 
