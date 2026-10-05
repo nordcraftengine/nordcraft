@@ -15,11 +15,16 @@
     "watch": "tsgo -w"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./dist/*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
   "dependencies": {
     "valibot": "1.5.0"
-  },
-  "main": "dist/index.js"
+  }
 }
