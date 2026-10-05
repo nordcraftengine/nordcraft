@@ -1,0 +1,101 @@
+import { describe, expect, test } from 'bun:test'
+import { createRunner, parseLibArgs } from '../bin/libBenchmark'
+import { isWorkerResponse, parseConfig } from '../bin/runLibBenchmark'
+import { LIB_BENCHMARK_CASES } from './libCases'
+
+describe('Lib benchmark runner configuration', () => {
+  test('uses origin/main and statistically meaningful defaults', () => {
+    const config = parseConfig([])
+
+    expect(config.baseRef).toBe('origin/main')
+    expect(config.runs).toBe(15)
+    expect(config.warmup).toBe(3)
+    expect(config.repeat).toBe(5)
+    expect(config.maxRegressionPercent).toBe(5)
+    expect(config.maxRegressionMs).toBe(0.5)
+    expect(config.noiseThresholdPercent).toBe(2)
+    expect(config.responseTimeoutMs).toBe(120_000)
+    expect(config.bootstrapIterations).toBe(1000)
+    expect(config.bootstrapSeed).toBe(0)
+  })
+
+  test('supports a single-case and head-only run', () => {
+    const config = parseConfig([
+      '--base-ref=',
+      '--skip-build=true',
+      '--case=sum',
+      '--runs=3',
+      '--warmup=0',
+      '--repeat=1',
+    ])
+
+    expect(config.baseRef).toBeUndefined()
+    expect(config.caseId).toBe('sum')
+    expect(config.skipBuild).toBe(true)
+    expect(config.runs).toBe(3)
+    expect(config.warmup).toBe(0)
+  })
+
+  test('rejects unknown cases and invalid thresholds', () => {
+    expect(() => parseConfig(['--case=not-a-formula'])).toThrow(
+      'Unknown lib benchmark case',
+    )
+    expect(() => parseConfig(['--max-regression-ms=-1'])).toThrow(
+      'Benchmark thresholds must not be negative',
+    )
+    expect(() =>
+      parseConfig(['--base-ref=HEAD~1', '--skip-build=true']),
+    ).toThrow('--skip-build=true is not supported')
+    expect(() => parseConfig(['--response-timeout-ms=0'])).toThrow(
+      'response-timeout-ms must be greater than 0',
+    )
+    expect(() => parseConfig(['--bootstrap-seed=1.5'])).toThrow(
+      'bootstrap-seed must be an integer',
+    )
+  })
+
+  test('validates worker response shapes', () => {
+    expect(isWorkerResponse({ timeMs: 12.5 })).toBe(true)
+    expect(isWorkerResponse({ error: 'render failed' })).toBe(true)
+    expect(isWorkerResponse({ timeMs: Number.NaN })).toBe(false)
+    expect(isWorkerResponse({ timeMs: -1 })).toBe(false)
+    expect(isWorkerResponse({ timeMs: 0 })).toBe(false)
+    expect(isWorkerResponse({ timeMs: 1, error: 'ambiguous' })).toBe(false)
+    expect(isWorkerResponse(null)).toBe(false)
+  })
+
+  test('parses direct lib runner args', () => {
+    const options = parseLibArgs(['--case=sum', '--repeat=2'])
+    expect(options.caseId).toBe('sum')
+    expect(options.repeat).toBe(2)
+    expect(() => parseLibArgs(['--case=nope'])).toThrow('Usage:')
+    expect(() => parseLibArgs([])).toThrow('Usage:')
+  })
+})
+
+describe('Lib benchmark runners', () => {
+  test(
+    'creates a runnable benchmark for every case',
+    async () => {
+      for (const { id } of LIB_BENCHMARK_CASES) {
+        const runner = await createRunner(id)
+        expect(typeof runner).toBe('function')
+        await runner()
+      }
+    },
+    { timeout: 120_000 },
+  )
+
+  test('spot-checks realistic outputs', async () => {
+    const { __testUtils } = await import('../bin/libBenchmark')
+    const { getHandler, SERVER_CTX } = __testUtils
+    expect(getHandler('sum')([[1, 2, 3]], SERVER_CTX)).toBe(6)
+    expect(getHandler('uppercase')([['hello'][0]], SERVER_CTX)).toBe('HELLO')
+    expect(
+      getHandler('filter')(
+        [[1, 2, 3, 4], ({ item }: { item: number }) => item > 2],
+        SERVER_CTX,
+      ),
+    ).toEqual([3, 4])
+  })
+})
