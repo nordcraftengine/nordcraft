@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../../searchProject'
+import type { IssueResult } from '../../../types'
 import { invalidComponentFormulaReferenceRule } from './invalidComponentFormulaReferenceRule'
 
 describe('invalidComponentFormulaReferenceRule', () => {
@@ -73,12 +74,13 @@ describe('invalidComponentFormulaReferenceRule', () => {
     )
 
     expect(problems).toHaveLength(1)
-    expect(problems[0].code).toBe('invalid component formula reference')
-    expect(problems[0].info.title).toBe('Invalid formula reference')
-    expect(problems[0].info.description).toBe(
+    const problem = problems[0] as IssueResult
+    expect(problem.code).toBe('invalid component formula reference')
+    expect(problem.info.title).toBe('Invalid formula reference')
+    expect(problem.info.description).toBe(
       'Property **unknownKey** does not exist on formula **myFormula**.',
     )
-    expect(problems[0].details).toEqual({
+    expect(problem.details).toEqual({
       formulaName: 'myFormula',
       invalidKey: 'unknownKey',
     })
@@ -162,8 +164,9 @@ describe('invalidComponentFormulaReferenceRule', () => {
     )
 
     expect(problems).toHaveLength(1)
-    expect(problems[0].code).toBe('invalid component formula reference')
-    expect(problems[0].details).toEqual({
+    const problem = problems[0] as IssueResult
+    expect(problem.code).toBe('invalid component formula reference')
+    expect(problem.details).toEqual({
       formulaName: 'userFormula',
       invalidKey: 'age',
     })
@@ -296,7 +299,6 @@ describe('invalidComponentFormulaReferenceRule', () => {
               attributes: {},
               variables: {
                 myVar: {
-                  name: 'myVar',
                   initialValue: { type: 'value', value: {} },
                 },
               },
