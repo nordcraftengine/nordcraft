@@ -31,7 +31,11 @@ export const getFormulasInComponent = <Handler>(
       component.formulasInComponent(),
       ({ formula, path, packageName }) => ({
         formula,
-        path: [...path],
+        // No defensive copy: the generators in ToddleComponent build every
+        // yielded path via spreads (`[...path, segment]`) and never mutate
+        // a yielded array afterwards, so each path is already uniquely owned.
+        // Copying here allocated ~14k redundant arrays per search.
+        path,
         packageName: packageName ?? undefined,
       }),
     ),
@@ -49,7 +53,7 @@ export const getActionsInComponent = <Handler>(
 ): ComponentActionEntry[] =>
   memo(`actions-in-component/${component.name}`, () =>
     Array.from(component.actionModelsInComponent(), ([actionPath, action]) => ({
-      actionPath: [...actionPath],
+      actionPath,
       action,
     })),
   )

@@ -8,6 +8,7 @@ import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
 import type { MemoFn } from '../../../types'
+import { getFormulasInComponent } from '../../../util/componentTraversal'
 
 export const projectFormulaIsReferenced = (
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>,
@@ -43,9 +44,12 @@ export const projectFormulaIsReferenced = (
     }
 
     for (const component of Object.values(files.components)) {
+      if (!component) {
+        continue
+      }
       const c = new ToddleComponent({
         // Enforce that the component is not undefined since we're iterating
-        component: component!,
+        component: component,
         getComponent: (name) => files.components[name],
         packageName: undefined,
         globalFormulas: {
@@ -53,7 +57,7 @@ export const projectFormulaIsReferenced = (
           packages: files.packages,
         },
       })
-      for (const { formula } of c.formulasInComponent()) {
+      for (const { formula } of getFormulasInComponent(memo, c)) {
         if (formula.type === 'function') {
           usedFormulas.add(
             [formula.package, formula.name].filter(isDefined).join('/'),

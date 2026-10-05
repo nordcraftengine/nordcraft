@@ -19,27 +19,40 @@ export const noReferenceGlobalCSSVariableRule: IssueRule<
       return
     }
 
+    const collectVarRefs = (styleValue: string, vars: Set<string>) => {
+      // Fast path: most style values reference no variables at all.
+      if (!styleValue.includes('var(')) {
+        return
+      }
+      for (const match of styleValue.matchAll(REGEX)) {
+        vars.add(match[1])
+      }
+    }
+
     const usedCSSVariablesInComponents = memo(
       'css-variables-used-in-components',
       () => {
         const vars = new Set<string>()
-        Object.entries(files.components).forEach(([_, component]) => {
-          Object.values(component?.nodes ?? {}).forEach((node) => {
+        for (const component of Object.values(files.components)) {
+          for (const node of Object.values(component?.nodes ?? {})) {
             if (node?.type === 'element' || node?.type === 'component') {
-              ;[{ style: node.style }, ...(node.variants ?? [])].forEach(
-                ({ style }) => {
-                  Object.values(style ?? {}).forEach((styleValue) => {
-                    if (typeof styleValue === 'string') {
-                      styleValue.matchAll(REGEX).forEach(([_, varName]) => {
-                        vars.add(varName)
-                      })
-                    }
-                  })
-                },
-              )
+              const styles = [node.style]
+              for (const variant of node.variants ?? []) {
+                styles.push(variant.style)
+              }
+              for (const style of styles) {
+                if (!style) {
+                  continue
+                }
+                for (const styleValue of Object.values(style)) {
+                  if (typeof styleValue === 'string') {
+                    collectVarRefs(styleValue, vars)
+                  }
+                }
+              }
             }
-          })
-        })
+          }
+        }
 
         return vars
       },
@@ -49,25 +62,28 @@ export const noReferenceGlobalCSSVariableRule: IssueRule<
       'css-variables-used-in-package-components',
       () => {
         const vars = new Set<string>()
-        Object.values(files.packages ?? {}).forEach((pkg) => {
-          Object.values(pkg?.components ?? {}).forEach((component) => {
-            Object.values(component?.nodes ?? {}).forEach((node) => {
+        for (const pkg of Object.values(files.packages ?? {})) {
+          for (const component of Object.values(pkg?.components ?? {})) {
+            for (const node of Object.values(component?.nodes ?? {})) {
               if (node?.type === 'element' || node?.type === 'component') {
-                ;[{ style: node.style }, ...(node.variants ?? [])].forEach(
-                  ({ style }) => {
-                    Object.values(style ?? {}).forEach((styleValue) => {
-                      if (typeof styleValue === 'string') {
-                        styleValue.matchAll(REGEX).forEach(([_, varName]) => {
-                          vars.add(varName)
-                        })
-                      }
-                    })
-                  },
-                )
+                const styles = [node.style]
+                for (const variant of node.variants ?? []) {
+                  styles.push(variant.style)
+                }
+                for (const style of styles) {
+                  if (!style) {
+                    continue
+                  }
+                  for (const styleValue of Object.values(style)) {
+                    if (typeof styleValue === 'string') {
+                      collectVarRefs(styleValue, vars)
+                    }
+                  }
+                }
               }
-            })
-          })
-        })
+            }
+          }
+        }
 
         return vars
       },
@@ -77,21 +93,19 @@ export const noReferenceGlobalCSSVariableRule: IssueRule<
       'css-variables-used-in-css-variables',
       () => {
         const vars = new Set<string>()
-        Object.values(theme.propertyDefinitions ?? {}).forEach((propDef) => {
+        for (const propDef of Object.values(theme.propertyDefinitions ?? {})) {
           if (!isDefined(propDef)) {
-            return
+            continue
           }
-          ;[
-            ...Object.values(propDef.values ?? {}),
-            propDef.initialValue,
-          ].forEach((val) => {
+          for (const val of Object.values(propDef.values ?? {})) {
             if (typeof val === 'string') {
-              val.matchAll(REGEX).forEach(([_, varName]) => {
-                vars.add(varName)
-              })
+              collectVarRefs(val, vars)
             }
-          })
-        })
+          }
+          if (typeof propDef.initialValue === 'string') {
+            collectVarRefs(propDef.initialValue, vars)
+          }
+        }
 
         return vars
       },
