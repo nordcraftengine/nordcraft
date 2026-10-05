@@ -162,6 +162,7 @@ const copyBenchmarkAssets = (worktree: string) => {
     'benchmarks/issueCases.ts',
     'benchmarks/stats.ts',
     'benchmarks/browser/fixtures/benchmark-project.json',
+    'benchmarks/browser/fixtures/nordcraft.com.json',
   ]
 
   for (const asset of assets) {

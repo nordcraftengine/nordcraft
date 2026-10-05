@@ -21,7 +21,6 @@ import type {
 } from '../packages/core/dist/component/component.types'
 import type { Formula } from '../packages/core/dist/formula/formula'
 import { fixProject } from '../packages/search/src/fixProject'
-import { legacyFormulaRule } from '../packages/search/src/rules/issues/formulas/legacyFormulaRule'
 import { namedComponentFormulaRule } from '../packages/search/src/rules/issues/formulas/namedComponentFormulaRule'
 import { ISSUE_RULES } from '../packages/search/src/rules/issues/issueRules.index'
 import { namedComponentWorkflowRule } from '../packages/search/src/rules/issues/workflows/namedComponentWorkflowRule'
@@ -54,23 +53,27 @@ const isWorkerRequest = (value: unknown): value is WorkerRequest => {
 }
 
 type IssuesArgs = {
-  caseId: IssueBenchmarkCaseId
+  caseId?: IssueBenchmarkCaseId
   repeat: number
   isWorker: boolean
   runs: number
   warmup: number
   outputPath?: string
   json: boolean
+  profile: boolean
 }
 
 export const parseIssuesArgs = (
   argv: readonly string[] = Bun.argv.slice(2),
 ): IssuesArgs => {
   const args = parseBenchmarkArgs(argv)
-  const caseId = args.get('--case')
-  if (!isIssueBenchmarkCaseId(caseId)) {
+  const isProfile = getBoolean(args, '--profile', false)
+  const caseIdRaw = args.get('--case')
+  const caseId = isIssueBenchmarkCaseId(caseIdRaw) ? caseIdRaw : undefined
+
+  if (!isProfile && !caseId && !getBoolean(args, '--worker', false)) {
     throw new Error(
-      `Usage: bun bin/issuesBenchmark.ts ${issueBenchmarkUsage()}`,
+      `Usage: bun bin/issuesBenchmark.ts ${issueBenchmarkUsage()} (or --profile)`,
     )
   }
 
@@ -82,6 +85,7 @@ export const parseIssuesArgs = (
     warmup: getNonNegativeInteger(args, '--warmup', 0),
     outputPath: getOptionalString(args, '--output'),
     json: getBoolean(args, '--json', false),
+    profile: isProfile,
   }
 }
 
@@ -90,7 +94,19 @@ const loadProjectFixture = async (fileName: string) => {
     `../benchmarks/browser/fixtures/${fileName}`,
     import.meta.url,
   )
-  return (await Bun.file(fixtureUrl).json()) as { files: ProjectFiles }
+  const fixture = (await Bun.file(fixtureUrl).json()) as { files: ProjectFiles }
+  // Ensure contexts have formulas & workflows arrays so rules in base don't throw on undefined
+  for (const comp of Object.values(fixture.files.components ?? {})) {
+    for (const ctx of Object.values(comp.contexts ?? {})) {
+      if (!ctx.workflows) {
+        ctx.workflows = []
+      }
+      if (!ctx.formulas) {
+        ctx.formulas = []
+      }
+    }
+  }
+  return fixture
 }
 
 export const createNamedFormulasProject = (
@@ -236,63 +252,43 @@ export const createNamedWorkflowsProject = (
   }
 }
 
-export const createLegacyFormulasProject = (
-  baseProject: ProjectFiles,
-  count = 50,
-): ProjectFiles => {
-  const formulas: Record<string, ComponentFormula> = {}
-  for (let i = 0; i < count; i++) {
-    formulas[`legacy_${i}`] = {
-      formula: {
-        type: 'function',
-        name: 'CONCAT',
-        arguments: [
-          {
-            name: 'A',
-            formula: { type: 'value', value: 'hello' },
-          },
-          {
-            name: 'B',
-            formula: { type: 'value', value: 'world' },
-          },
-        ],
-      },
-      arguments: [],
-    }
-  }
-
-  return {
-    ...baseProject,
-    components: {
-      ...baseProject.components,
-      BenchmarkLegacy: {
-        name: 'BenchmarkLegacy',
-        nodes: {
-          root: {
-            type: 'element',
-            tag: 'div',
-          },
-        },
-        formulas,
-      },
-    },
-  }
-}
-
 export const createRunner = async (
   id: IssueBenchmarkCaseId,
 ): Promise<BenchmarkRunner> => {
-  const fixture = await loadProjectFixture('benchmark-project.json')
-  // Ensure contexts have formulas & workflows arrays so rules in base don't throw on undefined
-  for (const comp of Object.values(fixture.files.components ?? {})) {
-    for (const ctx of Object.values(comp.contexts ?? {})) {
-      if (!ctx.workflows) ctx.workflows = []
-      if (!ctx.formulas) ctx.formulas = []
-    }
-  }
-
   switch (id) {
+    case 'search-nordcraft-all-rules': {
+      const fixture = await loadProjectFixture('nordcraft.com.json')
+      return () => {
+        Array.from(
+          searchProject({
+            files: fixture.files,
+            rules: ISSUE_RULES,
+          }),
+        )
+      }
+    }
+    case 'autofix-nordcraft-named-formulas': {
+      const fixture = await loadProjectFixture('nordcraft.com.json')
+      return () => {
+        fixProject({
+          files: structuredClone(fixture.files),
+          rule: namedComponentFormulaRule,
+          fixType: 'rename-named-component-formula',
+        })
+      }
+    }
+    case 'autofix-nordcraft-named-workflows': {
+      const fixture = await loadProjectFixture('nordcraft.com.json')
+      return () => {
+        fixProject({
+          files: structuredClone(fixture.files),
+          rule: namedComponentWorkflowRule,
+          fixType: 'rename-named-component-workflow',
+        })
+      }
+    }
     case 'autofix-named-formulas': {
+      const fixture = await loadProjectFixture('benchmark-project.json')
       return () => {
         const files = createNamedFormulasProject(fixture.files, 50)
         fixProject({
@@ -303,6 +299,7 @@ export const createRunner = async (
       }
     }
     case 'autofix-named-workflows': {
+      const fixture = await loadProjectFixture('benchmark-project.json')
       return () => {
         const files = createNamedWorkflowsProject(fixture.files, 50)
         fixProject({
@@ -310,26 +307,6 @@ export const createRunner = async (
           rule: namedComponentWorkflowRule,
           fixType: 'rename-named-component-workflow',
         })
-      }
-    }
-    case 'autofix-legacy-formulas': {
-      return () => {
-        const files = createLegacyFormulasProject(fixture.files, 50)
-        fixProject({
-          files,
-          rule: legacyFormulaRule,
-          fixType: 'replace-legacy-formula',
-        })
-      }
-    }
-    case 'search-project-issues': {
-      return () => {
-        Array.from(
-          searchProject({
-            files: fixture.files,
-            rules: ISSUE_RULES,
-          }),
-        )
       }
     }
   }
@@ -443,8 +420,82 @@ const runDirect = async (runner: BenchmarkRunner, options: IssuesArgs) => {
   }
 }
 
+export const runProfile = async (json = false) => {
+  const fixture = await loadProjectFixture('nordcraft.com.json')
+  console.log(
+    'Profiling individual issue rules on real-world nordcraft.com fixture...',
+  )
+
+  const timings: Array<{
+    code: string
+    category: string
+    durationMs: number
+    issuesFound: number
+  }> = []
+
+  // Warmup run
+  Array.from(
+    searchProject({ files: fixture.files, rules: ISSUE_RULES.slice(0, 2) }),
+  )
+
+  for (const rule of ISSUE_RULES) {
+    collectGarbage()
+    const start = performance.now()
+    const results = Array.from(
+      searchProject({ files: fixture.files, rules: [rule] }),
+    )
+    const durationMs = performance.now() - start
+    timings.push({
+      code: rule.code,
+      category: rule.category ?? 'Uncategorized',
+      durationMs,
+      issuesFound: results.length,
+    })
+  }
+
+  timings.sort((a, b) => b.durationMs - a.durationMs)
+  const totalDuration = timings.reduce((acc, t) => acc + t.durationMs, 0)
+
+  if (json) {
+    console.log(
+      JSON.stringify(
+        { totalDurationMs: totalDuration, rules: timings },
+        null,
+        2,
+      ),
+    )
+    return
+  }
+
+  const rows = timings.map((t) => {
+    const percent = ((t.durationMs / totalDuration) * 100).toFixed(1)
+    return `| ${t.code} | ${t.category} | ${t.durationMs.toFixed(2)} ms | ${percent}% | ${t.issuesFound} |`
+  })
+
+  const markdown = [
+    '',
+    `## ⏱️ Issue Rules Profile (Real-world nordcraft.com, Total: ${totalDuration.toFixed(2)} ms)`,
+    '',
+    '| Rule Code | Category | Time (ms) | % of Total | Issues Found |',
+    '|---|---|---|---|---|',
+    ...rows,
+    '',
+  ].join('\n')
+
+  console.log(markdown)
+}
+
 async function main() {
   const options = parseIssuesArgs()
+  if (options.profile) {
+    await runProfile(options.json)
+    return
+  }
+
+  if (!options.caseId) {
+    throw new Error('Missing benchmark case id')
+  }
+
   const runner = await createRunner(options.caseId)
   if (options.isWorker) {
     await runWorker(runner, options.repeat)

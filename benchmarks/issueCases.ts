@@ -1,19 +1,23 @@
 export const ISSUE_BENCHMARK_CASES = [
   {
+    id: 'search-nordcraft-all-rules',
+    name: 'issues.search (all rules on real-world nordcraft.com project)',
+  },
+  {
+    id: 'autofix-nordcraft-named-formulas',
+    name: 'issues.autofix (rename 86 named formulas in real nordcraft.com project)',
+  },
+  {
+    id: 'autofix-nordcraft-named-workflows',
+    name: 'issues.autofix (rename 14 named workflows in real nordcraft.com project)',
+  },
+  {
     id: 'autofix-named-formulas',
-    name: 'issues.autofix (rename 50 named formulas in project)',
+    name: 'issues.autofix (rename 50 named formulas in benchmark project)',
   },
   {
     id: 'autofix-named-workflows',
-    name: 'issues.autofix (rename 50 named workflows in project)',
-  },
-  {
-    id: 'autofix-legacy-formulas',
-    name: 'issues.autofix (replace 50 legacy formulas in project)',
-  },
-  {
-    id: 'search-project-issues',
-    name: 'issues.search (all issue rules on benchmark project)',
+    name: 'issues.autofix (rename 50 named workflows in benchmark project)',
   },
 ] as const
 
