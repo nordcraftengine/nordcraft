@@ -11,6 +11,14 @@ on:
       - 'packages/runtime/**'
       - 'packages/lib/**'
       - 'packages/core/**'
+  pull_request:
+    paths:
+      - '.github/workflows/runtime_benchmark.yml'
+      - 'benchmarks/**'
+      - 'bin/runRuntimeBenchmark.ts'
+      - 'packages/runtime/**'
+      - 'packages/lib/**'
+      - 'packages/core/**'
 
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
