@@ -65,9 +65,15 @@ const evaluateFormula = (formula: Formula): ContextlessEvaluation => {
     }
 
     case 'record': {
-      const entries = Object.entries(formula.entries ?? {}).map(
-        ([key, arg]) => [key, contextlessEvaluateFormula(arg.formula)] as const,
-      )
+      const entries = Array.isArray(formula.entries)
+        ? formula.entries.map(
+            (entry, i) =>
+              [
+                entry.name ?? `${i}`,
+                contextlessEvaluateFormula(entry.formula),
+              ] as const,
+          )
+        : []
 
       const results = entries.map(([, res]) => res)
 
