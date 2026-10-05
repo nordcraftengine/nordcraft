@@ -109,10 +109,7 @@ describe('fixProblems progress events', () => {
     // Initial 0/N event announces the total and what is up first
     expect(progress[0]?.path).toBeUndefined()
     expect(progress[0]?.nextPath).toBeDefined()
-    expect(progress[0]?.nextPath?.slice(0, 2)).toEqual([
-      'components',
-      'test',
-    ])
+    expect(progress[0]?.nextPath?.slice(0, 2)).toEqual(['components', 'test'])
 
     // Every applied fix names its own path; all live under components/test
     const appliedPaths = progress.slice(1).map((message) => message.path)
@@ -266,9 +263,7 @@ describe('fixProblems progress events', () => {
     const files = createFilesWithStaticConditions(total)
     const fixableBefore = Array.from(
       searchProject({ files, rules: [noStaticNodeCondition] }),
-    ).filter((issue) =>
-      issue.fixes?.includes('remove-condition'),
-    ).length
+    ).filter((issue) => issue.fixes?.includes('remove-condition')).length
     expect(fixableBefore).toBe(total)
 
     const messages: FixProblemsResponse[] = []
@@ -282,6 +277,9 @@ describe('fixProblems progress events', () => {
       (results) => messages.push(results),
     )
     const complete = messages.at(-1)
-    expect(complete).toMatchObject({ fixed: fixableBefore, total: fixableBefore })
+    expect(complete).toMatchObject({
+      fixed: fixableBefore,
+      total: fixableBefore,
+    })
   })
 })
