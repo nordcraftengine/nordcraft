@@ -12,7 +12,7 @@ export const ComponentWorkflowSchema: v.GenericSchema<
       v.nullish(MetadataSchema),
       v.description(SCHEMA_DESCRIPTIONS.metadata('workflow')),
     ),
-    name: v.pipe(v.string(), v.description('Name of the workflow')),
+    name: v.pipe(v.optional(v.string()), v.description('Name of the workflow')),
     parameters: v.pipe(
       v.array(
         v.object({
