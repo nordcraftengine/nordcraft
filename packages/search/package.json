@@ -27,7 +27,13 @@
     "test:watch:only": "bun test --watch --only"
   },
   "files": [
-    "dist",
-    "src"
-  ]
+    "dist"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./dist/*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  }
 }

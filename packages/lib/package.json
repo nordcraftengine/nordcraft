@@ -24,5 +24,13 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./dist/lib": "./dist/lib.ts",
+    "./dist/*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  }
 }
