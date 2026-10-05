@@ -71,9 +71,7 @@ const hasUnbalancedSyntax = (value: string): boolean => {
       }
     }
   }
-  return (
-    stack.length > 0 || inSingle || inDouble || inComment || escaped
-  )
+  return stack.length > 0 || inSingle || inDouble || inComment || escaped
 }
 
 export const invalidStyleSyntaxRule: IssueRule<
