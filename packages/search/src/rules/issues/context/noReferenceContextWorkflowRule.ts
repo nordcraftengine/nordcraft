@@ -1,5 +1,6 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { ComponentContext, IssueRule, NodeType } from '../../../types'
+import type { ComponentContext, IssueRule } from '../../../types'
+import { getActionsInComponent } from '../../../util/componentTraversal'
 import { removeContextWorkflowSubscription } from './noReferenceContextWorkflowRule.fix'
 
 /**
@@ -15,12 +16,9 @@ export const noReferenceContextWorkflowRule: IssueRule<
   code: 'no-reference context workflow',
   level: 'warning',
   category: 'No References',
-  visit: (report, { path, files, value, nodeType, memo }) => {
-    if ((nodeType as NodeType['nodeType']) !== 'component-context') {
-      return
-    }
-
-    if (!value.workflows || Object.keys(value.workflows).length === 0) {
+  nodeTypes: 'component-context',
+  visit: (report, { path, files, value, memo }) => {
+    if (Object.keys(value.workflows).length === 0) {
       return
     }
 
@@ -44,7 +42,7 @@ export const noReferenceContextWorkflowRule: IssueRule<
           },
         })
         const used = new Set<string>()
-        for (const [, action] of component.actionModelsInComponent()) {
+        for (const { action } of getActionsInComponent(memo, component)) {
           if (
             action.type === 'TriggerWorkflow' &&
             typeof action.contextProvider === 'string' &&

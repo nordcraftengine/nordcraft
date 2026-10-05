@@ -1,13 +1,16 @@
-import type { IssueRule } from '../../../types'
+import type { ActionModelNode, IssueRule } from '../../../types'
 
-export const unknownTriggerWorkflowRule: IssueRule<{ workflow: string }> = {
+export const unknownTriggerWorkflowRule: IssueRule<
+  { workflow: string },
+  ActionModelNode
+> = {
   code: 'unknown trigger workflow',
   level: 'error',
   category: 'Unknown Reference',
+  nodeTypes: 'action-model',
   visit: (report, args) => {
-    const { path, value, nodeType } = args
+    const { path, value } = args
     if (
-      nodeType !== 'action-model' ||
       value.type !== 'TriggerWorkflow' ||
       typeof value.contextProvider === 'string'
     ) {

@@ -1,4 +1,4 @@
-import type { FormulaNode, IssueRule, NodeType } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 import { addContextSubscription } from './unknownContextFormulaRule.fix'
 
 export const unknownContextFormulaRule: IssueRule<
@@ -11,10 +11,10 @@ export const unknownContextFormulaRule: IssueRule<
   code: 'unknown context formula',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
+  nodeTypes: 'formula',
+  visit: (report, { path, files, value }) => {
     if (
       path[0] !== 'components' ||
-      (nodeType as NodeType['nodeType']) !== 'formula' ||
       value.type !== 'path' ||
       value.path[0] !== 'Contexts'
     ) {

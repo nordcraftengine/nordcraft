@@ -1,18 +1,21 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { ComponentAPINode, IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const unknownApiServiceRule: IssueRule<{
-  apiName: string
-  serviceName: string
-}> = {
+export const unknownApiServiceRule: IssueRule<
+  {
+    apiName: string
+    serviceName: string
+  },
+  ComponentAPINode
+> = {
   code: 'unknown api service',
   level: 'warning',
   category: 'Unknown Reference',
+  nodeTypes: 'component-api',
   visit: (report, args) => {
     if (
-      args.nodeType !== 'component-api' ||
       isLegacyApi(args.value) ||
       !isDefined(args.value.service) ||
       isDefined(args.files.services?.[args.value.service])

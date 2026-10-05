@@ -1,14 +1,17 @@
-import type { IssueRule } from '../../../types'
+import type { ActionModelNode, IssueRule } from '../../../types'
 
-export const requireExtensionRule: IssueRule<{
-  name: string
-}> = {
+export const requireExtensionRule: IssueRule<
+  {
+    name: string
+  },
+  ActionModelNode
+> = {
   code: 'required extension',
   level: 'info',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }, state) => {
+  nodeTypes: 'action-model',
+  visit: (report, { path, value }, state) => {
     if (
-      nodeType !== 'action-model' ||
       value.type !== undefined ||
       value.name !== '@toddle/setSessionCookies' ||
       !state ||

@@ -1,14 +1,15 @@
-import type { IssueRule } from '../../../types'
+import type { ComponentNodeNode, IssueRule } from '../../../types'
 import { removeNodeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceNodeRule: IssueRule<{ node: string }> = {
+export const noReferenceNodeRule: IssueRule<
+  { node: string },
+  ComponentNodeNode
+> = {
   code: 'no-reference node',
   level: 'warning',
   category: 'No References',
+  nodeTypes: 'component-node',
   visit: (report, args) => {
-    if (args.nodeType !== 'component-node') {
-      return
-    }
     const { path, component } = args
     const nodeId = path.at(-1)
     if (typeof nodeId !== 'string') {

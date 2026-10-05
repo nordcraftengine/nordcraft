@@ -1,15 +1,18 @@
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 
-export const unknownWorkflowParameterRule: IssueRule<{
-  parameter: string | number
-}> = {
+export const unknownWorkflowParameterRule: IssueRule<
+  {
+    parameter: string | number
+  },
+  FormulaNode
+> = {
   code: 'unknown workflow parameter',
   level: 'error',
   category: 'Unknown Reference',
+  nodeTypes: 'formula',
   visit: (report, args) => {
-    const { path, value, nodeType } = args
+    const { path, value } = args
     if (
-      nodeType !== 'formula' ||
       value.type !== 'path' ||
       // We want a path that looks like ['components', 'componentName', 'workflows', 'workflowName', ...]
       path.length < 4 ||

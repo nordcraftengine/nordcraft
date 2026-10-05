@@ -1,15 +1,16 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { CustomActionModelEventNode, IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const unknownActionEventRule: IssueRule<{ name: string }> = {
+export const unknownActionEventRule: IssueRule<
+  { name: string },
+  CustomActionModelEventNode
+> = {
   code: 'unknown action event',
   level: 'warning',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
-    if (nodeType !== 'action-custom-model-event') {
-      return
-    }
+  nodeTypes: 'action-custom-model-event',
+  visit: (report, { path, files, value }) => {
     const { action, eventName } = value
     const referencedAction = (
       action.package ? files.packages?.[action.package]?.actions : files.actions

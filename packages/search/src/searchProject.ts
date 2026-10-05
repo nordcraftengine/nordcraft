@@ -25,6 +25,21 @@ interface FixOptions {
   fixType: FixType
 }
 
+export interface CollectedFix {
+  path: (string | number)[]
+  details?: any
+  data: NodeType
+  rule: IssueRule & SearchRule
+}
+
+interface CollectOptions {
+  mode: 'COLLECT'
+  fixType: FixType
+  collected: CollectedFix[]
+}
+
+type FixOrCollectOptions = FixOptions | CollectOptions
+
 /**
  * Search a project by applying rules to all nodes in the project and returning reported results.
  *
@@ -55,7 +70,7 @@ export function searchProject(args: {
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
-  fixOptions: FixOptions
+  fixOptions: FixOrCollectOptions
 }): Generator<ProjectFiles | void>
 export function* searchProject({
   files,
@@ -70,7 +85,7 @@ export function* searchProject({
   pathsToVisit?: string[][]
   useExactPaths?: boolean
   state?: ApplicationState
-  fixOptions?: FixOptions
+  fixOptions?: FixOrCollectOptions
 }): Generator<SearchResult | IssueResult | ProjectFiles | void> {
   const memos = new Map<string, any>()
   const memo = (key: string | string[], fn: () => any) => {
@@ -153,8 +168,8 @@ export function* searchProject({
       state,
       fixOptions: fixOptions as any,
     })
-    for (const propKey in files.themes[key].propertyDefinitions ?? {}) {
-      const propDef = files.themes[key].propertyDefinitions?.[propKey as any]
+    for (const propKey in files.themes[key]?.propertyDefinitions ?? {}) {
+      const propDef = files.themes[key]?.propertyDefinitions?.[propKey as any]
       if (propDef) {
         yield* visitNode({
           args: {
@@ -252,6 +267,39 @@ export function* searchProject({
   }
 }
 
+/**
+ * Cache of rules partitioned by node type, keyed by rules-array identity.
+ *
+ * Each visited node only invokes the rules that declare the node's type in
+ * `nodeTypes`, instead of all rules. Rules without `nodeTypes` visit every
+ * node. Each per-nodeType array preserves the original rule order so
+ * reporting order is unchanged.
+ */
+const rulesByNodeTypeCache = new WeakMap<Rule[], Map<string, Rule[]>>()
+
+const rulesForNodeType = (rules: Rule[], nodeType: string): Rule[] => {
+  let byNodeType = rulesByNodeTypeCache.get(rules)
+  if (!byNodeType) {
+    byNodeType = new Map<string, Rule[]>()
+    rulesByNodeTypeCache.set(rules, byNodeType)
+  }
+  const cached = byNodeType.get(nodeType)
+  if (cached) {
+    return cached
+  }
+  const matching = rules.filter((rule) => {
+    if (!rule.nodeTypes) {
+      return true
+    }
+    const declared = Array.isArray(rule.nodeTypes)
+      ? rule.nodeTypes
+      : [rule.nodeTypes]
+    return declared.includes(nodeType as never)
+  })
+  byNodeType.set(nodeType, matching)
+  return matching
+}
+
 function visitNode(args: {
   args: {
     path: (string | number)[]
@@ -272,7 +320,7 @@ function visitNode(args: {
     useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
-  fixOptions: FixOptions
+  fixOptions: FixOrCollectOptions
 }): Generator<ProjectFiles | void>
 function* visitNode({
   args,
@@ -287,7 +335,7 @@ function* visitNode({
     useExactPaths: boolean
   } & NodeType
   state: ApplicationState | undefined
-  fixOptions?: FixOptions
+  fixOptions?: FixOrCollectOptions
 }): Generator<IssueResult | ProjectFiles | void> {
   const { rules, pathsToVisit, useExactPaths, ...data } = args
   const { files, value, path, memo, nodeType } = data
@@ -307,27 +355,42 @@ function* visitNode({
   ) {
     const results: IssueResult[] | SearchResult[] = []
     let fixedFiles: ProjectFiles | undefined
-    for (const rule of rules as (IssueRule & SearchRule)[]) {
+    for (const rule of rulesForNodeType(rules, nodeType) as (IssueRule &
+      SearchRule)[]) {
       rule.visit(
         // Report callback used to report issues
         ({ path, details, fixes, info }) => {
           if (fixOptions) {
             // We're in "fix mode"
             if (
-              // We only overwrite fixedFiles once to avoid conflicting fixes
-              !fixedFiles &&
               // The current fix must be one of the fixes reported
               fixes?.includes(fixOptions.fixType) &&
               // The rule must have an implementation for the fix
               rule.fixes?.[fixOptions.fixType]
             ) {
-              const ruleFixes = rule.fixes[fixOptions.fixType]?.(
-                // We must use the path from the report, not the original path
-                // because the report might be for a subpath
-                { data: { ...data, path }, details, state },
-              )
-              if (ruleFixes) {
-                fixedFiles = applyFixResult(data.files, ruleFixes)
+              if (fixOptions.mode === 'FIX') {
+                // We only overwrite fixedFiles once to avoid conflicting fixes
+                if (!fixedFiles) {
+                  const ruleFixes = rule.fixes[fixOptions.fixType]?.(
+                    // We must use the path from the report, not the original path
+                    // because the report might be for a subpath
+                    { data: { ...data, path }, details, state },
+                  )
+                  if (ruleFixes) {
+                    fixedFiles = applyFixResult(data.files, ruleFixes)
+                  }
+                }
+              } else {
+                // COLLECT mode gathers every fixable report so the caller can
+                // apply non-conflicting fixes in batch (see `fixProject`)
+                fixOptions.collected.push({
+                  path,
+                  details,
+                  // We must use the path from the report, not the original path
+                  // because the report might be for a subpath
+                  data: { ...data, path },
+                  rule,
+                })
               }
             }
           } else {

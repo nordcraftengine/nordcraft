@@ -1,12 +1,13 @@
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 import { isPathFormula } from '../../../util/formulas'
 
-export const invalidPathRule: IssueRule = {
+export const invalidPathRule: IssueRule<unknown, FormulaNode> = {
   code: 'invalid path formula',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, value, nodeType }) => {
-    if (nodeType !== 'formula' || !isPathFormula(value)) {
+  nodeTypes: 'formula',
+  visit: (report, { path, value }) => {
+    if (!isPathFormula(value)) {
       return
     }
 
