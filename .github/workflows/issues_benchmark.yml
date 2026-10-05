@@ -12,15 +12,6 @@ on:
       - 'packages/core/**'
       - 'packages/lib/**'
       - 'packages/search/**'
-  pull_request:
-    paths:
-      - '.github/workflows/issues_benchmark.yml'
-      - 'benchmarks/**'
-      - 'bin/runIssuesBenchmark.ts'
-      - 'bin/issuesBenchmark.ts'
-      - 'packages/core/**'
-      - 'packages/lib/**'
-      - 'packages/search/**'
 
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
