@@ -65,8 +65,8 @@ export const invalidProjectFormulaReferenceRule: IssueRule<{
       report({
         path,
         info: {
-          title: 'Invalid global formula reference',
-          description: `Property **${validation.invalidKey}** does not exist on global formula **${objectFormula.name}**.`,
+          title: 'Invalid project formula reference',
+          description: `Property **${validation.invalidKey}** does not exist on project formula **${objectFormula.name}**.`,
         },
         details: {
           formulaName: objectFormula.name,

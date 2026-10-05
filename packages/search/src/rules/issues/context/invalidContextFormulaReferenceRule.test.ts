@@ -86,12 +86,13 @@ describe('invalidContextFormulaReferenceRule', () => {
     )
 
     expect(problems).toHaveLength(1)
-    expect(problems[0].code).toBe('invalid context formula reference')
-    expect(problems[0].info.title).toBe('Invalid context formula reference')
-    expect(problems[0].info.description).toBe(
+    const problem = problems[0] as IssueResult
+    expect(problem.code).toBe('invalid context formula reference')
+    expect(problem.info.title).toBe('Invalid context formula reference')
+    expect(problem.info.description).toBe(
       'Property **unknownKey** does not exist on context formula **themeColors**.',
     )
-    expect(problems[0].details).toEqual({
+    expect(problem.details).toEqual({
       providerName: 'provider',
       formulaName: 'themeColors',
       invalidKey: 'unknownKey',
@@ -369,7 +370,6 @@ describe('invalidContextFormulaReferenceRule', () => {
               attributes: {},
               variables: {
                 someVar: {
-                  name: 'someVar',
                   initialValue: { type: 'value', value: {} },
                 },
               },

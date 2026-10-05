@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../../searchProject'
+import type { IssueResult } from '../../../types'
 import { invalidProjectFormulaReferenceRule } from './invalidProjectFormulaReferenceRule'
 
 describe('invalidProjectFormulaReferenceRule', () => {
@@ -75,10 +76,11 @@ describe('invalidProjectFormulaReferenceRule', () => {
     )
 
     expect(problems).toHaveLength(1)
-    expect(problems[0].code).toBe('invalid project formula reference')
-    expect(problems[0].info.title).toBe('Invalid global formula reference')
-    expect(problems[0].info.description).toBe(
-      'Property **unknownKey** does not exist on global formula **myGlobalFormula**.',
+    const problem = problems[0] as IssueResult
+    expect(problem.code).toBe('invalid project formula reference')
+    expect(problem.info.title).toBe('Invalid project formula reference')
+    expect(problem.info.description).toBe(
+      'Property **unknownKey** does not exist on project formula **myGlobalFormula**.',
     )
     expect(problems[0].details).toEqual({
       formulaName: 'myGlobalFormula',
@@ -138,7 +140,10 @@ describe('invalidProjectFormulaReferenceRule', () => {
           formulas: {},
           packages: {
             'my-package': {
-              name: 'my-package',
+              manifest: {
+                name: 'my-package',
+                commit: 'abcdef1234567890',
+              },
               components: {},
               actions: {},
               formulas: {
@@ -159,8 +164,9 @@ describe('invalidProjectFormulaReferenceRule', () => {
     )
 
     expect(problems).toHaveLength(1)
-    expect(problems[0].code).toBe('invalid project formula reference')
-    expect(problems[0].details).toEqual({
+    const problem = problems[0] as IssueResult
+    expect(problem.code).toBe('invalid project formula reference')
+    expect(problem.details).toEqual({
       formulaName: 'pkgFormula',
       invalidKey: 'missingProp',
     })
