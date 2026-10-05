@@ -1,13 +1,17 @@
-import type { IssueRule } from '../../../types'
+import type { IssueRule, ProjectFormulaNode } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 import { projectFormulaIsReferenced } from './projectFormulaIsReferenced.memo'
 
-export const noReferenceProjectFormulaRule: IssueRule<void> = {
+export const noReferenceProjectFormulaRule: IssueRule<
+  void,
+  ProjectFormulaNode
+> = {
   code: 'no-reference project formula',
   level: 'warning',
   category: 'No References',
-  visit: (report, { value, path, files, nodeType, memo }) => {
-    if (nodeType !== 'project-formula' || value.exported === true) {
+  nodeTypes: 'project-formula',
+  visit: (report, { value, path, files, memo }) => {
+    if (value.exported === true) {
       return
     }
 

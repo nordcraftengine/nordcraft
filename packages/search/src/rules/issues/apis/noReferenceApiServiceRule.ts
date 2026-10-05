@@ -1,16 +1,17 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { IssueRule, ProjectApiService } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceApiServiceRule: IssueRule<{ serviceName: string }> = {
+export const noReferenceApiServiceRule: IssueRule<
+  { serviceName: string },
+  ProjectApiService
+> = {
   code: 'no-reference api service',
   level: 'warning',
   category: 'No References',
+  nodeTypes: 'api-service',
   visit: (report, args) => {
-    if (args.nodeType !== 'api-service') {
-      return
-    }
     const { value, memo, path } = args
     const serviceName = path.at(-1)
     if (typeof serviceName !== 'string') {

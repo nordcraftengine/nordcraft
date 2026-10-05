@@ -1,19 +1,20 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { ComponentNodeAttributeNode, IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const unknownComponentAttributeRule: IssueRule<{
-  name: string
-  componentName: string
-}> = {
+export const unknownComponentAttributeRule: IssueRule<
+  {
+    name: string
+    componentName: string
+  },
+  ComponentNodeAttributeNode
+> = {
   code: 'unknown component attribute',
   level: 'error',
   category: 'Unknown Reference',
+  nodeTypes: 'component-node-attribute',
   visit: (report, args) => {
-    if (
-      args.nodeType !== 'component-node-attribute' ||
-      args.node.type !== 'component'
-    ) {
+    if (args.node.type !== 'component') {
       return
     }
     const { files, value, node, path } = args

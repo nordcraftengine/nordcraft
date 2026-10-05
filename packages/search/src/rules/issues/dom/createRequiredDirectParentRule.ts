@@ -1,22 +1,23 @@
-import type { IssueRule, Level } from '../../../types'
+import type { ComponentNodeNode, IssueRule, Level } from '../../../types'
 
 export function createRequiredDirectParentRule(
   parentTags: string[],
   childTags: string[],
   level: Level = 'warning',
-): IssueRule<{
-  parentTag: string
-  childTag: string
-  allowedParentTags: string[]
-}> {
+): IssueRule<
+  {
+    parentTag: string
+    childTag: string
+    allowedParentTags: string[]
+  },
+  ComponentNodeNode
+> {
   return {
     code: 'required direct parent',
     level,
     category: 'Accessibility',
+    nodeTypes: 'component-node',
     visit: (report, args) => {
-      if (args.nodeType !== 'component-node') {
-        return
-      }
       const { value, component, path } = args
       if (value?.type !== 'element' || !childTags.includes(value.tag)) {
         return

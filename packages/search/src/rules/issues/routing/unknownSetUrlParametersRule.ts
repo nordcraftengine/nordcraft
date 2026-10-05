@@ -1,16 +1,17 @@
-import type { IssueRule } from '../../../types'
+import type { ActionModelNode, IssueRule } from '../../../types'
 
-export const unknownSetUrlParametersRule: IssueRule<{
-  name: string
-}> = {
+export const unknownSetUrlParametersRule: IssueRule<
+  {
+    name: string
+  },
+  ActionModelNode
+> = {
   code: 'unknown set url parameters',
   level: 'error',
   category: 'Unknown Reference',
+  nodeTypes: 'action-model',
   visit: (report, args) => {
-    if (
-      args.nodeType !== 'action-model' ||
-      args.value.type !== 'SetURLParameters'
-    ) {
+    if (args.value.type !== 'SetURLParameters') {
       return
     }
     const isValidParameter = (parameterName: string) =>

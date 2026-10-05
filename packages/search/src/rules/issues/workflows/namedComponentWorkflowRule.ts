@@ -8,14 +8,10 @@ export const namedComponentWorkflowRule: IssueRule<
   code: 'named component workflow',
   level: 'info',
   category: 'Deprecation',
-  visit: (report, { nodeType, value, path }) => {
+  nodeTypes: 'component-workflow',
+  visit: (report, { value, path }) => {
     const workflowKey = path.at(-1)
-    if (
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      nodeType !== 'component-workflow' ||
-      typeof value.name !== 'string' ||
-      typeof workflowKey !== 'string'
-    ) {
+    if (typeof value.name !== 'string' || typeof workflowKey !== 'string') {
       return
     }
 

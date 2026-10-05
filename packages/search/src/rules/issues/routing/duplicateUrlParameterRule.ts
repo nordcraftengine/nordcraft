@@ -1,13 +1,16 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { ComponentNode, IssueRule } from '../../../types'
 
-export const duplicateUrlParameterRule: IssueRule<{ name: string }> = {
+export const duplicateUrlParameterRule: IssueRule<
+  { name: string },
+  ComponentNode
+> = {
   code: 'duplicate url parameter',
   level: 'warning',
   category: 'Quality',
-  visit: (report, { nodeType, path, value }) => {
+  nodeTypes: 'component',
+  visit: (report, { path, value }) => {
     if (
-      nodeType !== 'component' ||
       !isDefined(value.route) ||
       !isDefined(value.route.path) ||
       !isDefined(value.route.query)

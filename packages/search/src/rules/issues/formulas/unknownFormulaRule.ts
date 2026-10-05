@@ -1,14 +1,18 @@
 import { isFormulaApplyOperation } from '@nordcraft/core/dist/formula/formula'
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 
-export const unknownFormulaRule: IssueRule<{
-  name: string
-}> = {
+export const unknownFormulaRule: IssueRule<
+  {
+    name: string
+  },
+  FormulaNode
+> = {
   code: 'unknown formula',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
-    if (nodeType !== 'formula' || !isFormulaApplyOperation(value)) {
+  nodeTypes: 'formula',
+  visit: (report, { path, files, value }) => {
+    if (!isFormulaApplyOperation(value)) {
       return
     }
 
