@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../../searchProject'
+import { applyFixResult } from '../../../util/applyFix'
 import { noReferenceContextWorkflowRule } from './noReferenceContextWorkflowRule'
 
 describe('noReferenceContextWorkflowRule', () => {
@@ -116,13 +117,14 @@ describe('noReferenceContextWorkflowRule', () => {
       noReferenceContextWorkflowRule.fixes?.[
         'remove-context-workflow-subscription'
       ]
-    const result = fix?.({
+    const fixResult = fix?.({
       data: {
-        files: files as any,
+        files,
         path: ['components', 'consumer'],
       } as any,
-      details: unusedProblem?.details as any,
+      details: unusedProblem?.details,
     })
+    const result = applyFixResult(files, fixResult)
 
     expect(result?.components.consumer?.contexts?.provider1.workflows).toEqual([
       'usedWorkflow',
@@ -164,13 +166,14 @@ describe('noReferenceContextWorkflowRule', () => {
       noReferenceContextWorkflowRule.fixes?.[
         'remove-context-workflow-subscription'
       ]
-    const result = fix?.({
+    const fixResult = fix?.({
       data: {
-        files: files as any,
+        files,
         path: ['components', 'consumer'],
       } as any,
-      details: problems[0]?.details as any,
+      details: problems[0]?.details,
     })
+    const result = applyFixResult(files, fixResult)
 
     expect(result?.components.consumer?.contexts?.provider1).toBeUndefined()
   })

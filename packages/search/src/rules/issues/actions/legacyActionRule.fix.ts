@@ -4,13 +4,12 @@ import type {
   CustomActionModel,
 } from '@nordcraft/core/dist/component/component.types'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
-import { set } from '@nordcraft/core/dist/utils/collections'
 import type { ActionModelNode, FixFunction } from '../../../types'
 import { renameArguments } from '../../../util/helpers'
 
 export const replaceLegacyAction: FixFunction<
   ActionModelNode<CustomActionModel>
-> = ({ data: { path, value, files } }) => {
+> = ({ data: { path, value } }) => {
   let newAction: ActionModel | undefined
   switch (value.name) {
     case 'If': {
@@ -154,6 +153,6 @@ export const replaceLegacyAction: FixFunction<
     }
   }
   if (newAction) {
-    return set(files, path, newAction)
+    return { path, value: newAction }
   }
 }

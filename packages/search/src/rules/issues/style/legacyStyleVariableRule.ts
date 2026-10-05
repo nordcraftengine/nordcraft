@@ -5,14 +5,12 @@ import type {
 import type { CssSyntax } from '@nordcraft/core/dist/styling/customProperty'
 import type { StyleTokenCategory } from '@nordcraft/core/dist/styling/theme'
 import type { Nullable } from '@nordcraft/core/dist/types'
-import { get, set } from '@nordcraft/core/dist/utils/collections'
 import type {
   FixFunction,
   IssueRule,
   NodeType,
   StyleVariableNode,
 } from '../../../types'
-import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
 export const legacyStyleVariableRule: IssueRule<
   {
@@ -68,10 +66,16 @@ function replaceLegacyStyleVariable(
     },
   }
 
-  return set(removeFromPathFix(args), customPropertiesPath, {
-    ...(get(args.data.files, customPropertiesPath) ?? {}),
-    [key]: value,
-  })
+  return [
+    {
+      path: args.data.path,
+      delete: true,
+    },
+    {
+      path: [...customPropertiesPath, key],
+      value,
+    },
+  ]
 }
 
 const CATEGORY_TO_SYNTAX_PRIMITIVE: Record<

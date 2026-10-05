@@ -1,5 +1,5 @@
 import { ShallowComponentSchema } from '@nordcraft/core/dist/component/schemas/component-schema'
-import { get, set } from '@nordcraft/core/dist/utils/collections'
+import { get } from '@nordcraft/core/dist/utils/collections'
 import * as v from 'valibot'
 import type {
   ComponentNode,
@@ -19,7 +19,7 @@ const changeDataTypeFix: FixFunction<ComponentNode, InvalidComponentData> = ({
   details,
 }) => {
   if (details?.issue?.kind !== 'schema') {
-    return data.files
+    return
   }
   const issuePath = convertIssuePath(details.issue.path)
   const currentValue = get(data.value, issuePath)
@@ -30,7 +30,7 @@ const changeDataTypeFix: FixFunction<ComponentNode, InvalidComponentData> = ({
         currentValue,
       )
       if (parsed.success) {
-        return set(data.files, data.path, parsed.output)
+        return { path: [...data.path, ...issuePath], value: parsed.output }
       }
       break
     }
@@ -40,7 +40,7 @@ const changeDataTypeFix: FixFunction<ComponentNode, InvalidComponentData> = ({
         currentValue,
       )
       if (parsed.success) {
-        return set(data.files, [...data.path, ...issuePath], parsed.output)
+        return { path: [...data.path, ...issuePath], value: parsed.output }
       }
       break
     }
@@ -50,14 +50,13 @@ const changeDataTypeFix: FixFunction<ComponentNode, InvalidComponentData> = ({
         currentValue,
       )
       if (parsed.success) {
-        return set(data.files, [...data.path, ...issuePath], parsed.output)
+        return { path: [...data.path, ...issuePath], value: parsed.output }
       }
       break
     }
     default:
       break
   }
-  return data.files
 }
 
 const convertIssuePath = (path?: v.BaseIssue<unknown>['path']) =>

@@ -20,7 +20,7 @@ export const noReferenceContextWorkflowRule: IssueRule<
       return
     }
 
-    if (Object.keys(value.workflows).length === 0) {
+    if (!value.workflows || Object.keys(value.workflows).length === 0) {
       return
     }
 

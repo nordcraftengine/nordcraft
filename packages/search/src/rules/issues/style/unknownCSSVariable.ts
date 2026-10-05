@@ -145,7 +145,7 @@ function addToThemeFix(
 ): ReturnType<FixFunction<StyleNode, { name: string }>> {
   const varName = args.details?.name
   if (typeof varName !== 'string' || !args.data.files.themes?.Default) {
-    return args.data.files
+    return
   }
 
   const definition: CustomPropertyDefinition = {
@@ -161,17 +161,8 @@ function addToThemeFix(
 
   // Add the variable to the theme with Any (*) syntax type
   return {
-    ...args.data.files,
-    themes: {
-      ...args.data.files.themes,
-      Default: {
-        ...args.data.files.themes.Default,
-        propertyDefinitions: {
-          ...args.data.files.themes.Default.propertyDefinitions,
-          [varName]: definition,
-        },
-      },
-    },
+    path: ['themes', 'Default', 'propertyDefinitions', varName],
+    value: definition,
   }
 }
 
@@ -181,50 +172,44 @@ function addToRootNodeFix(
 ): ReturnType<FixFunction<StyleNode, { name: string }>> {
   const varName = args.details?.name
   if (typeof varName !== 'string') {
-    return args.data.files
+    return
   }
 
   const [_fileType, componentName] = args.data.path as string[]
   const component = args.data.files.components[componentName]
   if (!component) {
-    return args.data.files
+    return
   }
 
   const rootNode = component.nodes?.root
   if (!rootNode) {
-    return args.data.files
+    return
   }
 
   if (rootNode.type !== 'component' && rootNode.type !== 'element') {
-    return args.data.files
+    return
+  }
+
+  const customProperty: CustomProperty = {
+    syntax: {
+      type: 'primitive',
+      name: '*',
+    },
+    formula: {
+      type: 'value',
+      value: null,
+    },
   }
 
   return {
-    ...args.data.files,
-    components: {
-      ...args.data.files.components,
-      [componentName]: {
-        ...component,
-        nodes: {
-          ...component.nodes,
-          root: {
-            ...rootNode,
-            customProperties: {
-              ...rootNode.customProperties,
-              [varName]: {
-                syntax: {
-                  type: 'primitive',
-                  name: '*',
-                },
-                formula: {
-                  type: 'value',
-                  value: null,
-                },
-              } as CustomProperty,
-            },
-          },
-        },
-      },
-    },
+    path: [
+      'components',
+      componentName,
+      'nodes',
+      'root',
+      'customProperties',
+      varName,
+    ],
+    value: customProperty,
   }
 }

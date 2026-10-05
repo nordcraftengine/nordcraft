@@ -301,7 +301,7 @@ export const ComponentFormulaSchema: v.GenericSchema<
     v.nullish(MetadataSchema),
     v.description(SCHEMA_DESCRIPTIONS.metadata('formula')),
   ),
-  name: v.pipe(v.string(), v.description('Name of the formula')),
+  name: v.pipe(v.optional(v.string()), v.description('Name of the formula')),
   formula: v.pipe(
     FormulaSchema,
     v.description(

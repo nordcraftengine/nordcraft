@@ -1,7 +1,9 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import { get } from '@nordcraft/core/dist/utils/collections'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-import type { ComponentFormulaNode, FixFunction } from '../../../types'
+import type {
+  ComponentFormulaNode,
+  FileUpdate,
+  FixFunction,
+} from '../../../types'
 
 export const renameNamedComponentFormulaFix: FixFunction<
   ComponentFormulaNode,
@@ -15,29 +17,44 @@ export const renameNamedComponentFormulaFix: FixFunction<
   const { name: newKey, formulaKey: oldKey } = details
   const componentName = String(path[1])
 
-  const updatedFiles = structuredClone(files) as ProjectFiles
-  const component = updatedFiles.components[componentName]
+  const component = files.components[componentName]
 
   if (!component?.formulas) {
     return
   }
 
-  // 1. Update the formula key and remove the name property
   const formula = component.formulas[oldKey]
   if (!formula) {
     return
   }
-  delete formula.name
 
-  if (String(oldKey) !== newKey) {
-    component.formulas[newKey] = { ...formula }
-    delete component.formulas[oldKey]
+  // 1. If oldKey === newKey, we only need to delete the `name` property.
+  // No references need to be updated since the formula key is unchanged.
+  if (String(oldKey) === newKey) {
+    return [
+      {
+        path: ['components', componentName, 'formulas', oldKey, 'name'],
+        delete: true,
+      },
+    ]
   }
 
-  const getComponent = (name: string) => updatedFiles.components[name]
+  const { name: _, ...cleanFormula } = formula
+  const updates: FileUpdate[] = [
+    {
+      path: ['components', componentName, 'formulas', newKey],
+      value: cleanFormula,
+    },
+    {
+      path: ['components', componentName, 'formulas', oldKey],
+      delete: true,
+    },
+  ]
+
+  const getComponent = (name: string) => files.components[name]
   const globalFormulas = {
-    formulas: updatedFiles.formulas,
-    packages: updatedFiles.packages,
+    formulas: files.formulas,
+    packages: files.packages,
   }
 
   // 2. Update all references within the same component
@@ -53,23 +70,30 @@ export const renameNamedComponentFormulaFix: FixFunction<
     formula: f,
   } of toddleComponent.formulasInComponent()) {
     if (f.type === 'apply' && f.name === String(oldKey)) {
-      // Disregard own formula reference if it was already updated or at least identify it
-      // formulasInComponent returns the formula objects, so we can mutate them in place in our cloned object
-      // But we need the actual path in the component object to be sure
-      const fullPath = ['components', componentName, ...formulaPath]
-      const currentFormula = get(updatedFiles, fullPath)
-      if (
-        currentFormula?.type === 'apply' &&
-        currentFormula.name === String(oldKey)
-      ) {
-        currentFormula.name = newKey
-      }
+      const targetPath =
+        String(oldKey) !== newKey &&
+        formulaPath[0] === 'formulas' &&
+        String(formulaPath[1]) === String(oldKey)
+          ? [
+              'components',
+              componentName,
+              'formulas',
+              newKey,
+              ...formulaPath.slice(2),
+              'name',
+            ]
+          : ['components', componentName, ...formulaPath, 'name']
+
+      updates.push({
+        path: targetPath,
+        value: newKey,
+      })
     }
   }
 
   // 3. Update context consumer references
   for (const [otherComponentName, otherComponent] of Object.entries(
-    updatedFiles.components,
+    files.components,
   )) {
     const context = otherComponent?.contexts?.[componentName]
     const formulaIndex = context?.formulas.indexOf(String(oldKey))
@@ -78,7 +102,17 @@ export const renameNamedComponentFormulaFix: FixFunction<
     }
 
     // Update context subscriptions
-    context.formulas[formulaIndex] = newKey
+    updates.push({
+      path: [
+        'components',
+        otherComponentName,
+        'contexts',
+        componentName,
+        'formulas',
+        formulaIndex,
+      ],
+      value: newKey,
+    })
 
     // Update path formulas referencing the context
     const otherToddleComponent = new ToddleComponent({
@@ -98,17 +132,13 @@ export const renameNamedComponentFormulaFix: FixFunction<
         f.path[1] === componentName &&
         f.path[2] === String(oldKey)
       ) {
-        const fullPath = ['components', otherComponentName, ...formulaPath]
-        const currentFormula = get(updatedFiles, fullPath)
-        if (
-          currentFormula?.type === 'path' &&
-          currentFormula.path[2] === String(oldKey)
-        ) {
-          currentFormula.path[2] = newKey
-        }
+        updates.push({
+          path: ['components', otherComponentName, ...formulaPath, 'path', 2],
+          value: newKey,
+        })
       }
     }
   }
 
-  return updatedFiles
+  return updates
 }

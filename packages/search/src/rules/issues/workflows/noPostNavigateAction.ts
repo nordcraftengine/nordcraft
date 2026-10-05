@@ -1,4 +1,4 @@
-import { get, set } from '@nordcraft/core/dist/utils/collections'
+import { get } from '@nordcraft/core/dist/utils/collections'
 import type {
   ActionModelNode,
   FixFunctionArgs,
@@ -54,11 +54,10 @@ export const noPostNavigateAction: IssueRule<
       if (actionIndex === undefined || !Array.isArray(actions)) {
         return
       }
-      return set(
-        files,
-        actionsArrayPath,
-        actions.slice(0, Number(actionIndex) + 1),
-      )
+      return {
+        path: actionsArrayPath,
+        value: actions.slice(0, Number(actionIndex) + 1),
+      }
     },
   },
 }
