@@ -1,13 +1,13 @@
 import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 
-export const unknownRepeatIndexFormulaRule: IssueRule = {
+export const unknownRepeatIndexFormulaRule: IssueRule<unknown, FormulaNode> = {
   code: 'unknown repeat index formula',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
+  nodeTypes: 'formula',
+  visit: (report, { path, files, value }) => {
     if (
-      nodeType !== 'formula' ||
       value.type !== 'path' ||
       value.path?.[0] !== 'ListItem' ||
       value.path?.[1] !== 'Index'

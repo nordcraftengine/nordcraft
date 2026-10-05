@@ -1,15 +1,18 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { IssueRule, StyleVariantNode } from '../../../types'
 
-export const unknownClassnameRule: IssueRule<{
-  name: string
-}> = {
+export const unknownClassnameRule: IssueRule<
+  {
+    name: string
+  },
+  StyleVariantNode
+> = {
   code: 'unknown classname',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, value, nodeType }) => {
+  nodeTypes: 'style-variant',
+  visit: (report, { path, value }) => {
     if (
-      nodeType !== 'style-variant' ||
       typeof value.variant.className !== 'string' ||
       value.element.type !== 'element' ||
       isDefined(value.element.classes?.[value.variant.className])

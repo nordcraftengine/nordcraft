@@ -1,26 +1,26 @@
 import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule, Level } from '../../../types'
+import type { ComponentNodeNode, IssueRule, Level } from '../../../types'
 
 export function createStaticSizeConstraintRule(
   tag: string,
   maxSize: number,
   level: Level = 'info',
-): IssueRule<{
-  tag: string
-  size: number
-}> {
+): IssueRule<
+  {
+    tag: string
+    size: number
+  },
+  ComponentNodeNode
+> {
   return {
     code: 'size constraint',
     category: 'Performance',
     level: level,
+    nodeTypes: 'component-node',
     visit: (report, args) => {
-      if (
-        args.nodeType === 'component-node' &&
-        args.value?.type === 'element' &&
-        args.value.tag === tag
-      ) {
+      if (args.value?.type === 'element' && args.value.tag === tag) {
         let size = 0
         const component = args.component
         const evaluateElement = (element?: NodeModel | null): string => {

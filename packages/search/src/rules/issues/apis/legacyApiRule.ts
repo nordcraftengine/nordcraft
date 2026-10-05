@@ -1,14 +1,18 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type { IssueRule } from '../../../types'
+import type { ComponentAPINode, IssueRule } from '../../../types'
 
-export const legacyApiRule: IssueRule<{
-  name: string
-}> = {
+export const legacyApiRule: IssueRule<
+  {
+    name: string
+  },
+  ComponentAPINode
+> = {
   code: 'legacy api',
   level: 'warning',
   category: 'Deprecation',
-  visit: (report, { path, value, nodeType }) => {
-    if (nodeType !== 'component-api' || !isLegacyApi(value)) {
+  nodeTypes: 'component-api',
+  visit: (report, { path, value }) => {
+    if (!isLegacyApi(value)) {
       return
     }
     report({

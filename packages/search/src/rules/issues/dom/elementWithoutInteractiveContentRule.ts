@@ -1,7 +1,7 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { ComponentNodeNode, IssueRule } from '../../../types'
 import {
   interactiveContentElementDefinition,
   type InteractiveContent,
@@ -9,17 +9,18 @@ import {
 
 const ELEMENTS_WITHOUT_INTERACTIVE_CONTENT = ['button', 'a']
 
-export const elementWithoutInteractiveContentRule: IssueRule<{
-  parentTag: string
-  invalidChild: InteractiveContent
-}> = {
+export const elementWithoutInteractiveContentRule: IssueRule<
+  {
+    parentTag: string
+    invalidChild: InteractiveContent
+  },
+  ComponentNodeNode
+> = {
   code: 'invalid element child',
   level: 'warning',
   category: 'Accessibility',
+  nodeTypes: 'component-node',
   visit: (report, args) => {
-    if (args.nodeType !== 'component-node') {
-      return
-    }
     const { value, component, path, files } = args
     if (
       value?.type !== 'element' ||

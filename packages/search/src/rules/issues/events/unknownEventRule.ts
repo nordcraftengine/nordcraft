@@ -1,15 +1,18 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { ComponentNodeNode, IssueRule } from '../../../types'
 
-export const unknownEventRule: IssueRule<{
-  name: string
-}> = {
+export const unknownEventRule: IssueRule<
+  {
+    name: string
+  },
+  ComponentNodeNode
+> = {
   code: 'unknown event',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
+  nodeTypes: 'component-node',
+  visit: (report, { path, files, value }) => {
     if (
-      nodeType !== 'component-node' ||
       value?.type !== 'component' ||
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       Object.entries(value.events ?? {}).length === 0

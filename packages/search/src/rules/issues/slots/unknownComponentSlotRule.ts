@@ -1,16 +1,16 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { SlotNodeModel } from '@nordcraft/core/dist/component/component.types'
-import type { IssueRule } from '../../../types'
+import type { ComponentNodeNode, IssueRule } from '../../../types'
 
-export const unknownComponentSlotRule: IssueRule<{ slotName: string }> = {
+export const unknownComponentSlotRule: IssueRule<
+  { slotName: string },
+  ComponentNodeNode
+> = {
   code: 'unknown component slot',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
-    if (nodeType !== 'component-node') {
-      return
-    }
-
+  nodeTypes: 'component-node',
+  visit: (report, { path, files, value }) => {
     // We only want to check the immediate children of a "sub component"
     if (value?.type !== 'component' || (value?.children ?? []).length === 0) {
       return

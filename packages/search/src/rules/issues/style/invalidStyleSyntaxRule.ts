@@ -1,24 +1,27 @@
 import { parse } from 'postcss'
-import type { IssueRule } from '../../../types'
+import type { IssueRule, StyleNode } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const invalidStyleSyntaxRule: IssueRule<{
-  property: string
-}> = {
+// Hoisted: previously re-created on every style-declaration visit.
+const FORMULA_REFERENCE_PATTERN =
+  /\b(Variables|Formulas|Event|Attributes|Apis|Parameters|ListItem|URLParameters)\.\w+/i
+
+export const invalidStyleSyntaxRule: IssueRule<
+  {
+    property: string
+  },
+  StyleNode
+> = {
   code: 'invalid style syntax',
   level: 'error',
   category: 'Quality',
-  visit: (report, { nodeType, value, path, memo }) => {
-    if (nodeType !== 'style-declaration') {
-      return
-    }
-
+  nodeTypes: 'style-declaration',
+  visit: (report, { value, path, memo }) => {
     // Check for variable/formula references: Variables., Formulas., Event., Attributes., Apis., Parameters., ListItem., URLParameters.
     if (typeof value.styleValue === 'string') {
-      const hasVariableReference =
-        /\b(Variables|Formulas|Event|Attributes|Apis|Parameters|ListItem|URLParameters)\.\w+/i.test(
-          value.styleValue,
-        )
+      const hasVariableReference = FORMULA_REFERENCE_PATTERN.test(
+        value.styleValue,
+      )
       if (hasVariableReference) {
         report({
           path,

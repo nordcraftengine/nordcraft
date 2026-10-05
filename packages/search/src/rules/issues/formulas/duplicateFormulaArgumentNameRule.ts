@@ -1,15 +1,20 @@
-import type { IssueRule } from '../../../types'
+import type {
+  ComponentFormulaNode,
+  IssueRule,
+  ProjectFormulaNode,
+} from '../../../types'
 
-export const duplicateFormulaArgumentNameRule: IssueRule<{
-  name: string
-}> = {
+export const duplicateFormulaArgumentNameRule: IssueRule<
+  {
+    name: string
+  },
+  ProjectFormulaNode | ComponentFormulaNode
+> = {
   code: 'duplicate formula argument name',
   level: 'error',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }) => {
-    if (nodeType !== 'project-formula' && nodeType !== 'component-formula') {
-      return
-    }
+  nodeTypes: ['project-formula', 'component-formula'],
+  visit: (report, { path, value }) => {
     const argumentNames = new Set<string>()
     value.arguments?.forEach((arg) => {
       if (argumentNames.has(arg.name)) {

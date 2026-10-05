@@ -1,15 +1,16 @@
-import type { IssueRule } from '../../../types'
+import type { IssueRule, ProjectActionNode } from '../../../types'
 
-export const duplicateActionArgumentNameRule: IssueRule<{
-  name: string
-}> = {
+export const duplicateActionArgumentNameRule: IssueRule<
+  {
+    name: string
+  },
+  ProjectActionNode
+> = {
   code: 'duplicate action argument name',
   level: 'error',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }) => {
-    if (nodeType !== 'project-action') {
-      return
-    }
+  nodeTypes: 'project-action',
+  visit: (report, { path, value }) => {
     const argumentNames = new Set<string>()
     value.arguments?.forEach((arg) => {
       if (argumentNames.has(arg.name)) {

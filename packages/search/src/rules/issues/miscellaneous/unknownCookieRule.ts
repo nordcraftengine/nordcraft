@@ -1,15 +1,18 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 
-export const unknownCookieRule: IssueRule<{
-  name: string
-}> = {
+export const unknownCookieRule: IssueRule<
+  {
+    name: string
+  },
+  FormulaNode
+> = {
   code: 'unknown cookie',
   level: 'info',
   category: 'Unknown Reference',
-  visit: (report, { path, value, nodeType }, state) => {
+  nodeTypes: 'formula',
+  visit: (report, { path, value }, state) => {
     if (
-      nodeType !== 'formula' ||
       value.type !== 'function' ||
       value.name !== '@toddle/getHttpOnlyCookie' ||
       state?.isBrowserExtensionAvailable !== true

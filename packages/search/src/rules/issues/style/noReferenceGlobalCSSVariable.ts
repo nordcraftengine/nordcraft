@@ -1,18 +1,19 @@
-import type { IssueRule } from '../../../types'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { IssueRule, ProjectThemePropertyNode } from '../../../types'
 
 const REGEX = /var\(\s*(--[\w-]+)/g
 
-export const noReferenceGlobalCSSVariableRule: IssueRule<{
-  name: string
-}> = {
+export const noReferenceGlobalCSSVariableRule: IssueRule<
+  {
+    name: string
+  },
+  ProjectThemePropertyNode
+> = {
   code: 'no-reference global css variable',
   level: 'info',
   category: 'No References',
-  visit: (report, { path, value, nodeType, files, memo }) => {
-    if (nodeType !== 'project-theme-property') {
-      return
-    }
-
+  nodeTypes: 'project-theme-property',
+  visit: (report, { path, value, files, memo }) => {
     const theme = files.themes?.Default
     if (!theme) {
       return
@@ -77,15 +78,19 @@ export const noReferenceGlobalCSSVariableRule: IssueRule<{
       () => {
         const vars = new Set<string>()
         Object.values(theme.propertyDefinitions ?? {}).forEach((propDef) => {
-          ;[...Object.values(propDef.values), propDef.initialValue].forEach(
-            (val) => {
-              if (typeof val === 'string') {
-                val.matchAll(REGEX).forEach(([_, varName]) => {
-                  vars.add(varName)
-                })
-              }
-            },
-          )
+          if (!isDefined(propDef)) {
+            return
+          }
+          ;[
+            ...Object.values(propDef.values ?? {}),
+            propDef.initialValue,
+          ].forEach((val) => {
+            if (typeof val === 'string') {
+              val.matchAll(REGEX).forEach(([_, varName]) => {
+                vars.add(varName)
+              })
+            }
+          })
         })
 
         return vars

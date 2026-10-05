@@ -1,17 +1,20 @@
 import type { ComponentWorkflow } from '@nordcraft/core/dist/component/component.types'
 import type { Nullable } from '@nordcraft/core/dist/types'
-import type { IssueRule } from '../../../types'
+import type { ActionModelNode, IssueRule } from '../../../types'
 
-export const unknownTriggerWorkflowParameterRule: IssueRule<{
-  parameter: string
-}> = {
+export const unknownTriggerWorkflowParameterRule: IssueRule<
+  {
+    parameter: string
+  },
+  ActionModelNode
+> = {
   code: 'unknown trigger workflow parameter',
   level: 'error',
   category: 'Unknown Reference',
+  nodeTypes: 'action-model',
   visit: (report, args) => {
-    const { path, files, value, nodeType } = args
+    const { path, files, value } = args
     if (
-      nodeType !== 'action-model' ||
       value.type !== 'TriggerWorkflow' ||
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       Object.entries(value?.parameters ?? {}).length === 0

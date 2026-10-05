@@ -10,10 +10,9 @@ export const noContextFormulaArgumentsRule: IssueRule<
   code: 'no context formula arguments',
   level: 'error',
   category: 'Quality',
-  visit: (report, { nodeType, value, path }) => {
+  nodeTypes: 'component-formula',
+  visit: (report, { value, path }) => {
     if (
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      nodeType !== 'component-formula' ||
       value.exposeInContext !== true ||
       !value.arguments ||
       value.arguments.length === 0

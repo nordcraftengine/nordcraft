@@ -1,17 +1,14 @@
 import type { NodeStyleModel } from '@nordcraft/core/dist/component/component.types'
 import type { Nullable } from '@nordcraft/core/dist/types'
-import type { IssueRule } from '../../../types'
+import type { AnimationNode, IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceAnimationRule: IssueRule = {
+export const noReferenceAnimationRule: IssueRule<unknown, AnimationNode> = {
   code: 'no-reference animation',
   level: 'warning',
   category: 'No References',
+  nodeTypes: 'animation',
   visit: (report, args) => {
-    if (args.nodeType !== 'animation') {
-      return
-    }
-
     const { value, node, path, memo } = args
     const nodePath = path.slice(0, -1).join('.')
     const usedAnimation = memo(`animations-${nodePath}`, () => {

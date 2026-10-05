@@ -1,18 +1,18 @@
-import type { IssueRule } from '../../../types'
+import type { ComponentContext, IssueRule } from '../../../types'
 
-export const unknownContextProviderWorkflowRule: IssueRule<{
-  providerName: string
-  workflowName: string
-}> = {
+export const unknownContextProviderWorkflowRule: IssueRule<
+  {
+    providerName: string
+    workflowName: string
+  },
+  ComponentContext
+> = {
   code: 'unknown context provider workflow',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
-    if (
-      nodeType !== 'component-context' ||
-      !value.componentName ||
-      (value.workflows ?? []).length === 0
-    ) {
+  nodeTypes: 'component-context',
+  visit: (report, { path, files, value }) => {
+    if (!value.componentName || (value.workflows ?? []).length === 0) {
       return
     }
 

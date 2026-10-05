@@ -1,5 +1,5 @@
 import type { CustomActionModel } from '@nordcraft/core/dist/component/component.types'
-import type { ActionModelNode, IssueRule, NodeType } from '../../../types'
+import type { ActionModelNode, IssueRule } from '../../../types'
 import { isLegacyAction } from '../../../util/helpers'
 import { replaceLegacyAction } from './legacyActionRule.fix'
 
@@ -7,16 +7,14 @@ export const legacyActionRule: IssueRule<
   {
     name: string
   },
-  NodeType,
+  ActionModelNode,
   ActionModelNode<CustomActionModel>
 > = {
   code: 'legacy action',
   level: 'warning',
   category: 'Deprecation',
-  visit: (report, { path, value, nodeType }) => {
-    if (nodeType !== 'action-model') {
-      return
-    }
+  nodeTypes: 'action-model',
+  visit: (report, { path, value }) => {
     if (isLegacyAction(value)) {
       let details: { name: string } | undefined
       if ('name' in value) {

@@ -1,19 +1,19 @@
 import type { PluginActionV2 } from '@nordcraft/core/dist/types'
-import type { IssueRule } from '../../../types'
+import type { IssueRule, ProjectPackageNode } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 import { projectActionIsReferenced } from '../actions/projectActionIsReferenced.memo'
 import { componentIsReferenced } from '../components/componentIsReferenced.memo'
 import { projectFormulaIsReferenced } from '../formulas/projectFormulaIsReferenced.memo'
 
-export const noReferenceProjectPackageRule: IssueRule<{ node: string }> = {
+export const noReferenceProjectPackageRule: IssueRule<
+  { node: string },
+  ProjectPackageNode
+> = {
   code: 'no-reference project package',
   level: 'info',
   category: 'No References',
+  nodeTypes: 'project-package',
   visit: (report, info) => {
-    if (info.nodeType !== 'project-package') {
-      return
-    }
-
     const { files, memo, path, value, packageName } = info
 
     const exportedFormulas = Object.entries(value.formulas ?? {}).filter(

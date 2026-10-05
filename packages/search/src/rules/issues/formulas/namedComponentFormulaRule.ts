@@ -8,14 +8,10 @@ export const namedComponentFormulaRule: IssueRule<
   code: 'named component formula',
   level: 'info',
   category: 'Deprecation',
-  visit: (report, { nodeType, value, path }) => {
+  nodeTypes: 'component-formula',
+  visit: (report, { value, path }) => {
     const formulaKey = path.at(-1)
-    if (
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      nodeType !== 'component-formula' ||
-      typeof value.name !== 'string' ||
-      typeof formulaKey !== 'string'
-    ) {
+    if (typeof value.name !== 'string' || typeof formulaKey !== 'string') {
       return
     }
 

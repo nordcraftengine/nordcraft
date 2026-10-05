@@ -6,7 +6,6 @@ import type {
   FixFunction,
   FixType,
   IssueRule,
-  NodeType,
 } from '../../../types'
 
 export interface InvalidComponentData {
@@ -67,16 +66,14 @@ const convertIssuePath = (path?: v.BaseIssue<unknown>['path']) =>
 
 export const invalidComponentStructureRule: IssueRule<
   InvalidComponentData,
-  NodeType,
+  ComponentNode,
   ComponentNode
 > = {
   code: 'invalid component structure',
   level: 'warning',
   category: 'Quality',
+  nodeTypes: 'component',
   visit: (report, data) => {
-    if (data.nodeType !== 'component') {
-      return
-    }
     const component = data.value
     const validation = v.safeParse(ShallowComponentSchema, component)
     if (validation.success) {

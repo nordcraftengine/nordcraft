@@ -1,15 +1,16 @@
 import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
-import type { IssueRule } from '../../../types'
+import type { CustomActionModelArgumentNode, IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const unknownActionArgumentRule: IssueRule<{ name: string }> = {
+export const unknownActionArgumentRule: IssueRule<
+  { name: string },
+  CustomActionModelArgumentNode
+> = {
   code: 'unknown action argument',
   level: 'warning',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
-    if (nodeType !== 'action-custom-model-argument') {
-      return
-    }
+  nodeTypes: 'action-custom-model-argument',
+  visit: (report, { path, files, value }) => {
     const { action, argument, argumentIndex } = value
     if (action.name.startsWith('@toddle')) {
       return

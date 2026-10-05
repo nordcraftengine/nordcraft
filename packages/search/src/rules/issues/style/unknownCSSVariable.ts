@@ -1,5 +1,6 @@
 import type { CustomProperty } from '@nordcraft/core/dist/component/component.types'
 import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { FixFunction, IssueRule, StyleNode } from '../../../types'
 
 const REGEX = /var\(\s*(--[\w-]+)/g
@@ -13,17 +14,15 @@ export const unknownCSSVariableRule: IssueRule<
   code: 'unknown css variable',
   level: 'warning',
   category: 'Unknown Reference',
-  visit: (report, { path, value, nodeType, files, memo }) => {
-    if (
-      nodeType !== 'style-declaration' ||
-      typeof value.styleValue !== 'string'
-    ) {
+  nodeTypes: 'style-declaration',
+  visit: (report, { path, value, files, memo }) => {
+    if (typeof value.styleValue !== 'string') {
       return
     }
 
     const theme = files.themes?.Default
     // Issue rule only available for projects using v2 themes
-    if (theme?.propertyDefinitions === undefined) {
+    if (!isDefined(theme?.propertyDefinitions)) {
       return
     }
 

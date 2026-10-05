@@ -1,15 +1,12 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { IssueRule, ProjectThemeNode } from '../../../types'
 
-export const legacyThemeRule: IssueRule = {
+export const legacyThemeRule: IssueRule<unknown, ProjectThemeNode> = {
   code: 'legacy theme',
   level: 'warning',
   category: 'Deprecation',
+  nodeTypes: 'project-theme',
   visit: (report, data) => {
-    if (data.nodeType !== 'project-theme') {
-      return
-    }
-
     if (isDefined(data.value.propertyDefinitions)) {
       return
     }
