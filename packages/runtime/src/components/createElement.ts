@@ -147,13 +147,12 @@ export function createElement({
             initialClasses.push(className)
           }
         } else {
-          const classSignal = dataSignal.map((data) =>
-            toBoolean(applyFormula(formula, formulaCtx, data)),
-          )
-          classSignal.subscribe((show) =>
-            show
-              ? elem.classList.add(className)
-              : elem.classList.remove(className),
+          dataSignal.subscribeMap(
+            (data) => toBoolean(applyFormula(formula, formulaCtx, data)),
+            (show) =>
+              show
+                ? elem.classList.add(className)
+                : elem.classList.remove(className),
           )
         }
       } else {
@@ -201,16 +200,18 @@ export function createElement({
         IS_PREVIEW && ctx.reportFormulaEvaluation
           ? ['nodes', id, 'attrs', attr]
           : undefined
-      const o = dataSignal.map((data) => {
-        const val = applyFormula(value, formulaCtx, data, attrPath)
-        if (IS_PREVIEW && attrPath) {
-          ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
-        }
-        return val
-      })
-      o.subscribe((val) => {
-        setAttribute(elem, attr, val)
-      })
+      dataSignal.subscribeMap(
+        (data) => {
+          const val = applyFormula(value, formulaCtx, data, attrPath)
+          if (IS_PREVIEW && attrPath) {
+            ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
+          }
+          return val
+        },
+        (val) => {
+          setAttribute(elem, attr, val)
+        },
+      )
     }
   }
   node['style-variables']?.forEach((styleVariable, i) => {
@@ -227,15 +228,16 @@ export function createElement({
       IS_PREVIEW && ctx.reportFormulaEvaluation
         ? ['nodes', id, 'style-variables', i, 'formula']
         : undefined
-    const styleSignal = dataSignal.map((data) => {
-      const value = applyFormula(formula, formulaCtx, data, styleVarPath)
-      if (IS_PREVIEW && styleVarPath) {
-        ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
-      }
-      return unit ? value + unit : value
-    })
-
-    styleSignal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
+    dataSignal.subscribeMap(
+      (data) => {
+        const value = applyFormula(formula, formulaCtx, data, styleVarPath)
+        if (IS_PREVIEW && styleVarPath) {
+          ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
+        }
+        return unit ? value + unit : value
+      },
+      (value) => elem.style.setProperty(`--${name}`, value),
+    )
   })
 
   const customProperties = node.customProperties ?? {}

@@ -15,6 +15,7 @@ import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { getComponent } from '../utils/getComponent'
 import { isStaticFormula } from '../utils/isStaticFormula'
+import type { OrderableItem } from '../utils/nodes'
 import { ensureEfficientOrdering, getNextSiblingElement } from '../utils/nodes'
 import { createComponent } from './createComponent'
 import { createElement } from './createElement'
@@ -121,13 +122,6 @@ export function createNode({
       IS_PREVIEW && ctx.reportFormulaEvaluation
         ? ['nodes', id, 'condition']
         : undefined
-    const showSignal = dataSignal.map((data) => {
-      const show = toBoolean(
-        applyFormula(node.condition, ctx, data, conditionPath),
-      )
-
-      return show
-    })
 
     const elements: Array<Element | Text> = []
     const toggle = (show: boolean) => {
@@ -168,14 +162,23 @@ export function createNode({
     }
 
     let unsubscribePreview: (() => void) | undefined
-    showSignal.subscribe(toggle, {
-      destroy: () => {
-        unsubscribePreview?.()
-        childDataSignal?.destroy()
-        elements.forEach((elem) => elem.remove())
-        elements.splice(0, elements.length)
+    let currentShow!: boolean
+    dataSignal.subscribeMap(
+      (data: ComponentData) =>
+        toBoolean(applyFormula(node.condition, ctx, data, conditionPath)),
+      (show) => {
+        currentShow = show
+        toggle(show)
       },
-    })
+      {
+        destroy: () => {
+          unsubscribePreview?.()
+          childDataSignal?.destroy()
+          elements.forEach((elem) => elem.remove())
+          elements.splice(0, elements.length)
+        },
+      },
+    )
     if (IS_PREVIEW) {
       unsubscribePreview = ctx.toddle._preview?.showSignal.subscribe(
         ({ displayedNodes, testMode }) => {
@@ -183,7 +186,7 @@ export function createNode({
             // only override the default show if we are in design mode (not test mode)
             toggle(true)
           } else {
-            toggle(showSignal.get())
+            toggle(currentShow)
           }
         },
       )
@@ -235,6 +238,7 @@ export function createNode({
     }
 
     let initialElements: ReadonlyArray<Element | Text> = []
+    let lastExplicitSyncParent: ComponentData | null = null
     const destroyRepeatItems = () =>
       Array.from(repeatItems.values()).forEach((e) => {
         e.cleanup()
@@ -304,7 +308,8 @@ export function createNode({
           elements: ReadonlyArray<Element | Text>
         }
       >()
-      const orderedElements: Array<Element | Text> = []
+      const orderedElements: Array<OrderableItem> = []
+      let didExplicitUpdate = false
       for (let n = 0; n < list.length; n++) {
         const entry = list[n]!
         const Key = entry[0]
@@ -312,6 +317,7 @@ export function createNode({
         const childKey = childKeys[n]!
         const existingItem = repeatItems.get(childKey)
         if (existingItem) {
+          didExplicitUpdate = true
           newRepeatItems.set(childKey, existingItem)
           existingItem.dataSignal.update(
             (data) => ({
@@ -328,7 +334,12 @@ export function createNode({
           )
           const existingElements = existingItem.elements
           for (let k = 0; k < existingElements.length; k++) {
-            orderedElements.push(existingElements[k]!)
+            orderedElements.push({
+              element: existingElements[k]!,
+              // Reused (previous) nodes already participate in the DOM, so
+              // they can use the state-preserving `moveBefore()`.
+              canMove: true,
+            })
           }
         } else {
           const cachedChildData = childDataCache[n]
@@ -351,6 +362,11 @@ export function createNode({
           const cleanup = dataSignal.subscribe(
             (data) => {
               if (firstRun) {
+                return
+              }
+              // Skips the redundant second push when this parent update was
+              // already applied explicitly by `updateRepeatList` above.
+              if (data === lastExplicitSyncParent) {
                 return
               }
 
@@ -398,13 +414,22 @@ export function createNode({
             elements,
           })
           for (let k = 0; k < elements.length; k++) {
-            orderedElements.push(elements[k]!)
+            orderedElements.push({
+              element: elements[k]!,
+              // Freshly created nodes are detached — `moveBefore()` would
+              // throw `HierarchyRequestError` for those, so they must use
+              // insert instead.
+              canMove: false,
+            })
           }
         }
       }
 
       repeatItems = newRepeatItems
-      initialElements = orderedElements
+      initialElements = orderedElements.map((item) => item.element)
+      if (didExplicitUpdate) {
+        lastExplicitSyncParent = data
+      }
 
       // No reason to continue if we are on first run, as the render-phase for the parent
       // has not yet been reached, or if there are no items to render
