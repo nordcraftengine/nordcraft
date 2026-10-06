@@ -69,11 +69,18 @@ export function stringifySyntaxNode(node: CssSyntaxNode): string {
 
 export function renderSyntaxDefinition(
   key: CustomPropertyName,
-  { syntax, inherits, initialValue }: CustomPropertyDefinition,
+  definition: Nullable<CustomPropertyDefinition>,
   theme: Theme,
 ): string {
+  if (!isDefined(definition)) {
+    return ''
+  }
+  const { syntax, inherits, initialValue } = definition
+  if (!isDefined(syntax)) {
+    return ''
+  }
   let value = initialValue
-  if (initialValue?.includes('var(--')) {
+  if (typeof initialValue === 'string' && initialValue.includes('var(--')) {
     value = solveVarRecursively(initialValue, theme)
   }
 
