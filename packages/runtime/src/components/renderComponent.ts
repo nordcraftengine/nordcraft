@@ -138,9 +138,9 @@ export function renderComponent({
     BATCH_QUEUE.add(() => {
       let prev: Record<string, any> | undefined
       if (hasAttributeChangeActions) {
-        dataSignal
-          .map((data) => data.Attributes)
-          .subscribe((props) => {
+        dataSignal.subscribeMap(
+          (data) => data.Attributes,
+          (props) => {
             if (prev) {
               component.onAttributeChange?.actions?.forEach((action) => {
                 void handleAction(
@@ -171,7 +171,8 @@ export function renderComponent({
               })
             }
             prev = props
-          })
+          },
+        )
       }
       if (hasOnLoadActions) {
         component.onLoad?.actions?.forEach((action) => {

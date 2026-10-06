@@ -4,8 +4,6 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 
-const CAN_MOVE = typeof (document.body as any).moveBefore === 'function'
-
 export type NodeWithNodeId = NodeModel & { nodeId: string }
 
 export interface NodeAndAncestorLookup {
@@ -117,15 +115,31 @@ export const getNextSiblingElement = (
 }
 
 /**
+ * An item to be ordered by {@link ensureEfficientOrdering}.
+ *
+ * The repeat logic knows whether an element already participates in the DOM
+ * (a previous/reused node) or was freshly created:
+ * - previous nodes can use state-preserving `moveBefore()`
+ * - fresh (detached) nodes must use `insertBefore()` — `moveBefore()` throws
+ *   `HierarchyRequestError` for those ("invalid hierarchy"), since there is no
+ *   state to preserve on first insert.
+ */
+export interface OrderableItem {
+  element: Element | Text
+  canMove: boolean
+}
+
+/**
  * This function efficiently ensures that:
  * 1. New items are added in the correct position.
  * 2. Existing items are not moved if they are already in the correct order.
  */
 export function ensureEfficientOrdering(
   parentElement: Element | ShadowRoot,
-  items: ReadonlyArray<Element | Text>,
+  items: ReadonlyArray<OrderableItem>,
   nextElement: Element | Text | null = null,
 ) {
+  const canMoveBefore = typeof (parentElement as any).moveBefore === 'function'
   // Identify the starting point for comparisons.
   let insertBeforeElement = nextElement // If insertBeforeElement is null, items will be appended at the end.
 
@@ -136,7 +150,7 @@ export function ensureEfficientOrdering(
 
   // We'll process the items array in reverse order to minimize the number of DOM operations.
   for (let i = items.length - 1; i >= 0; i--) {
-    const item = items[i]
+    const { element: item, canMove } = items[i]!
 
     // Check if the item is already in the correct position by comparing it with the currentMarker.
     if (item === currentMarker) {
@@ -145,8 +159,12 @@ export function ensureEfficientOrdering(
     } else {
       // The item is either not in the DOM or not in the correct position.
       // Insert the item before the insertBeforeElement (or append it if insertBeforeElement is null).
-      if (CAN_MOVE) {
-        parentElement.moveBefore(item, insertBeforeElement)
+      if (canMove && canMoveBefore) {
+        try {
+          parentElement.moveBefore(item, insertBeforeElement)
+        } catch {
+          parentElement.insertBefore(item, insertBeforeElement)
+        }
       } else {
         parentElement.insertBefore(item, insertBeforeElement)
       }
