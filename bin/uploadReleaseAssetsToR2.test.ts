@@ -132,8 +132,12 @@ describe('uploadReleaseAssetsToR2', () => {
       )
 
       expect(executedCommand).not.toBeNull()
-      expect(executedCommand?.command).toBe('bunx')
-      expect(executedCommand?.args).toEqual([
+      const captured = executedCommand as {
+        command: string
+        args: string[]
+      } | null
+      expect(captured?.command).toBe('bunx')
+      expect(captured?.args).toEqual([
         'wrangler',
         'r2',
         'object',

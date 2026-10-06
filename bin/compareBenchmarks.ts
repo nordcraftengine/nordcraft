@@ -140,7 +140,8 @@ const compareCase = async ({
       | 'missing-base'
       | 'missing-head'
       | 'insufficient-base'
-      | 'insufficient-head',
+      | 'insufficient-head'
+      | 'inconclusive',
   ): BenchmarkRow => ({
     caseId,
     caseName: name,
@@ -201,7 +202,16 @@ const formatPct = (value: number) =>
 const formatValue = (value: number, formatter: (number: number) => string) =>
   Number.isFinite(value) ? formatter(value) : 'n/a'
 
+export const SSR_COMPARISON_CLEAN_MARKDOWN =
+  '✅ SSR Benchmark Comparison: No regressions or improvements — performance is 1:1.'
+
+export const isComparisonClean = (rows: BenchmarkRow[]) =>
+  rows.length > 0 && rows.every((row) => row.status === 'ok')
+
 export const renderMarkdown = (rows: BenchmarkRow[], config: CompareConfig) => {
+  if (isComparisonClean(rows)) {
+    return SSR_COMPARISON_CLEAN_MARKDOWN
+  }
   const priority = (status: BenchmarkRow['status']) => {
     switch (status) {
       case 'regression':
