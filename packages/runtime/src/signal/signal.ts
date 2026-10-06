@@ -78,6 +78,33 @@ export class Signal<T> {
     })
     return signal2
   }
+  /**
+   * Subscribes to a mapped version of the signal, only notifying when the mapped value changes.
+   * This is more efficient than a map and then subscribing to the mapped signal as it skips an
+   * intermediate signal and only notifies when the mapped value actually changes.
+   */
+  subscribeMap<T2>(
+    f: (value: T) => T2,
+    notify: (value: T2) => void,
+    config?: { destroy?: () => void },
+  ) {
+    let prev = f(this.value)
+    notify(prev)
+    const subscriber = {
+      notify: (value: T) => {
+        const next = f(value)
+        if (fastDeepEqual(next, prev) === false) {
+          prev = next
+          notify(next)
+        }
+      },
+      destroy: config?.destroy,
+    }
+    this.subscribers.add(subscriber)
+    return () => {
+      this.subscribers.delete(subscriber)
+    }
+  }
 }
 
 export function signal<T>(value: T) {

@@ -87,12 +87,12 @@ export function createText({
   if (value.type !== 'value') {
     const valuePath =
       IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
-    const sig = dataSignal.map((data) =>
-      String(applyFormula(value, ctx, data, valuePath)),
+    dataSignal.subscribeMap(
+      (data) => String(applyFormula(value, ctx, data, valuePath)),
+      (value) => {
+        elem.textContent = value
+      },
     )
-    sig.subscribe((value) => {
-      elem.textContent = value
-    })
   } else {
     if (IS_PREVIEW) {
       ctx.reportFormulaEvaluation?.(
@@ -120,12 +120,12 @@ export function createTextNS({
   if (value.type !== 'value') {
     const valuePathNS =
       IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
-    const sig = dataSignal.map((data) =>
-      String(applyFormula(value, ctx, data, valuePathNS)),
+    dataSignal.subscribeMap(
+      (data) => String(applyFormula(value, ctx, data, valuePathNS)),
+      (value) => {
+        textNode.nodeValue = value
+      },
     )
-    sig.subscribe((value) => {
-      textNode.nodeValue = value
-    })
   } else {
     textNode.nodeValue = String(value.value)
   }
