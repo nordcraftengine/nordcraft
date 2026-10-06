@@ -77,15 +77,16 @@ export const noReferenceGlobalCSSVariableRule: IssueRule<{
       () => {
         const vars = new Set<string>()
         Object.values(theme.propertyDefinitions ?? {}).forEach((propDef) => {
-          ;[...Object.values(propDef.values), propDef.initialValue].forEach(
-            (val) => {
-              if (typeof val === 'string') {
-                val.matchAll(REGEX).forEach(([_, varName]) => {
-                  vars.add(varName)
-                })
-              }
-            },
-          )
+          ;[
+            ...Object.values(propDef?.values ?? {}),
+            propDef?.initialValue,
+          ].forEach((val) => {
+            if (typeof val === 'string') {
+              val.matchAll(REGEX).forEach(([_, varName]) => {
+                vars.add(varName)
+              })
+            }
+          })
         })
 
         return vars
