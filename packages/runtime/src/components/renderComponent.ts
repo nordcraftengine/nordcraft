@@ -145,9 +145,9 @@ export function renderComponent(
     BATCH_QUEUE.add(() => {
       let prev: Record<string, any> | undefined
       if (hasAttributeChangeActions) {
-        dataSignal
-          .map((data) => data.Attributes)
-          .subscribe((props) => {
+        dataSignal.subscribeMap(
+          (data) => data.Attributes,
+          (props) => {
             const previous = prev
             prev = props // always update, regardless of early returns below
 
@@ -167,7 +167,8 @@ export function renderComponent(
             for (const action of actions) {
               void handleAction(action, dataSignal.get(), ctx, event)
             }
-          })
+          },
+        )
       }
       if (hasOnLoadActions) {
         component.onLoad?.actions?.forEach((action) => {
