@@ -57,7 +57,7 @@ export class Signal<T> {
     for (const subscription of this.subscriptions) {
       subscription()
     }
-    this.subscriptions.splice(0, this.subscriptions.length)
+    this.subscriptions.length = 0
     this.destroying = false
   }
   cleanSubscribers() {
@@ -68,12 +68,42 @@ export class Signal<T> {
   }
   map<T2>(f: (value: T) => T2): Signal<T2> {
     const signal2 = signal(f(this.value))
-    signal2.subscriptions.push(
-      this.subscribe((value) => signal2.set(f(value)), {
-        destroy: () => signal2.destroy(),
-      }),
-    )
+    const subscriber = {
+      notify: (value: T) => signal2.set(f(value)),
+      destroy: () => signal2.destroy(),
+    }
+    this.subscribers.add(subscriber)
+    signal2.subscriptions.push(() => {
+      this.subscribers.delete(subscriber)
+    })
     return signal2
+  }
+  /**
+   * Subscribes to a mapped version of the signal, only notifying when the mapped value changes.
+   * This is more efficient than a map and then subscribing to the mapped signal as it skips an
+   * intermediate signal and only notifies when the mapped value actually changes.
+   */
+  subscribeMap<T2>(
+    f: (value: T) => T2,
+    notify: (value: T2) => void,
+    config?: { destroy?: () => void },
+  ) {
+    let prev = f(this.value)
+    notify(prev)
+    const subscriber = {
+      notify: (value: T) => {
+        const next = f(value)
+        if (fastDeepEqual(next, prev) === false) {
+          prev = next
+          notify(next)
+        }
+      },
+      destroy: config?.destroy,
+    }
+    this.subscribers.add(subscriber)
+    return () => {
+      this.subscribers.delete(subscriber)
+    }
   }
 }
 

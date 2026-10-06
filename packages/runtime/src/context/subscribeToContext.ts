@@ -1,13 +1,8 @@
+import '@nordcraft/core/dist/compileTime'
 import type {
   Component,
-  ComponentAttribute,
   ComponentData,
-  ComponentVariable,
 } from '@nordcraft/core/dist/component/component.types'
-import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
@@ -17,151 +12,70 @@ export function subscribeToContext(
   component: Component,
   ctx: ComponentContext,
 ) {
-  Object.entries(component.contexts ?? {}).forEach(
-    ([providerName, context]) => {
-      const providerKey = [ctx.package, providerName]
-        .filter(isDefined)
-        .join('/')
-      const provider = ctx.providers[providerKey] ?? ctx.providers[providerName]
+  const contexts = component.contexts
+  if (!contexts) {
+    return
+  }
+  const entries = Object.entries(contexts)
+  if (entries.length === 0) {
+    return
+  }
+  entries.forEach(([providerName, context]) => {
+    const providerKey = isDefined(ctx.package)
+      ? `${ctx.package}/${providerName}`
+      : providerName
+    const provider = ctx.providers[providerKey] ?? ctx.providers[providerName]
 
-      if (provider) {
-        context.formulas.forEach((formulaName) => {
-          const formulaDataSignal = provider.formulaDataSignals[formulaName]
-          if (!formulaDataSignal) {
-            // eslint-disable-next-line no-console
-            console.warn(
-              `Component error(${component.name}): Provider ${providerName} does not expose a formula named "${formulaName}". Available formulas are: ["${Object.keys(
-                provider.formulaDataSignals,
-              ).join('", "')}"]`,
-            )
-            return
-          }
-
-          const unsubscribe = formulaDataSignal.subscribe((value) => {
-            const currentContexts = componentDataSignal.value.Contexts
-            if (currentContexts?.[providerName]?.[formulaName] === value) {
-              return
-            }
-
-            componentDataSignal.update(
-              (data) => ({
-                ...data,
-                Contexts: {
-                  ...data.Contexts,
-                  [providerName]: {
-                    ...data.Contexts?.[providerName],
-                    [formulaName]: value,
-                  },
-                },
-              }),
-              // We know that the value has changed as we are just forwarding it,
-              // so we can safely force the update and skip any subsequent checks for equality
-              { force: true },
-            )
-          })
-          componentDataSignal.subscriptions.push(unsubscribe)
-        })
-      }
-
-      // In preview and absence of a real provider, we fake providers with their testData values. This is useful for testing components in isolation.
-      // This is for preview mode only, and should preferably be stripped from the page and custom-elements runtime.
-      else if (
-        !provider &&
-        ctx.env.runtime === 'preview' &&
-        ctx.toddle._preview
-      ) {
-        const testProvider = ctx.components?.find(
-          (comp) =>
-            comp.name ===
-            [ctx.package, providerName].filter(isDefined).join('/'),
-        )
-
-        if (!testProvider) {
+    if (provider) {
+      context.formulas.forEach((formulaName) => {
+        const formulaDataSignal = provider.formulaDataSignals[formulaName]
+        if (!formulaDataSignal) {
           // eslint-disable-next-line no-console
-          console.error(
-            `Component error(${component.name}): Could not find provider "${providerName}". No such component exist.`,
+          console.warn(
+            `Component error(${component.name}): Provider ${providerName} does not expose a formula named "${formulaName}". Available formulas are: ["${Object.keys(
+              provider.formulaDataSignals,
+            ).join('", "')}"]`,
           )
           return
         }
 
-        // Derive the package name from the provider name as we do not have a real component to work with
-        const [, testProviderPackage] = providerName.split('/').reverse()
-        const formulaContext: FormulaContext = {
-          data: {
-            Attributes: mapObject(
-              filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
-                testProvider.attributes ?? {},
-                ([_, attr]) => isDefined(attr),
-              ),
-              ([name, attr]) => [name, attr.testValue],
-            ),
-          },
-          component: testProvider,
-          root: ctx?.root,
-          formulaCache: {},
-          package: testProviderPackage ?? ctx?.package,
-          toddle: ctx.toddle,
-          env: ctx.env,
-          jsonPath: ctx.jsonPath,
-          reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-        }
-
-        if (testProvider.route) {
-          formulaContext.data['URL parameters'] = {
-            ...Object.fromEntries(
-              testProvider.route.path
-                .filter((p) => p.type === 'param')
-                .map((p) => [p.name, p.testValue]),
-            ),
-            ...mapObject(testProvider.route.query, ([name, { testValue }]) => [
-              name,
-              testValue,
-            ]),
+        const unsubscribe = formulaDataSignal.subscribe((value) => {
+          const currentContexts = componentDataSignal.value.Contexts
+          if (currentContexts?.[providerName]?.[formulaName] === value) {
+            return
           }
-        }
-        formulaContext.data.Variables = mapObject(
-          filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-            testProvider.variables ?? {},
-            ([_, variable]) => isDefined(variable),
-          ),
-          ([name, variable]) => [
-            name,
-            applyFormula(variable.initialValue, {
-              ...formulaContext,
-              // We should not report formula evaluations for test data on context providers
-              reportFormulaEvaluation: undefined,
+
+          componentDataSignal.update(
+            (data) => ({
+              ...data,
+              Contexts: {
+                ...data.Contexts,
+                [providerName]: {
+                  ...data.Contexts?.[providerName],
+                  [formulaName]: value,
+                },
+              },
             }),
-          ],
-        )
+            // We know that the value has changed as we are just forwarding it,
+            // so we can safely force the update and skip any subsequent checks for equality
+            { force: true },
+          )
+        })
+        componentDataSignal.subscriptions.push(unsubscribe)
+      })
+    }
 
-        componentDataSignal.update((data) => ({
-          ...data,
-          Contexts: {
-            ...data.Contexts,
-            [providerName]: Object.fromEntries(
-              context.formulas.map((formulaName) => {
-                const formula = testProvider.formulas?.[formulaName]
-                if (!formula) {
-                  // eslint-disable-next-line no-console
-                  console.warn(
-                    `Component error(${component.name}): Could not find formula "${formulaName}" in provider "${providerName}"`,
-                  )
-                  return [formulaName, null]
-                }
-
-                return [
-                  formulaName,
-                  applyFormula(formula.formula, {
-                    ...formulaContext,
-                    // We should not report formula evaluations for test data on context providers
-                    reportFormulaEvaluation: undefined,
-                  }),
-                ]
-              }),
-            ),
-          },
-        }))
-      }
-    },
-  )
+    // In preview and absence of a real provider, we fake providers with their testData values.
+    // This is useful for testing components in isolation.
+    // The implementation is injected via `toddle._preview` to avoid bundling it in all runtime bundles.
+    else if (IS_PREVIEW && !provider) {
+      ctx.toddle._preview?.providerContextMock?.({
+        componentDataSignal,
+        component,
+        ctx,
+        providerName,
+        context,
+      })
+    }
+  })
 }

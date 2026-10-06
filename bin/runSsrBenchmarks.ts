@@ -602,7 +602,6 @@ const writeReport = async ({
       const ci = `${formatPercent(result.ciLowPercent)} / ${formatPercent(result.ciHighPercent)}`
       return `| **${result.id}** | ${base} | ${head} | ${delta} | ${ci} | ${result.pValue.toExponential(2)} | ${result.timeVerdict} |`
     }),
-    '',
   ]
 
   mkdirSync(dirname(markdownPath), { recursive: true })

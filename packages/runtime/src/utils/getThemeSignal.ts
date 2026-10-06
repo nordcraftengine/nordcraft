@@ -6,7 +6,7 @@ import {
   applyFormula,
   type ToddleEnv,
 } from '@nordcraft/core/dist/formula/formula'
-import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/theme.const'
+import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/themeAttributes.const'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { signal, type Signal } from '../signal/signal'
 
@@ -19,15 +19,15 @@ export const getThemeSignal = (
   const themeFormula = theme?.formula
   const dynamicTheme = themeFormula && themeFormula.type !== 'value'
   if (dynamicTheme) {
-    const sig = dataSignal.map<string | null>(() =>
-      applyFormula(themeFormula, {
-        data: dataSignal.get(),
-        component,
-        root: document,
-        package: undefined,
-        toddle: window.toddle,
-        env,
-      }),
+    const themeFormulaCtx = {
+      component,
+      root: document,
+      package: undefined,
+      toddle: window.toddle,
+      env,
+    }
+    const sig = dataSignal.map<string | null>((data) =>
+      applyFormula(themeFormula, themeFormulaCtx, data),
     )
 
     return sig

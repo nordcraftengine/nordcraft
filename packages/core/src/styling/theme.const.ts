@@ -5,10 +5,11 @@ import {
 } from '../const'
 import type { OldTheme } from './theme'
 
-export const CUSTOM_PROPERTIES_STYLESHEET_ID = 'nc-custom-properties'
-
-export const THEME_DATA_ATTRIBUTE = 'data-nc-theme'
-export const THEME_COOKIE_NAME = 'nc-theme'
+export {
+  CUSTOM_PROPERTIES_STYLESHEET_ID,
+  THEME_COOKIE_NAME,
+  THEME_DATA_ATTRIBUTE,
+} from './themeAttributes.const'
 
 export const RESET_STYLES = `
 @layer reset {

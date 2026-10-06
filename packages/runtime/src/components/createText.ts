@@ -1,3 +1,4 @@
+import '@nordcraft/core/dist/compileTime'
 import type {
   ComponentData,
   SupportedNamespaces,
@@ -47,8 +48,11 @@ export function createText({
   const { value } = node
   const elem = document.createElement('span')
 
-  // This is editor only logic and we should move out of the runtime bundle when possible
-  if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
+  if (
+    IS_PREVIEW &&
+    ctx.env?.runtime === 'preview' &&
+    isDefined(ctx.component?.nodes)
+  ) {
     let slotName: string | undefined | null
 
     for (const node of Object.values(ctx.component.nodes)) {
@@ -65,48 +69,39 @@ export function createText({
       elem.setAttribute('data-node-slot-name', slotName)
     }
   }
-  if (ctx.isRootComponent) {
+  elem.setAttribute(DATA_ATTR_NODE_ID, id)
+
+  if (IS_PREVIEW && ctx.isRootComponent) {
     elem.setAttribute('data-is-root-component', 'true')
   }
 
-  elem.setAttribute(DATA_ATTR_NODE_ID, id)
   if (typeof id === 'string') {
     elem.setAttribute(DATA_ATTR_ID, path)
   }
-  if (ctx.isRootComponent === false) {
+  if (IS_PREVIEW && ctx.isRootComponent === false) {
     elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
   }
-  elem.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
+  if (IS_PREVIEW) {
+    elem.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
+  }
   if (value.type !== 'value') {
-    const sig = dataSignal.map((data) =>
-      String(
-        applyFormula(
-          value,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          ['value'],
-        ),
-      ),
+    const valuePath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
+    dataSignal.subscribeMap(
+      (data) => String(applyFormula(value, ctx, data, valuePath)),
+      (value) => {
+        elem.textContent = value
+      },
     )
-    sig.subscribe((value) => {
-      elem.innerText = value
-    })
   } else {
-    ctx.reportFormulaEvaluation?.(
-      [...(ctx.jsonPath ?? []), 'value'],
-      value.value,
-      ctx,
-    )
-    elem.innerText = String(value.value)
+    if (IS_PREVIEW) {
+      ctx.reportFormulaEvaluation?.(
+        [...(ctx.jsonPath ?? []), 'value'],
+        value.value,
+        ctx,
+      )
+    }
+    elem.textContent = String(value.value)
   }
   return elem
 }
@@ -123,28 +118,14 @@ export function createTextNS({
   const { value } = node
   const textNode = document.createTextNode('')
   if (value.type !== 'value') {
-    const sig = dataSignal.map((data) =>
-      String(
-        applyFormula(
-          value,
-          {
-            data,
-            component: ctx.component,
-            formulaCache: ctx.formulaCache,
-            root: ctx.root,
-            package: ctx.package,
-            toddle: ctx.toddle,
-            env: ctx.env,
-            jsonPath: ctx.jsonPath,
-            reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-          },
-          ['value'],
-        ),
-      ),
+    const valuePathNS =
+      IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
+    dataSignal.subscribeMap(
+      (data) => String(applyFormula(value, ctx, data, valuePathNS)),
+      (value) => {
+        textNode.nodeValue = value
+      },
     )
-    sig.subscribe((value) => {
-      textNode.nodeValue = value
-    })
   } else {
     textNode.nodeValue = String(value.value)
   }

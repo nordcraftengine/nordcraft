@@ -1,25 +1,23 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
+import '@nordcraft/core/dist/compileTime'
 import type {
   Component,
   ComponentData,
   ComponentFormula,
-  ComponentVariable,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/theme.const'
+import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/themeAttributes.const'
 import type {
   ActionHandler,
   ArgumentInputDataFunction,
   FormulaHandler,
   FormulaHandlerV2,
-  Nullable,
   PluginActionV2,
   Toddle,
 } from '@nordcraft/core/dist/types'
-import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import * as libActions from '@nordcraft/std-lib/dist/actions'
@@ -167,33 +165,31 @@ export const createRoot = (domNode: HTMLElement) => {
     return { ...query, ...params }
   })
 
-  const dataSignal = signal<ComponentData>({
-    ...window.toddle.pageState,
-    // Re-initialize variables since some of them might rely on client-side
-    // state (e.g. localStorage, sensors etc.)
-    Variables: mapObject(
-      filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-        component.variables ?? {},
-        ([_, variable]) => isDefined(variable),
-      ),
-      ([name, variable]) => [
-        name,
-        applyFormula(
+  const rootFormulaCtx = {
+    component,
+    formulaCache: {},
+    root: document,
+    package: undefined,
+    toddle: window.toddle,
+    env,
+  }
+  const rootVariables: Record<string, unknown> = {}
+  const pageVariables = component.variables
+  if (pageVariables) {
+    for (const name in pageVariables) {
+      const variable = pageVariables[name]
+      if (isDefined(variable)) {
+        rootVariables[name] = applyFormula(
           variable.initialValue,
-          {
-            data: window.toddle.pageState,
-            component,
-            formulaCache: {},
-            root: document,
-            package: undefined,
-            toddle: window.toddle,
-            env,
-            jsonPath: [],
-          },
-          ['variables', name],
-        ),
-      ],
-    ),
+          rootFormulaCtx,
+          window.toddle.pageState,
+        )
+      }
+    }
+  }
+  const dataSignal = signal<ComponentData>({
+    ...window.__toddle.pageState,
+    Variables: rootVariables,
   })
 
   registerComponentToLogState(component, dataSignal)
@@ -211,10 +207,9 @@ export const createRoot = (domNode: HTMLElement) => {
 
   // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
   const abortController = new AbortController()
-  dataSignal.subscribe(() => {}, {
-    destroy: () =>
-      abortController.abort(`Component ${component.name} unmounted`),
-  })
+  dataSignal.subscriptions.push(() =>
+    abortController.abort(`Component ${component.name} unmounted`),
+  )
 
   const ctx: ComponentContext = {
     component,
@@ -231,12 +226,9 @@ export const createRoot = (domNode: HTMLElement) => {
     },
     apis: {},
     toddle: window.toddle,
-    triggerEvent: (event: string, data: unknown) =>
-      // eslint-disable-next-line no-console
-      console.info('EVENT FIRED', event, data),
+    triggerEvent: () => {},
     package: undefined,
     env,
-    jsonPath: [],
   }
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
@@ -246,17 +238,11 @@ export const createRoot = (domNode: HTMLElement) => {
     ),
   ).forEach(([name, api]) => {
     if (isLegacyApi(api)) {
-      ctx.apis[name] = createLegacyAPI(api, {
-        ...ctx,
-        jsonPath: ['apis', name],
-      })
+      ctx.apis[name] = createLegacyAPI(api, ctx)
     } else {
       ctx.apis[name] = createAPI({
         apiRequest: api,
-        ctx: {
-          ...ctx,
-          jsonPath: ['apis', name],
-        },
+        ctx,
         componentData: dataSignal.get(),
       })
     }
@@ -271,21 +257,25 @@ export const createRoot = (domNode: HTMLElement) => {
   let providers = ctx.providers
   if (isContextProvider(component)) {
     // Subscribe to exposed formulas and update the component's data signal
+    const rootProviderFormulaCtx = {
+      component,
+      formulaCache: ctx.formulaCache,
+      root: ctx.root,
+      package: ctx.package,
+      toddle: window.toddle,
+      env,
+    }
     const formulaDataSignals = Object.fromEntries(
       Object.entries(component.formulas ?? {})
         .filter(([, formula]) => formula?.exposeInContext)
         .map(([name, formula]) => [
           name,
           dataSignal.map((data) =>
-            applyFormula((formula as ComponentFormula).formula, {
+            applyFormula(
+              (formula as ComponentFormula).formula,
+              rootProviderFormulaCtx,
               data,
-              component,
-              formulaCache: ctx.formulaCache,
-              root: ctx.root,
-              package: ctx.package,
-              toddle: window.toddle,
-              env,
-            }),
+            ),
           ),
         ]),
     )
@@ -302,13 +292,18 @@ export const createRoot = (domNode: HTMLElement) => {
 
   ctx.stores.theme.subscribe((newTheme) => {
     // The page's dataSignal also needs to be updated so that `Page.Theme` formulas works on page components
-    dataSignal.update((data) => ({
-      ...data,
-      Page: {
-        ...(data.Page ?? {}),
-        Theme: newTheme,
-      },
-    }))
+    if (dataSignal.get().Page?.Theme !== newTheme) {
+      dataSignal.update(
+        (data) => ({
+          ...data,
+          Page: {
+            ...(data.Page ?? {}),
+            Theme: newTheme,
+          },
+        }),
+        { force: true },
+      )
+    }
     if (isDefined(newTheme)) {
       document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
     } else {
@@ -328,7 +323,7 @@ export const createRoot = (domNode: HTMLElement) => {
     parentElement: domNode,
     instance: {},
   })
-  domNode.innerText = ''
+  domNode.textContent = ''
   elements.forEach((elem) => {
     domNode.appendChild(elem)
   })
@@ -389,8 +384,7 @@ const setupMetaUpdates = (
   component: Component,
   dataSignal: Signal<ComponentData>,
 ) => {
-  const getFormulaContext = (data: ComponentData) => ({
-    data,
+  const getFormulaContext = () => ({
     component,
     root: document,
     package: undefined,
@@ -401,15 +395,10 @@ const setupMetaUpdates = (
   const langFormula = component.route?.info?.language?.formula
   const dynamicLang = langFormula && langFormula.type !== 'value'
   if (dynamicLang) {
+    const langFormulaCtx = getFormulaContext()
     dataSignal
       .map((data) =>
-        component
-          ? applyFormula(langFormula, getFormulaContext(data), [
-              'route',
-              'info',
-              'language',
-            ])
-          : null,
+        component ? applyFormula(langFormula, langFormulaCtx, data) : null,
       )
       .subscribe((newLang) => {
         if (isDefined(newLang) && document.documentElement.lang !== newLang) {
@@ -422,15 +411,10 @@ const setupMetaUpdates = (
   const titleFormula = component.route?.info?.title?.formula
   const dynamicTitle = titleFormula && titleFormula.type !== 'value'
   if (dynamicTitle) {
+    const titleFormulaCtx = getFormulaContext()
     dataSignal
       .map((data) =>
-        component
-          ? applyFormula(titleFormula, getFormulaContext(data), [
-              'route',
-              'info',
-              'title',
-            ])
-          : null,
+        component ? applyFormula(titleFormula, titleFormulaCtx, data) : null,
       )
       .subscribe((newTitle) => {
         if (isDefined(newTitle) && document.title !== newTitle) {
@@ -492,14 +476,11 @@ const setupMetaUpdates = (
       }
     }
     if (dynamicDescription) {
+      const descriptionFormulaCtx = getFormulaContext()
       dataSignal
         .map((data) =>
           component
-            ? applyFormula(descriptionFormula, getFormulaContext(data), [
-                'route',
-                'info',
-                'description',
-              ])
+            ? applyFormula(descriptionFormula, descriptionFormulaCtx, data)
             : null,
         )
         .subscribe((newDescription) => {
@@ -543,26 +524,20 @@ const setupMetaUpdates = (
         })
     }
     if (Object.keys(dynamicMetaFormulas).length > 0) {
+      const metaFormulaCtx = getFormulaContext()
       for (const id in dynamicMetaFormulas) {
         const entry = dynamicMetaFormulas[id]
         if (entry) {
           dataSignal
             .map((data) => {
-              const context = getFormulaContext(data)
+              const context = metaFormulaCtx
               // Return the new values for all attributes (we assume they're strings)
               const values = Object.entries(entry.attrs ?? {}).reduce(
                 (agg, [key, formula]) =>
                   component
                     ? {
                         ...agg,
-                        [key]: applyFormula(formula, context, [
-                          'route',
-                          'info',
-                          'meta',
-                          id,
-                          'attrs',
-                          key,
-                        ]),
+                        [key]: applyFormula(formula, context, data),
                       }
                     : agg,
                 {},
@@ -570,7 +545,7 @@ const setupMetaUpdates = (
               return {
                 attrs: values,
                 content: entry.content
-                  ? applyFormula(entry.content, context)
+                  ? applyFormula(entry.content, context, data)
                   : undefined,
               }
             })

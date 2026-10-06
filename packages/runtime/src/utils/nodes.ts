@@ -71,29 +71,62 @@ export const getNextSiblingElement = (
   path: string,
   parentElement: Element | ShadowRoot,
 ) => {
-  const pathParts = path.split('.')
-  const lastPathPart = pathParts.slice(-1)[0]
-  const index = parseInt(lastPathPart)
-  const repeatIndex = parseInt(String(lastPathPart.split('(')[1]))
+  // Parse `path` without allocating intermediate arrays:
+  // path format is e.g. "0.3.12" or "0.3(5).12(7)"
+  const lastDot = path.lastIndexOf('.')
+  const lastPathPart = lastDot === -1 ? path : path.slice(lastDot + 1)
+  const parenIndex = lastPathPart.indexOf('(')
+  const index =
+    parenIndex === -1
+      ? parseInt(lastPathPart)
+      : parseInt(lastPathPart.slice(0, parenIndex))
+  const repeatIndex =
+    parenIndex === -1 ? NaN : parseInt(lastPathPart.slice(parenIndex + 1))
 
-  // Find the first child that either has a higher index or a similar index, but higher repeat index
-  for (const child of parentElement.children) {
+  // Indexed loop over HTMLCollection avoids iterator allocation from `for..of`
+  const children = parentElement.children
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]!
     const childPath = child.getAttribute('data-id')
-    const lastChildPathPart = childPath?.split('.').slice(-1)[0]
-    const childIndex = parseInt(String(lastChildPathPart))
-    if (
-      childIndex === index &&
-      parseInt(String(lastChildPathPart?.split('(')[1])) > repeatIndex
-    ) {
-      return child
+    if (childPath === null) {
+      continue
     }
-
-    if (childIndex > index) {
+    const childLastDot = childPath.lastIndexOf('.')
+    const lastChildPathPart =
+      childLastDot === -1 ? childPath : childPath.slice(childLastDot + 1)
+    const childParenIndex = lastChildPathPart.indexOf('(')
+    const childIndex =
+      childParenIndex === -1
+        ? parseInt(lastChildPathPart)
+        : parseInt(lastChildPathPart.slice(0, childParenIndex))
+    if (childIndex === index) {
+      if (
+        childParenIndex !== -1 &&
+        parseInt(lastChildPathPart.slice(childParenIndex + 1)) > repeatIndex
+      ) {
+        return child
+      }
+    } else if (childIndex > index) {
       return child
     }
   }
 
   return null
+}
+
+/**
+ * An item to be ordered by {@link ensureEfficientOrdering}.
+ *
+ * The repeat logic knows whether an element already participates in the DOM
+ * (a previous/reused node) or was freshly created:
+ * - previous nodes can use state-preserving `moveBefore()`
+ * - fresh (detached) nodes must use `insertBefore()` — `moveBefore()` throws
+ *   `HierarchyRequestError` for those ("invalid hierarchy"), since there is no
+ *   state to preserve on first insert.
+ */
+export interface OrderableItem {
+  element: Element | Text
+  canMove: boolean
 }
 
 /**
@@ -103,9 +136,10 @@ export const getNextSiblingElement = (
  */
 export function ensureEfficientOrdering(
   parentElement: Element | ShadowRoot,
-  items: ReadonlyArray<Element | Text>,
+  items: ReadonlyArray<OrderableItem>,
   nextElement: Element | Text | null = null,
 ) {
+  const canMoveBefore = typeof (parentElement as any).moveBefore === 'function'
   // Identify the starting point for comparisons.
   let insertBeforeElement = nextElement // If insertBeforeElement is null, items will be appended at the end.
 
@@ -116,7 +150,7 @@ export function ensureEfficientOrdering(
 
   // We'll process the items array in reverse order to minimize the number of DOM operations.
   for (let i = items.length - 1; i >= 0; i--) {
-    const item = items[i]
+    const { element: item, canMove } = items[i]!
 
     // Check if the item is already in the correct position by comparing it with the currentMarker.
     if (item === currentMarker) {
@@ -125,7 +159,15 @@ export function ensureEfficientOrdering(
     } else {
       // The item is either not in the DOM or not in the correct position.
       // Insert the item before the insertBeforeElement (or append it if insertBeforeElement is null).
-      parentElement.insertBefore(item, insertBeforeElement)
+      if (canMove && canMoveBefore) {
+        try {
+          parentElement.moveBefore(item, insertBeforeElement)
+        } catch {
+          parentElement.insertBefore(item, insertBeforeElement)
+        }
+      } else {
+        parentElement.insertBefore(item, insertBeforeElement)
+      }
     }
 
     // Update insertBeforeElement to the current item for the next iteration, as we need to insert subsequent items before this one.
