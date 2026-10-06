@@ -115,7 +115,10 @@ export const unknownCSSVariableRule: IssueRule<
     const rootNodeType =
       files.components?.[componentName]?.nodes?.[nodeName]?.type
     for (const varName of vars) {
-      if (!(varName in themeCssVariables) && !localCssVariables.has(varName)) {
+      if (
+        !(varName in (themeCssVariables ?? {})) &&
+        !localCssVariables.has(varName)
+      ) {
         report({
           path,
           info: {
