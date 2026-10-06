@@ -632,12 +632,37 @@ export interface FixProblemsArgs {
   fixType: FixType
 }
 
-export interface FixProblemsResponse {
+export interface CancelFixArgs {
+  type: 'cancel-fix'
+  id: string
+}
+
+export interface FixProblemsProgressResponse {
+  id: string
+  fixRule: Code
+  fixType: FixType
+  fixed: number
+  total: number
+  path?: (string | number)[]
+  nextPath?: (string | number)[]
+  complete?: false
+}
+
+export interface FixProblemsCompleteResponse {
   id: string
   patch: Delta
   fixRule: Code
   fixType: FixType
+  fixed: number
+  total: number
+  complete: true
+  cancelled?: boolean
+  cancelReason?: string
 }
+
+export type FixProblemsResponse =
+  | FixProblemsProgressResponse
+  | FixProblemsCompleteResponse
 
 export interface SearchArgs {
   id: string
