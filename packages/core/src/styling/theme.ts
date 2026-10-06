@@ -78,7 +78,9 @@ export type Theme = {
   default?: string
   defaultDark?: string
   defaultLight?: string
-  propertyDefinitions?: Record<CustomPropertyName, CustomPropertyDefinition>
+  propertyDefinitions?: Nullable<
+    Record<CustomPropertyName, Nullable<CustomPropertyDefinition>>
+  >
   themes?: Record<
     string,
     {
@@ -98,13 +100,13 @@ export type Theme = {
 }
 
 export type CustomPropertyDefinition = {
-  syntax: CssSyntaxNode
-  inherits: boolean
+  syntax: Nullable<CssSyntaxNode>
+  inherits: Nullable<boolean>
   initialValue: Nullable<string> // Required by CSS specs for default-theme, but we can do a fallback so null is allowed
-  description: string
+  description: Nullable<string>
   // Values mapped to theme names.
   // Values are not required, if left out, the default theme value will be used. If no default theme value exists, initialValue will be used.
-  values: Record<string, Nullable<string>>
+  values: Nullable<Record<string, Nullable<string>>>
 }
 
 export const getThemeCss = (
@@ -456,6 +458,9 @@ export function getThemeEntries(
   for (const [propertyName, definition] of Object.entries(
     theme.propertyDefinitions ?? {},
   )) {
+    if (!isDefined(definition)) {
+      continue
+    }
     const value = definition.values?.[themeName]
     if (!isDefined(value)) {
       continue
