@@ -9,7 +9,10 @@ import {
 } from '@nordcraft/core/dist/formula/formula'
 import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
-import type { Theme } from '@nordcraft/core/dist/styling/theme'
+import type {
+  CustomPropertyDefinition,
+  Theme,
+} from '@nordcraft/core/dist/styling/theme'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Signal } from '../signal/signal'
@@ -97,18 +100,18 @@ export const applyPreviewStyle = (options: {
   if (theme) {
     theme.value.propertyDefinitions = Object.fromEntries(
       Object.entries(theme.value.propertyDefinitions ?? {})
-        .filter(([key]) => previewStyleStyles[key])
+        .filter(([key, val]) => isDefined(val) && previewStyleStyles[key])
         .map(([key, val]) => [
           key,
           {
             ...val,
             values: {
-              ...val.values,
+              ...(val?.values ?? {}),
               [theme.key]: previewStyleStyles[key],
             },
           },
         ]),
-    )
+    ) as Record<string, CustomPropertyDefinition>
     const newCss = getThemeCssBlocks(theme)
     if (styleElement.textContent !== newCss) {
       styleElement.textContent = newCss
