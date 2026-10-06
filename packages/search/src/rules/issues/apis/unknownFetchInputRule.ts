@@ -1,25 +1,20 @@
 import { get } from '@nordcraft/core/dist/utils/collections'
-import type {
-  ActionModelNode,
-  FixFunction,
-  IssueRule,
-  NodeType,
-} from '../../../types'
+import type { ActionModelNode, FixFunction, IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
 export const unknownFetchInputRule: IssueRule<
   {
     name: string
   },
-  NodeType,
+  ActionModelNode,
   ActionModelNode
 > = {
   code: 'unknown fetch input',
   level: 'warning',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
+  nodeTypes: 'action-model',
+  visit: (report, { path, files, value }) => {
     if (
-      nodeType !== 'action-model' ||
       value.type !== 'Fetch' ||
       Object.keys(value.inputs ?? {}).length === 0
     ) {

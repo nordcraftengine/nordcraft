@@ -1,5 +1,6 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { ComponentContext, IssueRule, NodeType } from '../../../types'
+import type { ComponentContext, IssueRule } from '../../../types'
+import { getFormulasInComponent } from '../../../util/componentTraversal'
 import { removeContextFormulaSubscription } from './noReferenceContextFormulaRule.fix'
 
 /**
@@ -15,12 +16,9 @@ export const noReferenceContextFormulaRule: IssueRule<
   code: 'no-reference context formula',
   level: 'warning',
   category: 'No References',
-  visit: (report, { path, files, value, nodeType, memo }) => {
-    if ((nodeType as NodeType['nodeType']) !== 'component-context') {
-      return
-    }
-
-    if (!value.formulas || Object.keys(value.formulas).length === 0) {
+  nodeTypes: 'component-context',
+  visit: (report, { path, files, value, memo }) => {
+    if (Object.keys(value.formulas).length === 0) {
       return
     }
 
@@ -45,7 +43,7 @@ export const noReferenceContextFormulaRule: IssueRule<
         })
 
         const used = new Set<string>()
-        for (const { formula } of component.formulasInComponent()) {
+        for (const { formula } of getFormulasInComponent(memo, component)) {
           if (
             formula.type === 'path' &&
             formula.path[0] === 'Contexts' &&

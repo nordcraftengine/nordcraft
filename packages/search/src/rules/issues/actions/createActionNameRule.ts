@@ -1,4 +1,10 @@
-import type { Category, Code, IssueRule, Level } from '../../../types'
+import type {
+  ActionModelNode,
+  Category,
+  Code,
+  IssueRule,
+  Level,
+} from '../../../types'
 
 /**
  * Generic rule factory for creating a rule that checks for a specific action name.
@@ -21,16 +27,19 @@ export function createActionNameRule({
   }
   category?: Category
   level?: Level
-}): IssueRule<{
-  name: string
-}> {
+}): IssueRule<
+  {
+    name: string
+  },
+  ActionModelNode
+> {
   return {
     code,
     category,
     level,
-    visit: (report, { path, value, nodeType }) => {
+    nodeTypes: 'action-model',
+    visit: (report, { path, value }) => {
       if (
-        nodeType !== 'action-model' ||
         (value.type !== undefined && value.type !== 'Custom') ||
         value.name !== name
       ) {

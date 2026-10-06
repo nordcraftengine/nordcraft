@@ -3,23 +3,19 @@ import type {
   ActionModelNode,
   FixFunctionArgs,
   IssueRule,
-  NodeType,
 } from '../../../types'
 
 export const noPostNavigateAction: IssueRule<
   { parameter: string },
-  NodeType,
+  ActionModelNode,
   ActionModelNode
 > = {
   code: 'no post navigate action',
   level: 'warning',
   category: 'Quality',
-  visit: (report, { nodeType, path, value, files }) => {
-    if (
-      nodeType !== 'action-model' ||
-      value.type !== undefined ||
-      value.name !== '@toddle/gotToURL'
-    ) {
+  nodeTypes: 'action-model',
+  visit: (report, { path, value, files }) => {
+    if (value.type !== undefined || value.name !== '@toddle/gotToURL') {
       return
     }
     const actionsArrayPath = path.slice(0, -1)

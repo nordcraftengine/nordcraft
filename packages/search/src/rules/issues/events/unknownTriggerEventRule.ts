@@ -1,13 +1,17 @@
-import type { IssueRule } from '../../../types'
+import type { ActionModelNode, IssueRule } from '../../../types'
 
-export const unknownTriggerEventRule: IssueRule<{
-  name: string
-}> = {
+export const unknownTriggerEventRule: IssueRule<
+  {
+    name: string
+  },
+  ActionModelNode
+> = {
   code: 'unknown trigger event',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
-    if (nodeType !== 'action-model' || value.type !== 'TriggerEvent') {
+  nodeTypes: 'action-model',
+  visit: (report, { path, files, value }) => {
+    if (value.type !== 'TriggerEvent') {
       return
     }
 

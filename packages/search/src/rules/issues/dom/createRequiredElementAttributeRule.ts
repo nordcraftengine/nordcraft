@@ -1,5 +1,5 @@
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule, Level } from '../../../types'
+import type { ComponentNodeNode, IssueRule, Level } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 /**
@@ -19,21 +19,21 @@ export function createRequiredElementAttributeRule({
   attribute: string | string[]
   level?: Level
   allowEmptyString?: boolean
-}): IssueRule<{
-  tag: string
-  attribute: string
-}> {
+}): IssueRule<
+  {
+    tag: string
+    attribute: string
+  },
+  ComponentNodeNode
+> {
   const mainAttribute = Array.isArray(attribute) ? attribute[0] : attribute
   return {
     code: 'required element attribute',
     level: level,
     category: 'Accessibility',
-    visit: (report, { path, nodeType, value }) => {
-      if (
-        nodeType === 'component-node' &&
-        value?.type === 'element' &&
-        value.tag === tag
-      ) {
+    nodeTypes: 'component-node',
+    visit: (report, { path, value }) => {
+      if (value?.type === 'element' && value.tag === tag) {
         const attributes = Array.isArray(attribute) ? attribute : [attribute]
         if (
           attributes.some((attr) => {

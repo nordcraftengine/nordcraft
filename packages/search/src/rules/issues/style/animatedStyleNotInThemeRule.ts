@@ -1,15 +1,12 @@
 import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme'
-import type { IssueRule } from '../../../types'
+import type { AnimationNode, IssueRule } from '../../../types'
 
-export const animatedStyleNotInThemeRule: IssueRule = {
+export const animatedStyleNotInThemeRule: IssueRule<unknown, AnimationNode> = {
   code: 'animated style not in theme',
   level: 'warning',
   category: 'No References',
-  visit: (report, { files, value, path, nodeType }) => {
-    if (nodeType !== 'animation') {
-      return
-    }
-
+  nodeTypes: 'animation',
+  visit: (report, { files, value, path }) => {
     const themeProperties = files.themes?.Default?.propertyDefinitions
     if (!themeProperties) {
       return
@@ -32,6 +29,7 @@ export const animatedStyleNotInThemeRule: IssueRule = {
       if (
         !(themeProperties[prop as `--${string}`] as
           | CustomPropertyDefinition
+          | null
           | undefined)
       ) {
         report({

@@ -1,15 +1,17 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { ComponentAPINode, IssueRule } from '../../../types'
+import {
+  getActionsInComponent,
+  getFormulasInComponent,
+} from '../../../util/componentTraversal'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceApiRule: IssueRule<void> = {
+export const noReferenceApiRule: IssueRule<void, ComponentAPINode> = {
   code: 'no-reference api',
   level: 'warning',
   category: 'No References',
+  nodeTypes: 'component-api',
   visit: (report, args) => {
-    if (args.nodeType !== 'component-api') {
-      return
-    }
     const { value, memo, component } = args
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!component) {
@@ -31,7 +33,10 @@ export const noReferenceApiRule: IssueRule<void> = {
       `componentApiReferences/${component.name}]`,
       () => {
         const usedApis = new Set<string>()
-        for (const { formula, path } of component.formulasInComponent()) {
+        for (const { formula, path } of getFormulasInComponent(
+          memo,
+          component,
+        )) {
           const [
             apis,
             apiName,
@@ -67,7 +72,7 @@ export const noReferenceApiRule: IssueRule<void> = {
             usedApis.add(apiName)
           }
         }
-        for (const [, action] of component.actionModelsInComponent()) {
+        for (const { action } of getActionsInComponent(memo, component)) {
           if (action.type === 'Fetch') {
             usedApis.add(action.api)
           }

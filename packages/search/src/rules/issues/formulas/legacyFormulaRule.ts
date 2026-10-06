@@ -2,22 +2,22 @@ import type { FunctionOperation } from '@nordcraft/core/dist/formula/formula'
 import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-import type { FormulaNode, IssueRule, NodeType } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 import { replaceLegacyFormula } from './legacyFormulaRule.fix'
 
 export const legacyFormulaRule: IssueRule<
   {
     name: string
   },
-  NodeType,
+  FormulaNode,
   FormulaNode<FunctionOperation>
 > = {
   code: 'legacy formula',
   level: 'warning',
   category: 'Deprecation',
+  nodeTypes: 'formula',
   visit: (report, data) => {
     if (
-      data.nodeType !== 'formula' ||
       data.value.type !== 'function' ||
       !isLegacyFormula(data.value, data.files)
     ) {

@@ -1,12 +1,15 @@
-import type { IssueRule } from '../../../types'
+import type { ActionModelNode, IssueRule } from '../../../types'
 
-export const unknownProjectActionRule: IssueRule<{ name: string }> = {
+export const unknownProjectActionRule: IssueRule<
+  { name: string },
+  ActionModelNode
+> = {
   code: 'unknown project action',
   level: 'warning',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
+  nodeTypes: 'action-model',
+  visit: (report, { path, files, value }) => {
     if (
-      nodeType !== 'action-model' ||
       (value.type !== undefined && value.type !== 'Custom') ||
       (value.name ?? '').startsWith('@toddle/')
     ) {

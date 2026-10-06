@@ -1,18 +1,22 @@
 import type { RouteDeclaration } from '@nordcraft/core/dist/component/component.types'
 import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
-import type { IssueRule } from '../../../types'
+import type { ComponentNode, IssueRule } from '../../../types'
 
-export const duplicateRouteRule: IssueRule<{
-  name: string
-  type: 'route' | 'page'
-  duplicates: Array<{ name: string; type: 'route' | 'page' }>
-}> = {
+export const duplicateRouteRule: IssueRule<
+  {
+    name: string
+    type: 'route' | 'page'
+    duplicates: Array<{ name: string; type: 'route' | 'page' }>
+  },
+  ComponentNode
+> = {
   code: 'duplicate route',
   level: 'warning',
   category: 'Quality',
+  nodeTypes: 'component',
   visit: (report, args) => {
-    const { nodeType, value, files, memo, path } = args
-    if (nodeType !== 'component' || !isPageComponent(value)) {
+    const { value, files, memo, path } = args
+    if (!isPageComponent(value)) {
       return
     }
     const getRouteKey = (route: RouteDeclaration['path']) =>

@@ -1,12 +1,15 @@
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 
-export const unknownProjectFormulaRule: IssueRule<{ name: string }> = {
+export const unknownProjectFormulaRule: IssueRule<
+  { name: string },
+  FormulaNode
+> = {
   code: 'unknown project formula',
   level: 'warning',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
+  nodeTypes: 'formula',
+  visit: (report, { path, files, value }) => {
     if (
-      nodeType !== 'formula' ||
       value.type !== 'function' ||
       (value.name ?? '').startsWith('@toddle/')
     ) {

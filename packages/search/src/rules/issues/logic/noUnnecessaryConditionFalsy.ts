@@ -1,12 +1,13 @@
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
-export const noUnnecessaryConditionFalsy: IssueRule = {
+export const noUnnecessaryConditionFalsy: IssueRule<unknown, FormulaNode> = {
   code: 'no-unnecessary-condition-falsy',
   level: 'info',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }) => {
-    if (nodeType !== 'formula' || value.type !== 'and') {
+  nodeTypes: 'formula',
+  visit: (report, { path, value }) => {
+    if (value.type !== 'and') {
       return
     }
 

@@ -1,5 +1,6 @@
 import type { CustomProperty } from '@nordcraft/core/dist/component/component.types'
 import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme'
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { FixFunction, IssueRule, StyleNode } from '../../../types'
 
 const REGEX = /var\(\s*(--[\w-]+)/g
@@ -13,22 +14,23 @@ export const unknownCSSVariableRule: IssueRule<
   code: 'unknown css variable',
   level: 'warning',
   category: 'Unknown Reference',
-  visit: (report, { path, value, nodeType, files, memo }) => {
-    if (
-      nodeType !== 'style-declaration' ||
-      typeof value.styleValue !== 'string'
-    ) {
+  nodeTypes: 'style-declaration',
+  visit: (report, { path, value, files, memo }) => {
+    if (typeof value.styleValue !== 'string') {
+      return
+    }
+    if (!value.styleValue.includes('var(')) {
       return
     }
 
     const theme = files.themes?.Default
     // Issue rule only available for projects using v2 themes
-    if (theme?.propertyDefinitions === undefined) {
+    if (!isDefined(theme?.propertyDefinitions)) {
       return
     }
 
     // Has a style property definition
-    const vars = [...value.styleValue.toString().matchAll(REGEX)].map(
+    const vars = [...value.styleValue.matchAll(REGEX)].map(
       ([_, varName]) => varName,
     )
     if (vars.length === 0) {
@@ -36,81 +38,133 @@ export const unknownCSSVariableRule: IssueRule<
     }
 
     const themeCssVariables = theme.propertyDefinitions
-    const [_fileType, componentName, _nodes, nodeName] = path
-    const localCssVariables = memo(
-      `component-css-variables-${componentName}-${nodeName}`,
-      () => {
-        const vars = new Set<string>()
-        const component = files.components[componentName]
-        if (!component) {
-          return vars
-        }
-
-        const visitVars = (nodeName: string) => {
-          const node = component?.nodes?.[nodeName]
-          if (!node) {
-            return
-          }
-
-          if (node.type === 'component' || node.type === 'element') {
-            Object.keys(node.customProperties ?? {}).forEach((varName) => {
-              vars.add(varName)
-            })
-            Object.values(node.variants ?? {}).forEach((variant) => {
-              Object.keys(variant.customProperties ?? {}).forEach((varName) => {
-                vars.add(varName)
-              })
-            })
-
-            // Also add legacy style variables
-            if (node.type === 'element' && node['style-variables']) {
-              node['style-variables'].forEach((styleVar) => {
-                vars.add(`--${styleVar.name}`)
-              })
+    const componentName = path[1]
+    const nodeName = path[3]
+    const component = files.components[componentName as string]
+    const nodes = component?.nodes ?? {}
+    const parentByNode = memo(`component-parents-${componentName}`, () => {
+      const map = new Map<string, string>()
+      for (const [name, node] of Object.entries(nodes)) {
+        const children = (node as { children?: unknown })?.children
+        if (Array.isArray(children)) {
+          for (const child of children) {
+            if (typeof child === 'string' && !map.has(child)) {
+              map.set(child, name)
             }
+          }
+        }
+      }
+      return map
+    }) as Map<string, string>
+    const varsCache = memo(
+      `component-css-variables-cache-${componentName}`,
+      () => new Map<string, Set<string>>(),
+    ) as Map<string, Set<string>>
 
-            // Add if declared in any parent styles object
-            Object.keys(node.style ?? {}).forEach((styleKey) => {
+    const collectOwnVars = (node: {
+      type?: string
+      name?: string
+      customProperties?: Record<string, unknown>
+      variants?: Array<{
+        customProperties?: Record<string, unknown>
+        style?: Record<string, unknown>
+      }>
+      style?: Record<string, unknown>
+      'style-variables'?: Array<{ name: string }>
+    }): Set<string> => {
+      const vars = new Set<string>()
+      if (node.type !== 'component' && node.type !== 'element') {
+        return vars
+      }
+      const customProperties = node.customProperties
+      if (customProperties) {
+        for (const varName in customProperties) {
+          vars.add(varName)
+        }
+      }
+      const variants = node.variants
+      if (variants) {
+        for (const variant of variants) {
+          const variantCustomProperties = variant.customProperties
+          if (variantCustomProperties) {
+            for (const varName in variantCustomProperties) {
+              vars.add(varName)
+            }
+          }
+        }
+      }
+
+      // Also add legacy style variables
+      if (node.type === 'element' && node['style-variables']) {
+        for (const styleVar of node['style-variables']) {
+          vars.add(`--${styleVar.name}`)
+        }
+      }
+
+      // Add if declared in any parent styles object
+      const style = node.style
+      if (style) {
+        for (const styleKey in style) {
+          if (styleKey.startsWith('--')) {
+            vars.add(styleKey)
+          }
+        }
+      }
+      if (variants) {
+        for (const variant of variants) {
+          const variantStyle = variant.style
+          if (variantStyle) {
+            for (const styleKey in variantStyle) {
               if (styleKey.startsWith('--')) {
                 vars.add(styleKey)
               }
-            })
-            Object.values(node.variants ?? {}).forEach((variant) => {
-              Object.keys(variant.style ?? {}).forEach((styleKey) => {
-                if (styleKey.startsWith('--')) {
-                  vars.add(styleKey)
-                }
-              })
-            })
-
-            // If the node is a component, add variables declared on the component's root
-            if (node.type === 'component') {
-              const referencedComponent = files.components[node.name]
-              if (referencedComponent) {
-                const rootNode = referencedComponent.nodes?.root
-                if (rootNode) {
-                  Object.keys((rootNode as any).customProperties ?? {}).forEach(
-                    (varName) => {
-                      vars.add(varName)
-                    },
-                  )
-                }
-              }
             }
           }
+        }
+      }
 
-          const parent = Object.entries(component.nodes ?? {}).find(([_, n]) =>
-            n?.children?.includes(nodeName),
-          )
-          if (parent) {
-            visitVars(parent[0])
+      // If the node is a component, add variables declared on the component's root
+      if (node.type === 'component' && typeof node.name === 'string') {
+        const referencedComponent = files.components[node.name]
+        const rootNode = referencedComponent?.nodes?.root as
+          | { customProperties?: Record<string, unknown> }
+          | undefined
+        const rootCustomProperties = rootNode?.customProperties
+        if (rootCustomProperties) {
+          for (const varName in rootCustomProperties) {
+            vars.add(varName)
           }
         }
+      }
+      return vars
+    }
 
-        visitVars(nodeName.toString())
-        return vars
-      },
-    )
+    const getLocalVars = (currentNodeName: string): Set<string> => {
+      const cached = varsCache.get(currentNodeName)
+      if (cached) {
+        return cached
+      }
+      // Insert empty set up-front to guard against cycles, then fill it.
+      const vars = new Set<string>()
+      varsCache.set(currentNodeName, vars)
+      const node = nodes[currentNodeName] as
+        | Parameters<typeof collectOwnVars>[0]
+        | undefined
+      if (node) {
+        for (const v of collectOwnVars(node)) {
+          vars.add(v)
+        }
+      }
+      const parentName = parentByNode.get(currentNodeName)
+      if (parentName !== undefined) {
+        for (const parentVar of getLocalVars(parentName)) {
+          vars.add(parentVar)
+        }
+      }
+      return vars
+    }
+
+    const localCssVariables = getLocalVars(String(nodeName))
 
     const rootNodeType =
       files.components?.[componentName]?.nodes?.[nodeName]?.type

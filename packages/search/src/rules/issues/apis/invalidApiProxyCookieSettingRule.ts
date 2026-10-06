@@ -1,14 +1,17 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import { get } from '@nordcraft/core/dist/utils/collections'
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 
-export const invalidApiProxyCookieSettingRule: IssueRule<{ api: string }> = {
+export const invalidApiProxyCookieSettingRule: IssueRule<
+  { api: string },
+  FormulaNode
+> = {
   code: 'invalid api proxy cookie setting',
   level: 'warning',
   category: 'Quality',
-  visit: (report, { files, nodeType, value, path }) => {
+  nodeTypes: 'formula',
+  visit: (report, { files, value, path }) => {
     if (
-      nodeType !== 'formula' ||
       value.type !== 'function' ||
       value.name !== '@toddle/getHttpOnlyCookie'
     ) {

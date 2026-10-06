@@ -1,18 +1,22 @@
 import { isFormula } from '@nordcraft/core/dist/formula/formula'
-import type { IssueRule, Level } from '../../../types'
+import type { ComponentNode, IssueRule, Level } from '../../../types'
 
 export function createRequiredMetaTagRule(
   tag: string,
   level: Level = 'warning',
-): IssueRule<{
-  tag: string
-}> {
+): IssueRule<
+  {
+    tag: string
+  },
+  ComponentNode
+> {
   return {
     code: 'required meta tag',
     level: level,
     category: 'SEO',
-    visit: (report, { path, nodeType, value }) => {
-      if (!(nodeType === 'component' && value.route)) {
+    nodeTypes: 'component',
+    visit: (report, { path, value }) => {
+      if (!value.route) {
         return
       }
 

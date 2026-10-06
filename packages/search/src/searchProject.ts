@@ -153,8 +153,8 @@ export function* searchProject({
       state,
       fixOptions: fixOptions as any,
     })
-    for (const propKey in files.themes[key].propertyDefinitions ?? {}) {
-      const propDef = files.themes[key].propertyDefinitions?.[propKey as any]
+    for (const propKey in files.themes[key]?.propertyDefinitions ?? {}) {
+      const propDef = files.themes[key]?.propertyDefinitions?.[propKey as any]
       if (propDef) {
         yield* visitNode({
           args: {
@@ -252,6 +252,39 @@ export function* searchProject({
   }
 }
 
+/**
+ * Cache of rules partitioned by node type, keyed by rules-array identity.
+ *
+ * Each visited node only invokes the rules that declare the node's type in
+ * `nodeTypes`, instead of all rules. Rules without `nodeTypes` visit every
+ * node. Each per-nodeType array preserves the original rule order so
+ * reporting order is unchanged.
+ */
+const rulesByNodeTypeCache = new WeakMap<Rule[], Map<string, Rule[]>>()
+
+const rulesForNodeType = (rules: Rule[], nodeType: string): Rule[] => {
+  let byNodeType = rulesByNodeTypeCache.get(rules)
+  if (!byNodeType) {
+    byNodeType = new Map<string, Rule[]>()
+    rulesByNodeTypeCache.set(rules, byNodeType)
+  }
+  const cached = byNodeType.get(nodeType)
+  if (cached) {
+    return cached
+  }
+  const matching = rules.filter((rule) => {
+    if (!rule.nodeTypes) {
+      return true
+    }
+    const declared = Array.isArray(rule.nodeTypes)
+      ? rule.nodeTypes
+      : [rule.nodeTypes]
+    return declared.includes(nodeType as never)
+  })
+  byNodeType.set(nodeType, matching)
+  return matching
+}
+
 function visitNode(args: {
   args: {
     path: (string | number)[]
@@ -307,7 +340,8 @@ function* visitNode({
   ) {
     const results: IssueResult[] | SearchResult[] = []
     let fixedFiles: ProjectFiles | undefined
-    for (const rule of rules as (IssueRule & SearchRule)[]) {
+    for (const rule of rulesForNodeType(rules, nodeType) as (IssueRule &
+      SearchRule)[]) {
       rule.visit(
         // Report callback used to report issues
         ({ path, details, fixes, info }) => {

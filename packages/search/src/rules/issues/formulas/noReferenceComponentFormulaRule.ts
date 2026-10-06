@@ -1,25 +1,30 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { IssueRule } from '../../../types'
+import type { ComponentFormulaNode, IssueRule } from '../../../types'
+import { getFormulasInComponent } from '../../../util/componentTraversal'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceComponentFormulaRule: IssueRule<{
-  name: string
-  contextSubscribers: string[]
-}> = {
+export const noReferenceComponentFormulaRule: IssueRule<
+  {
+    name: string
+    contextSubscribers: string[]
+  },
+  ComponentFormulaNode
+> = {
   code: 'no-reference component formula',
   level: 'warning',
   category: 'No References',
+  nodeTypes: 'component-formula',
   visit: (report, args) => {
-    if (args.nodeType !== 'component-formula') {
-      return
-    }
-
-    const { path, files, value, component } = args
+    const { path, files, value, component, memo } = args
     const [, componentName, , formulaKey] = path
-    for (const {
-      path: formulaPath,
-      formula,
-    } of component.formulasInComponent()) {
+    // Shared memoized traversal: previously this walked the whole component
+    // once per formula instead of once per component.
+    const applyUses = memo(`componentApplyUses/${component.name}`, () =>
+      getFormulasInComponent(memo, component).filter(
+        ({ formula }) => formula.type === 'apply',
+      ),
+    )
+    for (const { path: formulaPath, formula } of applyUses) {
       if (
         formula.type === 'apply' &&
         formula.name === formulaKey &&

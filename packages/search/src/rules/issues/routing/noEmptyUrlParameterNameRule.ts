@@ -1,15 +1,18 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { ComponentNode, IssueRule } from '../../../types'
 
-export const noEmptyUrlParameterNameRule: IssueRule<{
-  name: string
-}> = {
+export const noEmptyUrlParameterNameRule: IssueRule<
+  {
+    name: string
+  },
+  ComponentNode
+> = {
   code: 'no-empty url parameter name',
   level: 'warning',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }) => {
+  nodeTypes: 'component',
+  visit: (report, { path, value }) => {
     if (
-      nodeType !== 'component' ||
       !isDefined(value.route) ||
       !isDefined(value.route.path) ||
       !isDefined(value.route.query)

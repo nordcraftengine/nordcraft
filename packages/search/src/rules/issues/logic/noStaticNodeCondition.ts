@@ -1,19 +1,27 @@
-import type { FixFunction, IssueRule, NodeType } from '../../../types'
+import type {
+  FixFunction,
+  FormulaNode,
+  IssueRule,
+  NodeType,
+} from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import {
   removeFromPathFix,
   removeNodeFromPathFix,
 } from '../../../util/removeUnused.fix'
 
-export const noStaticNodeCondition: IssueRule<{
-  result: ReturnType<typeof contextlessEvaluateFormula>['result']
-}> = {
+export const noStaticNodeCondition: IssueRule<
+  {
+    result: ReturnType<typeof contextlessEvaluateFormula>['result']
+  },
+  FormulaNode
+> = {
   code: 'no-static-node-condition',
   level: 'warning',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }) => {
+  nodeTypes: 'formula',
+  visit: (report, { path, value }) => {
     if (
-      nodeType !== 'formula' ||
       !(
         path.length === 5 &&
         path[0] === 'components' &&

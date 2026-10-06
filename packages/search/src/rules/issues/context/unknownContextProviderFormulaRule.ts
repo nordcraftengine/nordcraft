@@ -1,18 +1,18 @@
-import type { IssueRule } from '../../../types'
+import type { ComponentContext, IssueRule } from '../../../types'
 
-export const unknownContextProviderFormulaRule: IssueRule<{
-  providerName: string
-  formulaName: string
-}> = {
+export const unknownContextProviderFormulaRule: IssueRule<
+  {
+    providerName: string
+    formulaName: string
+  },
+  ComponentContext
+> = {
   code: 'unknown context provider formula',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
-    if (
-      nodeType !== 'component-context' ||
-      !value.componentName ||
-      (value.formulas ?? []).length === 0
-    ) {
+  nodeTypes: 'component-context',
+  visit: (report, { path, files, value }) => {
+    if (!value.componentName || (value.formulas ?? []).length === 0) {
       return
     }
 

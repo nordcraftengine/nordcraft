@@ -1,19 +1,20 @@
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { IssueRule } from '../../../types'
+import type { ComponentWorkflowNode, IssueRule } from '../../../types'
+import { getActionsInComponent } from '../../../util/componentTraversal'
 
-export const noReferenceComponentWorkflowRule: IssueRule<{
-  name: string
-  contextSubscribers: string[]
-}> = {
+export const noReferenceComponentWorkflowRule: IssueRule<
+  {
+    name: string
+    contextSubscribers: string[]
+  },
+  ComponentWorkflowNode
+> = {
   code: 'no-reference component workflow',
   level: 'warning',
   category: 'No References',
+  nodeTypes: 'component-workflow',
   visit: (report, args) => {
-    if (args.nodeType !== 'component-workflow') {
-      return
-    }
-
-    const { path, files, value, component } = args
+    const { path, files, value, component, memo } = args
 
     const [, componentName, , workflowKey] = path
     const targetComponent = files.components[componentName]
@@ -21,7 +22,16 @@ export const noReferenceComponentWorkflowRule: IssueRule<{
       return
     }
 
-    for (const [actionPath, action] of component.actionModelsInComponent()) {
+    // Shared memoized traversal: previously this walked the whole component
+    // once per workflow instead of once per component.
+    const workflowTriggers = memo(
+      `componentWorkflowTriggers/${component.name}`,
+      () =>
+        getActionsInComponent(memo, component).filter(
+          ({ action }) => action.type === 'TriggerWorkflow',
+        ),
+    )
+    for (const { actionPath, action } of workflowTriggers) {
       if (
         action.type === 'TriggerWorkflow' &&
         action.workflow === workflowKey &&

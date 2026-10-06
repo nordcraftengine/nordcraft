@@ -13,21 +13,37 @@ import type { Nullable } from '@nordcraft/core/dist/types'
  * }
  *
  * TODO: Make this function more capable of evaluating pure core formulas.
- * TODO: Memoize the results (using path or a fast hash) to avoid re-evaluating any similar sub-graphs multiple times.
  * TODO: Add a complex test-suite to ensure it works and develops as expected.
  */
-export const contextlessEvaluateFormula = (
-  formula?: Nullable<Formula>,
-): {
+export type ContextlessEvaluation = {
   isStatic: boolean
   result: unknown
-} => {
+}
+
+// Formulas are treated as immutable during search, so evaluations are cached
+// by object identity. Multiple rules evaluate the same formula objects (and
+// shared sub-graphs are evaluated once via the recursive calls below).
+const evaluationCache = new WeakMap<Formula, ContextlessEvaluation>()
+
+export const contextlessEvaluateFormula = (
+  formula?: Nullable<Formula>,
+): ContextlessEvaluation => {
   if (!formula) {
     return {
       isStatic: true,
       result: formula,
     }
   }
+  const cached = evaluationCache.get(formula)
+  if (cached) {
+    return cached
+  }
+  const evaluated = evaluateFormula(formula)
+  evaluationCache.set(formula, evaluated)
+  return evaluated
+}
+
+const evaluateFormula = (formula: Formula): ContextlessEvaluation => {
   // Very basic implementation, just to get started.
   switch (formula.type) {
     case 'value': {

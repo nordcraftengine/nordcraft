@@ -1,15 +1,18 @@
 import type { ApiRequest } from '@nordcraft/core/dist/api/apiTypes'
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 
-export const unknownApiInputRule: IssueRule<{
-  name: string
-}> = {
+export const unknownApiInputRule: IssueRule<
+  {
+    name: string
+  },
+  FormulaNode
+> = {
   code: 'unknown api input',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
+  nodeTypes: 'formula',
+  visit: (report, { path, files, value }) => {
     if (
-      nodeType !== 'formula' ||
       value.type !== 'path' ||
       value.path[0] !== 'ApiInputs' ||
       typeof value.path[1] !== 'string' ||
