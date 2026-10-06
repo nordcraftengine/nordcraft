@@ -446,7 +446,16 @@ const formatVerdict = (status: string) => {
   }
 }
 
-const writeReport = async ({
+export const ISSUES_CLEAN_MARKDOWN =
+  '✅ Issues Benchmark: No regressions or improvements — performance is 1:1.'
+
+export const isIssuesClean = (results: ReadonlyArray<{ timeStatus: string }>) =>
+  results.length > 0 &&
+  results.every(
+    (result) => result.timeStatus === '1:1' || result.timeStatus === 'stable',
+  )
+
+export const renderIssuesMarkdown = ({
   config,
   results,
   profileReport,
@@ -455,6 +464,9 @@ const writeReport = async ({
   results: Array<Awaited<ReturnType<typeof runCase>>>
   profileReport?: ProfileReport
 }) => {
+  if (isIssuesClean(results)) {
+    return ISSUES_CLEAN_MARKDOWN
+  }
   const hasRegressions = results.some(
     (result) => result.timeStatus === 'regression',
   )
@@ -505,7 +517,22 @@ const writeReport = async ({
     )
   }
 
-  const markdown = markdownLines.join('\n')
+  return markdownLines.join('\n')
+}
+
+const writeReport = async ({
+  config,
+  results,
+  profileReport,
+}: {
+  config: Config
+  results: Array<Awaited<ReturnType<typeof runCase>>>
+  profileReport?: ProfileReport
+}) => {
+  const hasRegressions = results.some(
+    (result) => result.timeStatus === 'regression',
+  )
+  const markdown = renderIssuesMarkdown({ config, results, profileReport })
   console.log(`\n${markdown}\n`)
 
   if (config.exportMarkdown) {

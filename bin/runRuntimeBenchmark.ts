@@ -150,6 +150,102 @@ export const areRuntimeBundlesIdentical = (
     return Boolean(baseSha && headSha && baseSha === headSha)
   })
 
+export const RUNTIME_CLEAN_MARKDOWN =
+  '✅ Runtime Benchmark: No regressions or improvements — performance is 1:1.'
+
+export const isRuntimeClean = (
+  results: ReadonlyArray<{ timeStatus: string; heapStatus: string }>,
+) =>
+  results.length > 0 &&
+  results.every(
+    (r) =>
+      (r.timeStatus === '1:1' || r.timeStatus === 'stable') &&
+      (r.heapStatus === '1:1' || r.heapStatus === 'stable'),
+  )
+
+export const renderRuntimeMarkdown = ({
+  config,
+  results,
+  isPageBundleIdentical,
+  baseRuntimeBytes,
+  headRuntimeBytes,
+  deltaSizeStr,
+}: {
+  config: RuntimeConfig
+  results: Array<
+    Pick<
+      BenchmarkCaseResult,
+      | 'id'
+      | 'baseMedianMs'
+      | 'headMedianMs'
+      | 'deltaMs'
+      | 'deltaPercent'
+      | 'baseHeapMedianKb'
+      | 'headHeapMedianKb'
+      | 'deltaHeapKb'
+      | 'deltaHeapPercent'
+      | 'timeStatus'
+      | 'timeVerdict'
+      | 'heapStatus'
+      | 'heapVerdict'
+    >
+  >
+  isPageBundleIdentical: boolean
+  baseRuntimeBytes: number
+  headRuntimeBytes: number
+  deltaSizeStr: string
+}) => {
+  if (isRuntimeClean(results)) {
+    return RUNTIME_CLEAN_MARKDOWN
+  }
+  const hasRegressions = results.some(
+    (r) => r.timeStatus === 'regression' || r.heapStatus === 'regression',
+  )
+  const markdownLines = [
+    '## ⚡ Nordcraft Runtime Performance Benchmark',
+    '',
+    `- **Noise & Equivalence Threshold**: ±${config.noiseThresholdPercent.toFixed(1)}% (Delta within CI or threshold reported as 1:1)`,
+    `- **Bootstrap**: ${config.bootstrapIterations} iterations, seed ${config.bootstrapSeed}`,
+    `- **Base ref**: ${config.baseRef ?? 'head-only A/A'}`,
+    `- **Page Bundle Identity**: ${isPageBundleIdentical ? '`Identical build artifacts (1:1 confirmed)`' : '`Distinct build artifacts`'}`,
+    `- **Runtime Size**: Base ${formatKb(baseRuntimeBytes / 1024)} vs. Head ${formatKb(headRuntimeBytes / 1024)} (Delta: ${deltaSizeStr})`,
+    '',
+  ]
+
+  if (hasRegressions) {
+    markdownLines.push(
+      '> ⚠️ **Warning**: Performance regression detected above threshold in one or more scenarios. Check table below for details.',
+      '',
+    )
+  } else {
+    markdownLines.push(
+      '> ✅ **No regressions detected**. Runtime performance is 1:1 or improved.',
+      '',
+    )
+  }
+
+  markdownLines.push(
+    '| Scenario | Base/Head time | Delta | Time Verdict | Base/Head heap | Delta | Heap Verdict |',
+    '| :--- | ---: | ---: | :---: | ---: | ---: | :---: |',
+    ...results.map((r) => {
+      const baseStr = formatMs(r.baseMedianMs)
+      const headStr = formatMs(r.headMedianMs)
+      const timeCombined = `${baseStr} / ${headStr}`
+      const deltaPctStr = formatPercent(r.deltaPercent)
+      const deltaMsStr = `${r.deltaMs >= 0 ? '+' : ''}${formatMs(r.deltaMs)}`
+      const timeDeltaFull = `${deltaPctStr} (${deltaMsStr})`
+      const baseHeapStr = formatKb(r.baseHeapMedianKb)
+      const headHeapStr = formatKb(r.headHeapMedianKb)
+      const heapCombined = `${baseHeapStr} / ${headHeapStr}`
+      const deltaHeapStr = `${r.deltaHeapKb >= 0 ? '+' : ''}${formatKb(r.deltaHeapKb)} (${r.deltaHeapPercent >= 0 ? '+' : ''}${r.deltaHeapPercent.toFixed(1)}%)`
+      return `| **${r.id}** | ${timeCombined} | ${timeDeltaFull} | ${r.timeVerdict} | ${heapCombined} | ${deltaHeapStr} | ${r.heapVerdict} |`
+    }),
+    '',
+  )
+
+  return markdownLines.join('\n')
+}
+
 export type RuntimeConfig = {
   baseRef?: string
   baseDir?: string
@@ -653,49 +749,14 @@ async function runBenchmark() {
   const hasRegressions = results.some(
     (r) => r.timeStatus === 'regression' || r.heapStatus === 'regression',
   )
-  const markdownLines = [
-    '## ⚡ Nordcraft Runtime Performance Benchmark',
-    '',
-    `- **Noise & Equivalence Threshold**: ±${config.noiseThresholdPercent.toFixed(1)}% (Delta within CI or threshold reported as 1:1)`,
-    `- **Bootstrap**: ${config.bootstrapIterations} iterations, seed ${config.bootstrapSeed}`,
-    `- **Base ref**: ${config.baseRef ?? 'head-only A/A'}`,
-    `- **Page Bundle Identity**: ${isPageBundleIdentical ? '`Identical build artifacts (1:1 confirmed)`' : '`Distinct build artifacts`'}`,
-    `- **Runtime Size**: Base ${formatKb(baseRuntimeBytes / 1024)} vs. Head ${formatKb(headRuntimeBytes / 1024)} (Delta: ${deltaSizeStr})`,
-    '',
-  ]
-
-  if (hasRegressions) {
-    markdownLines.push(
-      '> ⚠️ **Warning**: Performance regression detected above threshold in one or more scenarios. Check table below for details.',
-      '',
-    )
-  } else {
-    markdownLines.push(
-      '> ✅ **No regressions detected**. Runtime performance is 1:1 or improved.',
-      '',
-    )
-  }
-
-  markdownLines.push(
-    '| Scenario | Base/Head time | Delta | Time Verdict | Base/Head heap | Delta | Heap Verdict |',
-    '| :--- | ---: | ---: | :---: | ---: | ---: | :---: |',
-    ...results.map((r) => {
-      const baseStr = formatMs(r.baseMedianMs)
-      const headStr = formatMs(r.headMedianMs)
-      const timeCombined = `${baseStr} / ${headStr}`
-      const deltaPctStr = formatPercent(r.deltaPercent)
-      const deltaMsStr = `${r.deltaMs >= 0 ? '+' : ''}${formatMs(r.deltaMs)}`
-      const timeDeltaFull = `${deltaPctStr} (${deltaMsStr})`
-      const baseHeapStr = formatKb(r.baseHeapMedianKb)
-      const headHeapStr = formatKb(r.headHeapMedianKb)
-      const heapCombined = `${baseHeapStr} / ${headHeapStr}`
-      const deltaHeapStr = `${r.deltaHeapKb >= 0 ? '+' : ''}${formatKb(r.deltaHeapKb)} (${r.deltaHeapPercent >= 0 ? '+' : ''}${r.deltaHeapPercent.toFixed(1)}%)`
-      return `| **${r.id}** | ${timeCombined} | ${timeDeltaFull} | ${r.timeVerdict} | ${heapCombined} | ${deltaHeapStr} | ${r.heapVerdict} |`
-    }),
-    '',
-  )
-
-  const markdownContent = markdownLines.join('\n')
+  const markdownContent = renderRuntimeMarkdown({
+    config,
+    results,
+    isPageBundleIdentical,
+    baseRuntimeBytes,
+    headRuntimeBytes,
+    deltaSizeStr,
+  })
 
   if (config.exportMarkdown) {
     fs.writeFileSync(config.exportMarkdown, markdownContent, 'utf-8')

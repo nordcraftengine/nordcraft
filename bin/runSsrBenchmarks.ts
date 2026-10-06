@@ -558,24 +558,32 @@ const runCase = async ({
   }
 }
 
-const writeReport = async ({
+export const SSR_CLEAN_MARKDOWN =
+  '✅ SSR Benchmark: No regressions or improvements — performance is 1:1.'
+
+export const isSsrClean = (results: ReadonlyArray<{ timeStatus: string }>) =>
+  results.length > 0 &&
+  results.every(
+    (result) => result.timeStatus === '1:1' || result.timeStatus === 'stable',
+  )
+
+export const renderSsrMarkdown = ({
   config,
   results,
-  markdownPath,
-  jsonPath,
 }: {
   config: Config
   results: Array<Awaited<ReturnType<typeof runCase>>>
-  markdownPath: string
-  jsonPath: string
 }) => {
+  if (isSsrClean(results)) {
+    return SSR_CLEAN_MARKDOWN
+  }
   const hasRegressions = results.some(
     (result) => result.timeStatus === 'regression',
   )
   const hasInconclusive = results.some(
     (result) => result.timeStatus === 'inconclusive',
   )
-  const markdownLines = [
+  return [
     '## ⚡ Nordcraft SSR Performance Benchmark',
     '',
     `- **Runs**: ${config.runs} (plus ${config.warmup} warmups)`,
@@ -603,11 +611,31 @@ const writeReport = async ({
       return `| **${result.id}** | ${base} | ${head} | ${delta} | ${ci} | ${result.pValue.toExponential(2)} | ${result.timeVerdict} |`
     }),
     '',
-  ]
+  ].join('\n')
+}
+
+const writeReport = async ({
+  config,
+  results,
+  markdownPath,
+  jsonPath,
+}: {
+  config: Config
+  results: Array<Awaited<ReturnType<typeof runCase>>>
+  markdownPath: string
+  jsonPath: string
+}) => {
+  const hasRegressions = results.some(
+    (result) => result.timeStatus === 'regression',
+  )
+  const hasInconclusive = results.some(
+    (result) => result.timeStatus === 'inconclusive',
+  )
+  const markdown = renderSsrMarkdown({ config, results })
 
   mkdirSync(dirname(markdownPath), { recursive: true })
   mkdirSync(dirname(jsonPath), { recursive: true })
-  await Bun.write(markdownPath, `${markdownLines.join('\n')}\n`)
+  await Bun.write(markdownPath, `${markdown}\n`)
   await Bun.write(
     jsonPath,
     `${JSON.stringify(
