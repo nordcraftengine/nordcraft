@@ -24,7 +24,7 @@
     "happy-dom": "20.14.5",
     "playwright": "1.63.0",
     "prettier-plugin-organize-imports": "4.3.0",
-    "prettier": "3.8.3"
+    "prettier": "3.9.9"
   },
   "scripts": {
     "benchmark:runtime": "bun bin/runRuntimeBenchmark.ts",
