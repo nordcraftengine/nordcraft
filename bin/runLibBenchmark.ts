@@ -569,16 +569,14 @@ const runCase = async ({
   }
 }
 
-const writeReport = async ({
+export type LibBenchmarkCaseResult = Awaited<ReturnType<typeof runCase>>
+
+export const buildMarkdownReport = ({
   config,
   results,
-  markdownPath,
-  jsonPath,
 }: {
   config: Config
-  results: Array<Awaited<ReturnType<typeof runCase>>>
-  markdownPath: string
-  jsonPath: string
+  results: LibBenchmarkCaseResult[]
 }) => {
   const hasRegressions = results.some(
     (result) => result.timeStatus === 'regression',
@@ -586,7 +584,22 @@ const writeReport = async ({
   const hasInconclusive = results.some(
     (result) => result.timeStatus === 'inconclusive',
   )
-  const markdownLines = [
+  const hasNotableChanges =
+    hasRegressions ||
+    hasInconclusive ||
+    results.some((result) => result.timeStatus === 'improvement')
+  // When every case is 1:1 or stable the report collapses to a one-liner so
+  // the PR comment stays noise-free. The full per-case data remains available
+  // in the JSON report and uploaded artifacts.
+  if (results.length > 0 && !hasNotableChanges) {
+    return [
+      '## ⚡ Nordcraft Lib Performance Benchmark',
+      '',
+      `✅ No change – lib performance is 1:1 with base (${results.length} cases).`,
+      '',
+    ].join('\n')
+  }
+  return [
     '## ⚡ Nordcraft Lib Performance Benchmark',
     '',
     `- **Runs**: ${config.runs} (plus ${config.warmup} warmups)`,
@@ -615,11 +628,31 @@ const writeReport = async ({
       return `| **${result.id}** | ${base} | ${head} | ${delta} | ${ci} | ${result.pValue.toExponential(2)} | ${result.timeVerdict} |`
     }),
     '',
-  ]
+  ].join('\n')
+}
+
+const writeReport = async ({
+  config,
+  results,
+  markdownPath,
+  jsonPath,
+}: {
+  config: Config
+  results: Array<Awaited<ReturnType<typeof runCase>>>
+  markdownPath: string
+  jsonPath: string
+}) => {
+  const hasRegressions = results.some(
+    (result) => result.timeStatus === 'regression',
+  )
+  const hasInconclusive = results.some(
+    (result) => result.timeStatus === 'inconclusive',
+  )
+  const markdown = buildMarkdownReport({ config, results })
 
   mkdirSync(dirname(markdownPath), { recursive: true })
   mkdirSync(dirname(jsonPath), { recursive: true })
-  await Bun.write(markdownPath, `${markdownLines.join('\n')}\n`)
+  await Bun.write(markdownPath, `${markdown}\n`)
   await Bun.write(
     jsonPath,
     `${JSON.stringify(

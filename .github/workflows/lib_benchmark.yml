@@ -1,0 +1,134 @@
+name: 'Lib Benchmark'
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/lib_benchmark.yml'
+      - 'benchmarks/**'
+      - 'bin/runLibBenchmark.ts'
+      - 'bin/libBenchmark.ts'
+      - 'packages/lib/**'
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout benchmark head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+
+      - name: Resolve base commit
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            git fetch --no-tags origin "$BASE_SHA"
+          fi
+          echo "BASE_SHA=$BASE_SHA" >> "$GITHUB_ENV"
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+
+      - name: Install dependencies (head)
+        run: bun install --frozen-lockfile
+
+      - name: Build packages (head)
+        run: bun run build
+
+      - name: Run Lib benchmark
+        id: benchmark_run
+        continue-on-error: true
+        run: |
+          bun bin/runLibBenchmark.ts \
+            --base-ref="$BASE_SHA" \
+            --runs=15 \
+            --warmup=3 \
+            --repeat=5 \
+            --max-regression-percent=5.0 \
+            --max-regression-ms=0.5 \
+            --noise-threshold-percent=2.0 \
+            --bootstrap-iterations=1000 \
+            --bootstrap-seed=0 \
+            --fail-on-regression=true \
+            --output-dir=/tmp/lib-benchmark-data \
+            --export-markdown=/tmp/lib-benchmark-report.md \
+            --export-json=/tmp/lib-benchmark-report.json
+
+      - name: Publish step summary
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -f /tmp/lib-benchmark-report.md ]; then
+            tee -a "$GITHUB_STEP_SUMMARY" < /tmp/lib-benchmark-report.md
+          else
+            echo "## ⚡ Lib Benchmark" >> "$GITHUB_STEP_SUMMARY"
+            echo "⚠️ Benchmark report could not be generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Comment on pull request
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('node:fs')
+            const reportPath = '/tmp/lib-benchmark-report.md'
+            const report = fs.existsSync(reportPath)
+              ? fs.readFileSync(reportPath, 'utf8')
+              : '## Lib Benchmark\n\n:warning: Benchmark report could not be generated. Check the workflow logs.'
+            const marker = '<!-- lib-benchmark-report -->'
+            const body = `${marker}\n${report}`
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            })
+            const existing = comments.find((comment) => comment.body?.includes(marker))
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              })
+            }
+
+      - name: Upload benchmark artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lib-benchmark-report-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
+          path: |
+            /tmp/lib-benchmark-report.md
+            /tmp/lib-benchmark-report.json
+            /tmp/lib-benchmark-data/head/*.json
+            /tmp/lib-benchmark-data/base/*.json
+
+      - name: Fail on benchmark regression
+        if: always() && steps.benchmark_run.outcome == 'failure'
+        run: exit 1
