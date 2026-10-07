@@ -4,8 +4,10 @@ import { join } from 'node:path'
 import {
   findLibBenchmarkCase,
   isLibBenchmarkCaseId,
+  isSkippedLibBenchmarkCase,
   LIB_BENCHMARK_CASES,
   libBenchmarkUsage,
+  SKIPPED_LIB_BENCHMARK_CASE_IDS,
 } from './libCases'
 
 const listDirNames = (dir: string) =>
@@ -75,6 +77,29 @@ describe('Lib benchmark cases', () => {
     expect(usage).toContain('formula-sum')
     expect(usage).toContain('formula-filter')
     expect(usage).toContain('action-sleep')
+    expect(usage).toContain('formula-minus')
     expect(usage.endsWith('>')).toBe(true)
+  })
+
+  test('marks thin-passthrough cases as skipped without dropping coverage', () => {
+    expect(SKIPPED_LIB_BENCHMARK_CASE_IDS.length).toBeGreaterThan(0)
+    for (const id of SKIPPED_LIB_BENCHMARK_CASE_IDS) {
+      const benchmarkCase = findLibBenchmarkCase(id)
+      expect(benchmarkCase).toBeDefined()
+      expect(isSkippedLibBenchmarkCase(benchmarkCase!)).toBe(true)
+    }
+    // Skipped cases stay defined so they can be re-enabled case-by-case.
+    expect(
+      isSkippedLibBenchmarkCase(findLibBenchmarkCase('formula-minus')!),
+    ).toBe(true)
+    expect(
+      isSkippedLibBenchmarkCase(findLibBenchmarkCase('action-sleep')!),
+    ).toBe(true)
+    expect(
+      isSkippedLibBenchmarkCase(findLibBenchmarkCase('formula-filter')!),
+    ).toBe(false)
+    expect(
+      isSkippedLibBenchmarkCase(findLibBenchmarkCase('action-set-cookie')!),
+    ).toBe(false)
   })
 })

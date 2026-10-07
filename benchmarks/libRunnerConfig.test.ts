@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test'
 import { createRunner, parseLibArgs } from '../bin/libBenchmark'
-import { isWorkerResponse, parseConfig } from '../bin/runLibBenchmark'
-import { LIB_BENCHMARK_CASES } from './libCases'
+import {
+  isWorkerResponse,
+  parseConfig,
+  resolveCasesToRun,
+} from '../bin/runLibBenchmark'
+import { LIB_BENCHMARK_CASES, SKIPPED_LIB_BENCHMARK_CASE_IDS } from './libCases'
 
 describe('Lib benchmark runner configuration', () => {
   test('uses origin/main and statistically meaningful defaults', () => {
@@ -17,6 +21,40 @@ describe('Lib benchmark runner configuration', () => {
     expect(config.responseTimeoutMs).toBe(120_000)
     expect(config.bootstrapIterations).toBe(1000)
     expect(config.bootstrapSeed).toBe(0)
+    expect(config.includeSkipped).toBe(false)
+  })
+
+  test('parses the include-skipped flag', () => {
+    expect(parseConfig(['--include-skipped=true']).includeSkipped).toBe(true)
+    expect(parseConfig(['--include-skipped=false']).includeSkipped).toBe(false)
+    expect(() => parseConfig(['--include-skipped=yes'])).toThrow(
+      'must be true or false',
+    )
+  })
+
+  test('skips thin-passthrough cases by default but runs them on demand', () => {
+    const skippedCount = SKIPPED_LIB_BENCHMARK_CASE_IDS.length
+    expect(skippedCount).toBeGreaterThan(0)
+
+    const defaults = resolveCasesToRun({
+      caseId: undefined,
+      includeSkipped: false,
+    })
+    expect(defaults.length).toBe(LIB_BENCHMARK_CASES.length - skippedCount)
+    expect(defaults.some(({ id }) => id === 'formula-minus')).toBe(false)
+    expect(defaults.some(({ id }) => id === 'formula-filter')).toBe(true)
+
+    const explicit = resolveCasesToRun({
+      caseId: 'formula-minus',
+      includeSkipped: false,
+    })
+    expect(explicit.map(({ id }) => id)).toEqual(['formula-minus'])
+
+    const all = resolveCasesToRun({
+      caseId: undefined,
+      includeSkipped: true,
+    })
+    expect(all.length).toBe(LIB_BENCHMARK_CASES.length)
   })
 
   test('supports a single-case and head-only run', () => {

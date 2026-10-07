@@ -17,6 +17,7 @@ import {
 } from '../benchmarks/cli'
 import {
   isLibBenchmarkCaseId,
+  isSkippedLibBenchmarkCase,
   LIB_BENCHMARK_CASES,
   type LibBenchmarkCaseId,
 } from '../benchmarks/libCases'
@@ -41,6 +42,7 @@ export type Config = {
   bootstrapSeed: number
   failOnRegression: boolean
   skipBuild: boolean
+  includeSkipped: boolean
   outputDir?: string
   keepWorktree: boolean
   exportJson?: string
@@ -90,6 +92,7 @@ export const parseConfig = (argv: readonly string[] = Bun.argv.slice(2)) => {
     bootstrapSeed: getNumber(args, '--bootstrap-seed', 0),
     failOnRegression: getBoolean(args, '--fail-on-regression', true),
     skipBuild: getBoolean(args, '--skip-build', false),
+    includeSkipped: getBoolean(args, '--include-skipped', false),
     outputDir: getOptionalString(args, '--output-dir'),
     keepWorktree: getBoolean(args, '--keep-worktree', false),
     exportJson: getOptionalString(args, '--export-json'),
@@ -121,6 +124,26 @@ export const parseConfig = (argv: readonly string[] = Bun.argv.slice(2)) => {
   }
 
   return config
+}
+
+export const resolveCasesToRun = ({
+  caseId,
+  includeSkipped,
+}: {
+  caseId?: LibBenchmarkCaseId
+  includeSkipped: boolean
+}) => {
+  // An explicit --case=<id> always runs, even for skipped thin-passthrough
+  // cases, so any case can be re-enabled ad hoc without editing the case list.
+  if (caseId) {
+    return LIB_BENCHMARK_CASES.filter(
+      (benchmarkCase) => benchmarkCase.id === caseId,
+    )
+  }
+  return LIB_BENCHMARK_CASES.filter(
+    (benchmarkCase) =>
+      includeSkipped || !isSkippedLibBenchmarkCase(benchmarkCase),
+  )
 }
 
 const runCommand = (
@@ -571,6 +594,18 @@ const runCase = async ({
 
 export type LibBenchmarkCaseResult = Awaited<ReturnType<typeof runCase>>
 
+/**
+ * Per-call lib timings routinely sit below 0.01 ms, where `formatMs` rounds
+ * everything to `0.00 ms`. Render those in microseconds so tables stay
+ * auditable instead of showing `0.00 / 0.00` next to a nonzero delta.
+ */
+export const formatPreciseMs = (value: number) => {
+  if (Number.isFinite(value) && value !== 0 && Math.abs(value) < 0.01) {
+    return `${(value * 1000).toFixed(2)} µs`
+  }
+  return formatMs(value)
+}
+
 export const buildMarkdownReport = ({
   config,
   results,
@@ -621,9 +656,9 @@ export const buildMarkdownReport = ({
     '| Case | Base median (IQR) | Head median (IQR) | Delta | 95% CI | p-value | Verdict |',
     '| :--- | ---: | ---: | ---: | ---: | ---: | :---: |',
     ...results.map((result) => {
-      const base = `${formatMs(result.baseMedianMs)} (${formatMs(result.baseIqrMs)})`
-      const head = `${formatMs(result.headMedianMs)} (${formatMs(result.headIqrMs)})`
-      const delta = `${formatPercent(result.deltaPercent)} (${formatMs(result.deltaMs)})`
+      const base = `${formatPreciseMs(result.baseMedianMs)} (${formatPreciseMs(result.baseIqrMs)})`
+      const head = `${formatPreciseMs(result.headMedianMs)} (${formatPreciseMs(result.headIqrMs)})`
+      const delta = `${formatPercent(result.deltaPercent)} (${formatPreciseMs(result.deltaMs)})`
       const ci = `${formatPercent(result.ciLowPercent)} / ${formatPercent(result.ciHighPercent)}`
       return `| **${result.id}** | ${base} | ${head} | ${delta} | ${ci} | ${result.pValue.toExponential(2)} | ${result.timeVerdict} |`
     }),
@@ -695,11 +730,11 @@ const writeReport = async ({
   for (const result of results) {
     console.log(
       result.id.padEnd(30) +
-        `${formatMs(result.baseMedianMs)} / ${formatMs(result.headMedianMs)}`.padStart(
+        `${formatPreciseMs(result.baseMedianMs)} / ${formatPreciseMs(result.headMedianMs)}`.padStart(
           22,
         ) +
-        `${formatPercent(result.deltaPercent)} (${formatMs(result.deltaMs)})`.padStart(
-          18,
+        `${formatPercent(result.deltaPercent)} (${formatPreciseMs(result.deltaMs)})`.padStart(
+          22,
         ) +
         `  ${result.timeVerdict}`,
     )
@@ -715,7 +750,7 @@ const writeReport = async ({
       .filter((result) => result.timeStatus === 'regression')
       .map(
         (result) =>
-          `${result.name}: ${formatPercent(result.deltaPercent)}, ${formatMs(result.deltaMs)}`,
+          `${result.name}: ${formatPercent(result.deltaPercent)}, ${formatPreciseMs(result.deltaMs)}`,
       )
       .join(', ')
     throw new Error(`Lib benchmark regression above threshold: ${regressions}`)
@@ -775,9 +810,15 @@ export const main = async (
       }
     }
 
-    const casesToRun = config.caseId
-      ? LIB_BENCHMARK_CASES.filter(({ id }) => id === config.caseId)
-      : LIB_BENCHMARK_CASES
+    const casesToRun = resolveCasesToRun({
+      caseId: config.caseId,
+      includeSkipped: config.includeSkipped,
+    })
+    if (!config.caseId && casesToRun.length < LIB_BENCHMARK_CASES.length) {
+      console.log(
+        `Skipping ${LIB_BENCHMARK_CASES.length - casesToRun.length} thin-passthrough cases (use --include-skipped=true or --case=<id> to run them)`,
+      )
+    }
     const results = []
     for (const benchmarkCase of casesToRun) {
       results.push(

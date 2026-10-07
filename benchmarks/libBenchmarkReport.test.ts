@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test'
 
 import {
   buildMarkdownReport,
+  formatPreciseMs,
   type Config,
   type LibBenchmarkCaseResult,
 } from '../bin/runLibBenchmark'
@@ -86,5 +87,24 @@ describe('lib benchmark markdown report', () => {
 
     expect(markdown).toContain('| Case |')
     expect(markdown).not.toContain('✅ No change')
+  })
+
+  test('renders sub-resolution timings in microseconds', () => {
+    expect(formatPreciseMs(0.001234)).toBe('1.23 µs')
+    expect(formatPreciseMs(-0.00012)).toBe('-0.12 µs')
+    expect(formatPreciseMs(0)).toBe('0.00 ms')
+    expect(formatPreciseMs(12.3456)).toBe('12.35 ms')
+    expect(formatPreciseMs(Number.NaN)).toBe('n/a')
+
+    const tiny = {
+      ...makeResult('regression'),
+      baseMedianMs: 0.0012,
+      headMedianMs: 0.001,
+    }
+    const markdown = buildMarkdownReport({ config, results: [tiny] })
+
+    expect(markdown).toContain('1.20 µs')
+    expect(markdown).toContain('1.00 µs')
+    expect(markdown).not.toContain('0.00 ms / 0.00 ms')
   })
 })

@@ -9,6 +9,15 @@ export interface BenchmarkStats {
 
 export const MIN_TIMING_SAMPLES = 2
 
+/**
+ * Deltas below half the millisecond display precision cannot be observed in
+ * reports and sit far below timer resolution for normalized per-call
+ * measurements. Verdicts treat them as unobservable noise instead of letting
+ * huge relative swings on near-zero medians surface as improvements,
+ * regressions, or stable shifts.
+ */
+export const MIN_MEANINGFUL_DELTA_MS = 0.005
+
 export const isUsableTimingSample = (value: number) =>
   Number.isFinite(value) && value > 0
 
@@ -414,6 +423,13 @@ export function evaluateTimeVerdict({
     }
   }
 
+  if (Math.abs(deltaMs) < MIN_MEANINGFUL_DELTA_MS) {
+    return {
+      status: '1:1' as const,
+      verdict: '🟢 1:1',
+    }
+  }
+
   if (
     deltaPercent > maxRegressionPercent &&
     deltaMs > maxRegressionMs &&
@@ -425,7 +441,11 @@ export function evaluateTimeVerdict({
     }
   }
 
-  if (deltaPercent < -maxRegressionPercent && pValue < 0.01) {
+  if (
+    deltaPercent < -maxRegressionPercent &&
+    deltaMs < -maxRegressionMs &&
+    pValue < 0.01
+  ) {
     return {
       status: 'improvement' as const,
       verdict: `🚀 ${Math.abs(deltaPercent).toFixed(1)}% Faster`,
