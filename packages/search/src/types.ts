@@ -22,8 +22,10 @@ import type {
 import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import type { Theme } from '@nordcraft/core/dist/styling/theme'
-import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme.ts'
+import type {
+  CustomPropertyDefinition,
+  Theme,
+} from '@nordcraft/core/dist/styling/theme'
 import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
 import type { Nullable, PluginAction } from '@nordcraft/core/dist/types'
 import type {

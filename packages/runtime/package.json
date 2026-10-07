@@ -22,9 +22,19 @@
     "watch": "tsgo -w"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/page.main.d.ts",
+      "default": "./dist/page.main.js"
+    },
+    "./package.json": "./package.json",
+    "./dist/*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
   "main": "dist/page.main.js",
   "types": "dist/page.main.d.ts"
 }
