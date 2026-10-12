@@ -724,4 +724,87 @@ describe('rotation (orientation for gizmos)', () => {
     expect(Math.hypot(r.m21, r.m22, r.m23)).toBeCloseTo(1, 5)
     expect(r.m11 * r.m21 + r.m12 * r.m22 + r.m13 * r.m23).toBeCloseTo(0, 5)
   })
+
+  test.each([['skewX(20deg)'], ['skewY(20deg)'], ['skew(15deg, 15deg)']])(
+    'skew %s does not leak into rotation (pure skew => identity)',
+    (transform) => {
+      // Regression: symmetric orthonormalisation split skew evenly, so a
+      // 20° skew reported ±10° of rotation. The rotate-tool uses `rotation`
+      // for gizmo orientation, so its handles were 10° off-axis and the
+      // element appeared to rotate around a different point than the rect
+      // centre. True rotation with only skew set is 0° (identity).
+      const m = mountChain([{ cx: 300, cy: 300, w: 200, h: 100, transform }])
+      const r = new DOMMatrix(getRectData(m.node)!.rotation)
+      expect(r.m11).toBeCloseTo(1, 4)
+      expect(r.m12).toBeCloseTo(0, 4)
+      expect(r.m13).toBeCloseTo(0, 4)
+      expect(r.m21).toBeCloseTo(0, 4)
+      expect(r.m22).toBeCloseTo(1, 4)
+      expect(r.m23).toBeCloseTo(0, 4)
+      expect(r.m31).toBeCloseTo(0, 4)
+      expect(r.m32).toBeCloseTo(0, 4)
+      expect(r.m33).toBeCloseTo(1, 4)
+    },
+  )
+
+  test.each([
+    ['rotate(30deg) skewX(20deg)', 30],
+    ['skewX(20deg) rotate(30deg)', 30],
+    ['rotateZ(30deg) skewY(20deg)', 30],
+  ])(
+    'rotation with %s returns true rotation (%ddeg, not half-skew off)',
+    (transform, deg) => {
+      // With `rotate(30deg)` plus skew, true intended orientation is 30°.
+      // Symmetric split gave 20° (30° − half of 20° skew), so the
+      // rotate-tool baseline was 10° off and drags orbited the rect centre.
+      const m = mountChain([{ cx: 300, cy: 300, w: 200, h: 100, transform }])
+      const r = new DOMMatrix(getRectData(m.node)!.rotation)
+      const rad = (deg * Math.PI) / 180
+      expect(r.m11).toBeCloseTo(Math.cos(rad), 4)
+      expect(r.m12).toBeCloseTo(Math.sin(rad), 4)
+      expect(r.m21).toBeCloseTo(-Math.sin(rad), 4)
+      expect(r.m22).toBeCloseTo(Math.cos(rad), 4)
+    },
+  )
+
+  test('skewed element rect centre is the visual pivot (rotate-tool orbits centre)', () => {
+    // The overlay box is centred on the element's true visual centre, so a
+    // rotate-tool pivoting about left+width/2, top+height/2 keeps the centre
+    // fixed (no orbit). `rotation` must be pure (above tests) for the gizmo
+    // handles to lie on the same axes, otherwise drags rotate about a
+    // different point than the centre given.
+    const m = mountChain([
+      { cx: 300, cy: 300, w: 400, h: 300, transform: 'rotate(25deg)' },
+      {
+        cx: 380,
+        cy: 330,
+        w: 120,
+        h: 60,
+        transform: 'rotate(-10deg) skewX(10deg)',
+      },
+    ])
+    const data = getRectData(m.node)!
+    const cx = data.left + data.width / 2
+    const cy = data.top + data.height / 2
+    const truth = m.truthOf(m.node)
+    const aabbCx =
+      (Math.min(...truth.map((p) => p.x)) +
+        Math.max(...truth.map((p) => p.x))) /
+      2
+    const aabbCy =
+      (Math.min(...truth.map((p) => p.y)) +
+        Math.max(...truth.map((p) => p.y))) /
+      2
+    // AABB centre is the visual pivot for affine (2D inc. skew) chains.
+    expect(Math.hypot(cx - aabbCx, cy - aabbCy)).toBeLessThan(0.01)
+    // Overlay (box + matrix about its centre) lands on the element.
+    expect(cornerError(overlayCorners(data, data.matrix), truth)).toBeLessThan(
+      TOL,
+    )
+    // Gizmo orientation is pure rotation (no half-skew bias), so handles
+    // constructed from `rotation` about (cx, cy) stay on-axis.
+    const r = new DOMMatrix(data.rotation)
+    expect(Math.hypot(r.m11, r.m12, r.m13)).toBeCloseTo(1, 4)
+    expect(r.m11 * r.m21 + r.m12 * r.m22 + r.m13 * r.m23).toBeCloseTo(0, 4)
+  })
 })
