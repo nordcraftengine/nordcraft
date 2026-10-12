@@ -862,6 +862,53 @@ describe('alt toggle teardown', () => {
       restore()
     }
   })
+
+  test('pressing ALT when element is in insert mode creates duplicate at initial origin', async () => {
+    setup()
+    const state = dragInsertStarted({
+      action: 'drag',
+      element: document.querySelector('[data-id="0.1.0"]') as HTMLElement,
+      lastCursorPosition: { x: 200, y: 100 },
+      repeatedNodes: [],
+      asCopy: false,
+    })!
+    // Move outside container into insert mode
+    state.lastCursorPosition = { x: 500, y: 400 }
+    dragInsertMove('drag', state, [state.element, state.initialContainer])
+    expect(state.mode).toBe('insert')
+    expect(state.element.parentElement).toBe(document.body)
+    // Before ALT: original container 0.1 is excluded from insert areas
+    expect(
+      state.insertAreas?.some(
+        (a) => a.parent.getAttribute('data-id') === '0.1',
+      ),
+    ).toBe(false)
+
+    // Press ALT: duplicate created at initial origin, and insert areas recalculated to include original container 0.1
+    await handleDragAltToggle(true, state)
+    expect(state.copy).toBeDefined()
+    expect(state.copy?.parentElement?.getAttribute('data-id')).toBe('0.1')
+    expect(state.copy?.nextElementSibling?.getAttribute('data-id')).toBe(
+      '0.1.1',
+    )
+    expect(state.element.parentElement).toBe(document.body)
+    expect(
+      state.insertAreas?.some(
+        (a) => a.parent.getAttribute('data-id') === '0.1',
+      ),
+    ).toBe(true)
+
+    // Release ALT: copy removed and insert areas recalculated to exclude original container 0.1 again
+    await handleDragAltToggle(false, state)
+    expect(state.copy).toBeUndefined()
+    expect(state.element.parentElement).toBe(document.body)
+    expect(
+      state.insertAreas?.some(
+        (a) => a.parent.getAttribute('data-id') === '0.1',
+      ),
+    ).toBe(false)
+    state.destroying = true
+  })
 })
 
 describe('hover-to-insert', () => {
@@ -958,6 +1005,146 @@ describe('hover-to-insert', () => {
     expect(next.element.parentElement?.getAttribute('data-id')).toBe('0.9')
     expect(childIds('0.9')).toEqual(['0.9.0', '0.9.1'])
     next.destroying = true
+  })
+
+  test('pressing ALT after hover-insert creates the duplicate at initial origin, not next to dragged element in new parent', async () => {
+    setup()
+    const state = startHoverDrag()
+    let replaced: DragInsertState | null | undefined
+    trackHoverTarget(
+      state,
+      (next) => {
+        replaced = next
+      },
+      { stillMs: 5, blinkMs: 10 },
+    )
+    await new Promise((resolve) => setTimeout(resolve, 150))
+    const next = replaced!
+    expect(next.element.parentElement?.getAttribute('data-id')).toBe('0.1')
+    expect(childIds('0.1')).toEqual(['0.1.0', '0.9.0'])
+    expect(childIds('0.9')).toEqual(['0.9.1'])
+
+    // Press ALT during drag while element is in new parent (0.1)
+    await handleDragAltToggle(true, next)
+
+    // The dragged element should still be in the new parent (0.1)
+    expect(next.element.parentElement?.getAttribute('data-id')).toBe('0.1')
+    expect(childIds('0.1')).toEqual(['0.1.0', '0.9.0'])
+
+    // The duplicate item (copy with opacity 0.5) should be created at the initial origin (0.9), before 0.9.1
+    expect(next.copy).toBeDefined()
+    expect(next.copy?.parentElement?.getAttribute('data-id')).toBe('0.9')
+    expect(next.copy?.style.getPropertyValue('opacity')).toBe('0.5')
+    expect(next.copy?.nextElementSibling?.getAttribute('data-id')).toBe('0.9.1')
+    const originCopies = Array.from(
+      document.querySelector('[data-id="0.9"]')!.children,
+    ).filter(
+      (child) =>
+        child instanceof HTMLElement &&
+        child.style.getPropertyValue('opacity') === '0.5',
+    )
+    expect(originCopies).toHaveLength(1)
+    const newParentCopies = Array.from(
+      document.querySelector('[data-id="0.1"]')!.children,
+    ).filter(
+      (child) =>
+        child instanceof HTMLElement &&
+        child.style.getPropertyValue('opacity') === '0.5',
+    )
+    expect(newParentCopies).toHaveLength(0)
+
+    // Releasing ALT removes the duplicate from initial origin, keeping dragged element in new parent
+    await handleDragAltToggle(false, next)
+    expect(next.copy).toBeUndefined()
+    expect(next.element.parentElement?.getAttribute('data-id')).toBe('0.1')
+    expect(childIds('0.1')).toEqual(['0.1.0', '0.9.0'])
+    expect(childIds('0.9')).toEqual(['0.9.1'])
+
+    next.destroying = true
+  })
+
+  test('dropping after hover-insert with ALT held duplicates element into new parent', async () => {
+    setup()
+    const state = startHoverDrag()
+    let replaced: DragInsertState | null | undefined
+    trackHoverTarget(
+      state,
+      (next) => {
+        replaced = next
+      },
+      { stillMs: 5, blinkMs: 10 },
+    )
+    await new Promise((resolve) => setTimeout(resolve, 150))
+    const next = replaced!
+    await handleDragAltToggle(true, next)
+
+    const win = window as any
+    const prevParent = win.parent
+    const posted: any[] = []
+    Object.defineProperty(win, 'parent', { value: win, configurable: true })
+    win.postMessage = (msg: any) => {
+      posted.push(msg)
+    }
+    try {
+      await handleDragEnded({}, next, null)
+      const moved = posted.find((m) => m.type === 'nodeMoved')
+      expect(moved).toBeDefined()
+      expect(moved.parent).toBe('0.1')
+      expect(moved.copy).toBe(true)
+    } finally {
+      Object.defineProperty(win, 'parent', {
+        value: prevParent,
+        configurable: true,
+      })
+    }
+  })
+
+  test('after hover-insert and pressing ALT, original container is eligible for drop', async () => {
+    setup()
+    const state = startHoverDrag()
+    let replaced: DragInsertState | null | undefined
+    trackHoverTarget(
+      state,
+      (next) => {
+        replaced = next
+      },
+      { stillMs: 5, blinkMs: 10 },
+    )
+    await new Promise((resolve) => setTimeout(resolve, 150))
+    const next = replaced!
+    await handleDragAltToggle(true, next)
+
+    // Move cursor back outside container 0.1 towards original container 0.9
+    handleDragMouseMove({ x: 200, y: 550 }, next, false)
+    expect(next.mode).toBe('insert')
+    // Original container 0.9 must have insert areas available
+    const originAreas = next.insertAreas?.filter(
+      (a) => a.parent.getAttribute('data-id') === '0.9',
+    )
+    expect(originAreas?.length).toBeGreaterThan(0)
+
+    const selected = next.insertAreas?.[next.selectedInsertAreaIndex ?? -1]
+    expect(selected?.parent.getAttribute('data-id')).toBe('0.9')
+
+    const win = window as any
+    const prevParent = win.parent
+    const posted: any[] = []
+    Object.defineProperty(win, 'parent', { value: win, configurable: true })
+    win.postMessage = (msg: any) => {
+      posted.push(msg)
+    }
+    try {
+      await handleDragEnded({}, next, null)
+      const moved = posted.find((m) => m.type === 'nodeMoved')
+      expect(moved).toBeDefined()
+      expect(moved.parent).toBe('0.9')
+      expect(moved.copy).toBe(true)
+    } finally {
+      Object.defineProperty(win, 'parent', {
+        value: prevParent,
+        configurable: true,
+      })
+    }
   })
 
   test('moving to another target resets the still timer', async () => {

@@ -213,6 +213,7 @@ export function dragInsertStarted({
     ? (element.parentElement as HTMLElement)
     : (element as HTMLElement),
   initialNextSibling,
+  trueOrigin,
 }: {
   action: 'drag' | 'insert'
   element: HTMLElement
@@ -221,6 +222,7 @@ export function dragInsertStarted({
   asCopy: boolean
   initialContainer?: HTMLElement
   initialNextSibling?: Element | null
+  trueOrigin?: DragInsertState['trueOrigin']
 }) {
   // Move repeat nodes as a stack below the dragged element.
   const repeatPositions = repeatedNodes.map((node, i) => {
@@ -256,6 +258,7 @@ export function dragInsertStarted({
     lastCursorPosition,
     initialContainer,
     initialNextSibling,
+    trueOrigin,
     initialRect:
       action === 'drag'
         ? element.getBoundingClientRect()
@@ -273,10 +276,12 @@ export function dragInsertStarted({
       dragInsertState.copy.style.setProperty('opacity', '0.5')
       dragInsertState.copy.classList.remove(DRAG_REORDER_CLASSNAME)
       dragInsertState.copy.classList.remove(DRAG_INSERT_CLASSNAME)
-      dragInsertState.initialContainer.insertBefore(
-        dragInsertState.copy,
-        dragInsertState.initialNextSibling,
-      )
+      const copyContainer =
+        trueOrigin?.container ?? dragInsertState.initialContainer
+      const copyNextSibling = trueOrigin
+        ? trueOrigin.nextSibling
+        : dragInsertState.initialNextSibling
+      copyContainer.insertBefore(dragInsertState.copy, copyNextSibling)
     }
 
     dragInsertState.reorderPermutations = measureReorderPermutations(
@@ -521,7 +526,9 @@ export function dragInsertMove(
         '--drag-mode--move-opacity',
         '0',
       )
-    } else {
+    } else if (
+      !dragInsertState.element.style.getPropertyValue('--drag-mode--move-left')
+    ) {
       dragInsertState.element.style.setProperty(
         '--drag-mode--move-left',
         `${rect.left}px`,

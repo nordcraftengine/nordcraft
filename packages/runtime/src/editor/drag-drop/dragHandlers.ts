@@ -2,6 +2,7 @@ import type { Component } from '@nordcraft/core/dist/component/component.types'
 import { rectHasPoint } from '../../utils/rectHasPoint'
 import { getDOMNodeFromNodeId } from '../dom'
 import {
+  DRAG_INSERT_CLASSNAME,
   applyDropParentStyles,
   cancelHoverInsert,
   centerGhostOnCursor,
@@ -17,7 +18,7 @@ import {
 } from '../helpers'
 import { postMessageToEditor } from '../postMessageToEditor'
 import type { DragInsertState } from '../types'
-import { dragReorder } from './dragReorder'
+import { DRAG_REORDER_CLASSNAME, dragReorder } from './dragReorder'
 import { setDropHighlight, setHighlightBlink } from './dropHighlight'
 
 export const HOVER_STILL_MS = 1000
@@ -94,13 +95,11 @@ export const handleDragMouseMove = (
     // Exclude the true origin container, not the re-homed container.
     const originContainer =
       dragState.trueOrigin?.container ?? dragState.initialContainer
-    dragInsertMove(
-      'drag',
-      dragState,
-      metaKey || dragState.isSoleChildDrag
+    const exclude =
+      metaKey || dragState.isSoleChildDrag || Boolean(dragState.copy)
         ? [dragState.element]
-        : [dragState.element, originContainer],
-    )
+        : [dragState.element, originContainer]
+    dragInsertMove('drag', dragState, exclude)
   }
   dragState.element.style.setProperty(
     'translate',
@@ -112,13 +111,80 @@ export const handleDragAltToggle = async (
   asCopy: boolean,
   dragState: DragInsertState,
 ): Promise<DragInsertState | null> => {
-  return restartDrag(dragState, {
-    action: 'drag',
-    asCopy,
-    initialContainer: dragState.initialContainer,
-    initialNextSibling: dragState.initialNextSibling,
-    carryAreas: true,
-  })
+  if (dragState.destroying) {
+    return null
+  }
+
+  const originContainer =
+    dragState.trueOrigin?.container ?? dragState.initialContainer
+  const originNextSibling = dragState.trueOrigin
+    ? dragState.trueOrigin.nextSibling
+    : dragState.initialNextSibling
+
+  if (asCopy) {
+    if (!dragState.copy) {
+      const copy = dragState.element.cloneNode(true) as HTMLElement
+      copy.style.setProperty('opacity', '0.5')
+      copy.classList.remove(DRAG_REORDER_CLASSNAME)
+      copy.classList.remove(DRAG_INSERT_CLASSNAME)
+      copy.style.removeProperty('translate')
+      for (const prop of [
+        '--drag-mode--move-left',
+        '--drag-mode--move-top',
+        '--drag-mode--move-width',
+        '--drag-mode--move-opacity',
+      ]) {
+        copy.style.removeProperty(prop)
+      }
+      originContainer.insertBefore(copy, originNextSibling)
+      dragState.copy = copy
+
+      const homeChildren = Array.from(
+        dragState.initialContainer.children,
+      ).filter((child) => child.hasAttribute('data-node-id'))
+      const elementHome =
+        dragState.element.parentElement === dragState.initialContainer
+      dragState.isSoleChildDrag =
+        homeChildren.length + (elementHome ? 0 : 1) === 1
+    }
+  } else {
+    if (dragState.copy) {
+      dragState.copy.remove()
+      dragState.copy = undefined
+
+      const homeChildren = Array.from(
+        dragState.initialContainer.children,
+      ).filter((child) => child.hasAttribute('data-node-id'))
+      const elementHome =
+        dragState.element.parentElement === dragState.initialContainer
+      dragState.isSoleChildDrag =
+        homeChildren.length + (elementHome ? 0 : 1) === 1
+    }
+  }
+
+  centerGhostOnCursor(dragState)
+
+  // Recalculate reorder permutations for current container
+  dragState.reorderPermutations = measureReorderPermutations(
+    dragState.initialContainer,
+    dragState.element,
+    dragState.repeatedNodes,
+  )
+
+  // Invalidate and recalculate drop areas to account for layout shifts and eligibility
+  dragState.insertAreas = undefined
+  const exclude =
+    dragState.metaKey || dragState.isSoleChildDrag || Boolean(dragState.copy)
+      ? [dragState.element]
+      : [dragState.element, originContainer]
+
+  if (dragState.mode === 'insert') {
+    dragInsertMove('drag', dragState, exclude)
+  } else if (dragState.mode === 'reorder') {
+    void dragReorder(dragState)
+  }
+
+  return dragState
 }
 
 async function restartDrag(
@@ -137,6 +203,7 @@ async function restartDrag(
     wasInsert && init.carryAreas ? dragState.insertAreas : undefined
   const carriedSelection =
     wasInsert && init.carryAreas ? dragState.selectedInsertAreaIndex : undefined
+  const trueOrigin = init.trueOrigin ?? dragState.trueOrigin
   await dragInsertEnded(dragState, true, { instant: true })
   const newState = dragInsertStarted({
     action: init.action,
@@ -146,9 +213,10 @@ async function restartDrag(
     asCopy: init.asCopy,
     initialContainer: init.initialContainer,
     initialNextSibling: init.initialNextSibling,
+    trueOrigin,
   })
 
-  newState.trueOrigin = init.trueOrigin ?? dragState.trueOrigin
+  newState.trueOrigin = trueOrigin
   centerGhostOnCursor(newState)
   if (carriedAreas) {
     newState.insertAreas = carriedAreas
