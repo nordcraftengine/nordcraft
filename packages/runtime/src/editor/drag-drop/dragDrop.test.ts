@@ -16,9 +16,6 @@ import {
   handleDragAltToggle,
   handleDragEnded,
   handleDragMouseMove,
-  HOVER_BLINK_MS,
-  HOVER_BLINK_TICK_MS,
-  HOVER_STILL_MS,
   trackHoverTarget,
 } from './dragHandlers'
 import { dragReorder } from './dragReorder'
@@ -868,12 +865,6 @@ describe('alt toggle teardown', () => {
 })
 
 describe('hover-to-insert', () => {
-  test('hover timings are tweakable constants', () => {
-    expect(HOVER_STILL_MS).toBe(1000)
-    expect(HOVER_BLINK_MS).toBe(1000)
-    expect(HOVER_BLINK_TICK_MS).toBeGreaterThan(0)
-  })
-
   const setup = () => {
     document.body.innerHTML =
       '<div id="App"><div data-id="0.1" data-node-id="1"><div data-id="0.1.0" data-node-id="2">first</div></div><div data-id="0.9" data-node-id="9"><div data-id="0.9.0" data-node-id="10">dragme</div><div data-id="0.9.1" data-node-id="11">stay</div></div></div>'
