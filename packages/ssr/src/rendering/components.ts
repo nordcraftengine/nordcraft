@@ -53,6 +53,50 @@ type SlottedContent =
       options?: SlottedContentOptions,
     ) => Promise<string>)
 
+// Static class names depend only on the (immutable) node definition, while
+// resolving them costs a JSON.stringify + hash per call. Nodes are reused
+// across renders (and across repeat iterations of the same node), so cache
+// the resolved class name per node object and turn per-render serialization
+// work into a single computation per node.
+const staticClassNameCache = new WeakMap<object, string | undefined>()
+function getCachedStaticClassName(
+  node: Extract<NodeModel, { type: 'element' }>,
+): string | undefined {
+  if (staticClassNameCache.has(node)) {
+    return staticClassNameCache.get(node)
+  }
+  let className: string | undefined
+  if (node.style || node.customProperties || node.variants) {
+    const [style, variants] = getStaticStyleAndVariants(node)
+    if (style || variants) {
+      className = getClassName([style, variants])
+    }
+  }
+  staticClassNameCache.set(node, className)
+  return className
+}
+
+// `includedComponents.some((c) => c.name === name)` is a linear scan over
+// ~200 components on every component-node render. Cache the names in a Set
+// keyed by the (stable) array identity instead.
+const includedComponentNamesCache = new WeakMap<object, Set<string>>()
+function isIncludedComponent(
+  includedComponents: Component[],
+  name: string,
+): boolean {
+  let names = includedComponentNamesCache.get(includedComponents)
+  if (!names) {
+    names = new Set(includedComponents.map((c) => c.name))
+    includedComponentNamesCache.set(includedComponents, names)
+  }
+  return names.has(name)
+}
+
+// `Array.join('')` has measurable call overhead when rendering thousands of
+// nodes, and most elements have exactly one child — index it directly.
+const joinHtml = (parts: string[]): string =>
+  parts.length === 1 ? parts[0]! : parts.join('')
+
 function getSlotComponentIndex(
   nodeName: string,
   node: NodeModel,
@@ -182,7 +226,7 @@ const renderComponent = async ({
           }),
         ),
       )
-      return nodeItems.join('')
+      return joinHtml(nodeItems)
     }
     if (
       node.condition &&
@@ -239,11 +283,12 @@ const renderComponent = async ({
               }),
             ),
           )
-          return slotChildren.join('')
+          return joinHtml(slotChildren)
         }
       }
       case 'element': {
-        const lowerTag = node.tag.toLocaleLowerCase()
+        // Tag names are ASCII — `toLowerCase` avoids the locale lookup.
+        const lowerTag = node.tag.toLowerCase()
         switch (lowerTag) {
           case 'script': {
             // we do not want to run scripts twice.
@@ -261,12 +306,9 @@ const renderComponent = async ({
 
         const nodeAttrs = getNodeAttrs({ node, formulaContext })
         const classList: string[] = []
-        // Fast path: Skip entirely when empty.
-        if (node.style || node.customProperties || node.variants) {
-          const [style, variants] = getStaticStyleAndVariants(node)
-          if (style || variants) {
-            classList.push(getClassName([style, variants]))
-          }
+        const staticClassName = getCachedStaticClassName(node)
+        if (staticClassName) {
+          classList.push(staticClassName)
         }
 
         if (node.classes) {
@@ -359,7 +401,7 @@ const renderComponent = async ({
                 ),
               )
             : []
-          innerHTML = childNodes.join('')
+          innerHTML = joinHtml(childNodes)
         }
         if (lowerTag === 'style') {
           // render style content as text
@@ -382,7 +424,7 @@ const renderComponent = async ({
         if (classList.length > 0) {
           attributes.push(`class="${escapeAttrValue(classList.join(' '))}"`)
         }
-        if (!VOID_HTML_ELEMENTS.includes(tag)) {
+        if (!VOID_HTML_ELEMENTS.has(tag)) {
           return `<${tag} ${attributes.join(' ')}>${innerHTML}</${tag}>`
         } else {
           return `<${tag} ${attributes.join(' ')} />`
@@ -430,8 +472,9 @@ const renderComponent = async ({
         // help Typescript know that childComponent is defined
         const childComponent = _childComponent
 
-        const isLocalComponent = includedComponents.some(
-          (c) => c.name === childComponent.name,
+        const isLocalComponent = isIncludedComponent(
+          includedComponents,
+          childComponent.name,
         )
 
         // Evaluate the child component apis before rendering to make sure we have api data for potential contexts

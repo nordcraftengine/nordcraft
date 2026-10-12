@@ -19,7 +19,16 @@ export const escapeAttrValue = (value: any) => {
   ) {
     return ''
   }
-  return escapeHtml(escapeQuote(String(value)))
+  const str = String(value)
+  // Fast path: most attribute values contain no escapable characters
+  if (
+    str.indexOf('"') === -1 &&
+    str.indexOf('<') === -1 &&
+    str.indexOf('>') === -1
+  ) {
+    return str
+  }
+  return escapeHtml(escapeQuote(str))
 }
 
 const escapeQuote = (value: string) => {
@@ -50,14 +59,21 @@ export function getNodeAttrs({
   node: Pick<ElementNodeModel, 'attrs' | 'style-variables'>
   formulaContext: FormulaContext
 }) {
-  const { style, ...restAttrs } = node.attrs ?? {}
+  const attrs = node.attrs
   const nodeAttrs: string[] = []
-  for (const name in restAttrs) {
-    const value = applyFormula(restAttrs[name], formulaContext)
-    if (toBoolean(value)) {
-      nodeAttrs.push(`${name}="${escapeAttrValue(value)}"`)
+  if (attrs) {
+    for (const name in attrs) {
+      // Skip the style attribute here — it is merged with style-variables below.
+      if (name === 'style') {
+        continue
+      }
+      const value = applyFormula(attrs[name], formulaContext)
+      if (toBoolean(value)) {
+        nodeAttrs.push(`${name}="${escapeAttrValue(value)}"`)
+      }
     }
   }
+  const style = attrs?.style
   const styleVariables = node['style-variables']
   if (!style && !styleVariables) {
     return nodeAttrs

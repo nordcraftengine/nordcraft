@@ -304,7 +304,7 @@ export const getHeadItems = ({
                 return `${key}="${escapeAttrValue(value)}"`
               })
               .join(' ')} ${
-              VOID_HTML_ELEMENTS.includes(metaEntry.tag)
+              VOID_HTML_ELEMENTS.has(metaEntry.tag)
                 ? `/>`
                 : `>${
                     metaEntry.content

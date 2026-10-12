@@ -13,7 +13,7 @@ export const nonEmptyVoidElementRule: IssueRule<{ tag: string }> = {
       nodeType !== 'component-node' ||
       value?.type !== 'element' ||
       (value.children ?? []).length <= 0 ||
-      !VOID_HTML_ELEMENTS.includes(value.tag)
+      !VOID_HTML_ELEMENTS.has(value.tag)
     ) {
       return
     }

@@ -470,7 +470,7 @@ const setupMetaUpdates = (
       })
       if (
         typeof entry.content === 'string' &&
-        !VOID_HTML_ELEMENTS.includes(entry.tag.toLowerCase())
+        !VOID_HTML_ELEMENTS.has(entry.tag.toLowerCase())
       ) {
         existingElement.textContent = entry.content
       }
