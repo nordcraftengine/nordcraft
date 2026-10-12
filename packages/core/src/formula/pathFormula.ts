@@ -29,24 +29,6 @@ export const applyPathFormula = (
     }
     return null
   }
-  if (len === 3) {
-    if (data === null || typeof data !== 'object') {
-      return null
-    }
-    const first = (data as unknown as Record<string | number, unknown>)[
-      path[0] as string
-    ]
-    if (first === null || typeof first !== 'object') {
-      return null
-    }
-    const second = (first as Record<string | number, unknown>)[
-      path[1] as string
-    ]
-    if (second !== null && typeof second === 'object') {
-      return (second as Record<string | number, unknown>)[path[2] as string]
-    }
-    return null
-  }
   let input: any = data
   for (let i = 0; i < len; i++) {
     if (input !== null && typeof input === 'object') {
