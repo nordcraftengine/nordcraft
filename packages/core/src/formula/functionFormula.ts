@@ -70,6 +70,14 @@ export const applyFunctionFormula = (
           IS_PREVIEW && ctx.reportFormulaEvaluation ? ['formula'] : undefined,
         )
       } else {
+        // Fast path for contextless handlers (e.g. `add`, `concatenate` which
+        // declare a single `args` parameter): skip allocating the
+        // `{ ...activeCtx, data }` context object they never read. Handlers
+        // that declare a second parameter (ctx) still receive the full context.
+        if (newFunc.handler.length < 2) {
+          return (newFunc.handler as (args: unknown) => unknown)(args)
+        }
+
         return newFunc.handler(args, {
           root: ctx.root ?? document,
           env: ctx.env,
@@ -119,6 +127,9 @@ export const applyFunctionFormula = (
             )
       }
       try {
+        if (legacyFunc.length < 2) {
+          return (legacyFunc as (args: unknown[]) => unknown)(args)
+        }
         return legacyFunc(args, { ...activeCtx, data } as any)
       } catch (e) {
         ctx.toddle.errors.push(e as Error)

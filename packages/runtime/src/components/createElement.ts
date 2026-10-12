@@ -468,15 +468,19 @@ const getEventHandler =
         console.error('Could not get paste data', e)
       }
     }
-    // NOTE: signal notifications used to be batched (coalesced) across the
-    // actions of one event. That changed observable timing — a later action
-    // (or a custom formula in a later SetVariable) could observe DOM/side
-    // effects that the earlier action's cascade had not produced yet (e.g. a
-    // custom action measuring an element resized by the first action).
-    // Actions therefore run sequentially with the full cascade between them,
-    // exactly as before batching existed.
-    event?.actions?.forEach((action) => {
-      void handleAction(action, { ...dataSignal.get(), Event: e }, ctx, e)
-    })
+
+    const actions = event?.actions
+    if (actions) {
+      for (let i = 0; i < actions.length; i++) {
+        // Note: `dataSignal.get()` is not cached outside the loop as each action
+        // may depend on the latest state, including updates from previous actions.
+        void handleAction(
+          actions[i]!,
+          { ...dataSignal.get(), Event: e },
+          ctx,
+          e,
+        )
+      }
+    }
     return false
   }

@@ -89,16 +89,22 @@ export const initGlobalObject = (code?: {
       },
       getFormula: (name) => legacyFormulas[name],
       getCustomAction: (name, packageName) => {
-        return (
-          toddle.actions[packageName ?? window.__toddle.project]?.[name] ??
-          toddle.actions[window.__toddle.project]?.[name]
-        )
+        const project = window.__toddle.project
+        const key = packageName ?? project
+        const hit = toddle.actions[key]?.[name]
+        if (key === project) {
+          return hit
+        }
+        return hit ?? toddle.actions[project]?.[name]
       },
       getCustomFormula: (name, packageName) => {
-        return (
-          toddle.formulas[packageName ?? window.__toddle.project]?.[name] ??
-          toddle.formulas[window.__toddle.project]?.[name]
-        )
+        const project = window.__toddle.project
+        const key = packageName ?? project
+        const hit = toddle.formulas[key]?.[name]
+        if (key === project) {
+          return hit
+        }
+        return hit ?? toddle.formulas[project]?.[name]
       },
       // eslint-disable-next-line max-params
       getArgumentInputData: (formulaName, args, argIndex, data) =>
