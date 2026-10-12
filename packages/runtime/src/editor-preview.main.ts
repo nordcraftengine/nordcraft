@@ -52,11 +52,13 @@ import {
   handleDragEnded,
   handleDragMouseMove,
   handleDragStarted,
+  trackHoverTarget,
 } from './editor/drag-drop/dragHandlers'
 import { getFormattedTime, throttleToIdleCallback } from './editor/editorUtils'
 import { env, registerActions, registerFormulas } from './editor/global'
 import { introspectApiRequest } from './editor/graphql'
 import { insertHeadTags } from './editor/head'
+import { cancelHoverInsert } from './editor/helpers'
 import {
   handleInsertEnded,
   handleInsertMouseMove,
@@ -157,6 +159,7 @@ export const createRoot = (
   let component: Component | null = null
   let hasLoadedContent = false
   let componentFormulaData: Record<string, any> = {}
+  let pendingOverlayRaf: number | null = null
 
   const reportFormulaEvaluation: FormulaEvaluationReporter = (
     path,
@@ -241,7 +244,7 @@ export const createRoot = (
       selectedNodeId,
       component,
       styleVariantSelection,
-      syncOverlayRects,
+      syncOverlayRects: requestSyncOverlayRects,
     })
   }
 
@@ -264,7 +267,7 @@ export const createRoot = (
     action: () => Promise<T>,
     onDone: (result: T) => void,
   ) => {
-    const interval = setInterval(syncOverlayRects, 1000 / 60)
+    const interval = setInterval(requestSyncOverlayRects, 1000 / 60)
     try {
       const result = await action()
       onDone(result)
@@ -458,7 +461,7 @@ export const createRoot = (
             mode,
           })
           window.dispatchEvent(new CustomEvent('selected-node-changed'))
-          requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
+          requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
           break
         }
         case 'attrs': {
@@ -522,13 +525,13 @@ export const createRoot = (
               requestAnimationFrame(() => {
                 handleTextNodeSelection(node, {
                   onInput: () => {
-                    syncOverlayRects()
+                    requestSyncOverlayRects()
                   },
                 })
               })
             }
           }
-          syncOverlayRects()
+          requestSyncOverlayRects()
           return
         }
         case 'highlight': {
@@ -541,7 +544,7 @@ export const createRoot = (
             selectedNodeId,
             mode,
           })
-          syncOverlayRects()
+          requestSyncOverlayRects()
           return
         }
         case 'mousedown': {
@@ -568,7 +571,17 @@ export const createRoot = (
           if (['insert-div', 'insert-text'].includes(message.data.canvasTool)) {
             if (insertState && !insertState.destroying) {
               handleInsertMouseMove(message.data, insertState)
-              syncOverlayRects()
+              const hovered = insertState
+              trackHoverTarget(
+                hovered,
+                (next) => {
+                  if (insertState === hovered && next) {
+                    insertState = next
+                  }
+                },
+                { metaKey },
+              )
+              requestSyncOverlayRects()
               return
             } else if (!insertState?.destroying) {
               insertState = handleInsertStarted(
@@ -581,7 +594,17 @@ export const createRoot = (
 
           if (dragState && !dragState.destroying) {
             handleDragMouseMove(message.data, dragState, metaKey)
-            syncOverlayRects()
+            const hovered = dragState
+            trackHoverTarget(
+              hovered,
+              (next) => {
+                if (dragState === hovered && next) {
+                  dragState = next
+                }
+              },
+              { metaKey },
+            )
+            requestSyncOverlayRects()
             return
           }
 
@@ -624,7 +647,7 @@ export const createRoot = (
                 selectedNodeId,
                 mode,
               })
-              syncOverlayRects()
+              requestSyncOverlayRects()
             },
           })
           break
@@ -637,7 +660,7 @@ export const createRoot = (
           const { variantIndex } = message.data
           handleUpdateSelectedStyleVariant(variantIndex)
           resizeCanvas(resizeCanvasOptions)
-          syncOverlayRects()
+          requestSyncOverlayRects()
           break
         case 'report_document_scroll_size':
           requestResizeCanvas({
@@ -655,13 +678,13 @@ export const createRoot = (
             domNode.style.setProperty(CSS_VAR_VIEWPORT_HEIGHT, heightStr)
             requestResizeCanvas(
               { ...resizeCanvasOptions, force: true },
-              syncOverlayRects,
+              requestSyncOverlayRects,
             )
           } else {
             resizeCanvasOptions.enabled = false
             domNode.style.removeProperty(CSS_VAR_VIEWPORT_HEIGHT)
             document.body.removeAttribute(DATA_ATTR_VIEWPORT_HEIGHT)
-            requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
+            requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
           }
           break
         }
@@ -711,6 +734,8 @@ export const createRoot = (
           break
         }
         case 'drag-started':
+          // A new drag supersedes any pending hover-to-insert restart.
+          cancelHoverInsert(dragState)
           dragState = handleDragStarted(message.data, selectedNodeId, altKey)
           break
         case 'drag-ended':
@@ -726,6 +751,8 @@ export const createRoot = (
           }
           break
         case 'insert-started':
+          // A new insert supersedes any pending hover-to-insert restart.
+          cancelHoverInsert(insertState)
           insertState = handleInsertStarted(
             message.data,
             highlightedNodeId,
@@ -760,6 +787,18 @@ export const createRoot = (
           }
           altKey = message.data.altKey
           metaKey = message.data.metaKey
+          if (dragState) {
+            dragState.metaKey = metaKey
+            if (metaKey) {
+              cancelHoverInsert(dragState)
+            }
+          }
+          if (insertState) {
+            insertState.metaKey = metaKey
+            if (metaKey) {
+              cancelHoverInsert(insertState)
+            }
+          }
           break
 
         case 'get_computed_style':
@@ -771,7 +810,10 @@ export const createRoot = (
           break
 
         case 'set_timeline_keyframes':
-          handleSetTimelineKeyframes(message.data.keyframes, syncOverlayRects)
+          handleSetTimelineKeyframes(
+            message.data.keyframes,
+            requestSyncOverlayRects,
+          )
           break
 
         case 'set_timeline_time': {
@@ -780,7 +822,7 @@ export const createRoot = (
             selectedNodeId,
             currentAnimationState: animationState,
             update,
-            syncOverlayRects,
+            syncOverlayRects: requestSyncOverlayRects,
           })
           break
         }
@@ -815,7 +857,7 @@ export const createRoot = (
         case 'preview_resources': {
           applyPreviewResources(message.data.resources, {
             resizeCanvasOptions,
-            syncOverlayRects,
+            syncOverlayRects: requestSyncOverlayRects,
           })
           break
         }
@@ -846,10 +888,10 @@ export const createRoot = (
 
   const resizeObserver = new ResizeObserver(() => {
     if (hasLivePreviewStyle()) {
-      syncOverlayRects()
+      requestSyncOverlayRects()
       return
     }
-    requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
+    requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
   })
   resizeObserver.observe(domNode)
   requestResizeCanvas(resizeCanvasOptions)
@@ -858,6 +900,10 @@ export const createRoot = (
     if (clearPreviewStyleTimeout) {
       clearTimeout(clearPreviewStyleTimeout)
       clearPreviewStyleTimeout = undefined
+    }
+    if (pendingOverlayRaf !== null) {
+      cancelAnimationFrame(pendingOverlayRaf)
+      pendingOverlayRaf = null
     }
     storeScrollState(component?.name)
     resizeObserver.disconnect()
@@ -1025,7 +1071,7 @@ export const createRoot = (
       ctxDataSignal?.destroy()
       ctxDataSignal = dataSignal.map((data) => data)
       ctxDataSignal.subscribe(() => {
-        requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
+        requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
       })
       try {
         const rootElem = createNode({
@@ -1064,22 +1110,22 @@ export const createRoot = (
       hasLoadedContent = true
       requestResizeCanvas(
         { ...resizeCanvasOptions, force: true },
-        syncOverlayRects,
+        requestSyncOverlayRects,
       )
       requestAnimationFrame(() => {
         requestResizeCanvas(
           { ...resizeCanvasOptions, force: true },
-          syncOverlayRects,
+          requestSyncOverlayRects,
         )
       })
       void document.fonts?.ready?.then(() => {
         requestResizeCanvas(
           { ...resizeCanvasOptions, force: true },
-          syncOverlayRects,
+          requestSyncOverlayRects,
         )
       })
     } else {
-      requestResizeCanvas(resizeCanvasOptions, syncOverlayRects)
+      requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
     }
   }
 
@@ -1194,5 +1240,24 @@ export const createRoot = (
         })
       }
     }
+  }
+
+  /**
+   * Throttled overlay sync — at most once per animation frame.
+   * Each call cancels the pending frame and schedules a fresh one, so rapid
+   * updates never stack up faster than `getRectData` can be resolved.
+   */
+  const requestSyncOverlayRects = () => {
+    if (typeof requestAnimationFrame === 'undefined') {
+      syncOverlayRects()
+      return
+    }
+    if (pendingOverlayRaf !== null) {
+      cancelAnimationFrame(pendingOverlayRaf)
+    }
+    pendingOverlayRaf = requestAnimationFrame(() => {
+      pendingOverlayRaf = null
+      syncOverlayRects()
+    })
   }
 }

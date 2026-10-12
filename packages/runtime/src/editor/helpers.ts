@@ -1,18 +1,25 @@
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { isElementInViewport } from '../utils/isElementInViewport'
 import { tryStartViewTransition } from '../utils/tryStartViewTransition'
 import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from './dom'
-import { DRAG_REORDER_CLASSNAME } from './drag-drop/dragReorder'
+import {
+  cancelReorderFlip,
+  DRAG_REORDER_CLASSNAME,
+} from './drag-drop/dragReorder'
 import {
   removeDropHighlight,
   setDropHighlight,
   setExternalDropHighlight,
+  setHighlightBlink,
 } from './drag-drop/dropHighlight'
 import { getInsertAreas } from './drag-drop/getInsertAreas'
 import { findNearestLine } from './findNearestLine'
 import type { DragInsertState, InsertArea, Point } from './types'
 
 const OVERLAP_OFFSET_PX = 100
-export const DRAG_MOVE_CLASSNAME = '__drag-mode--move'
+export const MAX_SNAP_DISTANCE_PX = 80
+export const GRID_RIM_PX = 8
+export const DRAG_INSERT_CLASSNAME = '__drag-mode--move'
 
 const voidElements = new Set([
   'AREA',
@@ -36,48 +43,164 @@ export function isVoidElement(element: Element) {
 }
 
 /**
- * Return the most likely permutation to move the dragged element to based on the current drag position.
- * The calculation is based on distance from the center of the dragged element to the center of the potential target element,
- * but only if the dragged element is overlapping with the target element.
+ * Computed `display` values that use flex layout.
  */
+export function isFlexDisplay(display: string): boolean {
+  return display === 'flex' || display === 'inline-flex'
+}
+
+export function nodeIndexFromId(id: string | null | undefined): number {
+  if (!id) {
+    return NaN
+  }
+  const clean = id
+    .split('.')
+    .at(-1)
+    ?.replace(/\[[^\]]*\]|\{[^}]*\}|\([^)]*\)/g, '')
+  return clean ? Number(clean) : NaN
+}
+
+export function isPrimaryNodeElement(element: Element): boolean {
+  const dataId = element.getAttribute('data-id')
+  const nodeId = element.getAttribute('data-node-id')
+  return Boolean(nodeId && !dataId?.endsWith(')'))
+}
+
+export function getPrimaryChildElements(parent: Element): HTMLElement[] {
+  return Array.from(parent.children).filter(
+    (child): child is HTMLElement =>
+      child instanceof HTMLElement && isPrimaryNodeElement(child),
+  )
+}
+
+export function cancelHoverInsert(
+  dragState: Pick<DragInsertState, 'hover'> | null | undefined,
+) {
+  const hover = dragState?.hover
+  if (!hover) {
+    return
+  }
+  dragState.hover = undefined
+  if (hover.timeout !== undefined) {
+    clearTimeout(hover.timeout)
+  }
+  if (hover.interval !== undefined) {
+    clearInterval(hover.interval)
+  }
+  setHighlightBlink(false, false)
+}
+
+export function postHighlightMessage(parent: Element) {
+  const nodeId = parent.getAttribute('data-id')
+  window.parent.postMessage(
+    {
+      type: 'highlight',
+      highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
+      exactHighlightedNodeId: nodeId,
+      repeatNodeIndex: getRepeatNodeIndex(nodeId, parent),
+    },
+    '*',
+  )
+}
+
+export function centerGhostOnCursor(
+  dragState: Pick<DragInsertState, 'element' | 'offset' | 'lastCursorPosition'>,
+): void {
+  const { element, offset, lastCursorPosition } = dragState
+  element.style.removeProperty('translate')
+  const box = element.getBoundingClientRect()
+  offset.x = box.left + box.width / 2
+  offset.y = box.top + box.height / 2
+  element.style.setProperty(
+    'translate',
+    `${lastCursorPosition.x - offset.x}px ${lastCursorPosition.y - offset.y}px`,
+  )
+}
+
 export function getBestPermutation(
-  element: HTMLElement,
+  cursor: Point,
   reorderPermutations: Array<{
     nextSibling: Node | null
     rect: DOMRect
   }>,
 ) {
-  const { left, top, width, height } = element.getBoundingClientRect()
-  const dragElementCenterX = left + width / 2
-  const dragElementCenterY = top + height / 2
-  return reorderPermutations.reduce<null | {
-    rect: DOMRect
-    nextSibling: Node | null
-  }>((prev, curr) => {
-    const isOverlapping =
-      Math.abs(curr.rect.left + curr.rect.width / 2 - dragElementCenterX) <
-        curr.rect.width / 2 + OVERLAP_OFFSET_PX &&
-      Math.abs(curr.rect.top + curr.rect.height / 2 - dragElementCenterY) <
-        curr.rect.height / 2 + OVERLAP_OFFSET_PX
-    if (isOverlapping) {
-      if (!prev) {
-        return curr
+  let best: { nextSibling: Node | null; rect: DOMRect } | null = null
+  let minDist = Infinity
+
+  for (const curr of reorderPermutations) {
+    const dx = curr.rect.left + curr.rect.width / 2 - cursor.x
+    const dy = curr.rect.top + curr.rect.height / 2 - cursor.y
+    if (
+      Math.abs(dx) < curr.rect.width / 2 + OVERLAP_OFFSET_PX &&
+      Math.abs(dy) < curr.rect.height / 2 + OVERLAP_OFFSET_PX
+    ) {
+      const dist = Math.hypot(dx, dy)
+      if (dist <= minDist) {
+        minDist = dist
+        best = curr
       }
-
-      const prevDist = Math.hypot(
-        prev.rect.left + prev.rect.width / 2 - dragElementCenterX,
-        prev.rect.top + prev.rect.height / 2 - dragElementCenterY,
-      )
-      const nextDist = Math.hypot(
-        curr.rect.left + curr.rect.width / 2 - dragElementCenterX,
-        curr.rect.top + curr.rect.height / 2 - dragElementCenterY,
-      )
-
-      return prevDist < nextDist ? prev : curr
     }
+  }
 
-    return prev
-  }, null)
+  return best
+}
+
+/**
+ * Measures how the dragged element would lay out before each sibling of a
+ * container. A hidden probe clone is moved through the slots instead of the
+ * dragged element itself, so the real node (focus, observers, translate
+ * state) is never disturbed; the dragged element is hidden meanwhile to
+ * keep the item count identical. The sibling list is snapshotted first
+ * since probing mutates the DOM.
+ */
+export function measureReorderPermutations(
+  container: HTMLElement,
+  element: HTMLElement,
+  repeatedNodes: HTMLElement[],
+): Array<{ nextSibling: Node | null; rect: DOMRect }> {
+  const permutations: Array<{ nextSibling: Node | null; rect: DOMRect }> = []
+  const probe = element.cloneNode(true) as HTMLElement
+  probe.removeAttribute('id')
+  probe.style.setProperty('visibility', 'hidden')
+  probe.style.setProperty('pointer-events', 'none')
+  probe.style.removeProperty('translate')
+  const prevDisplay = element.style.getPropertyValue('display')
+  element.style.setProperty('display', 'none')
+  try {
+    const siblingsSnapshot = Array.from(container.childNodes)
+    for (const sibling of siblingsSnapshot) {
+      if (
+        sibling instanceof Element &&
+        sibling.getAttribute('data-id') &&
+        // Only first item of repeated nodes should be considered
+        !sibling.getAttribute('data-id')?.endsWith(')') &&
+        !sibling.hasAttribute('data-component') &&
+        repeatedNodes.every((node) => node !== sibling)
+      ) {
+        container.insertBefore(probe, sibling)
+        permutations.push({
+          nextSibling: sibling,
+          rect: probe.getBoundingClientRect(),
+        })
+      }
+    }
+    // Test the last position
+    if (!container.hasAttribute('data-component')) {
+      container.appendChild(probe)
+      permutations.push({
+        nextSibling: null,
+        rect: probe.getBoundingClientRect(),
+      })
+    }
+  } finally {
+    probe.remove()
+    if (prevDisplay) {
+      element.style.setProperty('display', prevDisplay)
+    } else {
+      element.style.removeProperty('display')
+    }
+  }
+  return permutations
 }
 
 export function dragInsertStarted({
@@ -99,34 +222,37 @@ export function dragInsertStarted({
   initialContainer?: HTMLElement
   initialNextSibling?: Element | null
 }) {
-  // Move repeat nodes as a stack below the dragged element
-  repeatedNodes
-    .map<[HTMLElement, DOMRect]>((node) => [node, node.getBoundingClientRect()])
-    .forEach(([node, rect], i) => {
-      node.classList.add('drag-repeat-node')
-      node.style.setProperty('--drag-repeat-node-width', `${rect.width}px`)
-      node.style.setProperty('--drag-repeat-node-height', `${rect.height}px`)
-      node.style.setProperty(
-        '--drag-repeat-node-translate',
-        `${rect.left}px ${rect.top}px`,
-      )
-      node.style.setProperty(
-        '--drag-repeat-node-rotate',
-        `${Math.random() * 9 - 4.5}deg`,
-      )
-      node.style.setProperty('--drag-repeat-node-opacity', i < 3 ? '1' : '0')
-    })
+  // Move repeat nodes as a stack below the dragged element.
+  const repeatPositions = repeatedNodes.map((node, i) => {
+    const rect = node.getBoundingClientRect()
+    node.classList.add('drag-repeat-node')
+    node.style.setProperty('--drag-repeat-node-width', `${rect.width}px`)
+    node.style.setProperty('--drag-repeat-node-height', `${rect.height}px`)
+    node.style.setProperty(
+      '--drag-repeat-node-translate',
+      `${rect.left}px ${rect.top}px`,
+    )
+    node.style.setProperty(
+      '--drag-repeat-node-rotate',
+      `${((i * 4.7) % 9) - 4.5}deg`,
+    )
+    node.style.setProperty('--drag-repeat-node-opacity', i < 3 ? '1' : '0')
+    return { x: rect.left, y: rect.top, width: rect.width, height: rect.height }
+  })
 
   initialNextSibling ??= element.nextElementSibling
 
   const dragInsertState: DragInsertState = {
     destroying: false,
+    action,
     elementType:
       elementIsComponent(element) && action === 'drag'
         ? 'component'
         : 'element',
     element,
-    offset: lastCursorPosition,
+    // Own copy: the ghost offset is mutated in place all through the drag
+    // and must never alias (and corrupt) the cursor position.
+    offset: { ...lastCursorPosition },
     lastCursorPosition,
     initialContainer,
     initialNextSibling,
@@ -135,7 +261,8 @@ export function dragInsertStarted({
         ? element.getBoundingClientRect()
         : initialContainer.getBoundingClientRect(),
     reorderPermutations: [],
-    isTransitioning: false,
+    flipAnimations: [],
+    isSoleChildDrag: false,
     repeatedNodes,
     mode: action === 'drag' ? 'reorder' : 'insert',
   }
@@ -145,45 +272,26 @@ export function dragInsertStarted({
       dragInsertState.copy = element.cloneNode(true) as HTMLElement
       dragInsertState.copy.style.setProperty('opacity', '0.5')
       dragInsertState.copy.classList.remove(DRAG_REORDER_CLASSNAME)
-      dragInsertState.copy.classList.remove(DRAG_MOVE_CLASSNAME)
+      dragInsertState.copy.classList.remove(DRAG_INSERT_CLASSNAME)
       dragInsertState.initialContainer.insertBefore(
         dragInsertState.copy,
         dragInsertState.initialNextSibling,
       )
     }
 
-    // Calculate all possible permutations, by iterating over all siblings of the targetContainer
-    // and moving the draggedElement to before each sibling to calculate the rect and then
-    // store it in the dragState.permutations array
-    dragInsertState.initialContainer.childNodes.forEach((sibling) => {
-      if (
-        sibling instanceof Element &&
-        sibling.getAttribute('data-id') &&
-        // Only first item of repeated nodes should be considered
-        !sibling.getAttribute('data-id')?.endsWith(')') &&
-        !sibling.hasAttribute('data-component') &&
-        repeatedNodes.every((node) => node !== sibling)
-      ) {
-        dragInsertState.initialContainer.insertBefore(element, sibling)
-        dragInsertState.reorderPermutations.push({
-          nextSibling: sibling,
-          rect: element.getBoundingClientRect(),
-        })
-      }
-    })
-    // Test the last position
-    if (!dragInsertState.initialContainer.hasAttribute('data-component')) {
-      dragInsertState.initialContainer.appendChild(element)
-      dragInsertState.reorderPermutations.push({
-        nextSibling: null,
-        rect: element.getBoundingClientRect(),
-      })
-    }
-    // Restore the initial position of the draggedElement
-    dragInsertState.initialContainer.insertBefore(
+    dragInsertState.reorderPermutations = measureReorderPermutations(
+      dragInsertState.initialContainer,
       element,
-      dragInsertState.initialNextSibling,
+      repeatedNodes,
     )
+
+    const homeChildren = Array.from(
+      dragInsertState.initialContainer.children,
+    ).filter((child) => child.hasAttribute('data-node-id'))
+    const elementHome =
+      dragInsertState.element.parentElement === dragInsertState.initialContainer
+    dragInsertState.isSoleChildDrag =
+      homeChildren.length + (elementHome ? 0 : 1) === 1
   }
   ;(function followRepeatedNodes() {
     if (dragInsertState.destroying || !dragInsertState.element.isConnected) {
@@ -191,17 +299,22 @@ export function dragInsertStarted({
     }
 
     const followRect = dragInsertState.element.getBoundingClientRect()
-    dragInsertState.repeatedNodes.forEach((node) => {
-      // Calculate rect without rotation as it expands the rect and makes it difficult to calculate the correct position
-      node.style.setProperty('rotate', '0deg')
-      const fromRect = node.getBoundingClientRect()
-      node.style.removeProperty('rotate')
-      const toX = followRect.left + followRect.width / 2 - fromRect.width / 2
-      const toY = followRect.top + followRect.height / 2 - fromRect.height / 2
-      const interpolation = 0.4
-      const x = fromRect.left + (toX - fromRect.left) * interpolation
-      const y = fromRect.top + (toY - fromRect.top) * interpolation
-      node.style.setProperty('--drag-repeat-node-translate', `${x}px ${y}px`)
+    const interpolation = 0.4
+    dragInsertState.repeatedNodes.forEach((node, i) => {
+      const cached = repeatPositions[i] as
+        | (typeof repeatPositions)[number]
+        | undefined
+      if (!cached) {
+        return
+      }
+      const toX = followRect.left + followRect.width / 2 - cached.width / 2
+      const toY = followRect.top + followRect.height / 2 - cached.height / 2
+      cached.x += (toX - cached.x) * interpolation
+      cached.y += (toY - cached.y) * interpolation
+      node.style.setProperty(
+        '--drag-repeat-node-translate',
+        `${cached.x}px ${cached.y}px`,
+      )
     })
 
     requestAnimationFrame(followRepeatedNodes)
@@ -209,19 +322,7 @@ export function dragInsertStarted({
 
   // Highlight container
   element.classList.add(DRAG_REORDER_CLASSNAME)
-  const nodeId = dragInsertState.initialContainer.getAttribute('data-id')
-  window.parent.postMessage(
-    {
-      type: 'highlight',
-      highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
-      exactHighlightedNodeId: nodeId,
-      repeatNodeIndex: getRepeatNodeIndex(
-        nodeId,
-        dragInsertState.initialContainer,
-      ),
-    },
-    '*',
-  )
+  postHighlightMessage(dragInsertState.initialContainer)
 
   setDropHighlight(
     dragInsertState.element,
@@ -235,15 +336,114 @@ export function dragInsertStarted({
 export async function dragInsertEnded(
   dragInsertState: DragInsertState,
   canceled: boolean,
+  options?: {
+    /**
+     * Snap back synchronously without a view transition. Used when the drag
+     * immediately restarts (ALT duplicate toggle) so pressing/releasing ALT
+     * takes effect at once instead of playing — and awaiting — the 0.4s
+     * drop animation.
+     */
+    instant?: boolean
+  },
 ) {
   dragInsertState.destroying = true
+  cancelHoverInsert(dragInsertState)
+  // Settle any in-flight reorder glide first so measurements and the drop
+  // transition start from final positions.
+  cancelReorderFlip(dragInsertState)
   const selectedInsertArea =
     dragInsertState.insertAreas?.[dragInsertState.selectedInsertAreaIndex ?? -1]
+  // A hover-insert re-homes mid-drag without committing: cancelling still
+  // falls back to the original position.
+  const fallbackHome = canceled ? dragInsertState.trueOrigin : undefined
+  const homeContainer =
+    fallbackHome?.container ?? dragInsertState.initialContainer
+  const homeNextSibling = fallbackHome
+    ? fallbackHome.nextSibling
+    : dragInsertState.initialNextSibling
+
+  const restoreDom = () => {
+    if (canceled) {
+      dragInsertState.copy?.remove()
+      if (dragInsertState.action === 'insert') {
+        dragInsertState.element.remove()
+      } else {
+        homeContainer.insertBefore(dragInsertState.element, homeNextSibling)
+      }
+      if (dragInsertState.hoverPlacement) {
+        const hoverParent = dragInsertState.hoverPlacement.parent
+        if (
+          hoverParent instanceof HTMLElement &&
+          hoverParent !== homeContainer
+        ) {
+          for (const prop of Object.keys(
+            dragInsertState.hoverPlacement.styleProps,
+          )) {
+            hoverParent.style.removeProperty(prop)
+          }
+        }
+      }
+    } else if (dragInsertState.mode === 'insert') {
+      const targetSiblings = selectedInsertArea
+        ? getPrimaryChildElements(selectedInsertArea.parent)
+        : []
+      if (selectedInsertArea) {
+        applyDropParentStyles(selectedInsertArea.parent, selectedInsertArea)
+        const placeholderChildren = selectedInsertArea.slotPlaceholder
+          ? Array.from(selectedInsertArea.parent.children).filter(
+              (child) =>
+                child.getAttribute('data-node-slot-name') ===
+                selectedInsertArea.slot,
+            )
+          : []
+        const insertBeforeNode =
+          placeholderChildren.length > 0
+            ? placeholderChildren[0]
+            : (targetSiblings.at(selectedInsertArea.indexAll) ?? null)
+        selectedInsertArea.parent.insertBefore(
+          dragInsertState.element,
+          insertBeforeNode,
+        )
+        for (const placeholder of placeholderChildren) {
+          placeholder.remove()
+        }
+      }
+    }
+
+    dragInsertState.element.classList.remove(DRAG_REORDER_CLASSNAME)
+    dragInsertState.element.classList.remove(DRAG_INSERT_CLASSNAME)
+    dragInsertState.element.style.removeProperty('translate')
+    dragInsertState.repeatedNodes.toReversed().forEach((node) => {
+      dragInsertState.element.insertAdjacentElement('afterend', node)
+      node.classList.remove('drag-repeat-node')
+      for (const prop of [
+        'rotate',
+        '--drag-repeat-node-width',
+        '--drag-repeat-node-height',
+        '--drag-repeat-node-translate',
+        '--drag-repeat-node-rotate',
+        '--drag-repeat-node-opacity',
+      ]) {
+        node.style.removeProperty(prop)
+      }
+    })
+    removeDropHighlight()
+  }
+
+  if (options?.instant) {
+    restoreDom()
+    return
+  }
+
   const siblings =
     (dragInsertState.mode === 'insert' && !canceled
       ? selectedInsertArea?.parent
-      : dragInsertState.initialContainer
+      : homeContainer
     )?.querySelectorAll('[data-id]') ?? []
+  if (dragInsertState.action === 'insert' && !canceled) {
+    centerGhostOnCursor(dragInsertState)
+    dragInsertState.element.style.removeProperty('--drag-mode--move-opacity')
+  }
   dragInsertState.element.style.setProperty(
     'view-transition-name',
     'dropped-item-self',
@@ -278,35 +478,7 @@ export async function dragInsertEnded(
   )
   document.head.appendChild(style)
 
-  await tryStartViewTransition(() => {
-    if (canceled) {
-      dragInsertState.copy?.remove()
-      dragInsertState.initialContainer.insertBefore(
-        dragInsertState.element,
-        dragInsertState.initialNextSibling,
-      )
-    } else if (dragInsertState.mode === 'insert') {
-      selectedInsertArea?.parent.insertBefore(
-        dragInsertState.element,
-        selectedInsertArea.parent.childNodes[selectedInsertArea.indexAll],
-      )
-    }
-
-    dragInsertState.element.classList.remove(DRAG_REORDER_CLASSNAME)
-    dragInsertState.element.classList.remove(DRAG_MOVE_CLASSNAME)
-    dragInsertState.element.style.removeProperty('translate')
-    dragInsertState.repeatedNodes.toReversed().forEach((node) => {
-      dragInsertState.element.insertAdjacentElement('afterend', node)
-      node.classList.remove('drag-repeat-node')
-      node.style.removeProperty('rotate')
-      node.style.removeProperty('--drag-repeat-node-width')
-      node.style.removeProperty('--drag-repeat-node-height')
-      node.style.removeProperty('--drag-repeat-node-translate')
-      node.style.removeProperty('--drag-repeat-node-rotate')
-      node.style.removeProperty('--drag-repeat-node-opacity')
-    })
-    removeDropHighlight()
-  }).finished
+  await tryStartViewTransition(restoreDom).finished
 
   style.remove()
   dragInsertState.element.style.removeProperty('view-transition-name')
@@ -326,116 +498,279 @@ export function dragInsertMove(
     return
   }
 
-  // If the drag operation was a reorder operation, we need to switch to insert mode and perform some one-time preparation
-  if (dragInsertState.mode === 'reorder' || action === 'insert') {
+  if (dragInsertState.mode === 'reorder' || !dragInsertState.insertAreas) {
     dragInsertState.mode = 'insert'
-    dragInsertState.element.style.setProperty('display', 'none')
-    // We only calculate insert locations when dragging outside the container to avoid unnecessary calculations
-    dragInsertState.insertAreas ??= getInsertAreas().filter(
-      (x) =>
-        exclude.every((e) => !e?.contains(x.parent) && e !== x.parent) &&
-        x.parent !== document.body,
-    )
-    dragInsertState.element.style.removeProperty('display')
     const translate =
       dragInsertState.element.style.getPropertyValue('translate')
     dragInsertState.element.style.setProperty('translate', '0')
     const rect = dragInsertState.element.getBoundingClientRect()
+    dragInsertState.element.style.setProperty('display', 'none')
     document.body.appendChild(dragInsertState.element)
-    dragInsertState.element.classList.add(DRAG_MOVE_CLASSNAME)
+    dragInsertState.insertAreas ??= getInsertAreas().filter(
+      (x) =>
+        exclude.every((e) => !e.contains(x.parent) && e !== x.parent) &&
+        x.parent !== document.body,
+    )
+    dragInsertState.element.style.removeProperty('display')
+    dragInsertState.element.classList.add(DRAG_INSERT_CLASSNAME)
     dragInsertState.element.classList.remove(DRAG_REORDER_CLASSNAME)
-    dragInsertState.element.style.setProperty(
-      '--drag-mode--move-left',
-      `${rect.left}px`,
-    )
-    dragInsertState.element.style.setProperty(
-      '--drag-mode--move-top',
-      `${rect.top}px`,
-    )
-    dragInsertState.element.style.setProperty(
-      '--drag-mode--move-width',
-      `${dragInsertState.initialRect.width}px`,
-    )
-    dragInsertState.element.style.setProperty(
-      '--drag-mode--move-opacity',
-      action === 'insert' ? '0' : '0.4',
-    )
+    if (action === 'insert') {
+      dragInsertState.element.style.setProperty('--drag-mode--move-left', '0px')
+      dragInsertState.element.style.setProperty('--drag-mode--move-top', '0px')
+      dragInsertState.element.style.setProperty(
+        '--drag-mode--move-opacity',
+        '0',
+      )
+    } else {
+      dragInsertState.element.style.setProperty(
+        '--drag-mode--move-left',
+        `${rect.left}px`,
+      )
+      dragInsertState.element.style.setProperty(
+        '--drag-mode--move-top',
+        `${rect.top}px`,
+      )
+      dragInsertState.element.style.setProperty(
+        '--drag-mode--move-width',
+        `${dragInsertState.initialRect.width}px`,
+      )
+      dragInsertState.element.style.setProperty(
+        '--drag-mode--move-opacity',
+        '0.4',
+      )
+    }
     dragInsertState.element.style.setProperty('translate', translate)
   }
   dragInsertState.repeatedNodes.forEach((node, i) => {
     node.style.setProperty('--drag-repeat-node-opacity', i < 3 ? '0.2' : '0')
   })
 
-  const lines = dragInsertState.insertAreas?.map((line) => {
-    if (line.layout === 'block') {
-      return {
-        x1: line.center.x - line.size / 2,
-        y1: line.center.y,
-        x2: line.center.x + line.size / 2,
-        y2: line.center.y,
-        slotName: line.slot ?? null,
-        parent: line.parent,
-        index: line.index,
-        direction: line.direction,
-      }
-    } else {
-      return {
-        x1: line.center.x,
-        y1: line.center.y - line.size / 2,
-        x2: line.center.x,
-        y2: line.center.y + line.size / 2,
-        slotName: line.slot ?? null,
-        parent: line.parent,
-        index: line.index,
-        direction: line.direction,
-      }
+  const allAreas = dragInsertState.insertAreas ?? []
+  const cursor = dragInsertState.lastCursorPosition
+  const gridUnions = new Map<
+    Element,
+    { left: number; top: number; right: number; bottom: number }
+  >()
+  for (const area of allAreas) {
+    const bounds = area.bounds
+    if (!bounds) {
+      continue
     }
+    const union = gridUnions.get(area.parent) ?? {
+      left: Infinity,
+      top: Infinity,
+      right: -Infinity,
+      bottom: -Infinity,
+    }
+    union.left = Math.min(union.left, bounds.x)
+    union.top = Math.min(union.top, bounds.y)
+    union.right = Math.max(union.right, bounds.x + bounds.width)
+    union.bottom = Math.max(union.bottom, bounds.y + bounds.height)
+    gridUnions.set(area.parent, union)
+  }
+  const containingGridAreas = allAreas.filter((area) => {
+    if (!area.bounds) {
+      return false
+    }
+    if (
+      cursor.x < area.bounds.x ||
+      cursor.x > area.bounds.x + area.bounds.width ||
+      cursor.y < area.bounds.y ||
+      cursor.y > area.bounds.y + area.bounds.height
+    ) {
+      return false
+    }
+    // Near the empty element's outer rim the cursor targets the surrounding
+    // lines instead, keeping e.g. "drop after the empty element" reachable.
+    const union = gridUnions.get(area.parent)
+    if (
+      union &&
+      (cursor.x - union.left < GRID_RIM_PX ||
+        union.right - cursor.x < GRID_RIM_PX ||
+        cursor.y - union.top < GRID_RIM_PX ||
+        union.bottom - cursor.y < GRID_RIM_PX)
+    ) {
+      return false
+    }
+    return true
   })
-  const { nearestLines, projectionPoint } = findNearestLine(
-    lines ?? [],
-    dragInsertState.lastCursorPosition,
-  )
+  if (containingGridAreas.length > 0) {
+    // Prefer the smallest (innermost) area when empty elements are nested
+    const selected = containingGridAreas.reduce((prev, curr) =>
+      prev.bounds!.width * prev.bounds!.height <=
+      curr.bounds!.width * curr.bounds!.height
+        ? prev
+        : curr,
+    )
+    dragInsertState.selectedInsertAreaIndex = allAreas.indexOf(selected)
 
-  if (nearestLines.length === 0 || !dragInsertState.insertAreas || !lines) {
+    postHighlightMessage(selected.parent)
+    setExternalDropHighlight({
+      insertAreas: [selected],
+      color: dragInsertState.elementType === 'component' ? 'D946EF' : '2563EB',
+      projectionPoint: 0.5,
+    })
     return
   }
 
-  const insertAreas: InsertArea[] = []
-
-  nearestLines.map((nl) => {
-    const area = dragInsertState.insertAreas?.at(lines.indexOf(nl))
-    if (area) {
-      insertAreas.push(area)
+  const lineAreas = allAreas.filter((area) => !area.bounds)
+  const lines = lineAreas.map((line) => {
+    // Hit-test at the exact center so the selected line matches the
+    // rendered line pixel-for-pixel.
+    const at = line.center
+    const half = line.size / 2
+    const horizontal = line.layout === 'block'
+    return {
+      x1: horizontal ? at.x - half : at.x,
+      y1: horizontal ? at.y : at.y - half,
+      x2: horizontal ? at.x + half : at.x,
+      y2: horizontal ? at.y : at.y + half,
+      slotName: line.slot ?? null,
+      parent: line.parent,
+      index: line.index,
+      direction: line.direction,
     }
   })
+  const { nearestLines, dist, projectionPoint } = findNearestLine(
+    lines,
+    dragInsertState.lastCursorPosition,
+  )
+
+  if (nearestLines.length === 0 || dist > MAX_SNAP_DISTANCE_PX) {
+    dragInsertState.selectedInsertAreaIndex = undefined
+    removeDropHighlight()
+    return
+  }
+
+  const insertAreas = nearestLines
+    .map((nl) => lineAreas.at(lines.indexOf(nl)))
+    .filter(isDefined)
 
   if (insertAreas.length > 0) {
-    dragInsertState.selectedInsertAreaIndex =
-      dragInsertState.insertAreas?.indexOf(insertAreas[0])
-
-    const nodeId = insertAreas[0].parent.getAttribute('data-id')
-    window.parent?.postMessage(
-      {
-        type: 'highlight',
-        highlightedNodeId: stripNodeIdRepeatIndices(nodeId),
-        exactHighlightedNodeId: nodeId,
-        repeatNodeIndex: getRepeatNodeIndex(nodeId, insertAreas[0].parent),
-      },
-      '*',
+    const selected = insertAreas.reduce((best, area) =>
+      Math.hypot(area.center.x - cursor.x, area.center.y - cursor.y) <
+      Math.hypot(best.center.x - cursor.x, best.center.y - cursor.y)
+        ? area
+        : best,
     )
+    dragInsertState.selectedInsertAreaIndex = allAreas.indexOf(selected)
+
+    postHighlightMessage(selected.parent)
     setExternalDropHighlight({
       insertAreas,
       color: dragInsertState.elementType === 'component' ? 'D946EF' : '2563EB',
       projectionPoint,
     })
   } else {
+    dragInsertState.selectedInsertAreaIndex = undefined
     removeDropHighlight()
   }
 }
 
+export function dropStyleProps(area: InsertArea): {
+  'justify-content'?: string
+  'align-items'?: string
+  'flex-direction'?: 'row' | 'column'
+} {
+  const props: {
+    'justify-content'?: string
+    'align-items'?: string
+    'flex-direction'?: 'row' | 'column'
+  } = {}
+  if (area['justify-content'] !== undefined) {
+    props['justify-content'] = area['justify-content']
+  }
+  if (area['align-items'] !== undefined) {
+    props['align-items'] = area['align-items']
+  }
+  if (area['flex-direction'] !== undefined) {
+    props['flex-direction'] = area['flex-direction']
+    if (
+      area['justify-content'] === undefined &&
+      area['align-items'] === undefined
+    ) {
+      Object.assign(
+        props,
+        swappedParentAlignment(area.parent, area['flex-direction']),
+      )
+    }
+  }
+  return props
+}
+
+export function dropStylePropsOf(area: InsertArea | undefined) {
+  return area ? dropStyleProps(area) : {}
+}
+
+function flexDirectionAxis(direction: string): 'horizontal' | 'vertical' {
+  return direction === 'column' || direction === 'column-reverse'
+    ? 'vertical'
+    : 'horizontal'
+}
+
+function isMeaningfulAlignment(value: string): boolean {
+  return value !== '' && value !== 'normal'
+}
+
 /**
- * Semi-hacky way to determine if an element is a Toddle component by checking if it is a root node, but not the top-level root node (page).
+ * The parent's current alignment with `justify-content`/`align-items`
+ * swapped — but only when the new `flex-direction` switches the flex axis
+ * of an already-flex parent. Otherwise (same axis, non-flex parent, no
+ * meaningful values to preserve) an empty object is returned.
  */
+function swappedParentAlignment(
+  parent: Element,
+  flexDirection: 'row' | 'column',
+): {
+  'justify-content'?: string
+  'align-items'?: string
+} {
+  const computed = window.getComputedStyle(parent)
+  if (!isFlexDisplay(computed.display)) {
+    return {}
+  }
+  const currentDirection = computed.getPropertyValue('flex-direction') || 'row'
+  if (
+    flexDirectionAxis(currentDirection) === flexDirectionAxis(flexDirection)
+  ) {
+    return {}
+  }
+  const currentJustify = computed.getPropertyValue('justify-content')
+  const currentAlign = computed.getPropertyValue('align-items')
+  const swapped: {
+    'justify-content'?: string
+    'align-items'?: string
+  } = {}
+  if (isMeaningfulAlignment(currentAlign)) {
+    swapped['justify-content'] = currentAlign
+  }
+  if (isMeaningfulAlignment(currentJustify)) {
+    swapped['align-items'] = currentJustify
+  }
+  return swapped
+}
+
+export function applyDropParentStyles(parent: Element, area: InsertArea) {
+  if (!(parent instanceof HTMLElement)) {
+    return
+  }
+  const props = dropStyleProps(area)
+  if (Object.keys(props).length === 0) {
+    return
+  }
+  const display = window.getComputedStyle(parent).display
+  if (
+    !isFlexDisplay(display) &&
+    display !== 'grid' &&
+    display !== 'inline-grid'
+  ) {
+    parent.style.setProperty('display', 'flex')
+  }
+  for (const [prop, value] of Object.entries(props)) {
+    parent.style.setProperty(prop, value)
+  }
+}
+
 function elementIsComponent(element: Element) {
   return (
     element.getAttribute('data-node-id') === 'root' &&
