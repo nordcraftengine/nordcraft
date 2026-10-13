@@ -1,5 +1,9 @@
 import type { InsertArea } from '../types'
 
+/** Minimum drop-area size for rendering the slot-name label. */
+const SLOT_LABEL_MIN_HEIGHT_PX = 16
+const SLOT_LABEL_CHAR_WIDTH_PX = 9.6
+
 let highlight: HTMLElement | null = null
 
 let highlights: HTMLElement[] = []
@@ -56,6 +60,7 @@ function highlightKey({
         area.index,
         area.direction,
         area.layout,
+        area.slot ?? '',
         Math.round(at.x * 10) / 10,
         Math.round(at.y * 10) / 10,
         bounds
@@ -112,6 +117,21 @@ function renderExternalDropHighlight({
       el.style.setProperty('top', `${y}px`)
       el.style.setProperty('width', `${width}px`)
       el.style.setProperty('height', `${height}px`)
+      // Name non-default slots in the middle of the drop-area, but only
+      // when the area is large enough to contain the label.
+      const slotLabel = insertArea.slot
+      if (
+        slotLabel &&
+        slotLabel !== 'default' &&
+        height >= SLOT_LABEL_MIN_HEIGHT_PX &&
+        width >= slotLabel.length * SLOT_LABEL_CHAR_WIDTH_PX
+      ) {
+        const label = document.createElement('span')
+        label.classList.add('__drop-area-slot-label')
+        label.textContent = slotLabel
+        label.style.setProperty('background', `#${color}`)
+        el.appendChild(label)
+      }
     } else {
       const { layout, center } = insertArea
       const length = insertArea.size > 0 ? insertArea.size : 6

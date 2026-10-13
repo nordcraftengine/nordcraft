@@ -46,6 +46,34 @@ function slotNameOf(
 }
 
 /**
+ * Slots flatten (no wrapper element), so a nested slot's placeholders are
+ * direct siblings of the outer slot's placeholders. `createSlot` records the
+ * outer slot(s) in `data-node-slot-ancestors` — this reports whether `child`
+ * belongs to `slot` either directly or through nesting.
+ */
+export function slotOwnsPlaceholder(
+  child: Element,
+  slot: string | null | undefined,
+): boolean {
+  if (slot === null || slot === undefined) {
+    return false
+  }
+  if (child.getAttribute('data-node-slot-name') === slot) {
+    return true
+  }
+  const raw = child.getAttribute('data-node-slot-ancestors')
+  if (!raw) {
+    return false
+  }
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return Array.isArray(parsed) && parsed.includes(slot)
+  } catch {
+    return false
+  }
+}
+
+/**
  * Create 9 insert areas (top-left, top-center, ..., bottom-right) covering an
  * empty element. Each area inserts at index 0 of the empty parent, but carries
  * the `justify-content` / `align-items` the parent should be given by the editor.
@@ -265,7 +293,12 @@ export function getInsertAreas() {
 
     const isVoid = isVoidElement(element)
 
-    if (!isVoid && !element.hasChildNodes() && !defaultSlotContent) {
+    // Component roots exposing slots never get a generic empty-element zone:
+    // drops inside them must go through a slot (placeholder zones below, or
+    // the single-slot entire-component zone). This keeps empty slots without
+    // placeholder content non-droppable.
+    const exposesSlots = element.hasAttribute('data-has-slots-elements')
+    if (!isVoid && !element.hasChildNodes() && !defaultSlotContent && !exposesSlots) {
       const elementDisplay = displayOf(element)
       if (isFlexDisplay(elementDisplay) && fitsGridCells(rect)) {
         insertAreas.push(
@@ -288,14 +321,22 @@ export function getInsertAreas() {
 
     const indexAll = siblingsAll.indexOf(element)
 
-    if (defaultSlotContent && index === 0) {
+    // Slot placeholder zones only apply to component *instances*. When
+    // editing the component that owns the slot (elements carry
+    // `data-is-root-component`), placeholders are regular editable content
+    // with generic drop lines — no slot drop-area.
+    if (
+      defaultSlotContent &&
+      index === 0 &&
+      !element.hasAttribute('data-is-root-component')
+    ) {
       const slotAttr = element.getAttribute('data-node-slot-name')
       let left = Infinity
       let top = Infinity
       let right = -Infinity
       let bottom = -Infinity
       for (const child of parentChildren) {
-        if (child.getAttribute('data-node-slot-name') !== slotAttr) {
+        if (!slotOwnsPlaceholder(child, slotAttr)) {
           continue
         }
         const childRect = child.getBoundingClientRect()
@@ -521,6 +562,68 @@ export function getInsertAreas() {
       }
     }
   })
+
+  // Single-slot components expose the entire component root as a drop-zone
+  // for their (only) slot — even when the slot has no placeholder content
+  // (empty slots otherwise render nothing and would be unreachable).
+  // Slots already filled with provided content keep the generic lines above.
+  for (const el of Array.from(
+    document.querySelectorAll('[data-single-slot-name]'),
+  )) {
+    if (!(el instanceof Element)) {
+      continue
+    }
+    if (el.hasAttribute('data-is-root-component')) {
+      continue
+    }
+    const dataId = el.getAttribute('data-id')
+    if (!dataId || dataId.includes(')')) {
+      continue
+    }
+    const slotName = el.getAttribute('data-single-slot-name')
+    if (!slotName) {
+      continue
+    }
+    const hasProvidedContent = Array.from(el.children).some((child) =>
+      child.getAttribute('data-id')?.includes(`[${slotName}]`),
+    )
+    if (hasProvidedContent) {
+      continue
+    }
+    const rect = el.getBoundingClientRect()
+    if (!isRectInOverscan(rect)) {
+      continue
+    }
+    // Reuse the placeholder position when placeholders exist so the
+    // optimistic preview inserts at the slot's DOM position.
+    const existing = insertAreas.find(
+      (a) => a.parent === el && a.slot === slotName && a.slotPlaceholder,
+    )
+    const zone = {
+      ...emptyDropArea({
+        parent: el,
+        slot: slotName,
+        rect,
+        indexAll: existing?.indexAll ?? 0,
+        index: existing?.index ?? 0,
+      }),
+      slotPlaceholder: true as const,
+    }
+    // Skip exact duplicates (placeholder union already covers the whole root).
+    const isDuplicate = insertAreas.some(
+      (a) =>
+        a.parent === el &&
+        a.slot === slotName &&
+        a.slotPlaceholder &&
+        a.bounds?.x === zone.bounds?.x &&
+        a.bounds?.y === zone.bounds?.y &&
+        a.bounds?.width === zone.bounds?.width &&
+        a.bounds?.height === zone.bounds?.height,
+    )
+    if (!isDuplicate) {
+      insertAreas.push(zone)
+    }
+  }
 
   return offsetDropLines(dedupeOverlappingLines(insertAreas))
 }

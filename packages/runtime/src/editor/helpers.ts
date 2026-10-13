@@ -12,7 +12,7 @@ import {
   setExternalDropHighlight,
   setHighlightBlink,
 } from './drag-drop/dropHighlight'
-import { getInsertAreas } from './drag-drop/getInsertAreas'
+import { getInsertAreas, slotOwnsPlaceholder } from './drag-drop/getInsertAreas'
 import { findNearestLine } from './findNearestLine'
 import type { DragInsertState, InsertArea, Point } from './types'
 
@@ -397,10 +397,8 @@ export async function dragInsertEnded(
       if (selectedInsertArea) {
         applyDropParentStyles(selectedInsertArea.parent, selectedInsertArea)
         const placeholderChildren = selectedInsertArea.slotPlaceholder
-          ? Array.from(selectedInsertArea.parent.children).filter(
-              (child) =>
-                child.getAttribute('data-node-slot-name') ===
-                selectedInsertArea.slot,
+          ? Array.from(selectedInsertArea.parent.children).filter((child) =>
+              slotOwnsPlaceholder(child, selectedInsertArea.slot),
             )
           : []
         const insertBeforeNode =

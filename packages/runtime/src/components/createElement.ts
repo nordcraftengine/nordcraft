@@ -96,6 +96,16 @@ export function createElement({
 
     if (hasSlotElements && id === 'root') {
       elem.setAttribute('data-has-slots-elements', 'true')
+      const slotNodes = Object.values(ctx.component.nodes).filter(
+        (node) => node?.type === 'slot',
+      )
+      if (slotNodes.length === 1) {
+        const onlySlot = slotNodes[0]
+        elem.setAttribute(
+          'data-single-slot-name',
+          (onlySlot as { name?: string | null })?.name ?? 'default',
+        )
+      }
     }
   }
   if (ctx.isRootComponent) {
