@@ -1,6 +1,5 @@
 import { DATA_ATTR_SELECTED } from '../const'
 import { getDOMNodeFromNodeId, stripNodeIdRepeatIndices } from '../dom'
-import { removeDropHighlight } from '../drag-drop/dropHighlight'
 import {
   centerGhostOnCursor,
   dragInsertEnded,
@@ -97,8 +96,7 @@ export const handleInsertEnded = async (
 
     return null
   } else {
-    insertState.destroying = true
-    removeDropHighlight()
+    await dragInsertEnded(insertState, true, { instant: true })
     return null
   }
 }

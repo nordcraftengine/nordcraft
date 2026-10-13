@@ -325,15 +325,17 @@ export function dragInsertStarted({
     requestAnimationFrame(followRepeatedNodes)
   })()
 
-  // Highlight container
-  element.classList.add(DRAG_REORDER_CLASSNAME)
-  postHighlightMessage(dragInsertState.initialContainer)
+  if (action === 'drag') {
+    // Highlight container
+    element.classList.add(DRAG_REORDER_CLASSNAME)
+    postHighlightMessage(dragInsertState.initialContainer)
 
-  setDropHighlight(
-    dragInsertState.element,
-    dragInsertState.initialContainer,
-    dragInsertState.elementType === 'component' ? 'D946EF' : '2563EB',
-  )
+    setDropHighlight(
+      dragInsertState.element,
+      dragInsertState.initialContainer,
+      dragInsertState.elementType === 'component' ? 'D946EF' : '2563EB',
+    )
+  }
 
   return dragInsertState
 }
@@ -590,15 +592,25 @@ export function dragInsertMove(
     }
     // Near the empty element's outer rim the cursor targets the surrounding
     // lines instead, keeping e.g. "drop after the empty element" reachable.
-    const union = gridUnions.get(area.parent)
-    if (
-      union &&
-      (cursor.x - union.left < GRID_RIM_PX ||
-        union.right - cursor.x < GRID_RIM_PX ||
-        cursor.y - union.top < GRID_RIM_PX ||
-        union.bottom - cursor.y < GRID_RIM_PX)
-    ) {
-      return false
+    if (action !== 'insert') {
+      const union = gridUnions.get(area.parent)
+      const rim = union
+        ? Math.min(
+            GRID_RIM_PX,
+            (union.right - union.left) / 4,
+            (union.bottom - union.top) / 4,
+          )
+        : 0
+      if (
+        union &&
+        rim > 0 &&
+        (cursor.x - union.left < rim ||
+          union.right - cursor.x < rim ||
+          cursor.y - union.top < rim ||
+          union.bottom - cursor.y < rim)
+      ) {
+        return false
+      }
     }
     return true
   })

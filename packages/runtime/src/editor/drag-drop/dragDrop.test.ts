@@ -18,7 +18,7 @@ import {
   handleDragMouseMove,
   trackHoverTarget,
 } from './dragHandlers'
-import { dragReorder } from './dragReorder'
+import { DRAG_REORDER_CLASSNAME, dragReorder } from './dragReorder'
 import { dedupeOverlappingLines, getInsertAreas } from './getInsertAreas'
 
 // eslint-disable-next-line max-params
@@ -2524,5 +2524,116 @@ describe('handleInsertEnded', () => {
         configurable: true,
       })
     }
+  })
+
+  test('cancelling insert cleans up and removes ghost element', async () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.1" data-node-id="1"></div></div>'
+    const parent = document.querySelector('[data-id="0.1"]') as HTMLElement
+    const newEl = document.createElement('div')
+    document.body.appendChild(newEl)
+
+    const state: DragInsertState = {
+      mode: 'insert',
+      action: 'insert',
+      elementType: 'element',
+      element: newEl,
+      repeatedNodes: [],
+      offset: { x: 0, y: 0 },
+      lastCursorPosition: { x: 100, y: 100 },
+      initialContainer: parent,
+      initialNextSibling: null,
+      initialRect: { width: 50, height: 20 } as unknown as DOMRect,
+      reorderPermutations: [],
+      flipAnimations: [],
+      isSoleChildDrag: false,
+      destroying: false,
+      selectedInsertAreaIndex: 0,
+    }
+
+    await handleInsertEnded({ canceled: true }, state)
+    expect(state.destroying).toBe(true)
+    expect(newEl.isConnected).toBe(false)
+  })
+
+  test('can insert into small empty div (1x1rem / 16x16px) even near edge', async () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.1" data-node-id="1"></div></div>'
+    const smallDiv = document.querySelector('[data-id="0.1"]') as HTMLElement
+    stubRect(smallDiv, rect(100, 100, 16, 16))
+    stubRect(document.getElementById('App'), rect(0, 0, 800, 600))
+
+    const newEl = document.createElement('div')
+    const state: DragInsertState = {
+      mode: 'insert',
+      action: 'insert',
+      elementType: 'element',
+      element: newEl,
+      repeatedNodes: [],
+      offset: { x: 0, y: 0 },
+      lastCursorPosition: { x: 104, y: 104 },
+      initialContainer: smallDiv,
+      initialNextSibling: null,
+      initialRect: { width: 16, height: 16 } as unknown as DOMRect,
+      reorderPermutations: [],
+      flipAnimations: [],
+      isSoleChildDrag: false,
+      destroying: false,
+    }
+
+    dragInsertMove('insert', state, [newEl])
+
+    const selected = state.insertAreas?.[state.selectedInsertAreaIndex ?? -1]
+    expect(selected).toBeDefined()
+    expect(selected?.parent).toBe(smallDiv)
+    expect(selected?.index).toBe(0)
+    expect(state.mode).toBe('insert')
+
+    const win = window as any
+    const prevParent = win.parent
+    const posted: any[] = []
+    Object.defineProperty(win, 'parent', { value: win, configurable: true })
+    win.postMessage = (msg: any) => {
+      posted.push(msg)
+    }
+
+    try {
+      await handleInsertEnded({}, state)
+
+      const insertMsg = posted.find((m) => m.type === 'insertNode')
+      expect(insertMsg).toBeDefined()
+      expect(insertMsg.parent).toBe('0.1')
+      expect(insertMsg.index).toBe(0)
+
+      const selectMsg = posted.find((m) => m.type === 'selection')
+      expect(selectMsg).toBeDefined()
+      expect(selectMsg.selectedNodeId).toBe('0.1.0')
+    } finally {
+      Object.defineProperty(win, 'parent', {
+        value: prevParent,
+        configurable: true,
+      })
+    }
+  })
+
+  test('dragInsertStarted with action insert does not add reorder class or reorder drop highlight', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.1" data-node-id="1"></div></div>'
+    const container = document.querySelector('[data-id="0.1"]') as HTMLElement
+    const newEl = document.createElement('div')
+
+    const state = dragInsertStarted({
+      action: 'insert',
+      element: newEl,
+      lastCursorPosition: { x: 100, y: 100 },
+      repeatedNodes: [],
+      asCopy: false,
+      initialContainer: container,
+    })
+
+    expect(state.mode).toBe('insert')
+    expect(newEl.classList.contains(DRAG_REORDER_CLASSNAME)).toBe(false)
+    expect(document.querySelector('.__drop-area')).toBeNull()
+    state.destroying = true
   })
 })

@@ -586,16 +586,6 @@ export const createRoot = (
           if (['insert-div', 'insert-text'].includes(message.data.canvasTool)) {
             if (insertState && !insertState.destroying) {
               handleInsertMouseMove(message.data, insertState)
-              const hovered = insertState
-              trackHoverTarget(
-                hovered,
-                (next) => {
-                  if (insertState === hovered && next) {
-                    insertState = next
-                  }
-                },
-                { metaKey },
-              )
               requestSyncOverlayRects()
               return
             } else if (!insertState?.destroying) {
@@ -810,7 +800,10 @@ export const createRoot = (
                 state.insertAreas = undefined
                 if (state.mode === 'insert') {
                   const exclude =
-                    metaKey || state.isSoleChildDrag || Boolean(state.copy)
+                    state.action === 'insert' ||
+                    metaKey ||
+                    state.isSoleChildDrag ||
+                    Boolean(state.copy)
                       ? [state.element]
                       : [state.element, state.initialContainer]
                   dragInsertMove(state.action, state, exclude)
