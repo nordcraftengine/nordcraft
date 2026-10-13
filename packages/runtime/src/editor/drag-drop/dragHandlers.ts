@@ -18,7 +18,11 @@ import {
 } from '../helpers'
 import { postMessageToEditor } from '../postMessageToEditor'
 import type { DragInsertState } from '../types'
-import { DRAG_REORDER_CLASSNAME, dragReorder } from './dragReorder'
+import {
+  DRAG_REORDER_CLASSNAME,
+  cancelReorderFlip,
+  dragReorder,
+} from './dragReorder'
 import { setDropHighlight, setHighlightBlink } from './dropHighlight'
 
 export const HOVER_STILL_MS = 1000
@@ -90,15 +94,13 @@ export const handleDragMouseMove = (
     cancelHoverInsert(dragState)
     void dragReorder(dragState)
   } else {
-    // A sole-child drag keeps its (now empty) origin container eligible so
-    // the 9 spots stay available — same exclusion as the CMD flow.
-    // Exclude the true origin container, not the re-homed container.
-    const originContainer =
-      dragState.trueOrigin?.container ?? dragState.initialContainer
+    // Insert targets exclude the current home container (reorder handles
+    // placement inside it). The true origin stays eligible so a hover-rehomed
+    // drag can always drop back to where it started.
     const exclude =
       metaKey || dragState.isSoleChildDrag || Boolean(dragState.copy)
         ? [dragState.element]
-        : [dragState.element, originContainer]
+        : [dragState.element, dragState.initialContainer]
     dragInsertMove('drag', dragState, exclude)
   }
   dragState.element.style.setProperty(
@@ -114,6 +116,8 @@ export const handleDragAltToggle = async (
   if (dragState.destroying) {
     return null
   }
+  cancelHoverInsert(dragState)
+  cancelReorderFlip(dragState)
 
   const originContainer =
     dragState.trueOrigin?.container ?? dragState.initialContainer
@@ -176,7 +180,7 @@ export const handleDragAltToggle = async (
   const exclude =
     dragState.metaKey || dragState.isSoleChildDrag || Boolean(dragState.copy)
       ? [dragState.element]
-      : [dragState.element, originContainer]
+      : [dragState.element, dragState.initialContainer]
 
   if (dragState.mode === 'insert') {
     dragInsertMove('drag', dragState, exclude)
@@ -184,7 +188,28 @@ export const handleDragAltToggle = async (
     void dragReorder(dragState)
   }
 
+  schedulePostLayoutRefresh(dragState)
+
   return dragState
+}
+
+function schedulePostLayoutRefresh(dragState: DragInsertState): void {
+  if (typeof requestAnimationFrame !== 'function') {
+    return
+  }
+  requestAnimationFrame(() => {
+    if (dragState.destroying || dragState.mode !== 'insert') {
+      return
+    }
+    // Settle glides started after the toggle before measuring.
+    cancelReorderFlip(dragState)
+    dragState.insertAreas = undefined
+    const exclude =
+      dragState.metaKey || dragState.isSoleChildDrag || Boolean(dragState.copy)
+        ? [dragState.element]
+        : [dragState.element, dragState.initialContainer]
+    dragInsertMove(dragState.action, dragState, exclude)
+  })
 }
 
 async function restartDrag(
@@ -258,6 +283,22 @@ export function trackHoverTarget(
     parentHasElements(selected.parent)
       ? key
       : undefined
+  const existing = dragState.hover
+  if (existing && trackedKey !== undefined && existing.key !== trackedKey) {
+    const prev = dragState.insertAreas?.[existing.key]
+    if (
+      prev &&
+      !prev.bounds &&
+      prev.layout === selected?.layout &&
+      Math.abs(
+        (prev.layout === 'block' ? prev.center.y : prev.center.x) -
+          (selected.layout === 'block' ? selected.center.y : selected.center.x),
+      ) <= 8
+    ) {
+      existing.key = trackedKey
+      return
+    }
+  }
   if (trackedKey === undefined || trackedKey !== dragState.hover?.key) {
     cancelHoverInsert(dragState)
     if (trackedKey === undefined) {

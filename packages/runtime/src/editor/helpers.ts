@@ -504,6 +504,7 @@ export function dragInsertMove(
   }
 
   if (dragInsertState.mode === 'reorder' || !dragInsertState.insertAreas) {
+    cancelReorderFlip(dragInsertState)
     dragInsertState.mode = 'insert'
     const translate =
       dragInsertState.element.style.getPropertyValue('translate')

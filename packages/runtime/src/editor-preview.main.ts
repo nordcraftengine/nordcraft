@@ -58,7 +58,7 @@ import { getFormattedTime, throttleToIdleCallback } from './editor/editorUtils'
 import { env, registerActions, registerFormulas } from './editor/global'
 import { introspectApiRequest } from './editor/graphql'
 import { insertHeadTags } from './editor/head'
-import { cancelHoverInsert } from './editor/helpers'
+import { cancelHoverInsert, dragInsertMove } from './editor/helpers'
 import {
   handleInsertEnded,
   handleInsertMouseMove,
@@ -568,6 +568,21 @@ export const createRoot = (
         }
 
         case 'mousemove': {
+          if (
+            typeof message.data.metaKey === 'boolean' &&
+            message.data.metaKey !== metaKey
+          ) {
+            metaKey = message.data.metaKey
+            for (const state of [dragState, insertState]) {
+              if (state && !state.destroying) {
+                state.metaKey = metaKey
+                state.insertAreas = undefined
+                if (metaKey) {
+                  cancelHoverInsert(state)
+                }
+              }
+            }
+          }
           if (['insert-div', 'insert-text'].includes(message.data.canvasTool)) {
             if (insertState && !insertState.destroying) {
               handleInsertMouseMove(message.data, insertState)
@@ -786,7 +801,23 @@ export const createRoot = (
             )
           }
           altKey = message.data.altKey
-          metaKey = message.data.metaKey
+          if (message.data.metaKey !== metaKey) {
+            metaKey = message.data.metaKey
+            // CMD toggles home-container eligibility: invalidate cached areas
+            // so the highlight refreshes even before the next mousemove.
+            for (const state of [dragState, insertState]) {
+              if (state && !state.destroying) {
+                state.insertAreas = undefined
+                if (state.mode === 'insert') {
+                  const exclude =
+                    metaKey || state.isSoleChildDrag || Boolean(state.copy)
+                      ? [state.element]
+                      : [state.element, state.initialContainer]
+                  dragInsertMove(state.action, state, exclude)
+                }
+              }
+            }
+          }
           if (dragState) {
             dragState.metaKey = metaKey
             if (metaKey) {
