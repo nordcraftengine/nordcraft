@@ -105,7 +105,6 @@ describe('repeat ordering', () => {
   })
 })
 
-
 const tags = (el: Element): string[] =>
   [...el.children].map((c) => c.tagName.toLowerCase())
 
