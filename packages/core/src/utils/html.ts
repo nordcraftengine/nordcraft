@@ -1,5 +1,5 @@
 // See https://developer.mozilla.org/en-US/docs/Glossary/Void_element
-export const VOID_HTML_ELEMENTS = [
+export const VOID_HTML_ELEMENTS = new Set([
   'area',
   'base',
   'br',
@@ -14,4 +14,4 @@ export const VOID_HTML_ELEMENTS = [
   'source',
   'track',
   'wbr',
-]
+])

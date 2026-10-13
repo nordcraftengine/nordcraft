@@ -1,8 +1,13 @@
+import '@nordcraft/core/dist/compileTime'
 import type {
   Component,
   NodeModel,
   SlotNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
+import {
+  applySlotSuffix,
+  buildSlotSuffix,
+} from '@nordcraft/core/dist/utils/nodePath'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
 
@@ -16,6 +21,7 @@ export function createSlot({
   namespace,
   slotRepeatIndex,
   slotSuffix,
+  hydration,
 }: NodeRenderer<SlotNodeModel>): ReadonlyArray<Element | Text> {
   const slotName = node.name ?? 'default'
   let children: Array<Element | Text> = []
@@ -27,29 +33,23 @@ export function createSlot({
       ctx.component.nodes,
     )
 
-    let currentSuffix = slotSuffix ?? ''
-    if (slotComponentIndex > 0) {
-      currentSuffix += `{${slotComponentIndex}}`
-    }
-    if (slotRepeatIndex && slotRepeatIndex > 0) {
-      currentSuffix += `(${slotRepeatIndex})`
-    }
+    const currentSuffix = buildSlotSuffix({
+      slotSuffix,
+      slotComponentIndex,
+      slotRepeatIndex,
+    })
 
     children = ctx.children[slotName].flatMap((child, childIndex) => {
       const childDataSignal = child.dataSignal.map((data) => data)
-      dataSignal.subscribe((data) => data, {
-        destroy: () => childDataSignal.destroy(),
-      })
+      dataSignal.subscriptions.push(() => childDataSignal.destroy())
 
       let basePath = child.path
       if (slotPath.startsWith(`${child.path}.`)) {
         basePath = childIndex > 0 ? `${slotPath}.${childIndex}` : slotPath
       }
 
-      const path =
-        currentSuffix && !basePath.endsWith(currentSuffix)
-          ? basePath + currentSuffix
-          : basePath
+      // Shared hydration contract for slotted paths.
+      const path = applySlotSuffix(basePath, currentSuffix)
 
       return createNode({
         ...child,
@@ -58,13 +58,14 @@ export function createSlot({
         ctx: {
           ...child.ctx,
           providers: ctx.providers,
-          jsonPath: ['nodes', child.id],
+          ...(IS_PREVIEW ? { jsonPath: ['nodes', child.id] } : {}),
         },
         instance,
         namespace,
         path,
-        slotRepeatIndex,
+        slotRepeatIndex: undefined,
         slotSuffix: currentSuffix || undefined,
+        hydration,
       })
     })
   } else {
@@ -74,17 +75,19 @@ export function createSlot({
         id: child,
         path: slotPath + '.' + i,
         dataSignal,
-        ctx: { ...ctx, jsonPath: ['nodes', child] },
+        ctx: IS_PREVIEW ? { ...ctx, jsonPath: ['nodes', child] } : ctx,
         parentElement,
         instance,
         namespace,
         slotRepeatIndex,
         slotSuffix,
+        hydration,
       })
     })
   }
 
-  if (ctx.env.runtime === 'custom-element' && ctx.isRootComponent) {
+  // Register native slot for web components
+  if (IS_CUSTOM_ELEMENT && ctx.isRootComponent) {
     const webComponentSlot = document.createElement('slot')
     webComponentSlot.setAttribute('name', slotName)
     children.forEach((child) => {

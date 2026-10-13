@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import '@nordcraft/core/dist/compileTime'
 import type {
   ActionModel,
   ComponentData,
@@ -29,7 +30,10 @@ export function handleAction(
     if (!action) {
       throw new Error('Action does not exist')
     }
-    const formulaContext = createFormulaContext(ctx, data)
+
+    const formulaContext: FormulaContext = IS_PREVIEW
+      ? createFormulaContext(ctx, data)
+      : (ctx as unknown as FormulaContext)
     switch (action.type) {
       case 'Switch': {
         // find the first case that resolves to true.
@@ -37,7 +41,12 @@ export function handleAction(
         const actionList =
           action.cases?.find(({ condition }) =>
             toBoolean(
-              applyFormula(condition, formulaContext, ['cases', 'condition']),
+              applyFormula(
+                condition,
+                formulaContext,
+                data,
+                IS_PREVIEW ? ['cases', 'condition'] : undefined,
+              ),
             ),
           ) ?? action.default
         // handle all actions for the case
@@ -54,81 +63,119 @@ export function handleAction(
         break
       }
       case 'SetVariable': {
-        const value = applyFormula(action.data, formulaContext)
+        const current = ctx.dataSignal.get().Variables?.[action.variable]
+        const value = applyFormula(action.data, formulaContext, data)
 
-        ctx.dataSignal.update((data) => {
-          return {
-            ...data,
-            Variables: {
-              ...data.Variables,
-              [action.variable]: value,
-            },
-          }
-        })
+        // Short-circuit as it is cheaper to check just the value than performing a deep update
+        // on the entire new state. We can then `{ force: true }` to skip deep equality check in signal.
+        if (fastDeepEqual(current, value)) {
+          break
+        }
+
+        ctx.dataSignal.update(
+          (data) => {
+            return {
+              ...data,
+              Variables: {
+                ...data.Variables,
+                [action.variable]: value,
+              },
+            }
+          },
+          {
+            force: true,
+          },
+        )
         break
       }
       case 'TriggerEvent': {
-        const payload = applyFormula(action.data, formulaContext, ['data'])
+        const payload = applyFormula(
+          action.data,
+          formulaContext,
+          data,
+          IS_PREVIEW ? ['data'] : undefined,
+        )
         ctx.triggerEvent(action.event, payload)
         break
       }
       case 'TriggerWorkflowCallback': {
-        const payload = applyFormula(action.data, formulaContext, ['data'])
+        const payload = applyFormula(
+          action.data,
+          formulaContext,
+          data,
+          IS_PREVIEW ? ['data'] : undefined,
+        )
         workflowCallback?.(action.event, payload)
         break
       }
       case 'SetURLParameter': {
-        ctx.toddle.locationSignal.update((current) => {
-          const value = applyFormula(action.data, formulaContext, ['data'])
-          // historyMode was previously not declared explicitly, and we default
-          // to push for state changes and replace for query changes
-          let historyMode: SetURLParameterAction['historyMode'] | undefined
-          let newLocation: Location | undefined
-          // We should only match on p.type === 'param', but
-          // that would technically be a breaking change
-          if (current.route?.path.some((p) => p.name === action.parameter)) {
-            historyMode = 'push'
-            newLocation = {
-              ...current,
-              params: {
-                ...omitKeys(current.params, [action.parameter]),
-                [action.parameter]: value,
-              },
-            }
+        const current = ctx.toddle.locationSignal.get()
+        const value = applyFormula(
+          action.data,
+          formulaContext,
+          data,
+          IS_PREVIEW ? ['data'] : undefined,
+        )
+        // historyMode was previously not declared explicitly, and we default
+        // to push for state changes and replace for query changes
+        let historyMode: SetURLParameterAction['historyMode'] | undefined
+        let newLocation: Location | undefined
+        // We should only match on p.type === 'param', but
+        // that would technically be a breaking change
+        if (current.route?.path.some((p) => p.name === action.parameter)) {
+          historyMode = 'push'
+          const newParams = {
+            ...omitKeys(current.params, [action.parameter]),
+            [action.parameter]: value,
           }
-          // We should check if the query parameter exists in the route
-          // but that would technically be a breaking change
-          // else if (Object.values(current.route?.query ?? {}).some((q) => q.name === action.parameter))
-          else {
-            historyMode = 'replace'
-            newLocation = {
-              ...current,
-              query: {
-                ...omitKeys(current.query, [action.parameter]),
-                ...(isDefined(value) ? { [action.parameter]: value } : null),
-              },
-            }
+          // Short-circuit as it is cheaper to check just the params than performing a deep update
+          // on the entire location. We can then `{ force: true }` to skip deep equality check in signal.
+          if (fastDeepEqual(current.params, newParams)) {
+            break
           }
-          if (!historyMode) {
-            // No path/query parameter matched
-            return current
+          newLocation = {
+            ...current,
+            params: newParams,
           }
+        }
+        // We should check if the query parameter exists in the route
+        // but that would technically be a breaking change
+        // else if (Object.values(current.route?.query ?? {}).some((q) => q.name === action.parameter))
+        else {
+          historyMode = 'replace'
+          const newQuery = {
+            ...omitKeys(current.query, [action.parameter]),
+            ...(isDefined(value) ? { [action.parameter]: value } : null),
+          }
+          // Short-circuit as it is cheaper to check just the query than performing a deep update
+          // on the entire location. We can then `{ force: true }` to skip deep equality check in signal.
+          if (fastDeepEqual(current.query, newQuery)) {
+            break
+          }
+          newLocation = {
+            ...current,
+            query: newQuery,
+          }
+        }
+        if (!historyMode || !newLocation) {
+          // No path/query parameter matched
+          break
+        }
 
-          const currentUrl = getLocationUrl(current)
-          const historyUrl = getLocationUrl(newLocation)
-          if (historyUrl !== currentUrl) {
-            // Default to the historyMode from the action, and fallback
-            // to the default (push for path change, replace for query change)
-            historyMode = action.historyMode ?? historyMode
-            // Update the window's history state
-            if (historyMode === 'push') {
-              window.history.pushState({}, '', historyUrl)
-            } else {
-              window.history.replaceState({}, '', historyUrl)
-            }
+        const currentUrl = getLocationUrl(current)
+        const historyUrl = getLocationUrl(newLocation)
+        if (historyUrl !== currentUrl) {
+          // Default to the historyMode from the action, and fallback
+          // to the default (push for path change, replace for query change)
+          historyMode = action.historyMode ?? historyMode
+          // Update the window's history state
+          if (historyMode === 'push') {
+            window.history.pushState({}, '', historyUrl)
+          } else {
+            window.history.replaceState({}, '', historyUrl)
           }
-          return newLocation
-        })
+        }
+        ctx.toddle.locationSignal.set(newLocation, { force: true })
         break
       }
       case 'SetURLParameters': {
@@ -136,79 +183,83 @@ export function handleAction(
         if (parameters.length === 0) {
           return
         }
-        ctx.toddle.locationSignal.update((current) => {
-          if (!current.route) {
-            // A route must exist for us to update/validate against it
-            return current
-          }
-          // We default to push for state changes and replace for query changes
-          let historyMode: SetMultiUrlParameterAction['historyMode'] = 'replace'
-          const queryUpdates: Record<string, string> = {}
-          const pathUpdates: Record<string, string> = {}
-          const urlParameterCtx: FormulaContext = formulaContext
-          // Only match on p.type === 'param'
-          const isValidPathParameter = (param: string) =>
-            current.route?.path.some(
-              (p) => p.name === param && p.type === 'param',
-            )
-          const isValidQueryParameter = (param: string) =>
-            Object.values(current.route?.query ?? {}).some(
-              (q) => q.name === param,
-            )
+        const current = ctx.toddle.locationSignal.get()
+        if (!current.route) {
+          // A route must exist for us to update/validate against it
+          break
+        }
+        // We default to push for state changes and replace for query changes
+        let historyMode: SetMultiUrlParameterAction['historyMode'] = 'replace'
+        const queryUpdates: Record<string, string> = {}
+        const pathUpdates: Record<string, string> = {}
+        const urlParameterCtx: FormulaContext = formulaContext
+        // Only match on p.type === 'param'
+        const isValidPathParameter = (param: string) =>
+          current.route?.path.some(
+            (p) => p.name === param && p.type === 'param',
+          )
+        const isValidQueryParameter = (param: string) =>
+          Object.values(current.route?.query ?? {}).some(
+            (q) => q.name === param,
+          )
 
-          for (const [parameter, formula] of parameters) {
-            const value =
-              applyFormula(formula, urlParameterCtx, [
-                'parameters',
-                parameter,
-              ]) ?? null
-            if (isValidPathParameter(parameter)) {
-              historyMode = 'push'
-              pathUpdates[parameter] = value as string
-            } else if (isValidQueryParameter(parameter)) {
-              queryUpdates[parameter] = value as string
-            }
+        for (const [parameter, formula] of parameters) {
+          const value =
+            applyFormula(
+              formula,
+              urlParameterCtx,
+              data,
+              IS_PREVIEW ? ['parameters', parameter] : undefined,
+            ) ?? null
+          if (isValidPathParameter(parameter)) {
+            historyMode = 'push'
+            pathUpdates[parameter] = value as string
+          } else if (isValidQueryParameter(parameter)) {
+            queryUpdates[parameter] = value as string
           }
-          if (
-            Object.keys(pathUpdates).length === 0 &&
-            Object.keys(queryUpdates).length === 0
-          ) {
-            // No path/query parameter matched
-            // We'll exit early to avoid deep equal below
-            return current
-          }
+        }
+        if (
+          Object.keys(pathUpdates).length === 0 &&
+          Object.keys(queryUpdates).length === 0
+        ) {
+          // No path/query parameter matched
+          // We'll exit early to avoid deep equal below
+          break
+        }
 
-          const newLocation = {
-            ...current,
-            params: {
-              ...omitKeys(current.params, Object.keys(pathUpdates)),
-              ...pathUpdates,
-            },
-            query: {
-              ...omitKeys(current.query, Object.keys(queryUpdates)),
-              ...queryUpdates,
-            },
-          }
-          if (fastDeepEqual(newLocation, current)) {
-            // No path/query parameter matched
-            return current
-          }
+        const newLocation = {
+          ...current,
+          params: {
+            ...omitKeys(current.params, Object.keys(pathUpdates)),
+            ...pathUpdates,
+          },
+          query: {
+            ...omitKeys(current.query, Object.keys(queryUpdates)),
+            ...queryUpdates,
+          },
+        }
+        // Short-circuit as it is cheaper to check the new location once here than
+        // performing a deep equality check on the entire location in the signal.
+        // We can then `{ force: true }` to skip deep equality check in signal.
+        if (fastDeepEqual(newLocation, current)) {
+          // No path/query parameter changed
+          break
+        }
 
-          const currentUrl = getLocationUrl(current)
-          const historyUrl = getLocationUrl(newLocation)
-          if (historyUrl !== currentUrl) {
-            // Default to the historyMode from the action, and fallback
-            // to the default (push for path change, replace for query change)
-            historyMode = action.historyMode ?? historyMode
-            // Update the window's history state
-            if (historyMode === 'push') {
-              window.history.pushState({}, '', historyUrl)
-            } else {
-              window.history.replaceState({}, '', historyUrl)
-            }
+        const currentUrl = getLocationUrl(current)
+        const historyUrl = getLocationUrl(newLocation)
+        if (historyUrl !== currentUrl) {
+          // Default to the historyMode from the action, and fallback
+          // to the default (push for path change, replace for query change)
+          historyMode = action.historyMode ?? historyMode
+          // Update the window's history state
+          if (historyMode === 'push') {
+            window.history.pushState({}, '', historyUrl)
+          } else {
+            window.history.replaceState({}, '', historyUrl)
           }
-          return newLocation
-        })
+        }
+        ctx.toddle.locationSignal.set(newLocation, { force: true })
         break
       }
       case 'Fetch': {
@@ -226,11 +277,12 @@ export function handleAction(
             action.inputs ?? {},
             ([key, input]) => [
               key,
-              applyFormula(input.formula, formulaContext, [
-                'inputs',
-                key,
-                'formula',
-              ]),
+              applyFormula(
+                input.formula,
+                formulaContext,
+                data,
+                IS_PREVIEW ? ['inputs', key, 'formula'] : undefined,
+              ),
             ],
           )
           const actionModels = {
@@ -292,19 +344,21 @@ export function handleAction(
           action.parameters ?? {},
           ([key, parameter]) => [
             key,
-            applyFormula(parameter.formula, formulaContext, [
-              'parameters',
-              key,
-              'formula',
-            ]),
+            applyFormula(
+              parameter.formula,
+              formulaContext,
+              data,
+              IS_PREVIEW ? ['parameters', key, 'formula'] : undefined,
+            ),
           ],
         )
         const callbacks = action.callbacks
         if (action.contextProvider) {
+          const providerKey = isDefined(ctx.package)
+            ? `${ctx.package}/${action.contextProvider}`
+            : action.contextProvider
           const provider =
-            ctx.providers[
-              [ctx.package, action.contextProvider].filter(isDefined).join('/')
-            ] ?? ctx.providers[action.contextProvider]
+            ctx.providers[providerKey] ?? ctx.providers[action.contextProvider]
           const workflow = provider?.component.workflows?.[action.workflow]
           if (!workflow) {
             if (provider) {
@@ -425,11 +479,12 @@ export function handleAction(
                 arg
                   ? {
                       ...args,
-                      [arg.name]: applyFormula(arg.formula, formulaContext, [
-                        'arguments',
-                        i,
-                        'formula',
-                      ]),
+                      [arg.name]: applyFormula(
+                        arg.formula,
+                        formulaContext,
+                        data,
+                        IS_PREVIEW ? ['arguments', i, 'formula'] : undefined,
+                      ),
                     }
                   : args,
               {},
@@ -474,13 +529,19 @@ export function handleAction(
             }
             // First evaluate any arguments (input) to the action
             const args = action.arguments?.map((arg, i) =>
-              applyFormula(arg?.formula, formulaContext, [
-                'arguments',
-                i,
-                'formula',
-              ]),
+              applyFormula(
+                arg?.formula,
+                formulaContext,
+                data,
+                IS_PREVIEW ? ['arguments', i, 'formula'] : undefined,
+              ),
             ) ?? [
-              applyFormula(action.data, formulaContext, ['arguments', 'data']),
+              applyFormula(
+                action.data,
+                formulaContext,
+                data,
+                IS_PREVIEW ? ['arguments', 'data'] : undefined,
+              ),
             ] // action.data is a fallback to handle an older version of the action spec.
             return legacyHandler(args, { ...ctx, triggerActionEvent }, event)
           }

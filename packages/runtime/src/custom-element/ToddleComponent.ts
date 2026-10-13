@@ -1,5 +1,6 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
+import '@nordcraft/core/dist/compileTime'
 import type {
   Component,
   ComponentData,
@@ -10,13 +11,12 @@ import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
 import type { Theme } from '@nordcraft/core/dist/styling/theme'
-import {
-  theme as defaultTheme,
-  THEME_DATA_ATTRIBUTE,
-} from '@nordcraft/core/dist/styling/theme.const'
+import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
+import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/themeAttributes.const'
 import type { Nullable, Toddle } from '@nordcraft/core/dist/types'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
@@ -27,6 +27,7 @@ import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentContext, LocationSignal } from '../types'
 import { getThemeSignal } from '../utils/getThemeSignal'
+import { isStaticFormula } from '../utils/isStaticFormula'
 
 /**
  * Base class for all toddle components
@@ -111,7 +112,7 @@ export class ToddleComponent extends HTMLElement {
       package: undefined,
       toddle,
       env,
-      jsonPath: [],
+      ...(IS_PREVIEW ? { jsonPath: [] } : {}),
     }
   }
 
@@ -124,50 +125,67 @@ export class ToddleComponent extends HTMLElement {
       if (isLegacyApi(api)) {
         this.#ctx.apis[name] = createLegacyAPI(api, {
           ...this.#ctx,
-          jsonPath: ['apis', name],
+          ...(IS_PREVIEW ? { jsonPath: ['apis', name] } : {}),
         })
       } else {
         this.#ctx.apis[name] = createAPI({
           apiRequest: api,
           ctx: {
             ...this.#ctx,
-            jsonPath: ['apis', name],
+            ...(IS_PREVIEW ? { jsonPath: ['apis', name] } : {}),
           },
           componentData: this.#signal.get(),
         })
       }
     })
-    Object.values(this.#ctx.apis)
-      .filter(isContextApiV2)
-      .forEach((api) => {
+    // Plain loop: `Object.values(...).filter(...)` allocated two arrays per
+    // custom element even when there are no APIs at all.
+    for (const name in this.#ctx.apis) {
+      const api = this.#ctx.apis[name]
+      if (api && isContextApiV2(api)) {
         api.triggerActions(this.#signal.get())
-      })
+      }
+    }
 
     let providers = this.#ctx.providers
     if (isContextProvider(this.#component)) {
       // Subscribe to exposed formulas and update the component's data signal
+      const toddleFormulaCtx = {
+        component: this.#component,
+        formulaCache: this.#ctx.formulaCache,
+        root: this.#ctx.root,
+        package: this.#ctx.package,
+        toddle: this.#ctx.toddle,
+        env: this.#ctx.env,
+        ...(IS_PREVIEW ? { jsonPath: [] } : {}),
+      }
       const formulaDataSignals = Object.fromEntries(
         Object.entries(this.#component.formulas ?? {})
           .filter(([, formula]) => formula?.exposeInContext)
-          .map(([name, formula]) => [
-            name,
-            this.#signal.map((data) =>
-              applyFormula(
-                (formula as ComponentFormula).formula,
-                {
+          .map(([name, formula]) => {
+            const exposed = (formula as ComponentFormula).formula
+            // Static exposed formula: evaluate once into a detached signal
+            // (see createComponent).
+            if (isStaticFormula(exposed)) {
+              return [
+                name,
+                signal(
+                  applyFormula(exposed, toddleFormulaCtx, this.#signal.get()),
+                ),
+              ]
+            }
+            return [
+              name,
+              this.#signal.map((data) =>
+                applyFormula(
+                  exposed,
+                  toddleFormulaCtx,
                   data,
-                  component: this.#component,
-                  formulaCache: this.#ctx.formulaCache,
-                  root: this.#ctx.root,
-                  package: this.#ctx.package,
-                  toddle: this.#ctx.toddle,
-                  env: this.#ctx.env,
-                  jsonPath: [],
-                },
-                ['formulas', name],
+                  IS_PREVIEW ? ['formulas', name] : undefined,
+                ),
               ),
-            ),
-          ]),
+            ]
+          }),
       )
 
       providers = {
@@ -183,13 +201,18 @@ export class ToddleComponent extends HTMLElement {
     this.#ctx.providers = providers
 
     this.#ctx.stores.theme.subscribe((newTheme) => {
-      this.#signal.update((data) => ({
-        ...data,
-        Page: {
-          ...(data.Page ?? {}),
-          Theme: newTheme,
-        },
-      }))
+      if (this.#signal.get().Page?.Theme !== newTheme) {
+        this.#signal.update(
+          (data) => ({
+            ...data,
+            Page: {
+              ...(data.Page ?? {}),
+              Theme: newTheme,
+            },
+          }),
+          { force: true },
+        )
+      }
       if (isDefined(newTheme)) {
         this.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
       } else {
@@ -256,13 +279,18 @@ export class ToddleComponent extends HTMLElement {
     }
 
     // Update the signal with complex value
-    this.#signal.set({
-      ...this.#signal.get(),
-      Attributes: {
-        ...this.#signal.get().Attributes,
-        [name]: value,
-      },
-    })
+    if (fastDeepEqual(this.#signal.get().Attributes?.[name], value) === false) {
+      this.#signal.set(
+        {
+          ...this.#signal.get(),
+          Attributes: {
+            ...this.#signal.get().Attributes,
+            [name]: value,
+          },
+        },
+        { force: true },
+      )
+    }
 
     return this
   }
@@ -287,13 +315,23 @@ export class ToddleComponent extends HTMLElement {
       return
     }
 
-    this.#signal.set({
-      ...this.#signal.get(),
-      Attributes: {
-        ...this.#signal.get().Attributes,
-        [attributeName]: newValue,
-      },
-    })
+    if (
+      fastDeepEqual(
+        this.#signal.get().Attributes?.[attributeName],
+        newValue,
+      ) === false
+    ) {
+      this.#signal.set(
+        {
+          ...this.#signal.get(),
+          Attributes: {
+            ...this.#signal.get().Attributes,
+            [attributeName]: newValue,
+          },
+        },
+        { force: true },
+      )
+    }
   }
 
   private getAttributeCaseInsensitive(name: string) {
@@ -348,16 +386,19 @@ export const createSignal = ({
         }
         return [
           name,
-          applyFormula(initialValue, {
-            data: {
+          applyFormula(
+            initialValue,
+            {
+              component: component,
+              root,
+              package: undefined,
+              toddle,
+              env,
+            },
+            {
               Attributes: {},
             },
-            component: component,
-            root,
-            package: undefined,
-            toddle,
-            env,
-          }),
+          ),
         ]
       },
     ),

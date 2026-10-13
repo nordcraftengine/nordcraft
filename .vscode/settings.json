@@ -44,6 +44,7 @@
     "ttl",
     "typecheck",
     "typeof",
+    "Unhydrated",
     "urlset",
     "valibot"
   ],

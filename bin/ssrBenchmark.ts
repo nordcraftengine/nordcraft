@@ -375,6 +375,130 @@ const createProjectRenderCase = async (): Promise<BenchmarkRunner> => {
   }
 }
 
+const createFixturePageRenderCase = async ({
+  fixtureFile,
+  pageName,
+  projectId,
+  url = 'http://localhost/benchmark',
+  variables,
+  expectedMarker,
+}: {
+  fixtureFile: string
+  pageName: string
+  projectId: string
+  url?: string
+  variables?: Record<string, unknown>
+  expectedMarker?: string
+}): Promise<BenchmarkRunner> => {
+  const project = await loadProjectFixture(fixtureFile)
+  const files = project.files
+  const page = files.components[pageName]
+
+  if (!page) {
+    throw new Error(`No ${pageName} component found in ${fixtureFile}`)
+  }
+
+  // Synthetic benchmark pages (StylesPage, ContextPage, LifecyclePage) are
+  // plain components without a route. getPageFormulaContext expects a page,
+  // so synthesize a minimal route for them.
+  const pageComponent: PageComponent = (
+    isPageComponent(page)
+      ? page
+      : { ...page, route: { info: {}, path: [], query: {} } }
+  ) as PageComponent
+  const includedComponents = takeIncludedComponents({
+    packages: files.packages,
+    root: pageComponent,
+    includeRoot: true,
+    projectComponents: files.components,
+  })
+  const req = new Request(url)
+
+  return async () => {
+    const formulaContext = getPageFormulaContext({
+      component: pageComponent,
+      branchName: 'main',
+      req,
+      logErrors: false,
+      files,
+    })
+    if (variables) {
+      formulaContext.data.Variables = {
+        ...formulaContext.data.Variables,
+        ...variables,
+      }
+    }
+
+    const result = await renderPageBody({
+      component: pageComponent,
+      env: formulaContext.env,
+      evaluateComponentApis: async () => ({}),
+      files,
+      formulaContext,
+      includedComponents,
+      req,
+      projectId,
+    })
+
+    if (result.html.length === 0) {
+      throw new Error(`Empty HTML from ${pageName} benchmark case`)
+    }
+    if (expectedMarker && !result.html.includes(expectedMarker)) {
+      throw new Error(
+        `Missing expected marker "${expectedMarker}" in ${pageName} benchmark output`,
+      )
+    }
+  }
+}
+
+const createPricingPageRenderCase = (): Promise<BenchmarkRunner> =>
+  createFixturePageRenderCase({
+    fixtureFile: 'nordcraft.com.json',
+    pageName: 'pricing',
+    projectId: 'nordcraft',
+    url: 'http://localhost/pricing',
+    expectedMarker: 'data-id',
+  })
+
+const createLargeListRenderCase = (): Promise<BenchmarkRunner> =>
+  createFixturePageRenderCase({
+    fixtureFile: 'benchmark-project.json',
+    pageName: 'HomePage',
+    projectId: 'benchmark-project',
+    variables: {
+      items: Array.from({ length: 200 }, (_, i) => ({
+        id: `item-${i}`,
+        title: `Benchmark Item ${i}`,
+      })),
+    },
+    expectedMarker: 'benchmark-list',
+  })
+
+const createStyleVariablesRenderCase = (): Promise<BenchmarkRunner> =>
+  createFixturePageRenderCase({
+    fixtureFile: 'benchmark-project.json',
+    pageName: 'StylesPage',
+    projectId: 'benchmark-project',
+    expectedMarker: 'styles-list',
+  })
+
+const createContextPropagationRenderCase = (): Promise<BenchmarkRunner> =>
+  createFixturePageRenderCase({
+    fixtureFile: 'benchmark-project.json',
+    pageName: 'ContextPage',
+    projectId: 'benchmark-project',
+    expectedMarker: 'context-consumer-list',
+  })
+
+const createConditionalSubtreeRenderCase = (): Promise<BenchmarkRunner> =>
+  createFixturePageRenderCase({
+    fixtureFile: 'benchmark-project.json',
+    pageName: 'LifecyclePage',
+    projectId: 'benchmark-project',
+    variables: { showSubtree: true },
+    expectedMarker: 'lifecycle-container',
+  })
+
 export const createRunner = async (id: SsrBenchmarkCaseId) => {
   switch (id) {
     case 'formula':
@@ -383,6 +507,16 @@ export const createRunner = async (id: SsrBenchmarkCaseId) => {
       return createCollectionsHotPathRenderCase()
     case 'example-project-homepage':
       return createProjectRenderCase()
+    case 'example-pricing-page':
+      return createPricingPageRenderCase()
+    case 'repeat-large-list':
+      return createLargeListRenderCase()
+    case 'style-variables':
+      return createStyleVariablesRenderCase()
+    case 'context-propagation':
+      return createContextPropagationRenderCase()
+    case 'conditional-subtree':
+      return createConditionalSubtreeRenderCase()
   }
 }
 

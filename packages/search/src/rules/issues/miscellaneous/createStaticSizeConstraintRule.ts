@@ -46,7 +46,7 @@ export function createStaticSizeConstraintRule(
           const attributeString = Object.entries(attributes)
             .map(([key, value]) => `${key}="${value}"`)
             .join(' ')
-          if (VOID_HTML_ELEMENTS.includes(tag)) {
+          if (VOID_HTML_ELEMENTS.has(tag)) {
             return attributeString
               ? `<${tag} ${attributeString} />`
               : `<${tag} />`

@@ -16,6 +16,23 @@ const resolvePath = (...segments: string[]) =>
 const distPath = '../dist'
 const distDir = resolvePath(distPath)
 
+// Compile-time flags for dead-code elimination (see `packages/core/src/compileTime.ts`).
+// TODO: We can also consider adding an `IS_SERVER` flag and make a server-specific bundle, but gains are likely <kb.
+const NORDCRAFT_RUNTIME_DEFINES: Record<string, Record<string, string>> = {
+  page: {
+    IS_PREVIEW: 'false',
+    IS_CUSTOM_ELEMENT: 'false',
+  },
+  preview: {
+    IS_PREVIEW: 'true',
+    IS_CUSTOM_ELEMENT: 'false',
+  },
+  'custom-element': {
+    IS_PREVIEW: 'false',
+    IS_CUSTOM_ELEMENT: 'true',
+  },
+}
+
 const bundleFiles = (files: string[], settings?: BuildOptions) =>
   build({
     entryPoints: files.map((file) => resolvePath('../', file)),
@@ -53,15 +70,30 @@ const run = async () => {
 
   await bundleFiles(
     [
-      'packages/runtime/src/page.main.ts',
-      'packages/runtime/src/editor-preview.main.ts',
-      'packages/runtime/src/custom-element.main.ts',
       'packages/core/src/component/ToddleComponent.ts',
       'packages/core/src/formula/ToddleFormula.ts',
       'packages/core/src/api/api.ts',
     ],
     { format: 'esm' },
   )
+
+  // Each browser runtime is bundled separately with its own `define` values
+  // so dead-code elimination can strip preview-only code from the page and
+  // custom-element bundles (the preview bundle keeps it).
+  await bundleFiles(['packages/runtime/src/page.main.ts'], {
+    format: 'esm',
+    define: NORDCRAFT_RUNTIME_DEFINES.page,
+  })
+
+  await bundleFiles(['packages/runtime/src/editor-preview.main.ts'], {
+    format: 'esm',
+    define: NORDCRAFT_RUNTIME_DEFINES.preview,
+  })
+
+  await bundleFiles(['packages/runtime/src/custom-element.main.ts'], {
+    format: 'esm',
+    define: NORDCRAFT_RUNTIME_DEFINES['custom-element'],
+  })
 
   await bundleFiles([createTempFileFromValue('reset.css', RESET_STYLES)])
 
