@@ -16,6 +16,12 @@ import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
+import {
+  claimHydratedChild,
+  hydrationTagMatches,
+  noteHydrationFallback,
+  type HydrationState,
+} from './hydration'
 
 export type RenderTextProps = {
   node: TextNodeModel
@@ -24,6 +30,8 @@ export type RenderTextProps = {
   path: string
   namespace?: SupportedNamespaces
   ctx: ComponentContext
+  parentElement?: Element | ShadowRoot
+  hydration?: HydrationState
 }
 
 /**
@@ -39,6 +47,8 @@ export function createText({
   dataSignal,
   namespace,
   ctx,
+  parentElement,
+  hydration,
 }: RenderTextProps): HTMLSpanElement | Text {
   // Span element is not valid outside of the default namespace
   if (namespace && namespace !== 'http://www.w3.org/1999/xhtml') {
@@ -46,7 +56,22 @@ export function createText({
   }
 
   const { value } = node
-  const elem = document.createElement('span')
+  let elem: HTMLSpanElement | null = null
+  if (hydration && parentElement) {
+    const candidate = claimHydratedChild(parentElement, path, hydration)
+    if (candidate && hydrationTagMatches(candidate, 'span')) {
+      elem = candidate as HTMLSpanElement
+    } else if (candidate) {
+      candidate.remove()
+    }
+  }
+  if (!elem) {
+    elem = document.createElement('span')
+    if (hydration) {
+      hydration.adopted.add(elem)
+      noteHydrationFallback(hydration, path)
+    }
+  }
 
   if (
     IS_PREVIEW &&

@@ -9,6 +9,7 @@ import type {
   TextNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import { repeatPath } from '@nordcraft/core/dist/utils/nodePath'
 import { toBoolean } from '@nordcraft/core/dist/utils/util'
 import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
@@ -21,6 +22,7 @@ import { createComponent } from './createComponent'
 import { createElement } from './createElement'
 import { createSlot } from './createSlot'
 import { createText } from './createText'
+import { peekHydratedChild, type HydrationState } from './hydration'
 
 export function createNode({
   id,
@@ -32,6 +34,7 @@ export function createNode({
   instance,
   slotRepeatIndex,
   slotSuffix,
+  hydration,
 }: {
   id: string
   dataSignal: Signal<ComponentData>
@@ -42,6 +45,7 @@ export function createNode({
   instance: Record<string, string>
   slotRepeatIndex?: number
   slotSuffix?: string
+  hydration?: HydrationState
 }): ReadonlyArray<Element | Text> {
   const node = ctx.component.nodes?.[id]
   if (!node) {
@@ -98,9 +102,14 @@ export function createNode({
     instance,
     slotRepeatIndex,
     slotSuffix,
+    hydration,
   }: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
     if (isStaticFormula(node.condition)) {
       if (!toBoolean(node.condition.value)) {
+        if (hydration) {
+          // Hidden but server-rendered, drop it.
+          peekHydratedChild(parentElement, path)?.remove()
+        }
         return []
       }
       return create({
@@ -114,6 +123,7 @@ export function createNode({
         instance,
         slotRepeatIndex,
         slotSuffix,
+        hydration,
       })
     }
     let firstRun = true
@@ -140,6 +150,7 @@ export function createNode({
             instance,
             slotRepeatIndex,
             slotSuffix,
+            hydration,
           }),
         )
 
@@ -158,6 +169,11 @@ export function createNode({
         childDataSignal?.destroy()
         elements.forEach((elem) => elem.remove())
         elements.splice(0, elements.length)
+        if (firstRun && hydration) {
+          // SSR rendered this node but the client hides it
+          // (e.g. a browser-only formula) — remove the stale SSR node.
+          peekHydratedChild(parentElement, path)?.remove()
+        }
       }
     }
 
@@ -397,12 +413,13 @@ export function createNode({
             // - Update list to [A, C, B]
             // Now C and B would have the same path `(1)` if we only used the index or Key, as B would have kept its reference, but the others would be recreated.
             // With lifetimeSize, the keys would be A(3), B(1), C(4) - all unique.
-            path: repeatIndex ? `${path}(${repeatIndex})` : path,
+            path: repeatPath(path, repeatIndex),
             ctx,
             namespace,
             parentElement,
             instance,
             slotRepeatIndex: repeatIndex,
+            hydration,
           }
           if (Key === '0' && !defaultElement) {
             defaultElement = childKey
@@ -497,6 +514,7 @@ export function createNode({
       instance,
       slotRepeatIndex,
       slotSuffix,
+      hydration,
     })
   }
   return create({
@@ -510,6 +528,7 @@ export function createNode({
     instance,
     slotRepeatIndex,
     slotSuffix,
+    hydration,
   })
 }
 
@@ -528,4 +547,5 @@ export type NodeRenderer<NodeType> = {
    */
   slotRepeatIndex?: number
   slotSuffix?: string
+  hydration?: HydrationState
 }

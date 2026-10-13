@@ -34,6 +34,11 @@ import {
 } from '../utils/subscribeCustomProperty'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
+import {
+  claimHydratedChild,
+  hydrationTagMatches,
+  noteHydrationFallback,
+} from './hydration'
 
 // Cache class names by node definition object. Repeat items share the same
 // node reference, so this avoids re-stringifying/hashing identical style
@@ -48,9 +53,11 @@ export function createElement({
   path,
   ctx,
   namespace,
+  parentElement,
   instance,
   slotRepeatIndex,
   slotSuffix,
+  hydration,
 }: NodeRenderer<ElementNodeModel>): Element {
   const tag = getElementTagName(node, ctx, id)
   switch (tag) {
@@ -69,9 +76,32 @@ export function createElement({
     namespace = String(node.attrs['xmlns'].value) as SupportedNamespaces
   }
 
-  const elem = namespace
-    ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
-    : document.createElement(tag)
+  let elem: HTMLElement | SVGElement | MathMLElement | null = null
+  let claimed = false
+  if (hydration) {
+    const candidate = claimHydratedChild(parentElement, path, hydration)
+    if (candidate && hydrationTagMatches(candidate, tag)) {
+      elem = candidate as HTMLElement | SVGElement | MathMLElement
+      claimed = true
+    } else if (candidate) {
+      // SSR/CSR unexpected tag at a stable path, drop the stale node.
+      candidate.remove()
+    }
+  }
+  if (!elem) {
+    elem = namespace
+      ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
+      : document.createElement(tag)
+    if (hydration) {
+      hydration.adopted.add(elem)
+      noteHydrationFallback(hydration, path)
+    }
+  }
+  if (claimed && namespace && namespace !== 'http://www.w3.org/1999/xhtml') {
+    // Raw text inside svg/math has no stable anchors (SSR renders it without
+    // a wrapping span), so namespaced subtrees are rebuilt instead of adopted.
+    elem.replaceChildren()
+  }
   const initialClasses: string[] = []
 
   const formulaCtx =
@@ -400,10 +430,11 @@ export function createElement({
     const children = node.children ?? []
     for (let i = 0; i < children.length; i++) {
       const child = children[i]!
+      const childPath = path + '.' + i
       const nodes = createNode({
         parentElement: elem,
         id: child,
-        path: path + '.' + i,
+        path: childPath,
         dataSignal,
         ctx:
           IS_PREVIEW && ctx.reportFormulaEvaluation
@@ -413,15 +444,32 @@ export function createElement({
         instance,
         slotRepeatIndex,
         slotSuffix,
+        hydration,
       })
       for (let j = 0; j < nodes.length; j++) {
         childNodes.push(nodes[j]!)
       }
     }
-    // Index loop over `appendChild` instead of `append(...childNodes)`:
-    // same DOM result for Node items, without the spread allocation.
-    for (let i = 0; i < childNodes.length; i++) {
-      elem.appendChild(childNodes[i]!)
+    if (!claimed || elem.childNodes.length === 0) {
+      // Index loop over `appendChild` instead of `append(...childNodes)`:
+      // same DOM result for Node items, without the spread allocation.
+      for (let i = 0; i < childNodes.length; i++) {
+        elem.appendChild(childNodes[i]!)
+      }
+    } else {
+      // elem was adopted from SSR: ensure all childNodes are in elem in the
+      // exact order of childNodes.
+      let insertBeforeElement: Node | null = null
+      for (let i = childNodes.length - 1; i >= 0; i--) {
+        const childNode = childNodes[i]!
+        if (
+          childNode.nextSibling !== insertBeforeElement ||
+          childNode.parentNode !== elem
+        ) {
+          elem.insertBefore(childNode, insertBeforeElement)
+        }
+        insertBeforeElement = childNode
+      }
     }
   }
   dataSignal.subscriptions.push(() => {

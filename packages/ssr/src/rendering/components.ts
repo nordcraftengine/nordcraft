@@ -34,6 +34,12 @@ import type { Nullable } from '@nordcraft/core/dist/types'
 import { filterObject, mapValues } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
+import {
+  applySlotSuffix,
+  buildSlotSuffix,
+  repeatPath,
+  slotBasePath,
+} from '@nordcraft/core/dist/utils/nodePath'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import type { ProjectFiles } from '../ssr.types'
 import type { ApiCache, ApiEvaluator } from './api'
@@ -211,7 +217,7 @@ const renderComponent = async ({
         items.map((Item, Index) =>
           renderNode({
             id,
-            path: Index ? `${path}(${Index})` : path,
+            path: repeatPath(path, Index || undefined),
             node: nodeWithoutRepeat,
             data: {
               ...data,
@@ -238,7 +244,7 @@ const renderComponent = async ({
     switch (node.type) {
       case 'text': {
         if (!namespace || namespace === 'http://www.w3.org/1999/xhtml') {
-          return `<span ${DATA_ATTR_NODE_TYPE}="${DATA_NODE_TYPE_TEXT}" ${DATA_ATTR_NODE_ID}="${id}">${toEncodedText(
+          return `<span ${DATA_ATTR_NODE_TYPE}="${DATA_NODE_TYPE_TEXT}" ${DATA_ATTR_NODE_ID}="${id}" ${DATA_ATTR_ID}="${path}">${toEncodedText(
             String(applyFormula(node.value, formulaContext)),
           )}</span>`
         }
@@ -254,17 +260,18 @@ const renderComponent = async ({
             node,
             component.nodes,
           )
-          let currentSuffix = slotSuffix ?? ''
-          if (slotComponentIndex > 0) {
-            currentSuffix += `{${slotComponentIndex}}`
-          }
-          if (slotRepeatIndex && slotRepeatIndex > 0) {
-            currentSuffix += `(${slotRepeatIndex})`
-          }
+          const currentSuffix =
+            buildSlotSuffix({
+              slotSuffix,
+              slotComponentIndex,
+              slotRepeatIndex,
+            }) || undefined
+          // `defaultChild` expects `undefined` when empty to match the
+          // runtime convention.
           return typeof defaultChild === 'function'
-            ? await defaultChild(data.Contexts ?? {}, {
+            ? defaultChild(data.Contexts ?? {}, {
                 slotRepeatIndex,
-                slotSuffix: currentSuffix || undefined,
+                slotSuffix: currentSuffix,
                 slotPath: path,
               })
             : defaultChild
@@ -544,14 +551,11 @@ const renderComponent = async ({
               options?: SlottedContentOptions,
             ) => {
               const currentSuffix = options?.slotSuffix ?? ''
-              let basePath = `${path}.${i}[${slotName}]`
+              let basePath = slotBasePath(path, i, slotName)
               if (options?.slotPath?.startsWith(`${basePath}.`)) {
                 basePath = i > 0 ? `${options.slotPath}.${i}` : options.slotPath
               }
-              const finalPath =
-                currentSuffix && !basePath.endsWith(currentSuffix)
-                  ? `${basePath}${currentSuffix}`
-                  : basePath
+              const finalPath = applySlotSuffix(basePath, currentSuffix)
               return renderNode({
                 id: child,
                 path: finalPath,

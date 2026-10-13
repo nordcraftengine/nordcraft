@@ -1,6 +1,7 @@
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { describe, expect, test } from 'bun:test'
+import '../happydom'
 import { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { createText } from './createText'

@@ -10,6 +10,7 @@ import type {
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
+import { slotBasePath } from '@nordcraft/core/dist/utils/nodePath'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
@@ -30,6 +31,7 @@ import {
   subscribeCustomProperty,
   subscribeStaticCustomProperty,
 } from '../utils/subscribeCustomProperty'
+import type { HydrationState } from './hydration'
 import { renderComponent } from './renderComponent'
 
 export type RenderComponentNodeProps = {
@@ -48,6 +50,7 @@ export type RenderComponentNodeProps = {
   namespace?: SupportedNamespaces
   slotRepeatIndex?: number
   slotSuffix?: string
+  hydration?: HydrationState
 }
 
 export function createComponent({
@@ -61,6 +64,7 @@ export function createComponent({
   namespace,
   slotRepeatIndex,
   slotSuffix,
+  hydration,
 }: RenderComponentNodeProps): ReadonlyArray<Element | Text> {
   const nodeLookupKey = ctx.package ? `${ctx.package}/${node.name}` : node.name
   const component = getComponent(nodeLookupKey, ctx.components, !IS_PREVIEW)
@@ -385,7 +389,7 @@ export function createComponent({
     children[slotName] = children[slotName] ?? []
     children[slotName].push({
       id: childId,
-      path: `${path}.${i}[${slotName}]`,
+      path: slotBasePath(path, i, slotName),
       dataSignal,
       ctx: slotChildCtx,
     })
@@ -426,6 +430,7 @@ export function createComponent({
     toddle: ctx.toddle,
     env: ctx.env,
     namespace,
+    hydration,
     // If the root node is another component, then append and forward previous instance
     instance:
       nodeId === 'root'
