@@ -105,6 +105,16 @@ export function createElement({
           'data-single-slot-name',
           (onlySlot as { name?: string | null })?.name ?? 'default',
         )
+      } else if (slotNodes.length > 1) {
+        // Drop target when no slot shows placeholder content: the default
+        // slot, or the first slot when there is no default slot.
+        const names = slotNodes.map(
+          (node) => (node as { name?: string | null })?.name ?? 'default',
+        )
+        elem.setAttribute(
+          'data-fallback-slot-name',
+          names.includes('default') ? 'default' : names[0],
+        )
       }
     }
   }

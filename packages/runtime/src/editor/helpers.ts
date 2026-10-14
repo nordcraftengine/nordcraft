@@ -623,8 +623,23 @@ export function dragInsertMove(
     dragInsertState.selectedInsertAreaIndex = allAreas.indexOf(selected)
 
     postHighlightMessage(selected.parent)
+    // Same-name slot outlets each render their own overlay, but all of them
+    // light up together. The drop itself still uses only `selected`.
+    const peerZones =
+      selected.bounds !== undefined &&
+      selected.slotPlaceholder === true &&
+      selected.slot !== undefined
+        ? allAreas.filter(
+            (area) =>
+              area.bounds !== undefined &&
+              area.slotPlaceholder === true &&
+              area.slot !== undefined &&
+              area.parent === selected.parent &&
+              area.slot === selected.slot,
+          )
+        : [selected]
     setExternalDropHighlight({
-      insertAreas: [selected],
+      insertAreas: peerZones.length > 0 ? peerZones : [selected],
       color: dragInsertState.elementType === 'component' ? 'D946EF' : '2563EB',
       projectionPoint: 0.5,
     })

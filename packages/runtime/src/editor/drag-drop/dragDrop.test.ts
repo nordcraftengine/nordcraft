@@ -1898,6 +1898,179 @@ describe('slot outlet drop-zone', () => {
     expect(areas.every((a) => a['flex-direction'] === undefined)).toBe(true)
     expect(dropStyleProps(areas[0])).toEqual({})
   })
+
+  test('component with a placeholder slot gets no whole-component zone', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.6" data-node-id="root" data-has-slots-elements="true" data-fallback-slot-name="default"><div data-id="0.6.0.0" data-node-id="21" data-node-slot-name="foo" data-component="Card">ph</div></div></div>'
+    const root = document.querySelector('[data-id="0.6"]')!
+    stubRect(
+      document.querySelector('[data-id="0.6.0.0"]'),
+      rect(100, 100, 200, 50),
+    )
+    stubRect(root, rect(100, 100, 200, 150))
+    stubRect(document.getElementById('App'), rect(0, 0, 800, 600))
+
+    const areas = getInsertAreas().filter((a) => a.parent === root)
+    expect(areas).toHaveLength(1)
+    expect(areas[0].slot).toBe('foo')
+    expect(areas[0].slotPlaceholder).toBe(true)
+    expect(areas[0].bounds).toEqual({ x: 100, y: 100, width: 200, height: 50 })
+  })
+
+  test('placeholders nested in a wrapper still get per-slot zones, no whole-component zone', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.61" data-node-id="root" data-has-slots-elements="true" data-fallback-slot-name="default"><div data-id="0.61.0" data-node-id="40" data-component="Card"><div data-id="0.61.0.0.0" data-node-id="41" data-node-slot-name="default" data-component="Card">a</div><div data-id="0.61.0.1.0" data-node-id="42" data-node-slot-name="header" data-component="Card">b</div></div></div></div>'
+    const root = document.querySelector('[data-id="0.61"]')!
+    const wrap = document.querySelector('[data-id="0.61.0"]')!
+    stubRect(
+      document.querySelector('[data-id="0.61.0.0.0"]'),
+      rect(100, 100, 200, 50),
+    )
+    stubRect(
+      document.querySelector('[data-id="0.61.0.1.0"]'),
+      rect(100, 150, 200, 50),
+    )
+    stubRect(wrap, rect(100, 100, 200, 100))
+    stubRect(root, rect(100, 100, 200, 100))
+    stubRect(document.getElementById('App'), rect(0, 0, 800, 600))
+
+    const zones = getInsertAreas().filter(
+      (a) => a.bounds !== undefined && a.slotPlaceholder,
+    )
+    expect(
+      zones.map((a) => [
+        (a.parent as Element).getAttribute('data-id'),
+        a.slot,
+      ]),
+    ).toEqual([
+      ['0.61.0', 'default'],
+      ['0.61.0', 'header'],
+    ])
+    expect(zones[0].bounds).toEqual({ x: 100, y: 100, width: 200, height: 50 })
+    expect(zones[1].bounds).toEqual({ x: 100, y: 150, width: 200, height: 50 })
+  })
+
+  test('same-name outlets get one overlay each, all lit on hover', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.62" data-node-id="root" data-has-slots-elements="true" data-fallback-slot-name="content"><div data-id="0.62.0.0" data-node-id="43" data-node-slot-name="content" data-component="C"></div><div data-id="0.62.0.1" data-node-id="44" data-node-slot-name="content" data-component="C"></div><div data-id="0.62.1.0" data-node-id="45" data-node-slot-name="content" data-component="C"></div><div data-id="0.62.1.1" data-node-id="46" data-node-slot-name="content" data-component="C"></div></div></div>'
+    const root = document.querySelector('[data-id="0.62"]')!
+    stubRect(document.querySelector('[data-id="0.62.0.0"]'), rect(100, 100, 200, 40))
+    stubRect(document.querySelector('[data-id="0.62.0.1"]'), rect(100, 140, 200, 40))
+    stubRect(document.querySelector('[data-id="0.62.1.0"]'), rect(100, 220, 200, 40))
+    stubRect(document.querySelector('[data-id="0.62.1.1"]'), rect(100, 260, 200, 40))
+    stubRect(root, rect(100, 100, 200, 200))
+    stubRect(document.getElementById('App'), rect(0, 0, 800, 600))
+
+    const zones = getInsertAreas().filter(
+      (a) => a.parent === root && a.slot === 'content',
+    )
+    expect(zones).toHaveLength(2)
+    expect(zones[0].bounds).toEqual({ x: 100, y: 100, width: 200, height: 80 })
+    expect(zones[0].indexAll).toBe(0)
+    expect(zones[1].bounds).toEqual({ x: 100, y: 220, width: 200, height: 80 })
+    expect(zones[1].indexAll).toBe(2)
+
+    const makeState = (x: number, y: number): DragInsertState => ({
+      mode: 'insert',
+      action: 'insert',
+      elementType: 'element',
+      element: document.createElement('div'),
+      repeatedNodes: [],
+      offset: { x: 0, y: 0 },
+      lastCursorPosition: { x, y },
+      initialContainer: root as HTMLElement,
+      initialNextSibling: null,
+      initialRect: { width: 10, height: 10 } as unknown as DOMRect,
+      reorderPermutations: [],
+      flipAnimations: [],
+      isSoleChildDrag: false,
+      destroying: false,
+    })
+    // Hovering an outlet selects its own zone but renders both overlays.
+    const overFirst = makeState(200, 120)
+    dragInsertMove('insert', overFirst, [overFirst.element])
+    expect(
+      overFirst.insertAreas?.[overFirst.selectedInsertAreaIndex ?? -1]?.bounds,
+    ).toEqual({ x: 100, y: 100, width: 200, height: 80 })
+    expect(document.querySelectorAll('.__drop-area-grid')).toHaveLength(2)
+    overFirst.destroying = true
+
+    const overSecond = makeState(200, 240)
+    dragInsertMove('insert', overSecond, [overSecond.element])
+    expect(
+      overSecond.insertAreas?.[overSecond.selectedInsertAreaIndex ?? -1]?.bounds,
+    ).toEqual({ x: 100, y: 220, width: 200, height: 80 })
+    expect(document.querySelectorAll('.__drop-area-grid')).toHaveLength(2)
+    overSecond.destroying = true
+  })
+
+  test('nested slot zone stays inside the surrounding outer zone', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.63" data-node-id="50"><div data-id="0.63.0.0" data-node-id="51" data-node-slot-name="slot 1">a</div><div data-id="0.63.0.1" data-node-id="52" data-node-slot-name="slot 1">b</div><div data-id="0.63.0.2.0" data-node-id="53" data-node-slot-name="slot 1-1" data-node-slot-ancestors=\'["slot 1"]\'>c</div></div></div>'
+    const root = document.querySelector('[data-id="0.63"]')!
+    stubRect(document.querySelector('[data-id="0.63.0.0"]'), rect(100, 100, 200, 40))
+    stubRect(document.querySelector('[data-id="0.63.0.1"]'), rect(100, 140, 200, 40))
+    stubRect(document.querySelector('[data-id="0.63.0.2.0"]'), rect(100, 180, 200, 40))
+    stubRect(root, rect(100, 100, 200, 120))
+    stubRect(document.getElementById('App'), rect(0, 0, 800, 600))
+
+    const outer = getInsertAreas().find(
+      (a) => a.parent === root && a.slot === 'slot 1',
+    )
+    expect(outer?.bounds).toEqual({ x: 100, y: 100, width: 200, height: 120 })
+    const inner = getInsertAreas().find(
+      (a) => a.parent === root && a.slot === 'slot 1-1',
+    )
+    expect(inner?.bounds).toEqual({ x: 100, y: 180, width: 200, height: 40 })
+  })
+
+  test('component without placeholders becomes a whole-component default zone', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.7" data-node-id="root" data-has-slots-elements="true" data-fallback-slot-name="default"></div></div>'
+    const root = document.querySelector('[data-id="0.7"]')!
+    stubRect(root, rect(100, 100, 200, 100))
+    stubRect(document.getElementById('App'), rect(0, 0, 800, 600))
+
+    const areas = getInsertAreas().filter((a) => a.parent === root)
+    expect(areas).toHaveLength(1)
+    expect(areas[0].slot).toBe('default')
+    expect(areas[0].slotPlaceholder).toBe(true)
+    expect(areas[0].bounds).toEqual({
+      x: 100,
+      y: 100,
+      width: 200,
+      height: 100,
+    })
+  })
+
+  test('component without placeholders or default slot targets the first slot', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.8" data-node-id="root" data-has-slots-elements="true" data-fallback-slot-name="header"></div></div>'
+    const root = document.querySelector('[data-id="0.8"]')!
+    stubRect(root, rect(100, 100, 200, 100))
+    stubRect(document.getElementById('App'), rect(0, 0, 800, 600))
+
+    const areas = getInsertAreas().filter((a) => a.parent === root)
+    expect(areas).toHaveLength(1)
+    expect(areas[0].slot).toBe('header')
+    expect(areas[0].slotPlaceholder).toBe(true)
+  })
+
+  test('component with only provided content keeps lines, no whole-component zone', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.9" data-node-id="root" data-has-slots-elements="true" data-fallback-slot-name="default"><div data-id="0.9.0[content]" data-node-id="31">real</div></div></div>'
+    const root = document.querySelector('[data-id="0.9"]')!
+    stubRect(
+      document.querySelector('[data-id="0.9.0[content]"]'),
+      rect(100, 100, 200, 100),
+    )
+    stubRect(root, rect(100, 100, 200, 100))
+    stubRect(document.getElementById('App'), rect(0, 0, 800, 600))
+
+    const areas = getInsertAreas().filter((a) => a.parent === root)
+    expect(areas.every((a) => a.bounds === undefined)).toBe(true)
+    expect(areas.length).toBeGreaterThan(0)
+  })
 })
 
 describe('empty element grid', () => {
