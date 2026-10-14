@@ -1938,10 +1938,7 @@ describe('slot outlet drop-zone', () => {
       (a) => a.bounds !== undefined && a.slotPlaceholder,
     )
     expect(
-      zones.map((a) => [
-        (a.parent as Element).getAttribute('data-id'),
-        a.slot,
-      ]),
+      zones.map((a) => [(a.parent as Element).getAttribute('data-id'), a.slot]),
     ).toEqual([
       ['0.61.0', 'default'],
       ['0.61.0', 'header'],
@@ -1954,10 +1951,22 @@ describe('slot outlet drop-zone', () => {
     document.body.innerHTML =
       '<div id="App"><div data-id="0.62" data-node-id="root" data-has-slots-elements="true" data-fallback-slot-name="content"><div data-id="0.62.0.0" data-node-id="43" data-node-slot-name="content" data-component="C"></div><div data-id="0.62.0.1" data-node-id="44" data-node-slot-name="content" data-component="C"></div><div data-id="0.62.1.0" data-node-id="45" data-node-slot-name="content" data-component="C"></div><div data-id="0.62.1.1" data-node-id="46" data-node-slot-name="content" data-component="C"></div></div></div>'
     const root = document.querySelector('[data-id="0.62"]')!
-    stubRect(document.querySelector('[data-id="0.62.0.0"]'), rect(100, 100, 200, 40))
-    stubRect(document.querySelector('[data-id="0.62.0.1"]'), rect(100, 140, 200, 40))
-    stubRect(document.querySelector('[data-id="0.62.1.0"]'), rect(100, 220, 200, 40))
-    stubRect(document.querySelector('[data-id="0.62.1.1"]'), rect(100, 260, 200, 40))
+    stubRect(
+      document.querySelector('[data-id="0.62.0.0"]'),
+      rect(100, 100, 200, 40),
+    )
+    stubRect(
+      document.querySelector('[data-id="0.62.0.1"]'),
+      rect(100, 140, 200, 40),
+    )
+    stubRect(
+      document.querySelector('[data-id="0.62.1.0"]'),
+      rect(100, 220, 200, 40),
+    )
+    stubRect(
+      document.querySelector('[data-id="0.62.1.1"]'),
+      rect(100, 260, 200, 40),
+    )
     stubRect(root, rect(100, 100, 200, 200))
     stubRect(document.getElementById('App'), rect(0, 0, 800, 600))
 
@@ -1998,7 +2007,8 @@ describe('slot outlet drop-zone', () => {
     const overSecond = makeState(200, 240)
     dragInsertMove('insert', overSecond, [overSecond.element])
     expect(
-      overSecond.insertAreas?.[overSecond.selectedInsertAreaIndex ?? -1]?.bounds,
+      overSecond.insertAreas?.[overSecond.selectedInsertAreaIndex ?? -1]
+        ?.bounds,
     ).toEqual({ x: 100, y: 220, width: 200, height: 80 })
     expect(document.querySelectorAll('.__drop-area-grid')).toHaveLength(2)
     overSecond.destroying = true
@@ -2008,9 +2018,18 @@ describe('slot outlet drop-zone', () => {
     document.body.innerHTML =
       '<div id="App"><div data-id="0.63" data-node-id="50"><div data-id="0.63.0.0" data-node-id="51" data-node-slot-name="slot 1">a</div><div data-id="0.63.0.1" data-node-id="52" data-node-slot-name="slot 1">b</div><div data-id="0.63.0.2.0" data-node-id="53" data-node-slot-name="slot 1-1" data-node-slot-ancestors=\'["slot 1"]\'>c</div></div></div>'
     const root = document.querySelector('[data-id="0.63"]')!
-    stubRect(document.querySelector('[data-id="0.63.0.0"]'), rect(100, 100, 200, 40))
-    stubRect(document.querySelector('[data-id="0.63.0.1"]'), rect(100, 140, 200, 40))
-    stubRect(document.querySelector('[data-id="0.63.0.2.0"]'), rect(100, 180, 200, 40))
+    stubRect(
+      document.querySelector('[data-id="0.63.0.0"]'),
+      rect(100, 100, 200, 40),
+    )
+    stubRect(
+      document.querySelector('[data-id="0.63.0.1"]'),
+      rect(100, 140, 200, 40),
+    )
+    stubRect(
+      document.querySelector('[data-id="0.63.0.2.0"]'),
+      rect(100, 180, 200, 40),
+    )
     stubRect(root, rect(100, 100, 200, 120))
     stubRect(document.getElementById('App'), rect(0, 0, 800, 600))
 

@@ -358,7 +358,12 @@ export function getInsertAreas() {
     // the single-slot entire-component zone). This keeps empty slots without
     // placeholder content non-droppable.
     const exposesSlots = element.hasAttribute('data-has-slots-elements')
-    if (!isVoid && !element.hasChildNodes() && !defaultSlotContent && !exposesSlots) {
+    if (
+      !isVoid &&
+      !element.hasChildNodes() &&
+      !defaultSlotContent &&
+      !exposesSlots
+    ) {
       const elementDisplay = displayOf(element)
       if (isFlexDisplay(elementDisplay) && fitsGridCells(rect)) {
         insertAreas.push(
@@ -404,12 +409,12 @@ export function getInsertAreas() {
           continue
         }
         if (child.getAttribute('data-node-slot-name') === slotAttr) {
-          if (slotOutletPrefixOf(child.getAttribute('data-id')) !== outletPrefix) {
+          if (
+            slotOutletPrefixOf(child.getAttribute('data-id')) !== outletPrefix
+          ) {
             continue
           }
-        } else if (
-          ancestorOutletPrefixOf(child, slotAttr) !== outletPrefix
-        ) {
+        } else if (ancestorOutletPrefixOf(child, slotAttr) !== outletPrefix) {
           continue
         }
         const childRect = child.getBoundingClientRect()
