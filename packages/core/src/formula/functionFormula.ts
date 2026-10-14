@@ -22,9 +22,7 @@ export const applyFunctionFormula = (
       })
     : noopMeasure
   const packageName = formula.package ?? ctx.package ?? undefined
-  // Thread an explicit package override without mutating the shared context:
-  // previously this did `ctx.package = packageName`, which was only safe
-  // because every caller passed a fresh `{ ...ctx, data }` copy.
+  // TODO: Consider/benchmark if we should pass package as a separate argument to applyFormula instead of merging it into the context.
   const activeCtx: BaseFormulaContext =
     packageName === ctx.package ? ctx : { ...ctx, package: packageName }
   const newFunc = (
