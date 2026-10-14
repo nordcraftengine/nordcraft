@@ -22,6 +22,7 @@ export const applyFunctionFormula = (
       })
     : noopMeasure
   const packageName = formula.package ?? ctx.package ?? undefined
+  // TODO: Consider/benchmark if we should pass package as a separate argument to applyFormula instead of merging it into the context.
   const activeCtx: FormulaContext =
     packageName === ctx.package ? ctx : { ...ctx, package: packageName }
   const newFunc = (
