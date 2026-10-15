@@ -62,6 +62,7 @@ export const duplicateFileRule: IssueRule<
   code: 'duplicate-file',
   level: 'warning',
   category: 'Quality',
+  nodeTypes: ['component', 'project-formula', 'project-action'],
   visit: (report, { nodeType, value, files, memo, path }) => {
     if (
       nodeType !== 'component' &&

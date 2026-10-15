@@ -13,6 +13,7 @@ export const noUnreachableSwitchCaseRule: IssueRule<
   code: 'no-unreachable-switch-case',
   level: 'warning',
   category: 'Quality',
+  nodeTypes: 'formula',
   visit: (report, { nodeType, path, value }) => {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (nodeType !== 'formula' || value.type !== 'switch') {
