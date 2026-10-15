@@ -6,6 +6,32 @@ type Scale = [x: number, y: number]
 
 type Point = { x: number; y: number }
 
+const SIDES = ['Top', 'Right', 'Bottom', 'Left']
+
+const CORNER_NAMES = ['TopLeft', 'TopRight', 'BottomRight', 'BottomLeft']
+
+/** Unit-square corners; scale by half a box's size to get its corner offsets. */
+const CORNERS = [
+  [-1, -1],
+  [1, -1],
+  [1, 1],
+  [-1, 1],
+]
+
+/** Computed `${prefix}${name}${suffix}` values (e.g. `borderTopWidth`), `'0px'` when empty. */
+const lengths = (
+  style: CSSStyleDeclaration,
+  names: string[],
+  prefix: string,
+  suffix = '',
+) =>
+  names.map(
+    (name) =>
+      (style as unknown as Record<string, string>)[
+        `${prefix}${name}${suffix}`
+      ] || '0px',
+  )
+
 /** Centre point of a rect. */
 const centre = ({
   left,
@@ -48,37 +74,26 @@ export function getRectData(selectedNode: Element | null | undefined) {
     return null
   }
 
+  const style = getStyle(selectedNode)
   const {
     display,
-    borderTopWidth,
-    borderRightWidth,
-    borderBottomWidth,
-    borderLeftWidth,
     borderRadius,
-    marginTop,
-    marginRight,
-    marginBottom,
-    marginLeft,
-    paddingTop,
-    paddingRight,
-    paddingBottom,
-    paddingLeft,
-    borderTopLeftRadius,
-    borderTopRightRadius,
-    borderBottomRightRadius,
-    borderBottomLeftRadius,
     flexDirection,
     gap,
     rowGap,
     columnGap,
     transformOrigin,
     boxSizing,
-  } = getStyle(selectedNode)
+  } = style
 
   // Solved frames are shared by the node, its parent, children and repeat items.
   const cache: FrameCache = new Map()
   const exact = getExactOverlay(selectedNode, cache)
-  const { rect, rotate: matrix } = exact ?? getScaledIntrinsicRect(selectedNode)
+  const {
+    rect,
+    rotate: matrix,
+    scale: boxScale,
+  } = exact ?? getScaledIntrinsicRect(selectedNode)
   const parent = selectedNode.parentElement
   const parentData =
     parent && parent !== document.documentElement
@@ -87,33 +102,16 @@ export function getRectData(selectedNode: Element | null | undefined) {
 
   return {
     ...toRectData(rect),
+    // How much bigger the overlay box is than the layout box.
+    // Multiply transform-origin by this to get it in overlay-box px.
+    boxScale,
     boundingClientRect: toRectData(selectedNode.getBoundingClientRect()),
-    border: [
-      borderTopWidth || '0px',
-      borderRightWidth || '0px',
-      borderBottomWidth || '0px',
-      borderLeftWidth || '0px',
-    ],
+    border: lengths(style, SIDES, 'border', 'Width'),
     borderRadius: borderRadius
       ? borderRadius.split(' ')
-      : [
-          borderTopLeftRadius || '0px',
-          borderTopRightRadius || '0px',
-          borderBottomRightRadius || '0px',
-          borderBottomLeftRadius || '0px',
-        ],
-    padding: [
-      paddingTop || '0px',
-      paddingRight || '0px',
-      paddingBottom || '0px',
-      paddingLeft || '0px',
-    ],
-    margin: [
-      marginTop || '0px',
-      marginRight || '0px',
-      marginBottom || '0px',
-      marginLeft || '0px',
-    ],
+      : lengths(style, CORNER_NAMES, 'border', 'Radius'),
+    padding: lengths(style, SIDES, 'padding'),
+    margin: lengths(style, SIDES, 'margin'),
     gap: gap.split(' '),
     boxSizing,
     display,
@@ -137,11 +135,11 @@ export function getRectData(selectedNode: Element | null | undefined) {
     ),
     repeatItems: getRepeatItemsData(selectedNode, cache),
     rawTransforms: {
-      transform: getStyle(selectedNode).transform,
-      translate: getStyle(selectedNode).translate,
-      scale: getStyle(selectedNode).scale,
-      rotate: getStyle(selectedNode).rotate,
-      perspective: getStyle(selectedNode).perspective,
+      transform: style.transform,
+      translate: style.translate,
+      scale: style.scale,
+      rotate: style.rotate,
+      perspective: style.perspective,
     },
   }
 }
@@ -157,16 +155,7 @@ const toRectData = ({
   height,
   x = left,
   y = top,
-}: DOMRect) => ({
-  left,
-  top,
-  right,
-  bottom,
-  width,
-  height,
-  x,
-  y,
-})
+}: DOMRect) => ({ left, top, right, bottom, width, height, x, y })
 
 /**
  * Rect of a related element (parent, child, repeat item). Elements in a 3D /
@@ -174,35 +163,23 @@ const toRectData = ({
  * selected node: box at `left/top/width/height`, `matrix` about its own centre.
  * Without a `matrix` the element is in the 2D flavour and is drawn as before.
  */
-const getBasicRectData = (
-  node: Element,
-  cache: FrameCache = new Map(),
-): ReturnType<typeof toRectData> & { matrix?: string } => {
+const getBasicRectData = (node: Element, cache: FrameCache = new Map()) => {
   const exact = getExactOverlay(node, cache)
-  return exact
-    ? { ...toRectData(exact.rect), matrix: exact.rotate }
-    : toRectData(getScaledIntrinsicRect(node).rect)
+  const { rect, scale } = exact ?? getScaledIntrinsicRect(node)
+  return {
+    ...toRectData(rect),
+    boxScale: scale,
+    ...(exact && { matrix: exact.rotate }),
+  }
 }
 
 function getParentRectData(parent: Element, cache: FrameCache) {
-  const {
-    rowGap,
-    columnGap,
-    paddingTop,
-    paddingRight,
-    paddingBottom,
-    paddingLeft,
-  } = getStyle(parent)
+  const style = getStyle(parent)
   return {
     ...getBasicRectData(parent, cache),
-    rowGap,
-    columnGap,
-    padding: [
-      paddingTop || '0px',
-      paddingRight || '0px',
-      paddingBottom || '0px',
-      paddingLeft || '0px',
-    ],
+    rowGap: style.rowGap,
+    columnGap: style.columnGap,
+    padding: lengths(style, SIDES, 'padding'),
   }
 }
 
@@ -221,45 +198,32 @@ export function getRepeatItemsData(
   }
 
   const repeatRegex = new RegExp(`^${escapeRegex(path)}\\(\\d+\\)$`)
-  const repeatNodes = Array.from(parent.children).filter((child) => {
-    if (child === selectedNode) {
-      return false
-    }
-    const id = child.getAttribute('data-id')
-    return id && repeatRegex.test(id)
-  })
+  const repeatNodes = Array.from(parent.children).filter((child) =>
+    repeatRegex.test(child.getAttribute('data-id') ?? ''),
+  )
 
-  if (repeatNodes.length === 0) {
-    return null
-  }
-
-  return repeatNodes.map((node) => getBasicRectData(node, cache))
+  return repeatNodes.length
+    ? repeatNodes.map((node) => getBasicRectData(node, cache))
+    : null
 }
 
-/** A `width` x `height` rect with the same centre as `around`. */
-const centeredRect = (around: DOMRect, width: number, height: number) =>
-  rectFromCentre(centre(around), width, height)
-
-function getPerspectiveProvider(node: Element): Element | null {
-  for (
-    let el = node.parentElement;
-    el && el !== document.documentElement;
-    el = el.parentElement
-  ) {
-    if (getStyle(el).perspective !== 'none') {
-      return el
-    }
+/** `el` and its ancestors (innermost first), stopping before <html>. */
+function getChain(el: Element | null) {
+  const chain: Element[] = []
+  for (; el && el !== document.documentElement; el = el.parentElement) {
+    chain.push(el)
   }
-  return null
+  return chain
 }
+
+/** The nearest ancestor with a real `perspective`, if any. */
+const getPerspectiveProvider = (node: Element) =>
+  getChain(node.parentElement).find(
+    (el) => parseFloat(getStyle(el).perspective) > 0,
+  ) ?? null
 
 function getPerspectiveInfo(provider: Element) {
   const { perspective, perspectiveOrigin } = getStyle(provider)
-  const d = parseFloat(perspective)
-  if (!(d > 0)) {
-    return null
-  }
-
   const transform = getFullTransform(provider)
   // Intrinsic (untransformed, unscaled) size, since the origin is resolved
   // against the provider's own box.
@@ -273,27 +237,26 @@ function getPerspectiveInfo(provider: Element) {
   const offset = transform.transformPoint(
     new DOMPoint(originX - width / 2, originY - height / 2),
   )
-  const raw = provider.getBoundingClientRect()
-  const rawCentre = centre(raw)
+  const { x, y } = centre(provider.getBoundingClientRect())
 
   return {
-    d,
+    d: parseFloat(perspective),
     perspective,
-    ox: rawCentre.x + offset.x,
-    oy: rawCentre.y + offset.y,
+    ox: x + offset.x,
+    oy: y + offset.y,
   }
 }
 
 function getPerspectiveData(node: Element) {
   const provider = getPerspectiveProvider(node)
-  const info = provider && getPerspectiveInfo(provider)
-  if (!info) {
+  if (!provider) {
     return null
   }
 
+  const { perspective, ox, oy } = getPerspectiveInfo(provider)
   return {
-    perspective: info.perspective,
-    origin: { x: info.ox + window.scrollX, y: info.oy + window.scrollY },
+    perspective,
+    origin: { x: ox + window.scrollX, y: oy + window.scrollY },
   }
 }
 
@@ -303,37 +266,24 @@ function getPerspectiveData(node: Element) {
  * Perspective causes the nearer edge to appear larger than the further edge,
  * producing an asymmetric trapezoid whose AABB centre no longer coincides
  * with the element's actual centre. This solves for the true centre point
- * (cx, cy) such that its perspective projection matches the observed AABB bounds.
+ * such that its perspective projection matches the observed AABB bounds.
  *
  * NOTE: this is only used as a fallback now (see `getExactOverlay`). It assumes the
  * centre sits at z = 0 and that perspective is applied in screen space, which is
  * wrong as soon as an ancestor has a 3D transform.
  */
 function getPerspectiveCenter(
-  node: Element,
+  provider: Element,
   matrix: DOMMatrix,
   width: number,
   height: number,
   rect: DOMRect,
-) {
-  const { x: cx, y: cy } = centre(rect)
-  const aabbCenter = { cx, cy }
-  const provider = getPerspectiveProvider(node)
-  const info = provider && getPerspectiveInfo(provider)
-  if (!info) {
-    return aabbCenter
-  }
-
-  const { d, ox, oy } = info
+): Point {
+  const { d, ox, oy } = getPerspectiveInfo(provider)
 
   // Transformed corners and their perspective scale don't depend on the centre
   // being solved for, so compute them once.
-  const corners = [
-    [-1, -1],
-    [1, -1],
-    [1, 1],
-    [-1, 1],
-  ].map(([sx, sy]) => {
+  const corners = CORNERS.map(([sx, sy]) => {
     const p = matrix.transformPoint(
       new DOMPoint((sx * width) / 2, (sy * height) / 2, 0),
     )
@@ -359,22 +309,24 @@ function getPerspectiveCenter(
       : c
   }
 
-  let U = aabbCenter.cx - ox
-  let V = aabbCenter.cy - oy
+  const aabb = centre(rect)
+  let U = aabb.x - ox
+  let V = aabb.y - oy
   for (let i = 0; i < 3; i++) {
     U = refine('x', U, rect.left, rect.right, ox)
     V = refine('y', V, rect.top, rect.bottom, oy)
   }
 
-  return { cx: ox + U, cy: oy + V }
+  return { x: ox + U, y: oy + V }
 }
 
+/** Resolves a CSS origin string (`'50% 50%'`, `'10px 20px'`) to px in a `width` x `height` box. */
 function parseOrigin(
-  value: string,
+  value: string | undefined,
   width: number,
   height: number,
 ): [number, number] {
-  const [x = '50%', y = '50%'] = value.trim().split(/\s+/)
+  const [x = '50%', y = '50%'] = (value ?? '').split(/\s+/).filter(Boolean)
   const resolve = (token: string, size: number) =>
     token.endsWith('%')
       ? (parseFloat(token) / 100) * size
@@ -385,11 +337,10 @@ function parseOrigin(
 
 function getTransformStyles(el: Element) {
   const computed = getStyle(el)
-  const inline =
-    el instanceof HTMLElement || el instanceof SVGElement ? el.style : null
+  const inline = (el as HTMLElement).style
 
   const get = (name: 'transform' | 'rotate' | 'scale' | 'translate'): string =>
-    computed[name] || inline?.getPropertyValue(name) || inline?.[name] || 'none'
+    computed[name] || inline?.getPropertyValue(name) || 'none'
 
   return {
     transform: get('transform'),
@@ -412,51 +363,95 @@ function getOwnTransform(el: Element): DOMMatrix {
     .multiply(parseTransform(transform))
 }
 
+/** Product of `own(el)` over `node` and its ancestors, outermost transform first. */
+const composeChain = (node: Element, own: (el: Element) => DOMMatrix) =>
+  getChain(node).reduce((m, el) => own(el).multiply(m), new DOMMatrix())
+
 /**
- * Pure orientation of the element: every ancestor's own transform × the
- * element's own transform, with translation, perspective, scale and skew removed.
+ * Pure orientation of the element: every ancestor's rotate × the
+ * element's own rotate, with translation, perspective, scale and skew removed.
  *
  * Unlike `matrix` this ignores flattening by non-preserve-3d parents, so it always
  * describes the element's intended 3D direction. Use it for orientation-only
  * consumers (e.g. the transform gizmo); `matrix` remains the source of truth for
  * where the overlay is drawn.
+ *
+ * Skew must not leak into the orientation: `transform: skewX(20deg)` alone has no
+ * rotation, so this returns identity (a symmetric orthonormalisation would split
+ * the skew evenly between the axes and misorient the rotate-tool gizmo).
  */
 function getRotationMatrix(node: Element): string {
-  const identity = new DOMMatrix().toString()
-  const m = getFullTransform(node)
+  const combined = composeChain(node, getOwnRotation)
 
+  // Pure rotations compose to a pure rotation, but round for stable output.
+  // `|| 0` folds -0 into 0.
+  const round = (n: number) => Math.round(n * 1e6) / 1e6 || 0
+  const col = (c: number) =>
+    [1, 2, 3].map((r) => round(combined[`m${c}${r}` as 'm11']))
+  return `matrix3d(${[...col(1), 0, ...col(2), 0, ...col(3), 0, 0, 0, 0, 1].join(', ')})`
+}
+
+/**
+ * The element's own rotation as a matrix: the `rotate` property × the
+ * `rotate*` functions in the `transform` list, in CSS order
+ * (translate, rotate, scale, then the transform list).
+ * Scale, skew, translate, perspective and `matrix()` mixing are ignored,
+ * except `matrix()`/`matrix3d()` which are decomposed best-effort (they
+ * mix rotate/scale/skew and cannot be separated exactly).
+ */
+function getOwnRotation(el: Element): DOMMatrix {
+  const { transform, rotate } = getTransformStyles(el)
+  return parseRotate(rotate).multiply(parseTransformRotates(transform))
+}
+
+/** Rotation-only part of a `transform` list, preserving outer-to-inner order. */
+function parseTransformRotates(value: string): DOMMatrix {
+  const funcs = value.match(/[a-zA-Z0-9]+\([^)]*\)/g) ?? []
+  let acc = new DOMMatrix()
+  for (const func of funcs) {
+    const name = func.slice(0, func.indexOf('(')).toLowerCase()
+    if (name.startsWith('rotate')) {
+      // Pure rotation (rotate, rotateX/Y/Z/3d): no scale/skew to remove.
+      acc = acc.multiply(new DOMMatrix(func))
+    } else if (name === 'matrix' || name === 'matrix3d') {
+      // Mixed rotate/scale/skew: best-effort extraction (symmetric split,
+      // minimising worst-case bias when the true decomposition is unknown).
+      acc = acc.multiply(rotationFromMatrix(new DOMMatrix(func)))
+    }
+    // translate, scale, skew, perspective: no rotation, skip.
+  }
+  return acc
+}
+
+/**
+ * Closest rotation to `m` (symmetric orthonormalisation, skew split evenly).
+ * Only used for `matrix()`/`matrix3d()` functions in the transform list,
+ * which mix rotate/scale/skew and cannot be separated exactly.
+ */
+function rotationFromMatrix(m: DOMMatrix): DOMMatrix {
   const norm = (v: number[]) => {
-    const l = Math.hypot(v[0], v[1], v[2])
+    const l = Math.hypot(...v)
     return l > 1e-9 ? v.map((n) => n / l) : null
   }
-  const cross = (a: number[], b: number[]) => [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0],
-  ]
 
   // DOMMatrix columns: m11..m13 = image of the x axis, m21..m23 = image of the y axis
   const x = norm([m.m11, m.m12, m.m13])
   const y = norm([m.m21, m.m22, m.m23])
-  if (!x || !y) {
-    return identity
-  }
-
-  // Symmetric orthonormalisation, so skew is split evenly between the axes
-  const h = norm([x[0] + y[0], x[1] + y[1], x[2] + y[2]])
-  const k = norm([x[0] - y[0], x[1] - y[1], x[2] - y[2]])
+  const h = x && y && norm(x.map((n, i) => n + y[i]))
+  const k = x && y && norm(x.map((n, i) => n - y[i]))
   if (!h || !k) {
-    return identity
+    return new DOMMatrix()
   }
 
-  const s = Math.SQRT1_2
-  const X = [(h[0] + k[0]) * s, (h[1] + k[1]) * s, (h[2] + k[2]) * s]
-  const Y = [(h[0] - k[0]) * s, (h[1] - k[1]) * s, (h[2] - k[2]) * s]
-  const Z = cross(X, Y)
+  const X = h.map((n, i) => (n + k[i]) * Math.SQRT1_2)
+  const Y = h.map((n, i) => (n - k[i]) * Math.SQRT1_2)
+  const Z = [
+    X[1] * Y[2] - X[2] * Y[1],
+    X[2] * Y[0] - X[0] * Y[2],
+    X[0] * Y[1] - X[1] * Y[0],
+  ]
 
-  const round = (n: number) => Math.round(n * 1e6) / 1e6 || 0 // `|| 0` folds -0 into 0
-  const values = [...X, 0, ...Y, 0, ...Z, 0, 0, 0, 0, 1]
-  return `matrix3d(${values.map(round).join(', ')})`
+  return new DOMMatrix([...X, 0, ...Y, 0, ...Z, 0, 0, 0, 0, 1])
 }
 
 /**
@@ -467,16 +462,7 @@ function getRotationMatrix(node: Element): string {
  * perspective or `transform-style`; for 3D chains see `getExactOverlay`.
  */
 function getFullTransform(node: Element): DOMMatrix {
-  let combined = new DOMMatrix()
-
-  for (
-    let el: Element | null = node;
-    el && el !== document.documentElement;
-    el = el.parentElement
-  ) {
-    combined = getOwnTransform(el).multiply(combined)
-  }
-
+  const combined = composeChain(node, getOwnTransform)
   combined.e = combined.f = combined.m43 = 0
   return combined
 }
@@ -507,10 +493,11 @@ const parseScale = (value: string) =>
     return new DOMMatrix().scaleSelf(x, y, z)
   })
 
+// `grad` has to come before `rad`, since "grad" ends with "rad".
 const ANGLE_UNITS: [suffix: string, degrees: number][] = [
   ['turn', 360],
-  ['rad', 180 / Math.PI],
   ['grad', 0.9],
+  ['rad', 180 / Math.PI],
 ]
 
 function parseAngle(token: string): number {
@@ -557,39 +544,48 @@ const parseRotate = (value: string) =>
  * 3D matrices are returned untouched (scale 1).
  */
 function decomposeScale(matrix: DOMMatrix) {
-  const unchanged = { rotateSkew: matrix, scale: [1, 1] as Scale }
-  if (!matrix.is2D) {
-    return unchanged
-  }
-
   const { a, b, c, d } = matrix
   const scaleX = Math.hypot(a, b)
-  if (!scaleX) {
-    return unchanged
-  }
-
-  const a1 = a / scaleX
-  const b1 = b / scaleX
+  const [a1, b1] = [a / scaleX, b / scaleX]
   const skew = a1 * c + b1 * d
   const scaleY = Math.hypot(c - a1 * skew, d - b1 * skew)
-  if (!scaleY) {
-    return unchanged
-  }
 
-  return {
-    rotateSkew: new DOMMatrix([a1, b1, c / scaleY, d / scaleY, 0, 0]),
-    scale: [scaleX, scaleY] as Scale,
-  }
+  return !matrix.is2D || !scaleX || !scaleY
+    ? { rotateSkew: matrix, scale: [1, 1] as Scale }
+    : {
+        rotateSkew: new DOMMatrix([a1, b1, c / scaleY, d / scaleY, 0, 0]),
+        scale: [scaleX, scaleY] as Scale,
+      }
 }
 
 /** Untransformed box (with scale applied to its size) plus the rotate/skew matrix as a string. */
 function getScaledIntrinsicRect(node: Element) {
   const { rotateSkew, scale } = decomposeScale(getFullTransform(node))
+  const rect = getIntrinsicRect(node, rotateSkew, scale)
 
   return {
-    rect: getIntrinsicRect(node, rotateSkew, scale),
+    rect,
     rotate: rotateSkew.toString(),
+    // How much bigger the overlay box is than the layout box. Derived from
+    // the actual box (not the raw decomposition) so the near-45° fitted path
+    // — where the box is `k * layout * scale` — stays exact.
+    scale: getBakedScale(node, rect, scale),
   }
+}
+
+/**
+ * Actual overlay-box / layout-box ratio, falling back to the decomposed scale
+ * when the layout size is unavailable (inline/SVG without a measurable box).
+ */
+function getBakedScale(node: Element, rect: DOMRect, fallback: Scale): Scale {
+  const layout = getLayoutSize(node, getStyle(node))
+  return layout &&
+    layout.width > 0 &&
+    layout.height > 0 &&
+    rect.width > 0 &&
+    rect.height > 0
+    ? [rect.width / layout.width, rect.height / layout.height]
+    : fallback
 }
 
 /**
@@ -611,19 +607,16 @@ function getIntrinsicRect(
   }
 
   const layout = getLayoutSize(node, computed)
-  if (!matrix.is2D && !isInline && getPerspectiveProvider(node)) {
-    const width = layout
-      ? layout.width * scaleX
+  const provider =
+    !matrix.is2D && !isInline ? getPerspectiveProvider(node) : null
+  if (provider) {
+    const [width, height] = layout
+      ? [layout.width * scaleX, layout.height * scaleY]
       : node instanceof HTMLElement
-        ? node.offsetWidth * scaleX
-        : rect.width
-    const height = layout
-      ? layout.height * scaleY
-      : node instanceof HTMLElement
-        ? node.offsetHeight * scaleY
-        : rect.height
-    const { cx, cy } = getPerspectiveCenter(node, matrix, width, height, rect)
-    return rectFromCentre({ x: cx, y: cy }, width, height)
+        ? [0, 0]
+        : [rect.width, rect.height]
+    const c = getPerspectiveCenter(provider, matrix, width, height, rect)
+    return rectFromCentre(c, width, height)
   }
 
   const [a, b, c, d] = [matrix.a, matrix.b, matrix.c, matrix.d].map(Math.abs)
@@ -634,7 +627,7 @@ function getIntrinsicRect(
     const width = (rect.width * d - rect.height * c) / det
     const height = (rect.height * a - rect.width * b) / det
     if (width > 0 && height > 0) {
-      return centeredRect(rect, width, height)
+      return rectFromCentre(centre(rect), width, height)
     }
   }
 
@@ -650,7 +643,7 @@ function getIntrinsicRect(
   }
 
   const k = (rect.width * p + rect.height * q) / denominator
-  return centeredRect(rect, k * layoutW, k * layoutH)
+  return rectFromCentre(centre(rect), k * layoutW, k * layoutH)
 }
 
 /** Unscaled, untransformed border-box size from layout, or `null` if unavailable. */
@@ -683,29 +676,19 @@ function getLayoutSize(node: Element, computed: CSSStyleDeclaration) {
     return { width, height }
   }
 
-  const sum = (...props: string[]) =>
-    props.reduce(
-      (t, p) => t + (parseFloat(computed.getPropertyValue(p)) || 0),
-      0,
-    )
+  const extra = (start: string, end: string) =>
+    [
+      `padding-${start}`,
+      `padding-${end}`,
+      `border-${start}-width`,
+      `border-${end}-width`,
+    ]
+      .map((p) => parseFloat(computed.getPropertyValue(p)) || 0)
+      .reduce((t, v) => t + v, 0)
 
   return {
-    width:
-      width +
-      sum(
-        'padding-left',
-        'padding-right',
-        'border-left-width',
-        'border-right-width',
-      ),
-    height:
-      height +
-      sum(
-        'padding-top',
-        'padding-bottom',
-        'border-top-width',
-        'border-bottom-width',
-      ),
+    width: width + extra('left', 'right'),
+    height: height + extra('top', 'bottom'),
   }
 }
 
@@ -730,26 +713,16 @@ function getInlineRect(node: Element): DOMRect {
  */
 function getInheritedMatrix(node: Element): string {
   const parent = node.parentElement
-  if (!parent) {
-    return new DOMMatrix().toString()
-  }
-
-  // getFullTransform walks from `parent` up to (but not including) <html>,
-  // so it returns identity if the parent is the root element.
-  const { rotateSkew } = decomposeScale(getFullTransform(parent))
+  // getFullTransform skips <html>, so it is identity if the parent is the root.
+  const { rotateSkew } = decomposeScale(
+    parent ? getFullTransform(parent) : new DOMMatrix(),
+  )
   return rotateSkew.toString()
 }
 
 // ---------------------------------------------------------------------------
 // Exact overlay for 3D / perspective chains
 // ---------------------------------------------------------------------------
-
-const CORNERS = [
-  [-1, -1],
-  [1, -1],
-  [1, 1],
-  [-1, 1],
-]
 
 const translation = (x: number, y: number, z = 0) =>
   new DOMMatrix().translateSelf(x, y, z)
@@ -759,6 +732,17 @@ const about = (m: DOMMatrix, [x, y, z]: [number, number, number]) =>
   translation(x, y, z)
     .multiply(m)
     .multiply(translation(-x, -y, -z))
+
+/** The point an origin string refers to, for a `w` x `h` box centred on `c`. */
+function originPoint(
+  value: string | undefined,
+  c: Point,
+  w: number,
+  h: number,
+): [number, number, number] {
+  const [x, y] = parseOrigin(value, w, h)
+  return [c.x - w / 2 + x, c.y - h / 2 + y, 0]
+}
 
 /** Where the point (x, y, 0) ends up on screen, including the perspective divide. */
 function project(m: DOMMatrix, x: number, y: number): Point {
@@ -820,19 +804,6 @@ function solveLayoutCentre(
   return Math.max(...misfit(c).map(Math.abs)) < 1 ? c : null
 }
 
-const hasPerspectiveAncestor = (node: Element) => {
-  for (
-    let el = node.parentElement;
-    el && el !== document.documentElement;
-    el = el.parentElement
-  ) {
-    if (parseFloat(getStyle(el).perspective) > 0) {
-      return true
-    }
-  }
-  return false
-}
-
 /** An element's rendering: its layout box, its layout -> screen matrix and what its children inherit. */
 type Frame = {
   c: Point
@@ -873,12 +844,10 @@ function getFrame(
     return cached
   }
 
-  const p = el.parentElement
-  const parent = p && p !== document.documentElement ? getFrame(p, cache) : null
-  if (
-    !(el instanceof HTMLElement) ||
-    (p && p !== document.documentElement && !parent)
-  ) {
+  const p =
+    el.parentElement !== document.documentElement ? el.parentElement : null
+  const parent = p && getFrame(p, cache)
+  if (!(el instanceof HTMLElement) || (p && !parent)) {
     cache.set(el, null)
     return null
   }
@@ -891,24 +860,18 @@ function getFrame(
 
   // Layout centre of `el` -> its accumulated matrix
   const place = (c: Point) => {
-    const [ox, oy] = parseOrigin(style.transformOrigin || '50% 50%', w, h)
-    const topLeft = rectFromCentre(c, w, h)
-    let m = about(own, [topLeft.x + ox, topLeft.y + oy, 0])
+    let m = about(own, originPoint(style.transformOrigin, c, w, h))
     if (parent) {
       if (parent.perspective > 0) {
-        const [px, py] = parseOrigin(
+        const persp = new DOMMatrix()
+        persp.m34 = -1 / parent.perspective
+        const origin = originPoint(
           parent.perspectiveOrigin,
+          parent.c,
           parent.w,
           parent.h,
         )
-        const parentTopLeft = rectFromCentre(parent.c, parent.w, parent.h)
-        const persp = new DOMMatrix()
-        persp.m34 = -1 / parent.perspective
-        m = about(persp, [
-          parentTopLeft.x + px,
-          parentTopLeft.y + py,
-          0,
-        ]).multiply(m)
+        m = about(persp, origin).multiply(m)
       }
       if (
         !parent.preserve3d &&
@@ -936,7 +899,7 @@ function getFrame(
     h,
     world: place(c),
     perspective,
-    perspectiveOrigin: style.perspectiveOrigin || '50% 50%',
+    perspectiveOrigin: style.perspectiveOrigin,
     preserve3d: style.transformStyle === 'preserve-3d',
     solved,
   }
@@ -961,7 +924,7 @@ function getExactOverlay(node: Element, cache: FrameCache = new Map()) {
   if (!(node instanceof HTMLElement) || getStyle(node).display === 'inline') {
     return null
   }
-  if (getFullTransform(node).is2D && !hasPerspectiveAncestor(node)) {
+  if (getFullTransform(node).is2D && !getPerspectiveProvider(node)) {
     return null
   }
 
@@ -988,5 +951,6 @@ function getExactOverlay(node: Element, cache: FrameCache = new Map()) {
   return {
     rect: rectFromCentre(c, w, h),
     rotate: matrix.toString(),
+    scale: [1, 1] as Scale,
   }
 }

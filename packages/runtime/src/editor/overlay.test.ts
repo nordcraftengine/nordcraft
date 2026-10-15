@@ -867,6 +867,7 @@ describe('getRectData()', () => {
         height: 50,
         x: 0,
         y: 60,
+        boxScale: [1, 1],
       })
       expect(repeatData![1]).toEqual({
         left: 0,
@@ -877,6 +878,7 @@ describe('getRectData()', () => {
         height: 50,
         x: 0,
         y: 120,
+        boxScale: [1, 1],
       })
 
       const fullData = getRectData(node)
@@ -916,6 +918,90 @@ describe('getRectData()', () => {
       expect(repeatData).toHaveLength(1)
 
       document.body.removeChild(container)
+    })
+  })
+
+  describe('rotation orientation with skew (rotate-tool pivot)', () => {
+    function rotationOf(styles: {
+      rotate?: string
+      transform?: string
+      scale?: string
+      translate?: string
+    }) {
+      const el = document.createElement('div')
+      document.body.appendChild(el)
+      Object.defineProperty(el, 'offsetWidth', {
+        value: 100,
+        configurable: true,
+      })
+      Object.defineProperty(el, 'offsetHeight', {
+        value: 50,
+        configurable: true,
+      })
+      el.getBoundingClientRect = () =>
+        ({
+          left: 0,
+          top: 0,
+          right: 100,
+          bottom: 50,
+          width: 100,
+          height: 50,
+          x: 0,
+          y: 0,
+          toJSON: () => {},
+        }) as DOMRect
+      const orig = window.getComputedStyle
+      window.getComputedStyle = ((node: Element) => {
+        const s = orig(node)
+        if (node !== el) {
+          return s
+        }
+        return new Proxy(s, {
+          get(t, p) {
+            if (typeof p === 'string') {
+              if (p === 'rotate') {
+                return styles.rotate ?? 'none'
+              }
+              if (p === 'transform') {
+                return styles.transform ?? 'none'
+              }
+              if (p === 'scale') {
+                return styles.scale ?? 'none'
+              }
+              if (p === 'translate') {
+                return styles.translate ?? 'none'
+              }
+            }
+            const v = Reflect.get(t, p, t)
+            return typeof v === 'function' ? v.bind(t) : v
+          },
+        })
+      }) as typeof window.getComputedStyle
+      const data = getRectData(el)!
+      window.getComputedStyle = orig
+      document.body.removeChild(el)
+      return new DOMMatrix(data.rotation)
+    }
+
+    test('pure skew (rotate: none + transform: skewX) reports identity, not half-skew', () => {
+      // Before the fix this returned ~-10° (skew split evenly), so the
+      // rotate-tool gizmo was 10° off-axis and drags orbited a different
+      // point than the rect centre left+width/2, top+height/2.
+      const m = rotationOf({ rotate: 'none', transform: 'skewX(20deg)' })
+      expect(m.m11).toBeCloseTo(1, 4)
+      expect(m.m12).toBeCloseTo(0, 4)
+      expect(m.m21).toBeCloseTo(0, 4)
+      expect(m.m22).toBeCloseTo(1, 4)
+    })
+
+    test('rotate shorthand + transform skew reports true rotation, not half-skew off', () => {
+      // rotate: 30deg plus skew should report 30°, not 20° (30° − half skew).
+      const m = rotationOf({ rotate: '30deg', transform: 'skewX(20deg)' })
+      const rad = (30 * Math.PI) / 180
+      expect(m.m11).toBeCloseTo(Math.cos(rad), 4)
+      expect(m.m12).toBeCloseTo(Math.sin(rad), 4)
+      expect(m.m21).toBeCloseTo(-Math.sin(rad), 4)
+      expect(m.m22).toBeCloseTo(Math.cos(rad), 4)
     })
   })
 })
