@@ -2090,6 +2090,62 @@ describe('slot outlet drop-zone', () => {
     expect(areas.every((a) => a.bounds === undefined)).toBe(true)
     expect(areas.length).toBeGreaterThan(0)
   })
+
+  test('duplicate slot names with provided content show only a single drop line for the hovered slot', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.9" data-node-id="root" data-has-slots-elements="true" data-fallback-slot-name="default"><div data-id="0.9.0[default]" data-node-id="31">item 1</div><div data-id="0.9.0[default]{1}" data-node-id="32">item 2</div></div></div>'
+    const root = document.querySelector('[data-id="0.9"]')!
+    const item1 = document.querySelector('[data-id="0.9.0[default]"]')!
+    const item2 = document.querySelector('[data-id="0.9.0[default]{1}"]')!
+
+    stubRect(item1, rect(100, 100, 200, 40))
+    stubRect(item2, rect(100, 200, 200, 40))
+    stubRect(root, rect(100, 100, 200, 200))
+    stubRect(document.getElementById('App'), rect(0, 0, 800, 600))
+
+    const makeState = (
+      x: number,
+      y: number,
+      action: 'drag' | 'insert' = 'insert',
+    ): DragInsertState => ({
+      mode: 'insert',
+      action,
+      elementType: 'element',
+      element: document.createElement('div'),
+      repeatedNodes: [],
+      offset: { x: 0, y: 0 },
+      lastCursorPosition: { x, y },
+      initialContainer: root as HTMLElement,
+      initialNextSibling: null,
+      initialRect: { width: 10, height: 10 } as unknown as DOMRect,
+      reorderPermutations: [],
+      flipAnimations: [],
+      isSoleChildDrag: false,
+      destroying: false,
+    })
+
+    // Hover near item 1 with insert tool (insertNode)
+    const insertState = makeState(200, 95, 'insert')
+    dragInsertMove('insert', insertState, [insertState.element])
+    const insertLines = document.querySelectorAll('.__drop-area-line')
+    expect(insertLines).toHaveLength(1)
+    expect(document.querySelectorAll('.__drop-area-grid')).toHaveLength(0)
+    expect(
+      (insertLines[0] as HTMLElement).style.getPropertyValue('--drop-area-top'),
+    ).toBe('100px')
+    insertState.destroying = true
+
+    // Hover near item 2's after-line with drag and drop tool
+    const dragState = makeState(200, 245, 'drag')
+    dragInsertMove('drag', dragState, [dragState.element])
+    const dragLines = document.querySelectorAll('.__drop-area-line')
+    expect(dragLines).toHaveLength(1)
+    expect(document.querySelectorAll('.__drop-area-grid')).toHaveLength(0)
+    expect(
+      (dragLines[0] as HTMLElement).style.getPropertyValue('--drop-area-top'),
+    ).toBe('240px')
+    dragState.destroying = true
+  })
 })
 
 describe('empty element grid', () => {

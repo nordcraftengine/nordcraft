@@ -51,7 +51,18 @@ function highlightKey({
   color: string
   projectionPoint: number
 }): string {
+  let hasLine = false
   const areas = insertAreas
+    .filter((area) => {
+      if (area.bounds) {
+        return true
+      }
+      if (hasLine) {
+        return false
+      }
+      hasLine = true
+      return true
+    })
     .map((area) => {
       const at = area.center
       const bounds = area.bounds
@@ -102,6 +113,7 @@ function renderExternalDropHighlight({
   highlights.forEach((h) => h.remove())
   highlights = []
 
+  let hasLine = false
   insertAreas.forEach((insertArea) => {
     let el: HTMLElement
     if (insertArea.bounds) {
@@ -133,6 +145,10 @@ function renderExternalDropHighlight({
         el.appendChild(label)
       }
     } else {
+      if (hasLine) {
+        return
+      }
+      hasLine = true
       const { layout, center } = insertArea
       const length = insertArea.size > 0 ? insertArea.size : 6
       el = document.createElement('div')

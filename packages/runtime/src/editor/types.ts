@@ -363,10 +363,10 @@ export type Line = {
   y1: number
   x2: number
   y2: number
-  slotName: string | null
-  parent: Element
-  index: number
-  direction: 1 | -1
+  slotName?: string | null
+  parent?: Element
+  index?: number
+  direction?: 1 | -1
 }
 
 /**

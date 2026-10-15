@@ -1,4 +1,3 @@
-import { isDefined } from '@nordcraft/core/dist/utils/util'
 import { isElementInViewport } from '../utils/isElementInViewport'
 import { tryStartViewTransition } from '../utils/tryStartViewTransition'
 import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from './dom'
@@ -625,6 +624,9 @@ export function dragInsertMove(
     postHighlightMessage(selected.parent)
     // Same-name slot outlets each render their own overlay, but all of them
     // light up together. The drop itself still uses only `selected`.
+    const owningSlotsRootOf = (descendant: Element): Element | null =>
+      descendant.closest('[data-has-slots-elements]')
+    const selectedOwner = owningSlotsRootOf(selected.parent)
     const peerZones =
       selected.bounds !== undefined &&
       selected.slotPlaceholder === true &&
@@ -634,8 +636,10 @@ export function dragInsertMove(
               area.bounds !== undefined &&
               area.slotPlaceholder === true &&
               area.slot !== undefined &&
-              area.parent === selected.parent &&
-              area.slot === selected.slot,
+              area.slot === selected.slot &&
+              (selectedOwner
+                ? owningSlotsRootOf(area.parent) === selectedOwner
+                : area.parent === selected.parent),
           )
         : [selected]
     setExternalDropHighlight({
@@ -658,39 +662,27 @@ export function dragInsertMove(
       y1: horizontal ? at.y : at.y - half,
       x2: horizontal ? at.x + half : at.x,
       y2: horizontal ? at.y : at.y + half,
-      slotName: line.slot ?? null,
-      parent: line.parent,
-      index: line.index,
-      direction: line.direction,
     }
   })
-  const { nearestLines, dist, projectionPoint } = findNearestLine(
+  const { nearestLine, dist, projectionPoint } = findNearestLine(
     lines,
     dragInsertState.lastCursorPosition,
   )
 
-  if (nearestLines.length === 0 || dist > MAX_SNAP_DISTANCE_PX) {
+  if (!nearestLine || dist > MAX_SNAP_DISTANCE_PX) {
     dragInsertState.selectedInsertAreaIndex = undefined
     removeDropHighlight()
     return
   }
 
-  const insertAreas = nearestLines
-    .map((nl) => lineAreas.at(lines.indexOf(nl)))
-    .filter(isDefined)
+  const selected = lineAreas.at(lines.indexOf(nearestLine))
 
-  if (insertAreas.length > 0) {
-    const selected = insertAreas.reduce((best, area) =>
-      Math.hypot(area.center.x - cursor.x, area.center.y - cursor.y) <
-      Math.hypot(best.center.x - cursor.x, best.center.y - cursor.y)
-        ? area
-        : best,
-    )
+  if (selected) {
     dragInsertState.selectedInsertAreaIndex = allAreas.indexOf(selected)
 
     postHighlightMessage(selected.parent)
     setExternalDropHighlight({
-      insertAreas,
+      insertAreas: [selected],
       color: dragInsertState.elementType === 'component' ? 'D946EF' : '2563EB',
       projectionPoint,
     })
