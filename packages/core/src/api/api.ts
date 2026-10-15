@@ -56,7 +56,7 @@ export const getUrl = (
   let urlPathname = ''
   let urlQueryParams = new URLSearchParams()
   let parsedUrl: URL | undefined
-  const url = applyFormula(api.url, formulaContext, ['url'])
+  const url = applyFormula(api.url, formulaContext, undefined, ['url'])
   if (['string', 'number'].includes(typeof url)) {
     const urlInput = typeof url === 'number' ? String(url) : url
     try {
@@ -77,7 +77,7 @@ export const getUrl = (
   ])
   const queryString =
     [...queryParams.entries()].length > 0 ? `?${queryParams.toString()}` : ''
-  const hash = applyFormula(api.hash?.formula, formulaContext, [
+  const hash = applyFormula(api.hash?.formula, formulaContext, undefined, [
     'hash',
     'formula',
   ])
@@ -108,10 +108,12 @@ export const applyAbortSignal = (
   formulaContext: FormulaContext,
 ) => {
   if (api.timeout) {
-    const timeout = applyFormula(api.timeout.formula, formulaContext, [
-      'timeout',
-      'formula',
-    ])
+    const timeout = applyFormula(
+      api.timeout.formula,
+      formulaContext,
+      undefined,
+      ['timeout', 'formula'],
+    )
     if (typeof timeout === 'number' && !Number.isNaN(timeout) && timeout > 0) {
       requestSettings.signal = AbortSignal.timeout(timeout)
     }
@@ -157,7 +159,10 @@ export const getRequestPath = (
 ): string =>
   sortObjectEntries(path ?? {}, ([_, p]) => p.index)
     .map(([parameterName, p]) =>
-      applyFormula(p.formula, formulaContext, ['path', parameterName]),
+      applyFormula(p.formula, formulaContext, undefined, [
+        'path',
+        parameterName,
+      ]),
     )
     .join('/')
 
@@ -168,7 +173,7 @@ export const getRequestQueryParams = (
   const queryParams = new URLSearchParams()
   Object.entries(params ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
-      ? applyFormula(param.enabled, formulaContext, [
+      ? applyFormula(param.enabled, formulaContext, undefined, [
           'queryParams',
           key,
           'enabled',
@@ -178,7 +183,7 @@ export const getRequestQueryParams = (
       return
     }
 
-    const value = applyFormula(param.formula, formulaContext, [
+    const value = applyFormula(param.formula, formulaContext, undefined, [
       'queryParams',
       key,
       'formula',
@@ -221,10 +226,14 @@ export const getRequestHeaders = ({
   const headers = new Headers(defaultHeaders)
   Object.entries(apiHeaders ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
-      ? applyFormula(param.enabled, formulaContext, ['headers', key, 'enabled'])
+      ? applyFormula(param.enabled, formulaContext, undefined, [
+          'headers',
+          key,
+          'enabled',
+        ])
       : true
     if (enabled) {
-      const value = applyFormula(param.formula, formulaContext, [
+      const value = applyFormula(param.formula, formulaContext, undefined, [
         'headers',
         key,
         'formula',
@@ -287,11 +296,17 @@ export const isApiError = ({
   errorFormula?: Nullable<{ formula: Formula }>
 }) => {
   const errorFormulaRes = errorFormula
-    ? applyFormula(errorFormula.formula, {
-        component: formulaContext.component,
-        package: formulaContext.package,
-        toddle: formulaContext.toddle,
-        data: {
+    ? applyFormula(
+        errorFormula.formula,
+        {
+          component: formulaContext.component,
+          package: formulaContext.package,
+          toddle: formulaContext.toddle,
+          env: formulaContext.env,
+          jsonPath: ['apis', apiName, 'isError', 'formula'],
+          reportFormulaEvaluation: formulaContext.reportFormulaEvaluation,
+        },
+        {
           Attributes: {},
           Args: formulaContext.data.Args,
           Apis: {
@@ -308,10 +323,7 @@ export const isApiError = ({
             },
           },
         },
-        env: formulaContext.env,
-        jsonPath: ['apis', apiName, 'isError', 'formula'],
-        reportFormulaEvaluation: formulaContext.reportFormulaEvaluation,
-      })
+      )
     : null
 
   if (errorFormulaRes === null || errorFormulaRes === undefined) {
@@ -335,7 +347,7 @@ export const getRequestBody = ({
     return
   }
 
-  const body = applyFormula(api.body, formulaContext, ['body'])
+  const body = applyFormula(api.body, formulaContext, undefined, ['body'])
   if (!body) {
     return
   }

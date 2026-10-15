@@ -80,21 +80,25 @@ export function createComponent({
     reportFormulaEvaluation: ctx.reportFormulaEvaluation,
   }
   const attributesSignal = dataSignal.map((data) => {
-    return mapObject(node.attrs ?? {}, ([attr, value]) => [
-      attr,
-      value?.type !== 'value'
-        ? applyFormula(
-            value,
-            {
-              ...formulaCtx,
+    const attrs = node.attrs ?? {}
+    const result: Record<string, unknown> = {}
+    const shouldReportAttrs = ctx.reportFormulaEvaluation ? true : false
+    for (const attr in attrs) {
+      const value = attrs[attr]
+      result[attr] =
+        value?.type !== 'value'
+          ? applyFormula(
+              value,
+              formulaCtx,
               data,
-            },
-            ['attrs', attr],
-          )
-        : value?.value,
-    ])
+              shouldReportAttrs ? ['attrs', attr] : undefined,
+            )
+          : value?.value
+    }
+    return result
   })
 
+  const apiFormulaCtx = { ...formulaCtx, component }
   const componentDataSignal = signal<ComponentData>({
     Location: dataSignal.get().Location,
     Attributes: attributesSignal.get(),
@@ -106,15 +110,11 @@ export function createComponent({
           data: null,
           isLoading:
             api!.autoFetch &&
-            applyFormula(
-              api!.autoFetch,
-              {
-                ...formulaCtx,
-                component,
-                data: dataSignal.get(),
-              },
-              ['apis', name, 'autoFetch'],
-            )
+            applyFormula(api!.autoFetch, apiFormulaCtx, dataSignal.get(), [
+              'apis',
+              name,
+              'autoFetch',
+            ])
               ? true
               : false,
           error: null,
@@ -148,12 +148,8 @@ export function createComponent({
         name,
         applyFormula(
           variable.initialValue,
-          {
-            // Initial value
-            ...formulaCtx,
-            component,
-            data: componentDataSignal.get(),
-          },
+          apiFormulaCtx,
+          componentDataSignal.get(),
           ['variables', name],
         ),
       ],
@@ -251,6 +247,16 @@ export function createComponent({
   let providers = ctx.providers
   if (isContextProvider(component)) {
     // Subscribe to exposed formulas and update the component's data signal
+    const providerFormulaCtx = {
+      component,
+      formulaCache: ctx.formulaCache,
+      root: ctx.root,
+      package: ctx.package,
+      toddle: ctx.toddle,
+      env: ctx.env,
+      jsonPath: ctx.jsonPath,
+      reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+    }
     const formulaDataSignals = Object.fromEntries(
       Object.entries(component.formulas ?? {})
         .filter(([, formula]) => formula?.exposeInContext)
@@ -259,17 +265,8 @@ export function createComponent({
           componentDataSignal.map((data) =>
             applyFormula(
               (formula as ComponentFormula).formula,
-              {
-                data,
-                component,
-                formulaCache: ctx.formulaCache,
-                root: ctx.root,
-                package: ctx.package,
-                toddle: ctx.toddle,
-                env: ctx.env,
-                jsonPath: ctx.jsonPath,
-                reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-              },
+              providerFormulaCtx,
+              data,
               ['formulas', name],
             ),
           ),
@@ -366,14 +363,11 @@ export function createComponent({
         }),
         signal: dataSignal.map((data) =>
           appendUnit(
-            applyFormula(
-              customProperty.formula,
-              {
-                ...formulaCtx,
-                data,
-              },
-              ['customProperties', customPropertyName, 'formula'],
-            ),
+            applyFormula(customProperty.formula, formulaCtx, data, [
+              'customProperties',
+              customPropertyName,
+              'formula',
+            ]),
             customProperty.unit,
           ),
         ),
@@ -393,14 +387,11 @@ export function createComponent({
           }),
           signal: dataSignal.map((data) =>
             appendUnit(
-              applyFormula(
-                customProperty.formula,
-                {
-                  ...formulaCtx,
-                  data,
-                },
-                ['customProperties', customPropertyName, 'formula'],
-              ),
+              applyFormula(customProperty.formula, formulaCtx, data, [
+                'customProperties',
+                customPropertyName,
+                'formula',
+              ]),
               customProperty.unit,
             ),
           ),

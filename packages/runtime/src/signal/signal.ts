@@ -68,11 +68,14 @@ export class Signal<T> {
   }
   map<T2>(f: (value: T) => T2): Signal<T2> {
     const signal2 = signal(f(this.value))
-    signal2.subscriptions.push(
-      this.subscribe((value) => signal2.set(f(value)), {
-        destroy: () => signal2.destroy(),
-      }),
-    )
+    const subscriber = {
+      notify: (value: T) => signal2.set(f(value)),
+      destroy: () => signal2.destroy(),
+    }
+    this.subscribers.add(subscriber)
+    signal2.subscriptions.push(() => {
+      this.subscribers.delete(subscriber)
+    })
     return signal2
   }
 }

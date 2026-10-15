@@ -43,13 +43,17 @@ export function createLegacyAPI(
     const formulaContext: FormulaContext = createFormulaContext(ctx, data)
 
     // construct the url
-    const baseUrl = applyFormula(api.url, formulaContext, ['url']) ?? ''
+    const baseUrl = applyFormula(api.url, formulaContext, data, ['url']) ?? ''
     const urlPath =
       api.path && api.path.length > 0
         ? '/' +
           api.path
             .map((p, i) =>
-              applyFormula(p.formula, formulaContext, ['path', i, 'formula']),
+              applyFormula(p.formula, formulaContext, data, [
+                'path',
+                i,
+                'formula',
+              ]),
             )
             .join('/')
         : ''
@@ -63,7 +67,7 @@ export function createLegacyAPI(
             .map(
               (param, i) =>
                 `${param.name}=${encodeURIComponent(
-                  applyFormula(param.formula, formulaContext, [
+                  applyFormula(param.formula, formulaContext, data, [
                     'queryParams',
                     i,
                     'formula',
@@ -73,9 +77,9 @@ export function createLegacyAPI(
             .join('&')
         : ''
     const headers = isFormula(api.headers) // this is supporting a few legacy cases where the whole header object was set as a formula. This is no longer possible
-      ? applyFormula(api.headers, formulaContext, ['headers'])
+      ? applyFormula(api.headers, formulaContext, data, ['headers'])
       : mapObject(api.headers ?? {}, ([key, value]) =>
-          applyFormula(value, formulaContext, ['headers', key]),
+          applyFormula(value, formulaContext, data, ['headers', key]),
         )
     const contentType = String(
       Object.entries(headers).find(
@@ -86,7 +90,7 @@ export function createLegacyAPI(
     const body =
       api.body && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
         ? encodeBody(
-            applyFormula(api.body, formulaContext, ['body']),
+            applyFormula(api.body, formulaContext, data, ['body']),
             contentType,
           )
         : undefined
@@ -267,11 +271,9 @@ export function createLegacyAPI(
           data: null,
           isLoading:
             api.autoFetch &&
-            applyFormula(
-              api.autoFetch,
-              createFormulaContext(ctx, ctx.dataSignal.get()),
-              ['autoFetch'],
-            )
+            applyFormula(api.autoFetch, createFormulaContext(ctx, data), data, [
+              'autoFetch',
+            ])
               ? true
               : false,
           error: null,
@@ -283,11 +285,13 @@ export function createLegacyAPI(
     payloadSignal = ctx.dataSignal.map((data) => constructPayload(api, data))
     let firstRun = true
     payloadSignal.subscribe((body) => {
+      const currentData = ctx.dataSignal.get()
       if (
         api.autoFetch &&
         applyFormula(
           api.autoFetch,
-          createFormulaContext(ctx, ctx.dataSignal.get()),
+          createFormulaContext(ctx, currentData),
+          currentData,
           ['autoFetch'],
         )
       ) {
