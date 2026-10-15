@@ -1,14 +1,15 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type { IssueRule } from '../../../types'
+import type { ComponentAPINode, IssueRule } from '../../../types'
 
-export const invalidApiProxyBodySettingRule: IssueRule<{ api: string }> = {
+export const invalidApiProxyBodySettingRule: IssueRule<
+  { api: string },
+  ComponentAPINode
+> = {
   code: 'invalid api proxy body setting',
   level: 'warning',
   category: 'Quality',
+  nodeTypes: 'component-api',
   visit: (report, args) => {
-    if (args.nodeType !== 'component-api') {
-      return
-    }
     const { path, value } = args
     if (
       isLegacyApi(value) ||

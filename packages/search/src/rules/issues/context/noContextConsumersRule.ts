@@ -1,20 +1,21 @@
-import type { IssueRule } from '../../../types'
+import type { ComponentNode, IssueRule } from '../../../types'
 
 /**
  * Rule for checking if a component exposes formulas or workflows
  * in context but has no slots or components that could consume them
  */
-export const noContextConsumersRule: IssueRule<{
-  providerName: string
-  formulaName: string
-}> = {
+export const noContextConsumersRule: IssueRule<
+  {
+    providerName: string
+    formulaName: string
+  },
+  ComponentNode
+> = {
   code: 'no context consumers',
   level: 'warning',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }) => {
-    if (nodeType !== 'component') {
-      return
-    }
+  nodeTypes: 'component',
+  visit: (report, { path, value }) => {
     const exposesFormulas = Object.values(value.formulas ?? {}).some(
       (f) => f?.exposeInContext,
     )

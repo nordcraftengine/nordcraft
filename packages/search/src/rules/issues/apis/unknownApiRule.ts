@@ -1,11 +1,15 @@
-import type { IssueRule } from '../../../types'
+import type { ActionModelNode, FormulaNode, IssueRule } from '../../../types'
 
-export const unknownApiRule: IssueRule<{
-  name: string | number
-}> = {
+export const unknownApiRule: IssueRule<
+  {
+    name: string | number
+  },
+  FormulaNode | ActionModelNode
+> = {
   code: 'unknown api',
   level: 'error',
   category: 'Unknown Reference',
+  nodeTypes: ['formula', 'action-model'],
   visit: (report, { path, files, value, nodeType }) => {
     const isApiFormula =
       nodeType === 'formula' &&

@@ -78,6 +78,11 @@ export type Code =
   | 'duplicate route'
   | 'duplicate url parameter'
   | 'duplicate workflow parameter'
+  | 'duplicate-file'
+  | 'no-index-repeat-key'
+  | 'no-static-repeat-key'
+  | 'no-unreachable-switch-case'
+  | 'no-unreachable-action-switch-case'
   | 'image without dimension'
   | 'invalid api parser mode'
   | 'invalid path formula'
@@ -98,6 +103,7 @@ export type Code =
   | 'no post navigate action'
   | 'no-console'
   | 'no-empty url parameter name'
+  | 'no-index-repeat-key'
   | 'no-reference animation'
   | 'no-reference api input'
   | 'no-reference api service'
@@ -117,9 +123,12 @@ export type Code =
   | 'no-reference project package'
   | 'no-reference variable'
   | 'no-static-node-condition'
+  | 'no-static-repeat-key'
   | 'no-reference context formula'
   | 'no-unnecessary-condition-falsy'
   | 'no-unnecessary-condition-truthy'
+  | 'no-unreachable-action-switch-case'
+  | 'no-unreachable-switch-case'
   | 'non-empty void element'
   | 'required api autofetch'
   | 'required direct child'
@@ -534,6 +543,7 @@ export interface IssueRule<
   category: Category
   code: Code
   level: Level
+  nodeTypes: V['nodeType'] | V['nodeType'][]
   visit: (
     report: (args: {
       path: (string | number)[]
@@ -548,6 +558,7 @@ export interface IssueRule<
 }
 
 export interface SearchRule<T = unknown, V extends NodeType = NodeType> {
+  nodeTypes?: V['nodeType'] | V['nodeType'][]
   visit: (
     report: (args: { path: (string | number)[]; details?: T }) => void,
     data: V,
@@ -555,7 +566,7 @@ export interface SearchRule<T = unknown, V extends NodeType = NodeType> {
   ) => void
 }
 
-export type Rule = IssueRule | SearchRule
+export type Rule = IssueRule<any, any> | SearchRule<any, any>
 
 export interface FixFunctionArgs<Data extends NodeType, Details = unknown> {
   data: Data
@@ -625,12 +636,37 @@ export interface FixProblemsArgs {
   fixType: FixType
 }
 
-export interface FixProblemsResponse {
+export interface CancelFixArgs {
+  type: 'cancel-fix'
+  id: string
+}
+
+export interface FixProblemsProgressResponse {
+  id: string
+  fixRule: Code
+  fixType: FixType
+  fixed: number
+  total: number
+  path?: (string | number)[]
+  nextPath?: (string | number)[]
+  complete?: false
+}
+
+export interface FixProblemsCompleteResponse {
   id: string
   patch: Delta
   fixRule: Code
   fixType: FixType
+  fixed: number
+  total: number
+  complete: true
+  cancelled?: boolean
+  cancelReason?: string
 }
+
+export type FixProblemsResponse =
+  | FixProblemsProgressResponse
+  | FixProblemsCompleteResponse
 
 export interface SearchArgs {
   id: string

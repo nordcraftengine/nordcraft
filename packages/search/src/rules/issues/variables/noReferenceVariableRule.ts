@@ -1,31 +1,32 @@
-import type { IssueRule } from '../../../types'
+import type { ComponentVariableNode, IssueRule } from '../../../types'
+import { getFormulasInComponent } from '../../../util/componentTraversal'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-export const noReferenceVariableRule: IssueRule<void> = {
+export const noReferenceVariableRule: IssueRule<void, ComponentVariableNode> = {
   code: 'no-reference variable',
   level: 'warning',
   category: 'No References',
+  nodeTypes: 'component-variable',
   visit: (report, args) => {
-    if (args.nodeType !== 'component-variable') {
-      return
-    }
     const { path, memo, component } = args
 
     const [, , , variableKey] = path
 
     const variableInComponent = memo(
       `variableInComponent/${component.name}`,
-      () =>
-        new Set(
-          Array.from(component.formulasInComponent())
-            .filter(
-              ({ formula }) =>
-                formula.type === 'path' &&
-                formula.path[0] === 'Variables' &&
-                formula.path[1],
-            )
-            .map<string | number>(({ formula }) => (formula as any).path[1]),
-        ),
+      () => {
+        const used = new Set<string | number>()
+        for (const { formula } of getFormulasInComponent(memo, component)) {
+          if (
+            formula.type === 'path' &&
+            formula.path[0] === 'Variables' &&
+            formula.path[1]
+          ) {
+            used.add(formula.path[1] as string | number)
+          }
+        }
+        return used
+      },
     )
 
     if (variableInComponent.has(variableKey)) {
