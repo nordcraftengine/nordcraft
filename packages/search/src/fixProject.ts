@@ -24,6 +24,8 @@ export const fixProject = ({
   state?: ApplicationState
 }) => {
   let updatedFiles = files
+  const rules = [rule]
+  const fixOptions = { mode: 'FIX' as const, fixType }
   // Apply 1 fix per iteration until no more fixes can be applied.
   // After every fix, the updated files are used for the next iteration.
   // There is intentionally no cap on the number of fixes: every iteration
@@ -32,8 +34,8 @@ export const fixProject = ({
   while (true) {
     const { value: suggestedFiles } = searchProject({
       files: updatedFiles,
-      rules: [rule],
-      fixOptions: { mode: 'FIX', fixType },
+      rules,
+      fixOptions,
       pathsToVisit,
       useExactPaths,
       state,
@@ -95,9 +97,10 @@ const countFixableIssues = ({
     return 0
   }
   let count = 0
+  const rules = [rule]
   const results = searchProject({
     files,
-    rules: [rule],
+    rules,
     pathsToVisit,
     useExactPaths,
     state,
@@ -140,6 +143,8 @@ export function* fixProjectSteps({
   let updatedFiles = files
   let fixed = 0
   let cancelled = false
+  const rules = [rule]
+  const fixOptions = { mode: 'FIX' as const, fixType }
   let total = countFixableIssues({
     files,
     rule,
@@ -165,8 +170,8 @@ export function* fixProjectSteps({
     }
     const { value: suggestedFiles } = searchProject({
       files: updatedFiles,
-      rules: [rule],
-      fixOptions: { mode: 'FIX', fixType },
+      rules,
+      fixOptions,
       pathsToVisit,
       useExactPaths,
       state,

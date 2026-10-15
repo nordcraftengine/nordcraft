@@ -25,6 +25,204 @@ interface FixOptions {
   fixType: FixType
 }
 
+const COMPONENT_SUBTREE_TYPES = [
+  'component',
+  'component-attribute',
+  'component-variable',
+  'component-formula',
+  'component-workflow',
+  'component-context',
+  'component-node',
+  'component-node-attribute',
+  'style-declaration',
+  'style-variant',
+  'style-variable',
+  'animation',
+  'custom-property',
+  'formula',
+  'action-model',
+  'action-custom-model-argument',
+  'action-custom-model-event',
+  'component-api',
+  'component-api-input',
+  'component-event',
+] as const
+
+const COMPONENT_NODE_SUBTREE_TYPES = [
+  'component-node',
+  'component-node-attribute',
+  'style-declaration',
+  'style-variant',
+  'style-variable',
+  'animation',
+  'custom-property',
+] as const
+
+const ACTION_MODEL_SUBTREE_TYPES = [
+  'action-model',
+  'action-custom-model-argument',
+  'action-custom-model-event',
+] as const
+
+const API_SUBTREE_TYPES = ['component-api', 'component-api-input'] as const
+
+const THEME_SUBTREE_TYPES = ['project-theme', 'project-theme-property'] as const
+
+const SERVICE_SUBTREE_TYPES = [
+  'api-service',
+  'component-api',
+  'component-api-input',
+  'formula',
+] as const
+
+const ROUTE_SUBTREE_TYPES = ['project-route', 'formula'] as const
+
+const PROJECT_FORMULA_SUBTREE_TYPES = ['project-formula', 'formula'] as const
+
+const PROJECT_ACTION_SUBTREE_TYPES = [
+  'project-action',
+  'action-model',
+  'action-custom-model-argument',
+  'action-custom-model-event',
+] as const
+
+interface RuleIndex {
+  rules: Rule[]
+  hasWildcard: boolean
+  activeNodeTypes: Set<string> | null
+  byNodeType: Map<string, (IssueRule & SearchRule)[]>
+  singleRule: (IssueRule & SearchRule) | null
+  singleRuleNodeType: string | readonly string[] | undefined
+}
+
+const EMPTY_RULES: (IssueRule & SearchRule)[] = []
+const ruleIndexCache = new WeakMap<Rule[], RuleIndex>()
+
+function getRuleIndex(rules: Rule[]): RuleIndex {
+  let index = ruleIndexCache.get(rules)
+  if (index) {
+    return index
+  }
+
+  const byNodeType = new Map<string, (IssueRule & SearchRule)[]>()
+  let hasWildcard = false
+  const activeNodeTypes = new Set<string>()
+
+  if (rules.length === 1) {
+    const singleRule = rules[0] as IssueRule & SearchRule
+    const nt = singleRule.nodeTypes
+    if (!nt) {
+      hasWildcard = true
+    } else if (Array.isArray(nt)) {
+      for (const t of nt) {
+        activeNodeTypes.add(t)
+        byNodeType.set(t, rules as (IssueRule & SearchRule)[])
+      }
+    } else {
+      activeNodeTypes.add(nt)
+      byNodeType.set(nt, rules as (IssueRule & SearchRule)[])
+    }
+    index = {
+      rules,
+      hasWildcard,
+      activeNodeTypes: hasWildcard ? null : activeNodeTypes,
+      byNodeType,
+      singleRule,
+      singleRuleNodeType: nt,
+    }
+  } else {
+    for (const rule of rules as (IssueRule & SearchRule)[]) {
+      if (!rule.nodeTypes) {
+        hasWildcard = true
+      } else {
+        const declared = Array.isArray(rule.nodeTypes)
+          ? rule.nodeTypes
+          : [rule.nodeTypes]
+        for (const t of declared) {
+          activeNodeTypes.add(t)
+          let list = byNodeType.get(t)
+          if (!list) {
+            list = []
+            byNodeType.set(t, list)
+          }
+          list.push(rule)
+        }
+      }
+    }
+
+    index = {
+      rules,
+      hasWildcard,
+      activeNodeTypes: hasWildcard ? null : activeNodeTypes,
+      byNodeType,
+      singleRule: null,
+      singleRuleNodeType: undefined,
+    }
+  }
+
+  ruleIndexCache.set(rules, index)
+  return index
+}
+
+function rulesForNodeType(
+  index: RuleIndex,
+  nodeType: string,
+): (IssueRule & SearchRule)[] {
+  if (index.singleRule) {
+    const nt = index.singleRuleNodeType
+    if (!nt) {
+      return index.rules as (IssueRule & SearchRule)[]
+    }
+    if (typeof nt === 'string') {
+      return nt === nodeType
+        ? (index.rules as (IssueRule & SearchRule)[])
+        : EMPTY_RULES
+    }
+    return nt.includes(nodeType)
+      ? (index.rules as (IssueRule & SearchRule)[])
+      : EMPTY_RULES
+  }
+
+  if (!index.hasWildcard) {
+    return index.byNodeType.get(nodeType) ?? EMPTY_RULES
+  }
+
+  let cached = index.byNodeType.get(nodeType)
+  if (cached) {
+    return cached
+  }
+  cached = (index.rules as (IssueRule & SearchRule)[]).filter((rule) => {
+    if (!rule.nodeTypes) {
+      return true
+    }
+    const declared = Array.isArray(rule.nodeTypes)
+      ? rule.nodeTypes
+      : [rule.nodeTypes]
+    return declared.includes(nodeType as never)
+  })
+  index.byNodeType.set(nodeType, cached)
+  return cached
+}
+
+function isNodeTypeActive(index: RuleIndex, nodeType: string): boolean {
+  return index.activeNodeTypes === null || index.activeNodeTypes.has(nodeType)
+}
+
+function isAnyNodeTypeActive(
+  index: RuleIndex,
+  nodeTypes: readonly string[],
+): boolean {
+  if (index.activeNodeTypes === null) {
+    return true
+  }
+  for (let i = 0; i < nodeTypes.length; i++) {
+    if (index.activeNodeTypes.has(nodeTypes[i])) {
+      return true
+    }
+  }
+  return false
+}
+
 /**
  * Search a project by applying rules to all nodes in the project and returning reported results.
  *
@@ -84,88 +282,23 @@ export function* searchProject({
     return result
   }
 
-  for (const key in files.components) {
-    const component = files.components[key]
-    if (component) {
-      yield* visitNode({
-        args: {
-          nodeType: 'component',
-          value: component,
-          path: ['components', key],
-          rules,
-          files,
-          pathsToVisit,
-          useExactPaths,
-          memo,
-        },
-        state,
-        fixOptions: fixOptions as any,
-      })
-    }
-  }
+  const ruleIndex = getRuleIndex(rules)
 
-  for (const key in files.formulas) {
-    yield* visitNode({
-      args: {
-        nodeType: 'project-formula',
-        value: files.formulas[key],
-        path: ['formulas', key],
-        rules,
-        files,
-        pathsToVisit,
-        useExactPaths,
-        memo,
-      },
-      state,
-      fixOptions: fixOptions as any,
-    })
-  }
-
-  for (const key in files.actions) {
-    yield* visitNode({
-      args: {
-        nodeType: 'project-action',
-        value: files.actions[key],
-        path: ['actions', key],
-        rules,
-        files,
-        pathsToVisit,
-        useExactPaths,
-        memo,
-      },
-      state,
-      fixOptions: fixOptions as any,
-    })
-  }
-
-  for (const key in files.themes) {
-    yield* visitNode({
-      args: {
-        nodeType: 'project-theme',
-        value: files.themes[key],
-        path: ['themes', key],
-        rules,
-        files,
-        pathsToVisit,
-        useExactPaths,
-        memo,
-      },
-      state,
-      fixOptions: fixOptions as any,
-    })
-    for (const propKey in files.themes[key]?.propertyDefinitions ?? {}) {
-      const propDef = files.themes[key]?.propertyDefinitions?.[propKey as any]
-      if (propDef) {
+  if (isAnyNodeTypeActive(ruleIndex, COMPONENT_SUBTREE_TYPES)) {
+    for (const key in files.components) {
+      const component = files.components[key]
+      if (component) {
         yield* visitNode({
           args: {
-            nodeType: 'project-theme-property',
-            value: { key: propKey as CustomPropertyName, value: propDef },
-            path: ['themes', key, 'propertyDefinitions', propKey],
+            nodeType: 'component',
+            value: component,
+            path: ['components', key],
             rules,
             files,
             pathsToVisit,
             useExactPaths,
             memo,
+            ruleIndex,
           },
           state,
           fixOptions: fixOptions as any,
@@ -174,7 +307,90 @@ export function* searchProject({
     }
   }
 
-  if (files.services) {
+  if (isAnyNodeTypeActive(ruleIndex, PROJECT_FORMULA_SUBTREE_TYPES)) {
+    for (const key in files.formulas) {
+      yield* visitNode({
+        args: {
+          nodeType: 'project-formula',
+          value: files.formulas[key],
+          path: ['formulas', key],
+          rules,
+          files,
+          pathsToVisit,
+          useExactPaths,
+          memo,
+          ruleIndex,
+        },
+        state,
+        fixOptions: fixOptions as any,
+      })
+    }
+  }
+
+  if (isAnyNodeTypeActive(ruleIndex, PROJECT_ACTION_SUBTREE_TYPES)) {
+    for (const key in files.actions) {
+      yield* visitNode({
+        args: {
+          nodeType: 'project-action',
+          value: files.actions[key],
+          path: ['actions', key],
+          rules,
+          files,
+          pathsToVisit,
+          useExactPaths,
+          memo,
+          ruleIndex,
+        },
+        state,
+        fixOptions: fixOptions as any,
+      })
+    }
+  }
+
+  if (isAnyNodeTypeActive(ruleIndex, THEME_SUBTREE_TYPES)) {
+    for (const key in files.themes) {
+      yield* visitNode({
+        args: {
+          nodeType: 'project-theme',
+          value: files.themes[key],
+          path: ['themes', key],
+          rules,
+          files,
+          pathsToVisit,
+          useExactPaths,
+          memo,
+          ruleIndex,
+        },
+        state,
+        fixOptions: fixOptions as any,
+      })
+      if (isNodeTypeActive(ruleIndex, 'project-theme-property')) {
+        for (const propKey in files.themes[key]?.propertyDefinitions ?? {}) {
+          const propDef =
+            files.themes[key]?.propertyDefinitions?.[propKey as any]
+          if (propDef) {
+            yield* visitNode({
+              args: {
+                nodeType: 'project-theme-property',
+                value: { key: propKey as CustomPropertyName, value: propDef },
+                path: ['themes', key, 'propertyDefinitions', propKey],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+                ruleIndex,
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
+          }
+        }
+      }
+    }
+  }
+
+  if (files.services && isAnyNodeTypeActive(ruleIndex, SERVICE_SUBTREE_TYPES)) {
     for (const key in files.services) {
       yield* visitNode({
         args: {
@@ -186,6 +402,7 @@ export function* searchProject({
           pathsToVisit,
           useExactPaths,
           memo,
+          ruleIndex,
         },
         state,
         fixOptions: fixOptions as any,
@@ -193,7 +410,7 @@ export function* searchProject({
     }
   }
 
-  if (files.routes) {
+  if (files.routes && isAnyNodeTypeActive(ruleIndex, ROUTE_SUBTREE_TYPES)) {
     for (const key in files.routes) {
       yield* visitNode({
         args: {
@@ -206,6 +423,7 @@ export function* searchProject({
           pathsToVisit,
           useExactPaths,
           memo,
+          ruleIndex,
         },
         state,
         fixOptions: fixOptions as any,
@@ -213,22 +431,25 @@ export function* searchProject({
     }
   }
 
-  yield* visitNode({
-    args: {
-      nodeType: 'project-config',
-      value: files.config,
-      path: ['config'],
-      rules,
-      files,
-      pathsToVisit,
-      useExactPaths,
-      memo,
-    },
-    state,
-    fixOptions: fixOptions as any,
-  })
+  if (isNodeTypeActive(ruleIndex, 'project-config')) {
+    yield* visitNode({
+      args: {
+        nodeType: 'project-config',
+        value: files.config,
+        path: ['config'],
+        rules,
+        files,
+        pathsToVisit,
+        useExactPaths,
+        memo,
+        ruleIndex,
+      },
+      state,
+      fixOptions: fixOptions as any,
+    })
+  }
 
-  if (files.packages) {
+  if (files.packages && isNodeTypeActive(ruleIndex, 'project-package')) {
     for (const key in files.packages) {
       const pkg = files.packages[key]
       if (pkg) {
@@ -243,6 +464,7 @@ export function* searchProject({
             pathsToVisit,
             useExactPaths,
             memo,
+            ruleIndex,
           },
           state,
           fixOptions: fixOptions as any,
@@ -252,39 +474,6 @@ export function* searchProject({
   }
 }
 
-/**
- * Cache of rules partitioned by node type, keyed by rules-array identity.
- *
- * Each visited node only invokes the rules that declare the node's type in
- * `nodeTypes`, instead of all rules. Rules without `nodeTypes` visit every
- * node. Each per-nodeType array preserves the original rule order so
- * reporting order is unchanged.
- */
-const rulesByNodeTypeCache = new WeakMap<Rule[], Map<string, Rule[]>>()
-
-const rulesForNodeType = (rules: Rule[], nodeType: string): Rule[] => {
-  let byNodeType = rulesByNodeTypeCache.get(rules)
-  if (!byNodeType) {
-    byNodeType = new Map<string, Rule[]>()
-    rulesByNodeTypeCache.set(rules, byNodeType)
-  }
-  const cached = byNodeType.get(nodeType)
-  if (cached) {
-    return cached
-  }
-  const matching = rules.filter((rule) => {
-    if (!rule.nodeTypes) {
-      return true
-    }
-    const declared = Array.isArray(rule.nodeTypes)
-      ? rule.nodeTypes
-      : [rule.nodeTypes]
-    return declared.includes(nodeType as never)
-  })
-  byNodeType.set(nodeType, matching)
-  return matching
-}
-
 function visitNode(args: {
   args: {
     path: (string | number)[]
@@ -292,6 +481,7 @@ function visitNode(args: {
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean
+    ruleIndex: RuleIndex
   } & NodeType
   state: ApplicationState | undefined
   fixOptions: never
@@ -303,6 +493,7 @@ function visitNode(args: {
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean
+    ruleIndex: RuleIndex
   } & NodeType
   state: ApplicationState | undefined
   fixOptions: FixOptions
@@ -318,11 +509,12 @@ function* visitNode({
     files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
     pathsToVisit: string[][]
     useExactPaths: boolean
+    ruleIndex: RuleIndex
   } & NodeType
   state: ApplicationState | undefined
   fixOptions?: FixOptions
 }): Generator<IssueResult | ProjectFiles | void> {
-  const { rules, pathsToVisit, useExactPaths, ...data } = args
+  const { rules, pathsToVisit, useExactPaths, ruleIndex, ...data } = args
   const { files, value, path, memo, nodeType } = data
   if (
     !shouldVisitTree({
@@ -338,65 +530,63 @@ function* visitNode({
     !useExactPaths ||
     shouldSearchExactPath({ path: data.path, pathsToVisit })
   ) {
-    const results: IssueResult[] | SearchResult[] = []
-    let fixedFiles: ProjectFiles | undefined
-    for (const rule of rulesForNodeType(rules, nodeType) as (IssueRule &
-      SearchRule)[]) {
-      rule.visit(
-        // Report callback used to report issues
-        ({ path, details, fixes, info }) => {
-          if (fixOptions) {
-            // We're in "fix mode"
-            if (
-              // We only overwrite fixedFiles once to avoid conflicting fixes
-              !fixedFiles &&
-              // The current fix must be one of the fixes reported
-              fixes?.includes(fixOptions.fixType) &&
-              // The rule must have an implementation for the fix
-              rule.fixes?.[fixOptions.fixType]
-            ) {
-              const ruleFixes = rule.fixes[fixOptions.fixType]?.(
-                // We must use the path from the report, not the original path
-                // because the report might be for a subpath
-                { data: { ...data, path }, details, state },
-              )
-              if (ruleFixes) {
-                fixedFiles = applyFixResult(data.files, ruleFixes)
+    const matchingRules = rulesForNodeType(ruleIndex, nodeType)
+    if (matchingRules.length > 0) {
+      const results: (IssueResult & SearchResult)[] = []
+      let fixedFiles: ProjectFiles | undefined
+      for (const rule of matchingRules) {
+        rule.visit(
+          // Report callback used to report issues
+          ({ path, details, fixes, info }) => {
+            if (fixOptions) {
+              // We're in "fix mode"
+              if (
+                // We only overwrite fixedFiles once to avoid conflicting fixes
+                !fixedFiles &&
+                // The current fix must be one of the fixes reported
+                fixes?.includes(fixOptions.fixType) &&
+                // The rule must have an implementation for the fix
+                rule.fixes?.[fixOptions.fixType]
+              ) {
+                const ruleFixes = rule.fixes[fixOptions.fixType]?.(
+                  // We must use the path from the report, not the original path
+                  // because the report might be for a subpath
+                  { data: { ...data, path }, details, state },
+                )
+                if (ruleFixes) {
+                  fixedFiles = applyFixResult(data.files, ruleFixes)
+                }
               }
+            } else {
+              const res: Record<string, unknown> = {
+                path,
+              }
+              if (rule.code !== undefined) res.code = rule.code
+              if (rule.category !== undefined) res.category = rule.category
+              if (rule.level !== undefined) res.level = rule.level
+              if (info !== undefined) res.info = info
+              if (details !== undefined) res.details = details
+              if (fixes !== undefined) res.fixes = fixes
+              results.push(res as IssueResult & SearchResult)
             }
-          } else {
-            // Optional filtering to remove undefined entries as different rule types have only subset of fields
-            results.push(
-              Object.fromEntries(
-                [
-                  ['code', rule.code],
-                  ['category', rule.category],
-                  ['level', rule.level],
-                  ['path', path],
-                  ['details', details],
-                  ['fixes', fixes],
-                  ['info', info],
-                ].filter(([, value]) => isDefined(value)),
-              ),
-            )
-          }
-        },
-        data,
-        state,
-      )
-      if (fixedFiles) {
-        // We have applied a fix, stop processing more rules
-        break
+          },
+          data,
+          state,
+        )
+        if (fixedFiles) {
+          // We have applied a fix, stop processing more rules
+          break
+        }
       }
-    }
 
-    if (fixOptions) {
-      if (fixedFiles) {
-        yield fixedFiles
-      }
-    } else {
-      for (const result of results) {
-        yield result as IssueResult & SearchResult
+      if (fixOptions) {
+        if (fixedFiles) {
+          yield fixedFiles
+        }
+      } else {
+        for (const result of results) {
+          yield result
+        }
       }
     }
   }
@@ -438,82 +628,22 @@ function* visitNode({
         },
       })
 
-      for (const key in value.attributes) {
-        const attribute = value.attributes[key]
-        if (isDefined(attribute)) {
-          yield* visitNode({
-            args: {
-              nodeType: 'component-attribute',
-              value: attribute,
-              path: [...path, 'attributes', key],
-              rules,
-              files,
-              pathsToVisit,
-              useExactPaths,
-              memo,
-              component,
-            },
-            state,
-            fixOptions: fixOptions as any,
-          })
-        }
-      }
-
-      for (const key in value.variables) {
-        const variable = value.variables[key]
-        if (isDefined(variable)) {
-          yield* visitNode({
-            args: {
-              nodeType: 'component-variable',
-              value: variable,
-              path: [...path, 'variables', key],
-              rules,
-              files,
-              pathsToVisit,
-              useExactPaths,
-              memo,
-              component,
-            },
-            state,
-            fixOptions: fixOptions as any,
-          })
-        }
-      }
-
-      for (const key in value.apis) {
-        const api = value.apis[key]
-        if (!api) {
-          continue
-        }
-        yield* visitNode({
-          args: {
-            nodeType: 'component-api',
-            value: api,
-            component,
-            path: [...path, 'apis', key],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
-        if (!isLegacyApi(api)) {
-          for (const [inputKey, input] of Object.entries(api.inputs)) {
+      if (isNodeTypeActive(ruleIndex, 'component-attribute')) {
+        for (const key in value.attributes) {
+          const attribute = value.attributes[key]
+          if (isDefined(attribute)) {
             yield* visitNode({
               args: {
-                nodeType: 'component-api-input',
-                value: input,
-                api,
+                nodeType: 'component-attribute',
+                value: attribute,
+                path: [...path, 'attributes', key],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
                 component,
-                path: [...path, 'apis', key, 'inputs', inputKey],
-                rules,
-                files,
-                pathsToVisit,
-                useExactPaths,
-                memo,
+                ruleIndex,
               },
               state,
               fixOptions: fixOptions as any,
@@ -522,120 +652,22 @@ function* visitNode({
         }
       }
 
-      for (const key in value.formulas) {
-        const formula = value.formulas[key]
-        if (isDefined(formula)) {
-          yield* visitNode({
-            args: {
-              nodeType: 'component-formula',
-              value: formula,
-              path: [...path, 'formulas', key],
-              rules,
-              files,
-              pathsToVisit,
-              useExactPaths,
-              memo,
-              component,
-            },
-            state,
-            fixOptions: fixOptions as any,
-          })
-        }
-      }
-
-      for (const key in value.workflows) {
-        const workflow = value.workflows[key]
-        if (isDefined(workflow)) {
-          yield* visitNode({
-            args: {
-              nodeType: 'component-workflow',
-              value: workflow,
-              path: [...path, 'workflows', key],
-              rules,
-              files,
-              pathsToVisit,
-              useExactPaths,
-              memo,
-              component,
-            },
-            state,
-            fixOptions: fixOptions as any,
-          })
-        }
-      }
-
-      for (let i = 0; i < (value.events ?? []).length; i++) {
-        const event = value.events?.[i]
-        if (event) {
-          yield* visitNode({
-            args: {
-              nodeType: 'component-event',
-              path: [...path, 'events', i],
-              rules,
-              files,
-              pathsToVisit,
-              useExactPaths,
-              memo,
-              value: { component, event },
-            },
-            state,
-            fixOptions: fixOptions as any,
-          })
-        }
-      }
-
-      for (const key in value.contexts) {
-        yield* visitNode({
-          args: {
-            nodeType: 'component-context',
-            value: value.contexts[key],
-            path: [...path, 'contexts', key],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
-      }
-
-      for (const key in value.nodes) {
-        const node = value.nodes[key]
-        yield* visitNode({
-          args: {
-            nodeType: 'component-node',
-            value: node,
-            path: [...path, 'nodes', key],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-            component,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
-        if (
-          isDefined(node) &&
-          (node.type === 'component' || node.type === 'element')
-        ) {
-          // Visit attributes on component and element nodes
-          for (const attrKey in node.attrs) {
-            const attr = node.attrs[attrKey]
+      if (isNodeTypeActive(ruleIndex, 'component-variable')) {
+        for (const key in value.variables) {
+          const variable = value.variables[key]
+          if (isDefined(variable)) {
             yield* visitNode({
               args: {
-                nodeType: 'component-node-attribute',
-                value: { key: attrKey, value: attr },
-                path: [...path, 'nodes', key, 'attrs', attrKey],
+                nodeType: 'component-variable',
+                value: variable,
+                path: [...path, 'variables', key],
                 rules,
                 files,
                 pathsToVisit,
                 useExactPaths,
                 memo,
-                node: node,
+                component,
+                ruleIndex,
               },
               state,
               fixOptions: fixOptions as any,
@@ -644,93 +676,296 @@ function* visitNode({
         }
       }
 
-      for (const {
-        path: formulaPath,
-        formula,
-        packageName,
-      } of component.formulasInComponent()) {
-        if (packageName && packageName !== 'root') {
-          // Skip reporting issues from inside package formulas
-          continue
-        }
-
-        yield* visitNode({
-          args: {
-            nodeType: 'formula',
-            value: formula,
-            path: [...path, ...formulaPath],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-            component,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
-      }
-
-      for (const [actionPath, action] of component.actionModelsInComponent()) {
-        yield* visitNode({
-          args: {
-            nodeType: 'action-model',
-            value: action,
-            path: [...path, ...actionPath],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
-            component,
-          },
-          state,
-          fixOptions: fixOptions as any,
-        })
-        if (action.type === 'Custom' || action.type === undefined) {
-          for (
-            let index = 0;
-            index < (action.arguments?.length ?? 0);
-            index++
+      if (isAnyNodeTypeActive(ruleIndex, API_SUBTREE_TYPES)) {
+        for (const key in value.apis) {
+          const api = value.apis[key]
+          if (!api) {
+            continue
+          }
+          yield* visitNode({
+            args: {
+              nodeType: 'component-api',
+              value: api,
+              component,
+              path: [...path, 'apis', key],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              ruleIndex,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+          if (
+            !isLegacyApi(api) &&
+            isNodeTypeActive(ruleIndex, 'component-api-input')
           ) {
-            const arg = action.arguments?.[index]
-            if (arg) {
+            for (const [inputKey, input] of Object.entries(api.inputs)) {
               yield* visitNode({
                 args: {
-                  nodeType: 'action-custom-model-argument',
-                  value: { action, argument: arg, argumentIndex: index },
-                  path: [...path, ...actionPath, 'arguments', index],
+                  nodeType: 'component-api-input',
+                  value: input,
+                  api,
+                  component,
+                  path: [...path, 'apis', key, 'inputs', inputKey],
                   rules,
                   files,
                   pathsToVisit,
                   useExactPaths,
                   memo,
-                  component,
+                  ruleIndex,
                 },
                 state,
                 fixOptions: fixOptions as any,
               })
             }
           }
-          const actionEvents = action.events ?? {}
-          for (const eventName in actionEvents) {
-            if (!Object.hasOwn(actionEvents, eventName)) continue
-            const event = actionEvents[eventName]
+        }
+      }
+
+      if (isNodeTypeActive(ruleIndex, 'component-formula')) {
+        for (const key in value.formulas) {
+          const formula = value.formulas[key]
+          if (isDefined(formula)) {
             yield* visitNode({
               args: {
-                nodeType: 'action-custom-model-event',
-                value: { action, event, eventName },
-                path: [...path, ...actionPath, 'events', eventName],
+                nodeType: 'component-formula',
+                value: formula,
+                path: [...path, 'formulas', key],
                 rules,
                 files,
                 pathsToVisit,
                 useExactPaths,
                 memo,
                 component,
+                ruleIndex,
               },
               state,
               fixOptions: fixOptions as any,
             })
+          }
+        }
+      }
+
+      if (isNodeTypeActive(ruleIndex, 'component-workflow')) {
+        for (const key in value.workflows) {
+          const workflow = value.workflows[key]
+          if (isDefined(workflow)) {
+            yield* visitNode({
+              args: {
+                nodeType: 'component-workflow',
+                value: workflow,
+                path: [...path, 'workflows', key],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+                component,
+                ruleIndex,
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
+          }
+        }
+      }
+
+      if (isNodeTypeActive(ruleIndex, 'component-event')) {
+        for (let i = 0; i < (value.events ?? []).length; i++) {
+          const event = value.events?.[i]
+          if (event) {
+            yield* visitNode({
+              args: {
+                nodeType: 'component-event',
+                path: [...path, 'events', i],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+                value: { component, event },
+                ruleIndex,
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
+          }
+        }
+      }
+
+      if (isNodeTypeActive(ruleIndex, 'component-context')) {
+        for (const key in value.contexts) {
+          yield* visitNode({
+            args: {
+              nodeType: 'component-context',
+              value: value.contexts[key],
+              path: [...path, 'contexts', key],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              ruleIndex,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
+      }
+
+      if (isAnyNodeTypeActive(ruleIndex, COMPONENT_NODE_SUBTREE_TYPES)) {
+        for (const key in value.nodes) {
+          const node = value.nodes[key]
+          yield* visitNode({
+            args: {
+              nodeType: 'component-node',
+              value: node,
+              path: [...path, 'nodes', key],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              component,
+              ruleIndex,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+          if (
+            isDefined(node) &&
+            (node.type === 'component' || node.type === 'element') &&
+            isNodeTypeActive(ruleIndex, 'component-node-attribute')
+          ) {
+            // Visit attributes on component and element nodes
+            for (const attrKey in node.attrs) {
+              const attr = node.attrs[attrKey]
+              yield* visitNode({
+                args: {
+                  nodeType: 'component-node-attribute',
+                  value: { key: attrKey, value: attr },
+                  path: [...path, 'nodes', key, 'attrs', attrKey],
+                  rules,
+                  files,
+                  pathsToVisit,
+                  useExactPaths,
+                  memo,
+                  node: node,
+                  ruleIndex,
+                },
+                state,
+                fixOptions: fixOptions as any,
+              })
+            }
+          }
+        }
+      }
+
+      if (isNodeTypeActive(ruleIndex, 'formula')) {
+        for (const {
+          path: formulaPath,
+          formula,
+          packageName,
+        } of component.formulasInComponent()) {
+          if (packageName && packageName !== 'root') {
+            // Skip reporting issues from inside package formulas
+            continue
+          }
+
+          yield* visitNode({
+            args: {
+              nodeType: 'formula',
+              value: formula,
+              path: [...path, ...formulaPath],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              component,
+              ruleIndex,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
+      }
+
+      if (isAnyNodeTypeActive(ruleIndex, ACTION_MODEL_SUBTREE_TYPES)) {
+        for (const [
+          actionPath,
+          action,
+        ] of component.actionModelsInComponent()) {
+          yield* visitNode({
+            args: {
+              nodeType: 'action-model',
+              value: action,
+              path: [...path, ...actionPath],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              component,
+              ruleIndex,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+          if (action.type === 'Custom' || action.type === undefined) {
+            if (isNodeTypeActive(ruleIndex, 'action-custom-model-argument')) {
+              for (
+                let index = 0;
+                index < (action.arguments?.length ?? 0);
+                index++
+              ) {
+                const arg = action.arguments?.[index]
+                if (arg) {
+                  yield* visitNode({
+                    args: {
+                      nodeType: 'action-custom-model-argument',
+                      value: { action, argument: arg, argumentIndex: index },
+                      path: [...path, ...actionPath, 'arguments', index],
+                      rules,
+                      files,
+                      pathsToVisit,
+                      useExactPaths,
+                      memo,
+                      component,
+                      ruleIndex,
+                    },
+                    state,
+                    fixOptions: fixOptions as any,
+                  })
+                }
+              }
+            }
+            if (isNodeTypeActive(ruleIndex, 'action-custom-model-event')) {
+              const actionEvents = action.events ?? {}
+              for (const eventName in actionEvents) {
+                if (!Object.hasOwn(actionEvents, eventName)) continue
+                const event = actionEvents[eventName]
+                yield* visitNode({
+                  args: {
+                    nodeType: 'action-custom-model-event',
+                    value: { action, event, eventName },
+                    path: [...path, ...actionPath, 'events', eventName],
+                    rules,
+                    files,
+                    pathsToVisit,
+                    useExactPaths,
+                    memo,
+                    component,
+                    ruleIndex,
+                  },
+                  state,
+                  fixOptions: fixOptions as any,
+                })
+              }
+            }
           }
         }
       }
@@ -738,7 +973,7 @@ function* visitNode({
     }
 
     case 'project-formula':
-      if (isToddleFormula(value)) {
+      if (isNodeTypeActive(ruleIndex, 'formula') && isToddleFormula(value)) {
         const formula = new ToddleFormula({
           formula: value.formula,
           globalFormulas: {
@@ -766,6 +1001,7 @@ function* visitNode({
               pathsToVisit,
               useExactPaths,
               memo,
+              ruleIndex,
             },
             state,
             fixOptions: fixOptions as any,
@@ -776,27 +1012,33 @@ function* visitNode({
 
     case 'component-node':
       if (value?.type === 'element' || value?.type === 'component') {
-        for (const [styleKey, styleValue] of Object.entries(
-          value.style ?? {},
-        )) {
-          yield* visitNode({
-            args: {
-              nodeType: 'style-declaration',
-              value: { styleProperty: styleKey, styleValue, element: value },
-              path: [...path, 'style', styleKey],
-              rules,
-              files,
-              pathsToVisit,
-              useExactPaths,
-              memo,
-            },
-            state,
-            fixOptions: fixOptions as any,
-          })
+        if (isNodeTypeActive(ruleIndex, 'style-declaration')) {
+          for (const [styleKey, styleValue] of Object.entries(
+            value.style ?? {},
+          )) {
+            yield* visitNode({
+              args: {
+                nodeType: 'style-declaration',
+                value: { styleProperty: styleKey, styleValue, element: value },
+                path: [...path, 'style', styleKey],
+                rules,
+                files,
+                pathsToVisit,
+                useExactPaths,
+                memo,
+                ruleIndex,
+              },
+              state,
+              fixOptions: fixOptions as any,
+            })
+          }
         }
 
         // Legacy style-variables only exist on element nodes
-        if (value.type === 'element') {
+        if (
+          value.type === 'element' &&
+          isNodeTypeActive(ruleIndex, 'style-variable')
+        ) {
           const styleVariables = value['style-variables']
           if (styleVariables) {
             for (let i = 0; i < styleVariables.length; i++) {
@@ -811,6 +1053,7 @@ function* visitNode({
                   pathsToVisit,
                   useExactPaths,
                   memo,
+                  ruleIndex,
                 },
                 state,
                 fixOptions: fixOptions as any,
@@ -819,7 +1062,10 @@ function* visitNode({
           }
         }
 
-        if (value.customProperties) {
+        if (
+          value.customProperties &&
+          isNodeTypeActive(ruleIndex, 'custom-property')
+        ) {
           for (const [customPropertyKey, customProperty] of Object.entries(
             value.customProperties,
           )) {
@@ -837,6 +1083,7 @@ function* visitNode({
                 pathsToVisit,
                 useExactPaths,
                 memo,
+                ruleIndex,
               },
               state,
               fixOptions: fixOptions as any,
@@ -844,7 +1091,7 @@ function* visitNode({
           }
         }
 
-        if (value.animations) {
+        if (value.animations && isNodeTypeActive(ruleIndex, 'animation')) {
           for (const [animationKey, animation] of Object.entries(
             value.animations,
           )) {
@@ -862,6 +1109,7 @@ function* visitNode({
                 pathsToVisit,
                 useExactPaths,
                 memo,
+                ruleIndex,
               },
               state,
               fixOptions: fixOptions as any,
@@ -870,47 +1118,63 @@ function* visitNode({
         }
 
         const variants = value.variants
-        if (variants) {
+        if (
+          variants &&
+          isAnyNodeTypeActive(ruleIndex, [
+            'style-variant',
+            'style-declaration',
+            'custom-property',
+          ])
+        ) {
           for (let i = 0; i < variants.length; i++) {
             const variant = variants[i]
-            yield* visitNode({
-              args: {
-                nodeType: 'style-variant',
-                value: { variant, element: value },
-                path: [...path, 'variants', i],
-                rules,
-                files,
-                pathsToVisit,
-                useExactPaths,
-                memo,
-              },
-              state,
-              fixOptions: fixOptions as any,
-            })
-            for (const [styleKey, styleValue] of Object.entries(
-              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-              variant.style ?? {},
-            )) {
+            if (isNodeTypeActive(ruleIndex, 'style-variant')) {
               yield* visitNode({
                 args: {
-                  nodeType: 'style-declaration',
-                  value: {
-                    styleProperty: styleKey,
-                    styleValue,
-                    element: value,
-                  },
-                  path: [...path, 'variants', i, 'style', styleKey],
+                  nodeType: 'style-variant',
+                  value: { variant, element: value },
+                  path: [...path, 'variants', i],
                   rules,
                   files,
                   pathsToVisit,
                   useExactPaths,
                   memo,
+                  ruleIndex,
                 },
                 state,
                 fixOptions: fixOptions as any,
               })
             }
-            if (variant.customProperties) {
+            if (isNodeTypeActive(ruleIndex, 'style-declaration')) {
+              for (const [styleKey, styleValue] of Object.entries(
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                variant.style ?? {},
+              )) {
+                yield* visitNode({
+                  args: {
+                    nodeType: 'style-declaration',
+                    value: {
+                      styleProperty: styleKey,
+                      styleValue,
+                      element: value,
+                    },
+                    path: [...path, 'variants', i, 'style', styleKey],
+                    rules,
+                    files,
+                    pathsToVisit,
+                    useExactPaths,
+                    memo,
+                    ruleIndex,
+                  },
+                  state,
+                  fixOptions: fixOptions as any,
+                })
+              }
+            }
+            if (
+              variant.customProperties &&
+              isNodeTypeActive(ruleIndex, 'custom-property')
+            ) {
               for (const [customPropertyKey, customProperty] of Object.entries(
                 variant.customProperties,
               )) {
@@ -935,6 +1199,7 @@ function* visitNode({
                     pathsToVisit,
                     useExactPaths,
                     memo,
+                    ruleIndex,
                   },
                   state,
                   fixOptions: fixOptions as any,
@@ -947,61 +1212,67 @@ function* visitNode({
       break
 
     case 'api-service': {
-      const apiService = new ToddleApiService<string>({
-        service: value,
-        globalFormulas: {
-          formulas: files.formulas,
-          packages: files.packages,
-        },
-      })
-      for (const {
-        path: formulaPath,
-        formula,
-      } of apiService.formulasInService()) {
-        yield* visitNode({
-          args: {
-            nodeType: 'formula',
-            value: formula,
-            path: [...path, ...formulaPath],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
+      if (isNodeTypeActive(ruleIndex, 'formula')) {
+        const apiService = new ToddleApiService<string>({
+          service: value,
+          globalFormulas: {
+            formulas: files.formulas,
+            packages: files.packages,
           },
-          state,
-          fixOptions: fixOptions as any,
         })
+        for (const {
+          path: formulaPath,
+          formula,
+        } of apiService.formulasInService()) {
+          yield* visitNode({
+            args: {
+              nodeType: 'formula',
+              value: formula,
+              path: [...path, ...formulaPath],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              ruleIndex,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
       }
       break
     }
 
     case 'project-route': {
-      const projectRoute = new ToddleRoute<string>({
-        route: value,
-        globalFormulas: {
-          formulas: files.formulas,
-          packages: files.packages,
-        },
-      })
-      for (const {
-        path: formulaPath,
-        formula,
-      } of projectRoute.formulasInRoute()) {
-        yield* visitNode({
-          args: {
-            nodeType: 'formula',
-            value: formula,
-            path: [...path, 'formula', ...formulaPath],
-            rules,
-            files,
-            pathsToVisit,
-            useExactPaths,
-            memo,
+      if (isNodeTypeActive(ruleIndex, 'formula')) {
+        const projectRoute = new ToddleRoute<string>({
+          route: value,
+          globalFormulas: {
+            formulas: files.formulas,
+            packages: files.packages,
           },
-          state,
-          fixOptions: fixOptions as any,
         })
+        for (const {
+          path: formulaPath,
+          formula,
+        } of projectRoute.formulasInRoute()) {
+          yield* visitNode({
+            args: {
+              nodeType: 'formula',
+              value: formula,
+              path: [...path, 'formula', ...formulaPath],
+              rules,
+              files,
+              pathsToVisit,
+              useExactPaths,
+              memo,
+              ruleIndex,
+            },
+            state,
+            fixOptions: fixOptions as any,
+          })
+        }
       }
       break
     }
