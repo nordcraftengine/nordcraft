@@ -178,12 +178,18 @@ export type EditorPostMessageType =
       parent?: string | null
       index?: number
       slot?: string
+      'justify-content'?: string
+      'align-items'?: string
+      'flex-direction'?: string
     }
   | {
       type: 'insertNode'
       parent?: string | null
       index?: number
       slot?: string
+      'justify-content'?: string
+      'align-items'?: string
+      'flex-direction'?: string
     }
   | {
       type: 'computedStyle'
@@ -277,6 +283,11 @@ export type DragInsertState = {
    * While they share some common properties, we need to differentiate between the two to handle them differently.
    */
   mode: 'reorder' | 'insert'
+  /**
+   * How the drag started: moving an existing element (`drag`) or placing a
+   * new one (`insert`). Survives mode switches, unlike `mode`.
+   */
+  action: 'drag' | 'insert'
   elementType: 'element' | 'component' | 'text'
   copy?: HTMLElement
   element: HTMLElement
@@ -290,7 +301,41 @@ export type DragInsertState = {
     nextSibling: Node | null
     rect: DOMRect
   }>
-  isTransitioning: boolean
+  flipAnimations: Animation[]
+  /**
+   * Whether the dragged element was the sole child of its container when
+   * the drag (re)started — counting the element itself even when detached,
+   * plus any copy.
+   */
+  isSoleChildDrag: boolean
+  metaKey?: boolean
+  /**
+   * Original drag home, stashed on the first hover-insert re-homing. The
+   * hover placement never commits: cancelling still falls back here instead
+   * of the hover position.
+   */
+  trueOrigin?: { container: HTMLElement; nextSibling: Element | null }
+  /**
+   * Hover-to-insert tracking: while the cursor rests on one drop target the
+   * highlight blinks, then the element is placed and the drag continues
+   * from there. Same-target hovers keep counting; anything else resets it.
+   */
+  hover?: {
+    key: number
+    blinking: boolean
+    timeout?: ReturnType<typeof setTimeout>
+    interval?: ReturnType<typeof setInterval>
+  }
+  hoverPlacement?: {
+    parent: Element
+    index: number
+    slot?: string
+    styleProps: {
+      'justify-content'?: string
+      'align-items'?: string
+      'flex-direction'?: 'row' | 'column'
+    }
+  }
   selectedInsertAreaIndex?: number
   insertAreas?: Array<InsertArea>
   destroying: boolean
@@ -305,6 +350,11 @@ export type InsertArea = {
   center: Point
   size: number
   direction: 1 | -1
+  bounds?: { x: number; y: number; width: number; height: number }
+  slotPlaceholder?: boolean
+  'justify-content'?: string
+  'align-items'?: string
+  'flex-direction'?: 'row' | 'column'
 }
 
 export type Point = { x: number; y: number }
@@ -313,10 +363,10 @@ export type Line = {
   y1: number
   x2: number
   y2: number
-  slotName: string | null
-  parent: Element
-  index: number
-  direction: 1 | -1
+  slotName?: string | null
+  parent?: Element
+  index?: number
+  direction?: 1 | -1
 }
 
 /**

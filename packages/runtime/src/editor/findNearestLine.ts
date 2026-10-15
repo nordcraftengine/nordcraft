@@ -10,7 +10,12 @@ import type { Line, Point } from './types'
 export function findNearestLine(
   lines: Line[],
   point: Point,
-): { nearestLines: Line[]; dist: number; projectionPoint: number } {
+): {
+  nearestLine: Line | null
+  nearestLines: Line[]
+  dist: number
+  projectionPoint: number
+} {
   let minDistSquared = Infinity
   let nearestLine: Line | null = null
   let nearestProjectionPoint = 0
@@ -26,34 +31,9 @@ export function findNearestLine(
       nearestProjectionPoint = projectionPoint
     }
   }
-  if (nearestLine?.slotName) {
-    // This will get all the lines that are point to a slot content with the same slot name
-    const allLines = lines.filter((line) => {
-      const parentDataId = line.parent
-        .getAttribute('data-id')
-        ?.replace(/\{[^}]*\}/g, '')
-
-      const nearesLineParentDataId = nearestLine.parent
-        .getAttribute('data-id')
-        ?.replace(/\{[^}]*\}/g, '')
-      if (
-        line.slotName === nearestLine.slotName &&
-        parentDataId === nearesLineParentDataId &&
-        line.index === nearestLine.index &&
-        line.direction === nearestLine.direction
-      ) {
-        return line
-      }
-    })
-
-    return {
-      nearestLines: allLines,
-      dist: Math.sqrt(minDistSquared),
-      projectionPoint: nearestProjectionPoint,
-    }
-  }
 
   return {
+    nearestLine,
     nearestLines: nearestLine ? [nearestLine] : [],
     dist: Math.sqrt(minDistSquared),
     projectionPoint: nearestProjectionPoint,

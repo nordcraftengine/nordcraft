@@ -1,8 +1,12 @@
-import { rectHasPoint } from '../../utils/rectHasPoint'
 import { DATA_ATTR_SELECTED } from '../const'
-import { getDOMNodeFromNodeId } from '../dom'
-import { removeDropHighlight } from '../drag-drop/dropHighlight'
-import { dragInsertEnded, dragInsertMove, dragInsertStarted } from '../helpers'
+import { getDOMNodeFromNodeId, stripNodeIdRepeatIndices } from '../dom'
+import {
+  centerGhostOnCursor,
+  dragInsertEnded,
+  dragInsertMove,
+  dragInsertStarted,
+  dropStylePropsOf,
+} from '../helpers'
 import { postMessageToEditor } from '../postMessageToEditor'
 import type { CanvasElementType, DragInsertState } from '../types'
 
@@ -39,6 +43,9 @@ export const handleInsertStarted = (
     asCopy: false,
   })
 
+  dragInsertMove('insert', insertState, [insertState.element])
+  centerGhostOnCursor(insertState)
+
   return insertState
 }
 
@@ -48,12 +55,6 @@ export const handleInsertMouseMove = (
 ) => {
   const { x, y } = messageData
   insertState.lastCursorPosition = { x, y }
-
-  const rect = insertState.element.getBoundingClientRect()
-  if (!rectHasPoint(rect, { x, y })) {
-    insertState.offset.x -= (x - (rect.left + rect.width / 2)) * 0.1
-    insertState.offset.y -= (y - (rect.top + rect.height / 2)) * 0.1
-  }
 
   dragInsertMove('insert', insertState, [insertState.element])
   insertState.element.style.setProperty(
@@ -67,20 +68,35 @@ export const handleInsertEnded = async (
   insertState: DragInsertState,
 ) => {
   const selectedPermutation =
-    insertState?.insertAreas?.[insertState?.selectedInsertAreaIndex ?? -1]
+    insertState.insertAreas?.[insertState.selectedInsertAreaIndex ?? -1]
+  const styleProps = dropStylePropsOf(selectedPermutation)
   if (selectedPermutation && !messageData.canceled) {
     await dragInsertEnded(insertState, false)
 
+    const parentDataId = selectedPermutation.parent.getAttribute('data-id')
     postMessageToEditor({
       type: 'insertNode',
-      parent: selectedPermutation.parent.getAttribute('data-id'),
+      parent: parentDataId,
       index: selectedPermutation.index,
       slot: selectedPermutation.slot,
+      ...styleProps,
     })
+
+    const selectedNodeId =
+      parentDataId !== null
+        ? `${parentDataId}.${selectedPermutation.index}${
+            selectedPermutation.slot ? `[${selectedPermutation.slot}]` : ''
+          }`
+        : `${selectedPermutation.index}`
+
+    postMessageToEditor({
+      type: 'selection',
+      selectedNodeId: stripNodeIdRepeatIndices(selectedNodeId),
+    })
+
     return null
   } else {
-    insertState.destroying = true
-    removeDropHighlight()
+    await dragInsertEnded(insertState, true, { instant: true })
     return null
   }
 }

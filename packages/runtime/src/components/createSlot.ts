@@ -82,6 +82,38 @@ export function createSlot({
         slotSuffix,
       })
     })
+    if (ctx.env?.runtime === 'preview') {
+      for (const child of children) {
+        if (!(child instanceof Element)) {
+          continue
+        }
+        if (!child.hasAttribute('data-node-slot-name')) {
+          child.setAttribute('data-node-slot-name', slotName)
+        } else if (child.getAttribute('data-node-slot-name') !== slotName) {
+          const raw = child.getAttribute('data-node-slot-ancestors')
+          let ancestors: string[] = []
+          if (raw) {
+            try {
+              const parsed: unknown = JSON.parse(raw)
+              if (Array.isArray(parsed)) {
+                ancestors = parsed.filter(
+                  (entry): entry is string => typeof entry === 'string',
+                )
+              }
+            } catch {
+              ancestors = []
+            }
+          }
+          if (!ancestors.includes(slotName)) {
+            ancestors.push(slotName)
+            child.setAttribute(
+              'data-node-slot-ancestors',
+              JSON.stringify(ancestors),
+            )
+          }
+        }
+      }
+    }
   }
 
   if (ctx.env.runtime === 'custom-element' && ctx.isRootComponent) {
