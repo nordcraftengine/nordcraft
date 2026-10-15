@@ -1,6 +1,6 @@
-import { create } from 'jsondiffpatch'
-import { describe, expect, test } from 'bun:test'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import { describe, expect, test } from 'bun:test'
+import { create } from 'jsondiffpatch'
 import { fixProblems } from './fixProblems'
 import { invalidStyleSyntaxRule } from './rules/issues/style/invalidStyleSyntaxRule'
 import { searchProject } from './searchProject'
@@ -42,9 +42,7 @@ const filesWithInvalidStyles = (): ProjectFiles => ({
 })
 
 const remainingIssues = (files: ProjectFiles) =>
-  Array.from(
-    searchProject({ files, rules: [invalidStyleSyntaxRule] }),
-  ).length
+  Array.from(searchProject({ files, rules: [invalidStyleSyntaxRule] })).length
 
 describe('fixProblems progress events', () => {
   test('emits progress per fix and a complete message with all fixes applied', async () => {

@@ -14,6 +14,7 @@ export const noUnreachableActionSwitchCaseRule: IssueRule<
   code: 'no-unreachable-action-switch-case',
   level: 'warning',
   category: 'Quality',
+  nodeTypes: 'action-model',
   visit: (report, { nodeType, path, value }) => {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (nodeType !== 'action-model' || value.type !== 'Switch') {

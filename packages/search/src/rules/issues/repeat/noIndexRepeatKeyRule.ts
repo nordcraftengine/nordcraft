@@ -52,6 +52,7 @@ export const noIndexRepeatKeyRule: IssueRule<unknown, ComponentNodeNode> = {
   code: 'no-index-repeat-key',
   level: 'warning',
   category: 'Quality',
+  nodeTypes: 'component-node',
   visit: (report, { nodeType, path, value }) => {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (nodeType !== 'component-node' || !value || value.type === 'slot') {

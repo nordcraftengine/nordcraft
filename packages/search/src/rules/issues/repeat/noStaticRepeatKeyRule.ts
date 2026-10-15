@@ -10,6 +10,7 @@ export const noStaticRepeatKeyRule: IssueRule<
   code: 'no-static-repeat-key',
   level: 'warning',
   category: 'Quality',
+  nodeTypes: 'component-node',
   visit: (report, { nodeType, path, value }) => {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (nodeType !== 'component-node' || !value || value.type === 'slot') {
