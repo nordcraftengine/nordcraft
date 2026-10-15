@@ -54,8 +54,8 @@ export const renameNamedComponentWorkflowFix: FixFunction<
 
   const getComponent = (name: string) => files.components[name]
   const globalFormulas = {
-    formulas: files.formulas,
-    packages: files.packages,
+    formulas: {},
+    packages: {},
   }
 
   // 2. Update all references within the same component
@@ -96,9 +96,8 @@ export const renameNamedComponentWorkflowFix: FixFunction<
   }
 
   // 3. Update context consumer references
-  for (const [otherComponentName, otherComponent] of Object.entries(
-    files.components,
-  )) {
+  for (const otherComponentName in files.components) {
+    const otherComponent = files.components[otherComponentName]
     const context = otherComponent?.contexts?.[componentName]
     const workflowIndex = context?.workflows.indexOf(String(oldKey))
     if (!context || workflowIndex === undefined || workflowIndex === -1) {
