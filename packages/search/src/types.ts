@@ -605,9 +605,22 @@ export type Options = {
   rulesToExclude?: Code[]
 }
 
-export interface FindProblemsArgs {
+export interface ProjectFilesUpdate {
+  /**
+   * All files in the project.
+   *
+   * Files are optional, to allow for only sending the changes to the files in
+   * messages where they haven't changed since the last message.
+   */
+  files?: ProjectFiles
+  /**
+   * Changes to the files last received by the worker, created with `jsondiffpatch`.
+   */
+  patch?: Delta
+}
+
+export interface FindProblemsArgs extends ProjectFilesUpdate {
   id: string
-  files: ProjectFiles
   options?: Options
 }
 
@@ -617,9 +630,8 @@ export interface FindProblemsResponse {
   complete?: true
 }
 
-export interface FixProblemsArgs {
+export interface FixProblemsArgs extends ProjectFilesUpdate {
   id: string
-  files: ProjectFiles
   options?: Options
   fixRule: Code
   fixType: FixType

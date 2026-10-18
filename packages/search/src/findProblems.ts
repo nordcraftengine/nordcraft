@@ -1,3 +1,4 @@
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ISSUE_RULES } from './rules/issues/issueRules.index'
 import { searchProject } from './searchProject'
 import type {
@@ -7,7 +8,7 @@ import type {
 } from './types'
 
 export const findProblems = (
-  data: FindProblemsArgs,
+  data: FindProblemsArgs & { files: ProjectFiles },
   reportResults: (results: FindProblemsResponse) => void,
 ) => {
   const { files, options = {} } = data
