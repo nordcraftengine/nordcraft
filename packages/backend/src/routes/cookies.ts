@@ -3,6 +3,28 @@ import type { Handler } from 'hono'
 import type { HonoEnv } from '../../hono'
 
 export const setCookieHandler: Handler<HonoEnv> = async (ctx) => {
+  // Never set cookies based on requests initiated by other sites. Without this
+  // check, any website can link a visitor to this endpoint and have the browser
+  // store an arbitrary (HttpOnly) cookie for this site, e.g. to log the visitor
+  // into an attacker's account or delete an existing session cookie.
+  // The Set HttpOnly Cookie action calls this endpoint from the same origin, so
+  // it is unaffected. Requests without the header (older browsers, non-browser
+  // clients) are allowed as they cannot be attributed to a specific site.
+  const secFetchSite = ctx.req.header('sec-fetch-site')?.toLowerCase()
+  if (
+    secFetchSite !== undefined &&
+    secFetchSite !== '' &&
+    secFetchSite !== 'same-origin' &&
+    secFetchSite !== 'none'
+  ) {
+    return ctx.json(
+      {
+        error:
+          'Forbidden. This endpoint can only set cookies for same-origin requests.',
+      },
+      403,
+    )
+  }
   const url = new URL(ctx.req.url)
   const searchParameters = escapeSearchParameters(url.searchParams)
   const name = searchParameters.get('name')

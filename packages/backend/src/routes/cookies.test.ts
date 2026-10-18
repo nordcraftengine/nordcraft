@@ -61,6 +61,58 @@ describe('Set cookie', () => {
     expect(parts).toContain('HttpOnly')
     expect(parts).toContain('Max-Age=0')
   })
+  it('Should reject requests initiated by another site', async () => {
+    const searchParams = new URLSearchParams({
+      name: 'hello',
+      value: 'world',
+    })
+    const res = await app.request(
+      `/.nordcraft/cookies/set-cookie?${searchParams.toString()}`,
+      { headers: { 'sec-fetch-site': 'cross-site' } },
+    )
+    expect(res.status).toBe(403)
+    expect(res.headers.get('set-cookie')).toBeNull()
+    const body = await res.json<{ error: string }>()
+    expect(body.error).toBe(
+      'Forbidden. This endpoint can only set cookies for same-origin requests.',
+    )
+  })
+  it('Should reject requests from a sibling subdomain (same-site)', async () => {
+    const searchParams = new URLSearchParams({
+      name: 'hello',
+      value: 'world',
+    })
+    const res = await app.request(
+      `/.nordcraft/cookies/set-cookie?${searchParams.toString()}`,
+      { headers: { 'sec-fetch-site': 'same-site' } },
+    )
+    expect(res.status).toBe(403)
+    expect(res.headers.get('set-cookie')).toBeNull()
+  })
+  it('Should allow requests from the same origin', async () => {
+    const searchParams = new URLSearchParams({
+      name: 'hello',
+      value: 'world',
+    })
+    const res = await app.request(
+      `/.nordcraft/cookies/set-cookie?${searchParams.toString()}`,
+      { headers: { 'sec-fetch-site': 'same-origin' } },
+    )
+    expect(res.status).toBe(200)
+    expect(res.headers.get('set-cookie')).toContain('hello=world')
+  })
+  it('Should allow user-initiated (none) requests', async () => {
+    const searchParams = new URLSearchParams({
+      name: 'hello',
+      value: 'world',
+    })
+    const res = await app.request(
+      `/.nordcraft/cookies/set-cookie?${searchParams.toString()}`,
+      { headers: { 'sec-fetch-site': 'none' } },
+    )
+    expect(res.status).toBe(200)
+    expect(res.headers.get('set-cookie')).toContain('hello=world')
+  })
   it('Should fail for invalid parameters', async () => {
     const searchParams = new URLSearchParams({
       name: 'hello',
