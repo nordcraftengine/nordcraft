@@ -19,7 +19,7 @@
   "scripts": {
     "build": "bun ./bin/generate.js && tsgo --project tsconfig.build.json",
     "npm-publish": "bun run build && bun publish --access public",
-    "typecheck": "tsgo --noEmit && bun bin/validate.ts",
+    "typecheck": "bun check && bun bin/validate.ts",
     "watch": "tsgo --noEmit -w"
   },
   "files": [

@@ -29,7 +29,7 @@
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:watch:only": "bun test --watch --only",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "bun check",
     "typecheck:watch": "tsgo --noEmit --watch",
     "watch": "tsgo --noEmit -w"
   },

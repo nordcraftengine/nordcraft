@@ -8,7 +8,7 @@
     "buildInterfaces": "cd elements && bun buildInterfaces.ts",
     "postbuildInterfaces": "bun run prettier:write",
     "prettier:write": "prettier --write 'elements/**/*.json' 'css-properties/cssPropertyKeywords.json'",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "bun check",
     "watch": "tsgo --noEmit --watch"
   },
   "devDependencies": {

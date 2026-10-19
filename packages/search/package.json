@@ -20,7 +20,7 @@
   "scripts": {
     "build": "tsgo",
     "npm-publish": "bun run build && bun publish --access public",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "bun check",
     "watch": "tsgo -w",
     "test": "bun test",
     "test:watch": "bun test --watch",
