@@ -1,5 +1,11 @@
+import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import { describe, expect, test } from 'bun:test'
-import { contextlessEvaluateFormula } from './contextlessEvaluateFormula'
+import {
+  contextlessEvaluateFormula,
+  NON_STATIC_LIB_FORMULAS,
+  PURE_LIB_FORMULAS,
+  type LibFormulaName,
+} from './contextlessEvaluateFormula'
 
 describe('contextlessEvaluateFormula', () => {
   test('should return `true` when the formula is a simple value formula', () => {
@@ -425,6 +431,22 @@ describe('contextlessEvaluateFormula', () => {
   })
 
   describe('function formula (pure builtin lib formulas)', () => {
+    test('PURE_LIB_FORMULAS stays in sync with @nordcraft/std-lib', () => {
+      const stdLibKeys = Object.keys(libFormulas)
+      const expectedPure = stdLibKeys
+        .filter((name) => !NON_STATIC_LIB_FORMULAS.has(name as LibFormulaName))
+        .sort()
+
+      expect(Array.from(PURE_LIB_FORMULAS).sort()).toEqual(expectedPure)
+    })
+
+    test('NON_STATIC_LIB_FORMULAS only contains valid formulas from @nordcraft/std-lib', () => {
+      const stdLibKeys = new Set(Object.keys(libFormulas))
+      for (const formula of NON_STATIC_LIB_FORMULAS) {
+        expect(stdLibKeys.has(formula)).toBe(true)
+      }
+    })
+
     test('should be static true for pure scalar formulas with static arguments', () => {
       expect(
         contextlessEvaluateFormula(

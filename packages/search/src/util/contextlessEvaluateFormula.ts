@@ -4,9 +4,9 @@ import {
 } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { Nullable } from '@nordcraft/core/dist/types'
-import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
+import type * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 
-type LibFormulaName = keyof typeof libFormulas
+export type LibFormulaName = keyof typeof libFormulas
 
 /**
  * Lib formulas that can NOT be statically evaluated.
@@ -17,7 +17,7 @@ type LibFormulaName = keyof typeof libFormulas
  * Excluded because they are non-deterministic, environment/browser specific,
  * or depend on external state:
  */
-const NON_STATIC_LIB_FORMULAS: Set<LibFormulaName> = new Set([
+export const NON_STATIC_LIB_FORMULAS: ReadonlySet<LibFormulaName> = new Set([
   'Id',
   'branchName',
   'canShare',
@@ -37,11 +37,89 @@ const NON_STATIC_LIB_FORMULAS: Set<LibFormulaName> = new Set([
   'userAgent',
 ])
 
-const PURE_LIB_FORMULAS: Set<string> = new Set(
-  Object.keys(libFormulas).filter(
-    (name) => !NON_STATIC_LIB_FORMULAS.has(name as LibFormulaName),
-  ),
-)
+export const PURE_LIB_FORMULAS: ReadonlySet<string> = new Set<LibFormulaName>([
+  'absolute',
+  'add',
+  'append',
+  'boolean',
+  'capitalize',
+  'clamp',
+  'concatenate',
+  'dateFromString',
+  'dateFromTimestamp',
+  'decodeBase64',
+  'decodeURIComponent',
+  'defaultTo',
+  'deleteKey',
+  'divide',
+  'drop',
+  'dropLast',
+  'encodeBase64',
+  'encodeJSON',
+  'encodeURIComponent',
+  'entries',
+  'equals',
+  'every',
+  'filter',
+  'find',
+  'findIndex',
+  'findLast',
+  'first',
+  'flatten',
+  'formatDate',
+  'fromEntries',
+  'get',
+  'greaterOrEqueal',
+  'greaterThan',
+  'groupBy',
+  'includes',
+  'indexOf',
+  'join',
+  'json',
+  'keyBy',
+  'last',
+  'lastIndexOf',
+  'lessOrEqual',
+  'lessThan',
+  'logarithm',
+  'lowercase',
+  'map',
+  'matches',
+  'max',
+  'min',
+  'minus',
+  'modulo',
+  'multiply',
+  'not',
+  'notEqual',
+  'number',
+  'parseJSON',
+  'parseURL',
+  'power',
+  'prepend',
+  'reduce',
+  'replaceAll',
+  'reverse',
+  'round',
+  'roundDown',
+  'roundUp',
+  'set',
+  'size',
+  'some',
+  'sort_by',
+  'split',
+  'squareRoot',
+  'startsWith',
+  'string',
+  'sum',
+  'take',
+  'takeLast',
+  'timestamp',
+  'trim',
+  'typeOf',
+  'unique',
+  'uppercase',
+])
 
 const normalizeFormulaName = (name: string) =>
   name.startsWith('@toddle/') ? name.slice(8) : name
