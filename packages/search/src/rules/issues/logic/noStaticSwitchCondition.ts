@@ -30,10 +30,7 @@ export const noStaticSwitchCondition: IssueRule<
       )
       const hasComputedResult = result !== undefined
       const booleanResult = hasComputedResult ? toBoolean(result) : undefined
-      const isAlwaysTruthy =
-        switchCase.condition.type === 'object' ||
-        switchCase.condition.type === 'array' ||
-        (isStatic && booleanResult === true)
+      const isAlwaysTruthy = isStatic && booleanResult === true
       const isAlwaysFalsy = isStatic && booleanResult === false
 
       if (isAlwaysTruthy || isAlwaysFalsy || isStatic) {
