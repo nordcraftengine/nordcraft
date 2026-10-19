@@ -13,7 +13,10 @@ export const noUnnecessaryConditionFalsy: IssueRule<unknown, FormulaNode> = {
 
     if (
       (value.arguments ?? []).some((arg) => {
-        const { result, isStatic } = contextlessEvaluateFormula(arg.formula)
+        const { result, isStatic } = contextlessEvaluateFormula(arg.formula, {
+          formulas: files.formulas,
+          packages: files.packages,
+        })
         return isStatic && Boolean(result) === false
       })
     ) {

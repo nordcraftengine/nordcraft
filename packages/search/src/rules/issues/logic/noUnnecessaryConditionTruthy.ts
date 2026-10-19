@@ -18,7 +18,10 @@ export const noUnnecessaryConditionTruthy: IssueRule<unknown, FormulaNode> = {
           return true
         }
 
-        const { result, isStatic } = contextlessEvaluateFormula(arg.formula)
+        const { result, isStatic } = contextlessEvaluateFormula(arg.formula, {
+          formulas: files.formulas,
+          packages: files.packages,
+        })
         return isStatic && Boolean(result) === true
       })
     ) {

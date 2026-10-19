@@ -4,102 +4,43 @@ import {
 } from '@nordcraft/core/dist/formula/formula';
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes';
 import type { Nullable } from '@nordcraft/core/dist/types';
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types';
 
-const PURE_LIB_FORMULAS = new Set([
-  // Arithmetic & Math
-  'absolute',
-  'add',
-  'clamp',
-  'divide',
-  'logarithm',
-  'max',
-  'min',
-  'minus',
-  'modulo',
-  'multiply',
-  'number',
-  'power',
-  'round',
-  'roundDown',
-  'roundUp',
-  'squareRoot',
-  'sum',
+type LibFormulaName = keyof typeof libFormulas
 
-  // Logic & Comparison
-  'boolean',
-  'equals',
-  'greaterOrEqueal',
-  'greaterThan',
-  'lessOrEqual',
-  'lessThan',
-  'not',
-  'notEqual',
-
-  // Strings
-  'capitalize',
-  'concatenate',
-  'decodeBase64',
-  'decodeURIComponent',
-  'encodeBase64',
-  'encodeJSON',
-  'encodeURIComponent',
-  'json',
-  'lowercase',
-  'matches',
-  'parseJSON',
-  'parseURL',
-  'replaceAll',
-  'split',
-  'startsWith',
-  'string',
-  'trim',
-  'uppercase',
-
-  // Collections
-  'append',
-  'defaultTo',
-  'deleteKey',
-  'drop',
-  'dropLast',
-  'entries',
-  'first',
-  'flatten',
-  'fromEntries',
-  'get',
-  'includes',
-  'indexOf',
-  'join',
-  'last',
-  'lastIndexOf',
-  'prepend',
-  'reverse',
-  'set',
-  'size',
-  'take',
-  'takeLast',
-  'typeOf',
-  'unique',
-
-  // Higher-order (with callback formulas)
-  'every',
-  'filter',
-  'find',
-  'findIndex',
-  'findLast',
-  'groupBy',
-  'keyBy',
-  'map',
-  'reduce',
-  'some',
-  'sort_by',
-
-  // Deterministic Date
-  'dateFromString',
-  'dateFromTimestamp',
-  'formatDate',
-  'timestamp',
+/**
+ * Lib formulas that can NOT be statically evaluated.
+ *
+ * Everything else exported from `@nordcraft/std-lib` is considered pure
+ * and deterministic (given static arguments, the result is static).
+ *
+ * Excluded because they are non-deterministic, environment/browser specific,
+ * or depend on external state:
+ */
+const NON_STATIC_LIB_FORMULAS: Set<LibFormulaName> = new Set([
+  'Id',
+  'branchName',
+  'canShare',
+  'currentURL',
+  'formatNumber',
+  'getCookie',
+  'getElementById',
+  'getFromLocalStorage',
+  'getFromSessionStorage',
+  'getHttpOnlyCookie',
+  'isServer',
+  'languages',
+  'now',
+  'randomNumber',
+  'range',
+  'shuffle',
+  'userAgent',
 ])
+
+const PURE_LIB_FORMULAS: Set<string> = new Set(
+  Object.keys(libFormulas).filter(
+    (name) => !NON_STATIC_LIB_FORMULAS.has(name as LibFormulaName),
+  ),
+)
 
 const normalizeFormulaName = (name: string) =>
   name.startsWith('@toddle/') ? name.slice(8) : name
@@ -110,7 +51,6 @@ export interface EvaluationContext {
   packages?: Partial<
     Record<string, { formulas?: Record<string, PluginFormula> }>
   >
-  files?: Pick<ProjectFiles, 'formulas' | 'packages'>
   visitedFormulas?: Set<string>
 }
 
@@ -132,8 +72,8 @@ export interface EvaluationContext {
 export type ContextlessEvaluation = {
 =======
 export const contextlessEvaluateFormula = (
-  formula?: Nullable<Formula>,
-  ctx?: EvaluationContext,
+  formula: Nullable<Formula>,
+  ctx: EvaluationContext,
 ): {
 >>>>>>> 5af4b739 (Allow detecting more static formulas)
   isStatic: boolean
@@ -324,7 +264,7 @@ const evaluateFormula = (formula: Formula): ContextlessEvaluation => {
     }
 
     case 'path': {
-      if (formula.path?.[0] === 'Args' && ctx?.inFunctionScope) {
+      if (formula.path?.[0] === 'Args' && ctx.inFunctionScope) {
         return {
           isStatic: true,
           result: undefined,
@@ -360,9 +300,8 @@ const evaluateFormula = (formula: Formula): ContextlessEvaluation => {
 
       // 2. Check if it references a global/project formula
       const projectFormulas = formula.package
-        ? (ctx?.packages?.[formula.package]?.formulas ??
-          ctx?.files?.packages?.[formula.package]?.formulas)
-        : (ctx?.formulas ?? ctx?.files?.formulas)
+        ? ctx.packages?.[formula.package]?.formulas
+        : ctx.formulas
 
       const projectFormula = projectFormulas?.[formula.name]
 
@@ -393,14 +332,14 @@ const evaluateFormula = (formula: Formula): ContextlessEvaluation => {
 
       // Detect circular references
       const formulaKey = `${formula.package ?? ''}:${formula.name}`
-      if (ctx?.visitedFormulas?.has(formulaKey)) {
+      if (ctx.visitedFormulas?.has(formulaKey)) {
         return {
           isStatic: false,
           result: undefined,
         }
       }
 
-      const visitedFormulas = new Set(ctx?.visitedFormulas)
+      const visitedFormulas = new Set(ctx.visitedFormulas)
       visitedFormulas.add(formulaKey)
 
       // Visit and evaluate the regular project formula

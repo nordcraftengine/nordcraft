@@ -42,6 +42,10 @@ export function createRequiredElementAttributeRule({
             }
             const { isStatic, result } = contextlessEvaluateFormula(
               value.attrs[attr],
+              {
+                formulas: files.formulas,
+                packages: files.packages,
+              },
             )
             return (
               // Dynamic attributes are considered valid

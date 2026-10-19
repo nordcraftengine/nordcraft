@@ -15,8 +15,10 @@ export const noReferenceAttributeInInstanceRule: IssueRule<
     if (
       (state?.projectDetails?.type === 'package' &&
         args.component.exported === true) ||
-      contextlessEvaluateFormula(args.component.customElement?.enabled)
-        .result === true
+      contextlessEvaluateFormula(args.component.customElement?.enabled, {
+        formulas: args.files.formulas,
+        packages: args.files.packages,
+      }).result === true
     ) {
       return
     }

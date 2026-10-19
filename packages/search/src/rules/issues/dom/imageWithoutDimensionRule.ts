@@ -23,13 +23,19 @@ export const imageWithoutDimensionRule: IssueRule<unknown, ComponentNodeNode> =
       let hasValidAspectRatio = false
 
       if (isDefined(value.attrs?.width)) {
-        const widthEval = contextlessEvaluateFormula(value.attrs.width)
+        const widthEval = contextlessEvaluateFormula(value.attrs.width, {
+          formulas: files.formulas,
+          packages: files.packages,
+        })
         // If dynamic, we assume it is valid
         hasValidWidth ||= !widthEval.isStatic || checkValue(widthEval.result)
       }
 
       if (isDefined(value.attrs?.height)) {
-        const heightEval = contextlessEvaluateFormula(value.attrs.height)
+        const heightEval = contextlessEvaluateFormula(value.attrs.height, {
+          formulas: files.formulas,
+          packages: files.packages,
+        })
         // If dynamic, we assume it is valid
         hasValidHeight ||= !heightEval.isStatic || checkValue(heightEval.result)
       }
