@@ -1,5 +1,26 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
+const compareSortKeys = (
+  keyA: any,
+  keyB: any,
+  ascendingModifier: 1 | -1,
+): number => {
+  if (Array.isArray(keyA) && Array.isArray(keyB)) {
+    for (const i in keyA) {
+      if (keyA[i] === keyB[i]) {
+        continue
+      }
+      return (keyA[i] > keyB[i] ? 1 : -1) * ascendingModifier
+    }
+    return 0
+  }
+
+  if (keyA === keyB) {
+    return 0
+  }
+  return (keyA > keyB ? 1 : -1) * ascendingModifier
+}
+
 const handler: FormulaHandler<Array<unknown>> = ([
   array,
   formula,
@@ -15,25 +36,9 @@ const handler: FormulaHandler<Array<unknown>> = ([
     return null
   }
   const ascendingModifier = ascending ? 1 : -1
-  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
-  return [...array].sort((a: any, b: any) => {
-    const keyA = formula({ item: a })
-    const keyB = formula({ item: b })
-    if (Array.isArray(keyA) && Array.isArray(keyB)) {
-      for (const i in keyA) {
-        if (keyA[i] === keyB[i]) {
-          continue
-        }
-        return (keyA[i] > keyB[i] ? 1 : -1) * ascendingModifier
-      }
-      return 0
-    }
-
-    if (keyA === keyB) {
-      return 0
-    }
-    return (keyA > keyB ? 1 : -1) * ascendingModifier
-  })
+  const keyed = array.map((item) => [item, formula({ item })] as const)
+  keyed.sort((a, b) => compareSortKeys(a[1], b[1], ascendingModifier))
+  return keyed.map(([item]) => item)
 }
 
 export default handler

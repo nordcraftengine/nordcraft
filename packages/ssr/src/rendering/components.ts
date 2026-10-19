@@ -34,11 +34,16 @@ import type { Nullable } from '@nordcraft/core/dist/types'
 import { filterObject, mapValues } from '@nordcraft/core/dist/utils/collections'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
+import {
+  applySlotSuffix,
+  buildSlotSuffix,
+  repeatPath,
+  slotBasePath,
+} from '@nordcraft/core/dist/utils/nodePath'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
-import { escapeAttrValue } from 'xss'
 import type { ProjectFiles } from '../ssr.types'
 import type { ApiCache, ApiEvaluator } from './api'
-import { getNodeAttrs, toEncodedText } from './attributes'
+import { escapeAttrValue, getNodeAttrs, toEncodedText } from './attributes'
 
 type CustomPropertyRule = `--${string}: ${string}`
 type SlottedContentOptions = {
@@ -53,6 +58,50 @@ type SlottedContent =
       contexts: Record<string, Record<string, any>>,
       options?: SlottedContentOptions,
     ) => Promise<string>)
+
+// Static class names depend only on the (immutable) node definition, while
+// resolving them costs a JSON.stringify + hash per call. Nodes are reused
+// across renders (and across repeat iterations of the same node), so cache
+// the resolved class name per node object and turn per-render serialization
+// work into a single computation per node.
+const staticClassNameCache = new WeakMap<object, string | undefined>()
+function getCachedStaticClassName(
+  node: Extract<NodeModel, { type: 'element' }>,
+): string | undefined {
+  if (staticClassNameCache.has(node)) {
+    return staticClassNameCache.get(node)
+  }
+  let className: string | undefined
+  if (node.style || node.customProperties || node.variants) {
+    const [style, variants] = getStaticStyleAndVariants(node)
+    if (style || variants) {
+      className = getClassName([style, variants])
+    }
+  }
+  staticClassNameCache.set(node, className)
+  return className
+}
+
+// `includedComponents.some((c) => c.name === name)` is a linear scan over
+// ~200 components on every component-node render. Cache the names in a Set
+// keyed by the (stable) array identity instead.
+const includedComponentNamesCache = new WeakMap<object, Set<string>>()
+function isIncludedComponent(
+  includedComponents: Component[],
+  name: string,
+): boolean {
+  let names = includedComponentNamesCache.get(includedComponents)
+  if (!names) {
+    names = new Set(includedComponents.map((c) => c.name))
+    includedComponentNamesCache.set(includedComponents, names)
+  }
+  return names.has(name)
+}
+
+// `Array.join('')` has measurable call overhead when rendering thousands of
+// nodes, and most elements have exactly one child — index it directly.
+const joinHtml = (parts: string[]): string =>
+  parts.length === 1 ? parts[0]! : parts.join('')
 
 function getSlotComponentIndex(
   nodeName: string,
@@ -163,12 +212,13 @@ const renderComponent = async ({
         return ''
       }
 
+      const nodeWithoutRepeat = { ...node, repeat: undefined }
       const nodeItems = await Promise.all(
         items.map((Item, Index) =>
           renderNode({
             id,
-            path: Index ? `${path}(${Index})` : path,
-            node: { ...node, repeat: undefined },
+            path: repeatPath(path, Index || undefined),
+            node: nodeWithoutRepeat,
             data: {
               ...data,
               ListItem: data.ListItem
@@ -182,7 +232,7 @@ const renderComponent = async ({
           }),
         ),
       )
-      return nodeItems.join('')
+      return joinHtml(nodeItems)
     }
     if (
       node.condition &&
@@ -194,7 +244,7 @@ const renderComponent = async ({
     switch (node.type) {
       case 'text': {
         if (!namespace || namespace === 'http://www.w3.org/1999/xhtml') {
-          return `<span ${DATA_ATTR_NODE_TYPE}="${DATA_NODE_TYPE_TEXT}" ${DATA_ATTR_NODE_ID}="${id}">${toEncodedText(
+          return `<span ${DATA_ATTR_NODE_TYPE}="${DATA_NODE_TYPE_TEXT}" ${DATA_ATTR_NODE_ID}="${id}" ${DATA_ATTR_ID}="${path}">${toEncodedText(
             String(applyFormula(node.value, formulaContext)),
           )}</span>`
         }
@@ -210,17 +260,18 @@ const renderComponent = async ({
             node,
             component.nodes,
           )
-          let currentSuffix = slotSuffix ?? ''
-          if (slotComponentIndex > 0) {
-            currentSuffix += `{${slotComponentIndex}}`
-          }
-          if (slotRepeatIndex && slotRepeatIndex > 0) {
-            currentSuffix += `(${slotRepeatIndex})`
-          }
+          const currentSuffix =
+            buildSlotSuffix({
+              slotSuffix,
+              slotComponentIndex,
+              slotRepeatIndex,
+            }) || undefined
+          // `defaultChild` expects `undefined` when empty to match the
+          // runtime convention.
           return typeof defaultChild === 'function'
-            ? await defaultChild(data.Contexts ?? {}, {
+            ? defaultChild(data.Contexts ?? {}, {
                 slotRepeatIndex,
-                slotSuffix: currentSuffix || undefined,
+                slotSuffix: currentSuffix,
                 slotPath: path,
               })
             : defaultChild
@@ -239,11 +290,13 @@ const renderComponent = async ({
               }),
             ),
           )
-          return slotChildren.join('')
+          return joinHtml(slotChildren)
         }
       }
       case 'element': {
-        switch (node.tag.toLocaleLowerCase()) {
+        // Tag names are ASCII — `toLowerCase` avoids the locale lookup.
+        const lowerTag = node.tag.toLowerCase()
+        switch (lowerTag) {
           case 'script': {
             // we do not want to run scripts twice.
             return ''
@@ -258,27 +311,21 @@ const renderComponent = async ({
           }
         }
 
-        const nodeAttrs = getNodeAttrs({
-          node,
-          data,
-          component,
-          packageName,
-          env,
-          toddle,
-        })
+        const nodeAttrs = getNodeAttrs({ node, formulaContext })
         const classList: string[] = []
-        const [style, variants] = getStaticStyleAndVariants(node)
-        if (style || variants) {
-          classList.push(getClassName([style, variants]))
+        const staticClassName = getCachedStaticClassName(node)
+        if (staticClassName) {
+          classList.push(staticClassName)
         }
 
-        classList.push(
-          ...Object.entries(node.classes ?? {})
-            .filter(([_, { formula }]) =>
-              toBoolean(applyFormula(formula, formulaContext)),
-            )
-            .map(([className]) => className),
-        )
+        if (node.classes) {
+          for (const className in node.classes) {
+            const { formula } = node.classes[className]!
+            if (toBoolean(applyFormula(formula, formulaContext))) {
+              classList.push(className)
+            }
+          }
+        }
         let hasDynamicCustomProperties = false
         if (id === 'root' && instance && Object.keys(instance).length > 0) {
           classList.push(
@@ -288,12 +335,14 @@ const renderComponent = async ({
           )
           hasDynamicCustomProperties = true
         }
-        Object.entries(node.customProperties ?? {})
-          .filter(
+        if (node.customProperties) {
+          for (const customPropertyName in node.customProperties) {
+            const customProperty =
+              node.customProperties[customPropertyName as `--${string}`]!
             // Only prerender dynamic properties here as static properties are already part of class-styling.
-            ([_, customProperty]) => customProperty.formula?.type !== 'value',
-          )
-          .forEach(([customPropertyName, customProperty]) => {
+            if (customProperty.formula?.type === 'value') {
+              continue
+            }
             hasDynamicCustomProperties = true
             const value = appendUnit(
               applyFormula(customProperty.formula, formulaContext),
@@ -305,14 +354,20 @@ const renderComponent = async ({
                 `${customPropertyName}: ${value}` as CustomPropertyRule,
               )
             }
-          })
+          }
+        }
 
-        node.variants?.forEach((variant) => {
-          Object.entries(variant.customProperties ?? {})
-            .filter(
-              ([_, customProperty]) => customProperty.formula?.type !== 'value',
-            )
-            .forEach(([customPropertyName, customProperty]) => {
+        if (node.variants) {
+          for (const variant of node.variants) {
+            if (!variant.customProperties) {
+              continue
+            }
+            for (const customPropertyName in variant.customProperties) {
+              const customProperty =
+                variant.customProperties[customPropertyName as `--${string}`]!
+              if (customProperty.formula?.type === 'value') {
+                continue
+              }
               hasDynamicCustomProperties = true
               // style-variables on variants are always version 2
               const value = appendUnit(
@@ -326,8 +381,9 @@ const renderComponent = async ({
                   variant,
                 )
               }
-            })
-        })
+            }
+          }
+        }
 
         if (hasDynamicCustomProperties) {
           classList.push(getPathClassName(path))
@@ -335,9 +391,7 @@ const renderComponent = async ({
 
         let innerHTML = ''
 
-        if (
-          ['script', 'style'].includes(node.tag.toLocaleLowerCase()) === false
-        ) {
+        if (lowerTag !== 'script' && lowerTag !== 'style') {
           const childNodes = node.children
             ? await Promise.all(
                 node.children.map((child, i) =>
@@ -354,9 +408,9 @@ const renderComponent = async ({
                 ),
               )
             : []
-          innerHTML = childNodes.join('')
+          innerHTML = joinHtml(childNodes)
         }
-        if (node.tag.toLocaleLowerCase() === 'style') {
+        if (lowerTag === 'style') {
           // render style content as text
           const textNode = node.children?.[0]
             ? component.nodes?.[node.children[0]]
@@ -377,7 +431,7 @@ const renderComponent = async ({
         if (classList.length > 0) {
           attributes.push(`class="${escapeAttrValue(classList.join(' '))}"`)
         }
-        if (!VOID_HTML_ELEMENTS.includes(tag)) {
+        if (!VOID_HTML_ELEMENTS.has(tag)) {
           return `<${tag} ${attributes.join(' ')}>${innerHTML}</${tag}>`
         } else {
           return `<${tag} ${attributes.join(' ')} />`
@@ -425,8 +479,9 @@ const renderComponent = async ({
         // help Typescript know that childComponent is defined
         const childComponent = _childComponent
 
-        const isLocalComponent = includedComponents.some(
-          (c) => c.name === childComponent.name,
+        const isLocalComponent = isIncludedComponent(
+          includedComponents,
+          childComponent.name,
         )
 
         // Evaluate the child component apis before rendering to make sure we have api data for potential contexts
@@ -496,14 +551,11 @@ const renderComponent = async ({
               options?: SlottedContentOptions,
             ) => {
               const currentSuffix = options?.slotSuffix ?? ''
-              let basePath = `${path}.${i}[${slotName}]`
+              let basePath = slotBasePath(path, i, slotName)
               if (options?.slotPath?.startsWith(`${basePath}.`)) {
                 basePath = i > 0 ? `${options.slotPath}.${i}` : options.slotPath
               }
-              const finalPath =
-                currentSuffix && !basePath.endsWith(currentSuffix)
-                  ? `${basePath}${currentSuffix}`
-                  : basePath
+              const finalPath = applySlotSuffix(basePath, currentSuffix)
               return renderNode({
                 id: child,
                 path: finalPath,
@@ -519,10 +571,15 @@ const renderComponent = async ({
                         .filter(([, formula]) => formula?.exposeInContext)
                         .map(([key, formula]) => [
                           key,
-                          applyFormula((formula as ComponentFormula).formula, {
-                            component: childComponent,
-                            package: _packageName,
-                            data: {
+                          applyFormula(
+                            (formula as ComponentFormula).formula,
+                            {
+                              component: childComponent,
+                              package: _packageName,
+                              env,
+                              toddle,
+                            },
+                            {
                               Contexts: {
                                 ...data.Contexts,
                                 ...Object.fromEntries(
@@ -535,16 +592,16 @@ const renderComponent = async ({
                                       applyFormula(
                                         (formula as ComponentFormula).formula,
                                         {
-                                          data: {
-                                            Attributes: attrs,
-                                            Apis: { ...data.Apis, ...apis },
-                                            Location: data.Location,
-                                            Page: data.Page,
-                                          },
                                           component,
                                           package: _packageName,
                                           env,
                                           toddle,
+                                        },
+                                        {
+                                          Attributes: attrs,
+                                          Apis: { ...data.Apis, ...apis },
+                                          Location: data.Location,
+                                          Page: data.Page,
                                         },
                                       ),
                                     ]),
@@ -561,23 +618,24 @@ const renderComponent = async ({
                                   ([_, variable]) => isDefined(variable),
                                 ),
                                 ({ initialValue }) => {
-                                  return applyFormula(initialValue, {
-                                    data: {
+                                  return applyFormula(
+                                    initialValue,
+                                    {
+                                      component,
+                                      package: _packageName,
+                                      env,
+                                      toddle,
+                                    },
+                                    {
                                       Attributes: attrs,
                                       Location: data.Location,
                                       Page: data.Page,
                                     },
-                                    component,
-                                    package: _packageName,
-                                    env,
-                                    toddle,
-                                  })
+                                  )
                                 },
                               ),
                             },
-                            env,
-                            toddle,
-                          }),
+                          ),
                         ]),
                     ),
                   },
@@ -783,10 +841,7 @@ const createComponent = async ({
       ([_, variable]) => isDefined(variable),
     ),
     ({ initialValue }) => {
-      return applyFormula(initialValue, {
-        ...formulaContext,
-        data,
-      })
+      return applyFormula(initialValue, formulaContext, data)
     },
   )
 
@@ -800,10 +855,11 @@ const createComponent = async ({
           .filter(([, formula]) => formula?.exposeInContext)
           .map(([key, formula]) => [
             key,
-            applyFormula((formula as ComponentFormula).formula, {
-              ...formulaContext,
+            applyFormula(
+              (formula as ComponentFormula).formula,
+              formulaContext,
               data,
-            }),
+            ),
           ]),
       ),
     },

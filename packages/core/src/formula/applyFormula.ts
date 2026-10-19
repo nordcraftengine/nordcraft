@@ -1,14 +1,17 @@
 /* eslint-disable no-console */
-import { measure } from '../utils/measure'
+import '../compileTime'
+import type { ComponentData } from '../component/component.types'
+import { isMeasureEnabled, measure, noopMeasure } from '../utils/measure'
 import {
   applyFormula,
   type ApplyOperation,
-  type FormulaContext,
+  type BaseFormulaContext,
 } from './formula'
 
 export const applyApplyFormula = (
   formula: ApplyOperation,
-  ctx: FormulaContext,
+  ctx: BaseFormulaContext,
+  data: ComponentData,
 ) => {
   const componentFormula = ctx.component?.formulas?.[formula.name]
   if (!componentFormula) {
@@ -20,38 +23,47 @@ export const applyApplyFormula = (
     }
     return null
   }
-  const stopMeasure = measure(`Formula: ${componentFormula.name}`, {
-    formula,
-    component: ctx.component?.name,
-  })
-  const Input = Object.fromEntries(
-    (formula.arguments ?? []).map((arg, i) =>
-      arg.isFunction
-        ? [
-            arg.name,
-            (Args: any) =>
-              applyFormula(
-                arg.formula,
-                {
-                  ...ctx,
-                  data: {
-                    ...ctx.data,
-                    Args: ctx.data.Args
-                      ? { ...Args, '@toddle.parent': ctx.data.Args }
-                      : Args,
-                  },
-                },
-                ['arguments', i],
-              ),
-          ]
-        : [arg.name, applyFormula(arg.formula, ctx, ['arguments', i])],
-    ),
-  )
-  const data = {
-    ...ctx.data,
-    Args: ctx.data.Args ? { ...Input, '@toddle.parent': ctx.data.Args } : Input,
+  const stopMeasure = isMeasureEnabled()
+    ? measure(`Formula: ${componentFormula.name}`, {
+        formula,
+        component: ctx.component?.name,
+      })
+    : noopMeasure
+  const applyArgs = formula.arguments ?? []
+  const Input: Record<string, unknown> = {}
+  for (let i = 0; i < applyArgs.length; i++) {
+    const arg = applyArgs[i]!
+    if (arg.isFunction) {
+      const argFormula = arg.formula
+      const argIndex = i
+      Input[arg.name as string] = (Args: any) =>
+        applyFormula(
+          argFormula,
+          ctx,
+          {
+            ...data,
+            Args: data.Args ? { ...Args, '@toddle.parent': data.Args } : Args,
+          },
+          IS_PREVIEW && ctx.reportFormulaEvaluation
+            ? ['arguments', argIndex]
+            : undefined,
+        )
+    } else {
+      Input[arg.name as string] = applyFormula(
+        arg.formula,
+        ctx,
+        data,
+        IS_PREVIEW && ctx.reportFormulaEvaluation
+          ? ['arguments', i]
+          : undefined,
+      )
+    }
   }
-  const cache = ctx.formulaCache?.[formula.name]?.get(data)
+  const nextData = {
+    ...data,
+    Args: data.Args ? { ...Input, '@toddle.parent': data.Args } : Input,
+  }
+  const cache = ctx.formulaCache?.[formula.name]?.get(nextData)
 
   if (cache?.hit) {
     stopMeasure({ cache: 'hit' })
@@ -59,13 +71,11 @@ export const applyApplyFormula = (
   } else {
     const result = applyFormula(
       componentFormula.formula,
-      {
-        ...ctx,
-        data,
-      },
-      ['formula'],
+      ctx,
+      nextData,
+      IS_PREVIEW && ctx.reportFormulaEvaluation ? ['formula'] : undefined,
     )
-    ctx.formulaCache?.[formula.name]?.set(data, result)
+    ctx.formulaCache?.[formula.name]?.set(nextData, result)
     stopMeasure({ cache: 'miss' })
     return result
   }

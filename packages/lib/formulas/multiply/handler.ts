@@ -1,14 +1,19 @@
 import type { FormulaHandler } from '@nordcraft/core/dist/types'
 
 const handler: FormulaHandler<number> = (numbers) => {
-  if (numbers.some((n) => isNaN(Number(n)))) {
+  if (!Array.isArray(numbers)) {
     return null
   }
-  return (numbers as number[]).reduce<number>(
+  let product = 1
+  for (let i = 0; i < numbers.length; i++) {
+    const num = Number(numbers[i])
+    if (isNaN(num)) {
+      return null
+    }
     // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Multiplication
-    (product, num) => product * num,
-    1,
-  )
+    product *= num
+  }
+  return product
 }
 
 export default handler

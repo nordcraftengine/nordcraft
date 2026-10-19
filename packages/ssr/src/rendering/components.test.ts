@@ -143,7 +143,7 @@ describe('renderPageBody', () => {
     })
 
     expect(html).toBe(
-      '<span data-node-type="text" data-node-id="root">provided-value</span>',
+      '<span data-node-type="text" data-node-id="root" data-id="0">provided-value</span>',
     )
   })
 
@@ -355,12 +355,12 @@ describe('renderPageBody', () => {
     })
     // Expect the first child text node to render the formula value
     expect(html).toInclude(
-      '<span data-node-type="text" data-node-id="firstChild">output-from-test-formula</span>',
+      '<span data-node-type="text" data-node-id="firstChild" data-id="0.0">output-from-test-formula</span>',
     )
     // Expect the nested child text node inside the package component to also render the formula value,
     // proving that the formula is evaluated correctly even when used inside a package component
     expect(html).toInclude(
-      '<span data-id="0.1" data-node-id="root" class="PageComponent:secondChild AxiNE"><span data-node-type="text" data-node-id="nestedChild">output-from-test-formula</span></span>',
+      '<span data-id="0.1" data-node-id="root" class="PageComponent:secondChild AxiNE"><span data-node-type="text" data-node-id="nestedChild" data-id="0.1.0[default]">output-from-test-formula</span></span>',
     )
   })
 
@@ -498,7 +498,7 @@ describe('renderPageBody', () => {
     })
 
     expect(html).toBe(
-      `<span data-node-type="text" data-node-id="root">provided-value</span>`,
+      `<span data-node-type="text" data-node-id="root" data-id="0.0[default]">provided-value</span>`,
     )
   })
 
@@ -560,7 +560,7 @@ describe('renderPageBody', () => {
     })
 
     expect(html).toBe(
-      '<span data-node-type="text" data-node-id="root">dark</span>',
+      '<span data-node-type="text" data-node-id="root" data-id="0">dark</span>',
     )
   })
 
@@ -622,7 +622,7 @@ describe('renderPageBody', () => {
     })
 
     expect(html).toBe(
-      '<span data-node-type="text" data-node-id="root">hotdog</span>',
+      '<span data-node-type="text" data-node-id="root" data-id="0">hotdog</span>',
     )
   })
 
@@ -703,7 +703,7 @@ describe('renderPageBody', () => {
     })
 
     expect(html).toBe(
-      '<span data-node-type="text" data-node-id="root">light</span>',
+      '<span data-node-type="text" data-node-id="root" data-id="0">light</span>',
     )
   })
 
@@ -940,23 +940,24 @@ describe('renderPageBody', () => {
       },
     }
 
+    const req = new Request('http://localhost')
     const { html } = await renderPageBody({
       evaluateComponentApis: () => ({}) as any,
       component: component as any,
       formulaContext: getPageFormulaContext({
         component: component as any,
         branchName: 'main',
-        req: new Request('http://localhost'),
+        req,
         logErrors: true,
         files: {
           components: { IdTestComponent: component },
         },
       }),
-      env: {} as any,
+      env: { isServer: true, request: req } as any,
       files: { components: { IdTestComponent: component } } as any,
       includedComponents: [component],
       projectId: 'test-project',
-      req: {} as any,
+      req: req as any,
     })
 
     // Expect the ID formula to render with the correct order (0 in this case since it's the first formula rendered)
