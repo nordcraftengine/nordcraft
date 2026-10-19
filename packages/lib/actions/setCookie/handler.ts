@@ -41,7 +41,7 @@ const handler: ActionHandler = async function (
     return
   }
   // The cookie will always be set to Secure. Anything else can be configured
-  let cookie = `${name}=${value}; SameSite=${sameSite}; Path=${path}`
+  let cookie = `${name}=${value}; Secure; SameSite=${sameSite}; Path=${path}`
   // If no ttl is set, the cookie will be a session cookie
   if (typeof ttl === 'number') {
     const date = new Date(Date.now() + ttl * 1000)
