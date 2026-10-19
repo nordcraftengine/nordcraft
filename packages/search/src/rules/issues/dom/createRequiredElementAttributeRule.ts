@@ -28,7 +28,7 @@ export function createRequiredElementAttributeRule({
     code: 'required element attribute',
     level: level,
     category: 'Accessibility',
-    visit: (report, { path, nodeType, value }) => {
+    visit: (report, { path, files, nodeType, value }) => {
       if (
         nodeType === 'component-node' &&
         value?.type === 'element' &&
@@ -42,6 +42,10 @@ export function createRequiredElementAttributeRule({
             }
             const { isStatic, result } = contextlessEvaluateFormula(
               value.attrs[attr],
+              {
+                formulas: files.formulas,
+                packages: files.packages,
+              },
             )
             return (
               // Dynamic attributes are considered valid

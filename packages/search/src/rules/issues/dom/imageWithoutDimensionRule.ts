@@ -11,7 +11,7 @@ export const imageWithoutDimensionRule: IssueRule = {
   code: 'image without dimension',
   level: 'warning',
   category: 'Performance',
-  visit: (report, { path, nodeType, value }) => {
+  visit: (report, { path, files, nodeType, value }) => {
     if (
       nodeType !== 'component-node' ||
       value?.type !== 'element' ||
@@ -25,13 +25,19 @@ export const imageWithoutDimensionRule: IssueRule = {
     let hasValidAspectRatio = false
 
     if (isDefined(value.attrs?.width)) {
-      const widthEval = contextlessEvaluateFormula(value.attrs.width)
+      const widthEval = contextlessEvaluateFormula(value.attrs.width, {
+        formulas: files.formulas,
+        packages: files.packages,
+      })
       // If dynamic, we assume it is valid
       hasValidWidth ||= !widthEval.isStatic || checkValue(widthEval.result)
     }
 
     if (isDefined(value.attrs?.height)) {
-      const heightEval = contextlessEvaluateFormula(value.attrs.height)
+      const heightEval = contextlessEvaluateFormula(value.attrs.height, {
+        formulas: files.formulas,
+        packages: files.packages,
+      })
       // If dynamic, we assume it is valid
       hasValidHeight ||= !heightEval.isStatic || checkValue(heightEval.result)
     }

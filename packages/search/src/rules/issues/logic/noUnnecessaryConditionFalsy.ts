@@ -5,14 +5,17 @@ export const noUnnecessaryConditionFalsy: IssueRule = {
   code: 'no-unnecessary-condition-falsy',
   level: 'info',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }) => {
+  visit: (report, { path, files, value, nodeType }) => {
     if (nodeType !== 'formula' || value.type !== 'and') {
       return
     }
 
     if (
       (value.arguments ?? []).some((arg) => {
-        const { result, isStatic } = contextlessEvaluateFormula(arg.formula)
+        const { result, isStatic } = contextlessEvaluateFormula(arg.formula, {
+          formulas: files.formulas,
+          packages: files.packages,
+        })
         return isStatic && Boolean(result) === false
       })
     ) {

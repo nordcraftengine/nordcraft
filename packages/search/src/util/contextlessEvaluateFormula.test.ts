@@ -7,7 +7,7 @@ describe('contextlessEvaluateFormula', () => {
       contextlessEvaluateFormula({
         type: 'value',
         value: true,
-      }),
+      }, {}),
     ).toEqual({
       isStatic: true,
       result: true,
@@ -20,7 +20,7 @@ describe('contextlessEvaluateFormula', () => {
         type: 'apply',
         name: 'randomNumber',
         arguments: [],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: false,
       result: undefined,
@@ -31,7 +31,7 @@ describe('contextlessEvaluateFormula', () => {
         type: 'apply',
         name: 'now',
         arguments: [],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: false,
       result: undefined,
@@ -43,7 +43,7 @@ describe('contextlessEvaluateFormula', () => {
       contextlessEvaluateFormula({
         type: 'path',
         path: ['Variables', 'myVariable'],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: false,
       result: undefined,
@@ -63,7 +63,7 @@ describe('contextlessEvaluateFormula', () => {
             },
           },
         ],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: true,
       result: [1, [2]],
@@ -78,7 +78,7 @@ describe('contextlessEvaluateFormula', () => {
           { formula: { type: 'value', value: 1 } },
           { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
         ],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: false,
       result: [
@@ -93,7 +93,7 @@ describe('contextlessEvaluateFormula', () => {
       contextlessEvaluateFormula({
         type: 'and',
         arguments: [],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: true,
       result: true,
@@ -105,7 +105,7 @@ describe('contextlessEvaluateFormula', () => {
       contextlessEvaluateFormula({
         type: 'or',
         arguments: [],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: true,
       result: false,
@@ -120,7 +120,7 @@ describe('contextlessEvaluateFormula', () => {
           { formula: { type: 'value', value: true } },
           { formula: { type: 'value', value: true } },
         ],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: true,
       result: true,
@@ -135,7 +135,7 @@ describe('contextlessEvaluateFormula', () => {
           { formula: { type: 'value', value: true } },
           { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
         ],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: false,
       result: undefined,
@@ -151,7 +151,7 @@ describe('contextlessEvaluateFormula', () => {
           { formula: { type: 'path', path: ['Variables', 'myVariable'] } },
           { formula: { type: 'value', value: false } },
         ],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: true,
       result: false,
@@ -166,7 +166,7 @@ describe('contextlessEvaluateFormula', () => {
           { formula: { type: 'value', value: false } },
           { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
         ],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: false,
       result: undefined,
@@ -181,7 +181,7 @@ describe('contextlessEvaluateFormula', () => {
           { formula: { type: 'value', value: true } },
           { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
         ],
-      }),
+      }, {}),
     ).toEqual({
       isStatic: true,
       result: true,
@@ -197,7 +197,7 @@ describe('contextlessEvaluateFormula', () => {
             { name: 'foo', formula: { type: 'value', value: 'bar' } },
             { name: 'num', formula: { type: 'value', value: 42 } },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: { foo: 'bar', num: 42 },
@@ -215,7 +215,7 @@ describe('contextlessEvaluateFormula', () => {
               formula: { type: 'path', path: ['Variables', 'myNum'] },
             },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -232,7 +232,7 @@ describe('contextlessEvaluateFormula', () => {
             { name: 'a', formula: { type: 'value', value: 1 } },
             { name: 'b', formula: { type: 'value', value: 2 } },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: { a: 1, b: 2 },
@@ -250,7 +250,7 @@ describe('contextlessEvaluateFormula', () => {
               formula: { type: 'path', path: ['Variables', 'myVar'] },
             },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -274,7 +274,7 @@ describe('contextlessEvaluateFormula', () => {
             },
           ],
           default: { type: 'value', value: 'default' },
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: 'first',
@@ -296,7 +296,7 @@ describe('contextlessEvaluateFormula', () => {
             },
           ],
           default: { type: 'value', value: 'default' },
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: 'second',
@@ -314,7 +314,7 @@ describe('contextlessEvaluateFormula', () => {
             },
           ],
           default: { type: 'value', value: 'default' },
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: 'default',
@@ -332,7 +332,7 @@ describe('contextlessEvaluateFormula', () => {
             },
           ],
           default: { type: 'value', value: 'default' },
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -350,7 +350,7 @@ describe('contextlessEvaluateFormula', () => {
             },
           ],
           default: { type: 'value', value: 'default' },
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -368,7 +368,7 @@ describe('contextlessEvaluateFormula', () => {
             { name: '0', formula: { type: 'value', value: 2 } },
             { name: '1', formula: { type: 'value', value: 3 } },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: undefined,
@@ -382,7 +382,7 @@ describe('contextlessEvaluateFormula', () => {
             { name: '0', formula: { type: 'value', value: 'hello' } },
             { name: '1', formula: { type: 'value', value: 'world' } },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: undefined,
@@ -397,7 +397,7 @@ describe('contextlessEvaluateFormula', () => {
             { name: '0', formula: { type: 'value', value: 4 } },
             { name: '1', formula: { type: 'value', value: 5 } },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: undefined,
@@ -416,7 +416,7 @@ describe('contextlessEvaluateFormula', () => {
               formula: { type: 'path', path: ['Variables', 'num'] },
             },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -433,7 +433,7 @@ describe('contextlessEvaluateFormula', () => {
             { name: '0', formula: { type: 'value', value: 1 } },
             { name: '1', formula: { type: 'value', value: 2 } },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -450,7 +450,7 @@ describe('contextlessEvaluateFormula', () => {
             { name: 'start', formula: { type: 'value', value: 0 } },
             { name: 'stop', formula: { type: 'value', value: 10 } },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -461,7 +461,7 @@ describe('contextlessEvaluateFormula', () => {
           type: 'function',
           name: 'range',
           arguments: [],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -472,7 +472,7 @@ describe('contextlessEvaluateFormula', () => {
           type: 'function',
           name: '@toddle/randomNumber',
           arguments: [],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -483,7 +483,7 @@ describe('contextlessEvaluateFormula', () => {
           type: 'function',
           name: '@toddle/now',
           arguments: [],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -494,7 +494,7 @@ describe('contextlessEvaluateFormula', () => {
           type: 'function',
           name: '@toddle/Id',
           arguments: [],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -505,7 +505,7 @@ describe('contextlessEvaluateFormula', () => {
           type: 'function',
           name: '@toddle/currentURL',
           arguments: [],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -516,7 +516,7 @@ describe('contextlessEvaluateFormula', () => {
           type: 'function',
           name: '@toddle/getCookie',
           arguments: [{ formula: { type: 'value', value: 'token' } }],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -557,7 +557,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: undefined,
@@ -599,7 +599,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -625,7 +625,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -664,7 +664,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: undefined,
@@ -710,7 +710,7 @@ describe('contextlessEvaluateFormula', () => {
               formula: { type: 'value', value: 0 },
             },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: undefined,
@@ -743,7 +743,7 @@ describe('contextlessEvaluateFormula', () => {
               formula: { type: 'path', path: ['Variables', 'initial'] },
             },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: false,
         result: undefined,
@@ -793,7 +793,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             },
           ],
-        }),
+        }, {}),
       ).toEqual({
         isStatic: true,
         result: undefined,
@@ -956,7 +956,7 @@ describe('contextlessEvaluateFormula', () => {
       })
     })
 
-    test('should resolve regular formulas from installed packages via ctx.packages or ctx.files', () => {
+    test('should resolve regular formulas from installed packages via ctx.packages', () => {
       expect(
         contextlessEvaluateFormula(
           {
@@ -966,24 +966,22 @@ describe('contextlessEvaluateFormula', () => {
             arguments: [{ name: 'x', formula: { type: 'value', value: 5 } }],
           },
           {
-            files: {
-              packages: {
-                'my-package': {
-                  formulas: {
-                    pkgFormula: {
-                      name: 'pkgFormula',
-                      arguments: [{ name: 'x' }],
-                      formula: {
-                        type: 'function',
-                        name: '@toddle/add',
-                        arguments: [
-                          {
-                            name: '0',
-                            formula: { type: 'path', path: ['Args', 'x'] },
-                          },
-                          { name: '1', formula: { type: 'value', value: 1 } },
-                        ],
-                      },
+            packages: {
+              'my-package': {
+                formulas: {
+                  pkgFormula: {
+                    name: 'pkgFormula',
+                    arguments: [{ name: 'x' }],
+                    formula: {
+                      type: 'function',
+                      name: '@toddle/add',
+                      arguments: [
+                        {
+                          name: '0',
+                          formula: { type: 'path', path: ['Args', 'x'] },
+                        },
+                        { name: '1', formula: { type: 'value', value: 1 } },
+                      ],
                     },
                   },
                 },

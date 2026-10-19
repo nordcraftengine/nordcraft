@@ -14,8 +14,10 @@ export const noReferenceComponentRule: IssueRule<void> = {
       nodeType !== 'component' ||
       isPage(value) ||
       (state?.projectDetails?.type === 'package' && value.exported === true) ||
-      contextlessEvaluateFormula(value.customElement?.enabled).result ===
-        true ||
+      contextlessEvaluateFormula(value.customElement?.enabled, {
+        formulas: files.formulas,
+        packages: files.packages,
+      }).result === true ||
       componentIsReferenced(files, memo)(value.name)
     ) {
       return

@@ -5,7 +5,7 @@ export const noUnnecessaryConditionTruthy: IssueRule = {
   code: 'no-unnecessary-condition-truthy',
   level: 'info',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }) => {
+  visit: (report, { path, files, value, nodeType }) => {
     if (nodeType !== 'formula' || value.type !== 'or') {
       return
     }
@@ -17,7 +17,10 @@ export const noUnnecessaryConditionTruthy: IssueRule = {
           return true
         }
 
-        const { result, isStatic } = contextlessEvaluateFormula(arg.formula)
+        const { result, isStatic } = contextlessEvaluateFormula(arg.formula, {
+          formulas: files.formulas,
+          packages: files.packages,
+        })
         return isStatic && Boolean(result) === true
       })
     ) {

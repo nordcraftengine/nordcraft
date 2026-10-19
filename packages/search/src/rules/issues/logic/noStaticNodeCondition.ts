@@ -11,7 +11,7 @@ export const noStaticNodeCondition: IssueRule<{
   code: 'no-static-node-condition',
   level: 'warning',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }) => {
+  visit: (report, { path, files, value, nodeType }) => {
     if (
       nodeType !== 'formula' ||
       !(
@@ -24,7 +24,10 @@ export const noStaticNodeCondition: IssueRule<{
       return
     }
 
-    const { isStatic, result } = contextlessEvaluateFormula(value)
+    const { isStatic, result } = contextlessEvaluateFormula(value, {
+      formulas: files.formulas,
+      packages: files.packages,
+    })
     if (isStatic) {
       // - if truthy: "Condition is always true, you can safely remove the condition as it will always be rendered."
       // - if falsy: "Condition is always false, you can safely remove the entire node as it will never be rendered."
