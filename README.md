@@ -31,6 +31,7 @@ Install using [bun](https://bun.sh/) by running `bun install`
 - Run one SSR case: `bun bin/ssrBenchmark.ts --case=formula --repeat=15 --json=true`
 - Compare an SSR branch with its base: `bun bin/runSsrBenchmarks.ts --base-ref=origin/main`
 - Compare previously captured benchmark directories: `bun run benchmark:ssr:compare --base-dir=/tmp/base --head-dir=/tmp/head`
+- Compare test data compression against the base: `bun bin/runCompressionBenchmark.ts --base-ref=origin/main`
 - Run benchmark unit tests: `bun run test:benchmarks`
 
 ### SSR performance in PRs
@@ -78,6 +79,37 @@ Useful comparison options:
 - `--max-regression-percent=3.0 --max-regression-ms=1.0`
 - `--noise-threshold-percent=1.5`
 - `--fail-on-regression=false` (generate a report without failing the process)
+
+### Test data compression in PRs
+
+The compression benchmark workflow runs on pull requests that change
+`packages/core/**`, `packages/ssr/**`, the shared benchmark code, or the benchmark
+runner. It measures how much smaller the project fixtures in
+`benchmarks/browser/fixtures` become once `removeTestData` strips editor-only test
+data (test values, dummy events, descriptions, service paths, …) before projects are
+shipped for rendering. Since the measurements are deterministic, the workflow compares
+the stripped project sizes of the PR base and head directly instead of sampling.
+
+- Workflow: `.github/workflows/compression_benchmark.yml`
+- Fixtures included:
+  - `benchmark-project` (synthetic benchmark project)
+  - `nordcraft-com` (production export of nordcraft.com)
+- Reports contain the original, stripped, and gzipped sizes per fixture, the saved
+  bytes, and the reduction percentage, plus a base/head verdict. A regression means
+  test data removal now ships larger projects than the base branch.
+- Clean comparisons collapse to a single line in the PR comment.
+
+To run the comparison locally:
+
+```sh
+bun bin/runCompressionBenchmark.ts \
+  --base-ref=origin/main \
+  --output-dir=/tmp/compression-benchmark-data
+```
+
+The runner writes `head.json` and `base.json` measurements plus
+`compression-benchmark-report.md` and `compression-benchmark-report.json`. Use
+`--base-ref=` with `--skip-build=true` for a head-only baseline.
 
 ## Status
 

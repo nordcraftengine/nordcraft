@@ -1,0 +1,128 @@
+name: 'Compression Benchmark'
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/compression_benchmark.yml'
+      - 'benchmarks/**'
+      - 'bin/compressionBenchmark.ts'
+      - 'bin/runCompressionBenchmark.ts'
+      - 'packages/core/**'
+      - 'packages/ssr/**'
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Ensure PR base commit is available
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            git fetch --no-tags origin "$BASE_SHA"
+          fi
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+
+      - name: Install dependencies (head)
+        run: bun install --frozen-lockfile
+
+      - name: Run compression benchmark
+        id: benchmark_run
+        continue-on-error: true
+        run: |
+          bun bin/runCompressionBenchmark.ts \
+            --base-ref=${{ github.event.pull_request.base.sha }} \
+            --noise-threshold-percent=0.05 \
+            --max-regression-percent=0.5 \
+            --fail-on-regression=true \
+            --output-dir=/tmp/compression-benchmark-data \
+            --export-markdown=/tmp/compression-benchmark-report.md \
+            --export-json=/tmp/compression-benchmark-report.json
+
+      - name: Publish step summary
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -f /tmp/compression-benchmark-report.md ]; then
+            tee -a "$GITHUB_STEP_SUMMARY" < /tmp/compression-benchmark-report.md
+          else
+            echo "## 🗜️ Compression Benchmark" >> "$GITHUB_STEP_SUMMARY"
+            echo "⚠️ Benchmark report could not be generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Comment on pull request
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('node:fs')
+            const reportPath = '/tmp/compression-benchmark-report.md'
+            const report = fs.existsSync(reportPath)
+              ? fs.readFileSync(reportPath, 'utf8')
+              : '## Compression Benchmark\n\n:warning: Benchmark report could not be generated. Check the workflow logs.'
+            const marker = '<!-- nordcraft-compression-benchmark -->'
+            const body = `${marker}\n${report}`
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            })
+            const existing = comments.find((comment) => comment.body?.includes(marker))
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              })
+            }
+
+      - name: Upload benchmark artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compression-benchmark-report-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
+          path: |
+            /tmp/compression-benchmark-report.md
+            /tmp/compression-benchmark-report.json
+            /tmp/compression-benchmark-data/head.json
+            /tmp/compression-benchmark-data/base.json
+
+      - name: Clean up benchmark worktree
+        if: always()
+        run: git worktree remove /tmp/compression-benchmark-data/base-worktree --force || true
+
+      - name: Fail on benchmark regression
+        if: always() && steps.benchmark_run.outcome == 'failure'
+        run: exit 1
