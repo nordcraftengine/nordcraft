@@ -1,76 +1,78 @@
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../../searchProject'
-import { IssueResult } from '../../../types'
+import type { IssueResult } from '../../../types'
 import { noStaticSwitchCondition } from './noStaticSwitchCondition'
 
 describe('noStaticSwitchCondition', () => {
-  test.only('should report static condition using encodeJSON with static arguments', () => {
-    const problems = Array.from(
-      searchProject({
-        files: {
-          components: {
-            test: {
-              name: 'test',
-              nodes: {
-                root: {
-                  type: 'element',
-                  attrs: {
-                    test: {
-                      type: 'switch',
-                      cases: [
-                        {
-                          condition: {
-                            type: 'function',
-                            name: '@toddle/encodeJSON',
-                            arguments: [
-                              {
-                                name: 'Data',
-                                formula: {
-                                  type: 'object',
-                                  arguments: [
-                                    {
-                                      Name: 0,
-                                      formula: { type: 'value', value: true },
-                                      name: 'key',
-                                    },
-                                  ],
+  test('should report static condition using encodeJSON with static arguments', () => {
+    const files: ProjectFiles = {
+      components: {
+        test: {
+          name: 'test',
+          nodes: {
+            root: {
+              type: 'element',
+              attrs: {
+                test: {
+                  type: 'switch',
+                  cases: [
+                    {
+                      condition: {
+                        type: 'function',
+                        name: '@toddle/encodeJSON',
+                        arguments: [
+                          {
+                            name: 'Data',
+                            formula: {
+                              type: 'object',
+                              arguments: [
+                                {
+                                  formula: { type: 'value', value: true },
+                                  name: 'key',
                                 },
-                                type: { type: 'Any' },
-                              },
-                              {
-                                name: 'Indent',
-                                formula: { type: 'value', value: 2 },
-                                type: { type: 'Number' },
-                              },
-                            ],
-                            display_name: 'Encode JSON',
+                              ],
+                            },
+                            type: { type: 'Any' },
                           },
-                          formula: { type: 'value', value: true },
-                        },
-                      ],
-                      default: { type: 'value', value: false },
+                          {
+                            name: 'Indent',
+                            formula: { type: 'value', value: 2 },
+                            type: { type: 'Number' },
+                          },
+                        ],
+                        display_name: 'Encode JSON',
+                      },
+                      formula: { type: 'value', value: true },
                     },
-                  },
-                  classes: {},
-                  events: {},
-                  tag: 'div',
-                  children: [],
-                  style: {},
+                  ],
+                  default: { type: 'value', value: false },
                 },
               },
-              formulas: {},
-              apis: {},
-              attributes: {},
-              variables: {},
+              classes: {},
+              events: {},
+              tag: 'div',
+              children: [],
+              style: {},
             },
           },
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
         },
+      },
+    }
+    const problems = Array.from(
+      searchProject({
+        files,
         rules: [noStaticSwitchCondition],
       }),
     )
+    const issues = problems as IssueResult[]
 
-    expect(problems).toHaveLength(1)
-    const firstProblem = problems[0] as any as IssueResult
+    expect(issues).toHaveLength(1)
+    const firstProblem = issues[0]
     expect(firstProblem.code).toBe('no-static-switch-condition')
     expect(firstProblem.level).toBe('info')
     expect(firstProblem.path).toEqual([
@@ -84,65 +86,68 @@ describe('noStaticSwitchCondition', () => {
       0,
       'condition',
     ])
-    expect(firstProblem.info.description).toInclude(
-      'Switch condition is static',
+    expect(firstProblem.info.description).toContain(
+      '**If condition** is static',
     )
+    expect(firstProblem.info.description).not.toContain('always falsy')
   })
 
   test('should report static boolean value conditions', () => {
-    const problems = Array.from(
-      searchProject({
-        files: {
-          components: {
-            test: {
-              name: 'test',
-              nodes: {
-                root: {
-                  type: 'element',
-                  attrs: {
-                    test: {
-                      type: 'switch',
-                      cases: [
-                        {
-                          condition: {
-                            type: 'value',
-                            value: true,
-                          },
-                          formula: { type: 'value', value: 'yes' },
-                        },
-                        {
-                          condition: {
-                            type: 'value',
-                            value: false,
-                          },
-                          formula: { type: 'value', value: 'no' },
-                        },
-                      ],
-                      default: { type: 'value', value: 'default' },
+    const files: ProjectFiles = {
+      components: {
+        test: {
+          name: 'test',
+          nodes: {
+            root: {
+              type: 'element',
+              attrs: {
+                test: {
+                  type: 'switch',
+                  cases: [
+                    {
+                      condition: {
+                        type: 'value',
+                        value: true,
+                      },
+                      formula: { type: 'value', value: 'yes' },
                     },
-                  },
-                  classes: {},
-                  events: {},
-                  tag: 'div',
-                  children: [],
-                  style: {},
+                    {
+                      condition: {
+                        type: 'value',
+                        value: false,
+                      },
+                      formula: { type: 'value', value: 'no' },
+                    },
+                  ],
+                  default: { type: 'value', value: 'default' },
                 },
               },
-              formulas: {},
-              apis: {},
-              attributes: {},
-              variables: {},
+              classes: {},
+              events: {},
+              tag: 'div',
+              children: [],
+              style: {},
             },
           },
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
         },
+      },
+    }
+    const problems = Array.from(
+      searchProject({
+        files,
         rules: [noStaticSwitchCondition],
       }),
     )
+    const issues = problems as IssueResult[]
 
-    expect(problems).toHaveLength(2)
-    expect(problems[0].code).toBe('no-static-switch-condition')
-    expect(problems[0].level).toBe('info')
-    expect(problems[0].path).toEqual([
+    expect(issues).toHaveLength(2)
+    expect(issues[0].code).toBe('no-static-switch-condition')
+    expect(issues[0].level).toBe('info')
+    expect(issues[0].path).toEqual([
       'components',
       'test',
       'nodes',
@@ -153,9 +158,11 @@ describe('noStaticSwitchCondition', () => {
       0,
       'condition',
     ])
-    expect(problems[1].code).toBe('no-static-switch-condition')
-    expect(problems[1].level).toBe('info')
-    expect(problems[1].path).toEqual([
+    expect(issues[0].info.description).toContain('always truthy')
+    expect(issues[1].code).toBe('no-static-switch-condition')
+    expect(issues[1].level).toBe('info')
+    expect(issues[1].info.description).toContain('always falsy')
+    expect(issues[1].path).toEqual([
       'components',
       'test',
       'nodes',
@@ -169,58 +176,60 @@ describe('noStaticSwitchCondition', () => {
   })
 
   test('should report object and array conditions as always truthy', () => {
-    const problems = Array.from(
-      searchProject({
-        files: {
-          components: {
-            test: {
-              name: 'test',
-              nodes: {
-                root: {
-                  type: 'element',
-                  attrs: {
-                    test: {
-                      type: 'switch',
-                      cases: [
-                        {
-                          condition: {
-                            type: 'object',
-                            arguments: [],
-                          },
-                          formula: { type: 'value', value: 1 },
-                        },
-                        {
-                          condition: {
-                            type: 'array',
-                            arguments: [],
-                          },
-                          formula: { type: 'value', value: 2 },
-                        },
-                      ],
-                      default: { type: 'value', value: 3 },
+    const files: ProjectFiles = {
+      components: {
+        test: {
+          name: 'test',
+          nodes: {
+            root: {
+              type: 'element',
+              attrs: {
+                test: {
+                  type: 'switch',
+                  cases: [
+                    {
+                      condition: {
+                        type: 'object',
+                        arguments: [],
+                      },
+                      formula: { type: 'value', value: 1 },
                     },
-                  },
-                  classes: {},
-                  events: {},
-                  tag: 'div',
-                  children: [],
-                  style: {},
+                    {
+                      condition: {
+                        type: 'array',
+                        arguments: [],
+                      },
+                      formula: { type: 'value', value: 2 },
+                    },
+                  ],
+                  default: { type: 'value', value: 3 },
                 },
               },
-              formulas: {},
-              apis: {},
-              attributes: {},
-              variables: {},
+              classes: {},
+              events: {},
+              tag: 'div',
+              children: [],
+              style: {},
             },
           },
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
         },
+      },
+    }
+    const problems = Array.from(
+      searchProject({
+        files,
         rules: [noStaticSwitchCondition],
       }),
     )
+    const issues = problems as IssueResult[]
 
-    expect(problems).toHaveLength(2)
-    expect(problems[0].info.description).toContain('always truthy')
-    expect(problems[1].info.description).toContain('always truthy')
+    expect(issues).toHaveLength(2)
+    expect(issues[0].info.description).toContain('always truthy')
+    expect(issues[1].info.description).toContain('always truthy')
   })
 
   test('should not report dynamic conditions', () => {
