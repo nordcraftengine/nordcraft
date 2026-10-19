@@ -125,7 +125,6 @@ export const introspectApiRequest = async ({
       },
     },
     baseUrl: window.origin,
-    defaultHeaders: undefined,
     formulaContext,
   })
   // We must proxy to be able to include cookies

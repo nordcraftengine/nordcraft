@@ -1,7 +1,7 @@
 import type { Formula, FormulaContext } from '../formula/formula'
 import { applyFormula } from '../formula/formula'
 import type { Nullable } from '../types'
-import { omitKeys, sortObjectEntries } from '../utils/collections'
+import { sortObjectEntries } from '../utils/collections'
 import { hash } from '../utils/hash'
 import { isDefined, isObject, toBoolean } from '../utils/util'
 import type {
@@ -27,12 +27,10 @@ export const createApiRequest = <Handler>({
   api,
   formulaContext,
   baseUrl,
-  defaultHeaders,
 }: {
   api: ApiRequest | ToddleApiV2<Handler>
   formulaContext: FormulaContext
   baseUrl?: Nullable<string>
-  defaultHeaders: Headers | undefined
 }) => {
   const url = getUrl(
     api,
@@ -42,7 +40,6 @@ export const createApiRequest = <Handler>({
   const requestSettings = getRequestSettings({
     api,
     formulaContext,
-    defaultHeaders,
   })
 
   return { url, requestSettings }
@@ -121,11 +118,9 @@ export const applyAbortSignal = (
 const getRequestSettings = ({
   api,
   formulaContext,
-  defaultHeaders,
 }: {
   api: ApiRequest
   formulaContext: FormulaContext
-  defaultHeaders: Headers | undefined
 }): ToddleRequestInit => {
   const method = Object.values(ApiMethod).includes(api.method as ApiMethod)
     ? (api.method as ApiMethod)
@@ -133,7 +128,6 @@ const getRequestSettings = ({
   const headers = getRequestHeaders({
     apiHeaders: api.headers,
     formulaContext,
-    defaultHeaders,
   })
   const body = getRequestBody({ api, formulaContext, headers, method })
   if (headers.get('content-type') === 'multipart/form-data') {
@@ -212,13 +206,11 @@ export const getRequestQueryParams = (
 export const getRequestHeaders = ({
   apiHeaders,
   formulaContext,
-  defaultHeaders,
 }: {
   apiHeaders: ApiRequest['headers']
   formulaContext: FormulaContext
-  defaultHeaders: Headers | undefined
 }) => {
-  const headers = new Headers(defaultHeaders)
+  const headers = new Headers()
   Object.entries(apiHeaders ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
       ? applyFormula(param.enabled, formulaContext, ['headers', key, 'enabled'])
@@ -255,18 +247,26 @@ export const getBaseUrl = ({
 /**
  * Calculate the hash of a Request object based on its properties
  */
-export const requestHash = (url: URL, request: RequestInit) =>
-  hash(
+export const requestHash = (url: URL, request: RequestInit) => {
+  let headers: Record<string, string> | undefined
+  if (request.headers) {
+    const _headers = new Headers(request.headers)
+    _headers.delete('host')
+    _headers.delete('cookie')
+    const headerEntries = Object.fromEntries(_headers.entries())
+    if (Object.keys(headerEntries).length > 0) {
+      headers = headerEntries
+    }
+  }
+  return hash(
     JSON.stringify({
       url: url.href,
       method: request.method,
-      headers: omitKeys(
-        Object.fromEntries(Object.entries(request.headers ?? {})),
-        ['host', 'cookie'],
-      ),
+      headers,
       body: request.body ?? null,
     }),
   )
+}
 
 export const isApiError = ({
   apiName,

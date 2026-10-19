@@ -74,7 +74,6 @@ export function createAPI({
       api,
       formulaContext: getFormulaContext(api, componentData),
       baseUrl,
-      defaultHeaders: undefined,
     })
     return {
       ...request,
