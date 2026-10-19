@@ -1,4 +1,7 @@
-import type { ResponseHeaders } from '@nordcraft/core/dist/component/component.types'
+import type {
+  ComponentData,
+  ResponseHeaders,
+} from '@nordcraft/core/dist/component/component.types'
 import {
   applyFormula,
   isFormula,
@@ -8,20 +11,24 @@ import type { Nullable } from '@nordcraft/core/dist/types'
 
 export const evaluateResponseHeaders = ({
   formulaContext,
+  data,
   responseHeaders,
 }: {
   formulaContext: FormulaContext
+  data?: ComponentData
   responseHeaders: Nullable<Partial<ResponseHeaders>>
 }) => {
   if (!responseHeaders) {
     return {}
   }
+  const resolvedData: ComponentData = data ??
+    (formulaContext as any).data ?? { Attributes: {} }
   const evaluatedHeaders: Record<string, string> = {}
   for (const [headerName, headerValue] of Object.entries(responseHeaders)) {
     if (typeof headerValue !== 'string' && !isFormula(headerValue)) {
       continue
     }
-    const formulaValue = applyFormula(headerValue, formulaContext)
+    const formulaValue = applyFormula(headerValue, formulaContext, resolvedData)
     if (typeof formulaValue === 'string') {
       evaluatedHeaders[headerName] = formulaValue
     }

@@ -67,6 +67,7 @@ export const nordcraftPage = async ({
   const language = getHtmlLanguage({
     pageInfo: page.route.info,
     formulaContext,
+    data: formulaContext.data,
     defaultLanguage: 'en',
   })
 
@@ -129,6 +130,7 @@ export const nordcraftPage = async ({
       files: files,
       project,
       context: formulaContext,
+      data: formulaContext.data,
       themes,
       customProperties,
     }),
@@ -136,6 +138,7 @@ export const nordcraftPage = async ({
   const charset = getCharset({
     pageInfo: page.route?.info,
     formulaContext,
+    data: formulaContext.data,
   })
 
   // Prepare the data to be passed to the client for hydration
@@ -191,12 +194,14 @@ export const nordcraftPage = async ({
 
   const responseHeaders = evaluateResponseHeaders({
     formulaContext,
+    data: formulaContext.data,
     responseHeaders: page.route.response?.headers,
   })
 
   const customStatusCode = applyFormula(
     page.route.response?.status,
     formulaContext,
+    formulaContext.data,
   )
   const statusCode =
     typeof customStatusCode === 'number'

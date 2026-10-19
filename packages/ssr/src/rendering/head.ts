@@ -1,5 +1,6 @@
 import type {
   Component,
+  ComponentData,
   PageComponent,
 } from '@nordcraft/core/dist/component/component.types'
 import { HeadTagTypes } from '@nordcraft/core/dist/component/component.types'
@@ -28,6 +29,7 @@ export type HeadItemType = `${HeadTagTypes}:${Text}` | 'title'
 export const getHeadItems = ({
   cacheBuster,
   context,
+  data,
   cssBasePath = '/.toddle/fonts/stylesheet/css2',
   page,
   resetStylesheetPath = '/_static/reset.css',
@@ -41,6 +43,7 @@ export const getHeadItems = ({
   // Optional cache buster for reset stylesheet + manifest url. Could be a commit sha for instance
   cacheBuster?: string
   context: FormulaContext
+  data?: ComponentData
   cssBasePath?: string
   files: ProjectFiles
   page: PageComponent
@@ -52,14 +55,17 @@ export const getHeadItems = ({
   customProperties: ReadonlyArray<string>
 }): Map<HeadItemType, string> => {
   const pageInfo = page.route?.info
+  const resolvedData: ComponentData = data ?? { Attributes: {} }
   const title = getPageTitle({
     component: page,
     context,
+    data: resolvedData,
     defaultTitle: project.name,
   })
   const description = getPageDescription({
     component: page,
     context,
+    data: resolvedData,
     defaultDescription: project.description,
   })
 
@@ -89,7 +95,11 @@ export const getHeadItems = ({
     }
   })
 
-  const charset = getCharset({ pageInfo, formulaContext: context })
+  const charset = getCharset({
+    pageInfo,
+    formulaContext: context,
+    data: resolvedData,
+  })
   const descriptionItems: [HeadItemType, string][] = []
   if (typeof description === 'string') {
     // Only add meta:description and og:description if a description exists
@@ -174,7 +184,11 @@ export const getHeadItems = ({
     )
   }
   const manifestUrl = validateUrl({
-    path: applyFormula(files.config?.meta?.manifest?.formula, context),
+    path: applyFormula(
+      files.config?.meta?.manifest?.formula,
+      context,
+      resolvedData,
+    ),
     origin: url.origin,
   })
   if (manifestUrl) {
@@ -207,7 +221,7 @@ export const getHeadItems = ({
     )
   const icon = files.config?.meta?.icon
   if (isDefined(icon)) {
-    const iconPath = applyFormula(icon.formula, context)
+    const iconPath = applyFormula(icon.formula, context, resolvedData)
     if (isDefined(iconPath) && typeof iconPath === 'string') {
       if (isCloudflareImagePath(iconPath)) {
         // If the icon is a cloudflare image path, we add the different sizes
@@ -275,7 +289,7 @@ export const getHeadItems = ({
         ([_, meta]) =>
           // Only include enabled meta tags
           !isDefined(meta.enabled) ||
-          toBoolean(applyFormula(meta.enabled, context)),
+          toBoolean(applyFormula(meta.enabled, context, resolvedData)),
       )
       .forEach(([id, metaEntry]) => {
         if (Object.values(HeadTagTypes).includes(metaEntry.tag)) {
@@ -285,7 +299,9 @@ export const getHeadItems = ({
             ([key]) => key === 'name' || key === 'property',
           )
           const headItemKey: HeadItemType = `${metaEntry.tag}:${
-            isDefined(key) ? applyFormula(key[1], context) : (id ?? nanoid())
+            isDefined(key)
+              ? applyFormula(key[1], context, resolvedData)
+              : (id ?? nanoid())
           }`
           headItems.set(
             headItemKey,
@@ -295,7 +311,7 @@ export const getHeadItems = ({
               metaEntry.attrs ?? {},
             )
               .map(([key, formula]) => {
-                const value = applyFormula(formula, context)
+                const value = applyFormula(formula, context, resolvedData)
                 if (value === true) {
                   // If the value is true, we just return the key - this is useful
                   // for tags like <script async> where async doesn't have a value
@@ -308,7 +324,7 @@ export const getHeadItems = ({
                 ? `/>`
                 : `>${
                     metaEntry.content
-                      ? applyFormula(metaEntry.content, context)
+                      ? applyFormula(metaEntry.content, context, resolvedData)
                       : ''
                   }</${metaEntry.tag}>`
             }`,
@@ -365,10 +381,12 @@ export const defaultHeadOrdering: HeadItemType[] = [
 const getPageTitle = ({
   component,
   context,
+  data,
   defaultTitle,
 }: {
   component: Component
   context: FormulaContext
+  data: ComponentData
   defaultTitle?: string
 }) => {
   const pageInfo = component.route?.info
@@ -376,24 +394,26 @@ const getPageTitle = ({
   if (!isDefined(pageInfo?.title)) {
     return fallbackTitle
   }
-  const title = applyFormula(pageInfo.title.formula, context)
+  const title = applyFormula(pageInfo.title.formula, context, data)
   return typeof title === 'string' ? title : fallbackTitle
 }
 
 const getPageDescription = ({
   component,
   context,
+  data,
   defaultDescription,
 }: {
   component: Component
   context: FormulaContext
+  data: ComponentData
   defaultDescription?: string | null
 }) => {
   const pageInfo = component.route?.info
   if (!isDefined(pageInfo?.description)) {
     return defaultDescription
   }
-  const description = applyFormula(pageInfo.description.formula, context)
+  const description = applyFormula(pageInfo.description.formula, context, data)
   return typeof description === 'string' ? description : defaultDescription
 }
 

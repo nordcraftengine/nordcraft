@@ -51,13 +51,13 @@ describe('renderPageBody', () => {
       evaluateComponentApis: () => ({}) as any,
       component: component as any,
       formulaContext: {
-        data: {
-          Attributes: {},
-        },
         component,
         env: {} as any,
         package: undefined,
         toddle: {} as any,
+      },
+      data: {
+        Attributes: {},
       },
       env: {} as any,
       files: { components: { SimpleComponent: component } } as any,
@@ -122,13 +122,13 @@ describe('renderPageBody', () => {
       evaluateComponentApis: () => ({}) as any,
       component: providerComponent as any,
       formulaContext: {
-        data: {
-          Attributes: {},
-        },
         component: providerComponent,
         env: {} as any,
         package: undefined,
         toddle: {} as any,
+      },
+      data: {
+        Attributes: {},
       },
       env: {} as any,
       files: {
@@ -216,13 +216,13 @@ describe('renderPageBody', () => {
       evaluateComponentApis: () => ({}) as any,
       component: pageComponent as any,
       formulaContext: {
-        data: {
-          Attributes: {},
-        },
         component: pageComponent,
         env: {} as any,
         package: undefined,
         toddle: {} as any,
+      },
+      data: {
+        Attributes: {},
       },
       env: {} as any,
       files: {
@@ -470,13 +470,13 @@ describe('renderPageBody', () => {
       evaluateComponentApis: () => ({}) as any,
       component: pageComponent as any,
       formulaContext: {
-        data: {
-          Attributes: {},
-        },
         component: pageComponent,
         env: {} as any,
         package: undefined,
         toddle: {} as any,
+      },
+      data: {
+        Attributes: {},
       },
       env: {} as any,
       files: {
@@ -679,16 +679,16 @@ describe('renderPageBody', () => {
       evaluateComponentApis: () => ({}) as any,
       component: parentComponent as any,
       formulaContext: {
-        data: {
-          Attributes: {},
-          Page: {
-            Theme: 'light',
-          },
-        },
         component: parentComponent,
         env: {} as any,
         package: undefined,
         toddle: {} as any,
+      },
+      data: {
+        Attributes: {},
+        Page: {
+          Theme: 'light',
+        },
       },
       env: {} as any,
       files: {

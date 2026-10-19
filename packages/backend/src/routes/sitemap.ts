@@ -19,7 +19,7 @@ export const sitemap = async (
     if (isDefined(sitemapFormula)) {
       const sitemapUrl = validateUrl(
         // we don't provide a context for applyFormula, as the formula should just be a value formula
-        applyFormula(sitemapFormula, undefined as any),
+        applyFormula(sitemapFormula, undefined as any, { Attributes: {} }),
       )
       if (sitemapUrl) {
         // return a (streamed) response with the body from sitemap.xml

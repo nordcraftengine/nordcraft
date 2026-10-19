@@ -247,7 +247,6 @@ const createFormulaCase = (): BenchmarkRunner => {
   const ctx: FormulaContext = {
     component: undefined,
     formulaCache: {},
-    data,
     package: undefined,
     toddle: {
       getFormula: () => undefined,
@@ -266,7 +265,7 @@ const createFormulaCase = (): BenchmarkRunner => {
     for (let i = 0; i < 3_000; i++) {
       const index = i % data.values.length
       data.values[0] = data.values[index]
-      const result = applyFormula(formula, ctx)
+      const result = applyFormula(formula, ctx, data as any)
       if (result?.renderInfo?.canRender) {
         sum += result.meta?.id ?? 0
       }

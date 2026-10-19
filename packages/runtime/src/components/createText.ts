@@ -109,18 +109,8 @@ export function createTextNS({
   const textNode = document.createTextNode('')
   if (value.type !== 'value') {
     const valuePathNS = ctx.reportFormulaEvaluation ? ['value'] : undefined
-    const formulaCtxNS = {
-      component: ctx.component,
-      formulaCache: ctx.formulaCache,
-      root: ctx.root,
-      package: ctx.package,
-      toddle: ctx.toddle,
-      env: ctx.env,
-      jsonPath: ctx.jsonPath,
-      reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-    }
     const sig = dataSignal.map((data) =>
-      String(applyFormula(value, formulaCtxNS, data, valuePathNS)),
+      String(applyFormula(value, ctx, data, valuePathNS)),
     )
     sig.subscribe((value) => {
       textNode.nodeValue = value

@@ -18,21 +18,25 @@ type CreateFormulaContextOptions = {
  */
 export function createFormulaContext(
   ctx: ComponentContext,
-  data: ComponentData,
+  data?: ComponentData | CreateFormulaContextOptions,
   options?: CreateFormulaContextOptions,
 ): FormulaContext {
+  const resolvedOptions =
+    options ??
+    (data && ('jsonPath' in data || 'includeReportFormulaEvaluation' in data)
+      ? (data as CreateFormulaContextOptions)
+      : undefined)
   const formulaContext: FormulaContext = {
-    data,
     component: ctx.component,
     formulaCache: ctx.formulaCache,
     root: ctx.root,
     package: ctx.package,
     toddle: ctx.toddle,
     env: ctx.env,
-    jsonPath: options?.jsonPath ?? ctx.jsonPath,
+    jsonPath: resolvedOptions?.jsonPath ?? ctx.jsonPath,
   }
 
-  if (options?.includeReportFormulaEvaluation !== false) {
+  if (resolvedOptions?.includeReportFormulaEvaluation !== false) {
     formulaContext.reportFormulaEvaluation = ctx.reportFormulaEvaluation
   }
 

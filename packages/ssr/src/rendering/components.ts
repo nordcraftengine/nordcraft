@@ -151,14 +151,13 @@ const renderComponent = async ({
     }
 
     const formulaContext: FormulaContext = {
-      data,
       component,
       package: packageName,
       env,
       toddle,
     }
     if (node.repeat) {
-      const items = applyFormula(node.repeat, formulaContext)
+      const items = applyFormula(node.repeat, formulaContext, data)
       if (typeof items !== 'object' || items === null) {
         return ''
       }
@@ -187,7 +186,7 @@ const renderComponent = async ({
     }
     if (
       node.condition &&
-      !toBoolean(applyFormula(node.condition, formulaContext))
+      !toBoolean(applyFormula(node.condition, formulaContext, data))
     ) {
       return ''
     }
@@ -196,11 +195,13 @@ const renderComponent = async ({
       case 'text': {
         if (!namespace || namespace === 'http://www.w3.org/1999/xhtml') {
           return `<span ${DATA_ATTR_NODE_TYPE}="${DATA_NODE_TYPE_TEXT}" ${DATA_ATTR_NODE_ID}="${id}">${toEncodedText(
-            String(applyFormula(node.value, formulaContext)),
+            String(applyFormula(node.value, formulaContext, data)),
           )}</span>`
         }
 
-        return toEncodedText(String(applyFormula(node.value, formulaContext)))
+        return toEncodedText(
+          String(applyFormula(node.value, formulaContext, data)),
+        )
       }
       case 'slot': {
         const slotName = node.name ?? 'default'
@@ -276,7 +277,7 @@ const renderComponent = async ({
         classList.push(
           ...Object.entries(node.classes ?? {})
             .filter(([_, { formula }]) =>
-              toBoolean(applyFormula(formula, formulaContext)),
+              toBoolean(applyFormula(formula, formulaContext, data)),
             )
             .map(([className]) => className),
         )
@@ -297,7 +298,7 @@ const renderComponent = async ({
           .forEach(([customPropertyName, customProperty]) => {
             hasDynamicCustomProperties = true
             const value = appendUnit(
-              applyFormula(customProperty.formula, formulaContext),
+              applyFormula(customProperty.formula, formulaContext, data),
               customProperty.unit,
             )
             if (isDefined(value)) {
@@ -317,7 +318,7 @@ const renderComponent = async ({
               hasDynamicCustomProperties = true
               // style-variables on variants are always version 2
               const value = appendUnit(
-                applyFormula(customProperty.formula, formulaContext),
+                applyFormula(customProperty.formula, formulaContext, data),
                 customProperty.unit,
               )
               if (isDefined(value)) {
@@ -363,7 +364,9 @@ const renderComponent = async ({
             ? component.nodes?.[node.children[0]]
             : undefined
           if (textNode?.type === 'text') {
-            innerHTML = String(applyFormula(textNode.value, formulaContext))
+            innerHTML = String(
+              applyFormula(textNode.value, formulaContext, data),
+            )
           }
         }
         const tag =
@@ -386,7 +389,7 @@ const renderComponent = async ({
       }
       case 'component': {
         const attrs = mapValues(node.attrs ?? {}, (formula) =>
-          applyFormula(formula, formulaContext),
+          applyFormula(formula, formulaContext, data),
         )
 
         const contexts = {
@@ -399,6 +402,7 @@ const renderComponent = async ({
                 applyFormula(
                   (formula as ComponentFormula).formula,
                   formulaContext,
+                  data,
                 ),
               ]),
           ),
@@ -430,6 +434,30 @@ const renderComponent = async ({
           (c) => c.name === childComponent.name,
         )
 
+        const childFormulaContext: FormulaContext = {
+          component: childComponent,
+          package: node.package ?? (isLocalComponent ? undefined : packageName),
+          env,
+          toddle,
+        }
+        const childData: ComponentData = {
+          Location: data.Location,
+          Attributes: attrs,
+          Contexts: contexts,
+          Page: data.Page,
+          Variables: {},
+          Apis: {},
+        }
+        childData.Variables = mapValues(
+          filterObject<Nullable<ComponentVariable>, ComponentVariable>(
+            childComponent.variables ?? {},
+            ([_, variable]) => isDefined(variable),
+          ),
+          ({ initialValue }) => {
+            return applyFormula(initialValue, childFormulaContext, childData)
+          },
+        )
+
         // Evaluate the child component apis before rendering to make sure we have api data for potential contexts
         const apis = await evaluateComponentApis({
           component: new ToddleComponent({
@@ -457,29 +485,8 @@ const renderComponent = async ({
               packages: files.packages,
             },
           }),
-          formulaContext: {
-            data: {
-              Location: formulaContext.data.Location,
-              Attributes: attrs,
-              Contexts: contexts,
-              Page: formulaContext.data.Page,
-              Variables: mapValues(
-                filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-                  childComponent.variables ?? {},
-                  ([_, variable]) => isDefined(variable),
-                ),
-                ({ initialValue }) => {
-                  return applyFormula(initialValue, formulaContext)
-                },
-              ),
-              Apis: {},
-            },
-            component: childComponent,
-            package:
-              node.package ?? (isLocalComponent ? undefined : packageName),
-            env,
-            toddle,
-          },
+          formulaContext: childFormulaContext,
+          data: childData,
           req,
           apiCache,
           updateApiCache,
@@ -629,7 +636,7 @@ const renderComponent = async ({
         Object.entries(node.customProperties ?? {}).forEach(
           ([customPropertyName, customProperty]) => {
             const value = appendUnit(
-              applyFormula(customProperty.formula, formulaContext),
+              applyFormula(customProperty.formula, formulaContext, data),
               customProperty.unit,
             )
             if (isDefined(value)) {
@@ -648,7 +655,7 @@ const renderComponent = async ({
           Object.entries(variant.customProperties ?? {}).forEach(
             ([customPropertyName, customProperty]) => {
               const value = appendUnit(
-                applyFormula(customProperty.formula, formulaContext),
+                applyFormula(customProperty.formula, formulaContext, data),
                 customProperty.unit,
               )
               if (isDefined(value)) {
@@ -690,6 +697,7 @@ const renderComponent = async ({
           env,
           includedComponents,
           formulaContext,
+          pageData: data,
           files,
           apiCache,
           updateApiCache,
@@ -729,6 +737,7 @@ const createComponent = async ({
   evaluateComponentApis,
   files,
   formulaContext,
+  pageData,
   includedComponents,
   instance,
   packageName,
@@ -757,6 +766,7 @@ const createComponent = async ({
   evaluateComponentApis: ApiEvaluator
   files: ProjectFiles
   formulaContext: FormulaContext
+  pageData?: ComponentData
   includedComponents: Component[]
   instance: Record<string, string>
   packageName: string | undefined
@@ -776,10 +786,10 @@ const createComponent = async ({
   ) => void
 }): Promise<string> => {
   const data: ComponentData = {
-    Location: formulaContext.data.Location,
+    Location: pageData?.Location ?? (formulaContext as any).data?.Location,
     Attributes: attrs,
     Contexts: contexts,
-    Page: formulaContext.data.Page,
+    Page: pageData?.Page ?? (formulaContext as any).data?.Page,
     Apis: apis,
   }
 
@@ -846,6 +856,7 @@ export const renderPageBody = async ({
   evaluateComponentApis,
   files,
   formulaContext,
+  data,
   includedComponents,
   req,
   projectId,
@@ -855,10 +866,13 @@ export const renderPageBody = async ({
   evaluateComponentApis: ApiEvaluator
   files: ProjectFiles
   formulaContext: FormulaContext
+  data?: ComponentData
   includedComponents: Component[]
   req: Request
   projectId: string
 }) => {
+  const resolvedData: ComponentData = data ??
+    (formulaContext as any).data ?? { Attributes: {} }
   const apiCache: ApiCache = {}
   const updateApiCache = (key: string, value: ApiStatus) =>
     (apiCache[key] = value)
@@ -892,17 +906,18 @@ export const renderPageBody = async ({
   const apis = await evaluateComponentApis({
     component,
     formulaContext,
+    data: resolvedData,
     req,
     apiCache,
     updateApiCache,
   })
-  formulaContext.data.Apis = apis
+  resolvedData.Apis = apis
 
   const html = await renderComponent({
     path: '0',
     apiCache,
     component,
-    data: formulaContext.data,
+    data: resolvedData,
     env,
     evaluateComponentApis,
     files,

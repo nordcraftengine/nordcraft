@@ -63,16 +63,6 @@ export function createElement({
     : document.createElement(tag)
   const initialClasses: string[] = []
 
-  const formulaCtx = {
-    component: ctx.component,
-    formulaCache: ctx.formulaCache,
-    root: ctx.root,
-    package: ctx.package,
-    toddle: ctx.toddle,
-    env: ctx.env,
-    reportFormulaEvaluation: ctx.reportFormulaEvaluation,
-  }
-
   // This is editor only logic and we should move out of the runtime bundle when possible
   if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
     let slotName: string | undefined | null
@@ -140,7 +130,7 @@ export function createElement({
       const formula = node.classes[className].formula
       if (formula) {
         const classSignal = dataSignal.map((data) =>
-          toBoolean(applyFormula(formula, formulaCtx, data)),
+          toBoolean(applyFormula(formula, ctx, data)),
         )
         classSignal.subscribe((show) =>
           show
@@ -178,7 +168,7 @@ export function createElement({
           ? ['nodes', id, 'attrs', attr]
           : undefined
         o = dataSignal.map((data) => {
-          const val = applyFormula(value, formulaCtx, data, attrPath)
+          const val = applyFormula(value, ctx, data, attrPath)
           if (attrPath) {
             ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
           }
@@ -212,7 +202,7 @@ export function createElement({
       ? ['nodes', id, 'style-variables', i, 'formula']
       : undefined
     const signal = dataSignal.map((data) => {
-      const value = applyFormula(formula, formulaCtx, data, styleVarPath)
+      const value = applyFormula(formula, ctx, data, styleVarPath)
       if (styleVarPath) {
         ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
       }
@@ -243,7 +233,7 @@ export function createElement({
           ? `${nodeSelector}, :host`
           : nodeSelector,
       signal: dataSignal.map((data) => {
-        const val = applyFormula(formula, formulaCtx, data, cpPath)
+        const val = applyFormula(formula, ctx, data, cpPath)
         if (cpPath) {
           ctx.reportFormulaEvaluation?.(cpPath, val, ctx)
         }
@@ -282,7 +272,7 @@ export function createElement({
         }),
         variant,
         signal: dataSignal.map((data) => {
-          const val = applyFormula(formula, formulaCtx, data, variantCpPath)
+          const val = applyFormula(formula, ctx, data, variantCpPath)
           if (variantCpPath) {
             ctx.reportFormulaEvaluation?.(variantCpPath, val, ctx)
           }
@@ -329,7 +319,7 @@ export function createElement({
           textValues.push(String(node.value.value))
         } else {
           const textSignal = dataSignal.map((data) => {
-            return String(applyFormula(node.value, formulaCtx, data))
+            return String(applyFormula(node.value, ctx, data))
           })
           textValues.push(textSignal)
         }

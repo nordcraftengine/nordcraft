@@ -1,8 +1,9 @@
-import type { FormulaContext, PathOperation } from './formula'
+import type { ComponentData } from '../component/component.types'
+import type { PathOperation } from './formula'
 
 export const applyPathFormula = (
   formula: PathOperation,
-  data: FormulaContext['data'],
+  data: ComponentData,
 ) => {
   let input: any = data
   const path = formula.path

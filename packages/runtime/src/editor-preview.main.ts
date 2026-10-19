@@ -718,7 +718,6 @@ export const createRoot = (
           if (api && !isLegacyApi(api) && component) {
             const formulaContext: FormulaContext = {
               component,
-              data: dataSignal.get(),
               root: document,
               package: ctx?.package,
               toddle: window.toddle,
@@ -729,6 +728,7 @@ export const createRoot = (
               api,
               componentName: component.name,
               formulaContext,
+              data: dataSignal.get(),
             })
             postMessageToEditor({
               type: 'introspectionResult',
@@ -996,16 +996,19 @@ export const createRoot = (
       ) === false ||
       !ctx
     ) {
-      insertHeadTags(_component.route?.info?.meta ?? {}, {
-        component: _component,
-        data: { Attributes },
-        root: document,
-        package: ctx?.package,
-        toddle: window.toddle,
-        env,
-        jsonPath: ['route', 'info', 'meta'],
-        reportFormulaEvaluation,
-      })
+      insertHeadTags(
+        _component.route?.info?.meta ?? {},
+        {
+          component: _component,
+          root: document,
+          package: ctx?.package,
+          toddle: window.toddle,
+          env,
+          jsonPath: ['route', 'info', 'meta'],
+          reportFormulaEvaluation,
+        },
+        { Attributes },
+      )
     }
     if (fastDeepEqual(_component.contexts, ctx?.component.contexts) === false) {
       Contexts = createStaticContextFromComponent(
@@ -1021,16 +1024,19 @@ export const createRoot = (
     if (
       fastDeepEqual(_component.variables, ctx?.component.variables) === false
     ) {
-      Variables = getVariableInitialValues(_component.variables, {
-        data: { Attributes, Contexts },
-        component: _component,
-        root: document,
-        package: ctx?.package,
-        toddle: window.toddle,
-        env,
-        jsonPath: ctx?.jsonPath,
-        reportFormulaEvaluation,
-      })
+      Variables = getVariableInitialValues(
+        _component.variables,
+        {
+          component: _component,
+          root: document,
+          package: ctx?.package,
+          toddle: window.toddle,
+          env,
+          jsonPath: ctx?.jsonPath,
+          reportFormulaEvaluation,
+        },
+        { Attributes, Contexts },
+      )
     }
 
     dataSignal.update((data) => {
