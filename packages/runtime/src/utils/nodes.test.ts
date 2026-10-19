@@ -57,6 +57,33 @@ describe('getNextSiblingElement', () => {
     expect(getNextSiblingElement('1.2.3(5)', parent)).toBeNull()
     expect(getNextSiblingElement('1.2.2', parent)).toBe(child)
   })
+
+  it('should return the next sibling when item has no parentheses (default repeat item)', () => {
+    const parent = document.createElement('div')
+    const child3 = document.createElement('div')
+    child3.setAttribute('data-id', '0.1(3)')
+    parent.appendChild(child3)
+
+    expect(getNextSiblingElement('0.1', parent)).toBe(child3)
+    expect(getNextSiblingElement('0.1(1)', parent)).toBe(child3)
+    expect(getNextSiblingElement('0.1(2)', parent)).toBe(child3)
+    expect(getNextSiblingElement('0.1(3)', parent)).toBeNull()
+    expect(getNextSiblingElement('0.1(4)', parent)).toBeNull()
+  })
+
+  it('should return next node sibling when repeat item has highest repeat index', () => {
+    const parent = document.createElement('div')
+    const child3 = document.createElement('div')
+    child3.setAttribute('data-id', '0.1(3)')
+    const nextNode = document.createElement('div')
+    nextNode.setAttribute('data-id', '0.2')
+    parent.appendChild(child3)
+    parent.appendChild(nextNode)
+
+    expect(getNextSiblingElement('0.1', parent)).toBe(child3)
+    expect(getNextSiblingElement('0.1(3)', parent)).toBe(nextNode)
+    expect(getNextSiblingElement('0.1(4)', parent)).toBe(nextNode)
+  })
 })
 
 describe('ensureEfficientOrdering and getNextSiblingElement together', () => {

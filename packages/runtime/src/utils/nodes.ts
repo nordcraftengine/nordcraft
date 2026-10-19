@@ -64,6 +64,9 @@ export const isNodeOrAncestorConditional = (
   nodeLookup?.node?.condition !== undefined ||
   nodeLookup?.ancestors.some((a) => a.condition !== undefined) === true
 
+const getRepeatIndex = (part?: string) =>
+  part?.includes('(') ? parseInt(part.split('(')[1], 10) : 0
+
 /**
  * @returns The next sibling element or null if this is the last element. A nc sibling is a sibling with a higher index or the same index but a higher repeat index.
  */
@@ -73,17 +76,17 @@ export const getNextSiblingElement = (
 ) => {
   const pathParts = path.split('.')
   const lastPathPart = pathParts.slice(-1)[0]
-  const index = parseInt(lastPathPart)
-  const repeatIndex = parseInt(String(lastPathPart.split('(')[1]))
+  const index = parseInt(lastPathPart, 10)
+  const repeatIndex = getRepeatIndex(lastPathPart)
 
   // Find the first child that either has a higher index or a similar index, but higher repeat index
   for (const child of parentElement.children) {
     const childPath = child.getAttribute('data-id')
     const lastChildPathPart = childPath?.split('.').slice(-1)[0]
-    const childIndex = parseInt(String(lastChildPathPart))
+    const childIndex = parseInt(String(lastChildPathPart), 10)
     if (
       childIndex === index &&
-      parseInt(String(lastChildPathPart?.split('(')[1])) > repeatIndex
+      getRepeatIndex(lastChildPathPart) > repeatIndex
     ) {
       return child
     }

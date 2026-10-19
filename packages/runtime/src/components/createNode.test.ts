@@ -7,6 +7,7 @@ import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { customPropertiesStylesheets } from '../utils/subscribeCustomProperty'
 import { createNode } from './createNode'
+import { renderComponent } from './renderComponent'
 
 describe('createNode()', () => {
   test('it can render basic nodes', () => {
@@ -1603,5 +1604,380 @@ describe('createNode()', () => {
 
     // Elements should be removed from parentElement on destroy
     expect(parentElement.querySelector('[data-id="0"]')).toBeNull()
+  })
+
+  test('repeated element with condition maintains correct order when hidden and shown again', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        open: true,
+        chosen: 3,
+      },
+    })
+
+    const ctx = {
+      isRootComponent: false,
+      component: {
+        name: 'My Component',
+        nodes: {
+          'button-id': {
+            type: 'element',
+            tag: 'button',
+            repeat: { type: 'value', value: [0, 1, 2, 3, 4] },
+            condition: {
+              type: 'or',
+              arguments: [
+                {
+                  formula: { type: 'path', path: ['Variables', 'open'] },
+                },
+                {
+                  formula: {
+                    type: 'function',
+                    name: 'isChosen',
+                    arguments: [
+                      {
+                        name: 'item',
+                        formula: { type: 'path', path: ['ListItem', 'Item'] },
+                      },
+                      {
+                        name: 'chosen',
+                        formula: {
+                          type: 'path',
+                          path: ['Variables', 'chosen'],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+            children: ['text-id'],
+            attrs: {},
+            events: {},
+          },
+          'text-id': {
+            type: 'text',
+            value: { type: 'path', path: ['ListItem', 'Item'] },
+          },
+        },
+      },
+      root: document,
+      env: { runtime: 'page' },
+      formulaCache: {},
+      toddle: {
+        getCustomFormula: (name: string) => {
+          if (name === 'isChosen') {
+            return {
+              handler: ({ item, chosen }: any) => item === chosen,
+            }
+          }
+          return undefined
+        },
+        errors: [],
+      },
+    } as any as ComponentContext
+
+    const nodes = createNode({
+      ctx,
+      namespace: 'http://www.w3.org/1999/xhtml',
+      dataSignal,
+      id: 'button-id',
+      instance: {},
+      parentElement,
+      path: '0',
+    })
+    parentElement.append(...nodes)
+
+    expect(parentElement.children.length).toBe(5)
+    expect([...parentElement.children].map((c) => c.textContent)).toEqual([
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+    ])
+
+    // Set open to false - only item 3 should remain
+    dataSignal.update((data) => ({
+      ...data,
+      Variables: { ...data.Variables, open: false },
+    }))
+
+    expect(parentElement.children.length).toBe(1)
+    expect(parentElement.children[0].textContent).toBe('3')
+
+    // Set open back to true - all items should be back in order 0, 1, 2, 3, 4
+    dataSignal.update((data) => ({
+      ...data,
+      Variables: { ...data.Variables, open: true },
+    }))
+
+    expect(parentElement.children.length).toBe(5)
+    expect([...parentElement.children].map((c) => c.textContent)).toEqual([
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+    ])
+
+    // Test with other chosen values (1, 2, 4, 0)
+    for (const chosen of [1, 2, 4, 0]) {
+      dataSignal.update((data) => ({
+        ...data,
+        Variables: { ...data.Variables, chosen, open: false },
+      }))
+
+      expect(parentElement.children.length).toBe(1)
+      expect(parentElement.children[0].textContent).toBe(String(chosen))
+
+      dataSignal.update((data) => ({
+        ...data,
+        Variables: { ...data.Variables, open: true },
+      }))
+
+      expect(parentElement.children.length).toBe(5)
+      expect([...parentElement.children].map((c) => c.textContent)).toEqual([
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+      ])
+    }
+  })
+
+  test('nested repeat condition order test with component tree and button click events', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const component = {
+      name: 'HomePage',
+      nodes: {
+        chip: {
+          tag: 'button',
+          type: 'element',
+          events: {
+            click: {
+              actions: [
+                {
+                  data: {
+                    path: ['ListItem', 'Item'],
+                    type: 'path',
+                  },
+                  type: 'SetVariable',
+                  variable: 'chosen',
+                },
+                {
+                  data: {
+                    type: 'value',
+                    value: false,
+                  },
+                  type: 'SetVariable',
+                  variable: 'open',
+                },
+              ],
+              trigger: 'click',
+            },
+          },
+          repeat: {
+            type: 'array',
+            arguments: [
+              { formula: { type: 'value', value: 0 } },
+              { formula: { type: 'value', value: 1 } },
+              { formula: { type: 'value', value: 2 } },
+              { formula: { type: 'value', value: 3 } },
+              { formula: { type: 'value', value: 4 } },
+            ],
+          },
+          children: ['chipText'],
+          condition: {
+            type: 'or',
+            arguments: [
+              {
+                formula: {
+                  path: ['Variables', 'open'],
+                  type: 'path',
+                },
+              },
+              {
+                formula: {
+                  name: '@toddle/equals',
+                  type: 'function',
+                  arguments: [
+                    {
+                      name: 'First',
+                      formula: {
+                        path: ['ListItem', 'Item'],
+                        type: 'path',
+                      },
+                    },
+                    {
+                      name: 'Second',
+                      formula: {
+                        path: ['Variables', 'chosen'],
+                        type: 'path',
+                      },
+                    },
+                  ],
+                  display_name: 'Equals',
+                },
+              },
+            ],
+          },
+          classes: {},
+          customProperties: {},
+        },
+        root: {
+          tag: 'div',
+          type: 'element',
+          children: ['intro', 'chips', 'reopen'],
+          classes: {},
+          customProperties: {},
+        },
+        chips: {
+          tag: 'div',
+          type: 'element',
+          children: ['chip'],
+          classes: {},
+          customProperties: {},
+        },
+        intro: {
+          tag: 'p',
+          type: 'element',
+          children: ['introText'],
+          classes: {},
+          customProperties: {},
+        },
+        reopen: {
+          tag: 'button',
+          type: 'element',
+          events: {
+            click: {
+              actions: [
+                {
+                  data: {
+                    type: 'value',
+                    value: true,
+                  },
+                  type: 'SetVariable',
+                  variable: 'open',
+                },
+              ],
+              trigger: 'click',
+            },
+          },
+          children: ['reopenText'],
+          classes: {},
+          customProperties: {},
+        },
+        chipText: {
+          type: 'text',
+          value: {
+            path: ['ListItem', 'Item'],
+            type: 'path',
+          },
+        },
+        introText: {
+          type: 'text',
+          value: {
+            type: 'value',
+            value: 'Intro',
+          },
+        },
+        reopenText: {
+          type: 'text',
+          value: {
+            type: 'value',
+            value: 'Reopen',
+          },
+        },
+      },
+      variables: {
+        open: {
+          initialValue: {
+            type: 'value',
+            value: true,
+          },
+        },
+        chosen: {
+          initialValue: {
+            type: 'value',
+            value: 3,
+          },
+        },
+      },
+    }
+
+    const dataSignal = signal<ComponentData>({
+      Variables: {
+        open: true,
+        chosen: 3,
+      },
+      Attributes: {},
+    })
+
+    const ctx = {
+      component,
+      components: [component],
+      root: document,
+      isRootComponent: true,
+      dataSignal,
+      abortSignal: new AbortController().signal,
+      children: {},
+      formulaCache: {},
+      providers: {},
+      stores: { theme: signal('light') },
+      apis: {},
+      toddle: {
+        getFormula: (name: string) => {
+          if (name === '@toddle/equals' || name === 'equals') {
+            return ([a, b]: [any, any]) => a === b
+          }
+          return undefined
+        },
+        getCustomFormula: () => undefined,
+        isEqual: (a: any, b: any) => a === b,
+        errors: [],
+      },
+      env: { runtime: 'page' },
+    } as any as ComponentContext
+
+    const elements = renderComponent({
+      ...ctx,
+      path: '0',
+      onEvent: () => {},
+      parentElement,
+      instance: {},
+    })
+    parentElement.append(...elements)
+
+    const getChips = () => {
+      const chipsDiv = parentElement.querySelector('[data-id="0.1"]')!
+      return Array.from(chipsDiv.children).map((c) => c.textContent)
+    }
+
+    expect(getChips()).toEqual(['0', '1', '2', '3', '4'])
+
+    const reopenBtn = parentElement.querySelector(
+      '[data-id="0.2"]',
+    ) as HTMLButtonElement
+
+    for (const num of ['3', '1', '2', '4', '0']) {
+      const chipsDiv = parentElement.querySelector('[data-id="0.1"]')!
+      const chip = Array.from(chipsDiv.children).find(
+        (c) => c.textContent === num,
+      ) as HTMLButtonElement
+      chip.click()
+
+      expect(getChips()).toEqual([num])
+
+      reopenBtn.click()
+
+      expect(getChips()).toEqual(['0', '1', '2', '3', '4'])
+    }
   })
 })
