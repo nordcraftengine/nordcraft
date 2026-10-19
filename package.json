@@ -15,7 +15,7 @@
     "@html-eslint/eslint-plugin": "0.67.0",
     "@html-eslint/parser": "0.67.0",
     "@octokit/core": "7.0.8",
-    "@types/bun": "1.4.2",
+    "@types/bun": "1.4.3",
     "@typescript-eslint/eslint-plugin": "8.71.2",
     "@typescript-eslint/parser": "8.71.2",
     "@typescript/native-preview": "7.0.0-dev.20260318.1",
@@ -39,6 +39,6 @@
     "lint": "eslint --quiet --report-unused-disable-directives .",
     "prettier": "prettier --check '*.{json,js,ts}' '**/*.{json,js,ts}' 'packages/editor/elements/**/*.json' 'packages/editor/css-properties/cssPropertyKeywords.json'",
     "prettier:write": "prettier --write  '*.{json,js,ts}' './**/*.{json,js,ts}' 'packages/editor/elements/**/*.json' 'packages/editor/css-properties/cssPropertyKeywords.json'",
-    "typecheck": "tsgo --noEmit && cd packages/core && bun typecheck && cd ../ssr && bun run typecheck && cd ../lib && bun run typecheck && cd ../search && bun run typecheck && cd ../runtime && bun run typecheck && cd ../backend && bun run typecheck && cd ../editor && bun run typecheck"
+    "typecheck": "bun check && bun --filter='*' run typecheck"
   }
 }

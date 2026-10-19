@@ -1,5 +1,5 @@
 # -------- BUILD STAGE --------
-FROM oven/bun:1.4.1-debian AS build
+FROM oven/bun:1.4.3-debian AS build
 
 WORKDIR /app
 
