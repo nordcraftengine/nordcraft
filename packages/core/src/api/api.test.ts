@@ -8,6 +8,7 @@ import {
   getRequestQueryParams,
   getUrl,
   isLegacyApi,
+  requestHash,
   toFormData,
 } from './api'
 import type { ApiRequest } from './apiTypes'
@@ -215,7 +216,6 @@ describe('getApiHeaders()', () => {
     const emptyParams = getRequestHeaders({
       apiHeaders: {},
       formulaContext: {} as any,
-      defaultHeaders: undefined,
     })
     expect(emptyParams.entries.length).toBe(0)
     const headers = getRequestHeaders({
@@ -224,23 +224,10 @@ describe('getApiHeaders()', () => {
         filter: { formula: valueFormula('world') },
       },
       formulaContext: {} as any,
-      defaultHeaders: undefined,
     })
     expect(headers.get('q')).toBe('hello')
     expect(headers.get('filter')).toBe('world')
     expect([...headers.entries()].length).toBe(2)
-    const headersWithDefaults = getRequestHeaders({
-      apiHeaders: {
-        q: { formula: valueFormula('hello') },
-        filter: { formula: valueFormula('world') },
-      },
-      formulaContext: {} as any,
-      defaultHeaders: new Headers([['accept-encoding', 'gzip']]),
-    })
-    expect(headersWithDefaults.get('q')).toBe('hello')
-    expect(headersWithDefaults.get('filter')).toBe('world')
-    expect(headersWithDefaults.get('accept-encoding')).toBe('gzip')
-    expect([...headersWithDefaults.entries()].length).toBe(3)
   })
   test('it ignores disabled headers', () => {
     const headers = getRequestHeaders({
@@ -253,7 +240,6 @@ describe('getApiHeaders()', () => {
         filter: { formula: valueFormula('world') },
       },
       formulaContext: {} as any,
-      defaultHeaders: undefined,
     })
     expect(headers.get('q')).toBe('hello')
     expect(headers.get('filter')).toBe('world')
@@ -288,7 +274,6 @@ describe('createApiRequest', () => {
       api: apiRequest,
       formulaContext: {} as any,
       baseUrl,
-      defaultHeaders: undefined,
     })
     const request = new Request(url, requestSettings)
     expect(request.method).toBe('GET')
@@ -333,7 +318,6 @@ describe('createApiRequest', () => {
       api: apiRequest,
       formulaContext: {} as any,
       baseUrl,
-      defaultHeaders: undefined,
     })
     const request = new Request(url, requestSettings)
     expect(request.method).toBe('POST')
@@ -531,5 +515,134 @@ describe('isLegacyApi()', () => {
         ),
       ),
     ).toBe(false)
+  })
+})
+
+describe('requestHash()', () => {
+  it('returns a consistent hash number for identical requests', () => {
+    const url = new URL('https://example.com/api/items?limit=10')
+    const request: RequestInit = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+      },
+    }
+
+    const hash1 = requestHash(url, request)
+    const hash2 = requestHash(url, request)
+
+    expect(typeof hash1).toBe('number')
+    expect(hash1).toBe(hash2)
+  })
+
+  it('produces different hashes for different URLs', () => {
+    const request: RequestInit = { method: 'GET' }
+    const hash1 = requestHash(new URL('https://example.com/api/items'), request)
+    const hash2 = requestHash(new URL('https://example.com/api/users'), request)
+    const hash3 = requestHash(
+      new URL('https://example.com/api/items?page=1'),
+      request,
+    )
+
+    expect(hash1).not.toBe(hash2)
+    expect(hash1).not.toBe(hash3)
+  })
+
+  it('produces different hashes for different HTTP methods', () => {
+    const url = new URL('https://example.com/api/items')
+    const getHash = requestHash(url, { method: 'GET' })
+    const postHash = requestHash(url, { method: 'POST' })
+    const deleteHash = requestHash(url, { method: 'DELETE' })
+
+    expect(getHash).not.toBe(postHash)
+    expect(getHash).not.toBe(deleteHash)
+    expect(postHash).not.toBe(deleteHash)
+  })
+
+  it('produces different hashes when the request body changes', () => {
+    const url = new URL('https://example.com/api/items')
+    const hash1 = requestHash(url, {
+      method: 'POST',
+      body: JSON.stringify({ name: 'item1' }),
+    })
+    const hash2 = requestHash(url, {
+      method: 'POST',
+      body: JSON.stringify({ name: 'item2' }),
+    })
+    const hashNoBody = requestHash(url, { method: 'POST' })
+
+    expect(hash1).not.toBe(hash2)
+    expect(hash1).not.toBe(hashNoBody)
+  })
+
+  it('treats undefined and null body identically', () => {
+    const url = new URL('https://example.com/api/items')
+    const hashUndefined = requestHash(url, {
+      method: 'POST',
+      body: undefined,
+    })
+    const hashNull = requestHash(url, {
+      method: 'POST',
+      body: null,
+    })
+
+    expect(hashUndefined).toBe(hashNull)
+  })
+
+  it('produces different hashes when relevant headers differ', () => {
+    const url = new URL('https://example.com/api/items')
+    const hash1 = requestHash(url, {
+      method: 'GET',
+      headers: { authorization: 'Bearer token-1' },
+    })
+    const hash2 = requestHash(url, {
+      method: 'GET',
+      headers: { authorization: 'Bearer token-2' },
+    })
+    const hashNoHeaders = requestHash(url, {
+      method: 'GET',
+    })
+
+    expect(hash1).not.toBe(hash2)
+    expect(hash1).not.toBe(hashNoHeaders)
+  })
+
+  it('ignores host and cookie headers when computing the hash', () => {
+    const url = new URL('https://example.com/api/items')
+    const baseHash = requestHash(url, {
+      method: 'GET',
+      headers: {
+        authorization: 'Bearer token',
+      },
+    })
+    const hashWithHostAndCookie = requestHash(url, {
+      method: 'GET',
+      headers: {
+        authorization: 'Bearer token',
+        host: 'example.com',
+        cookie: 'sessionId=12345',
+      },
+    })
+    const hashWithDifferentCookie = requestHash(url, {
+      method: 'GET',
+      headers: {
+        authorization: 'Bearer token',
+        cookie: 'sessionId=67890',
+      },
+    })
+
+    expect(hashWithHostAndCookie).toBe(baseHash)
+    expect(hashWithDifferentCookie).toBe(baseHash)
+  })
+
+  it('handles empty or missing headers gracefully', () => {
+    const url = new URL('https://example.com/api/items')
+    const hashWithoutHeaders = requestHash(url, { method: 'GET' })
+    const hashWithEmptyHeaders = requestHash(url, {
+      method: 'GET',
+      headers: {},
+    })
+
+    expect(hashWithoutHeaders).toBe(hashWithEmptyHeaders)
   })
 })

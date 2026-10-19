@@ -165,13 +165,6 @@ const fetchApi = async ({
     api,
     formulaContext,
     baseUrl: url.origin,
-    defaultHeaders: new Headers({
-      ...mapHeadersToObject(req.headers),
-      // Override accept + accept-encoding to increase the chance that we can work with the response
-      // from an API fetched during SSR. Many servers don't support br encoding for instance.
-      accept: '*/*',
-      'accept-encoding': 'gzip, deflate',
-    }),
   })
   const cacheKey = requestHash(requestUrl, requestSettings)
 
@@ -206,11 +199,20 @@ const fetchApi = async ({
     }
   }
 
+  const defaultHeaders = new Headers({
+    ...mapHeadersToObject(req.headers),
+    // Override accept + accept-encoding to increase the chance that we can work with the response
+    // from an API fetched during SSR. Many servers don't support br encoding for instance.
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate',
+    ...mapHeadersToObject(requestSettings.headers),
+  })
+
   const request = new Request(requestUrl.href, {
     ...requestSettings,
     headers: sanitizeProxyHeaders({
       cookies: newFormulaContext.env?.request?.cookies ?? {},
-      headers: requestSettings.headers,
+      headers: defaultHeaders,
     }),
   })
 
