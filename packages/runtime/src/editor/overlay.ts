@@ -64,21 +64,6 @@ const rectFromCentre = (c: Point, w: number, h: number) =>
  *   The consumer's overlay layer must be untransformed and in viewport coordinates.
  *   A `transform-origin` with a z length is part of that matrix too, so the consumer
  *   never has to know about it. See `getExactOverlay`.
- *
- * - Unmodelled: a 3D / perspective chain whose rect the model can't reproduce. In practice
- *   the element is clipped by the camera plane (a corner is on or behind it), where the
- *   browser reports an enormous rect. The box is that rect clamped to the neighbourhood of
- *   the viewport, `matrix` is the identity and `screen.behindCamera` is `true`. Nothing
- *   here is meaningful to draw handles from: hide them.
- *
- * Gizmos: place them with `screen` (the perspective divide is already done), or project
- * your own points with `projectOverlayPoint`. Never use `left + width / 2` as the
- * element's centre in the 3D flavour, that is the *layout* centre.
- *
- * `parent`, `children` and `repeatItems` follow the same rule per element: an item
- * that is in a 3D / perspective chain carries its own `matrix` (3D flavour), any
- * other item has no `matrix` and is drawn as before. `inheritedMatrix` is the
- * parent's `matrix` in the 3D flavour.
  */
 export function getRectData(selectedNode: Element | null | undefined) {
   if (!selectedNode) {
@@ -761,10 +746,6 @@ function getInheritedMatrix(node: Element): string {
   return rotateSkew.toString()
 }
 
-// ---------------------------------------------------------------------------
-// Exact overlay for 3D / perspective chains
-// ---------------------------------------------------------------------------
-
 const translation = (x: number, y: number, z = 0) =>
   new DOMMatrix().translateSelf(x, y, z)
 
@@ -1047,10 +1028,6 @@ function getFrame(
   cache.set(el, frame)
   return frame
 }
-
-// ---------------------------------------------------------------------------
-// Choosing the overlay flavour, and where it ends up on screen
-// ---------------------------------------------------------------------------
 
 type Overlay = {
   rect: DOMRect
