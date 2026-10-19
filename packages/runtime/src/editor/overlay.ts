@@ -62,7 +62,18 @@ const rectFromCentre = (c: Point, w: number, h: number) =>
  *   complete layout -> screen `matrix3d` (translation, scale and perspective included),
  *   so `perspective` is `null` and the consumer must NOT add a perspective container.
  *   The consumer's overlay layer must be untransformed and in viewport coordinates.
- *   See `getExactOverlay`.
+ *   A `transform-origin` with a z length is part of that matrix too, so the consumer
+ *   never has to know about it. See `getExactOverlay`.
+ *
+ * - Unmodelled: a 3D / perspective chain whose rect the model can't reproduce. In practice
+ *   the element is clipped by the camera plane (a corner is on or behind it), where the
+ *   browser reports an enormous rect. The box is that rect clamped to the neighbourhood of
+ *   the viewport, `matrix` is the identity and `screen.behindCamera` is `true`. Nothing
+ *   here is meaningful to draw handles from: hide them.
+ *
+ * Gizmos: place them with `screen` (the perspective divide is already done), or project
+ * your own points with `projectOverlayPoint`. Never use `left + width / 2` as the
+ * element's centre in the 3D flavour, that is the *layout* centre.
  *
  * `parent`, `children` and `repeatItems` follow the same rule per element: an item
  * that is in a 3D / perspective chain carries its own `matrix` (3D flavour), any
@@ -88,12 +99,8 @@ export function getRectData(selectedNode: Element | null | undefined) {
 
   // Solved frames are shared by the node, its parent, children and repeat items.
   const cache: FrameCache = new Map()
-  const exact = getExactOverlay(selectedNode, cache)
-  const {
-    rect,
-    rotate: matrix,
-    scale: boxScale,
-  } = exact ?? getScaledIntrinsicRect(selectedNode)
+  const overlay = getOverlay(selectedNode, cache)
+  const { rect, rotate: matrix, scale: boxScale } = overlay
   const parent = selectedNode.parentElement
   const parentData =
     parent && parent !== document.documentElement
@@ -126,8 +133,13 @@ export function getRectData(selectedNode: Element | null | undefined) {
     rotation: getRotationMatrix(selectedNode),
     inheritedMatrix: parentData?.matrix ?? getInheritedMatrix(selectedNode),
     // In the exact (3D) flavour perspective is baked into `matrix`, so there is
-    // nothing for the consumer to apply.
-    perspective: exact ? null : getPerspectiveData(selectedNode),
+    // nothing for the consumer to apply. Same for the unmodelled flavour, which is just
+    // a bounding box.
+    perspective:
+      overlay.kind === 'legacy' ? getPerspectiveData(selectedNode) : null,
+    // Where the overlay is actually drawn. Gizmos must place themselves with this and
+    // not with `left + width / 2` or the matrix's translation, see `getScreen`.
+    screen: getScreen(overlay),
     transformOrigin,
     parent: parentData,
     children: Array.from(selectedNode.children).map((child) =>
@@ -164,12 +176,14 @@ const toRectData = ({
  * Without a `matrix` the element is in the 2D flavour and is drawn as before.
  */
 const getBasicRectData = (node: Element, cache: FrameCache = new Map()) => {
-  const exact = getExactOverlay(node, cache)
-  const { rect, scale } = exact ?? getScaledIntrinsicRect(node)
+  const overlay = getOverlay(node, cache)
   return {
-    ...toRectData(rect),
-    boxScale: scale,
-    ...(exact && { matrix: exact.rotate }),
+    ...toRectData(overlay.rect),
+    boxScale: overlay.scale,
+    ...(overlay.kind === 'exact' && {
+      matrix: overlay.rotate,
+      screen: getScreen(overlay),
+    }),
   }
 }
 
@@ -320,19 +334,26 @@ function getPerspectiveCenter(
   return { x: ox + U, y: oy + V }
 }
 
-/** Resolves a CSS origin string (`'50% 50%'`, `'10px 20px'`) to px in a `width` x `height` box. */
+/**
+ * Resolves a CSS origin string to px in a `width` x `height` box: `'50% 50%'`,
+ * `'10px 20px'` and, for `transform-origin`, a third z length (`'50% 50% 30px'`).
+ * z is a length only (no percentages) and 0 when absent, which is always the case
+ * for `perspective-origin`.
+ */
 function parseOrigin(
   value: string | undefined,
   width: number,
   height: number,
-): [number, number] {
-  const [x = '50%', y = '50%'] = (value ?? '').split(/\s+/).filter(Boolean)
+): [number, number, number] {
+  const [x = '50%', y = '50%', z = '0px'] = (value ?? '')
+    .split(/\s+/)
+    .filter(Boolean)
   const resolve = (token: string, size: number) =>
     token.endsWith('%')
       ? (parseFloat(token) / 100) * size
       : parseFloat(token) || 0
 
-  return [resolve(x, width), resolve(y, height)]
+  return [resolve(x, width), resolve(y, height), parseFloat(z) || 0]
 }
 
 function getTransformStyles(el: Element) {
@@ -652,7 +673,7 @@ function getLayoutSize(node: Element, computed: CSSStyleDeclaration) {
     node instanceof HTMLElement &&
     (node.offsetWidth > 0 || node.offsetHeight > 0)
   ) {
-    return { width: node.offsetWidth, height: node.offsetHeight }
+    return getBoxSize(node, computed)
   }
 
   if ('getBBox' in node) {
@@ -666,6 +687,11 @@ function getLayoutSize(node: Element, computed: CSSStyleDeclaration) {
     }
   }
 
+  return getComputedBorderBox(computed)
+}
+
+/** Fractional border-box size from the computed style, or `null` if it doesn't resolve (`auto`, inline...). */
+function getComputedBorderBox(computed: CSSStyleDeclaration) {
   const width = parseFloat(computed.width)
   const height = parseFloat(computed.height)
   if (isNaN(width) || isNaN(height) || (width <= 0 && height <= 0)) {
@@ -690,6 +716,21 @@ function getLayoutSize(node: Element, computed: CSSStyleDeclaration) {
     width: width + extra('left', 'right'),
     height: height + extra('top', 'bottom'),
   }
+}
+
+/**
+ * Layout size of an element. `offsetWidth/Height` are rounded to integers, which at
+ * scale(3) or under perspective is enough to push the solver past its tolerance, so
+ * prefer the fractional computed size whenever it agrees with them.
+ */
+function getBoxSize(el: HTMLElement, computed: CSSStyleDeclaration) {
+  const { offsetWidth: width, offsetHeight: height } = el
+  const box = getComputedBorderBox(computed)
+  return box &&
+    Math.abs(box.width - width) <= 1 &&
+    Math.abs(box.height - height) <= 1
+    ? box
+    : { width, height }
 }
 
 function getInlineRect(node: Element): DOMRect {
@@ -733,26 +774,50 @@ const about = (m: DOMMatrix, [x, y, z]: [number, number, number]) =>
     .multiply(m)
     .multiply(translation(-x, -y, -z))
 
-/** The point an origin string refers to, for a `w` x `h` box centred on `c`. */
+/**
+ * The point an origin string refers to, for a `w` x `h` box centred on `c`.
+ * For `transform-origin` that includes its z length.
+ */
 function originPoint(
   value: string | undefined,
   c: Point,
   w: number,
   h: number,
 ): [number, number, number] {
-  const [x, y] = parseOrigin(value, w, h)
-  return [c.x - w / 2 + x, c.y - h / 2 + y, 0]
+  const [x, y, z] = parseOrigin(value, w, h)
+  return [c.x - w / 2 + x, c.y - h / 2 + y, z]
 }
+
+/** Below this the point is on / behind the camera plane and the browser clips it. */
+const MIN_W = 1e-3
 
 /** Where the point (x, y, 0) ends up on screen, including the perspective divide. */
 function project(m: DOMMatrix, x: number, y: number): Point {
   const w = m.m14 * x + m.m24 * y + m.m44
-  return w > 0
+  return w > MIN_W
     ? {
         x: (m.m11 * x + m.m21 * y + m.m41) / w,
         y: (m.m12 * x + m.m22 * y + m.m42) / w,
       }
     : { x: NaN, y: NaN } // behind the camera
+}
+
+/**
+ * Inverse of `project`: the point (x, y) of the z = 0 plane that lands on `p`, or `null`
+ * if the plane is edge-on. (x, y) is linear in the two projected-coordinate equations.
+ */
+function unproject(m: DOMMatrix, p: Point): Point | null {
+  const [a, b, c, d] = [
+    m.m11 - p.x * m.m14,
+    m.m21 - p.x * m.m24,
+    m.m12 - p.y * m.m14,
+    m.m22 - p.y * m.m24,
+  ]
+  const [e, f] = [p.x * m.m44 - m.m41, p.y * m.m44 - m.m42]
+  const det = a * d - b * c
+  const x = (d * e - b * f) / det
+  const y = (a * f - c * e) / det
+  return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : null
 }
 
 /** [left, top, right, bottom] of the `w` x `h` box centred on `c` after `m`. */
@@ -770,38 +835,91 @@ const dot = (a: number[], b: number[]) =>
 
 /**
  * Finds the layout centre `c` for which `worldAt(c)` renders the `w` x `h` box exactly
- * onto `target` (Gauss-Newton on the four bounding-rect edges; the Jacobian is
+ * onto `target` (damped Gauss-Newton on the four bounding-rect edges; the Jacobian is
  * measured by nudging `c` by 1px). Returns `null` if the model can't reproduce the
  * browser's own rect, so callers never trust a wrong model.
+ *
+ * `guess` is the preferred starting point (see `getFrame`).
  */
 function solveLayoutCentre(
   target: DOMRect,
   w: number,
   h: number,
   worldAt: (c: Point) => DOMMatrix,
+  guess: Point | null,
 ): Point | null {
   const want = [target.left, target.top, target.right, target.bottom]
   const misfit = (c: Point) =>
     projectedBounds(worldAt(c), c, w, h).map((v, i) => want[i] - v)
+  // A corner behind the camera makes the misfit NaN: that is "infinitely bad", never "small".
+  const cost = (r: number[]) => {
+    const sum = dot(r, r)
+    return Number.isNaN(sum) ? Infinity : sum
+  }
 
-  let c = centre(target)
-  for (let i = 0; i < 10; i++) {
-    const r = misfit(c)
-    const jx = misfit({ x: c.x + 1, y: c.y }).map((v, k) => r[k] - v)
-    const jy = misfit({ x: c.x, y: c.y + 1 }).map((v, k) => r[k] - v)
-    const [a, b, d] = [dot(jx, jx), dot(jx, jy), dot(jy, jy)]
-    const det = a * d - b * b
-    if (!(Math.abs(det) > 1e-9)) {
-      break
+  // Edge derivative along (dx, dy); one-sided backwards if forwards runs behind the camera.
+  const slope = (c: Point, r: number[], dx: number, dy: number) => {
+    const fwd = misfit({ x: c.x + dx, y: c.y + dy }).map((v, k) => r[k] - v)
+    return fwd.some(Number.isNaN)
+      ? misfit({ x: c.x - dx, y: c.y - dy }).map((v, k) => v - r[k])
+      : fwd
+  }
+
+  // Damped Gauss-Newton: a step is only taken if it lowers the error, otherwise it is
+  // halved. Plain Gauss-Newton overshoots under strong perspective, lands behind the
+  // camera (NaN) and silently gives up.
+  const descend = (start: Point) => {
+    let c = start
+    let r = misfit(c)
+    let f = cost(r)
+    for (let i = 0; i < 40 && f > 1e-12; i++) {
+      const jx = slope(c, r, 1, 0)
+      const jy = slope(c, r, 0, 1)
+      const [a, b, d] = [dot(jx, jx), dot(jx, jy), dot(jy, jy)]
+      const det = a * d - b * b
+      // Written so that NaN fails too. Relative to a and d so it doesn't depend on scale.
+      if (!(a > 1e-12 && d > 1e-12 && det > 1e-9 * a * d)) {
+        break
+      }
+      const [e, g] = [dot(jx, r), dot(jy, r)]
+      const step = { x: (d * e - b * g) / det, y: (a * g - b * e) / det }
+
+      let moved = false
+      for (let t = 1; t > 1e-3 && !moved; t /= 2) {
+        const next = { x: c.x + step.x * t, y: c.y + step.y * t }
+        const nr = misfit(next)
+        const nf = cost(nr)
+        if (nf < f) {
+          ;[c, r, f, moved] = [next, nr, nf, true]
+        }
+      }
+      if (!moved || Math.hypot(step.x, step.y) < 1e-7) {
+        break
+      }
     }
-    const [e, g] = [dot(jx, r), dot(jy, r)]
-    const step = { x: (d * e - b * g) / det, y: (a * g - b * e) / det }
-    c = { x: c.x + step.x, y: c.y + step.y }
-    if (Math.hypot(step.x, step.y) < 1e-6) {
-      break
+    return { c, worst: Math.max(...r.map(Math.abs)) }
+  }
+
+  // Where to start. `guess` is the best one (see `getFrame`); the rect's centre is only
+  // right when no ancestor moves the element. Both can be behind the camera, so ring a
+  // few more starts around the guess.
+  const spread = Math.max(w, h, target.width, target.height)
+  const base = guess ?? centre(target)
+  const starts = [
+    base,
+    centre(target),
+    ...Array.from({ length: 8 }, (_, k) => ({
+      x: base.x + spread * Math.cos((k * Math.PI) / 4),
+      y: base.y + spread * Math.sin((k * Math.PI) / 4),
+    })),
+  ]
+  for (const start of starts) {
+    const { c, worst } = descend(start)
+    if (worst < 1) {
+      return c
     }
   }
-  return Math.max(...misfit(c).map(Math.abs)) < 1 ? c : null
+  return null
 }
 
 /** An element's rendering: its layout box, its layout -> screen matrix and what its children inherit. */
@@ -822,7 +940,7 @@ type FrameCache = Map<Element, Frame | null>
 /**
  * Walks root -> `el` with the CSS rules, per element:
  *
- *  1. it transforms about its own `transform-origin`,
+ *  1. it transforms about its own `transform-origin` (z length included),
  *  2. its parent's `perspective` is applied to it before it is composed onto the
  *     parent's accumulated matrix,
  *  3. a parent that isn't `preserve-3d` flattens it (only matters when the parent's
@@ -854,13 +972,16 @@ function getFrame(
 
   const style = getStyle(el)
   const own = getOwnTransform(el)
-  const perspective = parseFloat(style.perspective) || 0
-  const [w, h] = [el.offsetWidth, el.offsetHeight]
+  // CSS clamps a perspective distance to at least 1px
+  const rawPerspective = parseFloat(style.perspective)
+  const perspective = rawPerspective > 0 ? Math.max(rawPerspective, 1) : 0
+  const { width: w, height: h } = getBoxSize(el, style)
   const parentWorld = parent?.world ?? new DOMMatrix()
 
-  // Layout centre of `el` -> its accumulated matrix
-  const place = (c: Point) => {
-    let m = about(own, originPoint(style.transformOrigin, c, w, h))
+  // A matrix in the parent's local frame -> its accumulated matrix: the parent's
+  // perspective is applied first, then flattening, then the parent's world.
+  const compose = (local: DOMMatrix) => {
+    let m = local
     if (parent) {
       if (parent.perspective > 0) {
         const persp = new DOMMatrix()
@@ -885,13 +1006,33 @@ function getFrame(
     return parentWorld.multiply(m)
   }
 
+  // Layout centre of `el` -> its accumulated matrix
+  const place = (c: Point) =>
+    compose(about(own, originPoint(style.transformOrigin, c, w, h)))
+
+  // First guess for the layout centre. The centre is on the parent's z = 0 plane, but the
+  // element's own transform moves it by D = off + own(-off) (`off` = the pivot's offset
+  // from the box centre, z included), which doesn't depend on where the box is. Map the
+  // rect's centre back through the parent chain after undoing that shift.
+  const guessCentre = (rect: DOMRect) => {
+    const [ox, oy, oz] = parseOrigin(style.transformOrigin, w, h)
+    const [x, y, z] = [ox - w / 2, oy - h / 2, oz]
+    const moved = own.transformPoint(new DOMPoint(-x, -y, -z))
+    const k = moved.w || 1
+    return unproject(
+      compose(translation(x + moved.x / k, y + moved.y / k, z + moved.z / k)),
+      centre(rect),
+    )
+  }
+
   const solved = target || !own.isIdentity || perspective > 0
   if (solved && !(w > 0 || h > 0)) {
     cache.set(el, null)
     return null
   }
-  const c = solved
-    ? solveLayoutCentre(el.getBoundingClientRect(), w, h, place)
+  const rect = solved ? el.getBoundingClientRect() : null
+  const c = rect
+    ? solveLayoutCentre(rect, w, h, place, guessCentre(rect))
     : { x: 0, y: 0 } // identity and no perspective: position is irrelevant
   const frame = c && {
     c,
@@ -907,6 +1048,119 @@ function getFrame(
   return frame
 }
 
+// ---------------------------------------------------------------------------
+// Choosing the overlay flavour, and where it ends up on screen
+// ---------------------------------------------------------------------------
+
+type Overlay = {
+  rect: DOMRect
+  rotate: string
+  scale: Scale
+  kind: 'exact' | 'unmodelled' | 'legacy'
+}
+
+/**
+ * The overlay for `node`: exact where the model can reproduce the browser, the legacy 2D
+ * maths for plain 2D chains. A 3D chain that the model can't reproduce must NOT go to the
+ * legacy maths: it assumes an affine / single-level-perspective world, so with a clipped
+ * element (the browser then reports an enormous rect) it returns a box that has nothing to
+ * do with where the element is drawn.
+ */
+function getOverlay(node: Element, cache: FrameCache): Overlay {
+  const exact = getExactOverlay(node, cache)
+  if (exact) {
+    return { ...exact, kind: 'exact' }
+  }
+  return needsExactOverlay(node)
+    ? { ...getUnmodelledOverlay(node), kind: 'unmodelled' }
+    : { ...getScaledIntrinsicRect(node), kind: 'legacy' }
+}
+
+/** The bounding rect, clamped to one viewport around the viewport so it stays usable. */
+function getUnmodelledOverlay(node: Element) {
+  const { left, top, right, bottom } = node.getBoundingClientRect()
+  const [vw, vh] = [window.innerWidth || 1, window.innerHeight || 1]
+  const clamp = (v: number, min: number, max: number) =>
+    Math.min(max, Math.max(min, Number.isNaN(v) ? 0 : v))
+  const [l, r] = [left, right].map((v) => clamp(v, -vw, 2 * vw))
+  const [t, b] = [top, bottom].map((v) => clamp(v, -vh, 2 * vh))
+
+  return {
+    rect: new DOMRect(l, t, r - l, b - t),
+    rotate: new DOMMatrix().toString(),
+    scale: [1, 1] as Scale,
+  }
+}
+
+/**
+ * Where a point of an overlay (a box with `matrix` applied about its centre) is drawn, with
+ * the perspective divide done. `offset` is relative to the box centre; z = 0 is the box's
+ * own plane, so `[0, 0]` is the centre of the element as drawn and `[0, 0, 80]` a point 80px
+ * in front of it. Returns `null` when the point is on or behind the camera plane.
+ *
+ * Use this (not `matrix.transformPoint`, which doesn't divide by w) for anything you place
+ * by hand: handles, pivots, axis tips. Near the camera plane w -> 0 and a naive projection
+ * flies off to infinity, behind it the signs flip.
+ */
+export function projectOverlayPoint(
+  box: Pick<DOMRect, 'left' | 'top' | 'width' | 'height'>,
+  matrix: DOMMatrix | string,
+  [x, y, z = 0]: [x: number, y: number, z?: number],
+): Point | null {
+  const m = typeof matrix === 'string' ? new DOMMatrix(matrix) : matrix
+  const w = m.m14 * x + m.m24 * y + m.m34 * z + m.m44
+  if (!(w > MIN_W)) {
+    return null
+  }
+
+  const c = centre(box)
+  return {
+    x: c.x + (m.m11 * x + m.m21 * y + m.m31 * z + m.m41) / w,
+    y: c.y + (m.m12 * x + m.m22 * y + m.m32 * z + m.m42) / w,
+  }
+}
+
+/**
+ * Where the overlay is drawn on screen, perspective included:
+ *
+ * - `centre`: the element's centre as drawn. Under perspective this is neither the box
+ *   centre (that is the layout centre) nor the bounding rect's centre.
+ * - `corners`: top-left, top-right, bottom-right, bottom-left as drawn.
+ * - `axes`: the screen-space vectors of one layout px along the element's x and y: the
+ *   apparent size and direction there (use them to size and orient handles).
+ * - `behindCamera`: the centre or a corner is on or behind the camera plane (or the chain
+ *   couldn't be modelled, which is the same thing in practice). `centre`/`corners` are
+ *   `null` for those points. Hide handles, don't try to draw them.
+ */
+function getScreen({ rect, rotate, kind }: Overlay) {
+  const m = new DOMMatrix(rotate)
+  const at = (x: number, y: number) => projectOverlayPoint(rect, m, [x, y])
+  const middle = at(0, 0)
+  const corners = CORNERS.map(([sx, sy]) =>
+    at((sx * rect.width) / 2, (sy * rect.height) / 2),
+  )
+  const [px, py] = [at(1, 0), at(0, 1)]
+
+  return {
+    centre: middle,
+    corners,
+    axes:
+      middle && px && py
+        ? {
+            x: { x: px.x - middle.x, y: px.y - middle.y },
+            y: { x: py.x - middle.x, y: py.y - middle.y },
+          }
+        : null,
+    behindCamera: kind === 'unmodelled' || !middle || corners.includes(null),
+  }
+}
+
+/** A layout box whose chain involves 3D or perspective, i.e. the 2D maths can't be trusted. */
+const needsExactOverlay = (node: Element) =>
+  node instanceof HTMLElement &&
+  getStyle(node).display !== 'inline' &&
+  !(getFullTransform(node).is2D && !getPerspectiveProvider(node))
+
 /**
  * Exact overlay for elements in chains that involve 3D or perspective.
  *
@@ -917,14 +1171,12 @@ function getFrame(
  * The result is a box at the layout position plus one `matrix3d` (translation, scale
  * and perspective included) to be applied about the box centre.
  *
- * Returns `null` for plain 2D chains, and whenever the model can't reproduce the
- * browser's rects, so the caller falls back to the 2D path.
+ * Returns `null` for plain 2D chains (see `needsExactOverlay`), and whenever the model
+ * can't reproduce the browser's rects, which `getOverlay` turns into the "unmodelled"
+ * flavour for 3D chains.
  */
-function getExactOverlay(node: Element, cache: FrameCache = new Map()) {
-  if (!(node instanceof HTMLElement) || getStyle(node).display === 'inline') {
-    return null
-  }
-  if (getFullTransform(node).is2D && !getPerspectiveProvider(node)) {
+export function getExactOverlay(node: Element, cache: FrameCache = new Map()) {
+  if (!needsExactOverlay(node)) {
     return null
   }
 
