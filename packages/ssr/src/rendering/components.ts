@@ -159,12 +159,13 @@ const renderComponent = async ({
     }
     if (node.repeat) {
       const items = applyFormula(node.repeat, formulaContext)
-      if (!Array.isArray(items)) {
+      if (typeof items !== 'object' || items === null) {
         return ''
       }
 
+      const entries = Array.isArray(items) ? items : Object.entries(items)
       const nodeItems = await Promise.all(
-        items.map((Item, Index) =>
+        entries.map(([Item], Index) =>
           renderNode({
             id,
             path: Index ? `${path}(${Index})` : path,
