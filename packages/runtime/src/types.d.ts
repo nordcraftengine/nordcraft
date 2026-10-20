@@ -42,12 +42,6 @@ export type PreviewShowSignal = Signal<{
   testMode: boolean
 }>
 
-interface ListItem {
-  Item: unknown
-  Index: number
-  Parent?: ListItem
-}
-
 export interface ComponentChild {
   dataSignal: Signal<ComponentData>
   id: string
