@@ -86,7 +86,10 @@ describe('measureProjectFiles', () => {
   })
 
   test('reports no reduction when the stripper is a no-op', () => {
-    const metrics = measureProjectFiles(createFiles(), (component) => component)
+    const metrics = measureProjectFiles(
+      createFiles(),
+      (component: Component) => component,
+    )
 
     expect(metrics.savedBytes).toBe(0)
     expect(metrics.reductionPercent).toBe(0)

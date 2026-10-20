@@ -4,7 +4,9 @@ import type { Component } from '../packages/core/dist/component/component.types'
 import type { ProjectFiles } from '../packages/ssr/dist/ssr.types'
 import { percentageDelta } from './stats'
 
-export type ComponentStripper = (component: Component) => Component
+export type ComponentStripper =
+  | ((component: Component) => Component)
+  | ((files: ProjectFiles) => ProjectFiles)
 
 export interface CompressionMetrics {
   componentCount: number
@@ -44,7 +46,7 @@ const stripTestData = (
     Object.entries(components).map(([name, component]) => [
       name,
       isRecord(component)
-        ? strip(component as unknown as Component)
+        ? (strip as (target: unknown) => unknown)(component)
         : component,
     ]),
   )
@@ -57,25 +59,34 @@ export const measureProjectFiles = (
   files: ProjectFiles,
   strip: ComponentStripper,
 ): Omit<CompressionMetrics, 'id' | 'name'> => {
-  const strippedFiles = {
-    ...files,
-    components: stripTestData(files.components ?? {}, strip),
-    ...(files.packages
-      ? {
-          packages: Object.fromEntries(
-            Object.entries(files.packages).map(([name, pkg]) => [
-              name,
-              pkg
-                ? {
-                    ...pkg,
-                    components: stripTestData(pkg.components ?? {}, strip),
-                  }
-                : pkg,
-            ]),
-          ),
+  const candidate = (strip as (target: unknown) => unknown)(files)
+  const strippedFiles =
+    isRecord(candidate) &&
+    ('components' in candidate || 'packages' in candidate) &&
+    !('nodes' in candidate)
+      ? (candidate as unknown as ProjectFiles)
+      : {
+          ...files,
+          components: stripTestData(files.components ?? {}, strip),
+          ...(files.packages
+            ? {
+                packages: Object.fromEntries(
+                  Object.entries(files.packages).map(([name, pkg]) => [
+                    name,
+                    pkg
+                      ? {
+                          ...pkg,
+                          components: stripTestData(
+                            pkg.components ?? {},
+                            strip,
+                          ),
+                        }
+                      : pkg,
+                  ]),
+                ),
+              }
+            : {}),
         }
-      : {}),
-  }
 
   const originalJson = JSON.stringify(files)
   const strippedJson = JSON.stringify(strippedFiles)
