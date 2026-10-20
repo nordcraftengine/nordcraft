@@ -1,3 +1,7 @@
 [install]
 saveTextLockfile = true
 linker = "isolated"
+
+[lint]
+# Loaded by `bun lint` so the HTML rules from eslint.config.mjs keep working.
+plugins = ["@html-eslint/eslint-plugin"]
