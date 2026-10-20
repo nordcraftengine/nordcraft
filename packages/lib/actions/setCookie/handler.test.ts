@@ -29,6 +29,27 @@ describe('set cookie', async () => {
     expect(triggerActionEvent).toHaveBeenCalled()
     expect(document.cookie).toContain('my_cookie=my_value')
   })
+  it('should always set the cookie as Secure', async () => {
+    let assignedCookie = ''
+    Object.defineProperty(globalThis.document, 'cookie', {
+      configurable: true,
+      get: () => assignedCookie,
+      set: (value: string) => {
+        assignedCookie = value
+      },
+    })
+    const triggerActionEvent = mock(() => {})
+    expect(
+      () =>
+        handler(['my_cookie', 'my_value', 3600, 'None', '/', false], {
+          triggerActionEvent,
+        } as any) as any,
+    ).not.toThrow()
+    expect(assignedCookie).toContain('my_cookie=my_value')
+    expect(assignedCookie).toContain('Secure')
+    expect(assignedCookie).toContain('SameSite=None')
+    expect(triggerActionEvent).toHaveBeenCalled()
+  })
   it('should fail for invalid values', async () => {
     const triggerActionEvent = mock((trigger: string, event: any) => {
       expect(trigger).toBe('Error')
