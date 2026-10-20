@@ -163,9 +163,9 @@ const renderComponent = async ({
         return ''
       }
 
-      const entries = Array.isArray(items) ? items : Object.entries(items)
+      const entries = Object.entries(items)
       const nodeItems = await Promise.all(
-        entries.map(([Item], Index) =>
+        entries.map(([_Key, Item], Index) =>
           renderNode({
             id,
             path: Index ? `${path}(${Index})` : path,
