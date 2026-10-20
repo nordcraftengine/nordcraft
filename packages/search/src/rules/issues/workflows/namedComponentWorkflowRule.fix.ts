@@ -54,8 +54,8 @@ export const renameNamedComponentWorkflowFix: FixFunction<
 
   const getComponent = (name: string) => files.components[name]
   const globalFormulas = {
-    formulas: {},
-    packages: {},
+    formulas: files.formulas,
+    packages: files.packages,
   }
 
   // 2. Update all references within the same component

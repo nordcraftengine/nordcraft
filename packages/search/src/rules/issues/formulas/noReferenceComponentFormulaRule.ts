@@ -17,8 +17,6 @@ export const noReferenceComponentFormulaRule: IssueRule<
   visit: (report, args) => {
     const { path, files, value, component, memo } = args
     const [, componentName, , formulaKey] = path
-    // Shared memoized traversal: previously this walked the whole component
-    // once per formula instead of once per component.
     const applyUses = memo(`componentApplyUses/${component.name}`, () =>
       getFormulasInComponent(memo, component).filter(
         ({ formula }) => formula.type === 'apply',
