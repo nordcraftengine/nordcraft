@@ -9,7 +9,6 @@ export const favicon = async (c: Context<HonoEnv<HonoProject>>) => {
     const iconUrl = applyFormula(
       c.var.config?.meta?.icon?.formula,
       undefined as any,
-      { Attributes: {} },
     )
     const requestUrl = new URL(c.req.url)
     const validIconUrl = validateUrl({

@@ -157,27 +157,27 @@ const getRouteFormulaContext = ({
   req: Request
   route: Route
   serverContext: FormulaContext['toddle']
-}): { formulaContext: FormulaContext; data: ComponentData } => {
+}) => {
   const { searchParamsWithDefaults, pathParams } = getParameters({
     route: route.source,
     req,
   })
+  const data: ComponentData = {
+    Attributes: {},
+    'Route parameters': {
+      path: pathParams ?? {},
+      query: searchParamsWithDefaults,
+    },
+  }
+  const formulaContext: FormulaContext = {
+    component: undefined,
+    env,
+    package: undefined,
+    toddle: serverContext,
+  }
   return {
-    formulaContext: {
-      component: undefined,
-      env,
-      package: undefined,
-      toddle: serverContext,
-    },
-    // destination formulas should only have access to URL parameters from
-    // the route's source definition + global formulas.
-    data: {
-      Attributes: {},
-      'Route parameters': {
-        path: pathParams ?? {},
-        query: searchParamsWithDefaults,
-      },
-    },
+    formulaContext,
+    data,
   }
 }
 

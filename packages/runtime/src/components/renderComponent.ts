@@ -144,7 +144,7 @@ export function renderComponent({
                 dataSignal.get(),
                 ctx,
                 new CustomEvent('attribute-change', {
-                  detail: Object.entries(props).reduce(
+                  detail: Object.entries(props ?? {}).reduce(
                     (
                       changes: Record<string, { current: any; new: any }>,
                       [key, value],

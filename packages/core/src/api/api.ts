@@ -387,8 +387,7 @@ export const getRequestBody = ({
     return
   }
 
-  const resolvedData = data ??
-    (formulaContext as any).data ?? { Attributes: {} }
+  const resolvedData = data ?? (formulaContext as any).data ?? {}
   const body = applyFormula(api.body, formulaContext, resolvedData, ['body'])
   if (!body) {
     return

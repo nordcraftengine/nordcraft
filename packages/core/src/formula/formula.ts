@@ -156,6 +156,7 @@ export interface FormulaContext {
       }
     >
   >
+  data?: ComponentData
   root?: Nullable<Document | ShadowRoot>
   package: Nullable<string>
   toddle: {
@@ -224,10 +225,11 @@ export const isToddleFormula = <Handler>(
 type FormulaType = Formula | string | number | undefined | null | boolean
 type Path = Array<string | number> | undefined
 
+const EMPTY_DATA = {} as ComponentData
 export function applyFormula(
   formula: FormulaType,
   ctx: BaseFormulaContext,
-  data: ComponentData,
+  data = EMPTY_DATA as ComponentData,
   extendedPath?: Path,
 ): any {
   // Short-circuit when not reporting to avoid unnecessary overhead of creating new objects and function

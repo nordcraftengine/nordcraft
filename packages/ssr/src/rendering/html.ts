@@ -9,7 +9,7 @@ import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/theme.const'
 export const getHtmlLanguage = ({
   pageInfo,
   formulaContext,
-  data = { Attributes: {} },
+  data,
   defaultLanguage = 'en',
 }: {
   pageInfo?: PageRoute['info']
@@ -26,7 +26,7 @@ export const getHtmlLanguage = ({
 export const getCharset = ({
   pageInfo,
   formulaContext,
-  data = { Attributes: {} },
+  data,
   defaultCharset = 'utf-8',
 }: {
   pageInfo?: PageRoute['info']
@@ -43,7 +43,7 @@ export const getCharset = ({
 export const getTheme = ({
   pageInfo,
   formulaContext,
-  data = { Attributes: {} },
+  data,
 }: {
   pageInfo?: PageRoute['info']
   formulaContext: FormulaContext

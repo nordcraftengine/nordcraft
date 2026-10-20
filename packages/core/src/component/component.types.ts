@@ -11,6 +11,8 @@ export interface ListItem {
   Parent?: Nullable<ListItem>
 }
 
+export type ApiInputs = Record<string, unknown>
+
 export interface ComponentData {
   Location?: Nullable<{
     page?: Nullable<string>
@@ -20,7 +22,7 @@ export interface ComponentData {
     query: Record<string, Nullable<string>>
     hash: string
   }>
-  Attributes: Record<string, unknown>
+  Attributes?: Record<string, unknown>
   Variables?: Nullable<Record<string, unknown>>
   Contexts?: Nullable<Record<string, Record<string, unknown>>>
   'URL parameters'?: Nullable<Record<string, Nullable<string>>>
@@ -38,6 +40,7 @@ export interface ComponentData {
       >
     >
   >
+  ApiInputs?: Nullable<ApiInputs>
   Args?: Nullable<unknown>
   Parameters?: Nullable<Record<string, unknown>>
   Event?: Nullable<unknown>

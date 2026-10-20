@@ -10,9 +10,7 @@ export const serviceWorker = async (c: Context<HonoEnv<HonoProject>>) => {
     const config = c.var.config
     const serviceWorkerUrl = isDefined(config?.meta?.serviceWorker)
       ? // We don't need to provide a context for applyFormula, as the formula should just be a value formula
-        applyFormula(config.meta.serviceWorker.formula, undefined as any, {
-          Attributes: {},
-        })
+        applyFormula(config.meta.serviceWorker.formula, undefined as any)
       : undefined
     const url = validateUrl(serviceWorkerUrl)
     if (url) {

@@ -271,7 +271,7 @@ export class ToddleComponent extends HTMLElement {
   // Overload the getAttribute method to point to source of truth (the signal)
   getAttribute<T>(name: string) {
     return (
-      (this.#signal.get().Attributes[name] as T) || super.getAttribute(name)
+      (this.#signal.get().Attributes?.[name] as T) || super.getAttribute(name)
     )
   }
 

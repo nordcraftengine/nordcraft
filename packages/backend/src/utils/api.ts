@@ -43,7 +43,8 @@ export const evaluateComponentApis: ApiEvaluator = async ({
   apiCache,
   updateApiCache,
 }) => {
-  const data: ComponentData = _data ?? { Attributes: {} }
+  const data: ComponentData = _data ??
+    (formulaContext as any)?.data ?? { Attributes: {} }
 
   // We only support v2 APIs in this function
   const sortedApis: [string, ToddleApiV2<string>][] = []
