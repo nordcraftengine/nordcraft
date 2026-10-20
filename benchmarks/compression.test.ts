@@ -3,7 +3,6 @@ import { describe, expect, test } from 'bun:test'
 import type { Component } from '../packages/core/dist/component/component.types'
 import type { ProjectFiles } from '../packages/ssr/dist/ssr.types'
 import {
-  COMPRESSION_CLEAN_MARKDOWN,
   isCompressionClean,
   measureProjectFiles,
   renderCompressionMarkdown,
@@ -186,7 +185,7 @@ describe('renderCompressionMarkdown', () => {
     maxRegressionPercent: 0.5,
   }
 
-  test('collapses to a one-liner in a clean comparison', () => {
+  test('always includes the compression rate even when 1:1 with base', () => {
     const [summary] = summarizeCompressionBenchmark({
       baseResults: [createResult()],
       headResults: [createResult()],
@@ -195,8 +194,12 @@ describe('renderCompressionMarkdown', () => {
     })
 
     const markdown = renderCompressionMarkdown({ config, results: [summary] })
-    expect(markdown).toBe(COMPRESSION_CLEAN_MARKDOWN)
-    expect(markdown.split('\n')).toHaveLength(1)
+    expect(markdown.split('\n').length).toBeGreaterThan(1)
+    expect(markdown).toContain(summary.id)
+    expect(markdown).toContain(`${summary.reductionPercent.toFixed(2)}%`)
+    expect(markdown).toContain(`${summary.gzipReductionPercent.toFixed(2)}%`)
+    expect(markdown).toContain('🟢 1:1 (Identical output)')
+    expect(markdown).toContain('No regressions detected')
   })
 
   test('keeps the table when a fixture regresses', () => {

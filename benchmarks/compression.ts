@@ -244,9 +244,6 @@ export const summarizeCompressionBenchmark = ({
     }
   })
 
-export const COMPRESSION_CLEAN_MARKDOWN =
-  '✅ Compression Benchmark: Test data removal output is 1:1 with the base branch.'
-
 export interface CompressionRenderConfig {
   baseRef?: string
   noiseThresholdPercent: number
@@ -261,9 +258,6 @@ export const renderCompressionMarkdown = ({
   results: readonly CompressionFixtureSummary[]
 }) => {
   const isHeadOnly = results.every((result) => result.mode === 'head-only')
-  if (!isHeadOnly && isCompressionClean(results)) {
-    return COMPRESSION_CLEAN_MARKDOWN
-  }
   const hasRegressions = results.some(
     (result) => result.status === 'regression',
   )

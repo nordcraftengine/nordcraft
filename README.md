@@ -97,7 +97,6 @@ the stripped project sizes of the PR base and head directly instead of sampling.
 - Reports contain the original, stripped, and gzipped sizes per fixture, the saved
   bytes, and the reduction percentage, plus a base/head verdict. A regression means
   test data removal now ships larger projects than the base branch.
-- Clean comparisons collapse to a single line in the PR comment.
 
 To run the comparison locally:
 
