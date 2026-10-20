@@ -1,5 +1,5 @@
+import { contextlessEvaluateFormula } from '@nordcraft/core'
 import type { ComponentAttributeNode, IssueRule } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 import { componentIsReferenced } from '../components/componentIsReferenced.memo'
 

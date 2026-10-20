@@ -1,7 +1,7 @@
 import type { SwitchOperation } from '@nordcraft/core/dist/formula/formula'
 import { toBoolean } from '@nordcraft/core/dist/utils/util'
 import type { FormulaNode, IssueRule, NodeType } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
+import { contextlessEvaluateFormula } from '@nordcraft/core/dist/formula/contextlessEvaluateFormula'
 
 export const noStaticSwitchCondition: IssueRule<
   void,

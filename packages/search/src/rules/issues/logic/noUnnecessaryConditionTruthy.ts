@@ -1,5 +1,5 @@
+import { contextlessEvaluateFormula } from '@nordcraft/core'
 import type { FormulaNode, IssueRule } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 export const noUnnecessaryConditionTruthy: IssueRule<unknown, FormulaNode> = {
   code: 'no-unnecessary-condition-truthy',

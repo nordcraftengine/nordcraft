@@ -1,6 +1,5 @@
-import { isDefined } from '@nordcraft/core'
+import { contextlessEvaluateFormula, isDefined } from '@nordcraft/core'
 import type { ComponentNodeNode, IssueRule } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 const nonStaticDimensionKeywords = ['', 'auto']
 /**
