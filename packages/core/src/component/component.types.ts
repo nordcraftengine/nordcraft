@@ -8,7 +8,6 @@ import type { NordcraftMetadata, Nullable, RequireFields } from '../types'
 export interface ListItem {
   Item: unknown
   Index: number
-  Key?: string | number
   Parent?: Nullable<ListItem>
 }
 
