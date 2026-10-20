@@ -22,8 +22,6 @@ export const noReferenceComponentWorkflowRule: IssueRule<
       return
     }
 
-    // Shared memoized traversal: previously this walked the whole component
-    // once per workflow instead of once per component.
     const workflowTriggers = memo(
       `componentWorkflowTriggers/${component.name}`,
       () =>

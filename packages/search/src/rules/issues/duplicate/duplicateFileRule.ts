@@ -10,8 +10,6 @@ type DuplicateEntry = { name: string; type: 'component' | 'formula' | 'action' }
 const METADATA_KEY = '@nordcraft/metadata'
 
 // TODO: Make autofix for automatically remove current file and move any reference to the existing duplicate.
-
-// TODO: Make autofix for automatically remove current file and move any reference to the existing duplicate.
 const normalizeForComparison = (
   value: unknown,
   isTopLevel = false,
@@ -83,10 +81,6 @@ export const duplicateFileRule: IssueRule<
       current = { name, type: 'action' }
     }
 
-    // The file hashes are computed once per search and reused for every
-    // visit. Previously the current file was re-hashed (full deep normalize
-    // + JSON.stringify) on each visit even though its hash was already known
-    // from building the index below - by far the hottest cost in profiling.
     const { hashToEntries, hashByKey } = memo('duplicateFiles', () => {
       const hashToEntries = new Map<string, DuplicateEntry[]>()
       const hashByKey = new Map<string, string>()

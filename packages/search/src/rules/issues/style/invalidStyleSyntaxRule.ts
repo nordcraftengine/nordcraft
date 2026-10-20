@@ -2,7 +2,6 @@ import { parse } from 'postcss'
 import type { IssueRule, StyleNode } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 
-// Hoisted: previously re-created on every style-declaration visit.
 const FORMULA_REFERENCE_PATTERN =
   /\b(Variables|Formulas|Event|Attributes|Apis|Parameters|ListItem|URLParameters)\.\w+/i
 
