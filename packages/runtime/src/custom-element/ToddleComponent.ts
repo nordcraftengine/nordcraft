@@ -146,15 +146,6 @@ export class ToddleComponent extends HTMLElement {
     let providers = this.#ctx.providers
     if (isContextProvider(this.#component)) {
       // Subscribe to exposed formulas and update the component's data signal
-      const toddleFormulaCtx = {
-        component: this.#component,
-        formulaCache: this.#ctx.formulaCache,
-        root: this.#ctx.root,
-        package: this.#ctx.package,
-        toddle: this.#ctx.toddle,
-        env: this.#ctx.env,
-        jsonPath: [],
-      }
       const formulaDataSignals = Object.fromEntries(
         Object.entries(this.#component.formulas ?? {})
           .filter(([, formula]) => formula?.exposeInContext)
@@ -163,7 +154,7 @@ export class ToddleComponent extends HTMLElement {
             this.#signal.map((data) =>
               applyFormula(
                 (formula as ComponentFormula).formula,
-                toddleFormulaCtx,
+                this.#ctx,
                 data,
                 ['formulas', name],
               ),

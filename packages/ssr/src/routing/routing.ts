@@ -163,7 +163,6 @@ const getRouteFormulaContext = ({
     req,
   })
   const data: ComponentData = {
-    Attributes: {},
     'Route parameters': {
       path: pathParams ?? {},
       query: searchParamsWithDefaults,

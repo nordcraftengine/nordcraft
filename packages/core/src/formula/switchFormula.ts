@@ -2,13 +2,13 @@ import type { ComponentData } from '../component/component.types'
 import { toBoolean } from '../utils/util'
 import {
   applyFormula,
-  type BaseFormulaContext,
+  type FormulaContext,
   type SwitchOperation,
 } from './formula'
 
 export const applySwitchFormula = (
   formula: SwitchOperation,
-  ctx: BaseFormulaContext,
+  ctx: FormulaContext,
   data: ComponentData,
 ) => {
   // Evaluates cases until one matches
@@ -36,16 +36,16 @@ export const applySwitchFormula = (
   }
   for (let i = 0; i < cases.length; i++) {
     const switchCase = cases[i]
-    if (toBoolean(applyFormula(switchCase?.condition, ctx, data, undefined))) {
-      return applyFormula(switchCase?.formula, ctx, data, undefined)
+    if (toBoolean(applyFormula(switchCase?.condition, ctx, data))) {
+      return applyFormula(switchCase?.formula, ctx, data)
     }
   }
-  return applyFormula(formula.default, ctx, data, undefined)
+  return applyFormula(formula.default, ctx, data)
 }
 
 export const applyEvaluateAllSwitchFormula = (
   formula: SwitchOperation,
-  ctx: BaseFormulaContext,
+  ctx: FormulaContext,
   data: ComponentData,
 ) => {
   // Evaluate all cases and the default, but only returns the first matching case or the default

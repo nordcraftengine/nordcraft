@@ -194,7 +194,7 @@ export const updateSelectedStyleVariant = (options: {
                     customPropertyName,
                   ],
                   reportFormulaEvaluation: options.reportFormulaEvaluation,
-                } as Omit<FormulaContext, 'data'>,
+                } as FormulaContext,
                 options.dataSignal.get(),
                 [],
               ),

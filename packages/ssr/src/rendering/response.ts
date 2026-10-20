@@ -15,19 +15,18 @@ export const evaluateResponseHeaders = ({
   responseHeaders,
 }: {
   formulaContext: FormulaContext
-  data?: ComponentData
+  data: ComponentData
   responseHeaders: Nullable<Partial<ResponseHeaders>>
 }) => {
   if (!responseHeaders) {
     return {}
   }
-  const resolvedData: ComponentData = data ?? {}
   const evaluatedHeaders: Record<string, string> = {}
   for (const [headerName, headerValue] of Object.entries(responseHeaders)) {
     if (typeof headerValue !== 'string' && !isFormula(headerValue)) {
       continue
     }
-    const formulaValue = applyFormula(headerValue, formulaContext, resolvedData)
+    const formulaValue = applyFormula(headerValue, formulaContext, data)
     if (typeof formulaValue === 'string') {
       evaluatedHeaders[headerName] = formulaValue
     }

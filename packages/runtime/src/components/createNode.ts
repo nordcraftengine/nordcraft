@@ -205,8 +205,6 @@ export function createNode({
       if (typeof list !== 'object' || list === null) {
         return []
       }
-      // Fast path for arrays (the common repeat case): avoid the
-      // intermediate string-key conversion of `Object.entries(array)`.
       if (Array.isArray(list)) {
         const entries = new Array<[string, unknown]>(list.length)
         for (let i = 0; i < list.length; i++) {

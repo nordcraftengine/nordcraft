@@ -1,7 +1,6 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import type { Toddle } from '@nordcraft/core/dist/types'
 import { describe, expect, test } from 'bun:test'
-import '../happydom'
 import type { LocationSignal } from '../types'
 import { ToddleComponent } from './ToddleComponent'
 

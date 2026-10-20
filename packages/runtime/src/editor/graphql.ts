@@ -111,7 +111,7 @@ export const introspectApiRequest = async ({
   api: ApiRequest
   componentName: string
   formulaContext: FormulaContext
-  data?: ComponentData
+  data: ComponentData
 }) => {
   const { url, requestSettings } = createApiRequest({
     api: {

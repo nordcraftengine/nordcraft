@@ -6,13 +6,13 @@ import { isDefined } from '../utils/util'
 import {
   applyFormula,
   isToddleFormula,
-  type BaseFormulaContext,
+  type FormulaContext,
   type FunctionOperation,
 } from './formula'
 
 export const applyFunctionFormula = (
   formula: FunctionOperation,
-  ctx: BaseFormulaContext,
+  ctx: FormulaContext,
   data: ComponentData,
 ) => {
   const stopMeasure = isMeasureEnabled()
@@ -22,10 +22,7 @@ export const applyFunctionFormula = (
       })
     : noopMeasure
   const packageName = formula.package ?? ctx.package ?? undefined
-  // Thread an explicit package override without mutating the shared context:
-  // previously this did `ctx.package = packageName`, which was only safe
-  // because every caller passed a fresh `{ ...ctx, data }` copy.
-  const activeCtx: BaseFormulaContext =
+  const activeCtx: FormulaContext =
     packageName === ctx.package ? ctx : { ...ctx, package: packageName }
   const newFunc = (
     ctx.toddle ??
@@ -33,7 +30,7 @@ export const applyFunctionFormula = (
   )?.getCustomFormula(formula.name, packageName)
   if (isDefined(newFunc)) {
     const formulaArgs = formula.arguments ?? []
-    const report = ctx.reportFormulaEvaluation ? true : false
+    const report = Boolean(ctx.reportFormulaEvaluation)
     const args: Record<string, unknown> = {}
     for (let i = 0; i < formulaArgs.length; i++) {
       const arg = formulaArgs[i]!
@@ -87,7 +84,7 @@ export const applyFunctionFormula = (
     ).getFormula(formula.name)
     if (typeof legacyFunc === 'function') {
       const legacyArgs = formula.arguments ?? []
-      const legacyReport = ctx.reportFormulaEvaluation ? true : false
+      const legacyReport = Boolean(ctx.reportFormulaEvaluation)
       const args: unknown[] = new Array(legacyArgs.length)
       for (let i = 0; i < legacyArgs.length; i++) {
         const arg = legacyArgs[i]!

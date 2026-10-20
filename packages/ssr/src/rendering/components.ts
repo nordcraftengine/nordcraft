@@ -125,6 +125,12 @@ const renderComponent = async ({
   slotRepeatIndex?: number
   slotSuffix?: string
 }): Promise<string> => {
+  const baseFormulaContext: FormulaContext = {
+    component,
+    package: packageName,
+    env,
+    toddle,
+  }
   const renderNode = async ({
     id,
     path,
@@ -150,12 +156,15 @@ const renderComponent = async ({
       return ''
     }
 
-    const formulaContext: FormulaContext = {
-      component,
-      package: packageName,
-      env,
-      toddle,
-    }
+    const formulaContext: FormulaContext =
+      packageName === baseFormulaContext.package
+        ? baseFormulaContext
+        : {
+            component,
+            package: packageName,
+            env,
+            toddle,
+          }
     if (node.repeat) {
       const items = applyFormula(node.repeat, formulaContext, data)
       if (typeof items !== 'object' || items === null) {
@@ -262,11 +271,8 @@ const renderComponent = async ({
 
         const nodeAttrs = getNodeAttrs({
           node,
+          formulaContext,
           data,
-          component,
-          packageName,
-          env,
-          toddle,
         })
         const classList: string[] = []
         const [style, variants] = getStaticStyleAndVariants(node)
@@ -492,6 +498,18 @@ const renderComponent = async ({
           updateApiCache,
         })
 
+        const childContextFormulaCtx: FormulaContext = {
+          component: childComponent,
+          package: _packageName,
+          env,
+          toddle,
+        }
+        const parentContextFormulaCtx: FormulaContext = {
+          component,
+          package: _packageName,
+          env,
+          toddle,
+        }
         const childNodes = await Promise.all(
           (node.children ?? []).map(async (child, i) => {
             const slotName =
@@ -529,12 +547,7 @@ const renderComponent = async ({
                           key,
                           applyFormula(
                             (formula as ComponentFormula).formula,
-                            {
-                              component: childComponent,
-                              package: _packageName,
-                              env,
-                              toddle,
-                            },
+                            childContextFormulaCtx,
                             {
                               Contexts: {
                                 ...data.Contexts,
@@ -547,12 +560,7 @@ const renderComponent = async ({
                                       key,
                                       applyFormula(
                                         (formula as ComponentFormula).formula,
-                                        {
-                                          component,
-                                          package: _packageName,
-                                          env,
-                                          toddle,
-                                        },
+                                        parentContextFormulaCtx,
                                         {
                                           Attributes: attrs,
                                           Apis: { ...data.Apis, ...apis },
@@ -576,12 +584,7 @@ const renderComponent = async ({
                                 ({ initialValue }) => {
                                   return applyFormula(
                                     initialValue,
-                                    {
-                                      component,
-                                      package: _packageName,
-                                      env,
-                                      toddle,
-                                    },
+                                    parentContextFormulaCtx,
                                     {
                                       Attributes: attrs,
                                       Location: data.Location,
@@ -766,16 +769,16 @@ const createComponent = async ({
   evaluateComponentApis: ApiEvaluator
   files: ProjectFiles
   formulaContext: FormulaContext
-  pageData?: ComponentData
+  pageData: ComponentData
   includedComponents: Component[]
   instance: Record<string, string>
   packageName: string | undefined
   projectId: string
   req: Request
+  updateApiCache: (key: string, value: ApiStatus) => void
   namespace?: SupportedNamespaces
   slotRepeatIndex?: number
   slotSuffix?: string
-  updateApiCache: (key: string, value: ApiStatus) => void
   addCustomProperty: (
     selector: string,
     rule: CustomPropertyRule,
@@ -786,10 +789,10 @@ const createComponent = async ({
   ) => void
 }): Promise<string> => {
   const data: ComponentData = {
-    Location: pageData?.Location,
+    Location: pageData.Location,
     Attributes: attrs,
     Contexts: contexts,
-    Page: pageData?.Page,
+    Page: pageData.Page,
     Apis: apis,
   }
 
@@ -866,12 +869,11 @@ export const renderPageBody = async ({
   evaluateComponentApis: ApiEvaluator
   files: ProjectFiles
   formulaContext: FormulaContext
-  data?: ComponentData
+  data: ComponentData
   includedComponents: Component[]
   req: Request
   projectId: string
 }) => {
-  const resolvedData: ComponentData = data ?? {}
   const apiCache: ApiCache = {}
   const updateApiCache = (key: string, value: ApiStatus) =>
     (apiCache[key] = value)
@@ -905,18 +907,18 @@ export const renderPageBody = async ({
   const apis = await evaluateComponentApis({
     component,
     formulaContext,
-    data: resolvedData,
+    data,
     req,
     apiCache,
     updateApiCache,
   })
-  resolvedData.Apis = apis
+  data.Apis = apis
 
   const html = await renderComponent({
     path: '0',
     apiCache,
     component,
-    data: resolvedData,
+    data,
     env,
     evaluateComponentApis,
     files,

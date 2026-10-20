@@ -71,8 +71,6 @@ export const getNextSiblingElement = (
   path: string,
   parentElement: Element | ShadowRoot,
 ) => {
-  // Parse `path` without allocating intermediate arrays:
-  // path format is e.g. "0.3.12" or "0.3(5).12(7)"
   const lastDot = path.lastIndexOf('.')
   const lastPathPart = lastDot === -1 ? path : path.slice(lastDot + 1)
   const parenIndex = lastPathPart.indexOf('(')
@@ -83,7 +81,6 @@ export const getNextSiblingElement = (
   const repeatIndex =
     parenIndex === -1 ? 0 : parseInt(lastPathPart.slice(parenIndex + 1), 10)
 
-  // Indexed loop over HTMLCollection avoids iterator allocation from `for..of`
   const children = parentElement.children
   for (let i = 0; i < children.length; i++) {
     const child = children[i]!

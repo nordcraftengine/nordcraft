@@ -18,7 +18,7 @@ import { ToddleApiV2 } from './ToddleApiV2'
 
 describe('getApiPath()', () => {
   test('it returns a valid url path string', () => {
-    expect(getRequestPath({}, {} as any)).toBe('')
+    expect(getRequestPath({}, {} as any, {})).toBe('')
     expect(
       getRequestPath(
         {
@@ -26,13 +26,14 @@ describe('getApiPath()', () => {
           second: { formula: valueFormula('world'), index: 1 },
         },
         {} as any,
+        {},
       ),
     ).toBe('hello/world')
   })
 })
 describe('getQueryParams()', () => {
   test('it returns a valid url path string', () => {
-    const emptyParams = getRequestQueryParams({}, {} as any)
+    const emptyParams = getRequestQueryParams({}, {} as any, {})
     expect(emptyParams.size).toBe(0)
     const params = getRequestQueryParams(
       {
@@ -50,6 +51,7 @@ describe('getQueryParams()', () => {
         },
       },
       {} as any,
+      {},
     )
     expect(params.get('q')).toBe('hello')
     expect(params.get('filter')).toBe('world')
@@ -65,6 +67,7 @@ describe('getQueryParams()', () => {
         },
       },
       {} as any,
+      {},
     )
     expect(params.getAll('q')).toEqual(['hello', 'world'])
     expect(params.size).toBe(2)
@@ -78,6 +81,7 @@ describe('getQueryParams()', () => {
         },
       },
       {} as any,
+      {},
     )
     expect(params.get('q[a]')).toEqual('hello')
     expect(params.get('q[b][c]')).toEqual('world')
@@ -101,6 +105,7 @@ describe('getUrl()', () => {
         },
       },
       {} as any,
+      {},
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/hello/world?q=test')
@@ -120,6 +125,7 @@ describe('getUrl()', () => {
         },
       },
       {} as any,
+      {},
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/test/path/hello/world?q=test')
@@ -134,6 +140,7 @@ describe('getUrl()', () => {
         },
       },
       {} as any,
+      {},
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/test/path/hello/world')
@@ -148,6 +155,7 @@ describe('getUrl()', () => {
         },
       },
       {} as any,
+      {},
       'https://example.com',
     )
     expect(url.href).toBe('https://example.com/88/hello/world')
@@ -162,6 +170,7 @@ describe('getUrl()', () => {
         },
       },
       {} as any,
+      {},
       'https://mysite.com',
     )
     expect(url.href).toBe('https://mysite.com/test/path/hello/world')
@@ -181,6 +190,7 @@ describe('getUrl()', () => {
         },
       },
       {} as any,
+      {},
       'https://mysite.com',
     )
     expect(url.href).toBe(
@@ -203,6 +213,7 @@ describe('getUrl()', () => {
         hash: { formula: valueFormula('my-hash') },
       },
       {} as any,
+      {},
       'https://mysite.com',
     )
     expect(url.hash).toBe('#my-hash')
@@ -216,6 +227,7 @@ describe('getApiHeaders()', () => {
     const emptyParams = getRequestHeaders({
       apiHeaders: {},
       formulaContext: {} as any,
+      data: {},
     })
     expect(emptyParams.entries.length).toBe(0)
     const headers = getRequestHeaders({
@@ -224,6 +236,7 @@ describe('getApiHeaders()', () => {
         filter: { formula: valueFormula('world') },
       },
       formulaContext: {} as any,
+      data: {},
     })
     expect(headers.get('q')).toBe('hello')
     expect(headers.get('filter')).toBe('world')
@@ -240,6 +253,7 @@ describe('getApiHeaders()', () => {
         filter: { formula: valueFormula('world') },
       },
       formulaContext: {} as any,
+      data: {},
     })
     expect(headers.get('q')).toBe('hello')
     expect(headers.get('filter')).toBe('world')
@@ -273,6 +287,7 @@ describe('createApiRequest', () => {
     const { url, requestSettings } = createApiRequest({
       api: apiRequest,
       formulaContext: {} as any,
+      data: {},
       baseUrl,
     })
     const request = new Request(url, requestSettings)
@@ -317,6 +332,7 @@ describe('createApiRequest', () => {
     const { url, requestSettings } = createApiRequest({
       api: apiRequest,
       formulaContext: {} as any,
+      data: {},
       baseUrl,
     })
     const request = new Request(url, requestSettings)
@@ -342,6 +358,7 @@ describe('getRequestBody', () => {
     const body = getRequestBody({
       api: apiRequest,
       formulaContext: {} as any,
+      data: {},
       headers: new Headers(),
       method: ApiMethod.POST,
     })
@@ -361,6 +378,7 @@ describe('getRequestBody', () => {
     const body = getRequestBody({
       api: apiRequest,
       formulaContext: {} as any,
+      data: {},
       headers: new Headers([
         ['Content-Type', 'application/x-www-form-urlencoded'],
       ]),
@@ -382,6 +400,7 @@ describe('getRequestBody', () => {
     const body = getRequestBody({
       api: apiRequest,
       formulaContext: {} as any,
+      data: {},
       headers: new Headers([['Content-Type', 'multipart/form-data']]),
       method: ApiMethod.POST,
     })

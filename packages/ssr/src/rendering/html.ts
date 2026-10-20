@@ -14,7 +14,7 @@ export const getHtmlLanguage = ({
 }: {
   pageInfo?: PageRoute['info']
   formulaContext: FormulaContext
-  data?: ComponentData
+  data: ComponentData
   defaultLanguage?: string
 }) => {
   const language = pageInfo?.language
@@ -31,7 +31,7 @@ export const getCharset = ({
 }: {
   pageInfo?: PageRoute['info']
   formulaContext: FormulaContext
-  data?: ComponentData
+  data: ComponentData
   defaultCharset?: string
 }) => {
   const charset = pageInfo?.charset
@@ -47,7 +47,7 @@ export const getTheme = ({
 }: {
   pageInfo?: PageRoute['info']
   formulaContext: FormulaContext
-  data?: ComponentData
+  data: ComponentData
 }) => {
   const theme = pageInfo?.theme?.formula
     ? (applyFormula(pageInfo.theme.formula, formulaContext, data) as string)

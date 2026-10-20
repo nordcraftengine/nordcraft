@@ -1,14 +1,10 @@
 import type { ComponentData } from '../component/component.types'
 import { toBoolean } from '../utils/util'
-import {
-  applyFormula,
-  type AndOperation,
-  type BaseFormulaContext,
-} from './formula'
+import { applyFormula, type AndOperation, type FormulaContext } from './formula'
 
 export const applyAndFormula = (
   formula: AndOperation,
-  ctx: BaseFormulaContext,
+  ctx: FormulaContext,
   data: ComponentData,
 ) => {
   const args = formula.arguments ?? []
@@ -26,7 +22,7 @@ export const applyAndFormula = (
   } else {
     for (let i = 0; i < args.length; i++) {
       const arg = args[i]
-      if (!toBoolean(applyFormula(arg?.formula, ctx, data, undefined))) {
+      if (!toBoolean(applyFormula(arg?.formula, ctx, data))) {
         return false
       }
     }
@@ -36,7 +32,7 @@ export const applyAndFormula = (
 
 export const applyEvaluateAllAndFormula = (
   formula: AndOperation,
-  ctx: BaseFormulaContext,
+  ctx: FormulaContext,
   data: ComponentData,
 ) => {
   let andResult = true

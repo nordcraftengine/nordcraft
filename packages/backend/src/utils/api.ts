@@ -38,7 +38,7 @@ import {
 export const evaluateComponentApis: ApiEvaluator = async ({
   component,
   formulaContext,
-  data = {},
+  data,
   req,
   apiCache,
   updateApiCache,
@@ -130,7 +130,7 @@ const fetchApi = async ({
     return acc
   }, {})
 
-  const apiData: ComponentData & { ApiInputs?: Record<string, unknown> } = {
+  const apiData: ComponentData = {
     ...data,
     ApiInputs: {
       ...evaluatedInputs,
@@ -309,7 +309,6 @@ const fetchApiV2 = async ({
     const ruleData: ComponentData = {
       ...data,
       Apis: {
-        ...data.Apis,
         [api.name]: apiStatus,
       },
     }

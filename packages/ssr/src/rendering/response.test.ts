@@ -17,6 +17,7 @@ describe('evaluateResponseHeaders', () => {
     expect(
       evaluateResponseHeaders({
         formulaContext: mockFormulaContext,
+        data: mockData,
         responseHeaders: null,
       }),
     ).toEqual({})
@@ -26,6 +27,7 @@ describe('evaluateResponseHeaders', () => {
     expect(
       evaluateResponseHeaders({
         formulaContext: mockFormulaContext,
+        data: mockData,
         responseHeaders: {},
       }),
     ).toEqual({})
@@ -35,6 +37,7 @@ describe('evaluateResponseHeaders', () => {
     expect(
       evaluateResponseHeaders({
         formulaContext: mockFormulaContext,
+        data: mockData,
         responseHeaders: {
           'X-Custom-Header': 'static-value',
         } as any,
@@ -67,6 +70,7 @@ describe('evaluateResponseHeaders', () => {
     expect(
       evaluateResponseHeaders({
         formulaContext: mockFormulaContext,
+        data: mockData,
         responseHeaders: undefined,
       }),
     ).toEqual({})
@@ -76,6 +80,7 @@ describe('evaluateResponseHeaders', () => {
     expect(
       evaluateResponseHeaders({
         formulaContext: mockFormulaContext,
+        data: mockData,
         responseHeaders: {
           'X-Not-A-String': {
             type: 'value',
@@ -90,6 +95,7 @@ describe('evaluateResponseHeaders', () => {
     expect(
       evaluateResponseHeaders({
         formulaContext: mockFormulaContext,
+        data: mockData,
         responseHeaders: {
           'X-Invalid': 123 as any,
         },

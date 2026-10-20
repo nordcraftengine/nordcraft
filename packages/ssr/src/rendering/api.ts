@@ -19,7 +19,7 @@ export type ApiCache = Record<string, ApiStatus>
 export type ApiEvaluator = (args: {
   component: Component
   formulaContext: FormulaContext
-  data?: ComponentData
+  data: ComponentData
   req: Request
   apiCache: ApiCache
   updateApiCache: (key: string, value: ApiStatus) => void

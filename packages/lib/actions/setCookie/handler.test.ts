@@ -2,18 +2,18 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Window } from 'happy-dom'
 import handler from './handler'
 
+// eslint-disable-next-line no-unassigned-vars
 let window: Window | undefined
 
 describe('set cookie', async () => {
   beforeEach(() => {
-    window = new Window({ url: 'https://localhost:8080' })
-    globalThis.window = window as any
-    globalThis.document = window.document as any
+    const window = new Window({ url: 'https://localhost:8080' })
+    const document = window.document
+    globalThis.document = document as any
   })
   afterEach(async () => {
     await window?.happyDOM.close()
     globalThis.document = undefined as any
-    globalThis.window = undefined as any
   })
   it('should set a cookie', async () => {
     const triggerActionEvent = mock((trigger: string, event: any) => {

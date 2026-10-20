@@ -4,12 +4,12 @@ import { isMeasureEnabled, measure, noopMeasure } from '../utils/measure'
 import {
   applyFormula,
   type ApplyOperation,
-  type BaseFormulaContext,
+  type FormulaContext,
 } from './formula'
 
 export const applyApplyFormula = (
   formula: ApplyOperation,
-  ctx: BaseFormulaContext,
+  ctx: FormulaContext,
   data: ComponentData,
 ) => {
   const componentFormula = ctx.component?.formulas?.[formula.name]
@@ -29,7 +29,7 @@ export const applyApplyFormula = (
       })
     : noopMeasure
   const applyArgs = formula.arguments ?? []
-  const shouldReport = ctx.reportFormulaEvaluation ? true : false
+  const shouldReport = Boolean(ctx.reportFormulaEvaluation)
   const Input: Record<string, unknown> = {}
   for (let i = 0; i < applyArgs.length; i++) {
     const arg = applyArgs[i]!

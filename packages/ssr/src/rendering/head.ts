@@ -43,7 +43,7 @@ export const getHeadItems = ({
   // Optional cache buster for reset stylesheet + manifest url. Could be a commit sha for instance
   cacheBuster?: string
   context: FormulaContext
-  data?: ComponentData
+  data: ComponentData
   cssBasePath?: string
   files: ProjectFiles
   page: PageComponent
@@ -55,17 +55,16 @@ export const getHeadItems = ({
   customProperties: ReadonlyArray<string>
 }): Map<HeadItemType, string> => {
   const pageInfo = page.route?.info
-  const resolvedData: ComponentData = data ?? {}
   const title = getPageTitle({
     component: page,
     context,
-    data: resolvedData,
+    data,
     defaultTitle: project.name,
   })
   const description = getPageDescription({
     component: page,
     context,
-    data: resolvedData,
+    data,
     defaultDescription: project.description,
   })
 
@@ -98,7 +97,7 @@ export const getHeadItems = ({
   const charset = getCharset({
     pageInfo,
     formulaContext: context,
-    data: resolvedData,
+    data,
   })
   const descriptionItems: [HeadItemType, string][] = []
   if (typeof description === 'string') {
@@ -184,11 +183,7 @@ export const getHeadItems = ({
     )
   }
   const manifestUrl = validateUrl({
-    path: applyFormula(
-      files.config?.meta?.manifest?.formula,
-      context,
-      resolvedData,
-    ),
+    path: applyFormula(files.config?.meta?.manifest?.formula, context, data),
     origin: url.origin,
   })
   if (manifestUrl) {
@@ -221,7 +216,7 @@ export const getHeadItems = ({
     )
   const icon = files.config?.meta?.icon
   if (isDefined(icon)) {
-    const iconPath = applyFormula(icon.formula, context, resolvedData)
+    const iconPath = applyFormula(icon.formula, context, data)
     if (isDefined(iconPath) && typeof iconPath === 'string') {
       if (isCloudflareImagePath(iconPath)) {
         // If the icon is a cloudflare image path, we add the different sizes
@@ -289,7 +284,7 @@ export const getHeadItems = ({
         ([_, meta]) =>
           // Only include enabled meta tags
           !isDefined(meta.enabled) ||
-          toBoolean(applyFormula(meta.enabled, context, resolvedData)),
+          toBoolean(applyFormula(meta.enabled, context, data)),
       )
       .forEach(([id, metaEntry]) => {
         if (Object.values(HeadTagTypes).includes(metaEntry.tag)) {
@@ -300,7 +295,7 @@ export const getHeadItems = ({
           )
           const headItemKey: HeadItemType = `${metaEntry.tag}:${
             isDefined(key)
-              ? applyFormula(key[1], context, resolvedData)
+              ? applyFormula(key[1], context, data)
               : (id ?? nanoid())
           }`
           headItems.set(
@@ -311,7 +306,7 @@ export const getHeadItems = ({
               metaEntry.attrs ?? {},
             )
               .map(([key, formula]) => {
-                const value = applyFormula(formula, context, resolvedData)
+                const value = applyFormula(formula, context, data)
                 if (value === true) {
                   // If the value is true, we just return the key - this is useful
                   // for tags like <script async> where async doesn't have a value
@@ -324,7 +319,7 @@ export const getHeadItems = ({
                 ? `/>`
                 : `>${
                     metaEntry.content
-                      ? applyFormula(metaEntry.content, context, resolvedData)
+                      ? applyFormula(metaEntry.content, context, data)
                       : ''
                   }</${metaEntry.tag}>`
             }`,

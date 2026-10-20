@@ -20,10 +20,7 @@ import {
   mapHeadersToObject,
 } from '@nordcraft/core/dist/api/headers'
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
-import type {
-  Formula,
-  FormulaContext,
-} from '@nordcraft/core/dist/formula/formula'
+import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { NestedOmit, Nullable } from '@nordcraft/core/dist/types'
 import {
@@ -39,7 +36,6 @@ import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
-import { createFormulaContext } from '../utils/createFormulaContext'
 import { ApiAbortHandler } from './apiUtils'
 
 /**
@@ -72,7 +68,7 @@ export function createAPI({
 
     const request = createApiRequest({
       api,
-      formulaContext: createFormulaContext(ctx),
+      formulaContext: ctx,
       data: getApiData(api, componentData),
       baseUrl,
     })
@@ -96,18 +92,14 @@ export function createAPI({
   function getApiData(
     api: ApiRequest,
     componentData: ComponentData | undefined,
-  ): ComponentData & { ApiInputs?: Record<string, unknown> } {
+  ): ComponentData {
     const baseData = componentData ?? ctx.dataSignal.get()
-    const formulaContext: FormulaContext = createFormulaContext(ctx)
 
     // Make sure inputs are also available in the formula context
     const evaluatedInputs = Object.entries(api.inputs).reduce<
       Record<string, unknown>
     >((acc, [key, value]) => {
-      acc[key] = applyFormula(value.formula, formulaContext, baseData, [
-        'inputs',
-        key,
-      ])
+      acc[key] = applyFormula(value.formula, ctx, baseData, ['inputs', key])
       return acc
     }, {})
 
@@ -120,19 +112,18 @@ export function createAPI({
   }
 
   function handleRedirectRules(api: ApiRequest, componentData: ComponentData) {
+    const apiData = getApiData(api, componentData)
     for (const [ruleName, rule] of sortObjectEntries(
       api.redirectRules ?? {},
       ([_, rule]) => rule.index,
     )) {
-      const apiData = getApiData(api, componentData)
-      const formulaContext = createFormulaContext(ctx)
       const ruleData = {
         ...apiData,
         Apis: {
           [api.name]: ctx.dataSignal.get().Apis?.[api.name] as ApiStatus,
         },
       }
-      const location = applyFormula(rule.formula, formulaContext, ruleData, [
+      const location = applyFormula(rule.formula, ctx, ruleData, [
         'redirectRules',
         ruleName,
       ])
@@ -434,14 +425,12 @@ export function createAPI({
 
       try {
         const apiData = getApiData(api, componentData)
-        const proxyFormulaCtx = createFormulaContext(ctx)
         const proxy = api.server?.proxy
-          ? (applyFormula(
-              api.server.proxy.enabled.formula,
-              proxyFormulaCtx,
-              apiData,
-              ['server', 'proxy', 'enabled'],
-            ) ?? false)
+          ? (applyFormula(api.server.proxy.enabled.formula, ctx, apiData, [
+              'server',
+              'proxy',
+              'enabled',
+            ]) ?? false)
           : false
 
         // Ensure we can cancel the request
@@ -462,7 +451,7 @@ export function createAPI({
           const allowBodyTemplateValues = toBoolean(
             applyFormula(
               api.server?.proxy?.useTemplatesInBody?.formula,
-              proxyFormulaCtx,
+              ctx,
               apiData,
               ['server', 'proxy', 'useTemplatesInBody'],
             ),
@@ -523,16 +512,12 @@ export function createAPI({
           () => {
             run().then(resolve, reject)
           },
-          (() => {
-            const apiData = getApiData(api, componentData)
-            const debounceCtx = createFormulaContext(ctx)
-            return applyFormula(
-              api.client?.debounce?.formula,
-              debounceCtx,
-              apiData,
-              ['client', 'debounce'],
-            )
-          })(),
+          applyFormula(
+            api.client?.debounce?.formula,
+            ctx,
+            getApiData(api, componentData),
+            ['client', 'debounce'],
+          ),
         )
       })
     }
@@ -960,7 +945,7 @@ export function createAPI({
         status: data.status,
         headers: data.headers,
       },
-      formulaContext: createFormulaContext(ctx),
+      formulaContext: ctx,
       data: getApiData(api, componentData),
       errorFormula: api.isError,
       performance,
@@ -1026,7 +1011,6 @@ export function createAPI({
   // eslint-disable-next-line prefer-const
   payloadSignal = ctx.dataSignal.map((data) => {
     const apiData = getApiData(api, data)
-    const payloadContext = createFormulaContext(ctx)
     const request = constructRequest(api, data)
 
     if (ctx.reportFormulaEvaluation) {
@@ -1041,14 +1025,11 @@ export function createAPI({
       // Serialize the Headers object to be able to compare changes
       headers: Array.from(request.requestSettings.headers.entries()),
       autoFetch: api.autoFetch
-        ? applyFormula(api.autoFetch, payloadContext, apiData, ['autoFetch'])
+        ? applyFormula(api.autoFetch, ctx, apiData, ['autoFetch'])
         : false,
-      proxy: applyFormula(
-        api.server?.proxy?.enabled.formula,
-        payloadContext,
-        apiData,
-        ['proxy'],
-      ),
+      proxy: applyFormula(api.server?.proxy?.enabled.formula, ctx, apiData, [
+        'proxy',
+      ]),
     }
   })
   payloadSignal.subscribe(async (apiData) => {
@@ -1103,10 +1084,7 @@ export function createAPI({
       }
     } else {
       const apiData = getApiData(api, initialComponentData)
-      const initialFormulaCtx = createFormulaContext(ctx)
-      if (
-        applyFormula(api.autoFetch, initialFormulaCtx, apiData, ['autoFetch'])
-      ) {
+      if (applyFormula(api.autoFetch, ctx, apiData, ['autoFetch'])) {
         // Execute will set the initial status of the api in the dataSignal
         await execute({
           api,
@@ -1209,10 +1187,9 @@ export function createAPI({
     update: (newApi, componentData) => {
       api = newApi
       const updateData = getApiData(api, componentData)
-      const updateContext = createFormulaContext(ctx)
       const autoFetch =
         api.autoFetch &&
-        applyFormula(api.autoFetch, updateContext, updateData, ['autoFetch'])
+        applyFormula(api.autoFetch, ctx, updateData, ['autoFetch'])
       if (autoFetch) {
         const request = constructRequest(newApi, componentData)
         payloadSignal?.set({
@@ -1221,7 +1198,7 @@ export function createAPI({
           autoFetch,
           proxy: applyFormula(
             newApi.server?.proxy?.enabled.formula,
-            updateContext,
+            ctx,
             updateData,
             ['proxy'],
           ),

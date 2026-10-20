@@ -45,8 +45,6 @@ const FORMULA_TYPES = [
   'value',
 ] as Formula['type'][]
 
-// Set lookup is O(1) instead of O(n) `Array.includes` — `isFormula` sits on
-// the hottest path (every single formula evaluation), so this matters.
 const FORMULA_TYPES_SET: Set<string> = new Set(FORMULA_TYPES)
 
 // Define the some objects types as union of ServerSide and ClientSide runtime types as applyFormula is used in both
@@ -168,15 +166,6 @@ export interface FormulaContext {
   env: ToddleEnv | undefined
 }
 
-/**
- * The part of the formula context that stays stable across evaluations.
- * `data` is passed separately to `applyFormula` so hot paths can reuse a
- * single context object instead of spreading `{ ...ctx, data }` for every
- * single formula evaluation (which allocates a throwaway object per eval
- * and pressures the GC).
- */
-export type BaseFormulaContext = FormulaContext
-
 export type ToddleServerEnv = {
   branchName: string
   // isServer will be true for SSR + proxied requests
@@ -227,8 +216,8 @@ type Path = Array<string | number> | undefined
 const EMPTY_DATA = {} as ComponentData
 export function applyFormula(
   formula: FormulaType,
-  ctx: BaseFormulaContext,
-  data = EMPTY_DATA as ComponentData,
+  ctx: FormulaContext,
+  data: ComponentData = EMPTY_DATA,
   extendedPath?: Path,
 ): any {
   // Short-circuit when not reporting to avoid unnecessary overhead of creating new objects and function

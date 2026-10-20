@@ -1,4 +1,9 @@
-import type { ApiStatus, ComponentAPI, LegacyApiStatus } from '../api/apiTypes'
+import type {
+  ApiInputs,
+  ApiStatus,
+  ComponentAPI,
+  LegacyApiStatus,
+} from '../api/apiTypes'
 import type { Formula } from '../formula/formula'
 import type { CssSyntaxNode } from '../styling/customProperty'
 import type { StyleTokenCategory } from '../styling/theme'
@@ -10,8 +15,6 @@ export interface ListItem {
   Index: number
   Parent?: Nullable<ListItem>
 }
-
-export type ApiInputs = Record<string, unknown>
 
 export interface ComponentData {
   Location?: Nullable<{

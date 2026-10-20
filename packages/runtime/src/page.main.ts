@@ -271,25 +271,13 @@ export const createRoot = (domNode: HTMLElement) => {
   let providers = ctx.providers
   if (isContextProvider(component)) {
     // Subscribe to exposed formulas and update the component's data signal
-    const rootProviderFormulaCtx = {
-      component,
-      formulaCache: ctx.formulaCache,
-      root: ctx.root,
-      package: ctx.package,
-      toddle: window.toddle,
-      env,
-    }
     const formulaDataSignals = Object.fromEntries(
       Object.entries(component.formulas ?? {})
         .filter(([, formula]) => formula?.exposeInContext)
         .map(([name, formula]) => [
           name,
           dataSignal.map((data) =>
-            applyFormula(
-              (formula as ComponentFormula).formula,
-              rootProviderFormulaCtx,
-              data,
-            ),
+            applyFormula((formula as ComponentFormula).formula, ctx, data),
           ),
         ]),
     )
@@ -393,22 +381,21 @@ const setupMetaUpdates = (
   component: Component,
   dataSignal: Signal<ComponentData>,
 ) => {
-  const getFormulaContext = () => ({
+  const formulaContext = {
     component,
     root: document,
     package: undefined,
     toddle: window.toddle,
     env,
-  })
+  }
   // Handle dynamic updates of the document language
   const langFormula = component.route?.info?.language?.formula
   const dynamicLang = langFormula && langFormula.type !== 'value'
   if (dynamicLang) {
-    const langFormulaCtx = getFormulaContext()
     dataSignal
       .map((data) =>
         component
-          ? applyFormula(langFormula, langFormulaCtx, data, [
+          ? applyFormula(langFormula, formulaContext, data, [
               'route',
               'info',
               'language',
@@ -426,11 +413,10 @@ const setupMetaUpdates = (
   const titleFormula = component.route?.info?.title?.formula
   const dynamicTitle = titleFormula && titleFormula.type !== 'value'
   if (dynamicTitle) {
-    const titleFormulaCtx = getFormulaContext()
     dataSignal
       .map((data) =>
         component
-          ? applyFormula(titleFormula, titleFormulaCtx, data, [
+          ? applyFormula(titleFormula, formulaContext, data, [
               'route',
               'info',
               'title',
@@ -497,11 +483,10 @@ const setupMetaUpdates = (
       }
     }
     if (dynamicDescription) {
-      const descriptionFormulaCtx = getFormulaContext()
       dataSignal
         .map((data) =>
           component
-            ? applyFormula(descriptionFormula, descriptionFormulaCtx, data, [
+            ? applyFormula(descriptionFormula, formulaContext, data, [
                 'route',
                 'info',
                 'description',
@@ -549,20 +534,18 @@ const setupMetaUpdates = (
         })
     }
     if (Object.keys(dynamicMetaFormulas).length > 0) {
-      const metaFormulaCtx = getFormulaContext()
       for (const id in dynamicMetaFormulas) {
         const entry = dynamicMetaFormulas[id]
         if (entry) {
           dataSignal
             .map((data) => {
-              const context = metaFormulaCtx
               // Return the new values for all attributes (we assume they're strings)
               const values = Object.entries(entry.attrs ?? {}).reduce(
                 (agg, [key, formula]) =>
                   component
                     ? {
                         ...agg,
-                        [key]: applyFormula(formula, context, data, [
+                        [key]: applyFormula(formula, formulaContext, data, [
                           'route',
                           'info',
                           'meta',
@@ -577,7 +560,7 @@ const setupMetaUpdates = (
               return {
                 attrs: values,
                 content: entry.content
-                  ? applyFormula(entry.content, context, data)
+                  ? applyFormula(entry.content, formulaContext, data)
                   : undefined,
               }
             })

@@ -1,13 +1,13 @@
 import type { ComponentData } from '../component/component.types'
 import {
   applyFormula,
-  type BaseFormulaContext,
+  type FormulaContext,
   type ObjectOperation,
 } from './formula'
 
 export const applyObjectFormula = (
   formula: ObjectOperation,
-  ctx: BaseFormulaContext,
+  ctx: FormulaContext,
   data: ComponentData,
 ) => {
   const args = formula.arguments ?? []
@@ -24,12 +24,7 @@ export const applyObjectFormula = (
   } else {
     for (let i = 0; i < args.length; i++) {
       const entry = args[i]!
-      result[entry.name as string] = applyFormula(
-        entry.formula,
-        ctx,
-        data,
-        undefined,
-      )
+      result[entry.name as string] = applyFormula(entry.formula, ctx, data)
     }
   }
   return result
