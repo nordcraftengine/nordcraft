@@ -73,9 +73,7 @@ export const splitRoutes = ({
         } as any,
       }
       const usedAsWebComponent = toBoolean(
-        applyFormula(component.customElement?.enabled, formulaContext as any, {
-          Attributes: {},
-        }),
+        applyFormula(component.customElement?.enabled, formulaContext as any),
       )
       const isPage = isPageComponent(component)
       if (!isPage && !usedAsWebComponent) {

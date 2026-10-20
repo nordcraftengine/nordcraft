@@ -358,9 +358,7 @@ export const createSignal = ({
               toddle,
               env,
             },
-            {
-              Attributes: {},
-            },
+            {},
           ),
         ]
       },

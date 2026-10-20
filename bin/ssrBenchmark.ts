@@ -301,15 +301,15 @@ const createCollectionsHotPathRenderCase =
     const req = new Request('http://localhost/benchmark')
 
     return async () => {
-      const formulaContext = getPageFormulaContext({
+      const { formulaContext, data } = getPageFormulaContext({
         component: pageComponent,
         branchName: 'main',
         req,
         logErrors: false,
         files,
       })
-      formulaContext.data.Variables = {
-        ...formulaContext.data.Variables,
+      data.Variables = {
+        ...data.Variables,
         items,
       }
 
@@ -319,6 +319,7 @@ const createCollectionsHotPathRenderCase =
         evaluateComponentApis: async () => ({}),
         files,
         formulaContext,
+        data,
         includedComponents,
         req,
         projectId: 'benchmark-project',
@@ -349,7 +350,7 @@ const createProjectRenderCase = async (): Promise<BenchmarkRunner> => {
   })
 
   return async () => {
-    const formulaContext = getPageFormulaContext({
+    const { formulaContext, data } = getPageFormulaContext({
       component: pageComponent,
       branchName: 'main',
       req,
@@ -363,6 +364,7 @@ const createProjectRenderCase = async (): Promise<BenchmarkRunner> => {
       evaluateComponentApis: async () => ({}),
       files,
       formulaContext,
+      data,
       includedComponents,
       req,
       projectId: 'nordcraft',

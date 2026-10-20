@@ -21,7 +21,7 @@ const insertOrReplaceHeadNode = (id: string, node: Node) => {
 export const insertHeadTags = (
   entries: Record<string, MetaEntry>,
   context: FormulaContext,
-  data: ComponentData = { Attributes: {} },
+  data: ComponentData = {},
 ) => {
   // Remove all tags that has a data-meta-id attribute that is not in the entries
   Array.from(document.head.querySelectorAll(`[${DATA_ATTR_META_ID}]`))

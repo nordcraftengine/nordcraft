@@ -21,8 +21,7 @@ export const evaluateResponseHeaders = ({
   if (!responseHeaders) {
     return {}
   }
-  const resolvedData: ComponentData = data ??
-    (formulaContext as any).data ?? { Attributes: {} }
+  const resolvedData: ComponentData = data ?? {}
   const evaluatedHeaders: Record<string, string> = {}
   for (const [headerName, headerValue] of Object.entries(responseHeaders)) {
     if (typeof headerValue !== 'string' && !isFormula(headerValue)) {

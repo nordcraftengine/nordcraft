@@ -32,7 +32,7 @@ describe('applyFunctionFormula', () => {
       applyFunctionFormula(
         { type: 'function', name: 'identity', arguments: [] },
         ctx,
-        ctx.data,
+        {},
       ),
     ).toBe(42)
   })
@@ -44,7 +44,7 @@ describe('applyFunctionFormula', () => {
       arguments: [{ name: 'x', formula: valueFormula(1) }],
     }
     const ctx = contextWithCustomFormulas({})
-    expect(applyFunctionFormula(formula, ctx, ctx.data)).toBeNull()
+    expect(applyFunctionFormula(formula, ctx, {})).toBeNull()
   })
 
   it('calls isFunction arguments as functions', () => {
@@ -69,7 +69,7 @@ describe('applyFunctionFormula', () => {
         arguments: [{ name: 'fn' }],
       },
     })
-    expect(applyFunctionFormula(formula, ctx, ctx.data)).toBe('called')
+    expect(applyFunctionFormula(formula, ctx, {})).toBe('called')
   })
 
   it('returns the result of a ToddleFormula', () => {

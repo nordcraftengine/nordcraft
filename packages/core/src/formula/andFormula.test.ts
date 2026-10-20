@@ -18,7 +18,7 @@ describe('applyAndFormula', () => {
       ],
     }
     const ctx = createTestFormulaContext()
-    expect(applyAndFormula(formula, ctx, ctx.data)).toBe(false)
+    expect(applyAndFormula(formula, ctx, {})).toBe(false)
   })
 
   it('returns true if all arguments are truthy', () => {
@@ -31,7 +31,7 @@ describe('applyAndFormula', () => {
       ],
     }
     const ctx = createTestFormulaContext()
-    expect(applyAndFormula(formula, ctx, ctx.data)).toBe(true)
+    expect(applyAndFormula(formula, ctx, {})).toBe(true)
   })
 
   it('returns false for first falsy argument', () => {
@@ -44,7 +44,7 @@ describe('applyAndFormula', () => {
       ],
     }
     const ctx = createTestFormulaContext()
-    expect(applyAndFormula(formula, ctx, ctx.data)).toBe(false)
+    expect(applyAndFormula(formula, ctx, {})).toBe(false)
   })
 })
 
@@ -60,10 +60,9 @@ describe('applyEvaluateAllAndFormula', () => {
     }
     const results: Record<string, any> = {}
     const ctx = createTestFormulaContextForAllPaths(
-      {},
       (path, result) => (results[path.join('/')] = result),
     )
-    expect(applyFormula(formula, ctx, ctx.data, [])).toBe(false)
+    expect(applyFormula(formula, ctx, {}, [])).toBe(false)
     expect(results).toMatchObject({
       'arguments/0/formula': false,
       'arguments/1/formula': 'hello',
@@ -81,7 +80,7 @@ describe('applyEvaluateAllAndFormula', () => {
       ],
     }
     const ctx = createTestFormulaContext()
-    expect(applyEvaluateAllAndFormula(formula, ctx, ctx.data)).toBe(true)
+    expect(applyEvaluateAllAndFormula(formula, ctx, {})).toBe(true)
   })
 
   it('returns false if any argument is falsy', () => {
@@ -94,7 +93,7 @@ describe('applyEvaluateAllAndFormula', () => {
       ],
     }
     const ctx = createTestFormulaContext()
-    expect(applyEvaluateAllAndFormula(formula, ctx, ctx.data)).toBe(false)
+    expect(applyEvaluateAllAndFormula(formula, ctx, {})).toBe(false)
   })
 
   it('returns false if last argument is falsy', () => {
@@ -107,6 +106,6 @@ describe('applyEvaluateAllAndFormula', () => {
       ],
     }
     const ctx = createTestFormulaContext()
-    expect(applyEvaluateAllAndFormula(formula, ctx, ctx.data)).toBe(false)
+    expect(applyEvaluateAllAndFormula(formula, ctx, {})).toBe(false)
   })
 })

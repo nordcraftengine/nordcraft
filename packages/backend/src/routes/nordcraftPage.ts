@@ -57,7 +57,7 @@ export const nordcraftPage = async ({
   startTime(hono, nordcraftPageTimingKey, 'The total render time for a page')
   const url = new URL(hono.req.raw.url)
   const page = processComponentApis(_page, files)
-  const formulaContext = getPageFormulaContext({
+  const { formulaContext, data } = getPageFormulaContext({
     component: page,
     branchName: 'main',
     req: hono.req.raw,
@@ -67,7 +67,7 @@ export const nordcraftPage = async ({
   const language = getHtmlLanguage({
     pageInfo: page.route.info,
     formulaContext,
-    data: formulaContext.data,
+    data,
     defaultLanguage: 'en',
   })
 
@@ -96,6 +96,7 @@ export const nordcraftPage = async ({
     const pageBody = await renderPageBody({
       component: page,
       formulaContext,
+      data,
       env: formulaContext.env,
       req: hono.req.raw,
       files: files,
@@ -130,7 +131,7 @@ export const nordcraftPage = async ({
       files: files,
       project,
       context: formulaContext,
-      data: formulaContext.data,
+      data,
       themes,
       customProperties,
     }),
@@ -138,7 +139,7 @@ export const nordcraftPage = async ({
   const charset = getCharset({
     pageInfo: page.route?.info,
     formulaContext,
-    data: formulaContext.data,
+    data,
   })
 
   // Prepare the data to be passed to the client for hydration
@@ -147,7 +148,7 @@ export const nordcraftPage = async ({
     branch: 'main',
     commit: 'unknown',
     pageState: {
-      ...formulaContext.data,
+      ...data,
       Apis: {
         ...apiCache,
       },
@@ -163,6 +164,7 @@ export const nordcraftPage = async ({
     [THEME_DATA_ATTRIBUTE]: getTheme({
       pageInfo: page.route.info,
       formulaContext,
+      data,
     }),
   })
     .filter(([, value]) => toBoolean(value))
@@ -194,14 +196,14 @@ export const nordcraftPage = async ({
 
   const responseHeaders = evaluateResponseHeaders({
     formulaContext,
-    data: formulaContext.data,
+    data,
     responseHeaders: page.route.response?.headers,
   })
 
   const customStatusCode = applyFormula(
     page.route.response?.status,
     formulaContext,
-    formulaContext.data,
+    data,
   )
   const statusCode =
     typeof customStatusCode === 'number'

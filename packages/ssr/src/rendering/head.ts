@@ -55,7 +55,7 @@ export const getHeadItems = ({
   customProperties: ReadonlyArray<string>
 }): Map<HeadItemType, string> => {
   const pageInfo = page.route?.info
-  const resolvedData: ComponentData = data ?? { Attributes: {} }
+  const resolvedData: ComponentData = data ?? {}
   const title = getPageTitle({
     component: page,
     context,

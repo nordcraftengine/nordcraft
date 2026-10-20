@@ -786,10 +786,10 @@ const createComponent = async ({
   ) => void
 }): Promise<string> => {
   const data: ComponentData = {
-    Location: pageData?.Location ?? (formulaContext as any).data?.Location,
+    Location: pageData?.Location,
     Attributes: attrs,
     Contexts: contexts,
-    Page: pageData?.Page ?? (formulaContext as any).data?.Page,
+    Page: pageData?.Page,
     Apis: apis,
   }
 
@@ -871,8 +871,7 @@ export const renderPageBody = async ({
   req: Request
   projectId: string
 }) => {
-  const resolvedData: ComponentData = data ??
-    (formulaContext as any).data ?? { Attributes: {} }
+  const resolvedData: ComponentData = data ?? {}
   const apiCache: ApiCache = {}
   const updateApiCache = (key: string, value: ApiStatus) =>
     (apiCache[key] = value)

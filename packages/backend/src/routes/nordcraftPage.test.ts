@@ -46,7 +46,7 @@ describe('nordcraftPage', () => {
       (p: any) => p,
     )
     spyOn(ssrRenderingFormulaContext, 'getPageFormulaContext').mockReturnValue({
-      env: { request: { cookies: {} } },
+      formulaContext: { env: { request: { cookies: {} } } },
       data: {},
     } as any)
     spyOn(ssrRenderingHtml, 'getHtmlLanguage').mockReturnValue('en')

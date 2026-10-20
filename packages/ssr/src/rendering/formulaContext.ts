@@ -40,7 +40,10 @@ export const getPageFormulaContext = ({
   req: Request
   logErrors: boolean
   files: ProjectFiles
-}): FormulaContext & { env: ToddleServerEnv; data: ComponentData } => {
+}): {
+  formulaContext: FormulaContext & { env: ToddleServerEnv }
+  data: ComponentData
+} => {
   const env = serverEnv({ req, branchName, logErrors })
   const { searchParamsWithDefaults, hash, combinedParams, url } = getParameters(
     { route: component?.route, req },
@@ -64,9 +67,7 @@ export const getPageFormulaContext = ({
   }
   const formulaContext: FormulaContext & {
     env: ToddleServerEnv
-    data: ComponentData
   } = {
-    data,
     component,
     root: null,
     package: undefined,
@@ -93,7 +94,10 @@ export const getPageFormulaContext = ({
       ? getThemeInitialValue(component, formulaContext, data, env)
       : null,
   }
-  return formulaContext
+  return {
+    formulaContext,
+    data,
+  }
 }
 
 export const getServerToddleObject = (

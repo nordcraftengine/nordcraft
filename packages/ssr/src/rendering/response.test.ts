@@ -1,16 +1,17 @@
+import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { describe, expect, test } from 'bun:test'
 import { evaluateResponseHeaders } from './response'
 
 describe('evaluateResponseHeaders', () => {
   const mockFormulaContext = {
-    data: {
-      Page: {
-        Theme: 'dark',
-      },
-    },
     reportFormulaEvaluation: () => {},
   } as unknown as FormulaContext
+  const mockData: ComponentData = {
+    Page: {
+      Theme: 'dark',
+    },
+  }
 
   test('it returns an empty object if responseHeaders is null', () => {
     expect(
@@ -47,6 +48,7 @@ describe('evaluateResponseHeaders', () => {
     expect(
       evaluateResponseHeaders({
         formulaContext: mockFormulaContext,
+        data: mockData,
         responseHeaders: {
           'X-Theme': {
             type: 'path',

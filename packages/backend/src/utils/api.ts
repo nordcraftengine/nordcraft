@@ -38,14 +38,11 @@ import {
 export const evaluateComponentApis: ApiEvaluator = async ({
   component,
   formulaContext,
-  data: _data,
+  data = {},
   req,
   apiCache,
   updateApiCache,
 }) => {
-  const data: ComponentData = _data ??
-    (formulaContext as any)?.data ?? { Attributes: {} }
-
   // We only support v2 APIs in this function
   const sortedApis: [string, ToddleApiV2<string>][] = []
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

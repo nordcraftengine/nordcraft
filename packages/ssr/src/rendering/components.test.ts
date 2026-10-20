@@ -56,9 +56,7 @@ describe('renderPageBody', () => {
         package: undefined,
         toddle: {} as any,
       },
-      data: {
-        Attributes: {},
-      },
+      data: {},
       env: {} as any,
       files: { components: { SimpleComponent: component } } as any,
       includedComponents: [component],
@@ -127,9 +125,7 @@ describe('renderPageBody', () => {
         package: undefined,
         toddle: {} as any,
       },
-      data: {
-        Attributes: {},
-      },
+      data: {},
       env: {} as any,
       files: {
         components: {
@@ -221,9 +217,7 @@ describe('renderPageBody', () => {
         package: undefined,
         toddle: {} as any,
       },
-      data: {
-        Attributes: {},
-      },
+      data: {},
       env: {} as any,
       files: {
         components: {
@@ -335,7 +329,7 @@ describe('renderPageBody', () => {
         },
       },
     } as Pick<ProjectFiles, 'components' | 'formulas' | 'packages'>
-    const formulaContext = getPageFormulaContext({
+    const { formulaContext, data } = getPageFormulaContext({
       component: pageComponent,
       branchName: 'main',
       req: new Request('http://localhost'),
@@ -347,6 +341,7 @@ describe('renderPageBody', () => {
       evaluateComponentApis: () => ({}) as any,
       component: pageComponent as any,
       formulaContext,
+      data,
       env: formulaContext.env,
       files,
       includedComponents: [pageComponent, packageWrapperComponent],
@@ -475,9 +470,7 @@ describe('renderPageBody', () => {
         package: undefined,
         toddle: {} as any,
       },
-      data: {
-        Attributes: {},
-      },
+      data: {},
       env: {} as any,
       files: {
         components: {
@@ -540,18 +533,20 @@ describe('renderPageBody', () => {
       events: [],
     }
 
+    const { formulaContext, data } = getPageFormulaContext({
+      component: component as any,
+      branchName: 'main',
+      req: new Request('http://localhost'),
+      logErrors: true,
+      files: {
+        components: { ThemeVariableComponent: component },
+      },
+    })
     const { html } = await renderPageBody({
       evaluateComponentApis: () => ({}) as any,
       component: component as any,
-      formulaContext: getPageFormulaContext({
-        component: component as any,
-        branchName: 'main',
-        req: new Request('http://localhost'),
-        logErrors: true,
-        files: {
-          components: { ThemeVariableComponent: component },
-        },
-      }),
+      formulaContext,
+      data,
       env: {} as any,
       files: { components: { ThemeVariableComponent: component } } as any,
       includedComponents: [component],
@@ -602,18 +597,20 @@ describe('renderPageBody', () => {
       events: [],
     }
 
+    const { formulaContext, data } = getPageFormulaContext({
+      component: component as any,
+      branchName: 'main',
+      req: new Request('http://localhost'),
+      logErrors: true,
+      files: {
+        components: { ThemeVariableComponent: component },
+      },
+    })
     const { html } = await renderPageBody({
       evaluateComponentApis: () => ({}) as any,
       component: component as any,
-      formulaContext: getPageFormulaContext({
-        component: component as any,
-        branchName: 'main',
-        req: new Request('http://localhost'),
-        logErrors: true,
-        files: {
-          components: { ThemeVariableComponent: component },
-        },
-      }),
+      formulaContext,
+      data,
       env: {} as any,
       files: { components: { ThemeVariableComponent: component } } as any,
       includedComponents: [component],
@@ -685,7 +682,6 @@ describe('renderPageBody', () => {
         toddle: {} as any,
       },
       data: {
-        Attributes: {},
         Page: {
           Theme: 'light',
         },
@@ -873,16 +869,19 @@ describe('renderPageBody', () => {
       },
     } as any
 
+    const { formulaContext, data } = getPageFormulaContext({
+      component: rootComponent as any,
+      branchName: 'main',
+      req: new Request('http://localhost'),
+      logErrors: true,
+      files,
+    })
+
     const { html } = await renderPageBody({
       evaluateComponentApis: () => ({}) as any,
       component: rootComponent as any,
-      formulaContext: getPageFormulaContext({
-        component: rootComponent as any,
-        branchName: 'main',
-        req: new Request('http://localhost'),
-        logErrors: true,
-        files,
-      }),
+      formulaContext,
+      data,
       env: {} as any,
       files,
       includedComponents: [rootComponent, componentB, componentA, componentC],
@@ -940,18 +939,20 @@ describe('renderPageBody', () => {
       },
     }
 
+    const { formulaContext, data } = getPageFormulaContext({
+      component: component as any,
+      branchName: 'main',
+      req: new Request('http://localhost'),
+      logErrors: true,
+      files: {
+        components: { IdTestComponent: component },
+      },
+    })
     const { html } = await renderPageBody({
       evaluateComponentApis: () => ({}) as any,
       component: component as any,
-      formulaContext: getPageFormulaContext({
-        component: component as any,
-        branchName: 'main',
-        req: new Request('http://localhost'),
-        logErrors: true,
-        files: {
-          components: { IdTestComponent: component },
-        },
-      }),
+      formulaContext,
+      data,
       env: {} as any,
       files: { components: { IdTestComponent: component } } as any,
       includedComponents: [component],
@@ -1028,22 +1029,25 @@ describe('renderPageBody', () => {
       },
     }
 
+    const { formulaContext, data } = getPageFormulaContext({
+      component: pageComponent as any,
+      branchName: 'main',
+      req: new Request('http://localhost'),
+      logErrors: true,
+      files: {
+        components: {
+          PageComponent: pageComponent,
+          WrapperComp: wrapperComp,
+          LayoutWithTwoSlots: layoutWithTwoSlots,
+        },
+      },
+    })
+
     const { html } = await renderPageBody({
       evaluateComponentApis: () => ({}) as any,
       component: pageComponent as any,
-      formulaContext: getPageFormulaContext({
-        component: pageComponent as any,
-        branchName: 'main',
-        req: new Request('http://localhost'),
-        logErrors: true,
-        files: {
-          components: {
-            PageComponent: pageComponent,
-            WrapperComp: wrapperComp,
-            LayoutWithTwoSlots: layoutWithTwoSlots,
-          },
-        },
-      }),
+      formulaContext,
+      data,
       env: {} as any,
       files: {
         components: {
@@ -1215,18 +1219,21 @@ describe('renderPageBody', () => {
       'quick-actions': quickActions,
     }
 
+    const { formulaContext, data } = getPageFormulaContext({
+      component: pageComponent as any,
+      branchName: 'main',
+      req: new Request('http://localhost'),
+      logErrors: true,
+      files: {
+        components: componentsMap,
+      },
+    })
+
     const { html } = await renderPageBody({
       evaluateComponentApis: () => ({}) as any,
       component: pageComponent as any,
-      formulaContext: getPageFormulaContext({
-        component: pageComponent as any,
-        branchName: 'main',
-        req: new Request('http://localhost'),
-        logErrors: true,
-        files: {
-          components: componentsMap,
-        },
-      }),
+      formulaContext,
+      data,
       env: {} as any,
       files: {
         components: componentsMap,

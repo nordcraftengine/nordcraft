@@ -25,7 +25,7 @@ describe('applySwitchFormula', () => {
       default: valueFormula('default'),
     }
     const ctx = createTestFormulaContext()
-    expect(applySwitchFormula(formula, ctx, ctx.data)).toBe('yes')
+    expect(applySwitchFormula(formula, ctx, {})).toBe('yes')
   })
 
   it('returns the default value if no case matches', () => {
@@ -38,7 +38,7 @@ describe('applySwitchFormula', () => {
       default: valueFormula('default'),
     }
     const ctx = createTestFormulaContext()
-    expect(applySwitchFormula(formula, ctx, ctx.data)).toBe('default')
+    expect(applySwitchFormula(formula, ctx, {})).toBe('default')
   })
 
   it('evaluates conditions using context data', () => {
@@ -53,8 +53,9 @@ describe('applySwitchFormula', () => {
       ],
       default: valueFormula('default'),
     }
-    const ctx = createTestFormulaContext({ foo: true })
-    expect(applySwitchFormula(formula, ctx, ctx.data)).toBe('foo matched')
+    const ctx = createTestFormulaContext()
+    const data = { foo: true } as any
+    expect(applySwitchFormula(formula, ctx, data)).toBe('foo matched')
   })
 })
 
@@ -74,11 +75,10 @@ describe('applyEvaluateAllSwitchFormula', () => {
     }
     const results: Record<string, any> = {}
     const ctx = createTestFormulaContextForAllPaths(
-      {},
       (path, result) => (results[path.join('/')] = result),
     )
     // We use applyFormula directly since it will gather results in EVALUATE ALL PATHS mode
-    const result = applyFormula(formula, ctx, ctx.data, [])
+    const result = applyFormula(formula, ctx, {}, [])
     expect(result).toBe('yes')
     expect(results).toMatchObject({
       'cases/0/condition': false,
@@ -101,9 +101,7 @@ describe('applyEvaluateAllSwitchFormula', () => {
       default: valueFormula('default'),
     }
     const ctx = createTestFormulaContext()
-    expect(applyEvaluateAllSwitchFormula(formula, ctx, ctx.data)).toBe(
-      'default',
-    )
+    expect(applyEvaluateAllSwitchFormula(formula, ctx, {})).toBe('default')
   })
 
   it('evaluates conditions using context data', () => {
@@ -118,8 +116,9 @@ describe('applyEvaluateAllSwitchFormula', () => {
       ],
       default: valueFormula('default'),
     }
-    const ctx = createTestFormulaContext({ foo: true })
-    expect(applyEvaluateAllSwitchFormula(formula, ctx, ctx.data)).toBe(
+    const ctx = createTestFormulaContext()
+    const data = { foo: true } as any
+    expect(applyEvaluateAllSwitchFormula(formula, ctx, data)).toBe(
       'foo matched',
     )
   })

@@ -28,7 +28,7 @@ export const isLegacyApi = <Handler>(
 export const createApiRequest = <Handler>({
   api,
   formulaContext,
-  data = { Attributes: {} },
+  data = {},
   baseUrl,
 }: {
   api: ApiRequest | ToddleApiV2<Handler>
@@ -60,10 +60,10 @@ export const getUrl = (
   let resolvedData: ComponentData
   let resolvedBaseUrl: Nullable<string> | undefined
   if (typeof data === 'string') {
-    resolvedData = { Attributes: {} }
+    resolvedData = {}
     resolvedBaseUrl = data
   } else {
-    resolvedData = data ?? { Attributes: {} }
+    resolvedData = data ?? {}
     resolvedBaseUrl = baseUrl
   }
   let urlPathname = ''
@@ -124,8 +124,7 @@ export const applyAbortSignal = (
   formulaContext: FormulaContext,
   data?: ComponentData,
 ) => {
-  const resolvedData = data ??
-    (formulaContext as any).data ?? { Attributes: {} }
+  const resolvedData = data ?? {}
   if (api.timeout) {
     const timeout = applyFormula(
       api.timeout.formula,
@@ -177,8 +176,7 @@ export const getRequestPath = (
   formulaContext: FormulaContext,
   data?: ComponentData,
 ): string => {
-  const resolvedData = data ??
-    (formulaContext as any).data ?? { Attributes: {} }
+  const resolvedData = data ?? {}
   return sortObjectEntries(path ?? {}, ([_, p]) => p.index)
     .map(([parameterName, p]) =>
       applyFormula(p.formula, formulaContext, resolvedData, [
@@ -194,8 +192,7 @@ export const getRequestQueryParams = (
   formulaContext: FormulaContext,
   data?: ComponentData,
 ): URLSearchParams => {
-  const resolvedData = data ??
-    (formulaContext as any).data ?? { Attributes: {} }
+  const resolvedData = data ?? {}
   const queryParams = new URLSearchParams()
   Object.entries(params ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
@@ -249,8 +246,7 @@ export const getRequestHeaders = ({
   formulaContext: FormulaContext
   data?: ComponentData
 }) => {
-  const resolvedData = data ??
-    (formulaContext as any).data ?? { Attributes: {} }
+  const resolvedData = data ?? {}
   const headers = new Headers()
   Object.entries(apiHeaders ?? {}).forEach(([key, param]) => {
     const enabled = isDefined(param.enabled)
@@ -345,7 +341,6 @@ export const isApiError = ({
           reportFormulaEvaluation: formulaContext.reportFormulaEvaluation,
         },
         {
-          Attributes: {},
           Args: data?.Args,
           Apis: {
             // The errorFormula will only have access to the data of the current API
@@ -387,7 +382,7 @@ export const getRequestBody = ({
     return
   }
 
-  const resolvedData = data ?? (formulaContext as any).data ?? {}
+  const resolvedData = data ?? {}
   const body = applyFormula(api.body, formulaContext, resolvedData, ['body'])
   if (!body) {
     return

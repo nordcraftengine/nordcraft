@@ -14,14 +14,13 @@ if (!(globalThis as any).__CORE_FORMULAS__) {
 }
 
 // Helper to create a minimal context
-export const createTestFormulaContext = (data: any = {}): FormulaContext => {
+export const createTestFormulaContext = (): FormulaContext => {
   const coreFormulas = (globalThis as any).__CORE_FORMULAS__ as
     | Record<string, any>
     | undefined
   return {
     component: undefined,
     formulaCache: {},
-    data,
     root: {} as Document,
     package: undefined,
     toddle: {
@@ -43,12 +42,10 @@ export const createTestFormulaContext = (data: any = {}): FormulaContext => {
 
 // Helper to create a minimal context when evaluating all paths
 export const createTestFormulaContextForAllPaths = (
-  data: any = {},
   formulaEvaluationReporter: FormulaEvaluationReporter,
 ): FormulaContext => ({
   component: undefined,
   formulaCache: {},
-  data,
   root: undefined,
   package: undefined,
   toddle: {

@@ -156,7 +156,6 @@ export interface FormulaContext {
       }
     >
   >
-  data?: ComponentData
   root?: Nullable<Document | ShadowRoot>
   package: Nullable<string>
   toddle: {
