@@ -21,5 +21,8 @@
   "dependencies": {
     "valibot": "1.5.0"
   },
+  "devDependencies": {
+    "@nordcraft/std-lib": "workspace:*"
+  },
   "main": "dist/index.js"
 }

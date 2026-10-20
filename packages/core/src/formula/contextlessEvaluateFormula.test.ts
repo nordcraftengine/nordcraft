@@ -1,235 +1,268 @@
 import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import { describe, expect, test } from 'bun:test'
 import {
+  compressFormula,
   contextlessEvaluateFormula,
   NON_STATIC_LIB_FORMULAS,
   PURE_LIB_FORMULAS,
+  type EvaluationContext,
   type LibFormulaName,
 } from './contextlessEvaluateFormula'
 
+const coreFormulas: Record<string, any> = Object.fromEntries(
+  Object.entries(libFormulas).map(([name, module]) => [
+    '@toddle/' + name,
+    ((module as any).default ?? module) as any,
+  ]),
+)
+
+const testCtxWithCoreFormulas = (
+  extra: EvaluationContext = {},
+): EvaluationContext => {
+  return {
+    ...extra,
+    toddle: {
+      getFormula: (name: string) =>
+        coreFormulas[name] ?? coreFormulas[`@toddle/${name}`],
+      getCustomFormula: extra.toddle?.getCustomFormula,
+      errors: [],
+      ...extra.toddle,
+    },
+  }
+}
+
 describe('contextlessEvaluateFormula', () => {
-  test('should return `true` when the formula is a simple value formula', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'value',
-          value: true,
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: true,
-      result: true,
+  describe('pure vs non-static lib formulas sync with @nordcraft/std-lib', () => {
+    test('PURE_LIB_FORMULAS stays in sync with @nordcraft/std-lib', () => {
+      const stdLibKeys = Object.keys(libFormulas)
+      const expectedPure = stdLibKeys
+        .filter((name) => !NON_STATIC_LIB_FORMULAS.has(name as LibFormulaName))
+        .sort()
+
+      expect(Array.from(PURE_LIB_FORMULAS).sort()).toEqual(expectedPure)
+    })
+
+    test('NON_STATIC_LIB_FORMULAS only contains valid formulas from @nordcraft/std-lib', () => {
+      const stdLibKeys = new Set(Object.keys(libFormulas))
+      for (const formula of NON_STATIC_LIB_FORMULAS) {
+        expect(stdLibKeys.has(formula)).toBe(true)
+      }
     })
   })
 
-  test('should not return a result and have `isStatic: false` when the formula uses a non-pure formula ("randomNumber", "Now")', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'apply',
-          name: 'randomNumber',
-          arguments: [],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: false,
-      result: undefined,
+  describe('value formula', () => {
+    test('should return `true` when the formula is a simple value formula', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'value',
+            value: true,
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: true,
+      })
     })
 
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'apply',
-          name: 'now',
-          arguments: [],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: false,
-      result: undefined,
-    })
-  })
+    test('evaluates number and string value formulas', () => {
+      expect(
+        contextlessEvaluateFormula({ type: 'value', value: 123 }, {}),
+      ).toEqual({
+        isStatic: true,
+        result: 123,
+      })
 
-  test('should not return a result and have `isStatic: false` when the formula depends on a variable', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'path',
-          path: ['Variables', 'myVariable'],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: false,
-      result: undefined,
+      expect(
+        contextlessEvaluateFormula({ type: 'value', value: 'hello' }, {}),
+      ).toEqual({
+        isStatic: true,
+        result: 'hello',
+      })
     })
   })
 
-  test('should return a result and static for an array formula where all args are array or value types', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'array',
-          arguments: [
-            { formula: { type: 'value', value: 1 } },
-            {
-              formula: {
-                type: 'array',
-                arguments: [{ formula: { type: 'value', value: 2 } }],
+  describe('path formula', () => {
+    test('should not return a result and have `isStatic: false` when the formula depends on a variable', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'path',
+            path: ['Variables', 'myVariable'],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: false,
+        result: undefined,
+      })
+    })
+  })
+
+  describe('array formula', () => {
+    test('should return a result and static for an array formula where all args are array or value types', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'array',
+            arguments: [
+              { formula: { type: 'value', value: 1 } },
+              {
+                formula: {
+                  type: 'array',
+                  arguments: [{ formula: { type: 'value', value: 2 } }],
+                },
               },
-            },
-          ],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: true,
-      result: [1, [2]],
+            ],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: [1, [2]],
+      })
+    })
+
+    test('should return `isStatic: false` for an array formula with a non-static argument', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'array',
+            arguments: [
+              { formula: { type: 'value', value: 1 } },
+              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+            ],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: false,
+        result: [1, undefined],
+      })
     })
   })
 
-  test('should return `isStatic: false` for an array formula with a non-static argument', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'array',
-          arguments: [
-            { formula: { type: 'value', value: 1 } },
-            { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
-          ],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: false,
-      result: [
-        1,
-        undefined, // The second argument was not static
-      ],
+  describe('and / or formulas', () => {
+    test('should be static true for `And` formulas with no arguments', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'and',
+            arguments: [],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: true,
+      })
     })
-  })
 
-  test('should be static true for `And` formulas with no arguments', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'and',
-          arguments: [],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: true,
-      result: true,
+    test('should be static false for `Or` formulas with no arguments', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'or',
+            arguments: [],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: false,
+      })
     })
-  })
 
-  test('should be static false for `Or` formulas with no arguments', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'or',
-          arguments: [],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: true,
-      result: false,
+    test('should be static true for `And` formulas with all static truthy arguments', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'and',
+            arguments: [
+              { formula: { type: 'value', value: true } },
+              { formula: { type: 'value', value: true } },
+            ],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: true,
+      })
     })
-  })
 
-  test('should be static true for `And` formulas with all static truthy arguments', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'and',
-          arguments: [
-            { formula: { type: 'value', value: true } },
-            { formula: { type: 'value', value: true } },
-          ],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: true,
-      result: true,
+    test('should not be static for `And` where any dynamic value exist', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'and',
+            arguments: [
+              { formula: { type: 'value', value: true } },
+              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+            ],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: false,
+        result: undefined,
+      })
     })
-  })
 
-  test('should not be static for `And` where any dynamic value exist', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'and',
-          arguments: [
-            { formula: { type: 'value', value: true } },
-            { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
-          ],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: false,
-      result: undefined,
+    test('should be static false for `And` when any argument is static false, even when dynamic arguments exist', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'and',
+            arguments: [
+              { formula: { type: 'value', value: true } },
+              { formula: { type: 'path', path: ['Variables', 'myVariable'] } },
+              { formula: { type: 'value', value: false } },
+            ],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: false,
+      })
     })
-  })
 
-  test('should be static false for `And` when any argument is static false, even when dynamic arguments exist', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'and',
-          arguments: [
-            { formula: { type: 'value', value: true } },
-            { formula: { type: 'path', path: ['Variables', 'myVariable'] } },
-            { formula: { type: 'value', value: false } },
-          ],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: true,
-      result: false,
+    test('should not be static for `Or` when any argument is dynamic and all static are falsy', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'or',
+            arguments: [
+              { formula: { type: 'value', value: false } },
+              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+            ],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: false,
+        result: undefined,
+      })
     })
-  })
 
-  test('should not be static for `Or` when any argument is dynamic and all static are falsy', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'or',
-          arguments: [
-            { formula: { type: 'value', value: false } },
-            { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
-          ],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: false,
-      result: undefined,
-    })
-  })
-
-  test('should be static true for `Or` when any argument is static true, even when dynamic arguments exist', () => {
-    expect(
-      contextlessEvaluateFormula(
-        {
-          type: 'or',
-          arguments: [
-            { formula: { type: 'value', value: true } },
-            { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
-          ],
-        },
-        {},
-      ),
-    ).toEqual({
-      isStatic: true,
-      result: true,
+    test('should be static true for `Or` when any argument is static true, even when dynamic arguments exist', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'or',
+            arguments: [
+              { formula: { type: 'value', value: true } },
+              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+            ],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: true,
+      })
     })
   })
 
@@ -431,22 +464,6 @@ describe('contextlessEvaluateFormula', () => {
   })
 
   describe('function formula (pure builtin lib formulas)', () => {
-    test('PURE_LIB_FORMULAS stays in sync with @nordcraft/std-lib', () => {
-      const stdLibKeys = Object.keys(libFormulas)
-      const expectedPure = stdLibKeys
-        .filter((name) => !NON_STATIC_LIB_FORMULAS.has(name as LibFormulaName))
-        .sort()
-
-      expect(Array.from(PURE_LIB_FORMULAS).sort()).toEqual(expectedPure)
-    })
-
-    test('NON_STATIC_LIB_FORMULAS only contains valid formulas from @nordcraft/std-lib', () => {
-      const stdLibKeys = new Set(Object.keys(libFormulas))
-      for (const formula of NON_STATIC_LIB_FORMULAS) {
-        expect(stdLibKeys.has(formula)).toBe(true)
-      }
-    })
-
     test('should be static true for pure scalar formulas with static arguments', () => {
       expect(
         contextlessEvaluateFormula(
@@ -544,7 +561,6 @@ describe('contextlessEvaluateFormula', () => {
     })
 
     test('should be isStatic: false for non-deterministic or impure formulas', () => {
-      // range is considered non-deterministic
       expect(
         contextlessEvaluateFormula(
           {
@@ -1137,6 +1153,482 @@ describe('contextlessEvaluateFormula', () => {
       ).toEqual({
         isStatic: true,
         result: undefined,
+      })
+    })
+  })
+
+  describe('pure lib formulas with concrete result (when handlers provided)', () => {
+    test('returns static true with actual result for pure scalar formulas when getFormula is provided', () => {
+      const ctx = testCtxWithCoreFormulas()
+
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'function',
+            name: '@toddle/add',
+            arguments: [
+              { name: '0', formula: { type: 'value', value: 10 } },
+              { name: '1', formula: { type: 'value', value: 25 } },
+            ],
+          },
+          ctx,
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: 35,
+      })
+
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'function',
+            name: '@toddle/concatenate',
+            arguments: [
+              { name: '0', formula: { type: 'value', value: 'foo' } },
+              { name: '1', formula: { type: 'value', value: 'bar' } },
+            ],
+          },
+          ctx,
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: 'foobar',
+      })
+    })
+
+    test('evaluates higher-order pure lib formulas to concrete result', () => {
+      const ctx = testCtxWithCoreFormulas()
+
+      // map
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'function',
+            name: '@toddle/map',
+            arguments: [
+              {
+                name: 'Array',
+                formula: {
+                  type: 'array',
+                  arguments: [
+                    { formula: { type: 'value', value: 1 } },
+                    { formula: { type: 'value', value: 2 } },
+                    { formula: { type: 'value', value: 3 } },
+                  ],
+                },
+              },
+              {
+                name: 'Formula',
+                isFunction: true,
+                formula: {
+                  type: 'function',
+                  name: '@toddle/multiply',
+                  arguments: [
+                    {
+                      name: '0',
+                      formula: { type: 'path', path: ['Args', 'item'] },
+                    },
+                    { name: '1', formula: { type: 'value', value: 2 } },
+                  ],
+                },
+              },
+            ],
+          },
+          ctx,
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: [2, 4, 6],
+      })
+
+      // filter
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'function',
+            name: '@toddle/filter',
+            arguments: [
+              {
+                name: 'Array',
+                formula: {
+                  type: 'array',
+                  arguments: [
+                    { formula: { type: 'value', value: 1 } },
+                    { formula: { type: 'value', value: 5 } },
+                    { formula: { type: 'value', value: 2 } },
+                  ],
+                },
+              },
+              {
+                name: 'Formula',
+                isFunction: true,
+                formula: {
+                  type: 'function',
+                  name: '@toddle/greaterThan',
+                  arguments: [
+                    {
+                      name: '0',
+                      formula: { type: 'path', path: ['Args', 'item'] },
+                    },
+                    { name: '1', formula: { type: 'value', value: 2 } },
+                  ],
+                },
+              },
+            ],
+          },
+          ctx,
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: [5],
+      })
+
+      // reduce
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'function',
+            name: '@toddle/reduce',
+            arguments: [
+              {
+                name: 'Array',
+                formula: {
+                  type: 'array',
+                  arguments: [
+                    { formula: { type: 'value', value: 1 } },
+                    { formula: { type: 'value', value: 2 } },
+                    { formula: { type: 'value', value: 3 } },
+                  ],
+                },
+              },
+              {
+                name: 'Formula',
+                isFunction: true,
+                formula: {
+                  type: 'function',
+                  name: '@toddle/add',
+                  arguments: [
+                    {
+                      name: '0',
+                      formula: { type: 'path', path: ['Args', 'result'] },
+                    },
+                    {
+                      name: '1',
+                      formula: { type: 'path', path: ['Args', 'item'] },
+                    },
+                  ],
+                },
+              },
+              {
+                name: 'Accumulator',
+                formula: { type: 'value', value: 10 },
+              },
+            ],
+          },
+          ctx,
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: 16,
+      })
+    })
+
+    test('evaluates regular project formula to actual static result', () => {
+      const ctx = testCtxWithCoreFormulas({
+        formulas: {
+          doubleVal: {
+            name: 'doubleVal',
+            arguments: [{ name: 'val' }],
+            formula: {
+              type: 'function',
+              name: '@toddle/multiply',
+              arguments: [
+                {
+                  name: '0',
+                  formula: { type: 'path', path: ['Args', 'val'] },
+                },
+                { name: '1', formula: { type: 'value', value: 2 } },
+              ],
+            },
+          },
+        },
+      })
+
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'function',
+            name: 'doubleVal',
+            arguments: [{ name: 'val', formula: { type: 'value', value: 21 } }],
+          },
+          ctx,
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: 42,
+      })
+    })
+  })
+
+  describe('component formulas (apply)', () => {
+    test('evaluates component formulas to concrete static result', () => {
+      const ctx = testCtxWithCoreFormulas({
+        component: {
+          name: 'MyComponent',
+          formulas: {
+            addOne: {
+              name: 'addOne',
+              arguments: [{ name: 'x', testValue: 0 }],
+              formula: {
+                type: 'function',
+                name: '@toddle/add',
+                arguments: [
+                  {
+                    name: '0',
+                    formula: { type: 'path', path: ['Args', 'x'] },
+                  },
+                  { name: '1', formula: { type: 'value', value: 1 } },
+                ],
+              },
+            },
+          },
+        } as any,
+      })
+
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'apply',
+            name: 'addOne',
+            arguments: [{ name: 'x', formula: { type: 'value', value: 99 } }],
+          },
+          ctx,
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: 100,
+      })
+    })
+
+    test('returns isStatic: false if component formula is missing or dynamic', () => {
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'apply',
+            name: 'missing',
+            arguments: [],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: false,
+        result: undefined,
+      })
+
+      const ctxWithDynamic = {
+        component: {
+          name: 'MyComponent',
+          formulas: {
+            dynamicFormula: {
+              name: 'dynamicFormula',
+              formula: {
+                type: 'path',
+                path: ['Variables', 'myVar'],
+              },
+            },
+          },
+        } as any,
+      }
+
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'apply',
+            name: 'dynamicFormula',
+            arguments: [],
+          },
+          ctxWithDynamic,
+        ),
+      ).toEqual({
+        isStatic: false,
+        result: undefined,
+      })
+    })
+  })
+
+  describe('compressFormula', () => {
+    test('compresses a completely static formula to a value formula', () => {
+      const ctx = testCtxWithCoreFormulas()
+
+      const formula = {
+        type: 'function' as const,
+        name: '@toddle/add',
+        arguments: [
+          { name: '0', formula: { type: 'value' as const, value: 5 } },
+          { name: '1', formula: { type: 'value' as const, value: 7 } },
+        ],
+      }
+
+      expect(compressFormula(formula, ctx)).toEqual({
+        type: 'value',
+        value: 12,
+      })
+    })
+
+    test('compresses nested static subtrees within a dynamic parent formula', () => {
+      const ctx = testCtxWithCoreFormulas()
+
+      const formula = {
+        type: 'function' as const,
+        name: '@toddle/add',
+        arguments: [
+          {
+            name: '0',
+            formula: {
+              type: 'function' as const,
+              name: '@toddle/multiply',
+              arguments: [
+                { name: '0', formula: { type: 'value' as const, value: 3 } },
+                { name: '1', formula: { type: 'value' as const, value: 4 } },
+              ],
+            },
+          },
+          {
+            name: '1',
+            formula: {
+              type: 'path' as const,
+              path: ['Variables', 'count'],
+            },
+          },
+        ],
+      }
+
+      expect(compressFormula(formula, ctx)).toEqual({
+        type: 'function',
+        name: '@toddle/add',
+        arguments: [
+          {
+            name: '0',
+            formula: {
+              type: 'value',
+              value: 12,
+            },
+          },
+          {
+            name: '1',
+            formula: {
+              type: 'path',
+              path: ['Variables', 'count'],
+            },
+          },
+        ],
+      })
+    })
+
+    test('prunes dead branches and simplifies switch formulas', () => {
+      const ctx = testCtxWithCoreFormulas()
+
+      // Switch where first case is false and second case is dynamic
+      const switchWithDeadBranch = {
+        type: 'switch' as const,
+        cases: [
+          {
+            condition: { type: 'value' as const, value: false },
+            formula: { type: 'value' as const, value: 'never' },
+          },
+          {
+            condition: { type: 'path' as const, path: ['Variables', 'isTrue'] },
+            formula: {
+              type: 'function' as const,
+              name: '@toddle/add',
+              arguments: [
+                { name: '0', formula: { type: 'value' as const, value: 1 } },
+                { name: '1', formula: { type: 'value' as const, value: 2 } },
+              ],
+            },
+          },
+        ],
+        default: { type: 'value' as const, value: 'default' },
+      }
+
+      expect(compressFormula(switchWithDeadBranch, ctx)).toEqual({
+        type: 'switch',
+        cases: [
+          {
+            condition: { type: 'path', path: ['Variables', 'isTrue'] },
+            formula: { type: 'value', value: 3 },
+          },
+        ],
+        default: { type: 'value', value: 'default' },
+      })
+    })
+
+    test('collapses switch to taken branch if static true is encountered', () => {
+      const ctx = testCtxWithCoreFormulas()
+
+      const switchWithKnownBranch = {
+        type: 'switch' as const,
+        cases: [
+          {
+            condition: { type: 'value' as const, value: false },
+            formula: { type: 'value' as const, value: 'unreachable' },
+          },
+          {
+            condition: { type: 'value' as const, value: true },
+            formula: {
+              type: 'function' as const,
+              name: '@toddle/concatenate',
+              arguments: [
+                {
+                  name: '0',
+                  formula: { type: 'value' as const, value: 'hello ' },
+                },
+                {
+                  name: '1',
+                  formula: { type: 'value' as const, value: 'world' },
+                },
+              ],
+            },
+          },
+          {
+            condition: { type: 'path' as const, path: ['Variables', 'later'] },
+            formula: { type: 'value' as const, value: 'ignored' },
+          },
+        ],
+        default: { type: 'value' as const, value: 'default' },
+      }
+
+      expect(compressFormula(switchWithKnownBranch, ctx)).toEqual({
+        type: 'value',
+        value: 'hello world',
+      })
+    })
+
+    test('short-circuits and/or formulas with dynamic subformulas', () => {
+      const andFormula = {
+        type: 'and' as const,
+        arguments: [
+          { formula: { type: 'value' as const, value: false } },
+          { formula: { type: 'path' as const, path: ['Variables', 'test'] } },
+        ],
+      }
+
+      expect(compressFormula(andFormula, {})).toEqual({
+        type: 'value',
+        value: false,
+      })
+
+      const orFormula = {
+        type: 'or' as const,
+        arguments: [
+          { formula: { type: 'value' as const, value: true } },
+          { formula: { type: 'path' as const, path: ['Variables', 'test'] } },
+        ],
+      }
+
+      expect(compressFormula(orFormula, {})).toEqual({
+        type: 'value',
+        value: true,
       })
     })
   })

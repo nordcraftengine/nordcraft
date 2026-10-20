@@ -1,6 +1,6 @@
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import type { IssueRule, Level } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
+import { contextlessEvaluateFormula } from '@nordcraft/core/dist/formula/contextlessEvaluateFormula'
 
 /**
  * @param tag - The HTML tag of the element to check (e.g., 'img', 'a').
