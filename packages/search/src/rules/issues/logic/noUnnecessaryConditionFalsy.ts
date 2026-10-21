@@ -11,9 +11,13 @@ export const noUnnecessaryConditionFalsy: IssueRule<unknown, FormulaNode> = {
       return
     }
 
+    const component =
+      path[0] === 'components' ? files.components[path[1]] : undefined
+
     if (
       (value.arguments ?? []).some((arg) => {
         const { result, isStatic } = contextlessEvaluateFormula(arg.formula, {
+          component,
           formulas: files.formulas,
           packages: files.packages,
         })

@@ -16,6 +16,9 @@ export const noStaticSwitchCondition: IssueRule<
       return
     }
 
+    const component =
+      path[0] === 'components' ? files.components[path[1]] : undefined
+
     for (const [index, switchCase] of (value.cases ?? []).entries()) {
       if (!switchCase?.condition) {
         continue
@@ -24,6 +27,7 @@ export const noStaticSwitchCondition: IssueRule<
       const { result, isStatic } = contextlessEvaluateFormula(
         switchCase.condition,
         {
+          component,
           formulas: files.formulas,
           packages: files.packages,
         },

@@ -32,7 +32,11 @@ export const noStaticNodeCondition: IssueRule<
       return
     }
 
+    const component =
+      path[0] === 'components' ? files.components[path[1]] : undefined
+
     const { isStatic, result } = contextlessEvaluateFormula(value, {
+      component,
       formulas: files.formulas,
       packages: files.packages,
     })
