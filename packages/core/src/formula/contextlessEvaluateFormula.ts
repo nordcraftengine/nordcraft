@@ -223,7 +223,7 @@ export const createStaticFormulaContext = (
 
   return {
     formulaContext,
-    hasFailed: () => hasMissingFormula || errors.length > 0,
+    hasFailed: () => hasMissingFormula,
   }
 }
 
