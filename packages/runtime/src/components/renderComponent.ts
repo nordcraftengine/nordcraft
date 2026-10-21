@@ -1,3 +1,4 @@
+import '@nordcraft/core/dist/compileTime'
 import type {
   Component,
   ComponentAttribute,
@@ -55,7 +56,7 @@ interface RenderComponentProps {
   toddle: Toddle<LocationSignal, PreviewShowSignal>
   namespace?: SupportedNamespaces
   env: ToddleEnv
-  jsonPath: Array<string | number> | undefined
+  jsonPath?: Array<string | number> | undefined
   reportFormulaEvaluation?: FormulaEvaluationReporter
   slotRepeatIndex?: number
   slotSuffix?: string
@@ -63,31 +64,32 @@ interface RenderComponentProps {
 
 const BATCH_QUEUE = new BatchQueue()
 
-export function renderComponent({
-  component,
-  dataSignal,
-  onEvent,
-  isRootComponent,
-  path,
-  children,
-  formulaCache,
-  components,
-  apis,
-  abortSignal,
-  root,
-  providers,
-  package: packageName,
-  stores,
-  parentElement,
-  instance,
-  toddle,
-  namespace,
-  env,
-  jsonPath,
-  reportFormulaEvaluation,
-  slotRepeatIndex,
-  slotSuffix,
-}: RenderComponentProps): ReadonlyArray<Element | Text> {
+export function renderComponent(
+  props: RenderComponentProps,
+): ReadonlyArray<Element | Text> {
+  const {
+    component,
+    dataSignal,
+    onEvent,
+    isRootComponent,
+    path,
+    children,
+    formulaCache,
+    components,
+    apis,
+    abortSignal,
+    root,
+    providers,
+    package: packageName,
+    stores,
+    parentElement,
+    instance,
+    toddle,
+    namespace,
+    env,
+    slotRepeatIndex,
+    slotSuffix,
+  } = props
   const stopMeasure = isMeasureEnabled()
     ? measure(
         `Render component: ${component.name}`,
@@ -114,8 +116,12 @@ export function renderComponent({
     package: packageName,
     toddle,
     env,
-    jsonPath,
-    reportFormulaEvaluation,
+    ...(IS_PREVIEW
+      ? {
+          jsonPath: props.jsonPath,
+          reportFormulaEvaluation: props.reportFormulaEvaluation,
+        }
+      : {}),
   }
 
   const rootElem = createNode({
@@ -123,7 +129,7 @@ export function renderComponent({
     path,
     dataSignal,
     ctx:
-      ctx.reportFormulaEvaluation || ctx.jsonPath
+      IS_PREVIEW && (ctx.reportFormulaEvaluation || ctx.jsonPath)
         ? { ...ctx, jsonPath: ['nodes', 'root'] }
         : ctx,
     parentElement,

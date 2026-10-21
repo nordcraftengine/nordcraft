@@ -1,3 +1,4 @@
+import '@nordcraft/core/dist/compileTime'
 import type {
   ComponentData,
   ElementNodeModel,
@@ -29,6 +30,12 @@ import { setAttribute } from '../utils/setAttribute'
 import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
+
+// Cache class names by node definition object. Repeat items share the same
+// node reference, so this avoids re-stringifying/hashing identical style
+// objects hundreds of times per list render. WeakMap entries are collected
+// when cloned page components are discarded.
+const classNameByNode = new WeakMap<object, string>()
 
 export function createElement({
   node,
@@ -64,7 +71,11 @@ export function createElement({
   const initialClasses: string[] = []
 
   // This is editor only logic and we should move out of the runtime bundle when possible
-  if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
+  if (
+    IS_PREVIEW &&
+    ctx.env?.runtime === 'preview' &&
+    isDefined(ctx.component?.nodes)
+  ) {
     let slotName: string | undefined | null
     let hasSlotElements = false
 
@@ -121,8 +132,14 @@ export function createElement({
     elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
   }
   // class names are baked during preprocessing, except for in editor-preview where we generate them on the fly
-  if (node.style || node.variants?.some((v) => v.style)) {
+  // Check the per-node cache first to avoid the `variants.some(...)` closure
+  // + JSON.stringify on every repeat instance (200x per list).
+  const cachedClass = classNameByNode.get(node)
+  if (cachedClass !== undefined) {
+    initialClasses.push(cachedClass)
+  } else if (node.style || node.variants?.some((v) => v.style)) {
     const classHash = getClassName([node.style, node.variants])
+    classNameByNode.set(node, classHash)
     initialClasses.push(classHash)
   }
   if (node.classes) {
@@ -159,51 +176,49 @@ export function createElement({
     if (!isDefined(value)) {
       continue
     }
-    let o: Signal<any> | undefined
-    const setupAttribute = () => {
-      if (value.type === 'value') {
-        setAttribute(elem, attr, value?.value)
-      } else {
-        const attrPath = ctx.reportFormulaEvaluation
+    const previewHandledAutofocus =
+      IS_PREVIEW && attr === 'autofocus'
+        ? (ctx.toddle._preview?.handleAutofocus?.({
+            elem,
+            attr,
+            value,
+            dataSignal,
+            id,
+            ctx,
+          }),
+          true)
+        : false
+    if (previewHandledAutofocus) {
+      continue
+    }
+    if (value.type === 'value') {
+      setAttribute(elem, attr, value?.value)
+    } else {
+      const attrPath =
+        IS_PREVIEW && ctx.reportFormulaEvaluation
           ? ['nodes', id, 'attrs', attr]
           : undefined
-        o = dataSignal.map((data) => {
-          const val = applyFormula(value, ctx, data, attrPath)
-          if (attrPath) {
-            ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
-          }
-          return val
-        })
-        o.subscribe((val) => {
-          setAttribute(elem, attr, val)
-        })
-      }
-    }
-    if (
-      attr === 'autofocus' &&
-      ctx.env.runtime === 'preview' &&
-      ctx.toddle._preview
-    ) {
-      ctx.toddle._preview.showSignal.subscribe(({ testMode }) => {
-        if (testMode) {
-          setupAttribute()
-        } else {
-          o?.destroy()
-          elem.removeAttribute(attr)
+      const o = dataSignal.map((data) => {
+        const val = applyFormula(value, ctx, data, attrPath)
+        if (IS_PREVIEW && attrPath) {
+          ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
         }
+        return val
       })
-    } else {
-      setupAttribute()
+      o.subscribe((val) => {
+        setAttribute(elem, attr, val)
+      })
     }
   }
   node['style-variables']?.forEach((styleVariable, i) => {
     const { name, formula, unit } = styleVariable
-    const styleVarPath = ctx.reportFormulaEvaluation
-      ? ['nodes', id, 'style-variables', i, 'formula']
-      : undefined
+    const styleVarPath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['nodes', id, 'style-variables', i, 'formula']
+        : undefined
     const signal = dataSignal.map((data) => {
       const value = applyFormula(formula, ctx, data, styleVarPath)
-      if (styleVarPath) {
+      if (IS_PREVIEW && styleVarPath) {
         ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
       }
       return unit ? value + unit : value
@@ -220,21 +235,20 @@ export function createElement({
       continue
     }
     hasDynamicCustomProperties = true
-    const cpPath = ctx.reportFormulaEvaluation
-      ? ['nodes', id, 'customProperties', customPropertyName, 'formula']
-      : undefined
+    const cpPath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['nodes', id, 'customProperties', customPropertyName, 'formula']
+        : undefined
     const nodeSelector = getNodeSelector(path)
     subscribeCustomProperty({
       customPropertyName,
       selector:
-        ctx.env.runtime === 'custom-element' &&
-        ctx.isRootComponent &&
-        path === '0'
+        IS_CUSTOM_ELEMENT && ctx.isRootComponent && path === '0'
           ? `${nodeSelector}, :host`
           : nodeSelector,
       signal: dataSignal.map((data) => {
         const val = applyFormula(formula, ctx, data, cpPath)
-        if (cpPath) {
+        if (IS_PREVIEW && cpPath) {
           ctx.reportFormulaEvaluation?.(cpPath, val, ctx)
         }
         return appendUnit(val, unit)
@@ -254,17 +268,18 @@ export function createElement({
         continue
       }
       hasDynamicCustomProperties = true
-      const variantCpPath = ctx.reportFormulaEvaluation
-        ? [
-            'nodes',
-            id,
-            'variants',
-            variantIndex,
-            'customProperties',
-            customPropertyName,
-            'formula',
-          ]
-        : undefined
+      const variantCpPath =
+        IS_PREVIEW && ctx.reportFormulaEvaluation
+          ? [
+              'nodes',
+              id,
+              'variants',
+              variantIndex,
+              'customProperties',
+              customPropertyName,
+              'formula',
+            ]
+          : undefined
       subscribeCustomProperty({
         customPropertyName,
         selector: getNodeSelector(path, {
@@ -273,7 +288,7 @@ export function createElement({
         variant,
         signal: dataSignal.map((data) => {
           const val = applyFormula(formula, ctx, data, variantCpPath)
-          if (variantCpPath) {
+          if (IS_PREVIEW && variantCpPath) {
             ctx.reportFormulaEvaluation?.(variantCpPath, val, ctx)
           }
           return appendUnit(val, unit)
@@ -342,28 +357,32 @@ export function createElement({
       })
   } else {
     const childNodes: (Element | Text)[] = []
-    ;(node.children ?? []).forEach((child, i) => {
-      childNodes.push(
-        ...createNode({
-          parentElement: elem,
-          id: child,
-          path: path + '.' + i,
-          dataSignal,
-          ctx: { ...ctx, jsonPath: ['nodes', child] },
-          namespace,
-          instance,
-          slotRepeatIndex,
-          slotSuffix,
-        }),
-      )
-    })
+    const children = node.children ?? []
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i]!
+      const nodes = createNode({
+        parentElement: elem,
+        id: child,
+        path: path + '.' + i,
+        dataSignal,
+        ctx:
+          IS_PREVIEW && ctx.reportFormulaEvaluation
+            ? { ...ctx, jsonPath: ['nodes', child] }
+            : ctx,
+        namespace,
+        instance,
+        slotRepeatIndex,
+        slotSuffix,
+      })
+      for (let j = 0; j < nodes.length; j++) {
+        childNodes.push(nodes[j]!)
+      }
+    }
     elem.append(...childNodes)
   }
-  dataSignal.subscribe(() => {}, {
-    destroy: () => {
-      // TODO: Clean up event listeners, but after destruction of child signals (Maybe we need a "afterDestroy" hook on signals?)
-      elem.parentNode?.removeChild(elem)
-    },
+  dataSignal.subscriptions.push(() => {
+    // TODO: Clean up event listeners, but after destruction of child signals (Maybe we need a "afterDestroy" hook on signals?)
+    elem.parentNode?.removeChild(elem)
   })
 
   return elem

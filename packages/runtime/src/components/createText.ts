@@ -1,3 +1,4 @@
+import '@nordcraft/core/dist/compileTime'
 import type {
   ComponentData,
   SupportedNamespaces,
@@ -48,7 +49,11 @@ export function createText({
   const elem = document.createElement('span')
 
   // This is editor only logic and we should move out of the runtime bundle when possible
-  if (ctx.env?.runtime === 'preview' && isDefined(ctx.component?.nodes)) {
+  if (
+    IS_PREVIEW &&
+    ctx.env?.runtime === 'preview' &&
+    isDefined(ctx.component?.nodes)
+  ) {
     let slotName: string | undefined | null
 
     for (const node of Object.values(ctx.component.nodes)) {
@@ -78,7 +83,8 @@ export function createText({
   }
   elem.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
   if (value.type !== 'value') {
-    const valuePath = ctx.reportFormulaEvaluation ? ['value'] : undefined
+    const valuePath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
     const sig = dataSignal.map((data) =>
       String(applyFormula(value, ctx, data, valuePath)),
     )
@@ -86,11 +92,13 @@ export function createText({
       elem.innerText = value
     })
   } else {
-    ctx.reportFormulaEvaluation?.(
-      [...(ctx.jsonPath ?? []), 'value'],
-      value.value,
-      ctx,
-    )
+    if (IS_PREVIEW) {
+      ctx.reportFormulaEvaluation?.(
+        [...(ctx.jsonPath ?? []), 'value'],
+        value.value,
+        ctx,
+      )
+    }
     elem.innerText = String(value.value)
   }
   return elem
@@ -108,7 +116,8 @@ export function createTextNS({
   const { value } = node
   const textNode = document.createTextNode('')
   if (value.type !== 'value') {
-    const valuePathNS = ctx.reportFormulaEvaluation ? ['value'] : undefined
+    const valuePathNS =
+      IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
     const sig = dataSignal.map((data) =>
       String(applyFormula(value, ctx, data, valuePathNS)),
     )

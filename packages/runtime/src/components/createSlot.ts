@@ -1,3 +1,4 @@
+import '@nordcraft/core/dist/compileTime'
 import type {
   Component,
   NodeModel,
@@ -56,7 +57,7 @@ export function createSlot({
         ctx: {
           ...child.ctx,
           providers: ctx.providers,
-          jsonPath: ['nodes', child.id],
+          ...(IS_PREVIEW ? { jsonPath: ['nodes', child.id] } : {}),
         },
         instance,
         namespace,
@@ -72,7 +73,10 @@ export function createSlot({
         id: child,
         path: slotPath + '.' + i,
         dataSignal,
-        ctx: { ...ctx, jsonPath: ['nodes', child] },
+        ctx:
+          IS_PREVIEW && (ctx.reportFormulaEvaluation || ctx.jsonPath)
+            ? { ...ctx, jsonPath: ['nodes', child] }
+            : ctx,
         parentElement,
         instance,
         namespace,
@@ -80,7 +84,7 @@ export function createSlot({
         slotSuffix,
       })
     })
-    if (ctx.env?.runtime === 'preview') {
+    if (IS_PREVIEW && ctx.env?.runtime === 'preview') {
       for (const child of children) {
         if (!(child instanceof Element)) {
           continue
@@ -114,7 +118,8 @@ export function createSlot({
     }
   }
 
-  if (ctx.env.runtime === 'custom-element' && ctx.isRootComponent) {
+  // Register native slot for web components
+  if (IS_CUSTOM_ELEMENT && ctx.isRootComponent) {
     const webComponentSlot = document.createElement('slot')
     webComponentSlot.setAttribute('name', slotName)
     children.forEach((child) => {

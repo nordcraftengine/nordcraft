@@ -1,3 +1,4 @@
+import '../compileTime'
 import type { ComponentData } from '../component/component.types'
 import { toBoolean } from '../utils/util'
 import { applyFormula, type AndOperation, type FormulaContext } from './formula'
@@ -8,23 +9,21 @@ export const applyAndFormula = (
   data: ComponentData | undefined,
 ) => {
   const args = formula.arguments ?? []
-  if (ctx.reportFormulaEvaluation) {
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i]
-      if (
-        !toBoolean(
-          applyFormula(arg?.formula, ctx, data, ['arguments', i, 'formula']),
-        )
-      ) {
-        return false
-      }
-    }
-  } else {
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i]
-      if (!toBoolean(applyFormula(arg?.formula, ctx, data))) {
-        return false
-      }
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]
+    if (
+      !toBoolean(
+        applyFormula(
+          arg?.formula,
+          ctx,
+          data,
+          IS_PREVIEW && ctx.reportFormulaEvaluation
+            ? ['arguments', i, 'formula']
+            : undefined,
+        ),
+      )
+    ) {
+      return false
     }
   }
   return true
