@@ -262,6 +262,7 @@ const createFormulaCase = (): BenchmarkRunner => {
       req: new Request('http://localhost/benchmark'),
     }),
   }
+  // Backward compatibility for when "data" was passed through the context object
   ;(ctx as any).data = data
 
   return async () => {
