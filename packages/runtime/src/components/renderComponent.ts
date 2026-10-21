@@ -1,11 +1,12 @@
 import type {
   Component,
+  ComponentAttribute,
   ComponentData,
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
-import type { Toddle } from '@nordcraft/core/dist/types'
+import type { Nullable, Toddle } from '@nordcraft/core/dist/types'
 import {
   isMeasureEnabled,
   measure,
@@ -141,36 +142,26 @@ export function renderComponent({
         dataSignal
           .map((data) => data.Attributes)
           .subscribe((props) => {
-            if (prev) {
-              component.onAttributeChange?.actions?.forEach((action) => {
-                void handleAction(
-                  action,
-                  dataSignal.get(),
-                  ctx,
-                  new CustomEvent('attribute-change', {
-                    detail: Object.entries(props ?? {}).reduce(
-                      (
-                        changes: Record<string, { current: any; new: any }>,
-                        [key, value],
-                      ) => {
-                        if (
-                          fastDeepEqual(value, prev![key]) === false &&
-                          component.attributes?.[key]?.name
-                        ) {
-                          changes[component.attributes?.[key]?.name] = {
-                            current: prev![key],
-                            new: value,
-                          }
-                        }
-                        return changes
-                      },
-                      {},
-                    ),
-                  }),
-                )
-              })
+            const previous = prev
+            prev = props // always update, regardless of early returns below
+
+            if (!previous) return
+
+            const actions = component.onAttributeChange?.actions
+            if (!actions?.length) return
+
+            const event = new CustomEvent('attribute-change', {
+              detail: getAttributeChanges(
+                component.attributes,
+                previous,
+                props,
+              ),
+            })
+            const data = dataSignal.get()
+
+            for (const action of actions) {
+              void handleAction(action, data, ctx, event)
             }
-            prev = props
           })
       }
       if (hasOnLoadActions) {
@@ -182,4 +173,29 @@ export function renderComponent({
   }
   stopMeasure()
   return rootElem
+}
+
+type AttributeChanges = Record<string, { current: any; new: any }>
+
+function getAttributeChanges(
+  attributes: Nullable<Record<string, Nullable<ComponentAttribute>>>,
+  previous: Record<string, unknown>,
+  next: Record<string, unknown> | null | undefined,
+): AttributeChanges {
+  const changes: AttributeChanges = {}
+  if (!attributes || !next) return changes
+
+  for (const key of Object.keys(next)) {
+    // Cheap lookup first, so we skip the deep-equal for unmapped attributes
+    const name = attributes[key]?.name
+    if (!name) continue
+
+    const current = previous[key]
+    const value = next[key]
+    if (!fastDeepEqual(current, value)) {
+      changes[name] = { current, new: value }
+    }
+  }
+
+  return changes
 }
