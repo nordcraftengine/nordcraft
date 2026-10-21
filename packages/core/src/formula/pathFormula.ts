@@ -3,7 +3,7 @@ import type { PathOperation } from './formula'
 
 export const applyPathFormula = (
   formula: PathOperation,
-  data: ComponentData,
+  data: ComponentData | undefined,
 ) => {
   let input: any = data
   const path = formula.path

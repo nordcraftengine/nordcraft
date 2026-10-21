@@ -5,7 +5,7 @@ import { applyFormula, type FormulaContext, type OrOperation } from './formula'
 export const applyOrFormula = (
   formula: OrOperation,
   ctx: FormulaContext,
-  data: ComponentData,
+  data: ComponentData | undefined,
 ) => {
   const args = formula.arguments ?? []
   if (ctx.reportFormulaEvaluation) {
@@ -33,7 +33,7 @@ export const applyOrFormula = (
 export const applyEvaluateAllOrFormula = (
   formula: OrOperation,
   ctx: FormulaContext,
-  data: ComponentData,
+  data: ComponentData | undefined,
 ) => {
   let orResult = false
   for (let i = 0; i < (formula.arguments ?? []).length; i++) {

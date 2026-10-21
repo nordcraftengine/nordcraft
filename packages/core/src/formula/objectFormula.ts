@@ -8,7 +8,7 @@ import {
 export const applyObjectFormula = (
   formula: ObjectOperation,
   ctx: FormulaContext,
-  data: ComponentData,
+  data: ComponentData | undefined,
 ) => {
   const args = formula.arguments ?? []
   const result: Record<string, unknown> = {}

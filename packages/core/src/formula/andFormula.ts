@@ -5,7 +5,7 @@ import { applyFormula, type AndOperation, type FormulaContext } from './formula'
 export const applyAndFormula = (
   formula: AndOperation,
   ctx: FormulaContext,
-  data: ComponentData,
+  data: ComponentData | undefined,
 ) => {
   const args = formula.arguments ?? []
   if (ctx.reportFormulaEvaluation) {
@@ -33,7 +33,7 @@ export const applyAndFormula = (
 export const applyEvaluateAllAndFormula = (
   formula: AndOperation,
   ctx: FormulaContext,
-  data: ComponentData,
+  data: ComponentData | undefined,
 ) => {
   let andResult = true
   if (!formula.arguments || formula.arguments.length === 0) {

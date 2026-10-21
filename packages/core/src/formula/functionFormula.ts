@@ -13,7 +13,7 @@ import {
 export const applyFunctionFormula = (
   formula: FunctionOperation,
   ctx: FormulaContext,
-  data: ComponentData,
+  data: ComponentData | undefined,
 ) => {
   const stopMeasure = isMeasureEnabled()
     ? measure(`Formula: ${formula.name}`, {
@@ -41,7 +41,7 @@ export const applyFunctionFormula = (
               activeCtx,
               {
                 ...data,
-                Args: data.Args
+                Args: data?.Args
                   ? { ...Args, '@toddle.parent': data.Args }
                   : Args,
               },
@@ -95,7 +95,7 @@ export const applyFunctionFormula = (
                 activeCtx,
                 {
                   ...data,
-                  Args: data.Args
+                  Args: data?.Args
                     ? { ...Args, '@toddle.parent': data.Args }
                     : Args,
                 },

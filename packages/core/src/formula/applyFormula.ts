@@ -10,7 +10,7 @@ import {
 export const applyApplyFormula = (
   formula: ApplyOperation,
   ctx: FormulaContext,
-  data: ComponentData,
+  data: ComponentData | undefined,
 ) => {
   const componentFormula = ctx.component?.formulas?.[formula.name]
   if (!componentFormula) {
@@ -42,7 +42,7 @@ export const applyApplyFormula = (
           ctx,
           {
             ...data,
-            Args: data.Args ? { ...Args, '@toddle.parent': data.Args } : Args,
+            Args: data?.Args ? { ...Args, '@toddle.parent': data.Args } : Args,
           },
           shouldReport ? ['arguments', argIndex] : undefined,
         )
@@ -57,7 +57,7 @@ export const applyApplyFormula = (
   }
   const nextData = {
     ...data,
-    Args: data.Args ? { ...Input, '@toddle.parent': data.Args } : Input,
+    Args: data?.Args ? { ...Input, '@toddle.parent': data.Args } : Input,
   }
   const cache = ctx.formulaCache?.[formula.name]?.get(nextData)
 

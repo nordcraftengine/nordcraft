@@ -9,7 +9,7 @@ import {
 export const applySwitchFormula = (
   formula: SwitchOperation,
   ctx: FormulaContext,
-  data: ComponentData,
+  data: ComponentData | undefined,
 ) => {
   // Evaluates cases until one matches
   const cases = formula.cases ?? []
@@ -46,7 +46,7 @@ export const applySwitchFormula = (
 export const applyEvaluateAllSwitchFormula = (
   formula: SwitchOperation,
   ctx: FormulaContext,
-  data: ComponentData,
+  data: ComponentData | undefined,
 ) => {
   // Evaluate all cases and the default, but only returns the first matching case or the default
   let switchResult: { match: true; value: any } | null = null

@@ -8,7 +8,7 @@ import {
 export const applyArrayFormula = (
   formula: ArrayOperation,
   ctx: FormulaContext,
-  data: ComponentData,
+  data: ComponentData | undefined,
 ) => {
   const args = formula.arguments ?? []
   const len = args.length
