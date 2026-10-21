@@ -18,7 +18,7 @@ describe('applyArrayFormula', () => {
       ],
     }
     const ctx = createTestFormulaContext()
-    expect(applyArrayFormula(formula, ctx)).toEqual([1, 'hello', true])
+    expect(applyArrayFormula(formula, ctx, {})).toEqual([1, 'hello', true])
   })
 
   it('returns an empty array if arguments is empty', () => {
@@ -27,7 +27,7 @@ describe('applyArrayFormula', () => {
       arguments: [],
     }
     const ctx = createTestFormulaContext()
-    expect(applyArrayFormula(formula, ctx)).toEqual([])
+    expect(applyArrayFormula(formula, ctx, {})).toEqual([])
   })
 
   it('evaluates all formulas and reports results in "report" mode', () => {
@@ -40,10 +40,9 @@ describe('applyArrayFormula', () => {
     }
     const results: Record<string, any> = {}
     const ctx = createTestFormulaContextForAllPaths(
-      {},
       (path, result) => (results[path.join('/')] = result),
     )
-    expect(applyArrayFormula(formula, ctx)).toEqual(['foo', 'bar'])
+    expect(applyArrayFormula(formula, ctx, {})).toEqual(['foo', 'bar'])
     expect(results).toMatchObject({
       'arguments/0/formula': 'foo',
       'arguments/1/formula': 'bar',

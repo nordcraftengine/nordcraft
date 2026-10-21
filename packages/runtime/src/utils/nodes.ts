@@ -64,9 +64,6 @@ export const isNodeOrAncestorConditional = (
   nodeLookup?.node?.condition !== undefined ||
   nodeLookup?.ancestors.some((a) => a.condition !== undefined) === true
 
-const getRepeatIndex = (part?: string) =>
-  part?.includes('(') ? parseInt(part.split('(')[1], 10) : 0
-
 /**
  * @returns The next sibling element or null if this is the last element. A nc sibling is a sibling with a higher index or the same index but a higher repeat index.
  */
@@ -74,24 +71,40 @@ export const getNextSiblingElement = (
   path: string,
   parentElement: Element | ShadowRoot,
 ) => {
-  const pathParts = path.split('.')
-  const lastPathPart = pathParts.slice(-1)[0]
-  const index = parseInt(lastPathPart, 10)
-  const repeatIndex = getRepeatIndex(lastPathPart)
+  const lastDot = path.lastIndexOf('.')
+  const lastPathPart = lastDot === -1 ? path : path.slice(lastDot + 1)
+  const parenIndex = lastPathPart.indexOf('(')
+  const index =
+    parenIndex === -1
+      ? parseInt(lastPathPart, 10)
+      : parseInt(lastPathPart.slice(0, parenIndex), 10)
+  const repeatIndex =
+    parenIndex === -1 ? 0 : parseInt(lastPathPart.slice(parenIndex + 1), 10)
 
-  // Find the first child that either has a higher index or a similar index, but higher repeat index
-  for (const child of parentElement.children) {
+  const children = parentElement.children
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]!
     const childPath = child.getAttribute('data-id')
-    const lastChildPathPart = childPath?.split('.').slice(-1)[0]
-    const childIndex = parseInt(String(lastChildPathPart), 10)
-    if (
-      childIndex === index &&
-      getRepeatIndex(lastChildPathPart) > repeatIndex
-    ) {
-      return child
+    if (childPath === null) {
+      continue
     }
-
-    if (childIndex > index) {
+    const childLastDot = childPath.lastIndexOf('.')
+    const lastChildPathPart =
+      childLastDot === -1 ? childPath : childPath.slice(childLastDot + 1)
+    const childParenIndex = lastChildPathPart.indexOf('(')
+    const childIndex =
+      childParenIndex === -1
+        ? parseInt(lastChildPathPart, 10)
+        : parseInt(lastChildPathPart.slice(0, childParenIndex), 10)
+    if (childIndex === index) {
+      const childRepeatIndex =
+        childParenIndex === -1
+          ? 0
+          : parseInt(lastChildPathPart.slice(childParenIndex + 1), 10)
+      if (childRepeatIndex > repeatIndex) {
+        return child
+      }
+    } else if (childIndex > index) {
       return child
     }
   }

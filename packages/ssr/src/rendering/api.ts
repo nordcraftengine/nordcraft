@@ -3,7 +3,10 @@ import type {
   ComponentAPI,
   LegacyApiStatus,
 } from '@nordcraft/core/dist/api/apiTypes'
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type {
+  Component,
+  ComponentData,
+} from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import type { Nullable } from '@nordcraft/core/dist/types'
@@ -16,6 +19,7 @@ export type ApiCache = Record<string, ApiStatus>
 export type ApiEvaluator = (args: {
   component: Component
   formulaContext: FormulaContext
+  data: ComponentData
   req: Request
   apiCache: ApiCache
   updateApiCache: (key: string, value: ApiStatus) => void

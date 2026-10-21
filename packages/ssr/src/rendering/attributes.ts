@@ -1,12 +1,8 @@
 import type {
-  Component,
   ComponentData,
   ElementNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
-import type {
-  FormulaContext,
-  ToddleEnv,
-} from '@nordcraft/core/dist/formula/formula'
+import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 
@@ -46,29 +42,17 @@ export const toEncodedText = (str: string) => {
 
 export function getNodeAttrs({
   node,
+  formulaContext,
   data,
-  component,
-  packageName,
-  env,
-  toddle,
 }: {
   node: Pick<ElementNodeModel, 'attrs' | 'style-variables'>
+  formulaContext: FormulaContext
   data: ComponentData
-  component: Component
-  packageName: string | undefined
-  env: ToddleEnv
-  toddle: FormulaContext['toddle']
 }) {
   const { style, ...restAttrs } = node.attrs ?? {}
   const nodeAttrs = Object.entries(restAttrs).reduce<string[]>(
     (appliedAttributes, [name, attrValue]) => {
-      const value = applyFormula(attrValue, {
-        data,
-        component,
-        package: packageName,
-        env,
-        toddle,
-      })
+      const value = applyFormula(attrValue, formulaContext, data)
       if (toBoolean(value)) {
         appliedAttributes.push(`${name}="${escapeAttrValue(value)}"`)
       }
@@ -79,32 +63,15 @@ export function getNodeAttrs({
   const styleVariables = Object.values(node['style-variables'] ?? {}).map(
     (styleVariable) => {
       return `--${styleVariable.name}: ${
-        String(
-          applyFormula(styleVariable.formula, {
-            data,
-            component,
-            package: packageName,
-            env,
-            toddle,
-          }),
-        ) + (styleVariable.unit ?? '')
+        String(applyFormula(styleVariable.formula, formulaContext, data)) +
+        (styleVariable.unit ?? '')
       }`
     },
   )
 
   // Handle the style-attribute independently to merge with style variables
   const styles = [
-    ...(style
-      ? [
-          applyFormula(style, {
-            data,
-            component,
-            package: packageName,
-            env,
-            toddle,
-          }),
-        ]
-      : []),
+    ...(style ? [applyFormula(style, formulaContext, data)] : []),
     ...styleVariables,
   ]
     .filter(Boolean)

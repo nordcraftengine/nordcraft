@@ -17,7 +17,10 @@ import type {
   PageComponent,
 } from '../packages/core/dist/component/component.types'
 import { isPageComponent } from '../packages/core/dist/component/isPageComponent'
-import type { FormulaContext } from '../packages/core/dist/formula/formula'
+import type {
+  FormulaContext,
+  ToddleServerEnv,
+} from '../packages/core/dist/formula/formula'
 import {
   applyFormula,
   type Formula,
@@ -247,7 +250,6 @@ const createFormulaCase = (): BenchmarkRunner => {
   const ctx: FormulaContext = {
     component: undefined,
     formulaCache: {},
-    data,
     package: undefined,
     toddle: {
       getFormula: () => undefined,
@@ -260,13 +262,15 @@ const createFormulaCase = (): BenchmarkRunner => {
       req: new Request('http://localhost/benchmark'),
     }),
   }
+  // Backward compatibility for when "data" was passed through the context object
+  ;(ctx as any).data = data
 
   return async () => {
     let sum = 0
     for (let i = 0; i < 3_000; i++) {
       const index = i % data.values.length
       data.values[0] = data.values[index]
-      const result = applyFormula(formula, ctx)
+      const result = applyFormula(formula, ctx, data as any)
       if (result?.renderInfo?.canRender) {
         sum += result.meta?.id ?? 0
       }
@@ -276,6 +280,28 @@ const createFormulaCase = (): BenchmarkRunner => {
       throw new Error('Unexpected benchmark guard')
     }
   }
+}
+
+const resolvePageFormulaContext = (
+  result: ReturnType<typeof getPageFormulaContext>,
+): {
+  formulaContext: FormulaContext & { env: ToddleServerEnv }
+  data: ComponentData
+} => {
+  if (isRecord(result) && 'formulaContext' in result) {
+    const formulaContext = result.formulaContext as FormulaContext & {
+      env: ToddleServerEnv
+    }
+    const data = result.data as ComponentData
+    ;(formulaContext as any).data = data
+    return { formulaContext, data }
+  }
+
+  const formulaContext = result as unknown as FormulaContext & {
+    env: ToddleServerEnv
+    data: ComponentData
+  }
+  return { formulaContext, data: formulaContext.data }
 }
 
 const createCollectionsHotPathRenderCase =
@@ -302,15 +328,17 @@ const createCollectionsHotPathRenderCase =
     const req = new Request('http://localhost/benchmark')
 
     return async () => {
-      const formulaContext = getPageFormulaContext({
-        component: pageComponent,
-        branchName: 'main',
-        req,
-        logErrors: false,
-        files,
-      })
-      formulaContext.data.Variables = {
-        ...formulaContext.data.Variables,
+      const { formulaContext, data } = resolvePageFormulaContext(
+        getPageFormulaContext({
+          component: pageComponent,
+          branchName: 'main',
+          req,
+          logErrors: false,
+          files,
+        }),
+      )
+      data.Variables = {
+        ...data.Variables,
         items,
       }
 
@@ -320,6 +348,7 @@ const createCollectionsHotPathRenderCase =
         evaluateComponentApis: async () => ({}),
         files,
         formulaContext,
+        data,
         includedComponents,
         req,
         projectId: 'benchmark-project',
@@ -350,13 +379,15 @@ const createProjectRenderCase = async (): Promise<BenchmarkRunner> => {
   })
 
   return async () => {
-    const formulaContext = getPageFormulaContext({
-      component: pageComponent,
-      branchName: 'main',
-      req,
-      logErrors: false,
-      files,
-    })
+    const { formulaContext, data } = resolvePageFormulaContext(
+      getPageFormulaContext({
+        component: pageComponent,
+        branchName: 'main',
+        req,
+        logErrors: false,
+        files,
+      }),
+    )
 
     const result = await renderPageBody({
       component: pageComponent,
@@ -364,6 +395,7 @@ const createProjectRenderCase = async (): Promise<BenchmarkRunner> => {
       evaluateComponentApis: async () => ({}),
       files,
       formulaContext,
+      data,
       includedComponents,
       req,
       projectId: 'nordcraft',

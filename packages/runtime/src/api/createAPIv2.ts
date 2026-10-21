@@ -20,10 +20,7 @@ import {
   mapHeadersToObject,
 } from '@nordcraft/core/dist/api/headers'
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
-import type {
-  Formula,
-  FormulaContext,
-} from '@nordcraft/core/dist/formula/formula'
+import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { NestedOmit, Nullable } from '@nordcraft/core/dist/types'
 import {
@@ -39,7 +36,6 @@ import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
-import { createFormulaContext } from '../utils/createFormulaContext'
 import { ApiAbortHandler } from './apiUtils'
 
 /**
@@ -72,7 +68,8 @@ export function createAPI({
 
     const request = createApiRequest({
       api,
-      formulaContext: getFormulaContext(api, componentData),
+      formulaContext: ctx,
+      data: getApiData(api, componentData),
       baseUrl,
     })
     return {
@@ -91,55 +88,45 @@ export function createAPI({
     }
   }
 
-  // Create the formula context for the api
-  function getFormulaContext(
+  // Get evaluated input data for the api
+  function getApiData(
     api: ApiRequest,
     componentData: ComponentData | undefined,
-  ): FormulaContext {
-    // Use the general formula context to evaluate the arguments of the api
-    const formulaContext: FormulaContext = createFormulaContext(
-      ctx,
-      ctx.dataSignal.get(),
-    )
+  ): ComponentData {
+    const baseData = componentData ?? ctx.dataSignal.get()
 
     // Make sure inputs are also available in the formula context
     const evaluatedInputs = Object.entries(api.inputs).reduce<
       Record<string, unknown>
     >((acc, [key, value]) => {
-      acc[key] = applyFormula(value.formula, formulaContext, ['inputs', key])
+      acc[key] = applyFormula(value.formula, ctx, baseData, ['inputs', key])
       return acc
     }, {})
 
-    const data = {
-      ...componentData,
-      ...formulaContext.data,
+    return {
+      ...baseData,
       ApiInputs: {
         ...evaluatedInputs,
       },
     }
-
-    return createFormulaContext(ctx, data)
   }
 
   function handleRedirectRules(api: ApiRequest, componentData: ComponentData) {
+    const apiData = getApiData(api, componentData)
     for (const [ruleName, rule] of sortObjectEntries(
       api.redirectRules ?? {},
       ([_, rule]) => rule.index,
     )) {
-      const formulaContext = getFormulaContext(api, componentData)
-      const location = applyFormula(
-        rule.formula,
-        {
-          ...formulaContext,
-          data: {
-            ...formulaContext.data,
-            Apis: {
-              [api.name]: ctx.dataSignal.get().Apis?.[api.name] as ApiStatus,
-            },
-          },
+      const ruleData: ComponentData = {
+        ...apiData,
+        Apis: {
+          [api.name]: ctx.dataSignal.get().Apis?.[api.name] as ApiStatus,
         },
-        ['redirectRules', ruleName],
-      )
+      }
+      const location = applyFormula(rule.formula, ctx, ruleData, [
+        'redirectRules',
+        ruleName,
+      ])
       if (typeof location === 'string') {
         const url = validateUrl({
           path: location,
@@ -185,7 +172,7 @@ export function createAPI({
           handleAction(
             action,
             {
-              ...getFormulaContext(api, componentData).data,
+              ...getApiData(api, componentData),
               Event: event,
             },
             ctx,
@@ -201,7 +188,7 @@ export function createAPI({
           handleAction(
             action,
             {
-              ...getFormulaContext(api, componentData).data,
+              ...getApiData(api, componentData),
               Event: event,
             },
             ctx,
@@ -220,7 +207,7 @@ export function createAPI({
           handleAction(
             action,
             {
-              ...getFormulaContext(api, componentData).data,
+              ...getApiData(api, componentData),
               Event: event,
             },
             ctx,
@@ -437,12 +424,13 @@ export function createAPI({
       let response
 
       try {
+        const apiData = getApiData(api, componentData)
         const proxy = api.server?.proxy
-          ? (applyFormula(
-              api.server.proxy.enabled.formula,
-              getFormulaContext(api, componentData),
-              ['server', 'proxy', 'enabled'],
-            ) ?? false)
+          ? (applyFormula(api.server.proxy.enabled.formula, ctx, apiData, [
+              'server',
+              'proxy',
+              'enabled',
+            ]) ?? false)
           : false
 
         // Ensure we can cancel the request
@@ -463,7 +451,8 @@ export function createAPI({
           const allowBodyTemplateValues = toBoolean(
             applyFormula(
               api.server?.proxy?.useTemplatesInBody?.formula,
-              getFormulaContext(api, componentData),
+              ctx,
+              apiData,
               ['server', 'proxy', 'useTemplatesInBody'],
             ),
           )
@@ -525,7 +514,8 @@ export function createAPI({
           },
           applyFormula(
             api.client?.debounce?.formula,
-            getFormulaContext(api, componentData),
+            ctx,
+            getApiData(api, componentData),
             ['client', 'debounce'],
           ),
         )
@@ -955,7 +945,8 @@ export function createAPI({
         status: data.status,
         headers: data.headers,
       },
-      formulaContext: getFormulaContext(api, componentData),
+      formulaContext: ctx,
+      data: getApiData(api, componentData),
       errorFormula: api.isError,
       performance,
     })
@@ -1019,7 +1010,7 @@ export function createAPI({
 
   // eslint-disable-next-line prefer-const
   payloadSignal = ctx.dataSignal.map((data) => {
-    const payloadContext = getFormulaContext(api, data)
+    const apiData = getApiData(api, data)
     const request = constructRequest(api, data)
 
     if (ctx.reportFormulaEvaluation) {
@@ -1034,9 +1025,9 @@ export function createAPI({
       // Serialize the Headers object to be able to compare changes
       headers: Array.from(request.requestSettings.headers.entries()),
       autoFetch: api.autoFetch
-        ? applyFormula(api.autoFetch, payloadContext, ['autoFetch'])
+        ? applyFormula(api.autoFetch, ctx, apiData, ['autoFetch'])
         : false,
-      proxy: applyFormula(api.server?.proxy?.enabled.formula, payloadContext, [
+      proxy: applyFormula(api.server?.proxy?.enabled.formula, ctx, apiData, [
         'proxy',
       ]),
     }
@@ -1092,13 +1083,8 @@ export function createAPI({
         })
       }
     } else {
-      if (
-        applyFormula(
-          api.autoFetch,
-          getFormulaContext(api, initialComponentData),
-          ['autoFetch'],
-        )
-      ) {
+      const apiData = getApiData(api, initialComponentData)
+      if (applyFormula(api.autoFetch, ctx, apiData, ['autoFetch'])) {
         // Execute will set the initial status of the api in the dataSignal
         await execute({
           api,
@@ -1200,10 +1186,10 @@ export function createAPI({
     cancel: abortHandler.abort,
     update: (newApi, componentData) => {
       api = newApi
-      const updateContext = getFormulaContext(api, componentData)
+      const updateData = getApiData(api, componentData)
       const autoFetch =
         api.autoFetch &&
-        applyFormula(api.autoFetch, updateContext, ['autoFetch'])
+        applyFormula(api.autoFetch, ctx, updateData, ['autoFetch'])
       if (autoFetch) {
         const request = constructRequest(newApi, componentData)
         payloadSignal?.set({
@@ -1212,7 +1198,8 @@ export function createAPI({
           autoFetch,
           proxy: applyFormula(
             newApi.server?.proxy?.enabled.formula,
-            updateContext,
+            ctx,
+            updateData,
             ['proxy'],
           ),
           // Serialize the Headers object to be able to compare changes

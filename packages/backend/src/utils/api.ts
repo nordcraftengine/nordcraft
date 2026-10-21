@@ -19,6 +19,7 @@ import {
   mapHeadersToObject,
 } from '@nordcraft/core/dist/api/headers'
 import { ToddleApiV2 } from '@nordcraft/core/dist/api/ToddleApiV2'
+import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import { easySort } from '@nordcraft/core/dist/utils/collections'
@@ -36,13 +37,12 @@ import {
 
 export const evaluateComponentApis: ApiEvaluator = async ({
   component,
-  formulaContext: _formulaContext,
+  formulaContext,
+  data,
   req,
   apiCache,
   updateApiCache,
 }) => {
-  const formulaContext = { ..._formulaContext }
-
   // We only support v2 APIs in this function
   const sortedApis: [string, ToddleApiV2<string>][] = []
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -60,6 +60,7 @@ export const evaluateComponentApis: ApiEvaluator = async ({
           const { response, cacheKey } = await fetchApi({
             api,
             formulaContext,
+            data,
             req,
             apiCache,
             componentName: component.name,
@@ -71,8 +72,8 @@ export const evaluateComponentApis: ApiEvaluator = async ({
         }),
     ),
   )
-  formulaContext.data.Apis = {
-    ...formulaContext.data.Apis,
+  data.Apis = {
+    ...data.Apis,
     ...independentApiResponses,
   }
   const dependentApis = sortedApis.filter(
@@ -84,13 +85,14 @@ export const evaluateComponentApis: ApiEvaluator = async ({
     const { response, cacheKey } = await fetchApi({
       api,
       formulaContext,
+      data,
       req,
       apiCache,
       componentName: component.name,
     })
     dependentApiResponses[api.name] = response
-    formulaContext.data.Apis = {
-      ...formulaContext.data.Apis,
+    data.Apis = {
+      ...data.Apis,
       [api.name]: response,
     }
     if (isDefined(cacheKey)) {
@@ -106,12 +108,14 @@ export const evaluateComponentApis: ApiEvaluator = async ({
 const fetchApi = async ({
   api,
   formulaContext,
+  data,
   req,
   apiCache,
   componentName,
 }: {
   api: ToddleApiV2<string>
   formulaContext: FormulaContext
+  data: ComponentData
   req: Request
   apiCache?: ApiCache
   componentName: string
@@ -122,31 +126,25 @@ const fetchApi = async ({
   const evaluatedInputs = Object.entries(api.inputs).reduce<
     Record<string, unknown>
   >((acc, [key, value]) => {
-    acc[key] = applyFormula(value.formula, formulaContext)
+    acc[key] = applyFormula(value.formula, formulaContext, data)
     return acc
   }, {})
 
-  const data = {
-    ...formulaContext.data,
+  const apiData: ComponentData = {
+    ...data,
     ApiInputs: {
       ...evaluatedInputs,
     },
   }
 
-  const newFormulaContext: FormulaContext = {
-    component: formulaContext.component,
-    package: formulaContext.package,
-    data,
-    env: formulaContext.env,
-    toddle: formulaContext.toddle,
-  }
-
   const ssrEnabled = isDefined(api.server?.ssr?.enabled)
-    ? toBoolean(applyFormula(api.server.ssr.enabled.formula, newFormulaContext))
+    ? toBoolean(
+        applyFormula(api.server.ssr.enabled.formula, formulaContext, apiData),
+      )
     : false
 
   const autoFetch = isDefined(api.autoFetch)
-    ? toBoolean(applyFormula(api.autoFetch, newFormulaContext))
+    ? toBoolean(applyFormula(api.autoFetch, formulaContext, apiData))
     : false
 
   if (!ssrEnabled || !autoFetch) {
@@ -164,6 +162,7 @@ const fetchApi = async ({
   const { url: requestUrl, requestSettings } = createApiRequest({
     api,
     formulaContext,
+    data: apiData,
     baseUrl: url.origin,
   })
   const cacheKey = requestHash(requestUrl, requestSettings)
@@ -177,7 +176,7 @@ const fetchApi = async ({
   requestUrl.searchParams.forEach((value, key) => {
     requestUrl.searchParams.set(
       key,
-      applyTemplateValues(value, newFormulaContext.env?.request?.cookies ?? {}),
+      applyTemplateValues(value, formulaContext.env?.request?.cookies ?? {}),
     )
   })
 
@@ -186,7 +185,8 @@ const fetchApi = async ({
     toBoolean(
       applyFormula(
         api.server?.proxy?.useTemplatesInBody?.formula,
-        newFormulaContext,
+        formulaContext,
+        apiData,
       ),
     )
   ) {
@@ -194,7 +194,7 @@ const fetchApi = async ({
     if (typeof requestSettings.body === 'string') {
       requestSettings.body = applyTemplateValues(
         requestSettings.body,
-        newFormulaContext.env?.request?.cookies ?? {},
+        formulaContext.env?.request?.cookies ?? {},
       )
     }
   }
@@ -211,14 +211,15 @@ const fetchApi = async ({
   const request = new Request(requestUrl.href, {
     ...requestSettings,
     headers: sanitizeProxyHeaders({
-      cookies: newFormulaContext.env?.request?.cookies ?? {},
+      cookies: formulaContext.env?.request?.cookies ?? {},
       headers: defaultHeaders,
     }),
   })
 
   const response = await fetchApiV2({
     api,
-    formulaContext: newFormulaContext,
+    formulaContext,
+    data: apiData,
     req: request,
     originalRequest: req,
     componentName,
@@ -230,12 +231,14 @@ const fetchApi = async ({
 const fetchApiV2 = async ({
   api,
   formulaContext,
+  data,
   req,
   originalRequest,
   componentName,
 }: {
   api: ToddleApiV2<string>
   formulaContext: FormulaContext
+  data: ComponentData
   req: Request
   originalRequest: Request
   componentName: string
@@ -282,6 +285,7 @@ const fetchApiV2 = async ({
       headers: mapHeadersToObject(response.headers),
     },
     formulaContext,
+    data,
     errorFormula,
     performance,
   })
@@ -302,16 +306,13 @@ const fetchApiV2 = async ({
     Object.values(api.redirectRules ?? {}),
     (rule) => rule.index,
   ).forEach((rule) => {
-    const ruleContext: FormulaContext = {
-      ...formulaContext,
-      data: {
-        ...formulaContext.data,
-        Apis: {
-          [api.name]: apiStatus,
-        },
+    const ruleData: ComponentData = {
+      ...data,
+      Apis: {
+        [api.name]: apiStatus,
       },
     }
-    const location = applyFormula(rule.formula, ruleContext)
+    const location = applyFormula(rule.formula, formulaContext, ruleData)
     if (typeof location === 'string') {
       const url = validateUrl({
         path: location,
@@ -321,7 +322,11 @@ const fetchApiV2 = async ({
         // Opt out early to avoid additional API requests/rendering
         let statusCode = 302 as RedirectStatusCode
         if (isDefined(rule.statusCode)) {
-          const statusCodeResult = applyFormula(rule.statusCode, ruleContext)
+          const statusCodeResult = applyFormula(
+            rule.statusCode,
+            formulaContext,
+            ruleData,
+          )
           if (
             typeof statusCodeResult === 'number' &&
             REDIRECT_STATUS_CODES.includes(

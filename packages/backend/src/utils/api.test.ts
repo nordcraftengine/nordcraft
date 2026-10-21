@@ -1,5 +1,6 @@
 import { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
 import { ToddleApiV2 } from '@nordcraft/core/dist/api/ToddleApiV2'
+import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import type {
   FormulaContext,
   ToddleServerEnv,
@@ -13,6 +14,34 @@ const spyFetch = spyOn(globalThis, 'fetch')
 describe('evaluateComponentApis', () => {
   beforeEach(() => {
     spyFetch.mockReset()
+  })
+
+  const createTestFormulaContext = () => ({
+    formulaContext: {
+      component: { name: 'TestComponent' },
+      package: null,
+      toddle: {
+        getFormula: () => undefined,
+        getCustomFormula: () => undefined,
+        errors: [],
+      },
+      env: {
+        branchName: 'main',
+        isServer: true,
+        request: {
+          headers: {},
+          cookies: {},
+          url: 'http://localhost:3000',
+        },
+        logErrors: false,
+      } as ToddleServerEnv,
+    } as FormulaContext,
+    data: {
+      Apis: {},
+      Variables: {},
+      Attributes: {},
+      Contexts: {},
+    } as ComponentData,
   })
 
   it('should fetch enabled and auto-fetched APIs', async () => {
@@ -35,31 +64,7 @@ describe('evaluateComponentApis', () => {
       {},
     )
 
-    const formulaContext: FormulaContext = {
-      component: { name: 'TestComponent' },
-      data: {
-        Apis: {},
-        Variables: {},
-        Attributes: {},
-        Contexts: {},
-      },
-      package: null,
-      toddle: {
-        getFormula: () => undefined,
-        getCustomFormula: () => undefined,
-        errors: [],
-      },
-      env: {
-        branchName: 'main',
-        isServer: true,
-        request: {
-          headers: {},
-          cookies: {},
-          url: 'http://localhost:3000',
-        },
-        logErrors: false,
-      } as ToddleServerEnv,
-    }
+    const { formulaContext, data } = createTestFormulaContext()
 
     const mockResponse = async () =>
       new Response(JSON.stringify({ success: true }), {
@@ -77,6 +82,7 @@ describe('evaluateComponentApis', () => {
         },
       } as any,
       formulaContext,
+      data,
       req: new Request('http://localhost:3000'),
       apiCache: {},
       updateApiCache: () => {},
@@ -106,22 +112,7 @@ describe('evaluateComponentApis', () => {
       {},
     )
 
-    const formulaContext: FormulaContext = {
-      component: { name: 'TestComponent' },
-      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
-      package: null,
-      toddle: {
-        getFormula: () => undefined,
-        getCustomFormula: () => undefined,
-        errors: [],
-      },
-      env: {
-        branchName: 'main',
-        isServer: true,
-        request: { headers: {}, cookies: {}, url: 'http://localhost:3000' },
-        logErrors: false,
-      } as ToddleServerEnv,
-    }
+    const { formulaContext, data } = createTestFormulaContext()
 
     const result = await evaluateComponentApis({
       component: {
@@ -131,6 +122,7 @@ describe('evaluateComponentApis', () => {
         },
       } as any,
       formulaContext,
+      data,
       req: new Request('http://localhost:3000'),
       apiCache: {},
       updateApiCache: () => {},
@@ -176,22 +168,7 @@ describe('evaluateComponentApis', () => {
       get: () => new Set(['api1']),
     })
 
-    const formulaContext: FormulaContext = {
-      component: { name: 'TestComponent' },
-      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
-      package: null,
-      toddle: {
-        getFormula: () => undefined,
-        getCustomFormula: () => undefined,
-        errors: [],
-      },
-      env: {
-        branchName: 'main',
-        isServer: true,
-        request: { headers: {}, cookies: {}, url: 'http://localhost:3000' },
-        logErrors: false,
-      } as ToddleServerEnv,
-    }
+    const { formulaContext, data } = createTestFormulaContext()
 
     let callCount = 0
 
@@ -224,6 +201,7 @@ describe('evaluateComponentApis', () => {
         },
       } as any,
       formulaContext,
+      data,
       req: new Request('http://localhost:3000'),
       apiCache: {},
       updateApiCache: () => {},
@@ -259,31 +237,15 @@ describe('evaluateComponentApis', () => {
       {},
     )
 
-    const formulaContext: FormulaContext = {
-      component: { name: 'TestComponent' },
-      data: {
-        Apis: {},
-        Variables: {},
-        Attributes: {},
-        Contexts: {},
+    const { formulaContext, data } = createTestFormulaContext()
+    formulaContext.env = {
+      ...formulaContext.env!,
+      request: {
+        headers: {},
+        cookies: { session_id: 'my-session-id' } as Record<string, string>,
+        url: 'http://localhost:3000',
       },
-      package: null,
-      toddle: {
-        getFormula: () => undefined,
-        getCustomFormula: () => undefined,
-        errors: [],
-      },
-      env: {
-        branchName: 'main',
-        isServer: true,
-        request: {
-          headers: {},
-          cookies: { session_id: 'my-session-id' } as Record<string, string>,
-          url: 'http://localhost:3000',
-        },
-        logErrors: false,
-      } as ToddleServerEnv,
-    }
+    } as ToddleServerEnv
 
     const mockPostResponse = async (req: Request) => {
       const actualReq = req as Request
@@ -308,6 +270,7 @@ describe('evaluateComponentApis', () => {
         apis: { testApi: mockApi },
       } as any,
       formulaContext,
+      data,
       req: new Request('http://localhost:3000'),
       apiCache: {},
       updateApiCache: () => {},
@@ -345,26 +308,15 @@ describe('evaluateComponentApis', () => {
       {},
     )
 
-    const formulaContext: FormulaContext = {
-      component: { name: 'TestComponent' },
-      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
-      package: null,
-      toddle: {
-        getFormula: () => undefined,
-        getCustomFormula: () => undefined,
-        errors: [],
+    const { formulaContext, data } = createTestFormulaContext()
+    formulaContext.env = {
+      ...formulaContext.env!,
+      request: {
+        headers: {},
+        cookies: {},
+        url: 'http://localhost:3000/page',
       },
-      env: {
-        branchName: 'main',
-        isServer: true,
-        request: {
-          headers: {},
-          cookies: {},
-          url: 'http://localhost:3000/page',
-        },
-        logErrors: false,
-      } as ToddleServerEnv,
-    }
+    } as ToddleServerEnv
 
     const mockResponse = async () =>
       new Response(JSON.stringify({ redirect: true }), {
@@ -381,6 +333,7 @@ describe('evaluateComponentApis', () => {
           apis: { testApi: mockApi },
         } as any,
         formulaContext,
+        data,
         req: new Request('http://localhost:3000/page'),
         apiCache: {},
         updateApiCache: () => {},
@@ -421,26 +374,15 @@ describe('evaluateComponentApis', () => {
       {},
     )
 
-    const formulaContext: FormulaContext = {
-      component: { name: 'TestComponent' },
-      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
-      package: null,
-      toddle: {
-        getFormula: () => undefined,
-        getCustomFormula: () => undefined,
-        errors: [],
+    const { formulaContext, data } = createTestFormulaContext()
+    formulaContext.env = {
+      ...formulaContext.env!,
+      request: {
+        headers: {},
+        cookies: {},
+        url: 'http://localhost:3000/page',
       },
-      env: {
-        branchName: 'main',
-        isServer: true,
-        request: {
-          headers: {},
-          cookies: {},
-          url: 'http://localhost:3000/page',
-        },
-        logErrors: false,
-      } as ToddleServerEnv,
-    }
+    } as ToddleServerEnv
 
     const mockResponse = async () =>
       new Response(JSON.stringify({ redirect: true }), {
@@ -457,6 +399,7 @@ describe('evaluateComponentApis', () => {
           apis: { testApi: mockApi },
         } as any,
         formulaContext,
+        data,
         req: new Request('http://localhost:3000/page'),
         apiCache: {},
         updateApiCache: () => {},
@@ -500,26 +443,15 @@ describe('evaluateComponentApis', () => {
       {},
     )
 
-    const formulaContext: FormulaContext = {
-      component: { name: 'TestComponent' },
-      data: { Apis: {}, Variables: {}, Attributes: {}, Contexts: {} },
-      package: null,
-      toddle: {
-        getFormula: () => undefined,
-        getCustomFormula: () => undefined,
-        errors: [],
+    const { formulaContext, data } = createTestFormulaContext()
+    formulaContext.env = {
+      ...formulaContext.env!,
+      request: {
+        headers: {},
+        cookies: {},
+        url: 'http://localhost:3000/page',
       },
-      env: {
-        branchName: 'main',
-        isServer: true,
-        request: {
-          headers: {},
-          cookies: {},
-          url: 'http://localhost:3000/page',
-        },
-        logErrors: false,
-      } as ToddleServerEnv,
-    }
+    } as ToddleServerEnv
 
     const mockResponse = async () =>
       new Response(JSON.stringify({ redirect: true }), {
@@ -538,6 +470,7 @@ describe('evaluateComponentApis', () => {
           apis: { testApi: mockApi },
         } as any,
         formulaContext,
+        data,
         req: new Request('http://localhost:3000/page'),
         apiCache: {},
         updateApiCache: () => {},

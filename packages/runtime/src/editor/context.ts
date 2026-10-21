@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import type {
   Component,
+  ComponentData,
   ComponentVariable,
 } from '@nordcraft/core/dist/component/component.types'
 import {
@@ -65,20 +66,20 @@ export function createStaticContextFromComponent(
       return [providerName, {}]
     }
 
+    const data: ComponentData = {
+      Attributes: getAttributeTestValues(providerComponent.attributes),
+      // Recursively resolve contexts providers before their children to build up the fake context tree in preview mode
+      Contexts: createStaticContextFromComponent(
+        providerComponent,
+        allComponents,
+        {
+          ...options,
+          contextProvidersCreated,
+          componentMap,
+        },
+      ),
+    }
     const formulaContext: FormulaContext = {
-      data: {
-        Attributes: getAttributeTestValues(providerComponent.attributes),
-        // Recursively resolve contexts providers before their children to build up the fake context tree in preview mode
-        Contexts: createStaticContextFromComponent(
-          providerComponent,
-          allComponents,
-          {
-            ...options,
-            contextProvidersCreated,
-            componentMap,
-          },
-        ),
-      },
       component: providerComponent,
       root: options.root,
       formulaCache: {},
@@ -94,18 +95,16 @@ export function createStaticContextFromComponent(
     // Exposed formulas can derive their preview output from URL data,
     // so we must populate Url parameters with their test data
     if (providerComponent.route) {
-      formulaContext.data['URL parameters'] = getRouteTestValues(
-        providerComponent.route,
-      )
+      data['URL parameters'] = getRouteTestValues(providerComponent.route)
     }
-    formulaContext.data.Variables = mapObject(
+    data.Variables = mapObject(
       filterObject<Nullable<ComponentVariable>, ComponentVariable>(
         providerComponent.variables ?? {},
         ([_, variable]) => isDefined(variable),
       ),
       ([name, variable]) => [
         name,
-        applyFormula(variable.initialValue, formulaContext, [
+        applyFormula(variable.initialValue, formulaContext, data, [
           'variables',
           name,
         ]),
@@ -126,7 +125,7 @@ export function createStaticContextFromComponent(
 
           return [
             formulaName,
-            applyFormula(formula.formula, formulaContext, [
+            applyFormula(formula.formula, formulaContext, data, [
               'formulas',
               formulaName,
             ]),

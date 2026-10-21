@@ -18,7 +18,7 @@ describe('applyRecordFormula', () => {
       ],
     }
     const ctx = createTestFormulaContext()
-    expect(applyRecordFormula(formula, ctx)).toEqual({
+    expect(applyRecordFormula(formula, ctx, {})).toEqual({
       a: 1,
       b: 'hello',
       c: true,
@@ -31,7 +31,7 @@ describe('applyRecordFormula', () => {
       entries: [],
     }
     const ctx = createTestFormulaContext()
-    expect(applyRecordFormula(formula, ctx)).toEqual({})
+    expect(applyRecordFormula(formula, ctx, {})).toEqual({})
   })
 
   it('evaluates all formulas and reports results in "report" mode', () => {
@@ -44,10 +44,12 @@ describe('applyRecordFormula', () => {
     }
     const results: Record<string, any> = {}
     const ctx = createTestFormulaContextForAllPaths(
-      {},
       (path, result) => (results[path.join('/')] = result),
     )
-    expect(applyRecordFormula(formula, ctx)).toEqual({ x: 'foo', y: 'bar' })
+    expect(applyRecordFormula(formula, ctx, {})).toEqual({
+      x: 'foo',
+      y: 'bar',
+    })
     expect(results).toMatchObject({
       'entries/0/formula': 'foo',
       'entries/1/formula': 'bar',

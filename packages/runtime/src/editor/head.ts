@@ -1,5 +1,6 @@
 import {
   HeadTagTypes,
+  type ComponentData,
   type MetaEntry,
 } from '@nordcraft/core/dist/component/component.types'
 import {
@@ -20,6 +21,7 @@ const insertOrReplaceHeadNode = (id: string, node: Node) => {
 export const insertHeadTags = (
   entries: Record<string, MetaEntry>,
   context: FormulaContext,
+  data: ComponentData | undefined,
 ) => {
   // Remove all tags that has a data-meta-id attribute that is not in the entries
   Array.from(document.head.querySelectorAll(`[${DATA_ATTR_META_ID}]`))
@@ -30,7 +32,7 @@ export const insertHeadTags = (
     Object.entries(attrs ?? {})
       .map(
         ([key, value]) =>
-          `${key}="${applyFormula(value, context, jsonPathPrefix ? [jsonPathPrefix, 'attrs', key] : undefined)}"`,
+          `${key}="${applyFormula(value, context, data, jsonPathPrefix ? [jsonPathPrefix, 'attrs', key] : undefined)}"`,
       )
       .join(' ')
 
@@ -42,10 +44,10 @@ export const insertHeadTags = (
         html = `<link ${DATA_ATTR_META_ID}="${id}" ${renderAttrs(entry.attrs, id)} />`
         break
       case HeadTagTypes.Script:
-        html = `<script ${DATA_ATTR_META_ID}="${id}" ${renderAttrs(entry.attrs, id)}>${applyFormula(entry.content ?? '', context)}</script>`
+        html = `<script ${DATA_ATTR_META_ID}="${id}" ${renderAttrs(entry.attrs, id)}>${applyFormula(entry.content ?? '', context, data)}</script>`
         break
       case HeadTagTypes.Style:
-        html = `<style ${DATA_ATTR_META_ID}="${id}" ${renderAttrs(entry.attrs)}>${applyFormula(entry.content ?? '', context)}</style>`
+        html = `<style ${DATA_ATTR_META_ID}="${id}" ${renderAttrs(entry.attrs)}>${applyFormula(entry.content ?? '', context, data)}</style>`
         break
       default:
         return

@@ -1,4 +1,9 @@
-import type { ApiStatus, ComponentAPI, LegacyApiStatus } from '../api/apiTypes'
+import type {
+  ApiInputs,
+  ApiStatus,
+  ComponentAPI,
+  LegacyApiStatus,
+} from '../api/apiTypes'
 import type { Formula } from '../formula/formula'
 import type { CssSyntaxNode } from '../styling/customProperty'
 import type { StyleTokenCategory } from '../styling/theme'
@@ -20,7 +25,7 @@ export interface ComponentData {
     query: Record<string, Nullable<string>>
     hash: string
   }>
-  Attributes: Record<string, unknown>
+  Attributes?: Record<string, unknown>
   Variables?: Nullable<Record<string, unknown>>
   Contexts?: Nullable<Record<string, Record<string, unknown>>>
   'URL parameters'?: Nullable<Record<string, Nullable<string>>>
@@ -38,6 +43,7 @@ export interface ComponentData {
       >
     >
   >
+  ApiInputs?: Nullable<ApiInputs>
   Args?: Nullable<unknown>
   Parameters?: Nullable<Record<string, unknown>>
   Event?: Nullable<unknown>

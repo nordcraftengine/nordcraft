@@ -154,16 +154,8 @@ export class ToddleComponent extends HTMLElement {
             this.#signal.map((data) =>
               applyFormula(
                 (formula as ComponentFormula).formula,
-                {
-                  data,
-                  component: this.#component,
-                  formulaCache: this.#ctx.formulaCache,
-                  root: this.#ctx.root,
-                  package: this.#ctx.package,
-                  toddle: this.#ctx.toddle,
-                  env: this.#ctx.env,
-                  jsonPath: [],
-                },
+                this.#ctx,
+                data,
                 ['formulas', name],
               ),
             ),
@@ -270,7 +262,7 @@ export class ToddleComponent extends HTMLElement {
   // Overload the getAttribute method to point to source of truth (the signal)
   getAttribute<T>(name: string) {
     return (
-      (this.#signal.get().Attributes[name] as T) || super.getAttribute(name)
+      (this.#signal.get().Attributes?.[name] as T) || super.getAttribute(name)
     )
   }
 
@@ -348,16 +340,17 @@ export const createSignal = ({
         }
         return [
           name,
-          applyFormula(initialValue, {
-            data: {
-              Attributes: {},
+          applyFormula(
+            initialValue,
+            {
+              component: component,
+              root,
+              package: undefined,
+              toddle,
+              env,
             },
-            component: component,
-            root,
-            package: undefined,
-            toddle,
-            env,
-          }),
+            undefined,
+          ),
         ]
       },
     ),

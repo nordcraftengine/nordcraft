@@ -71,6 +71,8 @@ export interface ApiBase extends NordcraftMetadata {
   hash?: Nullable<{ formula: Formula }>
 }
 
+export type ApiInputs = Record<string, unknown>
+
 export interface ApiRequest extends ApiBase {
   version: 2
   name: string
