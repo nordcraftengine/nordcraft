@@ -130,7 +130,7 @@ export const normalizeFormulaName = (name: string) =>
 
 export interface EvaluationContext {
   inFunctionScope?: boolean
-  component?: Component
+  component: Component | undefined
   formulas?: Record<string, PluginFormula<any>>
   packages?: Partial<
     Record<string, { formulas?: Record<string, PluginFormula<any>> }>
@@ -689,7 +689,7 @@ export const contextlessEvaluateFormula = (
  */
 export const compressFormula = (
   formula: Nullable<Formula>,
-  ctx: EvaluationContext = {},
+  ctx: EvaluationContext,
 ): Nullable<Formula> => {
   if (!isFormula(formula)) {
     return formula
