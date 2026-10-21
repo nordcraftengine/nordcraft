@@ -117,7 +117,7 @@ export function createAPI({
       api.redirectRules ?? {},
       ([_, rule]) => rule.index,
     )) {
-      const ruleData = {
+      const ruleData: ComponentData = {
         ...apiData,
         Apis: {
           [api.name]: ctx.dataSignal.get().Apis?.[api.name] as ApiStatus,

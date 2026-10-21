@@ -7,7 +7,10 @@ import type {
   ComponentVariable,
   SupportedNamespaces,
 } from '@nordcraft/core/dist/component/component.types'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import {
+  applyFormula,
+  type FormulaContext,
+} from '@nordcraft/core/dist/formula/formula'
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import type { Nullable } from '@nordcraft/core/dist/types'
 import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
@@ -98,7 +101,7 @@ export function createComponent({
     return result
   })
 
-  const apiFormulaCtx = { ...formulaCtx, component }
+  const apiFormulaCtx: FormulaContext = { ...formulaCtx, component }
   const componentDataSignal = signal<ComponentData>({
     Location: dataSignal.get().Location,
     Attributes: attributesSignal.get(),
@@ -247,7 +250,7 @@ export function createComponent({
   let providers = ctx.providers
   if (isContextProvider(component)) {
     // Subscribe to exposed formulas and update the component's data signal
-    const providerFormulaCtx = {
+    const providerFormulaCtx: FormulaContext = {
       component,
       formulaCache: ctx.formulaCache,
       root: ctx.root,

@@ -45,7 +45,7 @@ const FORMULA_TYPES = [
   'value',
 ] as Formula['type'][]
 
-const FORMULA_TYPES_SET: Set<string> = new Set(FORMULA_TYPES)
+const FORMULA_TYPES_SET: ReadonlySet<string> = new Set(FORMULA_TYPES)
 
 // Define the some objects types as union of ServerSide and ClientSide runtime types as applyFormula is used in both
 type ShadowRoot = DocumentFragment
@@ -210,18 +210,18 @@ export const isToddleFormula = <Handler>(
   Object.hasOwn(formula, 'formula') &&
   isDefined((formula as ToddleFormula).formula)
 
-type FormulaType = Formula | string | number | undefined | null | boolean
+type FormulaValue = Formula | string | number | undefined | null | boolean
 type Path = Array<string | number> | undefined
 
-const EMPTY_DATA = {} as ComponentData
+const EMPTY_DATA: Readonly<ComponentData> = {}
 export function applyFormula(
-  formula: FormulaType,
+  formula: FormulaValue,
   ctx: FormulaContext,
   data: ComponentData = EMPTY_DATA,
   extendedPath?: Path,
 ): any {
   // Short-circuit when not reporting to avoid unnecessary overhead of creating new objects and function
-  if (!ctx.reportFormulaEvaluation) {
+  if (!ctx?.reportFormulaEvaluation) {
     if (!isFormula(formula)) {
       return formula
     }
@@ -248,12 +248,12 @@ export function applyFormula(
         case 'apply':
           return applyApplyFormula(formula, ctx, data)
         default:
-          if (ctx.env?.logErrors) {
+          if (ctx?.env?.logErrors) {
             console.error('Could not recognize formula', formula)
           }
       }
     } catch (e) {
-      if (ctx.env?.logErrors) {
+      if (ctx?.env?.logErrors) {
         console.error(e)
       }
       return null

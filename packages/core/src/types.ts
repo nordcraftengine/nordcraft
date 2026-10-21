@@ -1,4 +1,3 @@
-/* eslint-disable max-params */
 import type { Component, ComponentData } from './component/component.types'
 import type { Formula, ToddleEnv } from './formula/formula'
 import type { PluginFormula } from './formula/formulaTypes'
@@ -125,6 +124,7 @@ export interface Toddle<LocationSignal, ShowSignal> {
     items: unknown[],
     index: number,
     input: any,
+    // eslint-disable-next-line max-params
   ) => ComponentData
   data: Record<string, unknown>
   components: Component[]
