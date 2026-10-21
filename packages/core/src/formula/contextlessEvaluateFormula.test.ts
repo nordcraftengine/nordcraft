@@ -1,20 +1,40 @@
-import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
 import { describe, expect, test } from 'bun:test'
 import {
   compressFormula,
   contextlessEvaluateFormula,
-  NON_STATIC_LIB_FORMULAS,
-  PURE_LIB_FORMULAS,
   type EvaluationContext,
-  type LibFormulaName,
 } from './contextlessEvaluateFormula'
 
-const coreFormulas: Record<string, any> = Object.fromEntries(
-  Object.entries(libFormulas).map(([name, module]) => [
-    '@toddle/' + name,
-    ((module as any).default ?? module) as any,
-  ]),
-)
+const testCoreFormulas: Record<string, (...args: any[]) => any> = {
+  add: ([a, b]: [number, number]) => a + b,
+  '@toddle/add': ([a, b]: [number, number]) => a + b,
+  multiply: ([a, b]: [number, number]) => a * b,
+  '@toddle/multiply': ([a, b]: [number, number]) => a * b,
+  concatenate: ([a, b]: [string, string]) => String(a) + String(b),
+  '@toddle/concatenate': ([a, b]: [string, string]) => String(a) + String(b),
+  greaterThan: ([a, b]: [number, number]) => a > b,
+  '@toddle/greaterThan': ([a, b]: [number, number]) => a > b,
+  map: ([items, fx]: [any[], (args: any) => any]) =>
+    items.map((item, index) => fx({ item, index })),
+  '@toddle/map': ([items, fx]: [any[], (args: any) => any]) =>
+    items.map((item, index) => fx({ item, index })),
+  filter: ([items, fx]: [any[], (args: any) => any]) =>
+    items.filter((item, index) => fx({ item, index })),
+  '@toddle/filter': ([items, fx]: [any[], (args: any) => any]) =>
+    items.filter((item, index) => fx({ item, index })),
+  reduce: ([items, fx, initial]: [any[], (args: any) => any, any]) =>
+    items.reduce(
+      (acc, item, index) => fx({ result: acc, item, index }),
+      initial,
+    ),
+  '@toddle/reduce': ([items, fx, initial]: [any[], (args: any) => any, any]) =>
+    items.reduce(
+      (acc, item, index) => fx({ result: acc, item, index }),
+      initial,
+    ),
+  get: ([collection, key]: [any, any]) => collection?.[key] ?? null,
+  '@toddle/get': ([collection, key]: [any, any]) => collection?.[key] ?? null,
+}
 
 const testCtxWithCoreFormulas = (
   extra: EvaluationContext = {},
@@ -22,34 +42,14 @@ const testCtxWithCoreFormulas = (
   return {
     ...extra,
     toddle: {
-      getFormula: (name: string) =>
-        coreFormulas[name] ?? coreFormulas[`@toddle/${name}`],
+      getFormula: (name: string) => testCoreFormulas[name],
       getCustomFormula: extra.toddle?.getCustomFormula,
-      errors: [],
       ...extra.toddle,
     },
   }
 }
 
 describe('contextlessEvaluateFormula', () => {
-  describe('pure vs non-static lib formulas sync with @nordcraft/std-lib', () => {
-    test('PURE_LIB_FORMULAS stays in sync with @nordcraft/std-lib', () => {
-      const stdLibKeys = Object.keys(libFormulas)
-      const expectedPure = stdLibKeys
-        .filter((name) => !NON_STATIC_LIB_FORMULAS.has(name as LibFormulaName))
-        .sort()
-
-      expect(Array.from(PURE_LIB_FORMULAS).sort()).toEqual(expectedPure)
-    })
-
-    test('NON_STATIC_LIB_FORMULAS only contains valid formulas from @nordcraft/std-lib', () => {
-      const stdLibKeys = new Set(Object.keys(libFormulas))
-      for (const formula of NON_STATIC_LIB_FORMULAS) {
-        expect(stdLibKeys.has(formula)).toBe(true)
-      }
-    })
-  })
-
   describe('value formula', () => {
     test('should return `true` when the formula is a simple value formula', () => {
       expect(
@@ -190,6 +190,24 @@ describe('contextlessEvaluateFormula', () => {
         isStatic: true,
         result: true,
       })
+
+      // In Toddle/Nordcraft toBoolean semantics: 0, "", [], {} are truthy!
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'and',
+            arguments: [
+              { formula: { type: 'value', value: 0 } },
+              { formula: { type: 'value', value: '' } },
+              { formula: { type: 'value', value: [] } },
+            ],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: true,
+      })
     })
 
     test('should not be static for `And` where any dynamic value exist', () => {
@@ -254,6 +272,39 @@ describe('contextlessEvaluateFormula', () => {
             type: 'or',
             arguments: [
               { formula: { type: 'value', value: true } },
+              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+            ],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: true,
+      })
+
+      // In Toddle/Nordcraft toBoolean semantics: 0 and "" are truthy
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'or',
+            arguments: [
+              { formula: { type: 'value', value: 0 } },
+              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+            ],
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: true,
+      })
+
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'or',
+            arguments: [
+              { formula: { type: 'value', value: '' } },
               { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
             ],
           },
@@ -371,6 +422,26 @@ describe('contextlessEvaluateFormula', () => {
       ).toEqual({
         isStatic: true,
         result: 'first',
+      })
+
+      // 0 is truthy in toBoolean
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'switch',
+            cases: [
+              {
+                condition: { type: 'value', value: 0 },
+                formula: { type: 'value', value: 'zero-branch' },
+              },
+            ],
+            default: { type: 'value', value: 'default' },
+          },
+          {},
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: 'zero-branch',
       })
     })
 
@@ -1194,6 +1265,24 @@ describe('contextlessEvaluateFormula', () => {
         isStatic: true,
         result: 'foobar',
       })
+
+      // Legitimate null return
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'function',
+            name: '@toddle/get',
+            arguments: [
+              { name: '0', formula: { type: 'value', value: { a: 1 } } },
+              { name: '1', formula: { type: 'value', value: 'b' } },
+            ],
+          },
+          ctx,
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: null,
+      })
     })
 
     test('evaluates higher-order pure lib formulas to concrete result', () => {
@@ -1333,6 +1422,35 @@ describe('contextlessEvaluateFormula', () => {
       })
     })
 
+    test('evaluates regular project formula that legitimately returns null', () => {
+      const ctx = testCtxWithCoreFormulas({
+        formulas: {
+          returnNull: {
+            name: 'returnNull',
+            arguments: [],
+            formula: {
+              type: 'value',
+              value: null,
+            },
+          },
+        },
+      })
+
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'function',
+            name: 'returnNull',
+            arguments: [],
+          },
+          ctx,
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: null,
+      })
+    })
+
     test('evaluates regular project formula to actual static result', () => {
       const ctx = testCtxWithCoreFormulas({
         formulas: {
@@ -1407,6 +1525,38 @@ describe('contextlessEvaluateFormula', () => {
       ).toEqual({
         isStatic: true,
         result: 100,
+      })
+    })
+
+    test('evaluates component formula that legitimately returns null', () => {
+      const ctx = testCtxWithCoreFormulas({
+        component: {
+          name: 'MyComponent',
+          formulas: {
+            giveMeNull: {
+              name: 'giveMeNull',
+              arguments: [],
+              formula: {
+                type: 'value',
+                value: null,
+              },
+            },
+          },
+        } as any,
+      })
+
+      expect(
+        contextlessEvaluateFormula(
+          {
+            type: 'apply',
+            name: 'giveMeNull',
+            arguments: [],
+          },
+          ctx,
+        ),
+      ).toEqual({
+        isStatic: true,
+        result: null,
       })
     })
 
@@ -1601,6 +1751,23 @@ describe('contextlessEvaluateFormula', () => {
       expect(compressFormula(switchWithKnownBranch, ctx)).toEqual({
         type: 'value',
         value: 'hello world',
+      })
+
+      // 0 is truthy in toBoolean, so it takes that branch
+      const switchWithZeroCondition = {
+        type: 'switch' as const,
+        cases: [
+          {
+            condition: { type: 'value' as const, value: 0 },
+            formula: { type: 'value' as const, value: 'taken-zero' },
+          },
+        ],
+        default: { type: 'value' as const, value: 'default' },
+      }
+
+      expect(compressFormula(switchWithZeroCondition, ctx)).toEqual({
+        type: 'value',
+        value: 'taken-zero',
       })
     })
 
