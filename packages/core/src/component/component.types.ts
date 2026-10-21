@@ -16,6 +16,11 @@ export interface ListItem {
   Parent?: Nullable<ListItem>
 }
 
+export interface RouteParameters {
+  path: Record<string, Nullable<string>>
+  query: Record<string, Nullable<string>>
+}
+
 export interface ComponentData {
   Location?: Nullable<{
     page?: Nullable<string>
@@ -30,10 +35,7 @@ export interface ComponentData {
   Contexts?: Nullable<Record<string, Record<string, unknown>>>
   'URL parameters'?: Nullable<Record<string, Nullable<string>>>
   // { path: { docs: null }, query: { embed: everything } }
-  'Route parameters'?: Nullable<{
-    path: Record<string, Nullable<string>>
-    query: Record<string, Nullable<string>>
-  }>
+  'Route parameters'?: Nullable<RouteParameters>
   Apis?: Nullable<
     Record<
       string,
@@ -214,6 +216,15 @@ export interface Component {
   }>
   // Used to indicate if a page or any of its child components use custom actions/formulas
   customCode?: Nullable<boolean>
+  testScenarios?: Nullable<Record<string, Nullable<TestScenario>>>
+}
+
+export interface TestScenario extends NordcraftMetadata {
+  id?: string
+  attributes?: Nullable<ComponentData['Attributes']>
+  variables?: ComponentData['Variables']
+  path?: Nullable<RouteParameters['path']>
+  query?: Nullable<RouteParameters['query']>
 }
 
 export interface ComponentFormula extends NordcraftMetadata {
