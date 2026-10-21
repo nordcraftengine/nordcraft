@@ -1,7 +1,7 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
+import { contextlessEvaluateFormula } from '@nordcraft/core/dist/formula/contextlessEvaluateFormula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { IssueRule } from '../../../types'
-import { contextlessEvaluateFormula } from '@nordcraft/core/dist/formula/contextlessEvaluateFormula'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 import { componentIsReferenced } from './componentIsReferenced.memo'
 

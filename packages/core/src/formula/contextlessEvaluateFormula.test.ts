@@ -131,7 +131,9 @@ describe('contextlessEvaluateFormula', () => {
             type: 'array',
             arguments: [
               { formula: { type: 'value', value: 1 } },
-              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+              {
+                formula: { type: 'apply', name: 'randomNumber', arguments: [] },
+              },
             ],
           },
           {},
@@ -217,7 +219,9 @@ describe('contextlessEvaluateFormula', () => {
             type: 'and',
             arguments: [
               { formula: { type: 'value', value: true } },
-              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+              {
+                formula: { type: 'apply', name: 'randomNumber', arguments: [] },
+              },
             ],
           },
           {},
@@ -254,7 +258,9 @@ describe('contextlessEvaluateFormula', () => {
             type: 'or',
             arguments: [
               { formula: { type: 'value', value: false } },
-              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+              {
+                formula: { type: 'apply', name: 'randomNumber', arguments: [] },
+              },
             ],
           },
           {},
@@ -272,7 +278,9 @@ describe('contextlessEvaluateFormula', () => {
             type: 'or',
             arguments: [
               { formula: { type: 'value', value: true } },
-              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+              {
+                formula: { type: 'apply', name: 'randomNumber', arguments: [] },
+              },
             ],
           },
           {},
@@ -289,7 +297,9 @@ describe('contextlessEvaluateFormula', () => {
             type: 'or',
             arguments: [
               { formula: { type: 'value', value: 0 } },
-              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+              {
+                formula: { type: 'apply', name: 'randomNumber', arguments: [] },
+              },
             ],
           },
           {},
@@ -305,7 +315,9 @@ describe('contextlessEvaluateFormula', () => {
             type: 'or',
             arguments: [
               { formula: { type: 'value', value: '' } },
-              { formula: { type: 'apply', name: 'randomNumber', arguments: [] } },
+              {
+                formula: { type: 'apply', name: 'randomNumber', arguments: [] },
+              },
             ],
           },
           {},

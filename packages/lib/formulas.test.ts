@@ -1,9 +1,9 @@
-import { describe, expect, test } from 'bun:test'
-import * as libFormulas from './formulas'
 import {
   NON_STATIC_LIB_FORMULAS,
   PURE_LIB_FORMULAS,
 } from '@nordcraft/core/dist/formula/contextlessEvaluateFormula'
+import { describe, expect, test } from 'bun:test'
+import * as libFormulas from './formulas'
 
 describe('formula static purity classification in @nordcraft/core', () => {
   test('PURE_LIB_FORMULAS stays in sync with @nordcraft/std-lib', () => {

@@ -1,5 +1,5 @@
-import type { FixFunction, IssueRule, NodeType } from '../../../types'
 import { contextlessEvaluateFormula } from '@nordcraft/core/dist/formula/contextlessEvaluateFormula'
+import type { FixFunction, IssueRule, NodeType } from '../../../types'
 import {
   removeFromPathFix,
   removeNodeFromPathFix,

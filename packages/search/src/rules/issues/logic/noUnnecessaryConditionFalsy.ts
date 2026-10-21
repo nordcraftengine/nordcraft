@@ -1,5 +1,5 @@
-import type { IssueRule } from '../../../types'
 import { contextlessEvaluateFormula } from '@nordcraft/core/dist/formula/contextlessEvaluateFormula'
+import type { IssueRule } from '../../../types'
 
 export const noUnnecessaryConditionFalsy: IssueRule = {
   code: 'no-unnecessary-condition-falsy',
