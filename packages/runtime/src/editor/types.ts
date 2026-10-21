@@ -148,6 +148,7 @@ export type NordcraftPreviewEvent =
       variables?: ComponentData['Variables']
       path?: RouteParameters['path'] | null
       query?: RouteParameters['query'] | null
+      contexts?: Record<string, string | null> | null
     }
   | {
       type: 'viewport_size'

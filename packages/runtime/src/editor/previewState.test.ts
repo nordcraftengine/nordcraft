@@ -159,4 +159,91 @@ describe('applyPreviewState', () => {
       isLoaded: false,
     })
   })
+
+  test('switches context provider test scenario from consumer component', () => {
+    const authProvider: Component = {
+      name: 'AuthProvider',
+      attributes: {},
+      variables: {
+        user: {
+          initialValue: valueFormula(null),
+        },
+      },
+      formulas: {
+        currentUser: {
+          formula: {
+            type: 'path',
+            path: ['Variables', 'user'],
+          },
+        },
+      },
+      nodes: {},
+      testScenarios: {
+        'Logged in': {
+          variables: {
+            user: { id: 'user-1', name: 'Alice' },
+          },
+        },
+      },
+    }
+
+    const consumerComponent: Component = {
+      name: 'UserProfile',
+      attributes: {},
+      variables: {},
+      contexts: {
+        AuthProvider: {
+          componentName: 'AuthProvider',
+          formulas: ['currentUser'],
+          workflows: [],
+        },
+      },
+      nodes: {},
+    }
+
+    const dataSignal = signal<ComponentData>({
+      ...EMPTY_COMPONENT_DATA,
+      Contexts: {
+        AuthProvider: {
+          currentUser: null,
+        },
+      },
+    })
+
+    // Apply scenario override pointing to 'Logged in' on AuthProvider
+    applyPreviewState({
+      overrides: {
+        contexts: {
+          AuthProvider: 'Logged in',
+        },
+      },
+      component: consumerComponent,
+      components: [authProvider, consumerComponent],
+      dataSignal,
+      ctx: null,
+      env,
+    })
+
+    expect(dataSignal.get().Contexts).toEqual({
+      AuthProvider: {
+        currentUser: { id: 'user-1', name: 'Alice' },
+      },
+    })
+
+    // Reverting with null restores the default provider state
+    applyPreviewState({
+      overrides: null,
+      component: consumerComponent,
+      components: [authProvider, consumerComponent],
+      dataSignal,
+      ctx: null,
+      env,
+    })
+
+    expect(dataSignal.get().Contexts).toEqual({
+      AuthProvider: {
+        currentUser: null,
+      },
+    })
+  })
 })

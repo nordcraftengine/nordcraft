@@ -225,6 +225,7 @@ export interface TestScenario extends NordcraftMetadata {
   variables?: ComponentData['Variables']
   path?: Nullable<RouteParameters['path']>
   query?: Nullable<RouteParameters['query']>
+  contexts?: Nullable<Record<string, Nullable<string>>>
 }
 
 export interface ComponentFormula extends NordcraftMetadata {

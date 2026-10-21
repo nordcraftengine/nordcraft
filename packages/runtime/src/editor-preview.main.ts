@@ -259,6 +259,7 @@ export const createRoot = (
       applyPreviewState({
         overrides,
         component: getCurrentComponent(component, selectedNodeId, mode),
+        components: getAllComponents(),
         dataSignal,
         ctx,
         env,
@@ -478,6 +479,7 @@ export const createRoot = (
               applyPreviewState({
                 overrides: previewStateOverrides,
                 component: getCurrentComponent(component, selectedNodeId, mode),
+                components: getAllComponents(),
                 dataSignal,
                 ctx,
                 env,
@@ -488,6 +490,7 @@ export const createRoot = (
               applyPreviewState({
                 overrides: null,
                 component: getCurrentComponent(component, selectedNodeId, mode),
+                components: getAllComponents(),
                 dataSignal,
                 ctx,
                 env,
@@ -948,12 +951,13 @@ export const createRoot = (
           break
         }
         case 'preview_state': {
-          const { attributes, variables, path, query } = message.data
+          const { attributes, variables, path, query, contexts } = message.data
           const hasAny =
             Boolean(attributes && Object.keys(attributes).length > 0) ||
             Boolean(variables && Object.keys(variables).length > 0) ||
             Boolean(path && Object.keys(path).length > 0) ||
-            Boolean(query && Object.keys(query).length > 0)
+            Boolean(query && Object.keys(query).length > 0) ||
+            Boolean(contexts && Object.keys(contexts).length > 0)
 
           handleApplyPreviewState(
             hasAny
@@ -962,6 +966,7 @@ export const createRoot = (
                   variables,
                   path,
                   query,
+                  contexts,
                 }
               : null,
           )
@@ -1093,7 +1098,10 @@ export const createRoot = (
         { Attributes },
       )
     }
-    if (fastDeepEqual(_component.contexts, ctx?.component.contexts) === false) {
+    if (
+      fastDeepEqual(_component.contexts, ctx?.component.contexts) === false ||
+      activeOverrides?.contexts !== undefined
+    ) {
       Contexts = createStaticContextFromComponent(
         _component,
         getAllComponents(),
@@ -1101,6 +1109,7 @@ export const createRoot = (
           root: ctx?.root,
           package: ctx?.package,
           env,
+          contextOverrides: activeOverrides?.contexts,
         },
       )
     }

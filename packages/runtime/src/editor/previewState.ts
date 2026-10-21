@@ -16,17 +16,20 @@ import {
   getRouteQuery,
   getVariableInitialValues,
 } from './componentData'
+import { createStaticContextFromComponent } from './context'
 
 export interface PreviewStateOverrides {
   attributes?: ComponentData['Attributes'] | null
   variables?: ComponentData['Variables']
   path?: RouteParameters['path'] | null
   query?: RouteParameters['query'] | null
+  contexts?: Record<string, string | null> | null
 }
 
 export const applyPreviewState = (options: {
   overrides: PreviewStateOverrides | null
   component: Component | null
+  components?: Component[]
   dataSignal: Signal<ComponentData>
   ctx: ComponentContext | null
   env: ToddleEnv
@@ -36,6 +39,7 @@ export const applyPreviewState = (options: {
   const {
     overrides,
     component,
+    components,
     dataSignal,
     ctx,
     env,
@@ -46,7 +50,16 @@ export const applyPreviewState = (options: {
     return
   }
 
-  const { Contexts } = dataSignal.get()
+  const allComponents = components ?? ctx?.components ?? []
+  let Contexts = dataSignal.get().Contexts
+  if (component.contexts && allComponents.length > 0) {
+    Contexts = createStaticContextFromComponent(component, allComponents, {
+      root: ctx?.root,
+      package: ctx?.package,
+      env,
+      contextOverrides: overrides?.contexts,
+    })
+  }
 
   if (component.route) {
     const baseParams = getRouteParams(component.route)
@@ -95,6 +108,7 @@ export const applyPreviewState = (options: {
       'URL parameters': urlParams,
       Attributes: urlParams,
       Variables: variables,
+      Contexts,
       Location: data.Location
         ? {
             ...data.Location,
@@ -137,6 +151,7 @@ export const applyPreviewState = (options: {
       ...data,
       Attributes: attributes,
       Variables: variables,
+      Contexts,
     }))
   }
 
