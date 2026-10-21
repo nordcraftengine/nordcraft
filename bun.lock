@@ -109,9 +109,6 @@
         "postcss": "8.5.26",
         "valibot": "1.5.0",
       },
-      "devDependencies": {
-        "@nordcraft/std-lib": "workspace:*",
-      },
     },
     "packages/ssr": {
       "name": "@nordcraft/ssr",
