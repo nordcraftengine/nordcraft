@@ -2,12 +2,12 @@
   "name": "@nordcraft/editor",
   "scripts": {
     "buildCssKeywords": "bun run css-properties/fetchCssPropertyKeywords.ts",
-    "postbuildCssKeywords": "bun run prettier:write",
+    "postbuildCssKeywords": "bun run format:write",
     "buildElements": "cd elements && bun buildElements.ts",
-    "postbuildElements": "bun run prettier:write",
+    "postbuildElements": "bun run format:write",
     "buildInterfaces": "cd elements && bun buildInterfaces.ts",
-    "postbuildInterfaces": "bun run prettier:write",
-    "prettier:write": "prettier --write 'elements/**/*.json' 'css-properties/cssPropertyKeywords.json'",
+    "postbuildInterfaces": "bun run format:write",
+    "format:write": "bun fmt 'elements/**/*.json' 'css-properties/cssPropertyKeywords.json'",
     "typecheck": "bun check",
     "watch": "tsgo --noEmit --watch"
   },

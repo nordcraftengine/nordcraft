@@ -110,12 +110,7 @@ export interface ValueOperation extends BaseOperation {
 }
 
 export type ValueOperationValue =
-  | string
-  | number
-  | boolean
-  | null
-  | object
-  | undefined
+  string | number | boolean | null | object | undefined
 
 export interface SwitchOperation extends BaseOperation {
   type: 'switch'

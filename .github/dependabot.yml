@@ -12,10 +12,6 @@ updates:
           - '*eslint*'
           - 'eslint'
           - 'eslint*'
-      formatting:
-        patterns:
-          - 'prettier'
-          - 'prettier-plugin-organize-imports'
       cloudflare:
         patterns:
           - '@cloudflare/workers-types'

@@ -29,10 +29,22 @@ jobs:
         run: bun run build
       - name: ESLint
         run: bun lint
-      - name: Prettier
-        run: bun prettier
       - name: Typecheck
         run: bun typecheck
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout root
+        uses: actions/checkout@v4
+      # bun fmt is built into Bun, but is not part of the pinned Bun version used by
+      # the other jobs yet. Pin the formatter job to a Bun release that ships bun fmt
+      # and use the same version everywhere once it is available as a stable release.
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.4.4-canary.20261019.1
+      - name: Bun fmt
+        run: bun fmt --check
   test-benchmarks:
     runs-on: ubuntu-latest
     steps:

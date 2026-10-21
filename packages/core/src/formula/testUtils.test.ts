@@ -16,8 +16,7 @@ if (!(globalThis as any).__CORE_FORMULAS__) {
 // Helper to create a minimal context
 export const createTestFormulaContext = (data: any = {}): FormulaContext => {
   const coreFormulas = (globalThis as any).__CORE_FORMULAS__ as
-    | Record<string, any>
-    | undefined
+    Record<string, any> | undefined
   return {
     component: undefined,
     formulaCache: {},
