@@ -3,6 +3,7 @@ import { describe, expect, test } from 'bun:test'
 import type { Component } from '../packages/core/dist/component/component.types'
 import type { ProjectFiles } from '../packages/ssr/dist/ssr.types'
 import {
+  formatSizeChange,
   isCompressionClean,
   measureProjectFiles,
   renderCompressionMarkdown,
@@ -232,6 +233,29 @@ describe('renderCompressionMarkdown', () => {
     })
     expect(markdown.split('\n').length).toBeGreaterThan(1)
     expect(markdown).toContain('head-only baseline')
+  })
+})
+
+describe('formatSizeChange', () => {
+  test('formats a positive reduction as negative size (lower is better)', () => {
+    expect(formatSizeChange(15.31)).toBe('-15.31% size')
+    expect(formatSizeChange(50)).toBe('-50.00% size')
+    expect(formatSizeChange(7.06)).toBe('-7.06% size')
+  })
+
+  test('formats zero reduction as 0.00% size without negative zero', () => {
+    expect(formatSizeChange(0)).toBe('0.00% size')
+    expect(formatSizeChange(-0)).toBe('0.00% size')
+    expect(formatSizeChange(0.001)).toBe('0.00% size')
+  })
+
+  test('formats a negative reduction (size increase) as positive size', () => {
+    expect(formatSizeChange(-15)).toBe('+15.00% size')
+  })
+
+  test('handles non-finite values safely', () => {
+    expect(formatSizeChange(Number.NaN)).toBe('n/a')
+    expect(formatSizeChange(Number.POSITIVE_INFINITY)).toBe('n/a')
   })
 })
 

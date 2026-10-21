@@ -146,6 +146,15 @@ export const formatSignedPercent = (value: number) =>
     ? `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
     : 'n/a'
 
+export const formatSizeChange = (reductionPercent: number) => {
+  if (!Number.isFinite(reductionPercent)) {
+    return 'n/a'
+  }
+  const delta = Math.abs(reductionPercent) < 0.005 ? 0 : -reductionPercent
+  const sign = delta > 0 ? '+' : ''
+  return `${sign}${delta.toFixed(2)}% size`
+}
+
 /**
  * Deterministic size comparisons do not need statistical tests: any change in
  * the stripped project size is a real change. The noise threshold only guards

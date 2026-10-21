@@ -14,6 +14,7 @@ import {
   parseBenchmarkArgs,
 } from '../benchmarks/cli'
 import {
+  formatSizeChange,
   measureProjectFiles,
   type CompressionFixtureResult,
 } from '../benchmarks/compression'
@@ -87,7 +88,7 @@ export const main = async (argv: readonly string[] = Bun.argv.slice(2)) => {
   } else {
     for (const result of results) {
       console.log(
-        `${result.id}: ${result.originalBytes} B -> ${result.strippedBytes} B (${result.reductionPercent.toFixed(2)}% smaller, gzip ${result.originalGzipBytes} B -> ${result.strippedGzipBytes} B, ${result.gzipReductionPercent.toFixed(2)}% smaller, ${result.componentCount} components)`,
+        `${result.id}: ${result.originalBytes} B -> ${result.strippedBytes} B (${formatSizeChange(result.reductionPercent)}, gzip ${result.originalGzipBytes} B -> ${result.strippedGzipBytes} B, ${formatSizeChange(result.gzipReductionPercent)}, ${result.componentCount} components)`,
       )
     }
   }
