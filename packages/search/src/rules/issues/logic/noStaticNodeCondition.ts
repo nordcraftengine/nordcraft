@@ -11,7 +11,8 @@ export const noStaticNodeCondition: IssueRule<{
   code: 'no-static-node-condition',
   level: 'warning',
   category: 'Quality',
-  visit: (report, { path, files, value, nodeType }) => {
+  visit: (report, args) => {
+    const { path, files, value, nodeType } = args
     if (
       nodeType !== 'formula' ||
       !(
@@ -24,11 +25,8 @@ export const noStaticNodeCondition: IssueRule<{
       return
     }
 
-    const component =
-      path[0] === 'components' ? files.components[path[1]] : undefined
-
     const { isStatic, result } = contextlessEvaluateFormula(value, {
-      component,
+      component: args.component,
       formulas: files.formulas,
       packages: files.packages,
     })

@@ -17,9 +17,6 @@
     "postcss": "8.5.26",
     "valibot": "1.5.0"
   },
-  "devDependencies": {
-    "@nordcraft/std-lib": "workspace:*"
-  },
   "scripts": {
     "build": "tsgo",
     "npm-publish": "bun run build && bun publish --access public",

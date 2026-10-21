@@ -11,7 +11,8 @@ export const imageWithoutDimensionRule: IssueRule = {
   code: 'image without dimension',
   level: 'warning',
   category: 'Performance',
-  visit: (report, { path, files, nodeType, value }) => {
+  visit: (report, args) => {
+    const { path, files, nodeType, value } = args
     if (
       nodeType !== 'component-node' ||
       value?.type !== 'element' ||
@@ -24,12 +25,9 @@ export const imageWithoutDimensionRule: IssueRule = {
     let hasValidHeight = false
     let hasValidAspectRatio = false
 
-    const component =
-      path[0] === 'components' ? files.components[path[1]] : undefined
-
     if (isDefined(value.attrs?.width)) {
       const widthEval = contextlessEvaluateFormula(value.attrs.width, {
-        component,
+        component: args.component,
         formulas: files.formulas,
         packages: files.packages,
       })
@@ -39,7 +37,7 @@ export const imageWithoutDimensionRule: IssueRule = {
 
     if (isDefined(value.attrs?.height)) {
       const heightEval = contextlessEvaluateFormula(value.attrs.height, {
-        component,
+        component: args.component,
         formulas: files.formulas,
         packages: files.packages,
       })
