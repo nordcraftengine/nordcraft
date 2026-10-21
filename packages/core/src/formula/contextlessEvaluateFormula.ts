@@ -1,10 +1,6 @@
 import type { Component, ComponentData } from '../component/component.types'
-import type {
-  CustomFormulaHandler,
-  FormulaLookup,
-  Nullable,
-} from '../types'
-import { isDefined } from '../utils/util'
+import type { CustomFormulaHandler, FormulaLookup, Nullable } from '../types'
+import { isDefined, toBoolean } from '../utils/util'
 import {
   applyFormula,
   isFormula,
@@ -15,9 +11,6 @@ import {
 } from './formula'
 import type { PluginFormula } from './formulaTypes'
 import { applyPathFormula } from './pathFormula'
-import type * as libFormulas from '@nordcraft/std-lib/dist/formulas'
-
-export type LibFormulaName = keyof typeof libFormulas
 
 /**
  * Lib formulas that can NOT be statically evaluated.
@@ -28,7 +21,7 @@ export type LibFormulaName = keyof typeof libFormulas
  * Excluded because they are non-deterministic, environment/browser specific,
  * or depend on external state:
  */
-export const NON_STATIC_LIB_FORMULAS: ReadonlySet<LibFormulaName> = new Set([
+export const NON_STATIC_LIB_FORMULAS: ReadonlySet<string> = new Set([
   'Id',
   'branchName',
   'canShare',
@@ -146,12 +139,39 @@ export interface EvaluationContext {
   toddle?: {
     getFormula?: FormulaLookup
     getCustomFormula?: CustomFormulaHandler
-    errors?: Error[]
   }
   data?: ComponentData
 }
 
-export const toFormulaContext = (ctx: EvaluationContext): FormulaContext => {
+export const createStaticFormulaContext = (
+  ctx: EvaluationContext,
+): {
+  formulaContext: FormulaContext
+  hasFailed: () => boolean
+} => {
+  let hasMissingFormula = false
+  const errors: Error[] = []
+
+  let component = ctx.component
+  if (component?.formulas) {
+    const rawFormulas = component.formulas
+    component = {
+      ...component,
+      formulas: new Proxy(rawFormulas, {
+        get(target, prop, receiver) {
+          if (typeof prop === 'string') {
+            const val = Reflect.get(target, prop, receiver)
+            if (val === undefined) {
+              hasMissingFormula = true
+            }
+            return val
+          }
+          return Reflect.get(target, prop, receiver)
+        },
+      }),
+    }
+  }
+
   const getCustomFormula: CustomFormulaHandler =
     ctx.toddle?.getCustomFormula ??
     ((name: string, packageName?: string | null) => {
@@ -169,34 +189,46 @@ export const toFormulaContext = (ctx: EvaluationContext): FormulaContext => {
 
   const getFormula: FormulaLookup = (name: string) => {
     const custom = ctx.toddle?.getFormula
+    let handler: FormulaLookup extends (name: string) => infer R ? R : never =
+      undefined
     if (custom) {
       const normalized = normalizeFormulaName(name)
-      return custom(name) ?? custom(`@toddle/${normalized}`) ?? custom(normalized)
+      handler =
+        custom(name) ?? custom(`@toddle/${normalized}`) ?? custom(normalized)
     }
-    const globalLookup = (globalThis as any).toddle?.getFormula
-    if (globalLookup) {
+    if (!handler && (globalThis as any).toddle?.getFormula) {
       const normalized = normalizeFormulaName(name)
-      return (
-        globalLookup(name) ??
-        globalLookup(`@toddle/${normalized}`) ??
-        globalLookup(normalized)
-      )
+      handler =
+        (globalThis as any).toddle.getFormula(name) ??
+        (globalThis as any).toddle.getFormula(`@toddle/${normalized}`) ??
+        (globalThis as any).toddle.getFormula(normalized)
     }
-    return undefined
+    if (!handler) {
+      hasMissingFormula = true
+    }
+    return handler
   }
 
-  return {
-    component: ctx.component,
+  const formulaContext: FormulaContext = {
+    component,
     data: ctx.data ?? { Attributes: {} },
     package: null,
     toddle: {
       getFormula,
       getCustomFormula,
-      errors: ctx.toddle?.errors ?? [],
+      errors,
     },
     env: undefined,
   }
+
+  return {
+    formulaContext,
+    hasFailed: () => hasMissingFormula || errors.length > 0,
+  }
 }
+
+export const toFormulaContext = (ctx: EvaluationContext): FormulaContext =>
+  createStaticFormulaContext(ctx).formulaContext
 
 /**
  * Static evaluation of a formula.
@@ -257,7 +289,9 @@ export const contextlessEvaluateFormula = (
           }
         }
 
-        const hasAllResults = results.every((res) => res.eval.result !== undefined)
+        const hasAllResults = results.every(
+          (res) => res.eval.result !== undefined,
+        )
         if (!hasAllResults) {
           return {
             isStatic: true,
@@ -288,13 +322,17 @@ export const contextlessEvaluateFormula = (
         )
 
         const isStatic = entries.every(([, res]) => res.isStatic)
-        const hasAllResults = entries.every(([, res]) => res.result !== undefined)
+        const hasAllResults = entries.every(
+          ([, res]) => res.result !== undefined,
+        )
 
         return {
           isStatic,
           result:
             isStatic && hasAllResults
-              ? Object.fromEntries(entries.map(([key, res]) => [key, res.result]))
+              ? Object.fromEntries(
+                  entries.map(([key, res]) => [key, res.result]),
+                )
               : undefined,
         }
       }
@@ -319,7 +357,9 @@ export const contextlessEvaluateFormula = (
         }
       }
 
-      const hasAllResults = results.every((res) => res.eval.result !== undefined)
+      const hasAllResults = results.every(
+        (res) => res.eval.result !== undefined,
+      )
       if (!hasAllResults) {
         return {
           isStatic: true,
@@ -350,9 +390,13 @@ export const contextlessEvaluateFormula = (
 
       const alwaysTrue =
         results.length === 0 ||
-        results.every((res) => res.isStatic && res.result !== undefined && Boolean(res.result) === true)
+        results.every(
+          (res) =>
+            res.isStatic && res.result !== undefined && toBoolean(res.result),
+        )
       const alwaysFalsy = results.some(
-        (res) => res.isStatic && res.result !== undefined && Boolean(res.result) === false,
+        (res) =>
+          res.isStatic && res.result !== undefined && !toBoolean(res.result),
       )
 
       return {
@@ -372,9 +416,13 @@ export const contextlessEvaluateFormula = (
 
       const alwaysFalsy =
         results.length === 0 ||
-        results.every((res) => res.isStatic && res.result !== undefined && Boolean(res.result) === false)
+        results.every(
+          (res) =>
+            res.isStatic && res.result !== undefined && !toBoolean(res.result),
+        )
       const alwaysTrue = results.some(
-        (res) => res.isStatic && res.result !== undefined && Boolean(res.result) === true,
+        (res) =>
+          res.isStatic && res.result !== undefined && toBoolean(res.result),
       )
 
       return {
@@ -396,7 +444,7 @@ export const contextlessEvaluateFormula = (
           }
         }
         if (conditionEval.result !== undefined) {
-          if (conditionEval.result) {
+          if (toBoolean(conditionEval.result)) {
             return contextlessEvaluateFormula(switchCase.formula, ctx)
           }
           // Condition is static false, continue to next case
@@ -448,13 +496,12 @@ export const contextlessEvaluateFormula = (
             }
           }
 
-          const formulaContext = toFormulaContext(ctx)
+          const { formulaContext, hasFailed } = createStaticFormulaContext(ctx)
           const handler = formulaContext.toddle.getFormula(formula.name)
           if (typeof handler === 'function') {
             try {
-              const initialErrors = formulaContext.toddle.errors.length
               const result = applyFormula(formula, formulaContext)
-              if (formulaContext.toddle.errors.length === initialErrors) {
+              if (!hasFailed()) {
                 return {
                   isStatic: true,
                   result,
@@ -533,11 +580,10 @@ export const contextlessEvaluateFormula = (
       }
 
       // Try evaluating with applyFormula
-      const formulaContext = toFormulaContext(ctx)
+      const { formulaContext, hasFailed } = createStaticFormulaContext(ctx)
       try {
-        const initialErrors = formulaContext.toddle.errors.length
         const result = applyFormula(formula, formulaContext)
-        if (result !== null && formulaContext.toddle.errors.length === initialErrors) {
+        if (!hasFailed()) {
           return {
             isStatic: true,
             result,
@@ -606,11 +652,10 @@ export const contextlessEvaluateFormula = (
       }
 
       // Try evaluating with applyFormula
-      const formulaContext = toFormulaContext(ctx)
+      const { formulaContext, hasFailed } = createStaticFormulaContext(ctx)
       try {
-        const initialErrors = formulaContext.toddle.errors.length
         const result = applyFormula(formula, formulaContext)
-        if (result !== null && formulaContext.toddle.errors.length === initialErrors) {
+        if (!hasFailed()) {
           return {
             isStatic: true,
             result,
@@ -713,14 +758,17 @@ export const compressFormula = (
 
     case 'switch': {
       const cases: NonNullable<typeof formula.cases> = []
-      let defaultFormula = compressFormula(formula.default, ctx) ?? formula.default
+      let defaultFormula =
+        compressFormula(formula.default, ctx) ?? formula.default
 
       for (const switchCase of formula.cases ?? []) {
-        const cond = compressFormula(switchCase.condition, ctx) ?? switchCase.condition
+        const cond =
+          compressFormula(switchCase.condition, ctx) ?? switchCase.condition
         if (cond.type === 'value') {
-          if (cond.value) {
+          if (toBoolean(cond.value)) {
             // Static truthy case: this branch will always execute
-            defaultFormula = compressFormula(switchCase.formula, ctx) ?? switchCase.formula
+            defaultFormula =
+              compressFormula(switchCase.formula, ctx) ?? switchCase.formula
             break
           }
           // Static falsy case: skip dead branch
@@ -728,7 +776,8 @@ export const compressFormula = (
         }
         cases.push({
           condition: cond,
-          formula: compressFormula(switchCase.formula, ctx) ?? switchCase.formula,
+          formula:
+            compressFormula(switchCase.formula, ctx) ?? switchCase.formula,
         })
       }
 
