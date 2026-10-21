@@ -218,7 +218,7 @@ export function applyFormula(
   data: ComponentData | undefined,
   extendedPath?: Path,
 ): any {
-  // Short-circuit when not reporting to avoid unnecessary overhead of creating new objects and function
+  // Fast-path when not reporting to avoid unnecessary overhead of creating new objects and function
   if (!ctx?.reportFormulaEvaluation) {
     if (!isFormula(formula)) {
       return formula

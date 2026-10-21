@@ -53,7 +53,7 @@ export function handleAction(
         const current = ctx.dataSignal.get().Variables?.[action.variable]
         const value = applyFormula(action.data, ctx, data)
 
-        // Short-circuit as it is cheaper to check just the value than performing a deep update
+        // Fast-path as it is cheaper to check just the value than performing a deep update
         // on the entire new state. We can then `{ force: true }` to skip deep equality check in signal.
         if (fastDeepEqual(current, value)) {
           break
