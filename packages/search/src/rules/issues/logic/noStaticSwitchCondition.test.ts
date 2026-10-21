@@ -297,4 +297,193 @@ describe('noStaticSwitchCondition', () => {
 
     expect(problems).toBeEmpty()
   })
+
+  test('should report static condition when referencing component formula via apply', () => {
+    const files: ProjectFiles = {
+      components: {
+        test: {
+          name: 'test',
+          attributes: {},
+          onLoad: null,
+          events: [],
+          formulas: {
+            'Conditional formula': {
+              formula: {
+                type: 'switch',
+                cases: [
+                  {
+                    condition: {
+                      type: 'apply',
+                      name: 'Static formula',
+                      arguments: [],
+                    },
+                    formula: {
+                      type: 'value',
+                      value: true,
+                    },
+                  },
+                ],
+                default: {
+                  type: 'value',
+                  value: false,
+                },
+              },
+              arguments: [],
+              memoize: false,
+            },
+            'Static formula': {
+              formula: {
+                type: 'value',
+                value: 'sure',
+              },
+              arguments: [],
+              memoize: false,
+            },
+          },
+          nodes: {
+            root: {
+              tag: 'div',
+              type: 'element',
+              attrs: {},
+              style: {},
+              events: {},
+              classes: {},
+              children: [],
+              'style-variables': [],
+              condition: {
+                type: 'apply',
+                name: 'Conditional formula',
+                arguments: [],
+              },
+            },
+          },
+          variables: {},
+          apis: {},
+        },
+      },
+    }
+
+    const problems = Array.from(
+      searchProject({
+        files,
+        rules: [noStaticSwitchCondition],
+      }),
+    )
+    const issues = problems as IssueResult[]
+
+    expect(issues).toHaveLength(1)
+    expect(issues[0].code).toBe('no-static-switch-condition')
+    expect(issues[0].path).toEqual([
+      'components',
+      'test',
+      'formulas',
+      'Conditional formula',
+      'formula',
+      'cases',
+      0,
+      'condition',
+    ])
+    expect(issues[0].info.description).toContain('always truthy')
+  })
+
+  test('should report static condition when referencing component formula with function formula', () => {
+    const files: ProjectFiles = {
+      components: {
+        test: {
+          name: 'test',
+          attributes: {},
+          onLoad: null,
+          events: [],
+          formulas: {
+            'Conditional formula': {
+              formula: {
+                type: 'switch',
+                cases: [
+                  {
+                    condition: {
+                      type: 'apply',
+                      name: 'Static formula',
+                      arguments: [],
+                    },
+                    formula: {
+                      type: 'value',
+                      value: true,
+                    },
+                  },
+                ],
+                default: {
+                  type: 'value',
+                  value: false,
+                },
+              },
+              arguments: [],
+              memoize: false,
+            },
+            'Static formula': {
+              formula: {
+                type: 'function',
+                name: '@toddle/string',
+                arguments: [
+                  {
+                    name: 'Input',
+                    formula: {
+                      type: 'value',
+                      value: 'sure',
+                    },
+                    type: {
+                      type: 'Any',
+                    },
+                  },
+                ],
+                display_name: 'String',
+              },
+              arguments: [],
+              memoize: false,
+            },
+          },
+          nodes: {
+            root: {
+              tag: 'div',
+              type: 'element',
+              attrs: {},
+              style: {},
+              events: {},
+              classes: {},
+              children: [],
+              'style-variables': [],
+              condition: {
+                type: 'apply',
+                name: 'Conditional formula',
+                arguments: [],
+              },
+            },
+          },
+          variables: {},
+          apis: {},
+        },
+      },
+    }
+
+    const problems = Array.from(
+      searchProject({
+        files,
+        rules: [noStaticSwitchCondition],
+      }),
+    )
+    const issues = problems as IssueResult[]
+
+    expect(issues).toHaveLength(1)
+    expect(issues[0].code).toBe('no-static-switch-condition')
+    expect(issues[0].path).toEqual([
+      'components',
+      'test',
+      'formulas',
+      'Conditional formula',
+      'formula',
+      'cases',
+      0,
+      'condition',
+    ])
+    expect(issues[0].info.description).toContain('static')
+  })
 })

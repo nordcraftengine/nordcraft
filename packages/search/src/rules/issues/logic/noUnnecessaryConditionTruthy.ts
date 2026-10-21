@@ -10,6 +10,9 @@ export const noUnnecessaryConditionTruthy: IssueRule = {
       return
     }
 
+    const component =
+      path[0] === 'components' ? files.components[path[1]] : undefined
+
     if (
       (value.arguments ?? []).some((arg) => {
         // Objects and arrays, even empty ones, are always truthy
@@ -18,6 +21,7 @@ export const noUnnecessaryConditionTruthy: IssueRule = {
         }
 
         const { result, isStatic } = contextlessEvaluateFormula(arg.formula, {
+          component,
           formulas: files.formulas,
           packages: files.packages,
         })

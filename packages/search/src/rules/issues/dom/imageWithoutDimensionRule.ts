@@ -24,8 +24,12 @@ export const imageWithoutDimensionRule: IssueRule = {
     let hasValidHeight = false
     let hasValidAspectRatio = false
 
+    const component =
+      path[0] === 'components' ? files.components[path[1]] : undefined
+
     if (isDefined(value.attrs?.width)) {
       const widthEval = contextlessEvaluateFormula(value.attrs.width, {
+        component,
         formulas: files.formulas,
         packages: files.packages,
       })
@@ -35,6 +39,7 @@ export const imageWithoutDimensionRule: IssueRule = {
 
     if (isDefined(value.attrs?.height)) {
       const heightEval = contextlessEvaluateFormula(value.attrs.height, {
+        component,
         formulas: files.formulas,
         packages: files.packages,
       })

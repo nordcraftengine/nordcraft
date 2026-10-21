@@ -15,6 +15,7 @@ export const noReferenceComponentRule: IssueRule<void> = {
       isPage(value) ||
       (state?.projectDetails?.type === 'package' && value.exported === true) ||
       contextlessEvaluateFormula(value.customElement?.enabled, {
+        component: value,
         formulas: files.formulas,
         packages: files.packages,
       }).result === true ||

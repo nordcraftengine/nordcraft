@@ -35,6 +35,8 @@ export function createRequiredElementAttributeRule({
         value.tag === tag
       ) {
         const attributes = Array.isArray(attribute) ? attribute : [attribute]
+        const component =
+          path[0] === 'components' ? files.components[path[1]] : undefined
         if (
           attributes.some((attr) => {
             if (!isDefined(value.attrs?.[attr])) {
@@ -43,6 +45,7 @@ export function createRequiredElementAttributeRule({
             const { isStatic, result } = contextlessEvaluateFormula(
               value.attrs[attr],
               {
+                component,
                 formulas: files.formulas,
                 packages: files.packages,
               },
