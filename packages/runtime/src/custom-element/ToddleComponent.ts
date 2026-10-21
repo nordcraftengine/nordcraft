@@ -349,7 +349,7 @@ export const createSignal = ({
               toddle,
               env,
             },
-            {},
+            undefined,
           ),
         ]
       },

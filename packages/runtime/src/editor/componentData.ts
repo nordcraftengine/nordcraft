@@ -70,7 +70,7 @@ export const getElementTypeFromCanvasTool = (
 export const getVariableInitialValues = (
   variables: Nullable<Record<string, Nullable<ComponentVariable>>>,
   context: FormulaContext,
-  data: ComponentData = {},
+  data: ComponentData | undefined,
 ) =>
   mapObject(
     filterObject<Nullable<ComponentVariable>, ComponentVariable>(

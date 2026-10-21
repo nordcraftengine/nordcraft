@@ -11,6 +11,7 @@ export const manifest = async (c: Context<HonoEnv<HonoProject>>) => {
     const manifestUrl = applyFormula(
       c.var.config?.meta?.manifest?.formula,
       undefined as any,
+      undefined,
     )
     const validManifestUrl = validateUrl(manifestUrl)
     if (typeof validManifestUrl === 'string') {

@@ -85,6 +85,6 @@ describe('applyFunctionFormula', () => {
         formula: valueFormula([1, 2, 3]),
       },
     })
-    expect(applyFunctionFormula(formula, ctx, ctx.data)).toEqual([1, 2, 3])
+    expect(applyFunctionFormula(formula, ctx, {})).toEqual([1, 2, 3])
   })
 })
