@@ -17,11 +17,6 @@ import type { ComponentContext } from '../types'
  * In the editor preview, and in absence of a real provider, we mock providers
  * with their testData values. This is useful for testing components in
  * isolation.
- *
- * This module is preview-only: it is imported solely by the preview entry
- * (`editor-preview.main.ts`) and exposed to shared runtime code via
- * `toddle._preview.providerContextMock`, so production bundles (`page`,
- * `custom-element`) don't include it.
  */
 export function providerContextMock({
   componentDataSignal,

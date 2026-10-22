@@ -20,6 +20,7 @@ import {
 import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
 import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
 import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+import { handlePreviewAutofocus } from '../editor/previewAutofocus'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
@@ -176,23 +177,19 @@ export function createElement({
     if (!isDefined(value)) {
       continue
     }
-    const previewHandledAutofocus =
-      IS_PREVIEW && attr === 'autofocus'
-        ? (ctx.toddle._preview?.handleAutofocus?.({
-            elem,
-            attr,
-            value,
-            dataSignal,
-            id,
-            ctx,
-          }),
-          true)
-        : false
-    if (previewHandledAutofocus) {
+    if (IS_PREVIEW && attr === 'autofocus' && ctx.toddle._preview) {
+      handlePreviewAutofocus({
+        elem,
+        attr,
+        value,
+        dataSignal,
+        id,
+        ctx,
+      })
       continue
     }
     if (value.type === 'value') {
-      setAttribute(elem, attr, value?.value)
+      setAttribute(elem, attr, value.value)
     } else {
       const attrPath =
         IS_PREVIEW && ctx.reportFormulaEvaluation

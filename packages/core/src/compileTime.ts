@@ -17,6 +17,9 @@ declare global {
   var IS_CUSTOM_ELEMENT: boolean
 }
 
+// Runtime fallback for unbundled environments (unit tests and SSR etc.) where
+// esbuild `define` has not replaced these identifiers. When bundled with esbuild,
+// `typeof false === 'undefined'` constant-folds to `false` and is stripped.
 if (typeof IS_PREVIEW === 'undefined') {
   globalThis.IS_PREVIEW = true
 }

@@ -4,6 +4,7 @@ import type {
   ComponentData,
 } from '@nordcraft/core/dist/component/component.types'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { providerContextMock } from '../editor/mockProviderContext'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 
@@ -60,9 +61,8 @@ export function subscribeToContext(
 
       // In preview and absence of a real provider, we fake providers with their testData values.
       // This is useful for testing components in isolation.
-      // The implementation is injected via `toddle._preview` to avoid bundling it in all runtime bundles.
-      else if (IS_PREVIEW && !provider) {
-        ctx.toddle._preview?.providerContextMock?.({
+      else if (IS_PREVIEW && !provider && ctx.toddle._preview) {
+        providerContextMock({
           componentDataSignal,
           component,
           ctx,
