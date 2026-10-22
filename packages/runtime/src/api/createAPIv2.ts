@@ -95,7 +95,10 @@ export function createAPI({
     api: ApiRequest,
     componentData: ComponentData | undefined,
   ): ComponentData {
-    const baseData = componentData ?? ctx.dataSignal.get()
+    const baseData = {
+      ...componentData,
+      ...ctx.dataSignal.get(),
+    }
 
     // Make sure inputs are also available in the formula context
     const evaluatedInputs = Object.entries(api.inputs).reduce<
