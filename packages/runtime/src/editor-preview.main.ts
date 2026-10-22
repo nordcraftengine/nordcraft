@@ -1055,7 +1055,7 @@ export const createRoot = (
     }
     if (
       fastDeepEqual(_component.contexts, ctx?.component.contexts) === false ||
-      previewStateOverrides?.contexts !== undefined
+      previewStateOverrides?.contexts
     ) {
       Contexts = createStaticContextFromComponent(
         _component,
