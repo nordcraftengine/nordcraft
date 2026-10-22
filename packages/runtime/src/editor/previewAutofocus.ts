@@ -37,8 +37,9 @@ export function handlePreviewAutofocus({
       const attrPath = ctx.reportFormulaEvaluation
         ? ['nodes', id, 'attrs', attr]
         : undefined
+      const formulaCtx = ctx.jsonPath ? { ...ctx, jsonPath: undefined } : ctx
       o = dataSignal.map((data) => {
-        const val = applyFormula(value, ctx, data, attrPath)
+        const val = applyFormula(value, formulaCtx, data, attrPath)
         if (attrPath) {
           ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
         }

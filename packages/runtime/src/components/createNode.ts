@@ -97,9 +97,11 @@ export function createNode({
       IS_PREVIEW && ctx.reportFormulaEvaluation
         ? ['nodes', id, 'condition']
         : undefined
+    const conditionCtx =
+      IS_PREVIEW && ctx.jsonPath ? { ...ctx, jsonPath: undefined } : ctx
     const showSignal = dataSignal.map((data) => {
       const show = toBoolean(
-        applyFormula(node.condition, ctx, data, conditionPath),
+        applyFormula(node.condition, conditionCtx, data, conditionPath),
       )
 
       return show
@@ -202,8 +204,10 @@ export function createNode({
       IS_PREVIEW && ctx.reportFormulaEvaluation
         ? ['nodes', id, 'repeatKey']
         : undefined
+    const repeatFormulaCtx =
+      IS_PREVIEW && ctx.jsonPath ? { ...ctx, jsonPath: undefined } : ctx
     const repeatSignal = dataSignal.map((data) => {
-      const list = applyFormula(node?.repeat, ctx, data, listPath)
+      const list = applyFormula(node?.repeat, repeatFormulaCtx, data, listPath)
 
       if (typeof list !== 'object' || list === null) {
         return []
@@ -238,7 +242,12 @@ export function createNode({
             },
           }
           let childKey = node?.repeatKey
-            ? applyFormula(node.repeatKey, ctx, childData, repeatKeyPath)
+            ? applyFormula(
+                node.repeatKey,
+                repeatFormulaCtx,
+                childData,
+                repeatKeyPath,
+              )
             : Key
 
           if (seenKeys.has(childKey)) {

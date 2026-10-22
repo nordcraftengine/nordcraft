@@ -1256,4 +1256,100 @@ describe('renderPageBody', () => {
     }
     expect(seen.size).toBeGreaterThan(0)
   })
+
+  test('evaluates child component variables that apply child component formulas', async () => {
+    const childComponent: Component = {
+      name: 'ChildWithFormulaVar',
+      attributes: {
+        prefix: {
+          name: 'prefix',
+          testValue: 'hi',
+        },
+      },
+      formulas: {
+        computeInitial: {
+          name: 'computeInitial',
+          arguments: [],
+          formula: {
+            type: 'path',
+            path: ['Attributes', 'prefix'],
+          },
+        },
+      },
+      variables: {
+        derived: {
+          initialValue: {
+            type: 'apply',
+            name: 'computeInitial',
+            arguments: [],
+          },
+        },
+      },
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'span',
+          attrs: {},
+          style: {},
+          events: {},
+          classes: {},
+          children: ['textNode'],
+        },
+        textNode: {
+          type: 'text',
+          value: {
+            type: 'path',
+            path: ['Variables', 'derived'],
+          },
+        },
+      },
+    }
+    const pageComponent: Component = {
+      name: 'ParentPage',
+      route: {
+        path: [],
+        query: {},
+      },
+      attributes: {},
+      variables: {},
+      nodes: {
+        root: {
+          type: 'component',
+          name: 'ChildWithFormulaVar',
+          attrs: {
+            prefix: {
+              type: 'value',
+              value: 'from-child-formula',
+            },
+          },
+          children: [],
+          events: {},
+        },
+      },
+    }
+
+    const { html } = await renderPageBody({
+      evaluateComponentApis: () => ({}) as any,
+      component: pageComponent as any,
+      formulaContext: {
+        component: pageComponent,
+        env: {} as any,
+        package: undefined,
+        toddle: {} as any,
+      },
+      data: {},
+      env: {} as any,
+      files: {
+        components: {
+          ParentPage: pageComponent,
+          ChildWithFormulaVar: childComponent,
+        },
+      } as any,
+      includedComponents: [pageComponent, childComponent],
+      projectId: 'my-project',
+      req: {} as any,
+    })
+
+    expect(html).toContain('from-child-formula')
+  })
 })

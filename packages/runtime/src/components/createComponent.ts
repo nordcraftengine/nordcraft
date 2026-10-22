@@ -102,7 +102,12 @@ export function createComponent({
     return result
   })
 
-  const apiFormulaCtx: FormulaContext = { ...formulaCtx, component }
+  const formulaCache = createFormulaCache(component)
+  const apiFormulaCtx: FormulaContext = {
+    ...formulaCtx,
+    component,
+    formulaCache,
+  }
   const componentDataSignal = signal<ComponentData>({
     Location: dataSignal.get().Location,
     Attributes: attributesSignal.get(),
@@ -182,7 +187,6 @@ export function createComponent({
       }
     })
   }
-  const formulaCache = createFormulaCache(component)
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
   const apis: Record<string, ContextApi> = {}
