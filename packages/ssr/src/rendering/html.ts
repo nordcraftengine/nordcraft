@@ -4,7 +4,7 @@ import type {
 } from '@nordcraft/core/dist/component/component.types'
 import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/theme.const'
+import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/themeAttributes.const'
 
 export const getHtmlLanguage = ({
   pageInfo,

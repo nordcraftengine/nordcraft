@@ -1,3 +1,4 @@
+import '../compileTime'
 import type { ComponentData } from '../component/component.types'
 import {
   applyFormula,
@@ -13,18 +14,15 @@ export const applyArrayFormula = (
   const args = formula.arguments ?? []
   const len = args.length
   const result = new Array(len)
-  if (ctx.reportFormulaEvaluation) {
-    for (let i = 0; i < len; i++) {
-      result[i] = applyFormula(args[i]!.formula, ctx, data, [
-        'arguments',
-        i,
-        'formula',
-      ])
-    }
-  } else {
-    for (let i = 0; i < len; i++) {
-      result[i] = applyFormula(args[i]!.formula, ctx, data)
-    }
+  for (let i = 0; i < len; i++) {
+    result[i] = applyFormula(
+      args[i]!.formula,
+      ctx,
+      data,
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['arguments', i, 'formula']
+        : undefined,
+    )
   }
   return result
 }

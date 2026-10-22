@@ -1,5 +1,6 @@
 import { isLegacyApi } from '@nordcraft/core/dist/api/api'
 import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
+import '@nordcraft/core/dist/compileTime'
 import type {
   Component,
   ComponentData,
@@ -9,7 +10,7 @@ import type {
 import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
 import { applyFormula } from '@nordcraft/core/dist/formula/formula'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/theme.const'
+import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/themeAttributes.const'
 import type {
   ActionHandler,
   ArgumentInputDataFunction,
@@ -187,10 +188,8 @@ export const createRoot = (domNode: HTMLElement) => {
             package: undefined,
             toddle: window.toddle,
             env,
-            jsonPath: [],
           },
           window.toddle.pageState,
-          ['variables', name],
         ),
       ],
     ),
@@ -211,10 +210,9 @@ export const createRoot = (domNode: HTMLElement) => {
 
   // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
   const abortController = new AbortController()
-  dataSignal.subscribe(() => {}, {
-    destroy: () =>
-      abortController.abort(`Component ${component.name} unmounted`),
-  })
+  dataSignal.subscriptions.push(() =>
+    abortController.abort(`Component ${component.name} unmounted`),
+  )
 
   const ctx: ComponentContext = {
     component,
@@ -231,12 +229,9 @@ export const createRoot = (domNode: HTMLElement) => {
     },
     apis: {},
     toddle: window.toddle,
-    triggerEvent: (event: string, data: unknown) =>
-      // eslint-disable-next-line no-console
-      console.info('EVENT FIRED', event, data),
+    triggerEvent: () => {},
     package: undefined,
     env,
-    jsonPath: [],
   }
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
@@ -246,17 +241,11 @@ export const createRoot = (domNode: HTMLElement) => {
     ),
   ).forEach(([name, api]) => {
     if (isLegacyApi(api)) {
-      ctx.apis[name] = createLegacyAPI(api, {
-        ...ctx,
-        jsonPath: ['apis', name],
-      })
+      ctx.apis[name] = createLegacyAPI(api, ctx)
     } else {
       ctx.apis[name] = createAPI({
         apiRequest: api,
-        ctx: {
-          ...ctx,
-          jsonPath: ['apis', name],
-        },
+        ctx,
         componentData: dataSignal.get(),
       })
     }
@@ -294,13 +283,18 @@ export const createRoot = (domNode: HTMLElement) => {
 
   ctx.stores.theme.subscribe((newTheme) => {
     // The page's dataSignal also needs to be updated so that `Page.Theme` formulas works on page components
-    dataSignal.update((data) => ({
-      ...data,
-      Page: {
-        ...(data.Page ?? {}),
-        Theme: newTheme,
-      },
-    }))
+    if (dataSignal.get().Page?.Theme !== newTheme) {
+      dataSignal.update(
+        (data) => ({
+          ...data,
+          Page: {
+            ...(data.Page ?? {}),
+            Theme: newTheme,
+          },
+        }),
+        { force: true },
+      )
+    }
     if (isDefined(newTheme)) {
       document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
     } else {
@@ -394,13 +388,7 @@ const setupMetaUpdates = (
   if (dynamicLang) {
     dataSignal
       .map((data) =>
-        component
-          ? applyFormula(langFormula, formulaContext, data, [
-              'route',
-              'info',
-              'language',
-            ])
-          : null,
+        component ? applyFormula(langFormula, formulaContext, data) : null,
       )
       .subscribe((newLang) => {
         if (isDefined(newLang) && document.documentElement.lang !== newLang) {
@@ -415,13 +403,7 @@ const setupMetaUpdates = (
   if (dynamicTitle) {
     dataSignal
       .map((data) =>
-        component
-          ? applyFormula(titleFormula, formulaContext, data, [
-              'route',
-              'info',
-              'title',
-            ])
-          : null,
+        component ? applyFormula(titleFormula, formulaContext, data) : null,
       )
       .subscribe((newTitle) => {
         if (isDefined(newTitle) && document.title !== newTitle) {
@@ -486,11 +468,7 @@ const setupMetaUpdates = (
       dataSignal
         .map((data) =>
           component
-            ? applyFormula(descriptionFormula, formulaContext, data, [
-                'route',
-                'info',
-                'description',
-              ])
+            ? applyFormula(descriptionFormula, formulaContext, data)
             : null,
         )
         .subscribe((newDescription) => {
@@ -545,14 +523,7 @@ const setupMetaUpdates = (
                   component
                     ? {
                         ...agg,
-                        [key]: applyFormula(formula, formulaContext, data, [
-                          'route',
-                          'info',
-                          'meta',
-                          id,
-                          'attrs',
-                          key,
-                        ]),
+                        [key]: applyFormula(formula, formulaContext, data),
                       }
                     : agg,
                 {},

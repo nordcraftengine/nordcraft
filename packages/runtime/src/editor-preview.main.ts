@@ -16,7 +16,7 @@ import type { Theme } from '@nordcraft/core/dist/styling/theme'
 import {
   THEME_COOKIE_NAME,
   THEME_DATA_ATTRIBUTE,
-} from '@nordcraft/core/dist/styling/theme.const'
+} from '@nordcraft/core/dist/styling/themeAttributes.const'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import fastDeepEqual from 'fast-deep-equal'
 import { createNode } from './components/createNode'

@@ -10,7 +10,7 @@ const handler: FormulaHandler<number> = ([collection, item]) => {
   }
 
   if (Array.isArray(collection)) {
-    // Short-circuit for primitive types and references
+    // Fast-path for primitive types and references
     const fastIndex = collection.indexOf(item)
     if (fastIndex !== -1) {
       return fastIndex

@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import type { LegacyComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import { mapHeadersToObject } from '@nordcraft/core/dist/api/headers'
+import '@nordcraft/core/dist/compileTime'
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
 import { applyFormula, isFormula } from '@nordcraft/core/dist/formula/formula'
 import type { Nullable } from '@nordcraft/core/dist/types'
 import { mapObject } from '@nordcraft/core/dist/utils/collections'
 import { parseJSONWithDate } from '@nordcraft/core/dist/utils/json'
+import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
@@ -36,13 +38,19 @@ export function createLegacyAPI(
     data: ComponentData,
   ): ApiRequest {
     // construct the url
-    const baseUrl = applyFormula(api.url, ctx, data, ['url']) ?? ''
+    const baseUrl =
+      applyFormula(api.url, ctx, data, IS_PREVIEW ? ['url'] : undefined) ?? ''
     const urlPath =
       api.path && api.path.length > 0
         ? '/' +
           api.path
             .map((p, i) =>
-              applyFormula(p.formula, ctx, data, ['path', i, 'formula']),
+              applyFormula(
+                p.formula,
+                ctx,
+                data,
+                IS_PREVIEW ? ['path', i, 'formula'] : undefined,
+              ),
             )
             .join('/')
         : ''
@@ -56,19 +64,30 @@ export function createLegacyAPI(
             .map(
               (param, i) =>
                 `${param.name}=${encodeURIComponent(
-                  applyFormula(param.formula, ctx, data, [
-                    'queryParams',
-                    i,
-                    'formula',
-                  ]),
+                  applyFormula(
+                    param.formula,
+                    ctx,
+                    data,
+                    IS_PREVIEW ? ['queryParams', i, 'formula'] : undefined,
+                  ),
                 )}`,
             )
             .join('&')
         : ''
     const headers = isFormula(api.headers) // this is supporting a few legacy cases where the whole header object was set as a formula. This is no longer possible
-      ? applyFormula(api.headers, ctx, data, ['headers'])
+      ? applyFormula(
+          api.headers,
+          ctx,
+          data,
+          IS_PREVIEW ? ['headers'] : undefined,
+        )
       : mapObject(api.headers ?? {}, ([key, value]) =>
-          applyFormula(value, ctx, data, ['headers', key]),
+          applyFormula(
+            value,
+            ctx,
+            data,
+            IS_PREVIEW ? ['headers', key] : undefined,
+          ),
         )
     const contentType = String(
       Object.entries(headers).find(
@@ -78,7 +97,15 @@ export function createLegacyAPI(
     const method = api.method ?? 'GET'
     const body =
       api.body && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
-        ? encodeBody(applyFormula(api.body, ctx, data, ['body']), contentType)
+        ? encodeBody(
+            applyFormula(
+              api.body,
+              ctx,
+              data,
+              IS_PREVIEW ? ['body'] : undefined,
+            ),
+            contentType,
+          )
         : undefined
     return {
       url: baseUrl + urlPath + queryString,
@@ -139,34 +166,48 @@ export function createLegacyAPI(
   }
 
   function apiSuccess(data: any) {
-    ctx.dataSignal.set({
-      ...ctx.dataSignal.get(),
-      Apis: {
-        ...ctx.dataSignal.get().Apis,
-        [api.name]: {
-          data,
-          error: null,
-          isLoading: false,
+    const value = {
+      data,
+      error: null,
+      isLoading: false,
+    }
+
+    if (fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
+      ctx.dataSignal.set(
+        {
+          ...ctx.dataSignal.get(),
+          Apis: {
+            ...ctx.dataSignal.get().Apis,
+            [api.name]: value,
+          },
         },
-      },
-    })
+        { force: true },
+      )
+    }
     api.onCompleted?.actions?.forEach((action) => {
       handleAction(action, ctx.dataSignal.get(), ctx)
     })
   }
 
   function apiError(error: any) {
-    ctx.dataSignal.set({
-      ...ctx.dataSignal.get(),
-      Apis: {
-        ...ctx.dataSignal.get().Apis,
-        [api.name]: {
-          data: null,
-          isLoading: false,
-          error: error,
+    const value = {
+      data: null,
+      isLoading: false,
+      error: error,
+    }
+
+    if (fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
+      ctx.dataSignal.set(
+        {
+          ...ctx.dataSignal.get(),
+          Apis: {
+            ...ctx.dataSignal.get().Apis,
+            [api.name]: value,
+          },
         },
-      },
-    })
+        { force: true },
+      )
+    }
     api.onFailed?.actions?.forEach((action) => {
       handleAction(action, ctx.dataSignal.get(), ctx)
     })
@@ -174,17 +215,24 @@ export function createLegacyAPI(
 
   // Execute the request to the cloudflare Query proxy
   async function execute(payload: ApiRequest) {
-    ctx.dataSignal.set({
-      ...ctx.dataSignal.get(),
-      Apis: {
-        ...ctx.dataSignal.get().Apis,
-        [api.name]: {
-          data: ctx.dataSignal.get().Apis?.[api.name]?.data ?? null,
-          isLoading: true,
-          error: null,
+    const value = {
+      data: ctx.dataSignal.get().Apis?.[api.name]?.data ?? null,
+      isLoading: true,
+      error: null,
+    }
+
+    if (fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
+      ctx.dataSignal.set(
+        {
+          ...ctx.dataSignal.get(),
+          Apis: {
+            ...ctx.dataSignal.get().Apis,
+            [api.name]: value,
+          },
         },
-      },
-    })
+        { force: true },
+      )
+    }
     let response
 
     try {
@@ -248,23 +296,33 @@ export function createLegacyAPI(
   }
 
   let payloadSignal: Signal<ApiRequest> | undefined
-  ctx.dataSignal.update((data) => {
-    return {
-      ...data,
-      Apis: {
-        ...(data.Apis ?? {}),
-        [api.name]: data.Apis?.[api.name] ?? {
-          data: null,
-          isLoading:
-            api.autoFetch &&
-            applyFormula(api.autoFetch, ctx, data, ['autoFetch'])
-              ? true
-              : false,
-          error: null,
-        },
+  if (!ctx.dataSignal.get().Apis?.[api.name]) {
+    ctx.dataSignal.update(
+      (data) => {
+        return {
+          ...data,
+          Apis: {
+            ...(data.Apis ?? {}),
+            [api.name]: data.Apis?.[api.name] ?? {
+              data: null,
+              isLoading:
+                api.autoFetch &&
+                applyFormula(
+                  api.autoFetch,
+                  ctx,
+                  data,
+                  IS_PREVIEW ? ['autoFetch'] : undefined,
+                )
+                  ? true
+                  : false,
+              error: null,
+            },
+          },
+        }
       },
-    }
-  })
+      { force: true },
+    )
+  }
   if (api.autoFetch) {
     payloadSignal = ctx.dataSignal.map((data) => constructPayload(api, data))
     let firstRun = true
@@ -272,7 +330,12 @@ export function createLegacyAPI(
       const currentData = ctx.dataSignal.get()
       if (
         api.autoFetch &&
-        applyFormula(api.autoFetch, ctx, currentData, ['autoFetch'])
+        applyFormula(
+          api.autoFetch,
+          ctx,
+          currentData,
+          IS_PREVIEW ? ['autoFetch'] : undefined,
+        )
       ) {
         // We should only lookup cached data for pages since
         // we don't fetch data for component APIs during SSR
