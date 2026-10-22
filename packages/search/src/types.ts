@@ -558,7 +558,7 @@ export interface IssueRule<
 }
 
 export interface SearchRule<T = unknown, V extends NodeType = NodeType> {
-  nodeTypes?: V['nodeType'] | V['nodeType'][]
+  nodeTypes: V['nodeType'] | V['nodeType'][]
   visit: (
     report: (args: { path: (string | number)[]; details?: T }) => void,
     data: V,

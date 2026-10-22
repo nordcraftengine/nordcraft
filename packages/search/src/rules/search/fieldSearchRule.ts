@@ -1,6 +1,40 @@
+import { isDefined } from '@nordcraft/core/dist/utils/util'
 import equal from 'fast-deep-equal'
-import type { SearchRule } from '../../types'
+import type { NodeType, SearchRule } from '../../types'
 import { parseSearchQuery } from '../../util/parseSearchQuery'
+
+const ALL_NODE_TYPES_MAP: Record<NodeType['nodeType'], true> = {
+  'action-custom-model-argument': true,
+  'action-custom-model-event': true,
+  'action-model': true,
+  animation: true,
+  'api-service': true,
+  component: true,
+  'component-api': true,
+  'component-api-input': true,
+  'component-attribute': true,
+  'component-context': true,
+  'component-event': true,
+  'component-formula': true,
+  'component-node': true,
+  'component-node-attribute': true,
+  'component-variable': true,
+  'component-workflow': true,
+  'custom-property': true,
+  formula: true,
+  'project-action': true,
+  'project-config': true,
+  'project-formula': true,
+  'project-package': true,
+  'project-route': true,
+  'project-theme': true,
+  'project-theme-property': true,
+  'style-declaration': true,
+  'style-variable': true,
+  'style-variant': true,
+}
+
+const ALL_NODE_TYPES = Object.keys(ALL_NODE_TYPES_MAP) as NodeType['nodeType'][]
 
 type MatchResult =
   | {
@@ -313,7 +347,10 @@ export function createFieldSearchRule({
     return exclude ? !matched : matched
   }
 
+  const queryNodeTypes = parsedQuery.map((p) => p.nodeType).filter(isDefined)
+
   return {
+    nodeTypes: queryNodeTypes.length > 0 ? queryNodeTypes : ALL_NODE_TYPES,
     visit: (report, { path, value, nodeType }) => {
       if (
         typeof value !== 'object' ||

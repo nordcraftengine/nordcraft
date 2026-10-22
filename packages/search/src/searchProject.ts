@@ -32,21 +32,12 @@ const FIXED_SIGNAL = Symbol('FIXED_SIGNAL')
  * matching rules in O(1) instead of checking every rule on every node, and
  * skip traversing subtrees/leaf node types that no rule inspects.
  */
-interface RuleIndex {
-  byNodeType: Map<NodeType['nodeType'], (IssueRule & SearchRule)[]>
-  // Rules without `nodeTypes` (such as general search rules) run on every node type.
-  rulesForAllNodeTypes: (IssueRule & SearchRule)[]
-}
+type RuleIndex = Map<NodeType['nodeType'], (IssueRule & SearchRule)[]>
 
 function createRuleIndex(rules: Rule[]): RuleIndex {
-  const byNodeType = new Map<NodeType['nodeType'], (IssueRule & SearchRule)[]>()
-  const rulesForAllNodeTypes: (IssueRule & SearchRule)[] = []
+  const byNodeType: RuleIndex = new Map()
 
   for (const rule of rules as (IssueRule & SearchRule)[]) {
-    if (!rule.nodeTypes) {
-      rulesForAllNodeTypes.push(rule)
-      continue
-    }
     const declaredTypes = Array.isArray(rule.nodeTypes)
       ? rule.nodeTypes
       : [rule.nodeTypes]
@@ -60,27 +51,7 @@ function createRuleIndex(rules: Rule[]): RuleIndex {
     }
   }
 
-  return { byNodeType, rulesForAllNodeTypes }
-}
-
-function rulesForNodeType(
-  index: RuleIndex,
-  nodeType: NodeType['nodeType'],
-): (IssueRule & SearchRule)[] | undefined {
-  const typedRules = index.byNodeType.get(nodeType)
-  if (index.rulesForAllNodeTypes.length === 0) {
-    return typedRules
-  }
-  return typedRules
-    ? [...typedRules, ...index.rulesForAllNodeTypes]
-    : index.rulesForAllNodeTypes
-}
-
-function isNodeTypeActive(
-  index: RuleIndex,
-  nodeType: NodeType['nodeType'],
-): boolean {
-  return index.rulesForAllNodeTypes.length > 0 || index.byNodeType.has(nodeType)
+  return byNodeType
 }
 
 interface SearchContext {
@@ -179,54 +150,69 @@ export function* searchProject({
       }
     }
 
-    for (const key in context.files.formulas) {
-      yield* visitNode(context, {
-        nodeType: 'project-formula',
-        value: context.files.formulas[key],
-        path: ['formulas', key],
-        memo: context.memo,
-        files: context.files,
-      })
+    if (ruleIndex.has('project-formula') || ruleIndex.has('formula')) {
+      for (const key in context.files.formulas) {
+        yield* visitNode(context, {
+          nodeType: 'project-formula',
+          value: context.files.formulas[key],
+          path: ['formulas', key],
+          memo: context.memo,
+          files: context.files,
+        })
+      }
     }
 
-    for (const key in context.files.actions) {
-      yield* visitNode(context, {
-        nodeType: 'project-action',
-        value: context.files.actions[key],
-        path: ['actions', key],
-        memo: context.memo,
-        files: context.files,
-      })
+    if (ruleIndex.has('project-action')) {
+      for (const key in context.files.actions) {
+        yield* visitNode(context, {
+          nodeType: 'project-action',
+          value: context.files.actions[key],
+          path: ['actions', key],
+          memo: context.memo,
+          files: context.files,
+        })
+      }
     }
 
-    for (const key in context.files.themes) {
-      yield* visitNode(context, {
-        nodeType: 'project-theme',
-        value: context.files.themes[key],
-        path: ['themes', key],
-        memo: context.memo,
-        files: context.files,
-      })
-      if (isNodeTypeActive(ruleIndex, 'project-theme-property')) {
-        const propDefs = context.files.themes[key]?.propertyDefinitions
-        if (propDefs) {
-          for (const propKey in propDefs) {
-            const propDef = propDefs[propKey as any]
-            if (propDef) {
-              yield* visitNode(context, {
-                nodeType: 'project-theme-property',
-                value: { key: propKey as CustomPropertyName, value: propDef },
-                path: ['themes', key, 'propertyDefinitions', propKey],
-                memo: context.memo,
-                files: context.files,
-              })
+    if (
+      ruleIndex.has('project-theme') ||
+      ruleIndex.has('project-theme-property')
+    ) {
+      for (const key in context.files.themes) {
+        yield* visitNode(context, {
+          nodeType: 'project-theme',
+          value: context.files.themes[key],
+          path: ['themes', key],
+          memo: context.memo,
+          files: context.files,
+        })
+        if (ruleIndex.has('project-theme-property')) {
+          const propDefs = context.files.themes[key]?.propertyDefinitions
+          if (propDefs) {
+            for (const propKey in propDefs) {
+              const propDef = propDefs[propKey as any]
+              if (propDef) {
+                yield* visitNode(context, {
+                  nodeType: 'project-theme-property',
+                  value: {
+                    key: propKey as CustomPropertyName,
+                    value: propDef,
+                  },
+                  path: ['themes', key, 'propertyDefinitions', propKey],
+                  memo: context.memo,
+                  files: context.files,
+                })
+              }
             }
           }
         }
       }
     }
 
-    if (context.files.services) {
+    if (
+      context.files.services &&
+      (ruleIndex.has('api-service') || ruleIndex.has('formula'))
+    ) {
       for (const key in context.files.services) {
         yield* visitNode(context, {
           nodeType: 'api-service',
@@ -238,7 +224,10 @@ export function* searchProject({
       }
     }
 
-    if (context.files.routes) {
+    if (
+      context.files.routes &&
+      (ruleIndex.has('project-route') || ruleIndex.has('formula'))
+    ) {
       for (const key in context.files.routes) {
         yield* visitNode(context, {
           nodeType: 'project-route',
@@ -251,7 +240,7 @@ export function* searchProject({
       }
     }
 
-    if (isNodeTypeActive(ruleIndex, 'project-config')) {
+    if (ruleIndex.has('project-config')) {
       yield* visitNode(context, {
         nodeType: 'project-config',
         value: context.files.config,
@@ -261,10 +250,7 @@ export function* searchProject({
       })
     }
 
-    if (
-      context.files.packages &&
-      isNodeTypeActive(ruleIndex, 'project-package')
-    ) {
+    if (context.files.packages && ruleIndex.has('project-package')) {
       for (const key in context.files.packages) {
         const pkg = context.files.packages[key]
         if (pkg) {
@@ -302,7 +288,7 @@ function* visitNode(
   }
 
   if (!useExactPaths || shouldSearchExactPath({ path, pathsToVisit })) {
-    const matchingRules = rulesForNodeType(ruleIndex, nodeType)
+    const matchingRules = ruleIndex.get(nodeType)
     if (matchingRules && matchingRules.length > 0) {
       const results: (IssueResult & SearchResult)[] = []
       let fixedFiles: ProjectFiles | undefined
@@ -393,7 +379,7 @@ function* visitNode(
         },
       })
 
-      if (isNodeTypeActive(ruleIndex, 'component-attribute')) {
+      if (ruleIndex.has('component-attribute')) {
         const attributes = data.value.attributes
         if (attributes) {
           for (const key in attributes) {
@@ -412,7 +398,7 @@ function* visitNode(
         }
       }
 
-      if (isNodeTypeActive(ruleIndex, 'component-variable')) {
+      if (ruleIndex.has('component-variable')) {
         const variables = data.value.variables
         if (variables) {
           for (const key in variables) {
@@ -431,44 +417,46 @@ function* visitNode(
         }
       }
 
-      const apis = data.value.apis
-      if (apis) {
-        for (const key in apis) {
-          const api = apis[key]
-          if (!api) {
-            continue
-          }
-          yield* visitNode(context, {
-            nodeType: 'component-api',
-            value: api,
-            component,
-            path: [...path, 'apis', key],
-            memo: context.memo,
-            files: context.files,
-          })
-          if (
-            !isLegacyApi(api) &&
-            isNodeTypeActive(ruleIndex, 'component-api-input')
-          ) {
-            const inputs = api.inputs
-            if (inputs) {
-              for (const inputKey in inputs) {
-                yield* visitNode(context, {
-                  nodeType: 'component-api-input',
-                  value: inputs[inputKey],
-                  api,
-                  component,
-                  path: [...path, 'apis', key, 'inputs', inputKey],
-                  memo: context.memo,
-                  files: context.files,
-                })
+      if (
+        ruleIndex.has('component-api') ||
+        ruleIndex.has('component-api-input')
+      ) {
+        const apis = data.value.apis
+        if (apis) {
+          for (const key in apis) {
+            const api = apis[key]
+            if (!api) {
+              continue
+            }
+            yield* visitNode(context, {
+              nodeType: 'component-api',
+              value: api,
+              component,
+              path: [...path, 'apis', key],
+              memo: context.memo,
+              files: context.files,
+            })
+            if (!isLegacyApi(api) && ruleIndex.has('component-api-input')) {
+              const inputs = api.inputs
+              if (inputs) {
+                for (const inputKey in inputs) {
+                  yield* visitNode(context, {
+                    nodeType: 'component-api-input',
+                    value: inputs[inputKey],
+                    api,
+                    component,
+                    path: [...path, 'apis', key, 'inputs', inputKey],
+                    memo: context.memo,
+                    files: context.files,
+                  })
+                }
               }
             }
           }
         }
       }
 
-      if (isNodeTypeActive(ruleIndex, 'component-formula')) {
+      if (ruleIndex.has('component-formula')) {
         const formulas = data.value.formulas
         if (formulas) {
           for (const key in formulas) {
@@ -487,7 +475,7 @@ function* visitNode(
         }
       }
 
-      if (isNodeTypeActive(ruleIndex, 'component-workflow')) {
+      if (ruleIndex.has('component-workflow')) {
         const workflows = data.value.workflows
         if (workflows) {
           for (const key in workflows) {
@@ -506,7 +494,7 @@ function* visitNode(
         }
       }
 
-      if (isNodeTypeActive(ruleIndex, 'component-event')) {
+      if (ruleIndex.has('component-event')) {
         const events = data.value.events
         if (events) {
           for (let i = 0; i < events.length; i++) {
@@ -524,7 +512,7 @@ function* visitNode(
         }
       }
 
-      if (isNodeTypeActive(ruleIndex, 'component-context')) {
+      if (ruleIndex.has('component-context')) {
         const contexts = data.value.contexts
         if (contexts) {
           for (const key in contexts) {
@@ -554,7 +542,7 @@ function* visitNode(
           if (
             isDefined(node) &&
             (node.type === 'component' || node.type === 'element') &&
-            isNodeTypeActive(ruleIndex, 'component-node-attribute')
+            ruleIndex.has('component-node-attribute')
           ) {
             const attrs = node.attrs
             if (attrs) {
@@ -573,7 +561,7 @@ function* visitNode(
         }
       }
 
-      if (isNodeTypeActive(ruleIndex, 'formula')) {
+      if (ruleIndex.has('formula')) {
         for (const {
           path: formulaPath,
           formula,
@@ -595,9 +583,9 @@ function* visitNode(
       }
 
       if (
-        isNodeTypeActive(ruleIndex, 'action-model') ||
-        isNodeTypeActive(ruleIndex, 'action-custom-model-argument') ||
-        isNodeTypeActive(ruleIndex, 'action-custom-model-event')
+        ruleIndex.has('action-model') ||
+        ruleIndex.has('action-custom-model-argument') ||
+        ruleIndex.has('action-custom-model-event')
       ) {
         for (const [
           actionPath,
@@ -612,7 +600,7 @@ function* visitNode(
             files: context.files,
           })
           if (action.type === 'Custom' || action.type === undefined) {
-            if (isNodeTypeActive(ruleIndex, 'action-custom-model-argument')) {
+            if (ruleIndex.has('action-custom-model-argument')) {
               const argsList = action.arguments
               if (argsList) {
                 for (let index = 0; index < argsList.length; index++) {
@@ -630,7 +618,7 @@ function* visitNode(
                 }
               }
             }
-            if (isNodeTypeActive(ruleIndex, 'action-custom-model-event')) {
+            if (ruleIndex.has('action-custom-model-event')) {
               const actionEvents = action.events
               if (actionEvents) {
                 for (const eventName in actionEvents) {
@@ -654,10 +642,7 @@ function* visitNode(
     }
 
     case 'project-formula':
-      if (
-        isNodeTypeActive(ruleIndex, 'formula') &&
-        isToddleFormula(data.value)
-      ) {
+      if (ruleIndex.has('formula') && isToddleFormula(data.value)) {
         const formula = new ToddleFormula({
           formula: data.value.formula,
           globalFormulas: {
@@ -688,7 +673,7 @@ function* visitNode(
     case 'component-node':
       if (data.value?.type === 'element' || data.value?.type === 'component') {
         const element = data.value
-        if (isNodeTypeActive(ruleIndex, 'style-declaration')) {
+        if (ruleIndex.has('style-declaration')) {
           const style = element.style
           if (style) {
             for (const styleKey in style) {
@@ -707,10 +692,7 @@ function* visitNode(
           }
         }
 
-        if (
-          element.type === 'element' &&
-          isNodeTypeActive(ruleIndex, 'style-variable')
-        ) {
+        if (element.type === 'element' && ruleIndex.has('style-variable')) {
           const styleVariables = element['style-variables']
           if (styleVariables) {
             for (let i = 0; i < styleVariables.length; i++) {
@@ -726,10 +708,7 @@ function* visitNode(
           }
         }
 
-        if (
-          element.customProperties &&
-          isNodeTypeActive(ruleIndex, 'custom-property')
-        ) {
+        if (element.customProperties && ruleIndex.has('custom-property')) {
           const customProps = element.customProperties
           for (const customPropertyKey in customProps) {
             yield* visitNode(context, {
@@ -746,7 +725,7 @@ function* visitNode(
           }
         }
 
-        if (element.animations && isNodeTypeActive(ruleIndex, 'animation')) {
+        if (element.animations && ruleIndex.has('animation')) {
           const animations = element.animations
           for (const animationKey in animations) {
             yield* visitNode(context, {
@@ -766,13 +745,13 @@ function* visitNode(
         const variants = element.variants
         if (
           variants &&
-          (isNodeTypeActive(ruleIndex, 'style-variant') ||
-            isNodeTypeActive(ruleIndex, 'style-declaration') ||
-            isNodeTypeActive(ruleIndex, 'custom-property'))
+          (ruleIndex.has('style-variant') ||
+            ruleIndex.has('style-declaration') ||
+            ruleIndex.has('custom-property'))
         ) {
           for (let i = 0; i < variants.length; i++) {
             const variant = variants[i]
-            if (isNodeTypeActive(ruleIndex, 'style-variant')) {
+            if (ruleIndex.has('style-variant')) {
               yield* visitNode(context, {
                 nodeType: 'style-variant',
                 value: { variant, element },
@@ -781,7 +760,7 @@ function* visitNode(
                 files: context.files,
               })
             }
-            if (isNodeTypeActive(ruleIndex, 'style-declaration')) {
+            if (ruleIndex.has('style-declaration')) {
               const variantStyle = variant.style
               if (variantStyle) {
                 for (const styleKey in variantStyle) {
@@ -799,10 +778,7 @@ function* visitNode(
                 }
               }
             }
-            if (
-              variant.customProperties &&
-              isNodeTypeActive(ruleIndex, 'custom-property')
-            ) {
+            if (variant.customProperties && ruleIndex.has('custom-property')) {
               const variantCustomProps = variant.customProperties
               for (const customPropertyKey in variantCustomProps) {
                 yield* visitNode(context, {
@@ -834,7 +810,7 @@ function* visitNode(
       break
 
     case 'api-service': {
-      if (isNodeTypeActive(ruleIndex, 'formula')) {
+      if (ruleIndex.has('formula')) {
         const apiService = new ToddleApiService<string>({
           service: data.value,
           globalFormulas: {
@@ -859,7 +835,7 @@ function* visitNode(
     }
 
     case 'project-route': {
-      if (isNodeTypeActive(ruleIndex, 'formula')) {
+      if (ruleIndex.has('formula')) {
         const projectRoute = new ToddleRoute<string>({
           route: data.value,
           globalFormulas: {
