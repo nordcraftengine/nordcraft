@@ -45,7 +45,7 @@ export function createStaticContextFromComponent(
     env: ToddleEnv
     contextProvidersCreated?: Set<string>
     componentMap?: Map<string, Component>
-    contextOverrides?: Record<string, string | null> | null
+    contextOverrides?: Record<string, Nullable<string>> | null
   },
 ): Record<string, Record<string, unknown>> {
   const contextProvidersCreated =

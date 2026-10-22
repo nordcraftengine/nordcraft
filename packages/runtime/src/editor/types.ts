@@ -2,7 +2,7 @@ import type {
   AnimationKeyframe,
   Component,
   ComponentData,
-  RouteParameters,
+  TestScenario,
 } from '@nordcraft/core/dist/component/component.types'
 import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
 import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
@@ -144,11 +144,7 @@ export type NordcraftPreviewEvent =
     }
   | {
       type: 'preview_state'
-      attributes?: ComponentData['Attributes'] | null
-      variables?: ComponentData['Variables']
-      path?: RouteParameters['path'] | null
-      query?: RouteParameters['query'] | null
-      contexts?: Record<string, string | null> | null
+      state?: TestScenario | null
     }
   | {
       type: 'viewport_size'

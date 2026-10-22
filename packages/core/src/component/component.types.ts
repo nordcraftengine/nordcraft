@@ -223,6 +223,7 @@ export interface TestScenario extends NordcraftMetadata {
   id?: string
   attributes?: Nullable<ComponentData['Attributes']>
   variables?: ComponentData['Variables']
+  apis?: ComponentData['Apis']
   path?: Nullable<RouteParameters['path']>
   query?: Nullable<RouteParameters['query']>
   contexts?: Nullable<Record<string, Nullable<string>>>

@@ -1,7 +1,7 @@
 import type {
   Component,
   ComponentData,
-  RouteParameters,
+  TestScenario,
 } from '@nordcraft/core/dist/component/component.types'
 import type {
   FormulaContext,
@@ -18,16 +18,10 @@ import {
 } from './componentData'
 import { createStaticContextFromComponent } from './context'
 
-export interface PreviewStateOverrides {
-  attributes?: ComponentData['Attributes'] | null
-  variables?: ComponentData['Variables']
-  path?: RouteParameters['path'] | null
-  query?: RouteParameters['query'] | null
-  contexts?: Record<string, string | null> | null
-}
+export type PreviewStateOverrides = TestScenario
 
 export const applyPreviewState = (options: {
-  overrides: PreviewStateOverrides | null
+  overrides: TestScenario | null | undefined
   component: Component | null
   components?: Component[]
   dataSignal: Signal<ComponentData>
@@ -60,6 +54,16 @@ export const applyPreviewState = (options: {
       contextOverrides: overrides?.contexts,
     })
   }
+
+  const currentApis = dataSignal.get().Apis ?? {}
+  const apis = overrides?.apis
+    ? {
+        ...currentApis,
+        ...overrides.apis,
+      }
+    : overrides === null
+      ? {}
+      : currentApis
 
   if (component.route) {
     const baseParams = getRouteParams(component.route)
@@ -109,6 +113,7 @@ export const applyPreviewState = (options: {
       Attributes: urlParams,
       Variables: variables,
       Contexts,
+      Apis: apis,
       Location: data.Location
         ? {
             ...data.Location,
@@ -152,6 +157,7 @@ export const applyPreviewState = (options: {
       Attributes: attributes,
       Variables: variables,
       Contexts,
+      Apis: apis,
     }))
   }
 

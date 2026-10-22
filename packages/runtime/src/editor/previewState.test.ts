@@ -246,4 +246,55 @@ describe('applyPreviewState', () => {
       },
     })
   })
+
+  test('applies API mock overrides to dataSignal', () => {
+    const component: Component = {
+      name: 'UserList',
+      attributes: {},
+      variables: {},
+      nodes: {},
+    }
+
+    const dataSignal = signal<ComponentData>({
+      ...EMPTY_COMPONENT_DATA,
+      Apis: {
+        getUsers: {
+          isLoading: false,
+          data: null,
+          error: null,
+        },
+      },
+    })
+
+    applyPreviewState({
+      overrides: {
+        apis: {
+          getUsers: {
+            isLoading: false,
+            data: [{ id: '1', name: 'John' }],
+            error: null,
+          },
+        },
+      },
+      component,
+      dataSignal,
+      ctx: null,
+      env,
+    })
+
+    expect(dataSignal.get().Apis?.getUsers?.data).toEqual([
+      { id: '1', name: 'John' },
+    ])
+
+    // Reverting with null clears API overrides
+    applyPreviewState({
+      overrides: null,
+      component,
+      dataSignal,
+      ctx: null,
+      env,
+    })
+
+    expect(dataSignal.get().Apis?.getUsers).toBeUndefined()
+  })
 })
