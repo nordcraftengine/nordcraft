@@ -53,8 +53,9 @@ export function setAttribute(
         elem.setAttribute(attr, String(value))
         if (
           // autofocus often does not work in the editor
+          IS_PREVIEW &&
           attr === 'autofocus' &&
-          (!IS_PREVIEW || document.body.getAttribute('data-mode') !== 'design')
+          document.body.getAttribute('data-mode') !== 'design'
         ) {
           setTimeout(() => elem.focus(), 100)
         }
