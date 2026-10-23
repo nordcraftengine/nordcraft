@@ -1,4 +1,3 @@
-import '@nordcraft/core/compileTime'
 import type {
   ComponentData,
   ElementNodeModel,
@@ -19,6 +18,7 @@ import {
   toBoolean,
   toValidClassName,
 } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import { handlePreviewAutofocus } from '../editor/previewAutofocus'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'

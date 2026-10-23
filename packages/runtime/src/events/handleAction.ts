@@ -1,9 +1,7 @@
 /* eslint-disable no-console */
-import '@nordcraft/core/compileTime'
 import type {
   ActionModel,
   ComponentData,
-  FormulaContext,
   SetMultiUrlParameterAction,
   SetURLParameterAction,
 } from '@nordcraft/core'
@@ -14,6 +12,7 @@ import {
   omitKeys,
   toBoolean,
 } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import type { ComponentContext, Location } from '../types'

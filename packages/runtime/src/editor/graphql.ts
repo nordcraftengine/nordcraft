@@ -1,4 +1,4 @@
-import type { FormulaContext } from '@nordcraft/core'
+import type { ComponentData, FormulaContext } from '@nordcraft/core'
 import {
   ApiMethod,
   createApiRequest,

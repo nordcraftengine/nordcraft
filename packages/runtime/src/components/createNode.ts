@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import '@nordcraft/core/dist/compileTime'
 import type {
   ComponentData,
   ElementNodeModel,
@@ -9,6 +8,7 @@ import type {
   TextNodeModel,
 } from '@nordcraft/core'
 import { applyFormula, toBoolean } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'

@@ -1,9 +1,9 @@
-import '@nordcraft/core/dist/compileTime'
 import type {
   ComponentData,
   SupportedNamespaces,
   TextNodeModel,
 } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 
 import {
   applyFormula,

@@ -1,4 +1,3 @@
-import '@nordcraft/core/compileTime'
 import type {
   Component,
   ComponentAttribute,
@@ -10,6 +9,7 @@ import type {
   ToddleEnv,
 } from '@nordcraft/core'
 import { isMeasureEnabled, measure, noopMeasure } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'

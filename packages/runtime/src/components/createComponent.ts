@@ -1,10 +1,10 @@
-import '@nordcraft/core/compileTime'
 import type {
   ComponentAPI,
   ComponentData,
   ComponentFormula,
   ComponentNodeModel,
   ComponentVariable,
+  FormulaContext,
   Nullable,
   SupportedNamespaces,
 } from '@nordcraft/core'
@@ -17,6 +17,7 @@ import {
   isLegacyApi,
   mapObject,
 } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'

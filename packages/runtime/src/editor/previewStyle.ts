@@ -1,6 +1,7 @@
 import type {
   Component,
   ComponentData,
+  CustomPropertyDefinition,
   FormulaEvaluationReporter,
   StyleVariant,
   Theme,

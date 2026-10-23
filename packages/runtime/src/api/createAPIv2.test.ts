@@ -1,5 +1,4 @@
-import { ApiMethod, type ApiRequest } from '@nordcraft/core/dist/api/apiTypes'
-import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
+import { ApiMethod, type ApiRequest, type ComponentData } from '@nordcraft/core'
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
 import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'

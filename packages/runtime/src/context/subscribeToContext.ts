@@ -1,6 +1,6 @@
-import '@nordcraft/core/compileTime'
 import type { Component, ComponentData } from '@nordcraft/core'
 import { isDefined } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import { providerContextMock } from '../editor/mockProviderContext'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'

@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import '@nordcraft/core/compileTime'
 import type {
   ApiPerformance,
   ApiRequest,
   ApiStatus,
   ComponentData,
   Formula,
-  FormulaContext,
   NestedOmit,
   Nullable,
   ToddleRequestInit,
@@ -31,6 +29,7 @@ import {
   toBoolean,
   validateUrl,
 } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'

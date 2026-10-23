@@ -2,6 +2,7 @@ import type {
   ApiStatus,
   Component,
   ComponentAPI,
+  ComponentData,
   FormulaContext,
   LegacyApiStatus,
   Nullable,

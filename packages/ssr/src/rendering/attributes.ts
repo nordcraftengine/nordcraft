@@ -2,7 +2,6 @@ import type {
   ComponentData,
   ElementNodeModel,
   FormulaContext,
-  ToddleEnv,
 } from '@nordcraft/core'
 import { applyFormula, isDefined, toBoolean } from '@nordcraft/core'
 
