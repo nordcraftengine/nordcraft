@@ -22,6 +22,7 @@ import {
   isFormula,
   type ApplyOperation,
   type Formula,
+  type FunctionArgument,
 } from '@nordcraft/core/dist/formula/formula'
 import type { Nullable } from '@nordcraft/core/dist/types'
 import {
@@ -30,8 +31,80 @@ import {
   omitKeys,
 } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { ProjectFiles } from '../ssr.types'
 
-export const removeTestData = (component: Component): Component =>
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null
+
+export const isProjectFiles = (value: unknown): value is ProjectFiles =>
+  isRecord(value) &&
+  ('components' in value || 'packages' in value) &&
+  !('nodes' in value)
+
+export const treeShakePackages = (
+  files: ProjectFiles,
+): ProjectFiles['packages'] => {
+  if (!files.packages) {
+    return files.packages
+  }
+
+  const used = new Set<string>()
+  const queue: Array<{ pkgName: string; compName: string }> = []
+
+  const register = (pkgName: string, compName: string) => {
+    const key = `${pkgName}/${compName}`
+    if (!used.has(key)) {
+      used.add(key)
+      queue.push({ pkgName, compName })
+    }
+  }
+
+  // 1. Scan all project components for package references
+  for (const component of Object.values(files.components ?? {})) {
+    if (!component) continue
+    for (const node of Object.values(component.nodes ?? {})) {
+      if (node?.type === 'component' && node.package) {
+        register(node.package, node.name)
+      }
+    }
+  }
+
+  // 2. Transitive resolution across package components
+  while (queue.length > 0) {
+    const next = queue.shift()
+    if (!next) break
+    const { pkgName, compName } = next
+    const comp = files.packages[pkgName]?.components?.[compName]
+    if (comp) {
+      for (const node of Object.values(comp.nodes ?? {})) {
+        if (node?.type === 'component') {
+          const targetPkg = node.package ?? pkgName
+          register(targetPkg, node.name)
+        }
+      }
+    }
+  }
+
+  // 3. Filter packages to only keep used components
+  return mapObject(files.packages, ([pkgName, pkg]) => {
+    if (!pkg) {
+      return [pkgName, pkg]
+    }
+    const filteredComponents = filterObject(
+      pkg.components ?? {},
+      ([compName]) => used.has(`${pkgName}/${compName}`),
+    )
+    return [
+      pkgName,
+      {
+        ...pkg,
+        components: filteredComponents,
+      },
+    ]
+  })
+}
+
+export const removeComponentTestData = (component: Component): Component =>
   removeOptionalPropertiesIfEmpty<Component>(
     {
       ...component,
@@ -59,6 +132,25 @@ export const removeTestData = (component: Component): Component =>
                 key,
                 omitKeys(value, ['testValue']),
               ]),
+              ...(component.route.info?.meta
+                ? {
+                    info: {
+                      ...component.route.info,
+                      meta: mapObject(component.route.info.meta, ([k, tag]) => [
+                        k,
+                        tag?.attrs
+                          ? {
+                              ...tag,
+                              attrs: mapObject(tag.attrs, ([ak, av]) => [
+                                ak,
+                                av ? removeFormulaTestData(av) : av,
+                              ]),
+                            }
+                          : tag,
+                      ]),
+                    },
+                  }
+                : {}),
             },
           }
         : {}),
@@ -89,8 +181,19 @@ export const removeTestData = (component: Component): Component =>
                 component.variables,
                 ([_, variable]) => isDefined(variable),
               ),
-              // On legacy variables, the name was persisted as part of the variable itself, but it's redundant information and should be removed
-              ([key, variable]) => [key, omitKeys(variable, ['name'])],
+              ([key, variable]) => [
+                key,
+                {
+                  ...omitKeys(variable, ['name']),
+                  ...(variable.initialValue
+                    ? {
+                        initialValue: removeFormulaTestData(
+                          variable.initialValue,
+                        ),
+                      }
+                    : {}),
+                },
+              ],
             ),
           }
         : {}),
@@ -105,8 +208,6 @@ export const removeTestData = (component: Component): Component =>
                 key,
                 {
                   ...omitKeys(value, ['testValue']),
-                  // We should find all actions (also nested actions and non-workflow actions) and remove
-                  // the description from them. This is a start though
                   actions: value.actions.map(removeActionTestData),
                   parameters: (value.parameters ?? []).map((p) =>
                     omitKeys(p, ['testValue']),
@@ -168,7 +269,204 @@ export const removeTestData = (component: Component): Component =>
     ],
   )
 
-const processNodes = (
+export const removeProjectTestData = (files: ProjectFiles): ProjectFiles => {
+  const packages = treeShakePackages(files)
+  return {
+    ...files,
+    components: mapObject(files.components ?? {}, ([key, comp]) => [
+      key,
+      comp ? removeComponentTestData(comp) : comp,
+    ]),
+    ...(packages
+      ? {
+          packages: mapObject(packages, ([pkgName, pkg]) => [
+            pkgName,
+            pkg
+              ? {
+                  ...pkg,
+                  components: mapObject(pkg.components ?? {}, ([ck, cv]) => [
+                    ck,
+                    cv ? removeComponentTestData(cv) : cv,
+                  ]),
+                }
+              : pkg,
+          ]),
+        }
+      : {}),
+  }
+}
+
+export function removeTestData(files: ProjectFiles): ProjectFiles
+export function removeTestData(component: Component): Component
+export function removeTestData(
+  target: Component | ProjectFiles,
+): Component | ProjectFiles {
+  if (isProjectFiles(target)) {
+    return removeProjectTestData(target)
+  }
+  return removeComponentTestData(target)
+}
+
+const cleanNode = (node: NodeModel): NodeModel => {
+  switch (node.type) {
+    case 'element': {
+      const updatedNode: NodeModel = {
+        ...node,
+        events: mapObject(node.events ?? {}, ([eventKey, eventValue]) => [
+          eventKey,
+          eventValue
+            ? {
+                ...eventValue,
+                actions: eventValue.actions?.map(removeActionTestData),
+              }
+            : null,
+        ]),
+        condition: node.condition
+          ? removeFormulaTestData(node.condition)
+          : undefined,
+        repeat: node.repeat ? removeFormulaTestData(node.repeat) : undefined,
+        repeatKey: node.repeatKey
+          ? removeFormulaTestData(node.repeatKey)
+          : undefined,
+        attrs: node.attrs
+          ? mapObject(node.attrs, ([attrKey, attrFormula]) => [
+              attrKey,
+              attrFormula ? removeFormulaTestData(attrFormula) : attrFormula,
+            ])
+          : undefined,
+        customProperties: node.customProperties
+          ? mapObject(node.customProperties, ([propKey, prop]) => [
+              propKey,
+              prop
+                ? {
+                    ...prop,
+                    formula: removeFormulaTestData(prop.formula),
+                  }
+                : prop,
+            ])
+          : undefined,
+        variants: node.variants
+          ? node.variants.map((v) => ({
+              ...v,
+              customProperties: v.customProperties
+                ? mapObject(v.customProperties, ([propKey, prop]) => [
+                    propKey,
+                    prop
+                      ? {
+                          ...prop,
+                          formula: removeFormulaTestData(prop.formula),
+                        }
+                      : prop,
+                  ])
+                : undefined,
+            }))
+          : undefined,
+      }
+      return removeOptionalPropertiesIfEmpty(updatedNode, [
+        'animations',
+        'attrs',
+        'children',
+        'condition',
+        'classes',
+        'customProperties',
+        'events',
+        'id',
+        'repeat',
+        'repeatKey',
+        'slot',
+        'style-variables',
+        'style',
+        'styleVariables',
+        'variants',
+      ]) as NodeModel
+    }
+    case 'text': {
+      return removeOptionalPropertiesIfEmpty<TextNodeModel>(
+        {
+          ...node,
+          value: removeFormulaTestData(node.value),
+          condition: node.condition
+            ? removeFormulaTestData(node.condition)
+            : undefined,
+          repeat: node.repeat ? removeFormulaTestData(node.repeat) : undefined,
+          repeatKey: node.repeatKey
+            ? removeFormulaTestData(node.repeatKey)
+            : undefined,
+        },
+        ['id', 'slot', 'repeat', 'repeatKey', 'condition'],
+      ) as NodeModel
+    }
+    case 'component': {
+      const updatedNode: NodeModel = {
+        ...node,
+        events: mapObject(node.events ?? {}, ([eventKey, eventValue]) => [
+          eventKey,
+          eventValue
+            ? {
+                ...eventValue,
+                actions: eventValue.actions?.map(removeActionTestData),
+              }
+            : null,
+        ]),
+        condition: node.condition
+          ? removeFormulaTestData(node.condition)
+          : undefined,
+        repeat: node.repeat ? removeFormulaTestData(node.repeat) : undefined,
+        repeatKey: node.repeatKey
+          ? removeFormulaTestData(node.repeatKey)
+          : undefined,
+        attrs: node.attrs
+          ? mapObject(node.attrs, ([attrKey, attrFormula]) => [
+              attrKey,
+              attrFormula ? removeFormulaTestData(attrFormula) : attrFormula,
+            ])
+          : undefined,
+        variants: node.variants
+          ? node.variants.map((v) => ({
+              ...v,
+              customProperties: v.customProperties
+                ? mapObject(v.customProperties, ([propKey, prop]) => [
+                    propKey,
+                    prop
+                      ? {
+                          ...prop,
+                          formula: removeFormulaTestData(prop.formula),
+                        }
+                      : prop,
+                  ])
+                : undefined,
+            }))
+          : undefined,
+      }
+      return removeOptionalPropertiesIfEmpty(updatedNode, [
+        'id',
+        'slot',
+        'path',
+        'package',
+        'condition',
+        'repeat',
+        'repeatKey',
+        'variants',
+        'animations',
+        'attrs',
+        'children',
+        'events',
+      ]) as NodeModel
+    }
+    case 'slot': {
+      return removeOptionalPropertiesIfEmpty(
+        omitKeys(
+          node,
+          // Always remove repeat and repeatKey from slots as they're not supported
+          ['repeat', 'repeatKey'],
+        ),
+        ['children', 'condition', 'events', 'name', 'slot'],
+      ) as NodeModel
+    }
+  }
+}
+
+export const processNodes = (
   nodes: Component['nodes'],
 ): Record<string, NodeModel> | undefined => {
   if (!isDefined(nodes)) {
@@ -178,116 +476,7 @@ const processNodes = (
     filterObject<NodeModel | undefined | null, NodeModel>(nodes, ([_, value]) =>
       isDefined(value),
     ),
-    ([key, value]) => {
-      switch (value.type) {
-        case 'element': {
-          const updatedNode: NodeModel = {
-            ...value,
-            events: mapObject(value.events ?? {}, ([eventKey, eventValue]) => [
-              eventKey,
-              eventValue
-                ? {
-                    ...eventValue,
-                    actions: eventValue.actions?.map(removeActionTestData),
-                  }
-                : null,
-            ]),
-            repeat: value.repeat
-              ? removeFormulaTestData(value.repeat)
-              : undefined,
-            repeatKey: value.repeatKey
-              ? removeFormulaTestData(value.repeatKey)
-              : undefined,
-          }
-          return [
-            key,
-            removeOptionalPropertiesIfEmpty(updatedNode, [
-              'animations',
-              'attrs',
-              'children',
-              'condition',
-              'classes',
-              'customProperties',
-              'events',
-              'id',
-              'repeat',
-              'repeatKey',
-              'slot',
-              'style-variables',
-              'style',
-              'styleVariables',
-            ]) as NodeModel,
-          ]
-        }
-        case 'text': {
-          return [
-            key,
-            removeOptionalPropertiesIfEmpty<TextNodeModel>(
-              {
-                ...value,
-                repeat: value.repeat
-                  ? removeFormulaTestData(value.repeat)
-                  : undefined,
-                repeatKey: value.repeatKey
-                  ? removeFormulaTestData(value.repeatKey)
-                  : undefined,
-              },
-              ['id', 'slot', 'repeat', 'repeatKey'],
-            ) as NodeModel,
-          ]
-        }
-        case 'component': {
-          const updatedNode: NodeModel = {
-            ...value,
-            events: mapObject(value.events ?? {}, ([eventKey, eventValue]) => [
-              eventKey,
-              eventValue
-                ? {
-                    ...eventValue,
-                    actions: eventValue.actions?.map(removeActionTestData),
-                  }
-                : null,
-            ]),
-            repeat: value.repeat
-              ? removeFormulaTestData(value.repeat)
-              : undefined,
-            repeatKey: value.repeatKey
-              ? removeFormulaTestData(value.repeatKey)
-              : undefined,
-          }
-          return [
-            key,
-            removeOptionalPropertiesIfEmpty(updatedNode, [
-              'id',
-              'slot',
-              'path',
-              'package',
-              'condition',
-              'repeat',
-              'repeatKey',
-              'variants',
-              'animations',
-              'attrs',
-              'children',
-              'events',
-            ]) as NodeModel,
-          ]
-        }
-        case 'slot': {
-          return [
-            key,
-            removeOptionalPropertiesIfEmpty(
-              omitKeys(
-                value,
-                // Always remove repeat and repeatKey from slots as they're not supported
-                ['repeat', 'repeatKey'],
-              ),
-              ['children', 'condition', 'events', 'name', 'slot'],
-            ) as NodeModel,
-          ]
-        }
-      }
-    },
+    ([key, value]) => [key, cleanNode(value)],
   )
 }
 
@@ -314,7 +503,7 @@ const removeOptionalPropertiesIfEmpty = <T extends object>(
   return newObj
 }
 
-const removeActionTestData = (action: ActionModel): ActionModel => {
+export const removeActionTestData = (action: ActionModel): ActionModel => {
   if (!isDefined(action)) {
     return action
   }
@@ -442,22 +631,19 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
       return removeOptionalPropertiesIfEmpty<WorkflowActionModel>(
         {
           ...action,
-          // TODO: Below was breaking the build - investigate. Test by adding an animation etc. and see if it is being set to null by mistake
-          // ...(action.parameters
-          //   ? {
-          //       parameters: mapObject(action.parameters, ([key, value]) => [
-          //         key,
-          //         {
-          //           ...value,
-          //           formula: isFormula(value)
-          //             ? removeFormulaTestData(value)
-          //             : isFormula(value.formula)
-          //               ? removeFormulaTestData(value.formula)
-          //               : value.formula,
-          //         },
-          //       ]),
-          //     }
-          //   : undefined),
+          ...(action.parameters
+            ? {
+                parameters: mapObject(action.parameters, ([key, value]) => [
+                  key,
+                  value?.formula
+                    ? {
+                        ...value,
+                        formula: removeFormulaTestData(value.formula),
+                      }
+                    : value,
+                ]),
+              }
+            : undefined),
           ...(action.callbacks
             ? {
                 callbacks: mapObject(action.callbacks, ([key, value]) => [
@@ -481,7 +667,7 @@ const removeActionTestData = (action: ActionModel): ActionModel => {
   }
 }
 
-const removeActionArgumentTestData = (action: CustomActionArgument) => {
+export const removeActionArgumentTestData = (action: CustomActionArgument) => {
   if (!isDefined(action)) {
     return action
   }
@@ -493,63 +679,104 @@ const removeActionArgumentTestData = (action: CustomActionArgument) => {
   }
 }
 
-const removeFormulaTestData = (_formula: Formula): Formula => {
+const cleanFunctionArgument = (arg: FunctionArgument): FunctionArgument => {
+  const { testValue: _, ...clean } = arg as FunctionArgument & {
+    testValue?: unknown
+    description?: unknown
+  }
+  delete (clean as { description?: unknown }).description
+  return {
+    ...clean,
+    formula: removeFormulaTestData(arg.formula),
+  }
+}
+
+export const removeFormulaTestData = (_formula: Formula): Formula => {
   if (!isFormula(_formula)) {
     return _formula
   }
-  const formula = removeOptionalPropertiesIfEmpty<Formula>(_formula, [
+  const formula = omitKeys(_formula as unknown as Record<string, unknown>, [
     'label',
     '@nordcraft/metadata',
-  ])
+    '@toddle/metadata',
+    'description',
+    'display_name',
+    'variableArguments',
+  ]) as unknown as Formula
+
   switch (formula.type) {
     case 'path':
-      return formula
     case 'value':
       return formula
-    case 'function':
-      return removeOptionalPropertiesIfEmpty(formula, [
-        'arguments',
-        'display_name',
-        'variableArguments',
-      ])
+    case 'function': {
+      const updated = {
+        ...formula,
+        ...(formula.arguments
+          ? {
+              arguments: formula.arguments.map(cleanFunctionArgument),
+            }
+          : {}),
+      }
+      return removeOptionalPropertiesIfEmpty(updated, ['arguments'])
+    }
     case 'record':
       return {
         ...formula,
-        entries: (formula.entries ?? []).map((entry) => ({
-          ...entry,
-          formula: removeFormulaTestData(entry.formula),
-        })),
+        ...(formula.entries
+          ? {
+              entries: formula.entries.map(cleanFunctionArgument),
+            }
+          : {}),
+      }
+    case 'object':
+      return {
+        ...formula,
+        ...(formula.arguments
+          ? {
+              arguments: formula.arguments.map(cleanFunctionArgument),
+            }
+          : {}),
       }
     case 'array':
     case 'or':
     case 'and':
-    case 'object':
       return {
         ...formula,
-        arguments:
-          formula.arguments?.map((arg) => ({
-            ...arg,
-            formula: removeFormulaTestData(arg.formula),
-          })) ?? [],
+        ...(formula.arguments
+          ? {
+              arguments: formula.arguments.map((arg) => ({
+                ...arg,
+                formula: removeFormulaTestData(arg.formula),
+              })),
+            }
+          : {}),
       }
     case 'apply':
       return removeOptionalPropertiesIfEmpty<ApplyOperation>(
         {
           ...formula,
-          arguments: (formula.arguments ?? []).map((a) => ({
-            ...omitKeys(a, ['testValue']),
-            formula: removeFormulaTestData(a.formula),
-          })),
+          ...(formula.arguments
+            ? {
+                arguments: formula.arguments.map(cleanFunctionArgument),
+              }
+            : {}),
         },
         ['arguments'],
       )
     case 'switch':
       return {
         ...formula,
-        cases: (formula.cases ?? []).map((c) => ({
-          ...c,
-          condition: removeFormulaTestData(c.condition),
-        })),
+        ...(formula.cases
+          ? {
+              cases: formula.cases.map((c) => ({
+                ...c,
+                condition: removeFormulaTestData(c.condition),
+                ...(c.formula
+                  ? { formula: removeFormulaTestData(c.formula) }
+                  : {}),
+              })),
+            }
+          : {}),
         default: removeFormulaTestData(formula.default),
       }
   }

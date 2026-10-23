@@ -1,6 +1,12 @@
+import { HeadTagTypes } from '@nordcraft/core/dist/component/component.types'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 import { describe, expect, test } from 'bun:test'
-import { removeTestData } from './testData'
+import type { ProjectFiles } from '../ssr.types'
+import {
+  removeFormulaTestData,
+  removeTestData,
+  treeShakePackages,
+} from './testData'
 
 describe('removeTestData', () => {
   test('it removes testValue from attributes', () => {
@@ -494,5 +500,265 @@ describe('removeTestData', () => {
     expect(
       cleanedComponent.nodes.root.events.Change.actions[0].arguments,
     ).toBeUndefined()
+  })
+
+  test('it removes labels and metadata from formulas in node attributes and text values', () => {
+    const cleaned = removeTestData({
+      name: 'test',
+      nodes: {
+        heading: {
+          type: 'text',
+          value: {
+            type: 'value',
+            value: 'Hello',
+            label: 'Greeting label',
+            '@nordcraft/metadata': { comments: {} },
+          } as any,
+          condition: {
+            type: 'function',
+            name: '@toddle/not',
+            label: 'Condition label',
+            arguments: [
+              {
+                name: 'Input',
+                formula: {
+                  type: 'value',
+                  value: false,
+                  label: 'Inner false',
+                },
+              },
+            ],
+          } as any,
+        },
+        btn: {
+          type: 'element',
+          tag: 'button',
+          attrs: {
+            title: {
+              type: 'value',
+              value: 'Click me',
+              label: 'Title label',
+            } as any,
+          },
+          customProperties: {
+            '--btn-color': {
+              formula: {
+                type: 'value',
+                value: 'blue',
+                label: 'Color label',
+              } as any,
+            },
+          },
+        },
+      },
+    })
+
+    const textNode = cleaned.nodes?.heading as any
+    expect(textNode.value.label).toBeUndefined()
+    expect(textNode.value['@nordcraft/metadata']).toBeUndefined()
+    expect(textNode.condition.label).toBeUndefined()
+    expect(textNode.condition.arguments[0].formula.label).toBeUndefined()
+
+    const elemNode = cleaned.nodes?.btn as any
+    expect(elemNode.attrs.title.label).toBeUndefined()
+    expect(
+      elemNode.customProperties['--btn-color'].formula.label,
+    ).toBeUndefined()
+  })
+
+  test('it removes metadata from variable initial values and route meta tags', () => {
+    const cleaned = removeTestData({
+      name: 'test',
+      variables: {
+        count: {
+          initialValue: {
+            type: 'value',
+            value: 0,
+            label: 'Counter initial',
+          } as any,
+        },
+      },
+      route: {
+        path: [],
+        query: {},
+        info: {
+          meta: {
+            ogTitle: {
+              tag: HeadTagTypes.Meta,
+              attrs: {
+                content: {
+                  type: 'value',
+                  value: 'My Page',
+                  label: 'Meta content label',
+                } as any,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(cleaned.variables?.count?.initialValue.label).toBeUndefined()
+    expect(
+      cleaned.route?.info?.meta?.ogTitle?.attrs?.content?.label,
+    ).toBeUndefined()
+  })
+
+  test('removeFormulaTestData strips labels, metadata, and test values from formulas', () => {
+    const formula = {
+      type: 'function' as const,
+      name: '@toddle/add',
+      label: 'Add formula',
+      '@nordcraft/metadata': { comments: {} },
+      arguments: [
+        {
+          name: 'a',
+          description: 'first arg',
+          testValue: 1,
+          formula: {
+            type: 'value' as const,
+            value: 10,
+            label: '10 value',
+          },
+        },
+      ],
+    }
+
+    const cleaned = removeFormulaTestData(formula as any) as any
+    expect(cleaned.label).toBeUndefined()
+    expect(cleaned['@nordcraft/metadata']).toBeUndefined()
+    expect(cleaned.arguments?.[0]?.formula.label).toBeUndefined()
+    expect(cleaned.arguments?.[0]?.testValue).toBeUndefined()
+    expect(cleaned.arguments?.[0]?.description).toBeUndefined()
+  })
+
+  test('treeShakePackages keeps only referenced package components and handles transitive dependencies', () => {
+    const files: ProjectFiles = {
+      components: {
+        HomePage: {
+          name: 'HomePage',
+          nodes: {
+            btn: {
+              type: 'component',
+              name: 'Button',
+              package: 'ui',
+            },
+          },
+        },
+      },
+      packages: {
+        ui: {
+          manifest: { name: 'ui', commit: 'main' },
+          components: {
+            Button: {
+              name: 'Button',
+              nodes: {
+                icon: {
+                  type: 'component',
+                  name: 'Icon',
+                  // same package without explicit package field
+                },
+                external: {
+                  type: 'component',
+                  name: 'Card',
+                  package: 'cards',
+                },
+              },
+            },
+            Icon: {
+              name: 'Icon',
+              nodes: {},
+            },
+            UnusedComponent: {
+              name: 'UnusedComponent',
+              nodes: {},
+            },
+          },
+        },
+        cards: {
+          manifest: { name: 'cards', commit: 'main' },
+          components: {
+            Card: {
+              name: 'Card',
+              nodes: {},
+            },
+            UnusedCard: {
+              name: 'UnusedCard',
+              nodes: {},
+            },
+          },
+        },
+        unusedPackage: {
+          manifest: { name: 'unusedPackage', commit: 'main' },
+          components: {
+            Ghost: {
+              name: 'Ghost',
+              nodes: {},
+            },
+          },
+        },
+      },
+    }
+
+    const shaken = treeShakePackages(files)
+    expect(shaken?.ui?.components?.Button).toBeDefined()
+    expect(shaken?.ui?.components?.Icon).toBeDefined()
+    expect(shaken?.ui?.components?.UnusedComponent).toBeUndefined()
+    expect(shaken?.cards?.components?.Card).toBeDefined()
+    expect(shaken?.cards?.components?.UnusedCard).toBeUndefined()
+    expect(shaken?.unusedPackage?.components?.Ghost).toBeUndefined()
+  })
+
+  test('removeTestData works directly on ProjectFiles', () => {
+    const files: ProjectFiles = {
+      components: {
+        HomePage: {
+          name: 'HomePage',
+          attributes: {
+            title: {
+              name: 'title',
+              testValue: 'Page title test value',
+            },
+          },
+          nodes: {
+            header: {
+              type: 'component',
+              name: 'Header',
+              package: 'common',
+            },
+          },
+        },
+      },
+      packages: {
+        common: {
+          manifest: { name: 'common', commit: 'main' },
+          components: {
+            Header: {
+              name: 'Header',
+              attributes: {
+                theme: {
+                  name: 'theme',
+                  testValue: 'dark',
+                },
+              },
+            },
+            Unused: {
+              name: 'Unused',
+            },
+          },
+        },
+      },
+    }
+
+    const cleaned = removeTestData(files)
+    expect(
+      cleaned.components?.HomePage?.attributes?.title?.testValue,
+    ).toBeUndefined()
+    expect(cleaned.packages?.common?.components?.Header).toBeDefined()
+    expect(
+      cleaned.packages?.common?.components?.Header?.attributes?.theme
+        ?.testValue,
+    ).toBeUndefined()
+    expect(cleaned.packages?.common?.components?.Unused).toBeUndefined()
   })
 })
