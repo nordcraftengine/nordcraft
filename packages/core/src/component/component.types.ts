@@ -143,10 +143,7 @@ export interface SlotNodeModel {
   events?: never
 }
 export type NodeModel =
-  | TextNodeModel
-  | SlotNodeModel
-  | ComponentNodeModel
-  | ElementNodeModel
+  TextNodeModel | SlotNodeModel | ComponentNodeModel | ElementNodeModel
 
 export interface MetaEntry {
   tag: HeadTagTypes

@@ -50,12 +50,7 @@ export const REDIRECT_STATUS_CODES = [
 export type RedirectStatusCode = (typeof REDIRECT_STATUS_CODES)[number]
 
 export type ApiParserMode =
-  | 'auto'
-  | 'text'
-  | 'json'
-  | 'event-stream'
-  | 'json-stream'
-  | 'blob'
+  'auto' | 'text' | 'json' | 'event-stream' | 'json-stream' | 'blob'
 
 export interface ApiBase extends NordcraftMetadata {
   url?: Nullable<Formula>
