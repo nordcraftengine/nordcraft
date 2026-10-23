@@ -72,6 +72,12 @@ const commonComponentEntries = (type: 'component' | 'page') => ({
     ),
     v.description(SCHEMA_DESCRIPTIONS.onAttributeChange(type)),
   ),
+  testScenarios: v.pipe(
+    v.nullish(record(v.string(), v.any())),
+    v.description(
+      'Test scenarios for previewing the component or page with different state overrides during development.',
+    ),
+  ),
 })
 
 export const ComponentSchema: v.GenericSchema<unknown, Component> = v.pipe(
@@ -155,6 +161,12 @@ const shallowCommonComponentEntries = (type: 'component' | 'page') => ({
   onAttributeChange: v.pipe(
     v.nullish(v.any()),
     v.description(SCHEMA_DESCRIPTIONS.onAttributeChange(type)),
+  ),
+  testScenarios: v.pipe(
+    v.nullish(record(v.string(), v.any())),
+    v.description(
+      'Test scenarios for previewing the component or page with different state overrides during development.',
+    ),
   ),
 })
 
