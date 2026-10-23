@@ -17,7 +17,7 @@ import {
   mapHeadersToObject,
   mapValues,
 } from '@nordcraft/core'
-import * as libFormulas from '@nordcraft/std-lib/dist/lib'
+import * as libFormulas from '@nordcraft/std-lib/lib'
 import { getPathSegments } from '../routing/routing'
 import type { InstalledPackage, ProjectFiles } from '../ssr.types'
 import { getRequestCookies } from './cookies'

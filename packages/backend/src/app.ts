@@ -1,4 +1,4 @@
-import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
+import { initIsEqual } from '@nordcraft/ssr'
 import { Hono, type Handler, type MiddlewareHandler } from 'hono'
 import type { GetConnInfo } from 'hono/conninfo'
 import { poweredBy } from 'hono/powered-by'

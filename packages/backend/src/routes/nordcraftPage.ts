@@ -5,28 +5,26 @@ import {
   THEME_DATA_ATTRIBUTE,
   toBoolean,
 } from '@nordcraft/core'
-import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
-import type { ApiCache } from '@nordcraft/ssr/dist/rendering/api'
-import { processComponentApis } from '@nordcraft/ssr/dist/rendering/api'
-import { resolveClasses } from '@nordcraft/ssr/dist/rendering/classes'
-import { renderPageBody } from '@nordcraft/ssr/dist/rendering/components'
-import { getPageFormulaContext } from '@nordcraft/ssr/dist/rendering/formulaContext'
+import type {
+  ApiCache,
+  ProjectFilesWithCustomCode,
+  ToddleProject,
+} from '@nordcraft/ssr'
 import {
-  getHeadItems,
-  renderHeadItems,
-} from '@nordcraft/ssr/dist/rendering/head'
-import {
+  evaluateResponseHeaders,
   getCharset,
+  getHeadItems,
   getHtmlLanguage,
+  getPageFormulaContext,
   getTheme,
-} from '@nordcraft/ssr/dist/rendering/html'
-import { evaluateResponseHeaders } from '@nordcraft/ssr/dist/rendering/response'
-import type { ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
-import {
+  processComponentApis,
   REDIRECT_API_NAME_HEADER,
   REDIRECT_COMPONENT_NAME_HEADER,
-} from '@nordcraft/ssr/dist/utils/headers'
-import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
+  renderHeadItems,
+  renderPageBody,
+  resolveClasses,
+  takeIncludedComponents,
+} from '@nordcraft/ssr'
 import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
 import { endTime, startTime } from 'hono/timing'

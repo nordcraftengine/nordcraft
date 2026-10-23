@@ -24,8 +24,8 @@ import {
   THEME_DATA_ATTRIBUTE,
   VOID_HTML_ELEMENTS,
 } from '@nordcraft/core'
-import * as libActions from '@nordcraft/std-lib/dist/actions'
-import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
+import * as libActions from '@nordcraft/std-lib/actions'
+import * as libFormulas from '@nordcraft/std-lib/formulas'
 import fastDeepEqual from 'fast-deep-equal'
 import { match } from 'path-to-regexp'
 import { isContextApiV2 } from './api/apiUtils'

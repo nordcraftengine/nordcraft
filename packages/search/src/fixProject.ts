@@ -1,4 +1,4 @@
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { ProjectFiles } from '@nordcraft/ssr'
 import type { AllRuleTypes } from './rules/issues/issueRules.index'
 import { searchProject } from './searchProject'
 import type { ApplicationState, FixType, IssueResult } from './types'

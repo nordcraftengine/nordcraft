@@ -4,13 +4,15 @@ import {
   isPageComponent,
   safeCustomElementName,
 } from '@nordcraft/core'
-import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
-import { resolveClasses } from '@nordcraft/ssr/dist/rendering/classes'
-import { getFontCssUrl } from '@nordcraft/ssr/dist/rendering/fonts'
-import { removeTestData } from '@nordcraft/ssr/dist/rendering/testData'
-import { transformRelativePaths } from '@nordcraft/ssr/dist/utils/media'
-import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
-import { replaceTagInNodes } from '@nordcraft/ssr/dist/utils/tags'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr'
+import {
+  getFontCssUrl,
+  removeTestData,
+  replaceTagInNodes,
+  resolveClasses,
+  takeIncludedComponents,
+  transformRelativePaths,
+} from '@nordcraft/ssr'
 import type { Context } from 'hono'
 import type { HonoEnv, HonoProject } from '../../hono'
 import type { PageLoader } from '../loaders/types'

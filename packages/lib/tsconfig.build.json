@@ -19,7 +19,9 @@
     "formulas/**/*.ts",
     "actions/**/*.ts",
     "./actions.ts",
-    "./formulas.ts"
+    "./formulas.ts",
+    "./lib.ts",
+    "./index.ts"
   ],
   "exclude": ["**/*.test.ts"]
 }

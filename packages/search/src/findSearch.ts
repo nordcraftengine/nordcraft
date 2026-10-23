@@ -1,4 +1,4 @@
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { ProjectFiles } from '@nordcraft/ssr'
 import { createFieldSearchRule } from './rules/search/fieldSearchRule'
 import { searchProject } from './searchProject'
 import type {

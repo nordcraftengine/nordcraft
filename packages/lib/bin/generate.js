@@ -37,10 +37,9 @@ const formulas = load('formula')
 const actions = load('action')
 
 // The lib.ts file is used by toddle internally to list all available formulas and actions
-fs.writeFileSync(
-  `${distPath}/lib.ts`,
-  `
+const libContent = `
     export const formulas = ${JSON.stringify(formulas, null, 2)};
     export const actions = ${JSON.stringify(actions, null, 2)};
-`,
-)
+`
+fs.writeFileSync(`${distPath}/lib.ts`, libContent)
+fs.writeFileSync(`${parentDir}/lib.ts`, libContent)

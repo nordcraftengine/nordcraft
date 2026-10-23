@@ -1,4 +1,4 @@
-import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
+import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr'
 import type { DurableObject } from 'cloudflare:workers'
 import type { Routes } from './src/middleware/routesLoader'
 

@@ -3,8 +3,8 @@ import {
   theme as defaultTheme,
   isPageComponent,
 } from '@nordcraft/core'
-import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { ProjectFiles } from '@nordcraft/ssr'
+import { takeIncludedComponents } from '@nordcraft/ssr'
 import type { Context } from 'hono'
 import type { HonoEnv } from '../../hono'
 

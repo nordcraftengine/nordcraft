@@ -1,7 +1,7 @@
 import { serve } from '@hono/node-server'
 import { getConnInfo } from '@hono/node-server/conninfo'
 import { serveStatic } from '@hono/node-server/serve-static'
-import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr'
 import { compress } from 'hono/compress'
 import { getApp } from './app'
 import { loadJsFile } from './middleware/jsLoader'

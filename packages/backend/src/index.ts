@@ -1,4 +1,4 @@
-import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr'
 import { getConnInfo } from 'hono/cloudflare-workers'
 import { endTime, startTime } from 'hono/timing'
 import { getApp } from './app'
