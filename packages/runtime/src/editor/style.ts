@@ -3,16 +3,16 @@ import type {
   ComponentNodeModel,
   ElementNodeModel,
   NodeStyleModel,
-} from '@nordcraft/core/dist/component/component.types'
+  Nullable,
+} from '@nordcraft/core'
 import {
   getClassName,
+  isDefined,
+  kebabCase,
+  omitKeys,
   toValidClassName,
-} from '@nordcraft/core/dist/styling/className'
-import { kebabCase } from '@nordcraft/core/dist/styling/style.css'
-import { variantSelector } from '@nordcraft/core/dist/styling/variantSelector'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import { omitKeys } from '@nordcraft/core/dist/utils/collections'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+  variantSelector,
+} from '@nordcraft/core'
 import {
   CSS_VAR_SCROLL_HEIGHT,
   CSS_VAR_VIEWPORT_HEIGHT,

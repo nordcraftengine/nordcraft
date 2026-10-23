@@ -1,6 +1,4 @@
-import { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
-import { pathFormula } from '@nordcraft/core/dist/formula/pathFormula.helper'
-import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
+import { ApiMethod, pathFormula, valueFormula } from '@nordcraft/core'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
 import { fixProject } from '../../../fixProject'

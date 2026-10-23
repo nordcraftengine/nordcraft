@@ -1,5 +1,5 @@
-import type { ComponentNodeModel } from '@nordcraft/core/dist/component/component.types'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { ComponentNodeModel } from '@nordcraft/core'
+import { isDefined } from '@nordcraft/core'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { MemoFn } from '../../../types'
 

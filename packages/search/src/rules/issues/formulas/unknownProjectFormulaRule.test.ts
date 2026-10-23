@@ -1,5 +1,4 @@
-import { functionFormula } from '@nordcraft/core/dist/formula/functionFormula.helper'
-import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
+import { functionFormula, valueFormula } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../../searchProject'
 import { unknownProjectFormulaRule } from './unknownProjectFormulaRule'

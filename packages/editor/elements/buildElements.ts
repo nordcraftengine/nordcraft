@@ -1,8 +1,4 @@
-import type {
-  NodeModel,
-  NodeStyleModel,
-} from '@nordcraft/core/dist/component/component.types'
-import type { ValueOperation } from '@nordcraft/core/dist/formula/formula'
+import type { NodeModel, NodeStyleModel, ValueOperation } from '@nordcraft/core'
 import { writeFileSync } from 'fs'
 import type { ExportedHtmlElement, ExportedHtmlElementCategory } from '../types'
 import {

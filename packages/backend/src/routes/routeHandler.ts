@@ -1,9 +1,9 @@
+import type { ApiMethod } from '@nordcraft/core'
 import {
   HttpMethodsWithAllowedBody,
   NON_BODY_RESPONSE_CODES,
-} from '@nordcraft/core/dist/api/api'
-import type { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
-import { REWRITE_HEADER } from '@nordcraft/core/dist/utils/url'
+  REWRITE_HEADER,
+} from '@nordcraft/core'
 import {
   getServerToddleObject,
   serverEnv,

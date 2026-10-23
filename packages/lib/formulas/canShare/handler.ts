@@ -1,5 +1,5 @@
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { FormulaHandler } from '@nordcraft/core'
+import { isDefined } from '@nordcraft/core'
 
 const handler: FormulaHandler<boolean> = ([url, title, text]) => {
   if (!isDefined(navigator.canShare)) {

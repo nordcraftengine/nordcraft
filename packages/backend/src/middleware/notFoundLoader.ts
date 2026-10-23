@@ -1,4 +1,4 @@
-import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
+import { isPageComponent } from '@nordcraft/core'
 import type { NotFoundHandler } from 'hono'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 import type { PageLoader, PageLoaderUrls } from '../loaders/types'

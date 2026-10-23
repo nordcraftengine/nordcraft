@@ -1,13 +1,5 @@
-import type {
-  ComponentData,
-  ResponseHeaders,
-} from '@nordcraft/core/dist/component/component.types'
-import {
-  applyFormula,
-  isFormula,
-  type FormulaContext,
-} from '@nordcraft/core/dist/formula/formula'
-import type { Nullable } from '@nordcraft/core/dist/types'
+import type { ComponentData, Nullable, ResponseHeaders } from '@nordcraft/core'
+import { applyFormula, isFormula, type FormulaContext } from '@nordcraft/core'
 
 export const evaluateResponseHeaders = ({
   formulaContext,

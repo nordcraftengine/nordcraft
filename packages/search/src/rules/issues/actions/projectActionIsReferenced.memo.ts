@@ -1,6 +1,5 @@
-import type { CustomActionModel } from '@nordcraft/core/dist/component/component.types'
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { CustomActionModel } from '@nordcraft/core'
+import { isDefined, ToddleComponent } from '@nordcraft/core'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { MemoFn } from '../../../types'
 import { getActionsInComponent } from '../../../util/componentTraversal'

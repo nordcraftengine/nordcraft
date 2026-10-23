@@ -1,17 +1,13 @@
 import type {
   ApiStatus,
-  ComponentAPI,
-  LegacyApiStatus,
-} from '@nordcraft/core/dist/api/apiTypes'
-import type {
   Component,
+  ComponentAPI,
   ComponentData,
-} from '@nordcraft/core/dist/component/component.types'
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+  FormulaContext,
+  LegacyApiStatus,
+  Nullable,
+} from '@nordcraft/core'
+import { isDefined, mapObject, ToddleComponent } from '@nordcraft/core'
 import type { ProjectFiles } from '../ssr.types'
 
 export type ApiCache = Record<string, ApiStatus>

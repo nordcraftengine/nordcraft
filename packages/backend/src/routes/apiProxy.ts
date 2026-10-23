@@ -1,13 +1,11 @@
+import type { ApiMethod } from '@nordcraft/core'
 import {
   HttpMethodsWithAllowedBody,
   NON_BODY_RESPONSE_CODES,
-} from '@nordcraft/core/dist/api/api'
-import type { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
-import {
   PROXY_TEMPLATES_IN_BODY,
   PROXY_URL_HEADER,
   validateUrl,
-} from '@nordcraft/core/dist/utils/url'
+} from '@nordcraft/core'
 import { getRequestCookies } from '@nordcraft/ssr/dist/rendering/cookies'
 import {
   applyTemplateValues,

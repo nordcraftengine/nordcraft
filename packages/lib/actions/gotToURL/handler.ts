@@ -1,5 +1,5 @@
-import '@nordcraft/core/dist/compileTime'
-import type { ActionHandler } from '@nordcraft/core/dist/types'
+import '@nordcraft/core/compileTime'
+import type { ActionHandler } from '@nordcraft/core'
 
 const handler: ActionHandler = ([url]) => {
   if (typeof url === 'string') {

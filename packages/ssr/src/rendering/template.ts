@@ -1,6 +1,5 @@
-import { STRING_TEMPLATE } from '@nordcraft/core/dist/api/template'
-import type { ToddleServerEnv } from '@nordcraft/core/dist/formula/formula'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { ToddleServerEnv } from '@nordcraft/core'
+import { isDefined, STRING_TEMPLATE } from '@nordcraft/core'
 import {
   skipCookieHeader,
   skipHopByHopHeaders,

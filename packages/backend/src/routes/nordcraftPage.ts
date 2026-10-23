@@ -1,11 +1,10 @@
-import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import type { PageComponent, ToddleInternals } from '@nordcraft/core'
 import {
+  applyFormula,
   theme as defaultTheme,
   THEME_DATA_ATTRIBUTE,
-} from '@nordcraft/core/dist/styling/theme.const'
-import type { ToddleInternals } from '@nordcraft/core/dist/types'
-import { toBoolean } from '@nordcraft/core/dist/utils/util'
+  toBoolean,
+} from '@nordcraft/core'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
 import type { ApiCache } from '@nordcraft/ssr/dist/rendering/api'
 import { processComponentApis } from '@nordcraft/ssr/dist/rendering/api'

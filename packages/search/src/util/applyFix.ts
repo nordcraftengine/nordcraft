@@ -1,4 +1,4 @@
-import { omit, set } from '@nordcraft/core/dist/utils/collections'
+import { omit, set } from '@nordcraft/core'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { FixResult } from '../types'
 

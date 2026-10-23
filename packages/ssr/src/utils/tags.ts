@@ -1,4 +1,4 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type { Component } from '@nordcraft/core'
 
 /**
  * Used to replace any recursive references to the root component, as it would be rendered both by toddle runtime

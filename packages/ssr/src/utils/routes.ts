@@ -1,15 +1,16 @@
-import type { RouteDeclaration } from '@nordcraft/core/dist/component/component.types'
-import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
+import type { RouteDeclaration } from '@nordcraft/core'
 import {
   applyFormula,
+  createStylesheet,
+  theme as defaultTheme,
+  filterObject,
+  isPageComponent,
   isToddleFormula,
+  mapObject,
+  toBoolean,
   type FormulaContext,
-} from '@nordcraft/core/dist/formula/formula'
-import { type PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
-import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
-import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
-import { toBoolean } from '@nordcraft/core/dist/utils/util'
+  type PluginFormula,
+} from '@nordcraft/core'
 import { takeIncludedComponents } from '../components/utils'
 import {
   generateCustomCodeFile,

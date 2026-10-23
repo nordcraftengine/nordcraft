@@ -1,5 +1,5 @@
-import type { Formula } from '@nordcraft/core/dist/formula/formula'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { Formula } from '@nordcraft/core'
+import { isDefined } from '@nordcraft/core'
 
 export const formulaHasValue = (
   formula: Formula | undefined,

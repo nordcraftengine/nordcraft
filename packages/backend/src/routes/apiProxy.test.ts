@@ -1,8 +1,8 @@
-import { STRING_TEMPLATE } from '@nordcraft/core/dist/api/template'
 import {
   PROXY_TEMPLATES_IN_BODY,
   PROXY_URL_HEADER,
-} from '@nordcraft/core/dist/utils/url'
+  STRING_TEMPLATE,
+} from '@nordcraft/core'
 import { afterAll, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import { Hono } from 'hono'
 import { testClient } from 'hono/testing'

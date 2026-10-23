@@ -1,4 +1,4 @@
-import { DATA_ATTR_ID } from '@nordcraft/core/dist/const'
+import { DATA_ATTR_ID } from '@nordcraft/core'
 
 export {
   DATA_ATTR_COMPONENT,
@@ -6,7 +6,7 @@ export {
   DATA_ATTR_NODE_ID,
   DATA_ATTR_NODE_TYPE,
   DATA_NODE_TYPE_TEXT,
-} from '@nordcraft/core/dist/const'
+} from '@nordcraft/core'
 
 export const DATA_ATTR_VIEWPORT_HEIGHT = 'data-viewport-height'
 export const DATA_ATTR_SELECTED = 'data-selected'

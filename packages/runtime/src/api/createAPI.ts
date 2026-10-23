@@ -1,12 +1,18 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import type { LegacyComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
-import { mapHeadersToObject } from '@nordcraft/core/dist/api/headers'
-import '@nordcraft/core/dist/compileTime'
-import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
-import { applyFormula, isFormula } from '@nordcraft/core/dist/formula/formula'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
-import { parseJSONWithDate } from '@nordcraft/core/dist/utils/json'
+import '@nordcraft/core/compileTime'
+import type {
+  ComponentData,
+  FormulaContext,
+  LegacyComponentAPI,
+  Nullable,
+} from '@nordcraft/core'
+import {
+  applyFormula,
+  isFormula,
+  mapHeadersToObject,
+  mapObject,
+  parseJSONWithDate,
+} from '@nordcraft/core'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'

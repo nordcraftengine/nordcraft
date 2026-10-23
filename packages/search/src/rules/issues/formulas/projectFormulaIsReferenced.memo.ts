@@ -1,9 +1,9 @@
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
 import {
+  isDefined,
   isToddleFormula,
+  ToddleComponent,
   type Formula,
-} from '@nordcraft/core/dist/formula/formula'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+} from '@nordcraft/core'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
 import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'

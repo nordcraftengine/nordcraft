@@ -1,25 +1,24 @@
-import '@nordcraft/core/dist/compileTime'
+import '@nordcraft/core/compileTime'
 import type {
   ComponentData,
   ElementNodeModel,
   EventModel,
   NodeModel,
   SupportedNamespaces,
-} from '@nordcraft/core/dist/component/component.types'
+} from '@nordcraft/core'
 import {
+  appendUnit,
+  applyFormula,
   DATA_ATTR_COMPONENT,
   DATA_ATTR_ID,
   DATA_ATTR_NODE_ID,
-} from '@nordcraft/core/dist/const'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import {
   getClassName,
+  getNodeSelector,
   getPathClassName,
+  isDefined,
+  toBoolean,
   toValidClassName,
-} from '@nordcraft/core/dist/styling/className'
-import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
-import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
-import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+} from '@nordcraft/core'
 import { handlePreviewAutofocus } from '../editor/previewAutofocus'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'

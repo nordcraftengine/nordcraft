@@ -2,15 +2,14 @@ import type {
   AnimationKeyframe,
   Component,
   ComponentData,
-  TestScenario,
-} from '@nordcraft/core/dist/component/component.types'
-import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
-import type {
   FormulaHandlerV2,
+  OldTheme,
   PluginAction,
   PluginActionV2,
-} from '@nordcraft/core/dist/types'
+  PluginFormula,
+  TestScenario,
+  Theme,
+} from '@nordcraft/core'
 import type { getRectData } from './overlay'
 
 export type EditorMode = 'design' | 'test'

@@ -1,4 +1,4 @@
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { isDefined } from '@nordcraft/core'
 import { getValue, parse, parseMultipleValues } from './shared'
 import type { ParsedGap, ParsedValueType } from './types'
 

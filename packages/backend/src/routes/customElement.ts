@@ -1,7 +1,9 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
-import { safeCustomElementName } from '@nordcraft/core/dist/utils/customElements'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { Component } from '@nordcraft/core'
+import {
+  isDefined,
+  isPageComponent,
+  safeCustomElementName,
+} from '@nordcraft/core'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
 import { resolveClasses } from '@nordcraft/ssr/dist/rendering/classes'
 import { getFontCssUrl } from '@nordcraft/ssr/dist/rendering/fonts'

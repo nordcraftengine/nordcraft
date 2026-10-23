@@ -1,15 +1,14 @@
 import type {
   ApiBase,
-  RedirectStatusCode,
-} from '@nordcraft/core/dist/api/apiTypes'
-import type {
   Component,
+  Formula,
+  OldTheme,
+  PluginAction,
+  PluginFormula,
+  RedirectStatusCode,
   RouteDeclaration,
-} from '@nordcraft/core/dist/component/component.types'
-import type { Formula } from '@nordcraft/core/dist/formula/formula'
-import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
-import type { PluginAction } from '@nordcraft/core/dist/types'
+  Theme,
+} from '@nordcraft/core'
 
 export type FileGetter = (args: {
   package?: string

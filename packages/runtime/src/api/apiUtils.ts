@@ -1,4 +1,4 @@
-import type { ToddleRequestInit } from '@nordcraft/core/dist/api/apiTypes'
+import type { ToddleRequestInit } from '@nordcraft/core'
 import type { ContextApi, ContextApiV2 } from '../types'
 
 export const isContextApiV2 = (api: ContextApi): api is ContextApiV2 =>

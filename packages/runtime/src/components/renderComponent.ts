@@ -1,18 +1,15 @@
-import '@nordcraft/core/dist/compileTime'
+import '@nordcraft/core/compileTime'
 import type {
   Component,
   ComponentAttribute,
   ComponentData,
+  FormulaEvaluationReporter,
+  Nullable,
   SupportedNamespaces,
-} from '@nordcraft/core/dist/component/component.types'
-import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
-import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
-import type { Nullable, Toddle } from '@nordcraft/core/dist/types'
-import {
-  isMeasureEnabled,
-  measure,
-  noopMeasure,
-} from '@nordcraft/core/dist/utils/measure'
+  Toddle,
+  ToddleEnv,
+} from '@nordcraft/core'
+import { isMeasureEnabled, measure, noopMeasure } from '@nordcraft/core'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'

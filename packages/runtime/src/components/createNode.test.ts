@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
-import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
-import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
+import type { ComponentData, ToddleEnv } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import '../happydom'
 import { signal } from '../signal/signal'

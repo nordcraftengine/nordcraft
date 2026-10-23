@@ -1,7 +1,5 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
-import type { Theme } from '@nordcraft/core/dist/styling/theme'
-import type { Toddle } from '@nordcraft/core/dist/types'
-import { safeCustomElementName } from '@nordcraft/core/dist/utils/customElements'
+import type { Component, Theme, Toddle } from '@nordcraft/core'
+import { safeCustomElementName } from '@nordcraft/core'
 import type { LocationSignal } from '../types'
 import { ToddleComponent } from './ToddleComponent'
 

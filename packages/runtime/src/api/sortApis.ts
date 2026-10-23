@@ -1,4 +1,4 @@
-import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
+import type { ComponentAPI } from '@nordcraft/core'
 
 export const sortApis = (apis: Array<[string, ComponentAPI]>) => {
   return [...apis].sort(([_, aObj], [__, bObj]) => {

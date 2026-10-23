@@ -1,4 +1,4 @@
-import type { ActionHandler } from '@nordcraft/core/dist/types'
+import type { ActionHandler } from '@nordcraft/core'
 
 const handler: ActionHandler = async function () {
   window.sessionStorage.clear()
