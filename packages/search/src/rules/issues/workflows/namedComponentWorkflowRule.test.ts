@@ -1,8 +1,5 @@
-import type {
-  Component,
-  WorkflowActionModel,
-} from '@nordcraft/core/dist/component/component.types'
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
+import type { Component, WorkflowActionModel } from '@nordcraft/core'
+import { ToddleComponent } from '@nordcraft/core'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
 import { fixProject } from '../../../fixProject'

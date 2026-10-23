@@ -1,12 +1,10 @@
 import {
+  applyFormula,
   HeadTagTypes,
   type ComponentData,
-  type MetaEntry,
-} from '@nordcraft/core/dist/component/component.types'
-import {
-  applyFormula,
   type FormulaContext,
-} from '@nordcraft/core/dist/formula/formula'
+  type MetaEntry,
+} from '@nordcraft/core'
 import { DATA_ATTR_META_ID } from './const'
 
 const insertOrReplaceHeadNode = (id: string, node: Node) => {

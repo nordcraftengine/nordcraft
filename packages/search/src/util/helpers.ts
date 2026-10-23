@@ -3,10 +3,10 @@ import type {
   CustomActionArgument,
   CustomActionModel,
   ElementNodeModel,
-} from '@nordcraft/core/dist/component/component.types'
-import type { FunctionArgument } from '@nordcraft/core/dist/formula/formula'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+  FunctionArgument,
+  Nullable,
+} from '@nordcraft/core'
+import { isDefined } from '@nordcraft/core'
 
 /**
  * Returns true if the full path is included in any of the pathsToVisit

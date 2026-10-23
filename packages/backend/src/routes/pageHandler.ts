@@ -1,4 +1,4 @@
-import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
+import { isPageComponent } from '@nordcraft/core'
 import { matchPageForUrl } from '@nordcraft/ssr/dist/routing/routing'
 import type { MiddlewareHandler } from 'hono'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'

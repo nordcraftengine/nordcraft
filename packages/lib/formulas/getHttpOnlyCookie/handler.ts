@@ -1,5 +1,5 @@
-import { STRING_TEMPLATE } from '@nordcraft/core/dist/api/template'
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
+import type { FormulaHandler } from '@nordcraft/core'
+import { STRING_TEMPLATE } from '@nordcraft/core'
 
 /**
  * Nordcraft uses a custom string template to replace HttpOnly cookies server-side.

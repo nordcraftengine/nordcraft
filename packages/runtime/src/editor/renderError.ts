@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
+import type { Component } from '@nordcraft/core'
+import { isPageComponent } from '@nordcraft/core'
 import { createPanicScreen } from '../debug/panicScreen'
 import { sendEditorToast } from '../debug/sendEditorToast'
 

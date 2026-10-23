@@ -15,8 +15,8 @@ import { applyApplyFormula } from './applyFormula'
 import { applyArrayFormula } from './arrayFormula'
 import {
   type FormulaEvaluationReporter,
+  type NordcraftFormula,
   type PluginFormula,
-  type ToddleFormula,
 } from './formulaTypes'
 import { applyFunctionFormula } from './functionFormula'
 import { applyObjectFormula } from './objectFormula'
@@ -207,9 +207,9 @@ export function isFormulaApplyOperation(
 
 export const isToddleFormula = <Handler>(
   formula: PluginFormula<Handler>,
-): formula is ToddleFormula =>
+): formula is NordcraftFormula =>
   Object.hasOwn(formula, 'formula') &&
-  isDefined((formula as ToddleFormula).formula)
+  isDefined((formula as NordcraftFormula).formula)
 
 type FormulaValue = Formula | string | number | undefined | null | boolean
 type Path = Array<string | number> | undefined

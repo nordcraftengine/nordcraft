@@ -1,4 +1,4 @@
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { isDefined } from '@nordcraft/core'
 import { compile } from 'path-to-regexp'
 import type { Location } from '../types'
 

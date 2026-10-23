@@ -3,17 +3,17 @@ import type {
   ComponentData,
   SupportedNamespaces,
   TextNodeModel,
-} from '@nordcraft/core/dist/component/component.types'
+} from '@nordcraft/core'
 
 import {
+  applyFormula,
   DATA_ATTR_COMPONENT,
   DATA_ATTR_ID,
   DATA_ATTR_NODE_ID,
   DATA_ATTR_NODE_TYPE,
   DATA_NODE_TYPE_TEXT,
-} from '@nordcraft/core/dist/const'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+  isDefined,
+} from '@nordcraft/core'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 

@@ -1,4 +1,4 @@
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
+import type { FormulaHandler } from '@nordcraft/core'
 
 let localCounter = 0
 const requestCounters = new WeakMap<object, { idCounter: number }>()

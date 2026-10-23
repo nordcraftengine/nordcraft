@@ -1,20 +1,17 @@
 import type {
   Component,
   ComponentData,
-} from '@nordcraft/core/dist/component/component.types'
+  FormulaEvaluationReporter,
+  StyleVariant,
+  Theme,
+} from '@nordcraft/core'
 import {
+  appendUnit,
   applyFormula,
+  isDefined,
   type FormulaContext,
   type ToddleEnv,
-} from '@nordcraft/core/dist/formula/formula'
-import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
-import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
-import type {
-  CustomPropertyDefinition,
-  Theme,
-} from '@nordcraft/core/dist/styling/theme'
-import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+} from '@nordcraft/core'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import {

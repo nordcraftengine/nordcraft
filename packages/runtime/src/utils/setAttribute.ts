@@ -1,5 +1,5 @@
-import '@nordcraft/core/dist/compileTime'
-import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+import '@nordcraft/core/compileTime'
+import { isDefined, toBoolean } from '@nordcraft/core'
 
 /**
  * Some attributes need special handling.

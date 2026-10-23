@@ -1,7 +1,7 @@
 import type { Signal } from '../signal/signal'
 
-import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core/dist/styling/themeAttributes.const'
-import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
+import type { StyleVariant } from '@nordcraft/core'
+import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core'
 import { CustomPropertyStyleSheet } from '../styles/CustomPropertyStyleSheet'
 
 export const customPropertiesStylesheets = new WeakMap<

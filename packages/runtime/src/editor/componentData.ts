@@ -3,14 +3,15 @@ import type {
   ComponentAttribute,
   ComponentData,
   ComponentVariable,
-} from '@nordcraft/core/dist/component/component.types'
+  Nullable,
+} from '@nordcraft/core'
 import {
   applyFormula,
+  filterObject,
+  isDefined,
+  mapObject,
   type FormulaContext,
-} from '@nordcraft/core/dist/formula/formula'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+} from '@nordcraft/core'
 import type { CanvasElementType, CanvasTool } from './types'
 
 export const EMPTY_COMPONENT_DATA: ComponentData = {

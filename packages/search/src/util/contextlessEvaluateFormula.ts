@@ -1,5 +1,5 @@
-import { type Formula } from '@nordcraft/core/dist/formula/formula'
-import type { Nullable } from '@nordcraft/core/dist/types'
+import type { Nullable } from '@nordcraft/core'
+import { type Formula } from '@nordcraft/core'
 
 /**
  * Static evaluation of a formula.

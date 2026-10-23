@@ -1,5 +1,4 @@
-import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { isDefined, isLegacyApi } from '@nordcraft/core'
 import type { IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 

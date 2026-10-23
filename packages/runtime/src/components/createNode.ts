@@ -7,9 +7,8 @@ import type {
   SlotNodeModel,
   SupportedNamespaces,
   TextNodeModel,
-} from '@nordcraft/core/dist/component/component.types'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { toBoolean } from '@nordcraft/core/dist/utils/util'
+} from '@nordcraft/core'
+import { applyFormula, toBoolean } from '@nordcraft/core'
 import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'

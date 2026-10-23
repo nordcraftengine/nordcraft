@@ -1,17 +1,18 @@
-import { getUrl } from '@nordcraft/core/dist/api/api'
 import type {
   ComponentData,
+  FormulaContext,
   PageComponent,
   PageRoute,
   RouteDeclaration,
-} from '@nordcraft/core/dist/component/component.types'
-import type {
-  FormulaContext,
   ToddleEnv,
-} from '@nordcraft/core/dist/formula/formula'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { filterObject } from '@nordcraft/core/dist/utils/collections'
-import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+} from '@nordcraft/core'
+import {
+  applyFormula,
+  filterObject,
+  getUrl,
+  isDefined,
+  toBoolean,
+} from '@nordcraft/core'
 import { getParameters } from '../rendering/formulaContext'
 import type { ProjectFiles, Route } from '../ssr.types'
 

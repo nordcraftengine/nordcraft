@@ -1,5 +1,4 @@
-import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
-import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
+import type { ComponentData, FormulaContext } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import { evaluateResponseHeaders } from './response'
 

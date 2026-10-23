@@ -1,4 +1,4 @@
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
+import type { FormulaHandler } from '@nordcraft/core'
 
 const handler: FormulaHandler<number> = ([a, b]) => {
   if (isNaN(Number(a)) || isNaN(Number(b))) {

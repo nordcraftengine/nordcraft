@@ -1,14 +1,19 @@
 /* eslint-disable no-console */
-import '@nordcraft/core/dist/compileTime'
+import '@nordcraft/core/compileTime'
 import type {
   ActionModel,
   ComponentData,
+  FormulaContext,
   SetMultiUrlParameterAction,
   SetURLParameterAction,
-} from '@nordcraft/core/dist/component/component.types'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { mapObject, omitKeys } from '@nordcraft/core/dist/utils/collections'
-import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+} from '@nordcraft/core'
+import {
+  applyFormula,
+  isDefined,
+  mapObject,
+  omitKeys,
+  toBoolean,
+} from '@nordcraft/core'
 import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import type { ComponentContext, Location } from '../types'

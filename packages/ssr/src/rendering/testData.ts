@@ -1,8 +1,7 @@
-import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   ActionModel,
   Component,
+  ComponentAPI,
   ComponentAttribute,
   ComponentFormula,
   ComponentVariable,
@@ -11,25 +10,24 @@ import type {
   CustomActionModel,
   EventActionModel,
   NodeModel,
+  Nullable,
   SetURLParameterAction,
   SwitchActionModel,
   TextNodeModel,
   VariableActionModel,
   WorkflowActionModel,
   WorkflowCallbackActionModel,
-} from '@nordcraft/core/dist/component/component.types'
-import {
-  isFormula,
-  type ApplyOperation,
-  type Formula,
-} from '@nordcraft/core/dist/formula/formula'
-import type { Nullable } from '@nordcraft/core/dist/types'
+} from '@nordcraft/core'
 import {
   filterObject,
+  isDefined,
+  isFormula,
+  isLegacyApi,
   mapObject,
   omitKeys,
-} from '@nordcraft/core/dist/utils/collections'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+  type ApplyOperation,
+  type Formula,
+} from '@nordcraft/core'
 
 export const removeTestData = (component: Component): Component =>
   removeOptionalPropertiesIfEmpty<Component>(

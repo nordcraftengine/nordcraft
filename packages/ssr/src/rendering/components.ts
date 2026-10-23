@@ -1,40 +1,36 @@
 import type {
   ApiStatus,
-  LegacyApiStatus,
-} from '@nordcraft/core/dist/api/apiTypes'
-import type {
   Component,
   ComponentData,
   ComponentFormula,
   ComponentVariable,
+  FormulaContext,
+  LegacyApiStatus,
   MediaQuery,
   NodeModel,
+  Nullable,
   SupportedNamespaces,
-} from '@nordcraft/core/dist/component/component.types'
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
+  ToddleServerEnv,
+} from '@nordcraft/core'
 import {
+  appendUnit,
+  applyFormula,
   DATA_ATTR_ID,
   DATA_ATTR_NODE_ID,
   DATA_ATTR_NODE_TYPE,
   DATA_NODE_TYPE_TEXT,
-} from '@nordcraft/core/dist/const'
-import type {
-  FormulaContext,
-  ToddleServerEnv,
-} from '@nordcraft/core/dist/formula/formula'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import {
+  filterObject,
   getClassName,
+  getNodeSelector,
   getPathClassName,
   getStaticStyleAndVariants,
+  isDefined,
+  mapValues,
+  toBoolean,
+  ToddleComponent,
   toValidClassName,
-} from '@nordcraft/core/dist/styling/className'
-import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import { filterObject, mapValues } from '@nordcraft/core/dist/utils/collections'
-import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
-import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
-import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+  VOID_HTML_ELEMENTS,
+} from '@nordcraft/core'
 import { escapeAttrValue } from 'xss'
 import type { ProjectFiles } from '../ssr.types'
 import type { ApiCache, ApiEvaluator } from './api'

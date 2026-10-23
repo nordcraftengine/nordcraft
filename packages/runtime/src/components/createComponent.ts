@@ -1,22 +1,22 @@
-import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
-import '@nordcraft/core/dist/compileTime'
+import '@nordcraft/core/compileTime'
 import type {
+  ComponentAPI,
   ComponentData,
   ComponentFormula,
   ComponentNodeModel,
   ComponentVariable,
+  Nullable,
   SupportedNamespaces,
-} from '@nordcraft/core/dist/component/component.types'
+} from '@nordcraft/core'
 import {
+  appendUnit,
   applyFormula,
-  type FormulaContext,
-} from '@nordcraft/core/dist/formula/formula'
-import { appendUnit } from '@nordcraft/core/dist/styling/customProperty'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
-import { getNodeSelector } from '@nordcraft/core/dist/utils/getNodeSelector'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+  filterObject,
+  getNodeSelector,
+  isDefined,
+  isLegacyApi,
+  mapObject,
+} from '@nordcraft/core'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'

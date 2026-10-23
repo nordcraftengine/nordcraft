@@ -1,4 +1,4 @@
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
+import type { FormulaHandler } from '@nordcraft/core'
 
 export const handler: FormulaHandler<unknown> = ([items, fx]) => {
   if (typeof fx !== 'function') {

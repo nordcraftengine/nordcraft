@@ -1,4 +1,4 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type { Component } from '@nordcraft/core'
 import { rectHasPoint } from '../../utils/rectHasPoint'
 import { getDOMNodeFromNodeId } from '../dom'
 import {

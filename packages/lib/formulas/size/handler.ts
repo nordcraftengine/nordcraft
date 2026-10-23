@@ -1,5 +1,5 @@
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
-import { isObject } from '@nordcraft/core/dist/utils/util'
+import type { FormulaHandler } from '@nordcraft/core'
+import { isObject } from '@nordcraft/core'
 
 const handler: FormulaHandler<number> = ([collection]) => {
   if (Array.isArray(collection)) {

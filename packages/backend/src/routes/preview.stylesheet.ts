@@ -1,6 +1,8 @@
-import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
-import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
-import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
+import {
+  createStylesheet,
+  theme as defaultTheme,
+  isPageComponent,
+} from '@nordcraft/core'
 import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import type { Context } from 'hono'

@@ -1,10 +1,5 @@
-import type {
-  ComponentData,
-  PageRoute,
-} from '@nordcraft/core/dist/component/component.types'
-import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/themeAttributes.const'
+import type { ComponentData, FormulaContext, PageRoute } from '@nordcraft/core'
+import { applyFormula, THEME_COOKIE_NAME } from '@nordcraft/core'
 
 export const getHtmlLanguage = ({
   pageInfo,

@@ -1,5 +1,4 @@
-import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/themeAttributes.const'
-import type { ActionHandler } from '@nordcraft/core/dist/types'
+import { THEME_COOKIE_NAME, type ActionHandler } from '@nordcraft/core'
 
 const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365
 

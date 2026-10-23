@@ -1,5 +1,5 @@
-import type { ActionHandler } from '@nordcraft/core/dist/types'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { ActionHandler } from '@nordcraft/core'
+import { isDefined } from '@nordcraft/core'
 
 const handler: ActionHandler = ([delay], ctx) => {
   // We'll cast delay in case it's passed as a string

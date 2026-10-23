@@ -1,4 +1,4 @@
-import { REWRITE_HEADER } from '@nordcraft/core/dist/utils/url'
+import { REWRITE_HEADER } from '@nordcraft/core'
 import * as routing from '@nordcraft/ssr/dist/routing/routing'
 import { REDIRECT_NAME_HEADER } from '@nordcraft/ssr/dist/utils/headers'
 import { afterAll, beforeEach, describe, expect, it, spyOn } from 'bun:test'
