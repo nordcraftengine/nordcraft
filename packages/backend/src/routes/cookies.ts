@@ -1,4 +1,4 @@
-import { escapeSearchParameters } from '@nordcraft/ssr/dist/rendering/request'
+import { escapeSearchParameters } from '@nordcraft/ssr'
 import type { Handler } from 'hono'
 import type { HonoEnv } from '../../hono'
 

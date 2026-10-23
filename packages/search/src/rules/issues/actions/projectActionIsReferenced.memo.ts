@@ -1,6 +1,6 @@
 import type { CustomActionModel } from '@nordcraft/core'
 import { isDefined, ToddleComponent } from '@nordcraft/core'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { ProjectFiles } from '@nordcraft/ssr'
 import type { MemoFn } from '../../../types'
 
 export const projectActionIsReferenced = (

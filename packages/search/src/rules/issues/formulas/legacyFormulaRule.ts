@@ -1,6 +1,6 @@
 import type { FunctionOperation } from '@nordcraft/core'
 import { isDefined, isToddleFormula } from '@nordcraft/core'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { ProjectFiles } from '@nordcraft/ssr'
 import type { FormulaNode, IssueRule, NodeType } from '../../../types'
 import { replaceLegacyFormula } from './legacyFormulaRule.fix'
 

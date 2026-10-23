@@ -4,9 +4,8 @@ import {
   ToddleComponent,
   type Formula,
 } from '@nordcraft/core'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-import { ToddleApiService } from '@nordcraft/ssr/dist/ToddleApiService'
-import { ToddleRoute } from '@nordcraft/ssr/dist/ToddleRoute'
+import type { ProjectFiles } from '@nordcraft/ssr'
+import { ToddleApiService, ToddleRoute } from '@nordcraft/ssr'
 import type { MemoFn } from '../../../types'
 
 export const projectFormulaIsReferenced = (

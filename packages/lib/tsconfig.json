@@ -16,6 +16,13 @@
     "types": ["bun"],
     "verbatimModuleSyntax": true
   },
-  "include": ["actions", "formulas", "./actions.ts", "./formulas.ts"],
+  "include": [
+    "actions",
+    "formulas",
+    "./actions.ts",
+    "./formulas.ts",
+    "./lib.ts",
+    "./index.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

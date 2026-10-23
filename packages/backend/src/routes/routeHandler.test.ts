@@ -1,6 +1,6 @@
 import { REWRITE_HEADER } from '@nordcraft/core'
-import * as routing from '@nordcraft/ssr/dist/routing/routing'
-import { REDIRECT_NAME_HEADER } from '@nordcraft/ssr/dist/utils/headers'
+import { REDIRECT_NAME_HEADER } from '@nordcraft/ssr'
+import * as routing from '@nordcraft/ssr/routing/routing'
 import { afterAll, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import { Hono } from 'hono'
 import type { HonoEnv } from '../../hono'

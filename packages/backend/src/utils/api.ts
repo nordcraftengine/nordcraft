@@ -22,14 +22,12 @@ import {
   type RedirectStatusCode,
 } from '@nordcraft/core'
 import {
+  applyTemplateValues,
+  sanitizeProxyHeaders,
   sortApiEntries,
   type ApiCache,
   type ApiEvaluator,
 } from '@nordcraft/ssr'
-import {
-  applyTemplateValues,
-  sanitizeProxyHeaders,
-} from '@nordcraft/ssr/dist/rendering/template'
 
 export const evaluateComponentApis: ApiEvaluator = async ({
   component,

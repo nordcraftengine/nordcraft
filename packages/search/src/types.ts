@@ -31,7 +31,7 @@ import type {
   ProjectFiles,
   Route,
   ToddleProject,
-} from '@nordcraft/ssr/dist/ssr.types'
+} from '@nordcraft/ssr'
 import type { Delta } from 'jsondiffpatch'
 import type { LegacyActionRuleFix } from './rules/issues/actions/legacyActionRule'
 import type { NoReferenceProjectActionRuleFix } from './rules/issues/actions/noReferenceProjectActionRule'

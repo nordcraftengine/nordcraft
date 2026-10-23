@@ -1,4 +1,4 @@
-import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr'
 import type { Context } from 'hono'
 import type { HonoEnv } from '../../hono'
 
