@@ -36,6 +36,7 @@ export default defineConfig([
       'tests/e2e/index.html',
       'packages/lib/actions.ts',
       'packages/lib/formulas.ts',
+      'packages/lib/lib.ts',
       'packages/css-parser/bin/**/*',
     ],
   },

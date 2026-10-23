@@ -2,6 +2,7 @@
 bun.lock
 packages/lib/actions.ts
 packages/lib/formulas.ts
+packages/lib/lib.ts
 examples/hono/assets/
 examples/projects/*
 benchmarks/browser/fixtures/**/*
