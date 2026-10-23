@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import '@nordcraft/core/compileTime'
 import type {
   ComponentData,
-  FormulaContext,
   LegacyComponentAPI,
   Nullable,
 } from '@nordcraft/core'
@@ -13,6 +11,7 @@ import {
   mapObject,
   parseJSONWithDate,
 } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'

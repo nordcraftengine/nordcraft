@@ -19,7 +19,9 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "sideEffects": false,
+  "sideEffects": [
+    "./dist/compileTime.js"
+  ],
   "exports": {
     "./package.json": "./package.json",
     ".": {

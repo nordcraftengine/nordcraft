@@ -1,4 +1,3 @@
-import '@nordcraft/core/compileTime'
 import type {
   Component,
   ComponentAPI,
@@ -13,13 +12,14 @@ import type {
 import {
   applyFormula,
   createStylesheet,
+  theme as defaultTheme,
   filterObject,
   isDefined,
   isLegacyApi,
   mapObject,
-  theme as defaultTheme,
   THEME_DATA_ATTRIBUTE,
 } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'

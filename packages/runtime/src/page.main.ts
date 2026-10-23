@@ -1,4 +1,3 @@
-import '@nordcraft/core/compileTime'
 import type {
   ActionHandler,
   ArgumentInputDataFunction,
@@ -24,6 +23,7 @@ import {
   THEME_DATA_ATTRIBUTE,
   VOID_HTML_ELEMENTS,
 } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import * as libActions from '@nordcraft/std-lib/actions'
 import * as libFormulas from '@nordcraft/std-lib/formulas'
 import fastDeepEqual from 'fast-deep-equal'
