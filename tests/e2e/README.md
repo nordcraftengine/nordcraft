@@ -18,7 +18,9 @@ exports the name of its page and the components to mount:
 
 ```ts
 export const page = 'MyPage'
-export const components: Component[] = [/* ... */]
+export const components: Component[] = [
+  /* ... */
+]
 ```
 
 Open a fixture in a browser with `?fixture=<fixture-file-name>` (for example

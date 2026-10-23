@@ -33,6 +33,7 @@ export default defineConfig([
       'bun.lock',
       'examples/**/*',
       'benchmarks/**/*.html',
+      'tests/e2e/index.html',
       'packages/lib/actions.ts',
       'packages/lib/formulas.ts',
       'packages/css-parser/bin/**/*',

@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@nordcraft/core/dist/*": ["../../packages/core/dist/*"]
+    }
+  },
+  "include": ["./**/*.ts"]
+}
