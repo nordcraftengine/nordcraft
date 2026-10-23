@@ -1,5 +1,5 @@
-import type { ToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { ToddleFormula } from '@nordcraft/core/formula/formulaTypes'
+import type { ProjectFiles } from '@nordcraft/ssr'
 import { describe, expect, test } from 'bun:test'
 import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'

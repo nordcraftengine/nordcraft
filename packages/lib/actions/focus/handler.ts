@@ -1,5 +1,5 @@
-import type { ActionHandler } from '@nordcraft/core/dist/types'
-import { toBoolean } from '@nordcraft/core/dist/utils/util'
+import type { ActionHandler } from '@nordcraft/core'
+import { toBoolean } from '@nordcraft/core'
 
 const handler: ActionHandler = ([elem, preventScroll]) => {
   if (elem instanceof HTMLElement) {

@@ -1,4 +1,4 @@
-import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr'
 import { getConnInfo, serveStatic } from 'hono/bun'
 import { compress } from 'hono/compress'
 import { getApp } from './app'

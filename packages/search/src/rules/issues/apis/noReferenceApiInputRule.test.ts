@@ -1,8 +1,4 @@
-import { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
-import {
-  pathFormula,
-  valueFormula,
-} from '@nordcraft/core/dist/formula/formulaUtils'
+import { ApiMethod, pathFormula, valueFormula } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../../searchProject'
 import { noReferenceApiInputRule } from './noReferenceApiInputRule'

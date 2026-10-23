@@ -1,8 +1,8 @@
 // Copies and modifies relevant assets and JSON files to the dist/ folder
 // This script is executed by the build process
-import { RESET_STYLES } from '@nordcraft/core/dist/styling/theme.const'
-import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/ssr.types'
-import { splitRoutes } from '@nordcraft/ssr/dist/utils/routes'
+import { RESET_STYLES } from '@nordcraft/core'
+import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr'
+import { splitRoutes } from '@nordcraft/ssr'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'

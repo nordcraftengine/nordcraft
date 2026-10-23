@@ -1,4 +1,4 @@
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
+import type { FormulaHandler } from '@nordcraft/core'
 
 /**
  * Similar to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce

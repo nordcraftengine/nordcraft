@@ -1,6 +1,5 @@
-import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
-import { omitKeys } from '@nordcraft/core/dist/utils/collections'
+import type { ComponentData } from '@nordcraft/core'
+import { isLegacyApi, omitKeys } from '@nordcraft/core'
 import fastDeepEqual from 'fast-deep-equal'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'

@@ -2,6 +2,7 @@
   "compilerOptions": {
     "alwaysStrict": true,
     "declaration": true,
+    "declarationMap": true,
     "esModuleInterop": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
@@ -9,7 +10,6 @@
     "outDir": "dist",
     "preserveConstEnums": true,
     "skipLibCheck": true,
-    "sourceMap": true,
     "strict": true,
     "strictBuiltinIteratorReturn": true,
     "target": "ESNext"
@@ -18,7 +18,9 @@
     "formulas/**/*.ts",
     "actions/**/*.ts",
     "./actions.ts",
-    "./formulas.ts"
+    "./formulas.ts",
+    "./lib.ts",
+    "./index.ts"
   ],
   "exclude": ["**/*.test.ts"]
 }

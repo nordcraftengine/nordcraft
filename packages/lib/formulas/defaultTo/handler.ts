@@ -1,5 +1,5 @@
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
-import { toBoolean } from '@nordcraft/core/dist/utils/util'
+import type { FormulaHandler } from '@nordcraft/core'
+import { toBoolean } from '@nordcraft/core'
 
 const handler: FormulaHandler<unknown> = (values) => {
   for (const value of values) {

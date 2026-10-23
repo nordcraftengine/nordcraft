@@ -1,38 +1,37 @@
 import type {
-  ApiRequest,
-  ComponentAPI,
-} from '@nordcraft/core/dist/api/apiTypes'
-import type {
   ComponentEvent as _ComponentEvent,
   ActionModel,
   ActionModelActions,
   AnimationKeyframe,
+  ApiRequest,
   Component,
+  ComponentAPI,
   ComponentAttribute,
   ComponentNodeModel,
   ComponentVariable,
   CustomActionArgument,
   CustomActionModel,
   CustomProperty,
+  CustomPropertyDefinition,
   CustomPropertyName,
   ElementNodeModel,
+  Formula,
   NodeModel,
+  Nullable,
+  PluginAction,
+  PluginFormula,
   StyleVariable,
-} from '@nordcraft/core/dist/component/component.types'
-import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { Formula } from '@nordcraft/core/dist/formula/formula'
-import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import type { Theme } from '@nordcraft/core/dist/styling/theme'
-import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme.ts'
-import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
-import type { Nullable, PluginAction } from '@nordcraft/core/dist/types'
+  StyleVariant,
+  Theme,
+  ToddleComponent,
+} from '@nordcraft/core'
 import type {
   ApiService,
   InstalledPackage,
   ProjectFiles,
   Route,
   ToddleProject,
-} from '@nordcraft/ssr/dist/ssr.types'
+} from '@nordcraft/ssr'
 import type { Delta } from 'jsondiffpatch'
 import type { LegacyActionRuleFix } from './rules/issues/actions/legacyActionRule'
 import type { NoReferenceProjectActionRuleFix } from './rules/issues/actions/noReferenceProjectActionRule'

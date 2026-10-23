@@ -1,14 +1,18 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
-import { safeCustomElementName } from '@nordcraft/core/dist/utils/customElements'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
-import { takeIncludedComponents } from '@nordcraft/ssr/dist/components/utils'
-import { getFontCssUrl } from '@nordcraft/ssr/dist/rendering/fonts'
-import { removeTestData } from '@nordcraft/ssr/dist/rendering/testData'
-import { transformRelativePaths } from '@nordcraft/ssr/dist/utils/media'
-import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr/dist/utils/routes'
-import { replaceTagInNodes } from '@nordcraft/ssr/dist/utils/tags'
-import { resolveClasses } from '@nordcraft/ssr/src/rendering/classes'
+import type { Component } from '@nordcraft/core'
+import {
+  isDefined,
+  isPageComponent,
+  safeCustomElementName,
+} from '@nordcraft/core'
+import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr'
+import {
+  getFontCssUrl,
+  removeTestData,
+  replaceTagInNodes,
+  resolveClasses,
+  takeIncludedComponents,
+  transformRelativePaths,
+} from '@nordcraft/ssr'
 import type { Context } from 'hono'
 import type { HonoEnv, HonoProject } from '../../hono'
 import type { PageLoader } from '../loaders/types'

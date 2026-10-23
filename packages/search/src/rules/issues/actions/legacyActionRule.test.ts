@@ -1,8 +1,5 @@
-import type {
-  ActionModel,
-  ElementNodeModel,
-} from '@nordcraft/core/dist/component/component.types'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { ActionModel, ElementNodeModel } from '@nordcraft/core'
+import type { ProjectFiles } from '@nordcraft/ssr'
 import { describe, expect, test } from 'bun:test'
 import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'

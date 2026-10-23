@@ -1,9 +1,5 @@
-import '@nordcraft/core/dist/compileTime'
-import type {
-  Component,
-  NodeModel,
-  SlotNodeModel,
-} from '@nordcraft/core/dist/component/component.types'
+import type { Component, NodeModel, SlotNodeModel } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
 

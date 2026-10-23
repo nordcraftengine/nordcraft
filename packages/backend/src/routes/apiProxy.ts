@@ -1,22 +1,18 @@
+import type { ApiMethod } from '@nordcraft/core'
 import {
   HttpMethodsWithAllowedBody,
   NON_BODY_RESPONSE_CODES,
-} from '@nordcraft/core/dist/api/api'
-import type { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
-import {
   PROXY_TEMPLATES_IN_BODY,
   PROXY_URL_HEADER,
   validateUrl,
-} from '@nordcraft/core/dist/utils/url'
-import { getRequestCookies } from '@nordcraft/ssr/dist/rendering/cookies'
+} from '@nordcraft/core'
 import {
   applyTemplateValues,
+  getRequestCookies,
   sanitizeProxyHeaders,
-} from '@nordcraft/ssr/dist/rendering/template'
-import {
   skipContentEncodingHeader,
   skipHopByHopHeaders,
-} from '@nordcraft/ssr/dist/utils/headers'
+} from '@nordcraft/ssr'
 import type { Context } from 'hono'
 import type { ConnInfo } from 'hono/conninfo'
 import { endTime, startTime } from 'hono/timing'

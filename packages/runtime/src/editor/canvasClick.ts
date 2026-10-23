@@ -1,4 +1,4 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type { Component } from '@nordcraft/core'
 import {
   DATA_ATTR_COMPONENT,
   DATA_ATTR_ID,

@@ -1,5 +1,5 @@
-import { omit, set } from '@nordcraft/core/dist/utils/collections'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import { omit, set } from '@nordcraft/core'
+import type { ProjectFiles } from '@nordcraft/ssr'
 import type { FixResult } from '../types'
 
 export const applyFixResult = (files: ProjectFiles, result: FixResult) => {

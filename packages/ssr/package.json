@@ -18,11 +18,22 @@
     "watch": "tsgo -w"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
   "dependencies": {
     "@nordcraft/core": "workspace:*",
     "@nordcraft/std-lib": "workspace:*",

@@ -1,6 +1,5 @@
-import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
-import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { NodeModel } from '@nordcraft/core'
+import { isDefined, VOID_HTML_ELEMENTS } from '@nordcraft/core'
 import type { IssueRule, Level } from '../../../types'
 
 export function createStaticSizeConstraintRule(

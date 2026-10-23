@@ -1,4 +1,4 @@
-import type { AnimationKeyframe } from '@nordcraft/core/dist/component/component.types'
+import type { AnimationKeyframe } from '@nordcraft/core'
 import { clamp, toSeconds } from '../utils/helpers'
 import {
   DATA_ATTR_ANIMATING,

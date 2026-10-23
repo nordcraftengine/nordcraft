@@ -1,4 +1,4 @@
-import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
+import type { NodeModel } from '@nordcraft/core'
 import type { IssueRule } from '../../../types'
 
 export const unknownRepeatItemFormulaRule: IssueRule = {

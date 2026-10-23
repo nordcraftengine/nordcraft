@@ -35,6 +35,7 @@ export default defineConfig([
       'benchmarks/**/*.html',
       'packages/lib/actions.ts',
       'packages/lib/formulas.ts',
+      'packages/lib/lib.ts',
       'packages/css-parser/bin/**/*',
     ],
   },

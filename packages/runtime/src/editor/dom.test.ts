@@ -1,4 +1,4 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type { Component } from '@nordcraft/core'
 import { afterEach, beforeEach, describe, expect, it, test } from 'bun:test'
 import { handleCanvasPointerEvent } from './canvasClick'
 import { DATA_ATTR_SELECTED } from './const'

@@ -1,6 +1,5 @@
-import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
-import type { Formula } from '@nordcraft/core/dist/formula/formula'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
+import type { ComponentData, Formula } from '@nordcraft/core'
+import { applyFormula } from '@nordcraft/core'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { setAttribute } from '../utils/setAttribute'

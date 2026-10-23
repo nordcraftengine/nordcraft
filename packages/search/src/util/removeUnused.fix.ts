@@ -1,5 +1,5 @@
-import type { NodeModel } from '@nordcraft/core/dist/component/component.types'
-import { get } from '@nordcraft/core/dist/utils/collections'
+import type { NodeModel } from '@nordcraft/core'
+import { get } from '@nordcraft/core'
 import type { FixFunction, NodeType } from '../types'
 
 export const removeFromPathFix: FixFunction<NodeType> = ({

@@ -14,7 +14,7 @@ export interface BaseFormula {
   variableArguments?: Nullable<boolean>
 }
 
-export interface ToddleFormula extends BaseFormula {
+export interface NordcraftFormula extends BaseFormula {
   formula: Formula
 }
 
@@ -27,7 +27,7 @@ export interface CodeFormula<Handler = string | Function> extends BaseFormula {
 }
 
 export type PluginFormula<Handler = string | Function> =
-  | ToddleFormula
+  | NordcraftFormula
   | CodeFormula<Handler>
 
 export interface GlobalFormulas<Handler = string | Function> {

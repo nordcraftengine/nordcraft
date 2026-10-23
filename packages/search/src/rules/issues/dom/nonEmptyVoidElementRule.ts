@@ -1,4 +1,4 @@
-import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
+import { VOID_HTML_ELEMENTS } from '@nordcraft/core'
 import type { IssueRule } from '../../../types'
 /**
  * See full list here

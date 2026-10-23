@@ -2,22 +2,22 @@
 /* eslint-disable @typescript-eslint/prefer-optional-chain */
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-fallthrough */
-import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import type {
+  FormulaContext,
+  FormulaEvaluationReporter,
+  Theme,
+} from '@nordcraft/core'
 import {
+  applyFormula,
+  isDefined,
+  isLegacyApi,
+  isPageComponent,
+  THEME_COOKIE_NAME,
+  THEME_DATA_ATTRIBUTE,
   type Component,
   type ComponentData,
   type ComponentFormula,
-} from '@nordcraft/core/dist/component/component.types'
-import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
-import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
-import type { Theme } from '@nordcraft/core/dist/styling/theme'
-import {
-  THEME_COOKIE_NAME,
-  THEME_DATA_ATTRIBUTE,
-} from '@nordcraft/core/dist/styling/themeAttributes.const'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+} from '@nordcraft/core'
 import fastDeepEqual from 'fast-deep-equal'
 import { createNode } from './components/createNode'
 import { isContextProvider } from './context/isContextProvider'

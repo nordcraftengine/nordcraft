@@ -1,4 +1,4 @@
-import { DATA_ATTR_ID, DATA_ATTR_NODE_ID } from '@nordcraft/core/dist/const'
+import { DATA_ATTR_ID, DATA_ATTR_NODE_ID } from '@nordcraft/core'
 import { getRepeatNodeIndex, stripNodeIdRepeatIndices } from '../dom'
 import { postMessageToEditor } from '../postMessageToEditor'
 

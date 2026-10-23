@@ -2,6 +2,7 @@
   "compilerOptions": {
     "alwaysStrict": true,
     "declaration": true,
+    "declarationMap": true,
     "esModuleInterop": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
@@ -10,7 +11,6 @@
     "preserveConstEnums": true,
     "rootDir": "src",
     "skipLibCheck": true,
-    "sourceMap": true,
     "strict": true,
     "strictBuiltinIteratorReturn": true,
     "target": "ESNext",

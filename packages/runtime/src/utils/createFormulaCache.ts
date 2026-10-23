@@ -2,18 +2,11 @@ import type {
   Component,
   ComponentData,
   ComponentFormula,
-} from '@nordcraft/core/dist/component/component.types'
-import type {
   Formula,
   FunctionOperation,
-} from '@nordcraft/core/dist/formula/formula'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import {
-  filterObject,
-  get,
-  mapObject,
-} from '@nordcraft/core/dist/utils/collections'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+  Nullable,
+} from '@nordcraft/core'
+import { filterObject, get, isDefined, mapObject } from '@nordcraft/core'
 import type { FormulaCache } from '../types'
 
 export function createFormulaCache(component: Component): FormulaCache {

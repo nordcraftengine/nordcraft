@@ -1,21 +1,25 @@
-import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import type { ComponentAPI } from '@nordcraft/core/dist/api/apiTypes'
-import '@nordcraft/core/dist/compileTime'
 import type {
   Component,
+  ComponentAPI,
   ComponentData,
   ComponentFormula,
   ComponentVariable,
-} from '@nordcraft/core/dist/component/component.types'
-import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { createStylesheet } from '@nordcraft/core/dist/styling/style.css'
-import type { Theme } from '@nordcraft/core/dist/styling/theme'
-import { theme as defaultTheme } from '@nordcraft/core/dist/styling/theme.const'
-import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/themeAttributes.const'
-import type { Nullable, Toddle } from '@nordcraft/core/dist/types'
-import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+  Nullable,
+  Theme,
+  Toddle,
+  ToddleEnv,
+} from '@nordcraft/core'
+import {
+  applyFormula,
+  createStylesheet,
+  theme as defaultTheme,
+  filterObject,
+  isDefined,
+  isLegacyApi,
+  mapObject,
+  THEME_DATA_ATTRIBUTE,
+} from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'

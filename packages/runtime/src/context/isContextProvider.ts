@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type { Component } from '@nordcraft/core'
 
 export const isContextProvider = (component: Component) =>
   (component.formulas &&

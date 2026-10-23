@@ -1,17 +1,21 @@
 import type {
   Component,
   ComponentData,
+  FormulaContext,
+  OldTheme,
   PageComponent,
-} from '@nordcraft/core/dist/component/component.types'
-import { HeadTagTypes } from '@nordcraft/core/dist/component/component.types'
-import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
-import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core/dist/styling/themeAttributes.const'
-import { easySort } from '@nordcraft/core/dist/utils/collections'
-import { VOID_HTML_ELEMENTS } from '@nordcraft/core/dist/utils/html'
-import { validateUrl } from '@nordcraft/core/dist/utils/url'
-import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+  Theme,
+} from '@nordcraft/core'
+import {
+  applyFormula,
+  CUSTOM_PROPERTIES_STYLESHEET_ID,
+  easySort,
+  HeadTagTypes,
+  isDefined,
+  toBoolean,
+  validateUrl,
+  VOID_HTML_ELEMENTS,
+} from '@nordcraft/core'
 import { escapeAttrValue } from '../rendering/attributes'
 import type { ProjectFiles, ToddleProject } from '../ssr.types'
 import { isCloudflareImagePath } from '../utils/media'

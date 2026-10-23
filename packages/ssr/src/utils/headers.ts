@@ -1,7 +1,4 @@
-import {
-  PROXY_TEMPLATES_IN_BODY,
-  PROXY_URL_HEADER,
-} from '@nordcraft/core/dist/utils/url'
+import { PROXY_TEMPLATES_IN_BODY, PROXY_URL_HEADER } from '@nordcraft/core'
 
 /**
  * Omit the `cookie` header from a set of headers.

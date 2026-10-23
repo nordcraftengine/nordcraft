@@ -1,11 +1,5 @@
-import type {
-  Component,
-  PageComponent,
-} from '@nordcraft/core/dist/component/component.types'
-import {
-  functionFormula,
-  valueFormula,
-} from '@nordcraft/core/dist/formula/formulaUtils'
+import type { Component, PageComponent } from '@nordcraft/core'
+import { functionFormula, valueFormula } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import type { ProjectFiles } from '../ssr.types'
 import { renderPageBody } from './components'

@@ -4,8 +4,8 @@ import type {
   FunctionOperation,
   OrOperation,
   SwitchOperation,
-} from '@nordcraft/core/dist/formula/formula'
-import { omitKeys } from '@nordcraft/core/dist/utils/collections'
+} from '@nordcraft/core'
+import { omitKeys } from '@nordcraft/core'
 import type { FixFunction, FormulaNode } from '../../../types'
 import {
   ARRAY_ARGUMENT_MAPPINGS,

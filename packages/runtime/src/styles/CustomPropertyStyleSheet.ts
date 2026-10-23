@@ -1,5 +1,4 @@
-import type { MediaQuery } from '@nordcraft/core/dist/component/component.types'
-import type { Nullable } from '@nordcraft/core/dist/types'
+import type { MediaQuery, Nullable } from '@nordcraft/core'
 
 /**
  * CustomPropertyStyleSheet is a utility class that manages CSS custom properties

@@ -1,4 +1,4 @@
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
+import type { FormulaHandler } from '@nordcraft/core'
 
 /**
  * Create a simplified URL object similar to the native URL

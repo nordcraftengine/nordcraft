@@ -1,5 +1,5 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
+import type { Component } from '@nordcraft/core'
+import { ToddleComponent } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import type { ProjectFiles } from '../ssr.types'
 import { getActionReferences, hasCustomCode } from './codeRefs'

@@ -1,7 +1,5 @@
-import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { validateUrl } from '@nordcraft/core/dist/utils/url'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { PageComponent } from '@nordcraft/core'
+import { applyFormula, isDefined, validateUrl } from '@nordcraft/core'
 import type { Context } from 'hono'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 
