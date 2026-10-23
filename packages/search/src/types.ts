@@ -117,6 +117,7 @@ export type Code =
   | 'no-reference project package'
   | 'no-reference variable'
   | 'no-static-node-condition'
+  | 'no-static-switch-condition'
   | 'no-reference context formula'
   | 'no-unnecessary-condition-falsy'
   | 'no-unnecessary-condition-truthy'

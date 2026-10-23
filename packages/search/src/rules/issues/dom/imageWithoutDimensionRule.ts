@@ -1,6 +1,6 @@
+import { contextlessEvaluateFormula } from '@nordcraft/core/dist/formula/contextlessEvaluateFormula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { IssueRule } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 const nonStaticDimensionKeywords = ['', 'auto']
 /**
@@ -11,7 +11,8 @@ export const imageWithoutDimensionRule: IssueRule = {
   code: 'image without dimension',
   level: 'warning',
   category: 'Performance',
-  visit: (report, { path, nodeType, value }) => {
+  visit: (report, args) => {
+    const { path, files, nodeType, value } = args
     if (
       nodeType !== 'component-node' ||
       value?.type !== 'element' ||
@@ -25,13 +26,21 @@ export const imageWithoutDimensionRule: IssueRule = {
     let hasValidAspectRatio = false
 
     if (isDefined(value.attrs?.width)) {
-      const widthEval = contextlessEvaluateFormula(value.attrs.width)
+      const widthEval = contextlessEvaluateFormula(value.attrs.width, {
+        component: args.component,
+        formulas: files.formulas,
+        packages: files.packages,
+      })
       // If dynamic, we assume it is valid
       hasValidWidth ||= !widthEval.isStatic || checkValue(widthEval.result)
     }
 
     if (isDefined(value.attrs?.height)) {
-      const heightEval = contextlessEvaluateFormula(value.attrs.height)
+      const heightEval = contextlessEvaluateFormula(value.attrs.height, {
+        component: args.component,
+        formulas: files.formulas,
+        packages: files.packages,
+      })
       // If dynamic, we assume it is valid
       hasValidHeight ||= !heightEval.isStatic || checkValue(heightEval.result)
     }

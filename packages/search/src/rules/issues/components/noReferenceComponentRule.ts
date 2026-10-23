@@ -1,7 +1,7 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
+import { contextlessEvaluateFormula } from '@nordcraft/core/dist/formula/contextlessEvaluateFormula'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 import type { IssueRule } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 import { componentIsReferenced } from './componentIsReferenced.memo'
 
@@ -14,8 +14,11 @@ export const noReferenceComponentRule: IssueRule<void> = {
       nodeType !== 'component' ||
       isPage(value) ||
       (state?.projectDetails?.type === 'package' && value.exported === true) ||
-      contextlessEvaluateFormula(value.customElement?.enabled).result ===
-        true ||
+      contextlessEvaluateFormula(value.customElement?.enabled, {
+        component: value,
+        formulas: files.formulas,
+        packages: files.packages,
+      }).result === true ||
       componentIsReferenced(files, memo)(value.name)
     ) {
       return

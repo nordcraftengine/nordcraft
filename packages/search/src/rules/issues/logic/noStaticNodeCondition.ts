@@ -1,5 +1,5 @@
+import { contextlessEvaluateFormula } from '@nordcraft/core/dist/formula/contextlessEvaluateFormula'
 import type { FixFunction, IssueRule, NodeType } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import {
   removeFromPathFix,
   removeNodeFromPathFix,
@@ -11,7 +11,8 @@ export const noStaticNodeCondition: IssueRule<{
   code: 'no-static-node-condition',
   level: 'warning',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }) => {
+  visit: (report, args) => {
+    const { path, files, value, nodeType } = args
     if (
       nodeType !== 'formula' ||
       !(
@@ -24,7 +25,11 @@ export const noStaticNodeCondition: IssueRule<{
       return
     }
 
-    const { isStatic, result } = contextlessEvaluateFormula(value)
+    const { isStatic, result } = contextlessEvaluateFormula(value, {
+      component: args.component,
+      formulas: files.formulas,
+      packages: files.packages,
+    })
     if (isStatic) {
       // - if truthy: "Condition is always true, you can safely remove the condition as it will always be rendered."
       // - if falsy: "Condition is always false, you can safely remove the entire node as it will never be rendered."
