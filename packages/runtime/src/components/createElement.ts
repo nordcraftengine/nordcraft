@@ -27,8 +27,12 @@ import type { ComponentContext } from '../types'
 import { formulaHasValue } from '../utils/formulaHasValue'
 import { getDragData } from '../utils/getDragData'
 import { getElementTagName } from '../utils/getElementTagName'
+import { isStaticFormula } from '../utils/isStaticFormula'
 import { setAttribute } from '../utils/setAttribute'
-import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
+import {
+  subscribeCustomProperty,
+  subscribeStaticCustomProperty,
+} from '../utils/subscribeCustomProperty'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
 
@@ -84,7 +88,6 @@ export function createElement({
         }
       : ctx
 
-  // This is editor only logic and we should move out of the runtime bundle when possible
   if (
     IS_PREVIEW &&
     ctx.env?.runtime === 'preview' &&
@@ -133,16 +136,16 @@ export function createElement({
       }
     }
   }
-  if (ctx.isRootComponent) {
+  if (IS_PREVIEW && ctx.isRootComponent) {
     elem.setAttribute('data-is-root-component', 'true')
   }
-
-  elem.setAttribute(DATA_ATTR_NODE_ID, id)
+  if (IS_PREVIEW) {
+    elem.setAttribute(DATA_ATTR_NODE_ID, id)
+  }
   if (path) {
     elem.setAttribute(DATA_ATTR_ID, path)
   }
-
-  if (ctx.isRootComponent === false && id !== 'root') {
+  if (IS_PREVIEW && ctx.isRootComponent === false && id !== 'root') {
     elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
   }
   // class names are baked during preprocessing, except for in editor-preview where we generate them on the fly
@@ -160,14 +163,19 @@ export function createElement({
     for (const className in node.classes) {
       const formula = node.classes[className].formula
       if (formula) {
-        const classSignal = dataSignal.map((data) =>
-          toBoolean(applyFormula(formula, formulaCtx, data)),
-        )
-        classSignal.subscribe((show) =>
-          show
-            ? elem.classList.add(className)
-            : elem.classList.remove(className),
-        )
+        if (isStaticFormula(formula)) {
+          if (toBoolean(formula.value)) {
+            initialClasses.push(className)
+          }
+        } else {
+          dataSignal.subscribeMap(
+            (data) => toBoolean(applyFormula(formula, formulaCtx, data)),
+            (show) =>
+              show
+                ? elem.classList.add(className)
+                : elem.classList.remove(className),
+          )
+        }
       } else {
         initialClasses.push(className)
       }
@@ -208,33 +216,44 @@ export function createElement({
         IS_PREVIEW && ctx.reportFormulaEvaluation
           ? ['nodes', id, 'attrs', attr]
           : undefined
-      const o = dataSignal.map((data) => {
-        const val = applyFormula(value, formulaCtx, data, attrPath)
-        if (IS_PREVIEW && attrPath) {
-          ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
-        }
-        return val
-      })
-      o.subscribe((val) => {
-        setAttribute(elem, attr, val)
-      })
+      dataSignal.subscribeMap(
+        (data) => {
+          const val = applyFormula(value, formulaCtx, data, attrPath)
+          if (IS_PREVIEW && attrPath) {
+            ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
+          }
+          return val
+        },
+        (val) => {
+          setAttribute(elem, attr, val)
+        },
+      )
     }
   }
   node['style-variables']?.forEach((styleVariable, i) => {
     const { name, formula, unit } = styleVariable
+    if (isStaticFormula(formula)) {
+      const staticValue: any = formula.value
+      elem.style.setProperty(
+        `--${name}`,
+        unit ? staticValue + unit : staticValue,
+      )
+      return
+    }
     const styleVarPath =
       IS_PREVIEW && ctx.reportFormulaEvaluation
         ? ['nodes', id, 'style-variables', i, 'formula']
         : undefined
-    const signal = dataSignal.map((data) => {
-      const value = applyFormula(formula, formulaCtx, data, styleVarPath)
-      if (IS_PREVIEW && styleVarPath) {
-        ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
-      }
-      return unit ? value + unit : value
-    })
-
-    signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
+    dataSignal.subscribeMap(
+      (data) => {
+        const value = applyFormula(formula, formulaCtx, data, styleVarPath)
+        if (IS_PREVIEW && styleVarPath) {
+          ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
+        }
+        return unit ? value + unit : value
+      },
+      (value) => elem.style.setProperty(`--${name}`, value),
+    )
   })
 
   const customProperties = node.customProperties ?? {}
@@ -250,6 +269,19 @@ export function createElement({
         ? ['nodes', id, 'customProperties', customPropertyName, 'formula']
         : undefined
     const nodeSelector = getNodeSelector(path)
+    if (isStaticFormula(formula)) {
+      subscribeStaticCustomProperty({
+        customPropertyName,
+        selector:
+          IS_CUSTOM_ELEMENT && ctx.isRootComponent && path === '0'
+            ? `${nodeSelector}, :host`
+            : nodeSelector,
+        value: appendUnit(formula.value, unit),
+        root: ctx.root,
+        dataSignal,
+      })
+      continue
+    }
     subscribeCustomProperty({
       customPropertyName,
       selector:
@@ -290,11 +322,23 @@ export function createElement({
               'formula',
             ]
           : undefined
+      const variantSelector = getNodeSelector(path, {
+        variant,
+      })
+      if (isStaticFormula(formula)) {
+        subscribeStaticCustomProperty({
+          customPropertyName,
+          selector: variantSelector,
+          value: appendUnit(formula.value, unit),
+          variant,
+          root: ctx.root,
+          dataSignal,
+        })
+        continue
+      }
       subscribeCustomProperty({
         customPropertyName,
-        selector: getNodeSelector(path, {
-          variant,
-        }),
+        selector: variantSelector,
         variant,
         signal: dataSignal.map((data) => {
           const val = applyFormula(formula, formulaCtx, data, variantCpPath)
@@ -312,8 +356,10 @@ export function createElement({
     initialClasses.push(getPathClassName(path))
   }
 
-  if (initialClasses.length > 0) {
-    elem.classList.add(...initialClasses)
+  // Index loop instead of `classList.add(...classes)`: avoids allocating
+  // the spread arguments object on every element creation (Preact-style).
+  for (let i = 0; i < initialClasses.length; i++) {
+    elem.classList.add(initialClasses[i]!)
   }
 
   for (const key in node.events) {
@@ -388,7 +434,11 @@ export function createElement({
         childNodes.push(nodes[j]!)
       }
     }
-    elem.append(...childNodes)
+    // Index loop over `appendChild` instead of `append(...childNodes)`:
+    // same DOM result for Node items, without the spread allocation.
+    for (let i = 0; i < childNodes.length; i++) {
+      elem.appendChild(childNodes[i]!)
+    }
   }
   dataSignal.subscriptions.push(() => {
     // TODO: Clean up event listeners, but after destruction of child signals (Maybe we need a "afterDestroy" hook on signals?)
@@ -409,29 +459,39 @@ const getEventHandler =
     ctx: ComponentContext
   }) =>
   (e: Event) => {
+    // Hoisted out of the per-action loop: event payload extraction is
+    // idempotent and event-scoped, so running it once per event instead of
+    // once per action is behavior-identical and cheaper.
+    if (e instanceof DragEvent) {
+      ;(e as any).data = getDragData(e)
+    }
+    if (e instanceof ClipboardEvent) {
+      try {
+        ;(e as any).data = Array.from(e.clipboardData?.items ?? []).reduce<
+          Record<string, any>
+        >((dragData, item) => {
+          try {
+            dragData[item.type] = JSON.parse(
+              e.clipboardData?.getData(item.type) as any,
+            )
+          } catch {
+            dragData[item.type] = e.clipboardData?.getData(item.type)
+          }
+          return dragData
+        }, {})
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Could not get paste data', e)
+      }
+    }
+    // NOTE: signal notifications used to be batched (coalesced) across the
+    // actions of one event. That changed observable timing — a later action
+    // (or a custom formula in a later SetVariable) could observe DOM/side
+    // effects that the earlier action's cascade had not produced yet (e.g. a
+    // custom action measuring an element resized by the first action).
+    // Actions therefore run sequentially with the full cascade between them,
+    // exactly as before batching existed.
     event?.actions?.forEach((action) => {
-      if (e instanceof DragEvent) {
-        ;(e as any).data = getDragData(e)
-      }
-      if (e instanceof ClipboardEvent) {
-        try {
-          ;(e as any).data = Array.from(e.clipboardData?.items ?? []).reduce<
-            Record<string, any>
-          >((dragData, item) => {
-            try {
-              dragData[item.type] = JSON.parse(
-                e.clipboardData?.getData(item.type) as any,
-              )
-            } catch {
-              dragData[item.type] = e.clipboardData?.getData(item.type)
-            }
-            return dragData
-          }, {})
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error('Could not get paste data', e)
-        }
-      }
       void handleAction(action, { ...dataSignal.get(), Event: e }, ctx, e)
     })
     return false

@@ -14,6 +14,8 @@ import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { getComponent } from '../utils/getComponent'
+import { isStaticFormula } from '../utils/isStaticFormula'
+import type { OrderableItem } from '../utils/nodes'
 import { ensureEfficientOrdering, getNextSiblingElement } from '../utils/nodes'
 import { createComponent } from './createComponent'
 import { createElement } from './createElement'
@@ -55,20 +57,26 @@ export function createNode({
         const isLocalComponent =
           getComponent(props.node.name, ctx.components, !IS_PREVIEW) !==
           undefined
+        const childPackage =
+          props.node.package ?? (isLocalComponent ? undefined : ctx.package)
+        const childCtx =
+          childPackage === ctx.package &&
+          (!IS_PREVIEW || !ctx.reportFormulaEvaluation)
+            ? ctx
+            : {
+                ...ctx,
+                package: childPackage,
+                // Skip sub-component formula evaluation for now as editor only needs the scope for the selected component
+                // TODO: Letting the AI get the state of a deep component may be useful in the future, but we need a better way at precising scope for it to not overwhelm it.
+                ...(IS_PREVIEW && ctx.reportFormulaEvaluation
+                  ? { reportFormulaEvaluation: undefined }
+                  : {}),
+              }
         return createComponent({
           ...props,
-          node: { ...props.node, id }, // we need the node id for instance classes
-          ctx: {
-            ...ctx,
-            package:
-              props.node.package ??
-              (isLocalComponent ? undefined : ctx.package),
-            // Skip sub-component formula evaluation for now as editor only needs the scope for the selected component
-            // TODO: Letting the AI get the state of a deep component may be useful in the future, but we need a better way at precising scope for it to not overwhelm it.
-            ...(IS_PREVIEW && ctx.reportFormulaEvaluation
-              ? { reportFormulaEvaluation: undefined }
-              : {}),
-          },
+          node: props.node,
+          nodeId: id,
+          ctx: childCtx,
           parentElement,
         })
       }
@@ -91,6 +99,23 @@ export function createNode({
     slotRepeatIndex,
     slotSuffix,
   }: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
+    if (isStaticFormula(node.condition)) {
+      if (!toBoolean(node.condition.value)) {
+        return []
+      }
+      return create({
+        node,
+        dataSignal,
+        path,
+        id,
+        ctx,
+        namespace,
+        parentElement,
+        instance,
+        slotRepeatIndex,
+        slotSuffix,
+      })
+    }
     let firstRun = true
     let childDataSignal: Signal<ComponentData> | null = null
     const conditionPath =
@@ -99,13 +124,6 @@ export function createNode({
         : undefined
     const conditionCtx =
       IS_PREVIEW && ctx.jsonPath ? { ...ctx, jsonPath: undefined } : ctx
-    const showSignal = dataSignal.map((data) => {
-      const show = toBoolean(
-        applyFormula(node.condition, conditionCtx, data, conditionPath),
-      )
-
-      return show
-    })
 
     const elements: Array<Element | Text> = []
     const toggle = (show: boolean) => {
@@ -132,24 +150,12 @@ export function createNode({
           return
         }
 
-        if (!parentElement || ctx.root.contains(parentElement) === false) {
-          console.error(
-            `Conditional: Parent element does not exist for "${path}" This is likely due to the DOM being modified outside of Nordcraft.`,
-          )
-          return
-        }
-
-        if (parentElement.querySelector(`[data-id="${path}"]`)) {
-          console.warn(
-            `Conditional: Element with data-id="${path}" already exists. This is likely due to the DOM being modified outside of Nordcraft`,
-          )
-          return
-        }
-
         const nextPathElement = getNextSiblingElement(path, parentElement)
+        const fragment = document.createDocumentFragment()
         for (const element of elements) {
-          parentElement.insertBefore(element, nextPathElement)
+          fragment.appendChild(element)
         }
+        parentElement.insertBefore(fragment, nextPathElement)
       } else if (!show) {
         childDataSignal?.destroy()
         elements.forEach((elem) => elem.remove())
@@ -158,14 +164,25 @@ export function createNode({
     }
 
     let unsubscribePreview: (() => void) | undefined
-    showSignal.subscribe(toggle, {
-      destroy: () => {
-        unsubscribePreview?.()
-        childDataSignal?.destroy()
-        elements.forEach((elem) => elem.remove())
-        elements.splice(0, elements.length)
+    let currentShow!: boolean
+    dataSignal.subscribeMap(
+      (data: ComponentData) =>
+        toBoolean(
+          applyFormula(node.condition, conditionCtx, data, conditionPath),
+        ),
+      (show) => {
+        currentShow = show
+        toggle(show)
       },
-    })
+      {
+        destroy: () => {
+          unsubscribePreview?.()
+          childDataSignal?.destroy()
+          elements.forEach((elem) => elem.remove())
+          elements.splice(0, elements.length)
+        },
+      },
+    )
     if (IS_PREVIEW) {
       unsubscribePreview = ctx.toddle._preview?.showSignal.subscribe(
         ({ displayedNodes, testMode }) => {
@@ -173,7 +190,7 @@ export function createNode({
             // only override the default show if we are in design mode (not test mode)
             toggle(true)
           } else {
-            toggle(showSignal.get())
+            toggle(currentShow)
           }
         },
       )
@@ -206,7 +223,9 @@ export function createNode({
         : undefined
     const repeatFormulaCtx =
       IS_PREVIEW && ctx.jsonPath ? { ...ctx, jsonPath: undefined } : ctx
-    const repeatSignal = dataSignal.map((data) => {
+    const evaluateRepeatEntries = (
+      data: ComponentData,
+    ): Array<[string, unknown]> => {
       const list = applyFormula(node?.repeat, repeatFormulaCtx, data, listPath)
 
       if (typeof list !== 'object' || list === null) {
@@ -220,174 +239,256 @@ export function createNode({
         return entries
       }
       return Object.entries(list)
-    })
+    }
 
-    repeatSignal.subscribe(
-      (list) => {
-        const data = dataSignal.get()
-        const parentListItem = data.ListItem
-        const parentListItemInfo = parentListItem
-          ? { Parent: parentListItem }
-          : {}
-        // Pre-calculate all keys and data for the new list
-        const seenKeys = new Set<string | number>()
-        const itemsToRender = list.map(([Key, Item], i) => {
-          const childData = {
+    let initialElements: ReadonlyArray<Element | Text> = []
+    let lastExplicitSyncParent: ComponentData | null = null
+    const destroyRepeatItems = () =>
+      Array.from(repeatItems.values()).forEach((e) => {
+        e.cleanup()
+        e.dataSignal.destroy()
+        e.elements.forEach((e) => e.remove())
+      })
+    const updateRepeatList = (list: Array<[string, unknown]>) => {
+      const data = dataSignal.get()
+      const parentListItem = data.ListItem
+      const parentListItemInfo = parentListItem
+        ? { Parent: parentListItem }
+        : {}
+      const repeatKeyFormula = node?.repeatKey
+      const seenKeys = new Set<string | number>()
+      const childKeys: Array<string | number> = new Array(list.length)
+      const childDataCache: Array<ComponentData | undefined> = repeatKeyFormula
+        ? new Array(list.length)
+        : []
+      for (let n = 0; n < list.length; n++) {
+        const entry = list[n]!
+        const Key = entry[0]
+        let childKey: string | number
+        if (repeatKeyFormula) {
+          const Item = entry[1]
+          const keyData = {
             ...data,
             ListItem: {
-              ...parentListItemInfo,
+              ...(parentListItem ? { Parent: parentListItem } : {}),
               Item,
-              Index: Number(i),
+              Index: n,
               Key,
             },
           }
-          let childKey = node?.repeatKey
-            ? applyFormula(
-                node.repeatKey,
-                repeatFormulaCtx,
-                childData,
-                repeatKeyPath,
-              )
-            : Key
+          childDataCache[n] = keyData
+          childKey = applyFormula(
+            repeatKeyFormula,
+            repeatFormulaCtx,
+            keyData,
+            repeatKeyPath,
+          )
+        } else {
+          childKey = Key
+        }
 
-          if (seenKeys.has(childKey)) {
-            console.warn(
-              `Duplicate key "${childKey}" found in repeat. Fallback to index as key. This will cause a re-render of the duplicated children on every change.`,
-            )
-            childKey = Key
+        if (seenKeys.has(childKey)) {
+          console.warn(
+            `Duplicate key "${childKey}" found in repeat. Fallback to index as key. This will cause a re-render of the duplicated children on every change.`,
+          )
+          childKey = Key
+        }
+        seenKeys.add(childKey)
+        childKeys[n] = childKey
+      }
+
+      // Cleanup removed items before rendering new items to ensure clean state
+      repeatItems.forEach((item, key) => {
+        if (!seenKeys.has(key)) {
+          item.cleanup()
+          item.dataSignal.destroy()
+          item.elements.forEach((e) => e.remove())
+          if (defaultElement === key) {
+            defaultElement = null
           }
-          seenKeys.add(childKey)
+        }
+      })
 
-          return { Key, Item, i, childData, childKey }
-        })
-
-        // Cleanup removed items' before rendering new items to ensure clean state
-        repeatItems.forEach((item, key) => {
-          if (!seenKeys.has(key)) {
-            item.cleanup()
-            item.dataSignal.destroy()
-            item.elements.forEach((e) => e.remove())
-            if (defaultElement === key) {
-              defaultElement = null
-            }
+      const newRepeatItems = new Map<
+        string | number,
+        {
+          dataSignal: Signal<ComponentData>
+          cleanup: () => void
+          elements: ReadonlyArray<Element | Text>
+        }
+      >()
+      const orderedElements: Array<OrderableItem> = []
+      let didExplicitUpdate = false
+      for (let n = 0; n < list.length; n++) {
+        const entry = list[n]!
+        const Key = entry[0]
+        const Item = entry[1]
+        const childKey = childKeys[n]!
+        const existingItem = repeatItems.get(childKey)
+        if (existingItem) {
+          didExplicitUpdate = true
+          newRepeatItems.set(childKey, existingItem)
+          existingItem.dataSignal.update(
+            (data) => ({
+              ...data,
+              ListItem: {
+                ...parentListItemInfo,
+                Item,
+                Index: n,
+                Key,
+              },
+            }),
+            // We can skip deep equality check as we know the ListItem object is always a fresh object with potentially new Index/Item.
+            { force: true },
+          )
+          const existingElements = existingItem.elements
+          for (let k = 0; k < existingElements.length; k++) {
+            orderedElements.push({
+              element: existingElements[k]!,
+              // Reused (previous) nodes already participate in the DOM, so
+              // they can use the state-preserving `moveBefore()`.
+              canMove: true,
+            })
           }
-        })
-
-        const newRepeatItems = new Map<
-          string | number,
-          {
-            dataSignal: Signal<ComponentData>
-            cleanup: () => void
-            elements: ReadonlyArray<Element | Text>
-          }
-        >()
-
-        for (const { Key, Item, i, childData, childKey } of itemsToRender) {
-          const existingItem = repeatItems.get(childKey)
-          if (existingItem) {
-            newRepeatItems.set(childKey, existingItem)
-            existingItem.dataSignal.update(
-              (data) => ({
-                ...data,
-                ListItem: {
-                  ...parentListItemInfo,
-                  Item,
-                  Index: Number(i),
-                  Key,
-                },
-              }),
-              // We can skip deep equality check as we know the ListItem object is always a fresh object with potentially new Index/Item.
-              { force: true },
-            )
+        } else {
+          const cachedChildData = childDataCache[n]
+          let newChildData: ComponentData
+          if (cachedChildData) {
+            newChildData = cachedChildData
           } else {
-            const childDataSignal = signal<ComponentData>(childData)
-            const cleanup = dataSignal.subscribe(
-              (data) => {
-                if (firstRun) {
-                  return
-                }
-
-                childDataSignal.update(
-                  ({ ListItem }) => {
-                    return {
-                      ...data,
-                      ListItem,
-                    }
-                  },
-                  { force: true },
-                )
+            const built = {
+              ...data,
+              ListItem: {
+                ...parentListItemInfo,
+                Item,
+                Index: n,
+                Key,
               },
-              {
-                destroy: () => childDataSignal.destroy(),
-              },
-            )
+            }
+            newChildData = built
+          }
+          const childDataSignal = signal<ComponentData>(newChildData)
+          const cleanup = dataSignal.subscribe(
+            (data) => {
+              if (firstRun) {
+                return
+              }
+              // Skips the redundant second push when this parent update was
+              // already applied explicitly by `updateRepeatList` above.
+              if (data === lastExplicitSyncParent) {
+                return
+              }
 
-            const repeatIndex =
-              Key === '0' && !defaultElement ? undefined : ++lifetimeSize
-            const args = {
-              node: node!,
-              id,
-              dataSignal: childDataSignal,
-              // Note that we use the lifetimeSize to ensure that no two items can ever get the same path.
-              // Consider a list [A, B, C]:
-              // - Update list to [B]
-              // - Update list to [A, C, B]
-              // Now C and B would have the same path `(1)` if we only used the index or Key, as B would have kept its reference, but the others would be recreated.
-              // With lifetimeSize, the keys would be A(3), B(1), C(4) - all unique.
-              path: repeatIndex ? `${path}(${repeatIndex})` : path,
-              ctx,
-              namespace,
-              parentElement,
-              instance,
-              slotRepeatIndex: repeatIndex,
-            }
-            if (Key === '0' && !defaultElement) {
-              defaultElement = childKey
-            }
-            const elements = node!.condition ? conditional(args) : create(args)
-            newRepeatItems.set(childKey, {
-              dataSignal: childDataSignal,
-              cleanup,
-              elements,
+              childDataSignal.update(
+                ({ ListItem }) => {
+                  return {
+                    ...data,
+                    ListItem,
+                  }
+                },
+                { force: true },
+              )
+            },
+            {
+              destroy: () => childDataSignal.destroy(),
+            },
+          )
+
+          const repeatIndex =
+            Key === '0' && !defaultElement ? undefined : ++lifetimeSize
+          const args = {
+            node: node!,
+            id,
+            dataSignal: childDataSignal,
+            // Note that we use the lifetimeSize to ensure that no two items can ever get the same path.
+            // Consider a list [A, B, C]:
+            // - Update list to [B]
+            // - Update list to [A, C, B]
+            // Now C and B would have the same path `(1)` if we only used the index or Key, as B would have kept its reference, but the others would be recreated.
+            // With lifetimeSize, the keys would be A(3), B(1), C(4) - all unique.
+            path: repeatIndex ? `${path}(${repeatIndex})` : path,
+            ctx,
+            namespace,
+            parentElement,
+            instance,
+            slotRepeatIndex: repeatIndex,
+          }
+          if (Key === '0' && !defaultElement) {
+            defaultElement = childKey
+          }
+          const elements = node!.condition ? conditional(args) : create(args)
+          newRepeatItems.set(childKey, {
+            dataSignal: childDataSignal,
+            cleanup,
+            elements,
+          })
+          for (let k = 0; k < elements.length; k++) {
+            orderedElements.push({
+              element: elements[k]!,
+              // Freshly created nodes are detached — `moveBefore()` would
+              // throw `HierarchyRequestError` for those, so they must use
+              // insert instead.
+              canMove: false,
             })
           }
         }
-        repeatItems = newRepeatItems
+      }
 
-        // No reason to continue if we are on first run, as the render-phase for the parent
-        // has not yet been reached, or if there are no items to render
-        if (firstRun || repeatItems.size === 0) {
-          return
-        }
+      repeatItems = newRepeatItems
+      initialElements = orderedElements.map((item) => item.element)
+      if (didExplicitUpdate) {
+        lastExplicitSyncParent = data
+      }
 
-        if (!parentElement || ctx.root.contains(parentElement) === false) {
-          console.error(
-            `Repeat: Parent element does not exist for ${path}. This is likely due to the DOM being modified outside of Nordcraft.`,
-          )
-          return
-        }
+      // No reason to continue if we are on first run, as the render-phase for the parent
+      // has not yet been reached, or if there are no items to render
+      if (firstRun || repeatItems.size === 0) {
+        return
+      }
 
-        ensureEfficientOrdering(
-          parentElement,
-          Array.from(repeatItems.values()).flatMap((e) => e.elements),
-          getNextSiblingElement(path, parentElement),
-        )
-      },
-      {
-        destroy: () =>
-          Array.from(repeatItems.values()).forEach((e) => {
-            e.cleanup()
-            e.dataSignal.destroy()
-            e.elements.forEach((e) => e.remove())
-          }),
-      },
-    )
+      ensureEfficientOrdering(
+        parentElement,
+        orderedElements,
+        getNextSiblingElement(path, parentElement),
+      )
+    }
+
+    if (isStaticFormula(node?.repeat)) {
+      updateRepeatList(evaluateRepeatEntries(dataSignal.get()))
+      dataSignal.subscriptions.push(destroyRepeatItems)
+    } else {
+      let prevEntries: Array<[string, unknown]> | null = null
+      dataSignal.subscribe(
+        (data) => {
+          const entries = evaluateRepeatEntries(data)
+          const prev = prevEntries
+          if (prev !== null && entries.length === prev.length) {
+            let unchanged = true
+            for (let i = 0; i < entries.length; i++) {
+              const entry = entries[i]!
+              const prevEntry = prev[i]!
+              if (entry[0] !== prevEntry[0] || entry[1] !== prevEntry[1]) {
+                unchanged = false
+                break
+              }
+            }
+            if (unchanged) {
+              return
+            }
+          }
+          prevEntries = entries
+          updateRepeatList(entries)
+        },
+        {
+          destroy: destroyRepeatItems,
+        },
+      )
+    }
 
     // We utilize that the signal subscription runs synchronously above,
-    // so we already have a populated repeatItems map to return initially.
-    // Note: `repeatItems.values()` is okay here, as maps' iterator is ordered by insertion.
+    // so we already have populated elements to return initially.
     firstRun = false
-    return Array.from(repeatItems.values()).flatMap((e) => e.elements)
+    return initialElements
   }
 
   if (node.repeat) {

@@ -108,7 +108,14 @@ describe('ensureEfficientOrdering and getNextSiblingElement together', () => {
     expect(nextSibling).toBe(node3)
 
     // Use ensureEfficientOrdering to place it using nextSibling as the anchor
-    ensureEfficientOrdering(parent, [node1, node2], nextSibling)
+    ensureEfficientOrdering(
+      parent,
+      [
+        { element: node1, canMove: true },
+        { element: node2, canMove: false },
+      ],
+      nextSibling,
+    )
 
     expect(parent.childNodes[0]).toBe(node1)
     expect(parent.childNodes[1]).toBe(node2)
@@ -133,7 +140,14 @@ describe('ensureEfficientOrdering and getNextSiblingElement together', () => {
     expect(nextSibling).toBe(node1_2)
 
     // Use ensureEfficientOrdering to place it using nextSibling as the anchor
-    ensureEfficientOrdering(parent, [node1_0, node1_1], nextSibling)
+    ensureEfficientOrdering(
+      parent,
+      [
+        { element: node1_0, canMove: true },
+        { element: node1_1, canMove: false },
+      ],
+      nextSibling,
+    )
 
     expect(parent.childNodes[0]).toBe(node1_0)
     expect(parent.childNodes[1]).toBe(node1_1)
@@ -147,7 +161,10 @@ describe('ensureEfficientOrdering', () => {
     const item1 = document.createElement('span')
     const item2 = document.createElement('span')
 
-    ensureEfficientOrdering(parent, [item1, item2])
+    ensureEfficientOrdering(parent, [
+      { element: item1, canMove: false },
+      { element: item2, canMove: false },
+    ])
 
     expect(parent.childNodes.length).toBe(2)
     expect(parent.childNodes[0]).toBe(item1)
@@ -164,7 +181,11 @@ describe('ensureEfficientOrdering', () => {
     const newItem = document.createElement('span')
 
     // Insert newItem before existing2
-    ensureEfficientOrdering(parent, [existing1, newItem, existing2])
+    ensureEfficientOrdering(parent, [
+      { element: existing1, canMove: true },
+      { element: newItem, canMove: false },
+      { element: existing2, canMove: true },
+    ])
 
     expect(parent.childNodes.length).toBe(3)
     expect(parent.childNodes[0]).toBe(existing1)
@@ -180,7 +201,10 @@ describe('ensureEfficientOrdering', () => {
     parent.appendChild(item1)
 
     // Desired order is item1, item2
-    ensureEfficientOrdering(parent, [item1, item2])
+    ensureEfficientOrdering(parent, [
+      { element: item1, canMove: true },
+      { element: item2, canMove: true },
+    ])
 
     expect(parent.childNodes.length).toBe(2)
     expect(parent.childNodes[0]).toBe(item1)
@@ -192,7 +216,10 @@ describe('ensureEfficientOrdering', () => {
     const item1 = document.createElement('span')
     const item2 = document.createTextNode('text node')
 
-    ensureEfficientOrdering(parent, [item1, item2])
+    ensureEfficientOrdering(parent, [
+      { element: item1, canMove: false },
+      { element: item2, canMove: false },
+    ])
 
     expect(parent.childNodes.length).toBe(2)
     expect(parent.childNodes[0]).toBe(item1)
@@ -207,7 +234,14 @@ describe('ensureEfficientOrdering', () => {
     const item1 = document.createElement('span')
     const item2 = document.createElement('span')
 
-    ensureEfficientOrdering(parent, [item1, item2], spacer)
+    ensureEfficientOrdering(
+      parent,
+      [
+        { element: item1, canMove: false },
+        { element: item2, canMove: false },
+      ],
+      spacer,
+    )
 
     expect(parent.childNodes.length).toBe(3)
     expect(parent.childNodes[0]).toBe(item1)
@@ -225,7 +259,11 @@ describe('ensureEfficientOrdering', () => {
     parent.appendChild(item3)
 
     // Move item3 to the front
-    ensureEfficientOrdering(parent, [item3, item1, item2])
+    ensureEfficientOrdering(parent, [
+      { element: item3, canMove: true },
+      { element: item1, canMove: true },
+      { element: item2, canMove: true },
+    ])
 
     expect(parent.childNodes[0]).toBe(item3)
     expect(parent.childNodes[1]).toBe(item1)
