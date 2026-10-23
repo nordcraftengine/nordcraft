@@ -1,43 +1,44 @@
 /* eslint-disable no-console */
+import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type { PluginActionV2 } from '@nordcraft/core/dist/types'
+import { Hono } from 'hono'
+import { timing } from 'hono/timing'
 import fs from 'node:fs'
 import path from 'node:path'
+import { nordcraftPage } from '../../packages/backend/src/routes/nordcraftPage'
+import { pageStateHandler } from '../../packages/backend/src/routes/pageState'
+import { initIsEqual } from '../../packages/ssr/dist/rendering/equals'
+
+initIsEqual()
 
 const port = Number(process.env.PORT ?? 4173)
 const repoRoot = path.resolve(import.meta.dir, '../..')
 const runtimeDistDir = path.join(repoRoot, 'packages/runtime/dist')
 const fixturesDir = path.join(import.meta.dir, 'fixtures')
-const harnessDir = import.meta.dir
 
 const API_RESPONSE_DELAY_MS = 750
 
-const buildFixtures = async () => {
+interface FixtureModule {
+  page: string
+  components: Component[]
+  customActions?: Record<string, PluginActionV2>
+}
+
+const loadFixtures = async () => {
   const fixtureFiles = fs
     .readdirSync(fixturesDir)
     .filter((file) => file.endsWith('.fixture.ts'))
 
-  const fixtures = new Map<string, string>()
+  const fixtures = new Map<string, FixtureModule>()
   for (const file of fixtureFiles) {
-    const result = await Bun.build({
-      entrypoints: [path.join(fixturesDir, file)],
-      format: 'esm',
-      target: 'browser',
-    })
-    if (!result.success) {
-      for (const log of result.logs) {
-        console.error(log)
-      }
-      throw new Error(`Failed to build fixture ${file}`)
-    }
-    const output = result.outputs[0]
-    if (!output) {
-      throw new Error(`Fixture ${file} did not produce any output`)
-    }
-    fixtures.set(file.replace('.fixture.ts', ''), await output.text())
+    const fixturePath = path.join(fixturesDir, file)
+    const mod = (await import(fixturePath)) as FixtureModule
+    fixtures.set(file.replace('.fixture.ts', ''), mod)
   }
   return fixtures
 }
 
-const fixtures = await buildFixtures()
+const fixtures = await loadFixtures()
 
 const javascript = (body: string) =>
   new Response(body, {
@@ -54,29 +55,106 @@ const resolveInside = (baseDir: string, requestPath: string) => {
   return resolvedPath.startsWith(`${baseDir}${path.sep}`) ? resolvedPath : null
 }
 
+const app = new Hono()
+app.use('*', timing())
+
+app.get('/health', (c) => c.text('ok'))
+
+// Page state handler from backend package
+app.get('/.nordcraft/page-state/:renderId{.+}', pageStateHandler as any)
+
+// Custom code handler to support fixtures with custom actions / formulas
+app.get('/_custom_code/:fixture', (c) => {
+  const rawParam = c.req.param('fixture')
+  const fixtureName = rawParam.endsWith('.js')
+    ? rawParam.slice(0, -3)
+    : rawParam
+
+  const fixture = fixtureName ? fixtures.get(fixtureName) : undefined
+  const customActions = fixture?.customActions ?? {}
+
+  const serializedActions = Object.entries(customActions)
+    .map(
+      ([name, action]) =>
+        `"${name}": { arguments: ${JSON.stringify(action.arguments ?? [])}, handler: ${action.handler.toString()} }`,
+    )
+    .join(',\n')
+
+  const code = `
+export const loadCustomCode = () => {};
+export const formulas = {};
+export const actions = {
+  e2e: {
+    ${serializedActions}
+  }
+};
+`
+  return c.text(code, 200, {
+    'Content-Type': 'application/javascript; charset=utf-8',
+    'Cache-Control': 'no-store',
+  })
+})
+
+// Main entrypoint: generates the harness HTML via nordcraftPage from backend package
+app.get('/', async (c) => {
+  const fixtureName = c.req.query('fixture')
+  if (!fixtureName) {
+    return c.text('Missing fixture query parameter', 400)
+  }
+
+  const fixture = fixtureName ? fixtures.get(fixtureName) : undefined
+  if (!fixture) {
+    return c.text(`Fixture "${fixtureName}" not found`, 404)
+  }
+
+  const page = fixture.components.find((comp) => comp.name === fixture.page)
+  if (!page) {
+    return c.text(`Page "${fixture.page}" not found in fixture`, 404)
+  }
+
+  const usesCustomCode = Boolean(
+    fixture.customActions && Object.keys(fixture.customActions).length > 0,
+  )
+
+  return await nordcraftPage({
+    hono: c as any,
+    project: {
+      name: 'E2E Tests',
+      short_id: 'e2e',
+      id: 'e2e',
+      type: 'app',
+    },
+    files: {
+      components: Object.fromEntries(
+        fixture.components.map((comp) => [comp.name, comp]),
+      ),
+      customCode: usesCustomCode,
+    } as any,
+    page: page as any,
+    status: 200,
+    options: {
+      pageStylesheetUrl: (name) => `/_static/${name}.css`,
+      customCodeUrl: () => `/_custom_code/${fixtureName}.js`,
+    },
+  })
+})
+
 const server = Bun.serve({
   port,
   async fetch(request) {
     const url = new URL(request.url)
     const pathname = url.pathname
 
-    if (pathname === '/health') {
-      return new Response('ok')
-    }
-
-    if (pathname === '/' || pathname === '/index.html') {
-      return new Response(Bun.file(path.join(harnessDir, 'index.html')), {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' },
-      })
-    }
-
-    if (pathname === '/harness.js') {
-      return new Response(Bun.file(path.join(harnessDir, 'harness.js')), {
-        headers: {
-          'Content-Type': 'application/javascript; charset=utf-8',
-          'Cache-Control': 'no-store',
-        },
-      })
+    // Static runtime bundle requested by the nordcraftPage template (/_static/page.main.esm.js)
+    if (
+      pathname === '/_static/page.main.esm.js' ||
+      pathname === '/runtime/page.main.esm.js'
+    ) {
+      const file = Bun.file(path.join(runtimeDistDir, 'page.main.esm.js'))
+      if (!(await file.exists())) {
+        return notFound('Runtime bundle not found. Run "bun run build" first.')
+      }
+      return javascript(await file.text())
     }
 
     if (pathname.startsWith('/runtime/')) {
@@ -94,12 +172,8 @@ const server = Bun.serve({
       return javascript(await file.text())
     }
 
-    if (pathname.startsWith('/fixtures/')) {
-      const fixtureName = pathname
-        .slice('/fixtures/'.length)
-        .replace(/\.js$/, '')
-      const fixture = fixtures.get(fixtureName)
-      return fixture ? javascript(fixture) : notFound('Fixture not found')
+    if (pathname.endsWith('.css')) {
+      return new Response('', { headers: { 'Content-Type': 'text/css' } })
     }
 
     if (pathname === '/api/files') {
@@ -111,7 +185,8 @@ const server = Bun.serve({
       })
     }
 
-    return notFound('Not found')
+    // Let Hono handle routing for nordcraftPage, page-state, and custom code
+    return app.fetch(request)
   },
 })
 
