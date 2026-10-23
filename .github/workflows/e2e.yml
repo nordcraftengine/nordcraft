@@ -1,0 +1,48 @@
+name: 'E2E'
+
+on:
+  pull_request:
+    paths:
+      - 'packages/core/**'
+      - 'packages/lib/**'
+      - 'packages/runtime/**'
+      - 'tests/e2e/**'
+      - 'package.json'
+      - 'bun.lock'
+      - '.github/workflows/e2e.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/core/**'
+      - 'packages/lib/**'
+      - 'packages/runtime/**'
+      - 'tests/e2e/**'
+      - 'package.json'
+      - 'bun.lock'
+      - '.github/workflows/e2e.yml'
+
+# This allows a subsequently queued workflow run to interrupt previous runs
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  test-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.4.3
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build
+        run: bun run build
+      - name: Install Playwright browser
+        run: bunx playwright install --with-deps chromium
+      - name: Run E2E tests
+        run: bun run test:e2e
