@@ -1980,4 +1980,227 @@ describe('createNode()', () => {
       expect(getChips()).toEqual(['0', '1', '2', '3', '4'])
     }
   })
+
+  test('onAttributeChange actions read live Variables updated by preceding actions', async () => {
+    const parentElement = document.createElement('div')
+    const component = {
+      name: 'AttrChangeComponent',
+      attributes: {
+        input: {
+          name: 'input',
+          testValue: 'initial',
+        },
+      },
+      variables: {
+        step1: {
+          initialValue: { type: 'value', value: 'initial' },
+        },
+        step2: {
+          initialValue: { type: 'value', value: 'initial-derived' },
+        },
+        branched: {
+          initialValue: { type: 'value', value: false },
+        },
+      },
+      onAttributeChange: {
+        trigger: 'onAttributeChange',
+        actions: [
+          {
+            type: 'SetVariable',
+            variable: 'step1',
+            data: {
+              type: 'path',
+              path: ['Attributes', 'input'],
+            },
+          },
+          {
+            type: 'SetVariable',
+            variable: 'step2',
+            data: {
+              type: 'path',
+              path: ['Variables', 'step1'],
+            },
+          },
+          {
+            type: 'Switch',
+            cases: [
+              {
+                condition: {
+                  type: 'function',
+                  name: '@toddle/equals',
+                  arguments: [
+                    {
+                      name: 'First',
+                      formula: {
+                        type: 'path',
+                        path: ['Variables', 'step2'],
+                      },
+                    },
+                    {
+                      name: 'Second',
+                      formula: {
+                        type: 'value',
+                        value: 'updated',
+                      },
+                    },
+                  ],
+                },
+                actions: [
+                  {
+                    type: 'SetVariable',
+                    variable: 'branched',
+                    data: {
+                      type: 'value',
+                      value: true,
+                    },
+                  },
+                ],
+              },
+            ],
+            default: {
+              actions: [],
+            },
+          },
+        ],
+      },
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+      },
+    }
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: { input: 'initial' },
+      Variables: {
+        step1: 'initial',
+        step2: 'initial-derived',
+        branched: false,
+      },
+    })
+
+    const ctx = {
+      component,
+      components: [component],
+      root: document,
+      isRootComponent: true,
+      dataSignal,
+      abortSignal: new AbortController().signal,
+      children: {},
+      formulaCache: {},
+      providers: {},
+      stores: { theme: signal('light') },
+      apis: {},
+      toddle: {
+        getFormula: (name: string) => {
+          if (name === '@toddle/equals' || name === 'equals') {
+            return ([a, b]: [any, any]) => a === b
+          }
+          return undefined
+        },
+        getCustomFormula: () => undefined,
+        errors: [],
+      },
+      env: { runtime: 'page' },
+    } as any as ComponentContext
+
+    renderComponent({
+      ...ctx,
+      path: '0',
+      onEvent: () => {},
+      parentElement,
+      instance: {},
+    })
+
+    // Flush BatchQueue microtask so onAttributeChange subscription is active
+    await Promise.resolve()
+
+    dataSignal.update((data) => ({
+      ...data,
+      Attributes: { input: 'updated' },
+    }))
+
+    expect(dataSignal.get().Variables).toEqual({
+      step1: 'updated',
+      step2: 'updated',
+      branched: true,
+    })
+  })
+
+  test('reportFormulaEvaluation does not duplicate node jsonPath prefix', () => {
+    const parentElement = document.createElement('div')
+    const reportedPaths: string[] = []
+    const component = {
+      name: 'PreviewComponent',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          condition: {
+            type: 'path',
+            path: ['Variables', 'show'],
+          },
+          attrs: {
+            title: {
+              type: 'path',
+              path: ['Variables', 'title'],
+            },
+          },
+          children: [],
+          events: {},
+        },
+      },
+    }
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        show: true,
+        title: 'Hello',
+      },
+    })
+
+    renderComponent({
+      component: component as any,
+      components: [component as any],
+      root: document,
+      isRootComponent: true,
+      dataSignal,
+      abortSignal: new AbortController().signal,
+      children: {},
+      formulaCache: {},
+      providers: {},
+      stores: { theme: signal<string | null>('light') },
+      apis: {},
+      package: undefined,
+      toddle: {
+        getFormula: () => undefined,
+        getCustomFormula: () => undefined,
+        errors: [],
+      } as any,
+      env: {
+        runtime: 'preview',
+        isServer: false,
+        branchName: 'main',
+        request: undefined,
+        logErrors: false,
+      },
+      path: '0',
+      onEvent: () => {},
+      parentElement,
+      instance: {},
+      reportFormulaEvaluation: (path) => {
+        reportedPaths.push(path.join('/'))
+      },
+    })
+
+    expect(reportedPaths).toContain('nodes/root/condition')
+    expect(reportedPaths).toContain('nodes/root/attrs/title')
+    expect(reportedPaths).not.toContain('nodes/root/nodes/root/condition')
+    expect(reportedPaths).not.toContain('nodes/root/nodes/root/attrs/title')
+  })
 })

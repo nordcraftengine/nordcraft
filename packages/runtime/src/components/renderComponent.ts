@@ -163,10 +163,9 @@ export function renderComponent(
                 props,
               ),
             })
-            const data = dataSignal.get()
 
             for (const action of actions) {
-              void handleAction(action, data, ctx, event)
+              void handleAction(action, dataSignal.get(), ctx, event)
             }
           })
       }

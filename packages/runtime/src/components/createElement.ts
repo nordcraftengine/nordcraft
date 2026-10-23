@@ -71,6 +71,19 @@ export function createElement({
     : document.createElement(tag)
   const initialClasses: string[] = []
 
+  const formulaCtx =
+    IS_PREVIEW && (ctx.reportFormulaEvaluation || ctx.jsonPath)
+      ? {
+          component: ctx.component,
+          formulaCache: ctx.formulaCache,
+          root: ctx.root,
+          package: ctx.package,
+          toddle: ctx.toddle,
+          env: ctx.env,
+          reportFormulaEvaluation: ctx.reportFormulaEvaluation,
+        }
+      : ctx
+
   // This is editor only logic and we should move out of the runtime bundle when possible
   if (
     IS_PREVIEW &&
@@ -148,7 +161,7 @@ export function createElement({
       const formula = node.classes[className].formula
       if (formula) {
         const classSignal = dataSignal.map((data) =>
-          toBoolean(applyFormula(formula, ctx, data)),
+          toBoolean(applyFormula(formula, formulaCtx, data)),
         )
         classSignal.subscribe((show) =>
           show
@@ -196,7 +209,7 @@ export function createElement({
           ? ['nodes', id, 'attrs', attr]
           : undefined
       const o = dataSignal.map((data) => {
-        const val = applyFormula(value, ctx, data, attrPath)
+        const val = applyFormula(value, formulaCtx, data, attrPath)
         if (IS_PREVIEW && attrPath) {
           ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
         }
@@ -214,7 +227,7 @@ export function createElement({
         ? ['nodes', id, 'style-variables', i, 'formula']
         : undefined
     const signal = dataSignal.map((data) => {
-      const value = applyFormula(formula, ctx, data, styleVarPath)
+      const value = applyFormula(formula, formulaCtx, data, styleVarPath)
       if (IS_PREVIEW && styleVarPath) {
         ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
       }
@@ -244,7 +257,7 @@ export function createElement({
           ? `${nodeSelector}, :host`
           : nodeSelector,
       signal: dataSignal.map((data) => {
-        const val = applyFormula(formula, ctx, data, cpPath)
+        const val = applyFormula(formula, formulaCtx, data, cpPath)
         if (IS_PREVIEW && cpPath) {
           ctx.reportFormulaEvaluation?.(cpPath, val, ctx)
         }
@@ -284,7 +297,7 @@ export function createElement({
         }),
         variant,
         signal: dataSignal.map((data) => {
-          const val = applyFormula(formula, ctx, data, variantCpPath)
+          const val = applyFormula(formula, formulaCtx, data, variantCpPath)
           if (IS_PREVIEW && variantCpPath) {
             ctx.reportFormulaEvaluation?.(variantCpPath, val, ctx)
           }
@@ -331,7 +344,7 @@ export function createElement({
           textValues.push(String(node.value.value))
         } else {
           const textSignal = dataSignal.map((data) => {
-            return String(applyFormula(node.value, ctx, data))
+            return String(applyFormula(node.value, formulaCtx, data))
           })
           textValues.push(textSignal)
         }

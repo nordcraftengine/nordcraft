@@ -699,7 +699,7 @@ const renderComponent = async ({
           apis,
           env,
           includedComponents,
-          formulaContext,
+          formulaContext: childFormulaContext,
           pageData: data,
           files,
           apiCache,
