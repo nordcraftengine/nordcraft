@@ -8,6 +8,7 @@ on:
       - 'bin/runSsrBenchmarks.ts'
       - 'bin/ssrBenchmark.ts'
       - 'packages/core/**'
+      - 'packages/lib/**'
       - 'packages/ssr/**'
 
 concurrency:
