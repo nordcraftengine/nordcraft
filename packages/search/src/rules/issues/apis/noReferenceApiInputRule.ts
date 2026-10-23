@@ -1,14 +1,15 @@
 import { ToddleApiV2 } from '@nordcraft/core/dist/api/ToddleApiV2'
-import type { IssueRule } from '../../../types'
+import type { ComponentAPIInputNode, IssueRule } from '../../../types'
 
-export const noReferenceApiInputRule: IssueRule<{ inputName: string }> = {
+export const noReferenceApiInputRule: IssueRule<
+  { inputName: string },
+  ComponentAPIInputNode
+> = {
   code: 'no-reference api input',
   level: 'warning',
   category: 'No References',
+  nodeTypes: 'component-api-input',
   visit: (report, args) => {
-    if (args.nodeType !== 'component-api-input') {
-      return
-    }
     const { path, memo, component, api } = args
     if (!component) {
       return

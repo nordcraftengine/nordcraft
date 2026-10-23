@@ -1,15 +1,18 @@
 import { isDefined } from '@nordcraft/core/dist/utils/util'
-import type { IssueRule } from '../../../types'
+import type { ComponentNodeNode, IssueRule } from '../../../types'
 
-export const unknownComponentRule: IssueRule<{
-  name: string
-}> = {
+export const unknownComponentRule: IssueRule<
+  {
+    name: string
+  },
+  ComponentNodeNode
+> = {
   code: 'unknown component',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
+  nodeTypes: 'component-node',
+  visit: (report, { path, files, value }) => {
     if (
-      nodeType !== 'component-node' ||
       value?.type !== 'component' ||
       // Check if the component exists in the project
       (!isDefined(value.package) && isDefined(files.components[value.name])) ||

@@ -92,9 +92,8 @@ export const renameNamedComponentFormulaFix: FixFunction<
   }
 
   // 3. Update context consumer references
-  for (const [otherComponentName, otherComponent] of Object.entries(
-    files.components,
-  )) {
+  for (const otherComponentName in files.components) {
+    const otherComponent = files.components[otherComponentName]
     const context = otherComponent?.contexts?.[componentName]
     const formulaIndex = context?.formulas.indexOf(String(oldKey))
     if (!context || formulaIndex === undefined || formulaIndex === -1) {

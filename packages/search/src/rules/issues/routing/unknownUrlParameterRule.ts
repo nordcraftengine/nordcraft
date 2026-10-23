@@ -1,17 +1,17 @@
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 
-export const unknownUrlParameterRule: IssueRule<{
-  name: string | number
-}> = {
+export const unknownUrlParameterRule: IssueRule<
+  {
+    name: string | number
+  },
+  FormulaNode
+> = {
   code: 'unknown url parameter',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
-    if (
-      nodeType !== 'formula' ||
-      value.type !== 'path' ||
-      value.path[0] !== 'URL parameters'
-    ) {
+  nodeTypes: 'formula',
+  visit: (report, { path, files, value }) => {
+    if (value.type !== 'path' || value.path[0] !== 'URL parameters') {
       return
     }
 
