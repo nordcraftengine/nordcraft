@@ -38,11 +38,6 @@ import { renderComponent } from './renderComponent'
 export type RenderComponentNodeProps = {
   path: string
   node: ComponentNodeModel
-  /**
-   * The node's key in the parent component's node registry. Passed separately
-   * so the (shared, frozen-ish) node definition object is never spread per
-   * component instance.
-   */
   nodeId: string
   dataSignal: Signal<ComponentData>
   ctx: ComponentContext
