@@ -1,10 +1,11 @@
-import { create } from 'jsondiffpatch'
+import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { fixProject } from './fixProject'
 import { ISSUE_RULES } from './rules/issues/issueRules.index'
 import type { FixProblemsArgs, FixProblemsResponse } from './types'
+import { diffProjectFiles } from './util/projectFiles'
 
 export const fixProblems = (
-  data: FixProblemsArgs,
+  data: FixProblemsArgs & { files: ProjectFiles },
   reportResults: (results: FixProblemsResponse) => void,
 ) => {
   const { files, options = {}, fixRule } = data
@@ -22,8 +23,7 @@ export const fixProblems = (
     state: options.state,
   })
   // Calculate diff
-  const jsonDiffPatch = create({ omitRemovedValues: true })
-  const diff = jsonDiffPatch.diff(files, updatedFiles)
+  const diff = diffProjectFiles(files, updatedFiles)
   // Send diff + metadata to main thread
   reportResults({
     id: data.id,
