@@ -92,4 +92,33 @@ export default defineConfig([
       'no-console': 'error',
     },
   },
+  {
+    files: ['packages/core/src/formula/**/*.ts'],
+    ignores: [
+      '**/*.test.ts',
+      'packages/core/src/formula/testUtils.ts',
+      'packages/core/src/formula/formulaUtils.ts',
+    ],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "CallExpression[callee.object.name='Object'][callee.property.name=/^(keys|values|entries)$/]",
+          message:
+            'Avoid Object.keys/values/entries in hot paths; it allocates temporary arrays. Use for..in with hasOwnProperty or direct key iteration instead.',
+        },
+        {
+          selector: "CallExpression[callee.property.name='forEach']",
+          message:
+            'Avoid Array.prototype.forEach in hot paths due to function call overhead. Use a standard loop instead.',
+        },
+        {
+          selector: "UnaryExpression[operator='delete']",
+          message:
+            'Avoid delete operator in hot paths as it alters object hidden classes/shapes. Set property to undefined instead.',
+        },
+      ],
+    },
+  },
 ])
