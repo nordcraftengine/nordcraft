@@ -1,5 +1,12 @@
 import fastDeepEqual from 'fast-deep-equal'
 
+function notifySubscriber<T>(
+  this: T,
+  subscriber: { notify: (value: T) => void },
+) {
+  subscriber.notify(this)
+}
+
 export class Signal<T> {
   value: T
   subscribers: Set<{
@@ -26,9 +33,7 @@ export class Signal<T> {
 
     if (options?.force || fastDeepEqual(value, this.value) === false) {
       this.value = value
-      for (const subscriber of this.subscribers) {
-        subscriber.notify(this.value)
-      }
+      this.subscribers.forEach(notifySubscriber, this.value)
     }
   }
 
