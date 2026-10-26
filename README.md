@@ -11,12 +11,24 @@ Create highly performant web apps with SSR, branching, version control, componen
 
 This repository holds different packages that are used internally by the Nordcraft framework. The packages that are currently available are:
 
-- [core](https://www.npmjs.com/package/@nordcraft/core) 👈 holds core (shared) logic used by the other packages
-- [runtime](https://www.npmjs.com/package/@nordcraft/runtime) 👈 includes logic for hydrating/running/updating a Nordcraft application on the front-end
-- [ssr](https://www.npmjs.com/package/@nordcraft/ssr) 👈 holds part of the server-side rendering logic
-- [lib](https://www.npmjs.com/package/@nordcraft/std-lib) 👈 holds all builtin [formulas](https://docs.nordcraft.com/formulas/overview#the-formula-editor) and [actions](https://docs.nordcraft.com/the-editor/data-panel#workflows) used by the runtime and during ssr
-- [search](https://www.npmjs.com/package/@nordcraft/search) 👈 holds all issue rules and search functionality for traversing a Nordcraft project. This powers the issue panel in the Nordcraft editor in a web worker atm
-- [css-parser] the CSS parser used in the Nordcraft editor to power the style panel
+- [core](https://www.npmjs.com/package/@nordcraft/core) 👈 holds core (shared) logic, data models, formula evaluation, and styling used by the other packages
+- [runtime](https://www.npmjs.com/package/@nordcraft/runtime) 👈 includes logic for hydrating, running, and updating a Nordcraft application on the front-end
+- [ssr](https://www.npmjs.com/package/@nordcraft/ssr) 👈 holds server-side rendering, HTML generation, and routing logic
+- [lib](https://www.npmjs.com/package/@nordcraft/std-lib) 👈 holds all builtin [formulas](https://docs.nordcraft.com/formulas/overview#the-formula-editor) and [actions](https://docs.nordcraft.com/the-editor/data-panel#workflows) used by the runtime and during SSR
+- [search](https://www.npmjs.com/package/@nordcraft/search) 👈 holds all issue rules, validators, and search functionality for traversing a Nordcraft project
+- [css-parser](packages/css-parser) 👈 the CSS parser used in the Nordcraft editor to power the style panel
+- [backend](packages/backend) 👈 full server runtime implementation using Hono, supporting Cloudflare Workers, Node.js, and Bun for serving and self-hosting Nordcraft applications
+- [editor](packages/editor) 👈 shared editor interfaces, element definitions, and WebRef schemas
+
+All published packages support clean ESM imports directly from their package roots and subpaths:
+
+```ts
+import { applyFormula } from '@nordcraft/core'
+import { renderPageBody } from '@nordcraft/ssr'
+import { actions, formulas } from '@nordcraft/std-lib'
+import { findProblems } from '@nordcraft/search'
+import { createRoot } from '@nordcraft/runtime'
+```
 
 ## Requirements
 
@@ -24,13 +36,15 @@ Install using [bun](https://bun.sh/) by running `bun install`
 
 ### Commands
 
-- Install: `bun install`
+- Install dependencies: `bun install`
 - Lint: `bun lint`
+- Format code: `bun run prettier:write`
 - Check types: `bun typecheck`
 - Build: `bun run build` <-- builds all packages
-- Run one SSR case: `bun bin/ssrBenchmark.ts --case=formula --repeat=15 --json=true`
-- Compare an SSR branch with its base: `bun bin/runSsrBenchmarks.ts --base-ref=origin/main`
-- Compare previously captured benchmark directories: `bun run benchmark:ssr:compare --base-dir=/tmp/base --head-dir=/tmp/head`
+- Run unit tests: `bun test`
+- Run runtime benchmark: `bun run benchmark:runtime`
+- Run SSR benchmark: `bun run benchmark:ssr:run`
+- Run issues benchmark: `bun run benchmark:issues`
 - Run benchmark unit tests: `bun run test:benchmarks`
 
 ### SSR performance in PRs
@@ -94,8 +108,9 @@ We're currently working on moving more of the server-side rendering logic into t
 The dependencies between the packages are as follows:
 
 - `core` is a dependency for all other packages
-- `ssr` is a dependency for `search`
-- `std-lib` is a dependency for `runtime` and `ssr`
+- `ssr` is a dependency for `search` and `backend`
+- `std-lib` is a dependency for `runtime`, `ssr`, and `backend`
+- `runtime` assets are synced and served by `backend`
 
 ## Releases
 
