@@ -1,4 +1,4 @@
-import type { ElementNodeModel } from '@nordcraft/core/dist/component/component.types'
+import type { ElementNodeModel } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'

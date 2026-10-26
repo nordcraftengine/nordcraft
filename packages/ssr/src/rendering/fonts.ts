@@ -1,5 +1,5 @@
-import type { FontFamily } from '@nordcraft/core/dist/styling/theme'
-import { easySort } from '@nordcraft/core/dist/utils/collections'
+import type { FontFamily } from '@nordcraft/core'
+import { easySort } from '@nordcraft/core'
 
 export const getFontCssUrl = ({
   fonts,

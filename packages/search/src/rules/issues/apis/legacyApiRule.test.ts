@@ -1,5 +1,4 @@
-import { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
-import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
+import { ApiMethod, valueFormula } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../../searchProject'
 import { legacyApiRule } from './legacyApiRule'

@@ -1,4 +1,4 @@
-import { isFormula } from '@nordcraft/core/dist/formula/formula'
+import { isFormula } from '@nordcraft/core'
 import type { ComponentNode, IssueRule, Level } from '../../../types'
 
 export function createRequiredMetaTagRule(

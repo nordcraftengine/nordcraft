@@ -63,7 +63,6 @@ const run = async () => {
   setup()
 
   await bundleFiles([
-    'packages/runtime/src/custom-components/components.ts',
     'packages/search/src/problems.worker.ts',
     'packages/search/src/search.worker.ts',
   ])

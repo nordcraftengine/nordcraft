@@ -1,5 +1,5 @@
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
-import { isObject } from '@nordcraft/core/dist/utils/util'
+import type { FormulaHandler } from '@nordcraft/core'
+import { isObject } from '@nordcraft/core'
 
 const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = (
   [collection, key, value],

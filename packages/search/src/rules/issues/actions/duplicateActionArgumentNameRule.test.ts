@@ -1,5 +1,5 @@
-import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import { valueFormula } from '@nordcraft/core'
+import type { ProjectFiles } from '@nordcraft/ssr'
 import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../../searchProject'
 import { duplicateActionArgumentNameRule } from './duplicateActionArgumentNameRule'

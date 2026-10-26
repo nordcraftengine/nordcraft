@@ -2,8 +2,8 @@ import type {
   ActionModel,
   CustomActionArgument,
   CustomActionModel,
-} from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
+} from '@nordcraft/core'
+import { valueFormula } from '@nordcraft/core'
 import type { ActionModelNode, FixFunction } from '../../../types'
 import { renameArguments } from '../../../util/helpers'
 

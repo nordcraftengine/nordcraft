@@ -1,4 +1,4 @@
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
+import { ToddleComponent } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import type { MemoFn } from '../types'
 import {

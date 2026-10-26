@@ -1,5 +1,5 @@
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
-import { parseJSONWithDate } from '@nordcraft/core/dist/utils/json'
+import type { FormulaHandler } from '@nordcraft/core'
+import { parseJSONWithDate } from '@nordcraft/core'
 
 const handler: FormulaHandler<unknown> = ([data, parseDate]) => {
   if (typeof data !== 'string') {

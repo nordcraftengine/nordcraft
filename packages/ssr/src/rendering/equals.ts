@@ -1,4 +1,4 @@
-import type { Toddle } from '@nordcraft/core/dist/types'
+import type { Toddle } from '@nordcraft/core'
 import fastDeepEqual from 'fast-deep-equal'
 
 export const initIsEqual = () => {

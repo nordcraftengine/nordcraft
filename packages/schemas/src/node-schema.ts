@@ -1,6 +1,3 @@
-import * as v from 'valibot'
-import type { StyleTokenCategory } from '../../styling/theme'
-import type { StyleVariant } from '../../styling/variantSelector'
 import type {
   AnimationKeyframe,
   ComponentNodeModel,
@@ -8,8 +5,11 @@ import type {
   NodeModel,
   NodeStyleModel,
   SlotNodeModel,
+  StyleTokenCategory,
+  StyleVariant,
   TextNodeModel,
-} from '../component.types'
+} from '@nordcraft/core'
+import * as v from 'valibot'
 import { EventModelSchema } from './event-schema'
 import { FormulaSchema } from './formula-schema'
 import { record, SCHEMA_DESCRIPTIONS } from './valibot-schemas'

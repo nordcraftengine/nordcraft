@@ -1,11 +1,11 @@
-import * as v from 'valibot'
 import {
   HeadTagTypes,
   type DynamicPathSegment,
   type MetaEntry,
   type RouteDeclaration,
   type StaticPathSegment,
-} from '../component.types'
+} from '@nordcraft/core'
+import * as v from 'valibot'
 import { FormulaSchema } from './formula-schema'
 import { record, SCHEMA_DESCRIPTIONS } from './valibot-schemas'
 

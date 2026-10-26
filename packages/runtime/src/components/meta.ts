@@ -1,6 +1,5 @@
-import type { MetaEntry } from '@nordcraft/core/dist/component/component.types'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { MetaEntry, Nullable } from '@nordcraft/core'
+import { isDefined } from '@nordcraft/core'
 
 export const getDynamicMetaEntries = (
   meta?: Nullable<Record<string, MetaEntry>>,

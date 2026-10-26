@@ -1,5 +1,5 @@
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
-import { splitRoutes } from '@nordcraft/ssr/dist/utils/routes'
+import type { ProjectFiles } from '@nordcraft/ssr'
+import { splitRoutes } from '@nordcraft/ssr'
 import type { Context } from 'hono'
 import { getConnInfo } from 'hono/cloudflare-workers'
 import { createMiddleware } from 'hono/factory'

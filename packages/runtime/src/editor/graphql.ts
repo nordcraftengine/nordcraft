@@ -1,11 +1,11 @@
+import type { ComponentData, FormulaContext } from '@nordcraft/core'
 import {
+  ApiMethod,
   createApiRequest,
   HttpMethodsWithAllowedBody,
-} from '@nordcraft/core/dist/api/api'
-import { ApiMethod, type ApiRequest } from '@nordcraft/core/dist/api/apiTypes'
-import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
-import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
-import { PROXY_URL_HEADER } from '@nordcraft/core/dist/utils/url'
+  PROXY_URL_HEADER,
+  type ApiRequest,
+} from '@nordcraft/core'
 
 const INTROSPECTION_QUERY = `\
 query IntrospectionQuery {

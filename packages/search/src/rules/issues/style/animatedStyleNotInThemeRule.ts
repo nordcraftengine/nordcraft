@@ -1,4 +1,4 @@
-import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme'
+import type { CustomPropertyDefinition } from '@nordcraft/core'
 import type { AnimationNode, IssueRule } from '../../../types'
 
 export const animatedStyleNotInThemeRule: IssueRule<unknown, AnimationNode> = {

@@ -1,20 +1,16 @@
-import type { ApiRequest as CoreApiRequest } from '@nordcraft/core/dist/api/apiTypes'
 import type {
   ActionModel,
   Component,
   ComponentData,
-} from '@nordcraft/core/dist/component/component.types'
-import type {
+  ApiRequest as CoreApiRequest,
   Formula,
-  ToddleEnv,
-  ValueOperationValue,
-} from '@nordcraft/core/dist/formula/formula'
-import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
-import type {
+  FormulaEvaluationReporter,
   Toddle as NewToddle,
   Toddle,
+  ToddleEnv,
   ToddleInternals,
-} from '@nordcraft/core/dist/types'
+  ValueOperationValue,
+} from '@nordcraft/core'
 import type { ApiRequest } from './api/createAPI'
 import type { Signal } from './signal/signal'
 

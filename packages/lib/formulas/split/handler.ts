@@ -1,4 +1,4 @@
-import type { FormulaHandler } from '@nordcraft/core/dist/types'
+import type { FormulaHandler } from '@nordcraft/core'
 
 const handler: FormulaHandler<Array<unknown>> = ([inputString, delimiter]) => {
   if (typeof inputString !== 'string') {

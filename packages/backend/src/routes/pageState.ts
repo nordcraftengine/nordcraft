@@ -1,4 +1,4 @@
-import type { ToddleInternals } from '@nordcraft/core/dist/types'
+import type { ToddleInternals } from '@nordcraft/core'
 import type { Context, Handler } from 'hono'
 import { nanoid } from 'nanoid'
 import type { HonoEnv } from '../../hono'

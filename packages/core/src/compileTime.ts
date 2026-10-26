@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
-
 /**
  * Compile-time build flags for dead-code elimination (DCE).
  *

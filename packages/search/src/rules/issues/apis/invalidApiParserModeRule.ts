@@ -1,4 +1,4 @@
-import { isLegacyApi } from '@nordcraft/core/dist/api/api'
+import { isLegacyApi } from '@nordcraft/core'
 import type { ComponentAPINode, IssueRule } from '../../../types'
 
 export const invalidApiParserModeRule: IssueRule<

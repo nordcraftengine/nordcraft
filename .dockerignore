@@ -29,4 +29,3 @@ eslint.config.mjs
 **/.DS_Store
 .prettierignore
 .prettierrc
-packages/core/src/component/schemas/

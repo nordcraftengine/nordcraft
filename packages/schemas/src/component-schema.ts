@@ -1,5 +1,5 @@
+import type { Component, PageComponent } from '@nordcraft/core'
 import * as v from 'valibot'
-import type { Component, PageComponent } from '../component.types'
 import { ActionModelSchema } from './action-schema'
 import { ComponentAPISchema } from './api-schema'
 import { ComponentAttributeSchema } from './attribute-schema'

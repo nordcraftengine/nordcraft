@@ -1,24 +1,23 @@
 /* eslint-disable max-params */
-import { mapHeadersToObject } from '@nordcraft/core/dist/api/headers'
 import type {
   ComponentData,
   ComponentVariable,
+  FormulaContext,
+  Nullable,
   PageComponent,
   PageRoute,
-} from '@nordcraft/core/dist/component/component.types'
-import type {
-  FormulaContext,
+  PluginFormula,
   ToddleServerEnv,
-} from '@nordcraft/core/dist/formula/formula'
+} from '@nordcraft/core'
 import {
   applyFormula,
+  filterObject,
+  isDefined,
   isToddleFormula,
-} from '@nordcraft/core/dist/formula/formula'
-import type { PluginFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import { filterObject, mapValues } from '@nordcraft/core/dist/utils/collections'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
-import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
+  mapHeadersToObject,
+  mapValues,
+} from '@nordcraft/core'
+import * as libFormulas from '@nordcraft/std-lib/formulas'
 import { getPathSegments } from '../routing/routing'
 import type { InstalledPackage, ProjectFiles } from '../ssr.types'
 import { getRequestCookies } from './cookies'

@@ -1,4 +1,4 @@
-import type { ToddleRequestInit } from '@nordcraft/core/dist/api/apiTypes'
+import type { ToddleRequestInit } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import { ApiAbortHandler } from './apiUtils'
 

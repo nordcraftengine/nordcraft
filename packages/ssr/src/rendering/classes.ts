@@ -2,14 +2,14 @@ import type {
   Component,
   CustomProperty,
   NodeModel,
-} from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
+  Nullable,
+} from '@nordcraft/core'
 import {
   getClassName,
   getStaticStyleAndVariants,
-} from '@nordcraft/core/dist/styling/className'
-import type { Nullable } from '@nordcraft/core/dist/types'
-import { mapObject } from '@nordcraft/core/dist/utils/collections'
+  mapObject,
+  valueFormula,
+} from '@nordcraft/core'
 
 /**
  * Function to strip styles and variants from a Component's nodes and convert them to static class names

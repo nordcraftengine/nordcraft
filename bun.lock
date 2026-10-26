@@ -40,9 +40,6 @@
     },
     "packages/core": {
       "name": "@nordcraft/core",
-      "dependencies": {
-        "valibot": "1.5.0",
-      },
     },
     "packages/css-parser": {
       "name": "css-parser",
@@ -94,10 +91,18 @@
         "path-to-regexp": "6.3.0",
       },
     },
+    "packages/schemas": {
+      "name": "@nordcraft/schemas",
+      "dependencies": {
+        "@nordcraft/core": "workspace:*",
+        "valibot": "1.5.0",
+      },
+    },
     "packages/search": {
       "name": "@nordcraft/search",
       "dependencies": {
         "@nordcraft/core": "workspace:*",
+        "@nordcraft/schemas": "workspace:*",
         "@nordcraft/ssr": "workspace:*",
         "fast-deep-equal": "3.1.3",
         "jsondiffpatch": "0.7.6",
@@ -306,6 +311,8 @@
     "@nordcraft/editor": ["@nordcraft/editor@workspace:packages/editor"],
 
     "@nordcraft/runtime": ["@nordcraft/runtime@workspace:packages/runtime"],
+
+    "@nordcraft/schemas": ["@nordcraft/schemas@workspace:packages/schemas"],
 
     "@nordcraft/search": ["@nordcraft/search@workspace:packages/search"],
 

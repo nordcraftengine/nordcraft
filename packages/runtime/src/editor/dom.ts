@@ -1,7 +1,4 @@
-import type {
-  Component,
-  NodeModel,
-} from '@nordcraft/core/dist/component/component.types'
+import type { Component, NodeModel } from '@nordcraft/core'
 import type { Signal } from '../signal/signal'
 import {
   getNodeAndAncestors,

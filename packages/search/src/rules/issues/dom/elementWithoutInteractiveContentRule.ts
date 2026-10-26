@@ -1,6 +1,5 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
-import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { Component, ToddleComponent } from '@nordcraft/core'
+import { isDefined } from '@nordcraft/core'
 import type { ComponentNodeNode, IssueRule } from '../../../types'
 import {
   interactiveContentElementDefinition,

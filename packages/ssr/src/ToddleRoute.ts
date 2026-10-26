@@ -1,6 +1,5 @@
-import type { Formula } from '@nordcraft/core/dist/formula/formula'
-import type { GlobalFormulas } from '@nordcraft/core/dist/formula/formulaTypes'
-import { getFormulasInFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import type { Formula, GlobalFormulas } from '@nordcraft/core'
+import { getFormulasInFormula } from '@nordcraft/core'
 import type { Route } from './ssr.types'
 
 export class ToddleRoute<Handler> {

@@ -1,5 +1,5 @@
-import type { ToddleFormula } from '@nordcraft/core/dist/formula/formulaTypes'
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { NordcraftFormula } from '@nordcraft/core'
+import type { ProjectFiles } from '@nordcraft/ssr'
 import { describe, expect, test } from 'bun:test'
 import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'
@@ -380,7 +380,7 @@ describe('fix legacyFormula', () => {
     })
 
     expect(
-      (fixedProject.formulas?.['my-formula-1'] as ToddleFormula).formula,
+      (fixedProject.formulas?.['my-formula-1'] as NordcraftFormula).formula,
     ).toEqual({
       type: 'function',
       name: '@toddle/concatenate',

@@ -1,5 +1,4 @@
 import { createInterface } from 'node:readline'
-
 import {
   getBoolean,
   getNonNegativeInteger,

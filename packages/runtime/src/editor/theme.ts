@@ -1,15 +1,16 @@
 import type {
   Component,
   ComponentData,
-} from '@nordcraft/core/dist/component/component.types'
-import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
-import type { OldTheme, Theme } from '@nordcraft/core/dist/styling/theme'
+  OldTheme,
+  Theme,
+  ToddleEnv,
+} from '@nordcraft/core'
 import {
   getThemeCss,
   getThemeEntries,
   renderThemeValues,
-} from '@nordcraft/core/dist/styling/theme'
-import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core/dist/styling/themeAttributes.const'
+  THEME_DATA_ATTRIBUTE,
+} from '@nordcraft/core'
 import type { Signal } from '../signal/signal'
 import { getThemeSignal } from '../utils/getThemeSignal'
 

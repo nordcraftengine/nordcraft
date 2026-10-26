@@ -1,8 +1,5 @@
 import type { Nullable } from '../types'
-import { isDefined } from './util'
-
-export const isObject = (input: any): input is Record<string, any> =>
-  typeof input === 'object' && input !== null
+import { isDefined, isObject } from './util'
 
 export const mapObject = <T, T2>(
   object: Record<string, T>,

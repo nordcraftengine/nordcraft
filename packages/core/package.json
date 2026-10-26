@@ -15,11 +15,23 @@
     "watch": "tsgo -w"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
-  "dependencies": {
-    "valibot": "1.5.0"
-  },
-  "main": "dist/index.js"
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": [
+    "./dist/compileTime.js",
+    "./src/compileTime.ts"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  }
 }

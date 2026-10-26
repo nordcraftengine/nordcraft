@@ -1,13 +1,10 @@
-import type {
-  Component,
-  ComponentData,
-} from '@nordcraft/core/dist/component/component.types'
+import type { Component, ComponentData } from '@nordcraft/core'
 import {
   applyFormula,
+  isDefined,
+  THEME_COOKIE_NAME,
   type ToddleEnv,
-} from '@nordcraft/core/dist/formula/formula'
-import { THEME_COOKIE_NAME } from '@nordcraft/core/dist/styling/themeAttributes.const'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+} from '@nordcraft/core'
 import { signal, type Signal } from '../signal/signal'
 
 export const getThemeSignal = (

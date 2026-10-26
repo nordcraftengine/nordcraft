@@ -1,5 +1,4 @@
-import { isLegacyApi } from '@nordcraft/core/dist/api/api'
-import { get } from '@nordcraft/core/dist/utils/collections'
+import { get, isLegacyApi } from '@nordcraft/core'
 import type { FormulaNode, IssueRule } from '../../../types'
 
 export const invalidApiProxyCookieSettingRule: IssueRule<

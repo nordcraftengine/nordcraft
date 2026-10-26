@@ -1,6 +1,5 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
-import type { StyleVariant } from '@nordcraft/core/dist/styling/variantSelector'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { Component, StyleVariant } from '@nordcraft/core'
+import { isDefined } from '@nordcraft/core'
 
 export function omitSubnodeStyleForComponent<T extends Component | undefined>(
   component: T,

@@ -1,10 +1,9 @@
 import type {
   ComponentData,
   ElementNodeModel,
-} from '@nordcraft/core/dist/component/component.types'
-import type { FormulaContext } from '@nordcraft/core/dist/formula/formula'
-import { applyFormula } from '@nordcraft/core/dist/formula/formula'
-import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+  FormulaContext,
+} from '@nordcraft/core'
+import { applyFormula, isDefined, toBoolean } from '@nordcraft/core'
 
 const REGEXP_QUOTE = /"/g
 const REGEXP_LT = /</g

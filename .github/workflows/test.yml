@@ -67,6 +67,23 @@ jobs:
         run: |
           cd packages/core
           bun test
+  test-schemas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout schemas
+        uses: actions/checkout@v4
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build
+        run: bun run build
+      - name: Test schemas
+        run: |
+          cd packages/schemas
+          bun test
   test-ssr:
     runs-on: ubuntu-latest
     steps:

@@ -1,26 +1,26 @@
 /* eslint-disable no-console */
-import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
-import type { ToddleEnv } from '@nordcraft/core/dist/formula/formula'
-import { isToddleFormula } from '@nordcraft/core/dist/formula/formula'
-import type {
-  CodeFormula,
-  PluginFormula,
-  ToddleFormula,
-} from '@nordcraft/core/dist/formula/formulaTypes'
 import type {
   ActionHandler,
   ActionHandlerV2,
   ArgumentInputDataFunction,
+  CodeFormula,
   FormulaHandler,
   FormulaHandlerV2,
+  NordcraftFormula,
   PluginAction,
   PluginActionV2,
+  PluginFormula,
   Toddle,
-} from '@nordcraft/core/dist/types'
-import { filterObject } from '@nordcraft/core/dist/utils/collections'
-import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'
-import * as libActions from '@nordcraft/std-lib/dist/actions'
-import * as libFormulas from '@nordcraft/std-lib/dist/formulas'
+  ToddleEnv,
+} from '@nordcraft/core'
+import {
+  filterObject,
+  isLegacyPluginAction,
+  isToddleFormula,
+  safeFunctionName,
+} from '@nordcraft/core'
+import * as libActions from '@nordcraft/std-lib/actions'
+import * as libFormulas from '@nordcraft/std-lib/formulas'
 import fastDeepEqual from 'fast-deep-equal'
 import { signal } from '../signal/signal'
 import type { LocationSignal, PreviewShowSignal } from '../types'
@@ -60,7 +60,7 @@ export const registerActions = (
 export const registerFormulas = (
   allFormulas: Record<
     string,
-    ToddleFormula | CodeFormula<FormulaHandlerV2> | CodeFormula<string>
+    NordcraftFormula | CodeFormula<FormulaHandlerV2> | CodeFormula<string>
   >,
   packageName?: string,
 ) => {

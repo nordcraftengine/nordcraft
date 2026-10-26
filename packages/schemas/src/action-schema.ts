@@ -1,4 +1,3 @@
-import * as v from 'valibot'
 import type {
   ActionModel,
   CustomActionModel,
@@ -9,7 +8,8 @@ import type {
   SwitchActionModel,
   VariableActionModel,
   WorkflowActionModel,
-} from '../component.types'
+} from '@nordcraft/core'
+import * as v from 'valibot'
 import { FormulaSchema } from './formula-schema'
 import { record } from './valibot-schemas'
 

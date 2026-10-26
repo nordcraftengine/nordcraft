@@ -1,24 +1,24 @@
-import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
 import type {
   ActionModel,
+  CodeFormula,
   Component,
   CustomActionModel,
-} from '@nordcraft/core/dist/component/component.types'
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
+  GlobalFormulas,
+  PluginAction,
+  PluginActionV2,
+  PluginFormula,
+} from '@nordcraft/core'
 import {
+  filterObject,
+  isDefined,
+  isLegacyPluginAction,
   isToddleFormula,
+  mapObject,
+  safeFunctionName,
+  ToddleComponent,
   type Formula,
   type FunctionOperation,
-} from '@nordcraft/core/dist/formula/formula'
-import type {
-  CodeFormula,
-  GlobalFormulas,
-  PluginFormula,
-} from '@nordcraft/core/dist/formula/formulaTypes'
-import type { PluginAction, PluginActionV2 } from '@nordcraft/core/dist/types'
-import { filterObject, mapObject } from '@nordcraft/core/dist/utils/collections'
-import { safeFunctionName } from '@nordcraft/core/dist/utils/handlerUtils'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+} from '@nordcraft/core'
 import type { ProjectFiles, ToddleProject } from '../ssr.types'
 
 const projectFormulas = (files: ProjectFiles): GlobalFormulas<string> => ({

@@ -1,4 +1,4 @@
-import { isLegacyPluginAction } from '@nordcraft/core/dist/component/actionUtils'
+import { isLegacyPluginAction } from '@nordcraft/core'
 import type { CustomActionModelArgumentNode, IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 

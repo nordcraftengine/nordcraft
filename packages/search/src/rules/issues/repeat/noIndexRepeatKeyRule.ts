@@ -1,5 +1,4 @@
-import type { Formula } from '@nordcraft/core/dist/formula/formula'
-import type { Nullable } from '@nordcraft/core/dist/types'
+import type { Formula, Nullable } from '@nordcraft/core'
 import type { ComponentNodeNode, IssueRule } from '../../../types'
 
 export const containsRepeatIndex = (formula?: Nullable<Formula>): boolean => {

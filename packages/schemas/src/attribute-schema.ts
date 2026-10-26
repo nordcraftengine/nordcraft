@@ -1,5 +1,5 @@
+import type { ComponentAttribute } from '@nordcraft/core'
 import * as v from 'valibot'
-import type { ComponentAttribute } from '../component.types'
 import { MetadataSchema, SCHEMA_DESCRIPTIONS } from './valibot-schemas'
 
 export const ComponentAttributeSchema: v.GenericSchema<

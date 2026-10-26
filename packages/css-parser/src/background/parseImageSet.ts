@@ -1,4 +1,4 @@
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { isDefined } from '@nordcraft/core'
 import { radialGradientShape, radialGradientSize } from '../const'
 import {
   getVariableValueByName,

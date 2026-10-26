@@ -1,4 +1,4 @@
-import { get } from '@nordcraft/core/dist/utils/collections'
+import { get } from '@nordcraft/core'
 import type { ActionModelNode, FixFunction, IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 

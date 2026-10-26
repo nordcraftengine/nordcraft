@@ -1,5 +1,5 @@
+import type { ComponentVariable } from '@nordcraft/core'
 import * as v from 'valibot'
-import type { ComponentVariable } from '../component.types'
 import { FormulaSchema } from './formula-schema'
 import { MetadataSchema, SCHEMA_DESCRIPTIONS } from './valibot-schemas'
 

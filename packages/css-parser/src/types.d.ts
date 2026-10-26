@@ -1,9 +1,9 @@
-import type { Formula } from '@nordcraft/core/dist/formula/formula'
-import type { CssSyntaxNode } from '@nordcraft/core/dist/styling/customProperty'
 import type {
+  CssSyntaxNode,
+  Formula,
   StyleToken,
   StyleTokenCategory,
-} from '@nordcraft/core/dist/styling/theme'
+} from '@nordcraft/core'
 import type {
   angleUnits,
   lengthUnits,

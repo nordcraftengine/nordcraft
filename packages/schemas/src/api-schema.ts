@@ -1,12 +1,12 @@
-import * as v from 'valibot'
 import {
   ApiMethod,
   type ApiParserMode,
   type ApiRequest,
   type ComponentAPI,
+  type Formula,
   type LegacyComponentAPI,
-} from '../../api/apiTypes'
-import type { Formula } from '../../formula/formula'
+} from '@nordcraft/core'
+import * as v from 'valibot'
 import { EventModelSchema } from './event-schema'
 import { FormulaSchema } from './formula-schema'
 import { MetadataSchema, record } from './valibot-schemas'

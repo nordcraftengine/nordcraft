@@ -1,13 +1,11 @@
 import type {
   Component,
   ComponentData,
-  TestScenario,
-} from '@nordcraft/core/dist/component/component.types'
-import type {
   FormulaContext,
+  FormulaEvaluationReporter,
+  TestScenario,
   ToddleEnv,
-} from '@nordcraft/core/dist/formula/formula'
-import type { FormulaEvaluationReporter } from '@nordcraft/core/dist/formula/formulaTypes'
+} from '@nordcraft/core'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import {

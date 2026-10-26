@@ -1,4 +1,4 @@
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { isDefined } from '@nordcraft/core'
 import type { IssueRule, ProjectThemePropertyNode } from '../../../types'
 
 const REGEX = /var\(\s*(--[\w-]+)/g

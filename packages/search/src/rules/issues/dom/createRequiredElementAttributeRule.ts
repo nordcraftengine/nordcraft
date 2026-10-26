@@ -1,4 +1,4 @@
-import { isDefined, toBoolean } from '@nordcraft/core/dist/utils/util'
+import { isDefined, toBoolean } from '@nordcraft/core'
 import type { ComponentNodeNode, IssueRule, Level } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 

@@ -1,7 +1,4 @@
-import type {
-  Component,
-  ComponentData,
-} from '@nordcraft/core/dist/component/component.types'
+import type { Component, ComponentData } from '@nordcraft/core'
 import type { Signal } from '../signal/signal'
 
 export function initLogState() {

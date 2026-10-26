@@ -1,10 +1,10 @@
 import type {
+  CssSyntax,
   CustomProperty,
   CustomPropertyName,
-} from '@nordcraft/core/dist/component/component.types'
-import type { CssSyntax } from '@nordcraft/core/dist/styling/customProperty'
-import type { StyleTokenCategory } from '@nordcraft/core/dist/styling/theme'
-import type { Nullable } from '@nordcraft/core/dist/types'
+  Nullable,
+  StyleTokenCategory,
+} from '@nordcraft/core'
 import type { FixFunction, IssueRule, StyleVariableNode } from '../../../types'
 
 export const legacyStyleVariableRule: IssueRule<
