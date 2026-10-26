@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import { nordcraftPage } from '@nordcraft/backend/routes/nordcraftPage'
 import { pageStateHandler } from '@nordcraft/backend/routes/pageState'
-import type { Component } from '@nordcraft/core/component/component.types'
-import type { PluginActionV2 } from '@nordcraft/core/types'
-import { initIsEqual } from '@nordcraft/ssr/rendering/equals'
+import type { Component } from '@nordcraft/core/dist/component/component.types'
+import type { PluginActionV2 } from '@nordcraft/core/dist/types'
+import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
 import { Hono } from 'hono'
 import { timing } from 'hono/timing'
 import fs from 'node:fs'

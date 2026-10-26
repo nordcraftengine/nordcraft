@@ -5,13 +5,7 @@ import type {
   TextNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
-
-export const value = (
-  data: string | number | boolean | null | unknown[] | Record<string, unknown>,
-): Formula => ({
-  type: 'value',
-  value: data as any,
-})
+import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 
 export const path = (...segments: Array<string | number>): Formula => ({
   type: 'path',
@@ -88,7 +82,7 @@ export const element = (
       ? {
           'data-testid':
             typeof options.testId === 'string'
-              ? value(options.testId)
+              ? valueFormula(options.testId)
               : options.testId,
         }
       : {}),

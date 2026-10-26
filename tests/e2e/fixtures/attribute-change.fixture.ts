@@ -1,5 +1,6 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { element, equals, path, textNode, value } from './helpers'
+import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { element, equals, path, textNode } from './helpers'
 
 export const page = 'AttributeChangePage'
 
@@ -12,7 +13,7 @@ export const components: Component[] = [
     },
     variables: {
       input: {
-        initialValue: value('initial'),
+        initialValue: valueFormula('initial'),
       },
     },
     nodes: {
@@ -30,13 +31,13 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'input',
-                data: value('updated'),
+                data: valueFormula('updated'),
               },
             ],
           },
         },
       }),
-      'change-attribute-text': textNode(value('Change attribute')),
+      'change-attribute-text': textNode(valueFormula('Change attribute')),
       child: {
         type: 'component',
         name: 'AttributeChangeChild',
@@ -58,13 +59,13 @@ export const components: Component[] = [
     },
     variables: {
       step1: {
-        initialValue: value('initial'),
+        initialValue: valueFormula('initial'),
       },
       step2: {
-        initialValue: value('initial-derived'),
+        initialValue: valueFormula('initial-derived'),
       },
       branched: {
-        initialValue: value(false),
+        initialValue: valueFormula(false),
       },
     },
     onAttributeChange: {
@@ -84,12 +85,15 @@ export const components: Component[] = [
           type: 'Switch',
           cases: [
             {
-              condition: equals(path('Variables', 'step2'), value('updated')),
+              condition: equals(
+                path('Variables', 'step2'),
+                valueFormula('updated'),
+              ),
               actions: [
                 {
                   type: 'SetVariable',
                   variable: 'branched',
-                  data: value(true),
+                  data: valueFormula(true),
                 },
               ],
             },

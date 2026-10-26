@@ -1,5 +1,6 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { element, path, textNode, value } from './helpers'
+import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { element, path, textNode } from './helpers'
 
 export const createApiStateComponents = ({
   shouldFetch,
@@ -14,16 +15,16 @@ export const createApiStateComponents = ({
     },
     variables: {
       shouldFetch: {
-        initialValue: value(shouldFetch),
+        initialValue: valueFormula(shouldFetch),
       },
       otherVar: {
-        initialValue: value('initial'),
+        initialValue: valueFormula('initial'),
       },
       files: {
-        initialValue: value(null),
+        initialValue: valueFormula(null),
       },
       combined: {
-        initialValue: value(null),
+        initialValue: valueFormula(null),
       },
     },
     apis: {
@@ -31,13 +32,13 @@ export const createApiStateComponents = ({
         version: 2,
         name: 'Load files',
         type: 'http',
-        url: value('/api/files'),
+        url: valueFormula('/api/files'),
         autoFetch: path('Variables', 'shouldFetch'),
         inputs: {},
         server: {
           proxy: {
             enabled: {
-              formula: value(false),
+              formula: valueFormula(false),
             },
           },
         },
@@ -88,7 +89,7 @@ export const createApiStateComponents = ({
       heading: element('h1', {
         children: ['heading-text'],
       }),
-      'heading-text': textNode(value('API state')),
+      'heading-text': textNode(valueFormula('API state')),
       'start-fetch': element('button', {
         testId: 'start-fetch',
         children: ['start-fetch-text'],
@@ -99,13 +100,13 @@ export const createApiStateComponents = ({
               {
                 type: 'SetVariable',
                 variable: 'shouldFetch',
-                data: value(true),
+                data: valueFormula(true),
               },
             ],
           },
         },
       }),
-      'start-fetch-text': textNode(value('Start fetch')),
+      'start-fetch-text': textNode(valueFormula('Start fetch')),
       'update-other': element('button', {
         testId: 'update-other',
         children: ['update-other-text'],
@@ -116,13 +117,13 @@ export const createApiStateComponents = ({
               {
                 type: 'SetVariable',
                 variable: 'otherVar',
-                data: value('updated-while-in-flight'),
+                data: valueFormula('updated-while-in-flight'),
               },
             ],
           },
         },
       }),
-      'update-other-text': textNode(value('Update other variable')),
+      'update-other-text': textNode(valueFormula('Update other variable')),
       files: element('div', {
         testId: 'files',
         children: ['files-text'],

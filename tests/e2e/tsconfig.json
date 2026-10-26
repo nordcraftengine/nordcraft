@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@nordcraft/core/*": ["../../packages/core/dist/*"],
-      "@nordcraft/ssr/*": ["../../packages/ssr/dist/*"],
+      "@nordcraft/core/*": ["../../packages/core/*"],
+      "@nordcraft/ssr/*": ["../../packages/ssr/*"],
       "@nordcraft/backend/*": ["../../packages/backend/src/*"]
     }
   },
