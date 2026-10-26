@@ -14,6 +14,7 @@ import {
   isLegacyApi,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
+import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
@@ -22,8 +23,7 @@ import { isContextProvider } from '../context/isContextProvider'
 import { subscribeToContext } from '../context/subscribeToContext'
 import { registerComponentToLogState } from '../debug/logState'
 import { handleAction } from '../events/handleAction'
-import type { Signal } from '../signal/signal'
-import { signal } from '../signal/signal'
+import { Signal, signal } from '../signal/signal'
 import type { ComponentChild, ComponentContext, ContextApi } from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
 import { formulaHasValue } from '../utils/formulaHasValue'
@@ -87,43 +87,20 @@ export function createComponent({
       : ctx
   const attrs = node.attrs ?? {}
   let hasDynamicAttrs = IS_PREVIEW
-  if (!hasDynamicAttrs) {
-    for (const attr in attrs) {
-      if (attrs[attr]?.type !== 'value') {
-        hasDynamicAttrs = true
-        break
-      }
-    }
-  }
-  const attributesSignal = hasDynamicAttrs
-    ? dataSignal.map((data) => {
-        const result: Record<string, unknown> = {}
-        for (const attr in attrs) {
-          const value = attrs[attr]
-          result[attr] =
-            value?.type !== 'value'
-              ? applyFormula(
-                  value,
-                  formulaCtx,
-                  data,
-                  IS_PREVIEW && ctx.reportFormulaEvaluation
-                    ? ['attrs', attr]
-                    : undefined,
-                )
-              : value?.value
-        }
-        return result
-      })
-    : undefined
-  let initialAttributes: Record<string, unknown>
-  if (attributesSignal) {
-    initialAttributes = attributesSignal.get()
-  } else {
-    initialAttributes = {}
-    for (const attr in attrs) {
-      const value = attrs[attr]
-      initialAttributes[attr] =
-        value?.type === 'value' ? value.value : undefined
+  const initialAttributes: Record<string, unknown> = {}
+  const initialData = dataSignal.get()
+  for (const attr in attrs) {
+    const value = attrs[attr]
+    if (value?.type !== 'value') {
+      hasDynamicAttrs = true
+      initialAttributes[attr] = applyFormula(
+        value,
+        formulaCtx,
+        initialData,
+        IS_PREVIEW && ctx.reportFormulaEvaluation ? ['attrs', attr] : undefined,
+      )
+    } else {
+      initialAttributes[attr] = value?.value
     }
   }
 
@@ -154,7 +131,7 @@ export function createComponent({
             applyFormula(
               api.autoFetch,
               apiFormulaCtx,
-              dataSignal.get(),
+              initialData,
               IS_PREVIEW ? ['apis', name, 'autoFetch'] : undefined,
             )
               ? true
@@ -164,25 +141,28 @@ export function createComponent({
       }
     }
   }
+  const initialTheme = ctx.stores.theme.get()
   const componentDataSignal = signal<ComponentData>({
-    Location: dataSignal.get().Location,
+    Location: initialData.Location,
     Attributes: initialAttributes,
     Apis: initialApis,
+    ...(initialTheme !== undefined ? { Page: { Theme: initialTheme } } : {}),
   })
 
   // Subscribe to global stores (currently only theme)
   // We subscribe before calculating variable initial values to ensure they can reference global store values
   ctx.stores.theme.subscribe((newTheme) => {
     if (componentDataSignal.get().Page?.Theme !== newTheme) {
-      componentDataSignal.update(
-        (data) => ({
+      const data = componentDataSignal.value
+      componentDataSignal.set(
+        {
           ...data,
           Page: {
             ...data.Page,
             Theme: newTheme,
           },
-        }),
-        { force: true },
+        },
+        Signal.FORCE_UPDATE,
       )
     }
   })
@@ -204,10 +184,7 @@ export function createComponent({
       }
     }
   }
-  componentDataSignal.update((data) => ({
-    ...data,
-    Variables: initialVariables,
-  }))
+  componentDataSignal.value.Variables = initialVariables
   registerComponentToLogState(component, componentDataSignal)
 
   // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
@@ -383,16 +360,47 @@ export function createComponent({
     })
   }
 
-  if (attributesSignal) {
-    attributesSignal.subscribe(
-      (Attributes) =>
-        componentDataSignal.update(
-          (data) => ({
-            ...data,
-            Attributes,
-          }),
-          { force: true },
-        ),
+  if (hasDynamicAttrs) {
+    let firstAttrRun = true
+    dataSignal.subscribe(
+      (data) => {
+        if (firstAttrRun) {
+          firstAttrRun = false
+          if (data === initialData) {
+            return
+          }
+        }
+        const prevAttrs = componentDataSignal.value.Attributes
+        let nextAttrs: Record<string, unknown> | undefined
+        for (const attr in attrs) {
+          const value = attrs[attr]
+          const nextVal =
+            value?.type !== 'value'
+              ? applyFormula(
+                  value,
+                  formulaCtx,
+                  data,
+                  IS_PREVIEW && ctx.reportFormulaEvaluation
+                    ? ['attrs', attr]
+                    : undefined,
+                )
+              : value?.value
+          if (nextAttrs !== undefined) {
+            nextAttrs[attr] = nextVal
+          } else if (!fastDeepEqual(nextVal, prevAttrs?.[attr])) {
+            nextAttrs = { ...prevAttrs, [attr]: nextVal }
+          }
+        }
+        if (nextAttrs !== undefined) {
+          componentDataSignal.set(
+            {
+              ...componentDataSignal.value,
+              Attributes: nextAttrs,
+            },
+            Signal.FORCE_UPDATE,
+          )
+        }
+      },
       { destroy: () => componentDataSignal.destroy() },
     )
   } else {

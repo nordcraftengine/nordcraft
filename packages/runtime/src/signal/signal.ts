@@ -110,6 +110,8 @@ export class Signal<T> {
       this.subscribers.delete(subscriber)
     }
   }
+
+  static FORCE_UPDATE = { force: true }
 }
 
 export function signal<T>(value: T) {
