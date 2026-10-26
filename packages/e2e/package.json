@@ -2,8 +2,9 @@
   "name": "e2e",
   "private": true,
   "scripts": {
+    "test:e2e": "playwright test --config playwright.config.ts",
     "typecheck": "bun check",
-    "test:e2e": "playwright test --config playwright.config.ts"
+    "watch": "tsgo -w"
   },
   "dependencies": {},
   "devDependencies": {

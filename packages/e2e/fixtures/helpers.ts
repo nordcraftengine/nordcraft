@@ -5,7 +5,7 @@ import type {
   TextNodeModel,
 } from '@nordcraft/core/dist/component/component.types'
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
 
 export const equals = (first: Formula, second: Formula): Formula => ({
   type: 'function',

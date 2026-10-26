@@ -1,5 +1,5 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
 import { componentNode, element, slotNode, textNode } from './helpers'
 
 export const page = 'SlotsNamedPage'
