@@ -93,11 +93,15 @@ export default defineConfig([
     },
   },
   {
-    files: ['packages/core/src/formula/**/*.ts'],
+    files: [
+      'packages/core/**/*.ts',
+      'packages/runtime/**/*.ts',
+      'packages/ssr/**/*.ts',
+    ],
     ignores: [
       '**/*.test.ts',
-      'packages/core/src/formula/testUtils.ts',
-      'packages/core/src/formula/formulaUtils.ts',
+      'packages/runtime/src/editor/**',
+      'packages/runtime/src/editor-preview*.ts',
     ],
     rules: {
       'no-restricted-syntax': [
@@ -106,7 +110,7 @@ export default defineConfig([
           selector:
             "CallExpression[callee.object.name='Object'][callee.property.name=/^(keys|values|entries)$/]",
           message:
-            'Avoid Object.keys/values/entries in hot paths; it allocates temporary arrays. Use for..in with hasOwnProperty or direct key iteration instead.',
+            'Avoid Object.keys/values/entries in hot paths; it allocates temporary arrays. Use for..in or helpers from collections instead.',
         },
         {
           selector: "CallExpression[callee.property.name='forEach']",
