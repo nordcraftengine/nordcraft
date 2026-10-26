@@ -1,0 +1,14 @@
+{
+  "name": "e2e",
+  "private": true,
+  "scripts": {
+    "typecheck": "bun check",
+    "test:e2e": "playwright test --config playwright.config.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "hono": "4.13.14",
+    "playwright": "1.64.1"
+  }
+}

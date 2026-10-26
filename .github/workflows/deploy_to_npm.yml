@@ -44,7 +44,7 @@ jobs:
           cd packages/runtime
           echo $(jq '. += {"version": "${{ inputs.version }}"}' package.json) > package.json
       - name: Setup bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Install dependencies

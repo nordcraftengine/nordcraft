@@ -186,3 +186,9 @@ publish/
 packages/**/bun.lock
 
 .worktrees/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

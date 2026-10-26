@@ -50,13 +50,19 @@ jobs:
       - name: Build packages (head)
         run: bun run build
 
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(bunx playwright --version)" >> $GITHUB_OUTPUT
+
       - name: Cache Playwright Chromium
+        id: playwright-cache
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('bun.lock') }}
+          key: ${{ runner.os }}-playwright-chromium-${{ steps.playwright-version.outputs.version }}
 
       - name: Install Playwright Chromium & dependencies
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: bunx playwright install chromium --with-deps
 
       - name: Run Runtime Benchmark

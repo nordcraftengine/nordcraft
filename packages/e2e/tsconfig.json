@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@nordcraft/core/*": ["../../packages/core/*"],
+      "@nordcraft/ssr/*": ["../../packages/ssr/*"],
+      "@nordcraft/backend/*": ["../../packages/backend/src/*"]
+    }
+  },
+  "include": ["./**/*.ts"]
+}

@@ -21,7 +21,7 @@ jobs:
           # fetch-depth: 2 is necessary to allow checking the previous commit
           fetch-depth: 2
       - name: Install bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Store package.json

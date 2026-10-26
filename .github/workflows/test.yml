@@ -20,7 +20,7 @@ jobs:
       - name: Checkout root
         uses: actions/checkout@v4
       - name: Install bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Install dependencies
@@ -39,7 +39,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Install dependencies
@@ -56,7 +56,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Install dependencies
@@ -73,7 +73,7 @@ jobs:
       - name: Checkout ssr
         uses: actions/checkout@v4
       - name: Install bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Install dependencies
@@ -90,7 +90,7 @@ jobs:
       - name: Checkout runtime
         uses: actions/checkout@v4
       - name: Install bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Install dependencies
@@ -107,7 +107,7 @@ jobs:
       - name: Checkout lib
         uses: actions/checkout@v4
       - name: Install bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Install dependencies
@@ -124,7 +124,7 @@ jobs:
       - name: Checkout search
         uses: actions/checkout@v4
       - name: Install bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Install dependencies
@@ -144,7 +144,7 @@ jobs:
       - name: Checkout backend
         uses: actions/checkout@v4
       - name: Install bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Install dependencies
@@ -209,7 +209,7 @@ jobs:
       - name: Checkout release
         uses: actions/checkout@v4
       - name: Install bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Install dependencies
@@ -247,7 +247,7 @@ jobs:
       - name: Checkout release
         uses: actions/checkout@v4
       - name: Install bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
       - name: Install dependencies
