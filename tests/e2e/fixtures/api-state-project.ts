@@ -1,6 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
-import { element, path, textNode } from './helpers'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { element, textNode } from './helpers'
 
 export const createApiStateComponents = ({
   shouldFetch,
@@ -33,7 +36,7 @@ export const createApiStateComponents = ({
         name: 'Load files',
         type: 'http',
         url: valueFormula('/api/files'),
-        autoFetch: path('Variables', 'shouldFetch'),
+        autoFetch: pathFormula(['Variables', 'shouldFetch']),
         inputs: {},
         server: {
           proxy: {
@@ -50,7 +53,7 @@ export const createApiStateComponents = ({
               {
                 type: 'SetVariable',
                 variable: 'files',
-                data: path('Apis', 'Load files', 'data', 'items'),
+                data: pathFormula(['Apis', 'Load files', 'data', 'items']),
               },
               {
                 type: 'SetVariable',
@@ -60,11 +63,11 @@ export const createApiStateComponents = ({
                   arguments: [
                     {
                       name: 'files',
-                      formula: path('Variables', 'files'),
+                      formula: pathFormula(['Variables', 'files']),
                     },
                     {
                       name: 'otherVar',
-                      formula: path('Variables', 'otherVar'),
+                      formula: pathFormula(['Variables', 'otherVar']),
                     },
                   ],
                 },
@@ -128,18 +131,22 @@ export const createApiStateComponents = ({
         testId: 'files',
         children: ['files-text'],
       }),
-      'files-text': textNode(path('Apis', 'Load files', 'data', 'items')),
+      'files-text': textNode(
+        pathFormula(['Apis', 'Load files', 'data', 'items']),
+      ),
       'combined-files': element('div', {
         testId: 'combined-files',
         children: ['combined-files-text'],
       }),
-      'combined-files-text': textNode(path('Variables', 'combined', 'files')),
+      'combined-files-text': textNode(
+        pathFormula(['Variables', 'combined', 'files']),
+      ),
       'combined-other': element('div', {
         testId: 'combined-other',
         children: ['combined-other-text'],
       }),
       'combined-other-text': textNode(
-        path('Variables', 'combined', 'otherVar'),
+        pathFormula(['Variables', 'combined', 'otherVar']),
       ),
     },
   },

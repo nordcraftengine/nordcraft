@@ -1,5 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { element, path, textNode, value } from './helpers'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { element, textNode } from './helpers'
 
 export const page = 'RepeatObjectsOrderPage'
 
@@ -9,7 +13,7 @@ export const components: Component[] = [
     route: { path: [], query: {} },
     variables: {
       items: {
-        initialValue: value([
+        initialValue: valueFormula([
           { id: 'item-1', name: 'Item 1' },
           { id: 'item-2', name: 'Item 2' },
           { id: 'item-3', name: 'Item 3' },
@@ -31,7 +35,7 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'items',
-                data: value([
+                data: valueFormula([
                   { id: 'item-3', name: 'Item 3' },
                   { id: 'item-1', name: 'Item 1' },
                   { id: 'item-2', name: 'Item 2' },
@@ -41,16 +45,16 @@ export const components: Component[] = [
           },
         },
       }),
-      'move-text': textNode(value('Move 3 to front')),
+      'move-text': textNode(valueFormula('Move 3 to front')),
       'items-list': element('div', {
         testId: 'items-container',
-        repeat: path('Variables', 'items'),
-        repeatKey: path('ListItem', 'Item', 'id'),
+        repeat: pathFormula(['Variables', 'items']),
+        repeatKey: pathFormula(['ListItem', 'Item', 'id']),
         children: ['item-card'],
       }),
       'item-card': element('div', {
         attrs: {
-          'data-testid': path('ListItem', 'Item', 'id'),
+          'data-testid': pathFormula(['ListItem', 'Item', 'id']),
         },
         children: ['card-input', 'card-text'],
       }),
@@ -60,13 +64,13 @@ export const components: Component[] = [
             type: 'function',
             name: '@toddle/concatenate',
             arguments: [
-              { name: '0', formula: value('input-') },
-              { name: '1', formula: path('ListItem', 'Item', 'id') },
+              { name: '0', formula: valueFormula('input-') },
+              { name: '1', formula: pathFormula(['ListItem', 'Item', 'id']) },
             ],
           },
         },
       }),
-      'card-text': textNode(path('ListItem', 'Item', 'name')),
+      'card-text': textNode(pathFormula(['ListItem', 'Item', 'name'])),
     },
   },
 ]

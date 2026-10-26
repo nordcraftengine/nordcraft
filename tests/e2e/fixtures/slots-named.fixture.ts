@@ -1,5 +1,6 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { componentNode, element, slotNode, textNode, value } from './helpers'
+import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { componentNode, element, slotNode, textNode } from './helpers'
 
 export const page = 'SlotsNamedPage'
 
@@ -20,13 +21,13 @@ export const components: Component[] = [
         slot: 'header',
         children: ['header-text'],
       }),
-      'header-text': textNode(value('Modal Title')),
+      'header-text': textNode(valueFormula('Modal Title')),
       'footer-slot-content': element('footer', {
         testId: 'dialog-footer',
         slot: 'footer',
         children: ['footer-text'],
       }),
-      'footer-text': textNode(value('Modal Footer Action')),
+      'footer-text': textNode(valueFormula('Modal Footer Action')),
     },
   },
   {
@@ -47,7 +48,7 @@ export const components: Component[] = [
         testId: 'dialog-default-body',
         children: ['body-text'],
       }),
-      'body-text': textNode(value('Default modal body')),
+      'body-text': textNode(valueFormula('Default modal body')),
       'footer-slot': slotNode({
         name: 'footer',
         children: [],

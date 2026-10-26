@@ -1,12 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import {
-  componentNode,
-  element,
-  path,
-  slotNode,
-  textNode,
-  value,
-} from './helpers'
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { componentNode, element, slotNode, textNode } from './helpers'
 
 export const page = 'SlotsCorePage'
 
@@ -15,7 +12,9 @@ export const components: Component[] = [
     name: 'SlotsCorePage',
     route: { path: [], query: {} },
     variables: {
-      dynamicSlotContent: { initialValue: value('initial slotted') },
+      dynamicSlotContent: {
+        initialValue: valueFormula('initial slotted'),
+      },
     },
     nodes: {
       root: element('div', {
@@ -32,13 +31,13 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'dynamicSlotContent',
-                data: value('updated slotted text!'),
+                data: valueFormula('updated slotted text!'),
               },
             ],
           },
         },
       }),
-      'mutate-btn-text': textNode(value('Update slot text')),
+      'mutate-btn-text': textNode(valueFormula('Update slot text')),
       'card-with-slot': componentNode('CardContainer', {
         children: ['slotted-body'],
       }),
@@ -46,7 +45,9 @@ export const components: Component[] = [
         testId: 'custom-body',
         children: ['slotted-text-node'],
       }),
-      'slotted-text-node': textNode(path('Variables', 'dynamicSlotContent')),
+      'slotted-text-node': textNode(
+        pathFormula(['Variables', 'dynamicSlotContent']),
+      ),
       'card-empty': componentNode('CardContainer', {
         children: [],
       }),
@@ -66,7 +67,7 @@ export const components: Component[] = [
         testId: 'fallback-placeholder',
         children: ['placeholder-text'],
       }),
-      'placeholder-text': textNode(value('Fallback content')),
+      'placeholder-text': textNode(valueFormula('Fallback content')),
     },
   },
 ]

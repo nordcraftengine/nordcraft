@@ -1,6 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
-import { element, equals, path, textNode } from './helpers'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { element, equals, textNode } from './helpers'
 
 export const page = 'AttributeChangePage'
 
@@ -42,7 +45,7 @@ export const components: Component[] = [
         type: 'component',
         name: 'AttributeChangeChild',
         attrs: {
-          input: path('Variables', 'input'),
+          input: pathFormula(['Variables', 'input']),
         },
         children: [],
         events: {},
@@ -74,19 +77,19 @@ export const components: Component[] = [
         {
           type: 'SetVariable',
           variable: 'step1',
-          data: path('Attributes', 'input'),
+          data: pathFormula(['Attributes', 'input']),
         },
         {
           type: 'SetVariable',
           variable: 'step2',
-          data: path('Variables', 'step1'),
+          data: pathFormula(['Variables', 'step1']),
         },
         {
           type: 'Switch',
           cases: [
             {
               condition: equals(
-                path('Variables', 'step2'),
+                pathFormula(['Variables', 'step2']),
                 valueFormula('updated'),
               ),
               actions: [
@@ -113,17 +116,17 @@ export const components: Component[] = [
         testId: 'step1',
         children: ['step1-text'],
       }),
-      'step1-text': textNode(path('Variables', 'step1')),
+      'step1-text': textNode(pathFormula(['Variables', 'step1'])),
       step2: element('div', {
         testId: 'step2',
         children: ['step2-text'],
       }),
-      'step2-text': textNode(path('Variables', 'step2')),
+      'step2-text': textNode(pathFormula(['Variables', 'step2'])),
       branched: element('div', {
         testId: 'branched',
         children: ['branched-text'],
       }),
-      'branched-text': textNode(path('Variables', 'branched')),
+      'branched-text': textNode(pathFormula(['Variables', 'branched'])),
     },
   },
 ]

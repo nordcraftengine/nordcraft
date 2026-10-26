@@ -1,5 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { componentNode, element, path, textNode, value } from './helpers'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { componentNode, element, textNode } from './helpers'
 
 export const page = 'DeepContextProviderPage'
 
@@ -8,11 +12,11 @@ export const components: Component[] = [
     name: 'DeepContextProviderPage',
     route: { path: [], query: {} },
     variables: {
-      brand: { initialValue: value('Nordcraft') },
+      brand: { initialValue: valueFormula('Nordcraft') },
     },
     formulas: {
       brandName: {
-        formula: path('Variables', 'brand'),
+        formula: pathFormula(['Variables', 'brand']),
         exposeInContext: true,
       },
     },
@@ -31,13 +35,13 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'brand',
-                data: value('Nordcraft Engine'),
+                data: valueFormula('Nordcraft Engine'),
               },
             ],
           },
         },
       }),
-      'mutate-text': textNode(value('Mutate')),
+      'mutate-text': textNode(valueFormula('Mutate')),
       intermediate: componentNode('IntermediateComponent'),
     },
   },
@@ -69,7 +73,7 @@ export const components: Component[] = [
         children: ['brand-text'],
       }),
       'brand-text': textNode(
-        path('Contexts', 'DeepContextProviderPage', 'brandName'),
+        pathFormula(['Contexts', 'DeepContextProviderPage', 'brandName']),
       ),
     },
   },

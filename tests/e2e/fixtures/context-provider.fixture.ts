@@ -1,5 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { componentNode, element, path, textNode, value } from './helpers'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { componentNode, element, textNode } from './helpers'
 
 export const page = 'ContextProviderPage'
 
@@ -8,16 +12,16 @@ export const components: Component[] = [
     name: 'ContextProviderPage',
     route: { path: [], query: {} },
     variables: {
-      theme: { initialValue: value('dark') },
-      counter: { initialValue: value(42) },
+      theme: { initialValue: valueFormula('dark') },
+      counter: { initialValue: valueFormula(42) },
     },
     formulas: {
       activeTheme: {
-        formula: path('Variables', 'theme'),
+        formula: pathFormula(['Variables', 'theme']),
         exposeInContext: true,
       },
       currentCounter: {
-        formula: path('Variables', 'counter'),
+        formula: pathFormula(['Variables', 'counter']),
         exposeInContext: true,
       },
     },
@@ -36,13 +40,13 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'theme',
-                data: value('light'),
+                data: valueFormula('light'),
               },
             ],
           },
         },
       }),
-      'set-light-text': textNode(value('Set light')),
+      'set-light-text': textNode(valueFormula('Set light')),
       'child-consumer': componentNode('ContextConsumerChild'),
     },
   },
@@ -64,14 +68,14 @@ export const components: Component[] = [
         children: ['theme-text'],
       }),
       'theme-text': textNode(
-        path('Contexts', 'ContextProviderPage', 'activeTheme'),
+        pathFormula(['Contexts', 'ContextProviderPage', 'activeTheme']),
       ),
       'counter-display': element('div', {
         testId: 'subscribed-counter',
         children: ['counter-text'],
       }),
       'counter-text': textNode(
-        path('Contexts', 'ContextProviderPage', 'currentCounter'),
+        pathFormula(['Contexts', 'ContextProviderPage', 'currentCounter']),
       ),
     },
   },

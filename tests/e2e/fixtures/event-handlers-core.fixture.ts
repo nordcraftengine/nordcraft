@@ -1,5 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { add, componentNode, element, path, textNode, value } from './helpers'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { add, componentNode, element, textNode } from './helpers'
 
 export const page = 'EventHandlersCorePage'
 
@@ -8,10 +12,10 @@ export const components: Component[] = [
     name: 'EventHandlersCorePage',
     route: { path: [], query: {} },
     variables: {
-      count: { initialValue: value(0) },
-      text: { initialValue: value('') },
-      customEventPayload: { initialValue: value('none') },
-      doubleClicked: { initialValue: value(false) },
+      count: { initialValue: valueFormula(0) },
+      text: { initialValue: valueFormula('') },
+      customEventPayload: { initialValue: valueFormula('none') },
+      doubleClicked: { initialValue: valueFormula(false) },
     },
     nodes: {
       root: element('div', {
@@ -31,7 +35,7 @@ export const components: Component[] = [
         testId: 'count-value',
         children: ['count-text'],
       }),
-      'count-text': textNode(path('Variables', 'count')),
+      'count-text': textNode(pathFormula(['Variables', 'count'])),
       'inc-btn': element('button', {
         testId: 'inc-button',
         children: ['inc-text'],
@@ -42,17 +46,17 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'count',
-                data: add(path('Variables', 'count'), value(1)),
+                data: add(pathFormula(['Variables', 'count']), valueFormula(1)),
               },
             ],
           },
         },
       }),
-      'inc-text': textNode(value('+1')),
+      'inc-text': textNode(valueFormula('+1')),
       'text-input': element('input', {
         testId: 'text-input',
         attrs: {
-          value: path('Variables', 'text'),
+          value: pathFormula(['Variables', 'text']),
         },
         events: {
           input: {
@@ -61,7 +65,7 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'text',
-                data: path('Event', 'target', 'value'),
+                data: pathFormula(['Event', 'target', 'value']),
               },
             ],
           },
@@ -71,7 +75,7 @@ export const components: Component[] = [
         testId: 'typed-text',
         children: ['typed-text-node'],
       }),
-      'typed-text-node': textNode(path('Variables', 'text')),
+      'typed-text-node': textNode(pathFormula(['Variables', 'text'])),
       'dbl-btn': element('button', {
         testId: 'dbl-button',
         children: ['dbl-text'],
@@ -82,18 +86,18 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'doubleClicked',
-                data: value(true),
+                data: valueFormula(true),
               },
             ],
           },
         },
       }),
-      'dbl-text': textNode(value('Double click me')),
+      'dbl-text': textNode(valueFormula('Double click me')),
       'dbl-display': element('div', {
         testId: 'dbl-status',
         children: ['dbl-status-text'],
       }),
-      'dbl-status-text': textNode(path('Variables', 'doubleClicked')),
+      'dbl-status-text': textNode(pathFormula(['Variables', 'doubleClicked'])),
       'child-comp': componentNode('CustomEventEmitterChild', {
         events: {
           notify: {
@@ -102,7 +106,7 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'customEventPayload',
-                data: path('Event', 'info'),
+                data: pathFormula(['Event', 'info']),
               },
             ],
           },
@@ -112,7 +116,7 @@ export const components: Component[] = [
         testId: 'custom-event-data',
         children: ['custom-text'],
       }),
-      'custom-text': textNode(path('Variables', 'customEventPayload')),
+      'custom-text': textNode(pathFormula(['Variables', 'customEventPayload'])),
     },
   },
   {
@@ -138,7 +142,7 @@ export const components: Component[] = [
                   arguments: [
                     {
                       name: 'info',
-                      formula: value('hello from child event'),
+                      formula: valueFormula('hello from child event'),
                     },
                   ],
                 },
@@ -147,7 +151,7 @@ export const components: Component[] = [
           },
         },
       }),
-      'emit-text': textNode(value('Emit custom event')),
+      'emit-text': textNode(valueFormula('Emit custom event')),
     },
   },
 ]

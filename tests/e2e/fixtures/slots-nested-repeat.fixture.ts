@@ -1,12 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
 import {
-  componentNode,
-  element,
-  path,
-  slotNode,
-  textNode,
-  value,
-} from './helpers'
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { componentNode, element, slotNode, textNode } from './helpers'
 
 export const page = 'SlotsNestedRepeatPage'
 
@@ -15,7 +12,7 @@ export const components: Component[] = [
     name: 'SlotsNestedRepeatPage',
     route: { path: [], query: {} },
     variables: {
-      columns: { initialValue: value(['Col A', 'Col B']) },
+      columns: { initialValue: valueFormula(['Col A', 'Col B']) },
     },
     nodes: {
       root: element('div', {
@@ -26,7 +23,7 @@ export const components: Component[] = [
         type: 'element',
         tag: 'div',
         testId: 'columns-wrapper',
-        repeat: path('Variables', 'columns'),
+        repeat: pathFormula(['Variables', 'columns']),
         children: ['slotted-col'],
         events: {},
       } as any,
@@ -39,14 +36,14 @@ export const components: Component[] = [
             type: 'function',
             name: '@toddle/concatenate',
             arguments: [
-              { name: '0', formula: value('slotted-') },
-              { name: '1', formula: path('ListItem', 'Index') },
+              { name: '0', formula: valueFormula('slotted-') },
+              { name: '1', formula: pathFormula(['ListItem', 'Index']) },
             ],
           },
         },
         children: ['col-text'],
       }),
-      'col-text': textNode(path('ListItem', 'Item')),
+      'col-text': textNode(pathFormula(['ListItem', 'Item'])),
     },
   },
   {
@@ -54,7 +51,7 @@ export const components: Component[] = [
     nodes: {
       root: element('div', {
         attrs: {
-          'data-col-container': value('true'),
+          'data-col-container': valueFormula('true'),
         },
         children: ['slot-node'],
       }),

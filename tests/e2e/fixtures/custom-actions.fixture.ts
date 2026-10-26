@@ -1,6 +1,10 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
 import type { PluginActionV2 } from '@nordcraft/core/dist/types'
-import { element, path, textNode, value } from './helpers'
+import { element, textNode } from './helpers'
 
 export const page = 'CustomActionsPage'
 
@@ -12,7 +16,7 @@ export const customActions: Record<string, PluginActionV2> = {
     arguments: [
       {
         name: 'text',
-        formula: value(''),
+        formula: valueFormula(''),
       },
     ],
     handler: (args: any, ctx: any) => {
@@ -37,9 +41,9 @@ export const components: Component[] = [
     route: { path: [], query: {} },
     customCode: true,
     variables: {
-      inputStr: { initialValue: value('nordcraft') },
-      outputStr: { initialValue: value('none') },
-      lifecycleRan: { initialValue: value(false) },
+      inputStr: { initialValue: valueFormula('nordcraft') },
+      outputStr: { initialValue: valueFormula('none') },
+      lifecycleRan: { initialValue: valueFormula(false) },
     },
     nodes: {
       root: element('div', {
@@ -55,7 +59,7 @@ export const components: Component[] = [
       'input-elem': element('input', {
         testId: 'hash-input',
         attrs: {
-          value: path('Variables', 'inputStr'),
+          value: pathFormula(['Variables', 'inputStr']),
         },
         events: {
           input: {
@@ -64,7 +68,7 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'inputStr',
-                data: path('Event', 'target', 'value'),
+                data: pathFormula(['Event', 'target', 'value']),
               },
             ],
           },
@@ -83,7 +87,7 @@ export const components: Component[] = [
                 arguments: [
                   {
                     name: 'text',
-                    formula: path('Variables', 'inputStr'),
+                    formula: pathFormula(['Variables', 'inputStr']),
                   },
                 ],
                 events: {
@@ -92,7 +96,7 @@ export const components: Component[] = [
                       {
                         type: 'SetVariable',
                         variable: 'outputStr',
-                        data: path('Event', 'result'),
+                        data: pathFormula(['Event', 'result']),
                       },
                     ],
                   },
@@ -102,12 +106,12 @@ export const components: Component[] = [
           },
         },
       }),
-      'run-hash-text': textNode(value('Run Hash')),
+      'run-hash-text': textNode(valueFormula('Run Hash')),
       'hash-output': element('div', {
         testId: 'hash-result',
         children: ['hash-output-text'],
       }),
-      'hash-output-text': textNode(path('Variables', 'outputStr')),
+      'hash-output-text': textNode(pathFormula(['Variables', 'outputStr'])),
       'run-lifecycle-btn': element('button', {
         testId: 'run-lifecycle',
         children: ['run-lifecycle-text'],
@@ -125,7 +129,7 @@ export const components: Component[] = [
                       {
                         type: 'SetVariable',
                         variable: 'lifecycleRan',
-                        data: value(true),
+                        data: valueFormula(true),
                       },
                     ],
                   },
@@ -135,12 +139,14 @@ export const components: Component[] = [
           },
         },
       }),
-      'run-lifecycle-text': textNode(value('Run Lifecycle')),
+      'run-lifecycle-text': textNode(valueFormula('Run Lifecycle')),
       'lifecycle-output': element('div', {
         testId: 'lifecycle-status',
         children: ['lifecycle-output-text'],
       }),
-      'lifecycle-output-text': textNode(path('Variables', 'lifecycleRan')),
+      'lifecycle-output-text': textNode(
+        pathFormula(['Variables', 'lifecycleRan']),
+      ),
     },
   },
 ]

@@ -1,5 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { element, not, path, textNode, value } from './helpers'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { element, not, textNode } from './helpers'
 
 export const page = 'ShowFormulasCorePage'
 
@@ -8,8 +12,8 @@ export const components: Component[] = [
     name: 'ShowFormulasCorePage',
     route: { path: [], query: {} },
     variables: {
-      isVisible: { initialValue: value(true) },
-      role: { initialValue: value('guest') },
+      isVisible: { initialValue: valueFormula(true) },
+      role: { initialValue: valueFormula('guest') },
     },
     nodes: {
       root: element('div', {
@@ -34,13 +38,13 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'isVisible',
-                data: not(path('Variables', 'isVisible')),
+                data: not(pathFormula(['Variables', 'isVisible'])),
               },
             ],
           },
         },
       }),
-      'toggle-text': textNode(value('Toggle visibility')),
+      'toggle-text': textNode(valueFormula('Toggle visibility')),
       'set-admin-btn': element('button', {
         testId: 'set-admin',
         children: ['admin-text'],
@@ -51,13 +55,13 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'role',
-                data: value('admin'),
+                data: valueFormula('admin'),
               },
             ],
           },
         },
       }),
-      'admin-text': textNode(value('Make Admin')),
+      'admin-text': textNode(valueFormula('Make Admin')),
       'set-user-btn': element('button', {
         testId: 'set-user',
         children: ['user-text'],
@@ -68,51 +72,51 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'role',
-                data: value('user'),
+                data: valueFormula('user'),
               },
             ],
           },
         },
       }),
-      'user-text': textNode(value('Make User')),
+      'user-text': textNode(valueFormula('Make User')),
       'simple-conditional': element('div', {
         testId: 'banner',
-        condition: path('Variables', 'isVisible'),
+        condition: pathFormula(['Variables', 'isVisible']),
         children: ['banner-text'],
       }),
-      'banner-text': textNode(value('Welcome back!')),
+      'banner-text': textNode(valueFormula('Welcome back!')),
       'inverted-conditional': element('div', {
         testId: 'logged-out-notice',
-        condition: not(path('Variables', 'isVisible')),
+        condition: not(pathFormula(['Variables', 'isVisible'])),
         children: ['notice-text'],
       }),
-      'notice-text': textNode(value('You are currently hidden.')),
+      'notice-text': textNode(valueFormula('You are currently hidden.')),
       'admin-panel': element('div', {
         testId: 'admin-section',
         condition: {
           type: 'function',
           name: '@toddle/equals',
           arguments: [
-            { name: 'First', formula: path('Variables', 'role') },
-            { name: 'Second', formula: value('admin') },
+            { name: 'First', formula: pathFormula(['Variables', 'role']) },
+            { name: 'Second', formula: valueFormula('admin') },
           ],
         },
         children: ['admin-heading'],
       }),
-      'admin-heading': textNode(value('Admin Dashboard')),
+      'admin-heading': textNode(valueFormula('Admin Dashboard')),
       'user-panel': element('div', {
         testId: 'user-section',
         condition: {
           type: 'function',
           name: '@toddle/equals',
           arguments: [
-            { name: 'First', formula: path('Variables', 'role') },
-            { name: 'Second', formula: value('user') },
+            { name: 'First', formula: pathFormula(['Variables', 'role']) },
+            { name: 'Second', formula: valueFormula('user') },
           ],
         },
         children: ['user-heading'],
       }),
-      'user-heading': textNode(value('User Profile')),
+      'user-heading': textNode(valueFormula('User Profile')),
     },
   },
 ]

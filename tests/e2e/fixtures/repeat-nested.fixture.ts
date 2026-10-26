@@ -1,5 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { element, path, textNode, value } from './helpers'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { element, textNode } from './helpers'
 
 export const page = 'RepeatNestedPage'
 
@@ -9,7 +13,7 @@ export const components: Component[] = [
     route: { path: [], query: {} },
     variables: {
       groups: {
-        initialValue: value([
+        initialValue: valueFormula([
           { name: 'Group A', members: ['Alice', 'Bob'] },
           { name: 'Group B', members: ['Charlie', 'Dana'] },
         ]),
@@ -22,7 +26,7 @@ export const components: Component[] = [
       }),
       'groups-container': element('div', {
         testId: 'groups-container',
-        repeat: path('Variables', 'groups'),
+        repeat: pathFormula(['Variables', 'groups']),
         children: ['group-card'],
       }),
       'group-card': element('div', {
@@ -31,8 +35,8 @@ export const components: Component[] = [
             type: 'function',
             name: '@toddle/concatenate',
             arguments: [
-              { name: '0', formula: value('group-') },
-              { name: '1', formula: path('ListItem', 'Index') },
+              { name: '0', formula: valueFormula('group-') },
+              { name: '1', formula: pathFormula(['ListItem', 'Index']) },
             ],
           },
         },
@@ -41,9 +45,9 @@ export const components: Component[] = [
       'group-title': element('h2', {
         children: ['group-title-text'],
       }),
-      'group-title-text': textNode(path('ListItem', 'Item', 'name')),
+      'group-title-text': textNode(pathFormula(['ListItem', 'Item', 'name'])),
       'members-list': element('ul', {
-        repeat: path('ListItem', 'Item', 'members'),
+        repeat: pathFormula(['ListItem', 'Item', 'members']),
         children: ['member-item'],
       }),
       'member-item': element('li', {
@@ -52,16 +56,19 @@ export const components: Component[] = [
             type: 'function',
             name: '@toddle/concatenate',
             arguments: [
-              { name: '0', formula: value('member-') },
-              { name: '1', formula: path('ListItem', 'Parent', 'Index') },
-              { name: '2', formula: value('-') },
-              { name: '3', formula: path('ListItem', 'Index') },
+              { name: '0', formula: valueFormula('member-') },
+              {
+                name: '1',
+                formula: pathFormula(['ListItem', 'Parent', 'Index']),
+              },
+              { name: '2', formula: valueFormula('-') },
+              { name: '3', formula: pathFormula(['ListItem', 'Index']) },
             ],
           },
         },
         children: ['member-text'],
       }),
-      'member-text': textNode(path('ListItem', 'Item')),
+      'member-text': textNode(pathFormula(['ListItem', 'Item'])),
     },
   },
 ]

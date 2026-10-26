@@ -1,5 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { element, path, textNode, value } from './helpers'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { element, textNode } from './helpers'
 
 export const page = 'RepeatObjectEntriesPage'
 
@@ -9,7 +13,7 @@ export const components: Component[] = [
     route: { path: [], query: {} },
     variables: {
       userProfile: {
-        initialValue: value({
+        initialValue: valueFormula({
           role: 'Admin',
           status: 'Active',
           country: 'Denmark',
@@ -23,7 +27,7 @@ export const components: Component[] = [
       }),
       'entries-container': element('dl', {
         testId: 'profile-entries',
-        repeat: path('Variables', 'userProfile'),
+        repeat: pathFormula(['Variables', 'userProfile']),
         children: ['entry-key', 'entry-value'],
       }),
       'entry-key': element('dt', {
@@ -32,28 +36,28 @@ export const components: Component[] = [
             type: 'function',
             name: '@toddle/concatenate',
             arguments: [
-              { name: '0', formula: value('dt-') },
-              { name: '1', formula: path('ListItem', 'Key') },
+              { name: '0', formula: valueFormula('dt-') },
+              { name: '1', formula: pathFormula(['ListItem', 'Key']) },
             ],
           },
         },
         children: ['key-text'],
       }),
-      'key-text': textNode(path('ListItem', 'Key')),
+      'key-text': textNode(pathFormula(['ListItem', 'Key'])),
       'entry-value': element('dd', {
         attrs: {
           'data-testid': {
             type: 'function',
             name: '@toddle/concatenate',
             arguments: [
-              { name: '0', formula: value('dd-') },
-              { name: '1', formula: path('ListItem', 'Key') },
+              { name: '0', formula: valueFormula('dd-') },
+              { name: '1', formula: pathFormula(['ListItem', 'Key']) },
             ],
           },
         },
         children: ['val-text'],
       }),
-      'val-text': textNode(path('ListItem', 'Item')),
+      'val-text': textNode(pathFormula(['ListItem', 'Item'])),
     },
   },
 ]

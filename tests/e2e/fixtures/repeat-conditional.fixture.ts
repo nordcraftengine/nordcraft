@@ -1,5 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { element, path, textNode, value } from './helpers'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { element, textNode } from './helpers'
 
 export const page = 'RepeatConditionalPage'
 
@@ -8,9 +12,9 @@ export const components: Component[] = [
     name: 'RepeatConditionalPage',
     route: { path: [], query: {} },
     variables: {
-      activeCategory: { initialValue: value('all') },
+      activeCategory: { initialValue: valueFormula('all') },
       tasks: {
-        initialValue: value([
+        initialValue: valueFormula([
           { id: '1', title: 'Task 1', cat: 'work' },
           { id: '2', title: 'Task 2', cat: 'personal' },
           { id: '3', title: 'Task 3', cat: 'work' },
@@ -33,13 +37,13 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'activeCategory',
-                data: value('work'),
+                data: valueFormula('work'),
               },
             ],
           },
         },
       }),
-      'work-text': textNode(value('Show work')),
+      'work-text': textNode(valueFormula('Show work')),
       'filter-all-btn': element('button', {
         testId: 'filter-all',
         children: ['all-text'],
@@ -50,17 +54,17 @@ export const components: Component[] = [
               {
                 type: 'SetVariable',
                 variable: 'activeCategory',
-                data: value('all'),
+                data: valueFormula('all'),
               },
             ],
           },
         },
       }),
-      'all-text': textNode(value('Show all')),
+      'all-text': textNode(valueFormula('Show all')),
       'tasks-list': element('div', {
         testId: 'tasks-list',
-        repeat: path('Variables', 'tasks'),
-        repeatKey: path('ListItem', 'Item', 'id'),
+        repeat: pathFormula(['Variables', 'tasks']),
+        repeatKey: pathFormula(['ListItem', 'Item', 'id']),
         children: ['task-item'],
       }),
       'task-item': element('div', {
@@ -74,9 +78,9 @@ export const components: Component[] = [
                 arguments: [
                   {
                     name: 'First',
-                    formula: path('Variables', 'activeCategory'),
+                    formula: pathFormula(['Variables', 'activeCategory']),
                   },
-                  { name: 'Second', formula: value('all') },
+                  { name: 'Second', formula: valueFormula('all') },
                 ],
               },
             },
@@ -87,9 +91,12 @@ export const components: Component[] = [
                 arguments: [
                   {
                     name: 'First',
-                    formula: path('Variables', 'activeCategory'),
+                    formula: pathFormula(['Variables', 'activeCategory']),
                   },
-                  { name: 'Second', formula: path('ListItem', 'Item', 'cat') },
+                  {
+                    name: 'Second',
+                    formula: pathFormula(['ListItem', 'Item', 'cat']),
+                  },
                 ],
               },
             },
@@ -100,14 +107,14 @@ export const components: Component[] = [
             type: 'function',
             name: '@toddle/concatenate',
             arguments: [
-              { name: '0', formula: value('task-') },
-              { name: '1', formula: path('ListItem', 'Item', 'id') },
+              { name: '0', formula: valueFormula('task-') },
+              { name: '1', formula: pathFormula(['ListItem', 'Item', 'id']) },
             ],
           },
         },
         children: ['task-text'],
       }),
-      'task-text': textNode(path('ListItem', 'Item', 'title')),
+      'task-text': textNode(pathFormula(['ListItem', 'Item', 'title'])),
     },
   },
 ]

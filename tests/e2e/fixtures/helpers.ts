@@ -7,11 +7,6 @@ import type {
 import type { Formula } from '@nordcraft/core/dist/formula/formula'
 import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
 
-export const path = (...segments: Array<string | number>): Formula => ({
-  type: 'path',
-  path: segments,
-})
-
 export const equals = (first: Formula, second: Formula): Formula => ({
   type: 'function',
   name: '@toddle/equals',

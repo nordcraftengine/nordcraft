@@ -1,5 +1,9 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { componentNode, element, path, textNode, value } from './helpers'
+import {
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core/dist/formula/formulaUtils'
+import { componentNode, element, textNode } from './helpers'
 
 export const page = 'ContextWorkflowPage'
 
@@ -8,7 +12,7 @@ export const components: Component[] = [
     name: 'ContextWorkflowPage',
     route: { path: [], query: {} },
     variables: {
-      message: { initialValue: value('initial') },
+      message: { initialValue: valueFormula('initial') },
     },
     workflows: {
       updateMessage: {
@@ -18,14 +22,14 @@ export const components: Component[] = [
           {
             type: 'SetVariable',
             variable: 'message',
-            data: path('Parameters', 'newMessage'),
+            data: pathFormula(['Parameters', 'newMessage']),
           },
         ],
       },
     },
     formulas: {
       currentMessage: {
-        formula: path('Variables', 'message'),
+        formula: pathFormula(['Variables', 'message']),
         exposeInContext: true,
       },
     },
@@ -38,7 +42,7 @@ export const components: Component[] = [
         testId: 'provider-message',
         children: ['message-text'],
       }),
-      'message-text': textNode(path('Variables', 'message')),
+      'message-text': textNode(pathFormula(['Variables', 'message'])),
       'child-invoker': componentNode('ContextWorkflowChild'),
     },
   },
@@ -68,7 +72,7 @@ export const components: Component[] = [
                 workflow: 'updateMessage',
                 parameters: {
                   newMessage: {
-                    formula: value('updated via context workflow'),
+                    formula: valueFormula('updated via context workflow'),
                   },
                 },
               },
@@ -76,7 +80,7 @@ export const components: Component[] = [
           },
         },
       }),
-      'trigger-text': textNode(value('Trigger WF')),
+      'trigger-text': textNode(valueFormula('Trigger WF')),
     },
   },
 ]
