@@ -2,9 +2,9 @@ import { describe, expect, it } from 'bun:test'
 import type { FormulaHandlerV2 } from '../types'
 import type { FunctionOperation } from './formula'
 import type { PluginFormula } from './formulaTypes'
-import { valueFormula } from './formulaUtils'
 import { applyFunctionFormula } from './functionFormula'
 import { createTestFormulaContext } from './testUtils.test'
+import { valueFormula } from './valueFormula'
 
 const contextWithCustomFormulas = (
   formulas: Record<string, PluginFormula<FormulaHandlerV2>>,

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'bun:test'
 import { applyFormula, type OrOperation } from './formula'
-import { valueFormula } from './formulaUtils'
 import { applyEvaluateAllOrFormula, applyOrFormula } from './orFormula'
 import {
   createTestFormulaContext,
   createTestFormulaContextForAllPaths,
 } from './testUtils.test'
+import { valueFormula } from './valueFormula'
 
 describe('applyOrFormula', () => {
   it('returns true if any argument is truthy', () => {

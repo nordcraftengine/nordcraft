@@ -1,5 +1,5 @@
 import type { ComponentData } from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
 import { describe, expect, test } from 'bun:test'
 import { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'

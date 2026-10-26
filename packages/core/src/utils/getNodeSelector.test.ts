@@ -1,5 +1,6 @@
-import type { StyleVariant } from '../component/component.types'
+import { describe, expect, test } from 'bun:test'
 import { getPathClassName } from '../styling/className'
+import type { StyleVariant } from '../styling/variantSelector'
 import { getNodeSelector } from './getNodeSelector'
 
 describe('getNodeSelector', () => {

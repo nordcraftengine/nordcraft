@@ -1,8 +1,6 @@
 import type { MetaEntry } from '@nordcraft/core/dist/component/component.types'
-import {
-  functionFormula,
-  valueFormula,
-} from '@nordcraft/core/dist/formula/formulaUtils'
+import { functionFormula } from '@nordcraft/core/dist/formula/functionFormula.helper'
+import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
 import { describe, expect, test } from 'bun:test'
 import { getDynamicMetaEntries } from './meta'
 

@@ -89,6 +89,10 @@ describe('createActionNameRule', () => {
           createActionNameRule({
             name: '@toddle/logToConsole',
             code: 'no-console',
+            info: {
+              title: 'No console',
+              description: 'Avoid console.log',
+            },
           }),
         ],
       }),

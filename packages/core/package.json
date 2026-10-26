@@ -9,7 +9,7 @@
     "directory": "packages/core"
   },
   "scripts": {
-    "build": "tsgo",
+    "build": "tsgo -p tsconfig.build.json",
     "npm-publish": "bun run build && bun publish --access public",
     "typecheck": "bun check",
     "watch": "tsgo -w"

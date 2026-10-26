@@ -13,18 +13,18 @@ if (!(globalThis as any).__CORE_FORMULAS__) {
   )
 }
 
+const getCoreFormulas = () =>
+  (globalThis as any).__CORE_FORMULAS__ as Record<string, any> | undefined
+
 // Helper to create a minimal context
 export const createTestFormulaContext = (): FormulaContext => {
-  const coreFormulas = (globalThis as any).__CORE_FORMULAS__ as
-    | Record<string, any>
-    | undefined
   return {
     component: undefined,
     formulaCache: {},
     root: {} as Document,
     package: undefined,
     toddle: {
-      getFormula: (name: string) => coreFormulas?.[name],
+      getFormula: (name: string) => getCoreFormulas()?.[name],
       getCustomFormula: () => undefined,
       errors: [],
     },
@@ -49,7 +49,7 @@ export const createTestFormulaContextForAllPaths = (
   root: undefined,
   package: undefined,
   toddle: {
-    getFormula: (name: string) => coreFormulas[name],
+    getFormula: (name: string) => getCoreFormulas()?.[name],
     getCustomFormula: () => undefined,
     errors: [],
   },

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'bun:test'
 import { applyAndFormula, applyEvaluateAllAndFormula } from './andFormula'
 import { applyFormula, type AndOperation } from './formula'
-import { valueFormula } from './formulaUtils'
 import {
   createTestFormulaContext,
   createTestFormulaContextForAllPaths,
 } from './testUtils.test'
+import { valueFormula } from './valueFormula'
 
 describe('applyAndFormula', () => {
   it('returns false if any argument is falsy', () => {

@@ -77,11 +77,12 @@ interface SearchContext {
  */
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: SearchRule<any, any>[]
+  rules: IssueRule<any, any>[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
-  withDetails?: boolean
-}): Generator<SearchResult>
+  state?: ApplicationState
+  fixOptions: FixOptions
+}): Generator<ProjectFiles | void>
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   rules: IssueRule<any, any>[]
@@ -91,12 +92,11 @@ export function searchProject(args: {
 }): Generator<IssueResult>
 export function searchProject(args: {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
-  rules: IssueRule<any, any>[]
+  rules: SearchRule<any, any>[]
   pathsToVisit?: string[][]
   useExactPaths?: boolean
-  state?: ApplicationState
-  fixOptions: FixOptions
-}): Generator<ProjectFiles | void>
+  withDetails?: boolean
+}): Generator<SearchResult>
 export function* searchProject({
   files,
   rules,

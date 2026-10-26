@@ -1,5 +1,6 @@
 import type {
   Component,
+  ElementNodeModel,
   WorkflowActionModel,
 } from '@nordcraft/core/dist/component/component.types'
 import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
@@ -50,6 +51,7 @@ describe('namedComponentWorkflowRule', () => {
             tag: 'button',
             events: {
               click: {
+                trigger: 'click',
                 actions: [
                   {
                     type: 'TriggerWorkflow',
@@ -135,8 +137,8 @@ describe('namedComponentWorkflowRule', () => {
     const consumer = updatedFiles!.components.Consumer as Component
     expect(consumer.contexts?.MyComponent.workflows).toContain('newName')
     expect(consumer.contexts?.MyComponent.workflows).not.toContain('oldKey')
-    const consumerAction = consumer.nodes?.root?.events?.click
-      ?.actions?.[0] as WorkflowActionModel
+    const consumerAction = (consumer.nodes?.root as ElementNodeModel)?.events
+      ?.click?.actions?.[0] as WorkflowActionModel
     expect(consumerAction.workflow).toBe('newName')
   })
 
@@ -176,6 +178,7 @@ describe('namedComponentWorkflowRule', () => {
               tag: 'button',
               events: {
                 click: {
+                  trigger: 'click',
                   actions: [
                     {
                       type: 'TriggerWorkflow',
@@ -235,8 +238,8 @@ describe('namedComponentWorkflowRule', () => {
     // Context consumer preserved / updated
     const consumer = updatedFiles!.components.Consumer as Component
     expect(consumer.contexts?.MyComponent.workflows).toContain('sameKey')
-    const consumerAction = consumer.nodes?.root?.events?.click
-      ?.actions?.[0] as WorkflowActionModel
+    const consumerAction = (consumer.nodes?.root as ElementNodeModel)?.events
+      ?.click?.actions?.[0] as WorkflowActionModel
     expect(consumerAction.workflow).toBe('sameKey')
   })
 
@@ -298,7 +301,8 @@ describe('namedComponentWorkflowRule', () => {
     expect(comp.workflows?.new2?.name).toBeUndefined()
 
     // References updated
-    const rootActions = comp.nodes?.['root']?.events?.click?.actions as any[]
+    const rootActions = (comp.nodes?.['root'] as ElementNodeModel)?.events
+      ?.click?.actions as any[]
     expect(rootActions[0].workflow).toBe('new1')
     expect(rootActions[1].workflow).toBe('new2')
 

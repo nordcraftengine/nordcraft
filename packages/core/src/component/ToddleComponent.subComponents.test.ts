@@ -61,10 +61,10 @@ describe('ToddleComponent.uniqueSubComponents', () => {
 
     const subComponents = demo.uniqueSubComponents
     expect(subComponents).toHaveLength(2)
-    expect(subComponents[0].name).toBe('PackagedComp')
-    expect(subComponents[0].packageName).toBe('my-package')
-    expect(subComponents[1].name).toBe('InternalComp')
-    expect(subComponents[1].packageName).toBe('my-package')
+    expect(subComponents[0]?.name).toBe('PackagedComp')
+    expect(subComponents[0]?.packageName).toBe('my-package')
+    expect(subComponents[1]?.name).toBe('InternalComp')
+    expect(subComponents[1]?.packageName).toBe('my-package')
   })
 
   test('it should handle nested components and avoid duplicates', () => {

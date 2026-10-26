@@ -1,6 +1,6 @@
 import { ApiMethod } from '@nordcraft/core/dist/api/apiTypes'
 import { HeadTagTypes } from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
 import { describe, expect, test } from 'bun:test'
 import { searchProject } from '../../../searchProject'
 import type { IssueResult } from '../../../types'

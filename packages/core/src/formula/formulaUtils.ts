@@ -1,37 +1,9 @@
 import type { ActionModel } from '../component/component.types'
 import type { Nullable } from '../types'
 import { isDefined } from '../utils/util'
-import type {
-  Formula,
-  FunctionOperation,
-  PathOperation,
-  ValueOperation,
-} from './formula'
+import type { Formula } from './formula'
 import { isFormula, isToddleFormula } from './formula'
 import type { GlobalFormulas } from './formulaTypes'
-
-export const valueFormula = (
-  value: string | number | boolean | null | object | undefined,
-): ValueOperation => ({
-  type: 'value',
-  value,
-})
-
-export const pathFormula = (path: string[]): PathOperation => ({
-  type: 'path',
-  path,
-})
-
-export const functionFormula = (
-  name: string,
-  formula?: Omit<Partial<FunctionOperation>, 'type' | 'name'>,
-): FunctionOperation => ({
-  type: 'function',
-  name,
-  package: formula?.package,
-  arguments: formula?.arguments ?? [],
-  variableArguments: formula?.variableArguments,
-})
 
 export function* getFormulasInFormula<Handler>({
   formula,

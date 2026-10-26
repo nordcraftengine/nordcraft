@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'bun:test'
 import type { ObjectOperation } from './formula'
-import { valueFormula } from './formulaUtils'
 import { applyObjectFormula } from './objectFormula'
 import {
   createTestFormulaContext,
   createTestFormulaContextForAllPaths,
 } from './testUtils.test'
+import { valueFormula } from './valueFormula'
 
 describe('applyObjectFormula', () => {
   it('returns an object with evaluated values', () => {

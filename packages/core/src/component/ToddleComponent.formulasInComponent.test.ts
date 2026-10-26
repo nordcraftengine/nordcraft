@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import { functionFormula, valueFormula } from '../formula/formulaUtils'
+import { functionFormula } from '../formula/functionFormula.helper'
+import { valueFormula } from '../formula/valueFormula'
 import { ToddleComponent } from './ToddleComponent'
 import { HeadTagTypes, type Component } from './component.types'
 

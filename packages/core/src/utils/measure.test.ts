@@ -78,7 +78,11 @@ describe('measure', () => {
     stop({ extra: 'value' })
 
     const lastCall = measureSpy.mock.calls[0]
-    const properties = lastCall[1].detail.devtools.properties
+    const options = lastCall?.[1]
+    if (typeof options !== 'object' || !options) {
+      throw new Error('Expected measure options object')
+    }
+    const properties = options.detail.devtools.properties
 
     const propsMap = new Map(properties)
     expect(propsMap.get('original')).toBe('value')
@@ -113,14 +117,22 @@ describe('measure', () => {
 
     stop2()
     const childCall = measureSpy.mock.calls[0]
-    const childStack = new Map(childCall[1].detail.devtools.properties).get(
+    const childOptions = childCall?.[1]
+    if (typeof childOptions !== 'object' || !childOptions) {
+      throw new Error('Expected measure options object')
+    }
+    const childStack = new Map(childOptions.detail.devtools.properties).get(
       'Stack',
     )
     expect(childStack).toBe('parent > child')
 
     stop1()
     const parentCall = measureSpy.mock.calls[1]
-    const parentStack = new Map(parentCall[1].detail.devtools.properties).get(
+    const parentOptions = parentCall?.[1]
+    if (typeof parentOptions !== 'object' || !parentOptions) {
+      throw new Error('Expected measure options object')
+    }
+    const parentStack = new Map(parentOptions.detail.devtools.properties).get(
       'Stack',
     )
     expect(parentStack).toBe('parent')

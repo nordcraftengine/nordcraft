@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'bun:test'
 import { applyArrayFormula } from './arrayFormula'
 import type { ArrayOperation } from './formula'
-import { valueFormula } from './formulaUtils'
 import {
   createTestFormulaContext,
   createTestFormulaContextForAllPaths,
 } from './testUtils.test'
+import { valueFormula } from './valueFormula'
 
 describe('applyArrayFormula', () => {
   it('returns an array with evaluated values', () => {
