@@ -1,5 +1,4 @@
 import { createInterface } from 'node:readline'
-
 import {
   getBoolean,
   getNonNegativeInteger,
@@ -14,11 +13,17 @@ import {
 } from '../benchmarks/ssrCases'
 import type {
   ComponentData,
-  FormulaContext,
   PageComponent,
+} from '../packages/core/dist/component/component.types'
+import { isPageComponent } from '../packages/core/dist/component/isPageComponent'
+import type {
+  FormulaContext,
   ToddleServerEnv,
-} from '../packages/core'
-import { applyFormula, isPageComponent, type Formula } from '../packages/core'
+} from '../packages/core/dist/formula/formula'
+import {
+  applyFormula,
+  type Formula,
+} from '../packages/core/dist/formula/formula'
 import { takeIncludedComponents } from '../packages/ssr/dist/components/utils'
 import { renderPageBody } from '../packages/ssr/dist/rendering/components'
 import {

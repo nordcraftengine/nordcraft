@@ -361,7 +361,10 @@ const startWorker = ({
   return {
     run: async (count = 1) => {
       if (!child.stdin.writable || child.stdin.destroyed) {
-        throw new Error('SSR benchmark worker is not running')
+        const exitCode = await waitForExit(1_000)
+        throw new Error(
+          `SSR benchmark worker is not running (${exitCode ?? 'unknown'})${stderr ? `: ${stderr}` : ''}`,
+        )
       }
       child.stdin.write(`${JSON.stringify({ type: 'run', count })}\n`)
       return readResponse()
