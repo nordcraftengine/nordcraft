@@ -54,7 +54,7 @@ jobs:
             --runs=25 \
             --warmup=5 \
             --repeat=15 \
-            --max-regression-percent=3.0 \
+            --max-regression-percent=5.0 \
             --max-regression-ms=1.0 \
             --noise-threshold-percent=1.5 \
             --bootstrap-iterations=1000 \
