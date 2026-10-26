@@ -9,8 +9,7 @@ import type {
 } from '@nordcraft/core'
 import { applyFormula, toBoolean } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
-import type { Signal } from '../signal/signal'
-import { signal } from '../signal/signal'
+import { Signal, signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { getComponent } from '../utils/getComponent'
 import { isStaticFormula } from '../utils/isStaticFormula'
@@ -327,18 +326,19 @@ export function createNode({
         if (existingItem) {
           didExplicitUpdate = true
           newRepeatItems.set(childKey, existingItem)
-          existingItem.dataSignal.update(
-            (data) => ({
-              ...data,
-              ListItem: {
-                ...parentListItemInfo,
-                Item,
-                Index: n,
-                Key,
-              },
-            }),
+          const nextListItem = {
+            ...parentListItemInfo,
+            Item,
+            Index: n,
+            Key,
+          }
+          existingItem.dataSignal.set(
+            {
+              ...existingItem.dataSignal.value,
+              ListItem: nextListItem,
+            },
             // We can skip deep equality check as we know the ListItem object is always a fresh object with potentially new Index/Item.
-            { force: true },
+            Signal.FORCE_UPDATE,
           )
           const existingElements = existingItem.elements
           for (let k = 0; k < existingElements.length; k++) {
@@ -378,14 +378,12 @@ export function createNode({
                 return
               }
 
-              childDataSignal.update(
-                ({ ListItem }) => {
-                  return {
-                    ...data,
-                    ListItem,
-                  }
+              childDataSignal.set(
+                {
+                  ...data,
+                  ListItem: childDataSignal.value.ListItem,
                 },
-                { force: true },
+                Signal.FORCE_UPDATE,
               )
             },
             {
@@ -459,8 +457,30 @@ export function createNode({
       let prevEntries: Array<[string, unknown]> | null = null
       dataSignal.subscribe(
         (data) => {
-          const entries = evaluateRepeatEntries(data)
           const prev = prevEntries
+          if (prev !== null) {
+            const list = applyFormula(
+              node?.repeat,
+              repeatFormulaCtx,
+              data,
+              listPath,
+            )
+            if (Array.isArray(list)) {
+              if (list.length === prev.length) {
+                let unchanged = true
+                for (let i = 0; i < list.length; i++) {
+                  if (list[i] !== prev[i]![1]) {
+                    unchanged = false
+                    break
+                  }
+                }
+                if (unchanged) {
+                  return
+                }
+              }
+            }
+          }
+          const entries = evaluateRepeatEntries(data)
           if (prev !== null && entries.length === prev.length) {
             let unchanged = true
             for (let i = 0; i < entries.length; i++) {

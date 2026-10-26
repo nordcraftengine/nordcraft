@@ -2,7 +2,7 @@ import type { Component, ComponentData } from '@nordcraft/core'
 import { isDefined } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import { providerContextMock } from '../editor/mockProviderContext'
-import type { Signal } from '../signal/signal'
+import { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 
 export function subscribeToContext(
@@ -37,26 +37,41 @@ export function subscribeToContext(
           return
         }
 
+        const initialVal = formulaDataSignal.get()
+        if (componentDataSignal.value.Contexts?.[providerName]) {
+          componentDataSignal.value.Contexts[providerName][formulaName] =
+            initialVal
+        } else {
+          componentDataSignal.value.Contexts = {
+            ...componentDataSignal.value.Contexts,
+            [providerName]: {
+              ...componentDataSignal.value.Contexts?.[providerName],
+              [formulaName]: initialVal,
+            },
+          }
+        }
+
         const unsubscribe = formulaDataSignal.subscribe((value) => {
-          const currentContexts = componentDataSignal.value.Contexts
+          const data = componentDataSignal.value
+          const currentContexts = data.Contexts
           if (currentContexts?.[providerName]?.[formulaName] === value) {
             return
           }
 
-          componentDataSignal.update(
-            (data) => ({
+          componentDataSignal.set(
+            {
               ...data,
               Contexts: {
-                ...data.Contexts,
+                ...currentContexts,
                 [providerName]: {
-                  ...data.Contexts?.[providerName],
+                  ...currentContexts?.[providerName],
                   [formulaName]: value,
                 },
               },
-            }),
+            },
             // We know that the value has changed as we are just forwarding it,
             // so we can safely force the update and skip any subsequent checks for equality
-            { force: true },
+            Signal.FORCE_UPDATE,
           )
         })
         componentDataSignal.subscriptions.push(unsubscribe)

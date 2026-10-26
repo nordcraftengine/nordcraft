@@ -15,19 +15,19 @@ export function createFormulaCache(component: Component): FormulaCache {
   const formulas = component.formulas
   for (const name in formulas) {
     const f = formulas[name]
-    if (!isDefined(f)) {
+    if (!f?.memoize) {
       continue
     }
-    const { canCache, keys } = f.memoize
-      ? getFormulaCacheConfig(f.formula, component)
-      : NO_CACHE
+    const { canCache, keys } = getFormulaCacheConfig(f.formula, component)
+    if (!canCache) {
+      continue
+    }
     let cacheInput: any
     let cacheData: any
 
     cache[name] = {
       get: (data: ComponentData) => {
         if (
-          canCache &&
           cacheInput &&
           keys.every((key) => {
             return get(data, key) === get(cacheInput, key)
@@ -38,20 +38,12 @@ export function createFormulaCache(component: Component): FormulaCache {
         return { hit: false }
       },
       set: (data: ComponentData, result: any) => {
-        if (canCache) {
-          cacheInput = data
-          cacheData = result
-        }
+        cacheInput = data
+        cacheData = result
       },
     }
   }
   return cache
-}
-
-// Shared "not cacheable" config: `keys` is only read, never mutated.
-const NO_CACHE: { canCache: false; keys: Array<Array<string | number>> } = {
-  canCache: false,
-  keys: [],
 }
 
 function getFormulaCacheConfig(formula: Formula, component: Component) {

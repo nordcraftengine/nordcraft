@@ -81,9 +81,7 @@ export function createText({
   if (IS_PREVIEW && ctx.isRootComponent === false) {
     elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
   }
-  if (IS_PREVIEW) {
-    elem.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
-  }
+  elem.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
   if (value.type !== 'value') {
     const valuePath =
       IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
