@@ -71,6 +71,10 @@ import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
 import { applyPreviewResources } from './editor/previewResources'
 import {
+  applyPreviewState,
+  type PreviewStateOverrides,
+} from './editor/previewState'
+import {
   applyPreviewStyle,
   clearSelectedStyleVariant,
   updateSelectedStyleVariant,
@@ -214,6 +218,7 @@ export const createRoot = (
   let altKey = false
   let metaKey = false
   let clearPreviewStyleTimeout: ReturnType<typeof setTimeout> | undefined
+  let previewStateOverrides: PreviewStateOverrides | null | undefined = null
 
   const setupDataSignalSubscribers = () => {
     dataSignal.subscribe((data) => {
@@ -246,6 +251,23 @@ export const createRoot = (
       styleVariantSelection,
       syncOverlayRects: requestSyncOverlayRects,
     })
+  }
+
+  const handleApplyPreviewState = (
+    overrides?: PreviewStateOverrides | null,
+  ) => {
+    previewStateOverrides = overrides
+    applyPreviewState({
+      overrides,
+      component: getCurrentComponent(component, selectedNodeId, mode),
+      components: getAllComponents(),
+      dataSignal,
+      ctx,
+      env,
+      reportFormulaEvaluation,
+      syncOverlayRects: requestSyncOverlayRects,
+    })
+    requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
   }
 
   const handleUpdateSelectedStyleVariant = (variantIndex: number | null) => {
@@ -304,6 +326,9 @@ export const createRoot = (
 
           const switchComponent =
             message.data.component.name !== component?.name
+          if (switchComponent) {
+            previewStateOverrides = null
+          }
           // Re-initialize state, subscribers, signals and ctx when switching component
           // But only if a component was already loaded
           if (switchComponent && component) {
@@ -899,6 +924,10 @@ export const createRoot = (
           requestResizeCanvas(resizeCanvasOptions)
           break
         }
+        case 'preview_state': {
+          handleApplyPreviewState(message.data.state)
+          break
+        }
         case 'capture_screenshot': {
           await captureScreenshot(message.data)
           break
@@ -950,7 +979,10 @@ export const createRoot = (
     if (
       fastDeepEqual(ctx?.component.attributes, _component.attributes) === false
     ) {
-      Attributes = getAttributeTestValues(_component.attributes)
+      Attributes = {
+        ...getAttributeTestValues(_component.attributes),
+        ...(previewStateOverrides?.attributes ?? {}),
+      }
     }
     if (
       _component.route &&
@@ -959,6 +991,14 @@ export const createRoot = (
       // Subscribe to the route signal so we can preview URL parameter changes in the editor
       routeSignal?.destroy()
       if (_component.route) {
+        const routeParams = {
+          ...getRouteParams(_component.route),
+          ...((previewStateOverrides?.path as Record<string, string>) ?? {}),
+        }
+        const routeQuery = {
+          ...getRouteQuery(_component.route),
+          ...((previewStateOverrides?.query as Record<string, string>) ?? {}),
+        }
         // Populate initial URL parameters with test data
         window.toddle.locationSignal.update((location) => {
           if (!_component.route) return location
@@ -966,8 +1006,8 @@ export const createRoot = (
           return {
             ...location,
             route: _component.route,
-            params: getRouteParams(_component.route),
-            query: getRouteQuery(_component.route),
+            params: routeParams,
+            query: routeQuery,
           }
         })
 
@@ -987,7 +1027,10 @@ export const createRoot = (
         )
       }
 
-      Attributes = getAttributeTestValues(_component.attributes)
+      Attributes = {
+        ...getAttributeTestValues(_component.attributes),
+        ...(previewStateOverrides?.attributes ?? {}),
+      }
     }
     if (
       fastDeepEqual(
@@ -1010,7 +1053,10 @@ export const createRoot = (
         { Attributes },
       )
     }
-    if (fastDeepEqual(_component.contexts, ctx?.component.contexts) === false) {
+    if (
+      fastDeepEqual(_component.contexts, ctx?.component.contexts) === false ||
+      previewStateOverrides?.contexts
+    ) {
       Contexts = createStaticContextFromComponent(
         _component,
         getAllComponents(),
@@ -1018,25 +1064,29 @@ export const createRoot = (
           root: ctx?.root,
           package: ctx?.package,
           env,
+          contextOverrides: previewStateOverrides?.contexts,
         },
       )
     }
     if (
       fastDeepEqual(_component.variables, ctx?.component.variables) === false
     ) {
-      Variables = getVariableInitialValues(
-        _component.variables,
-        {
-          component: _component,
-          root: document,
-          package: ctx?.package,
-          toddle: window.toddle,
-          env,
-          jsonPath: ctx?.jsonPath,
-          reportFormulaEvaluation,
-        },
-        { Attributes, Contexts },
-      )
+      Variables = {
+        ...getVariableInitialValues(
+          _component.variables,
+          {
+            component: _component,
+            root: document,
+            package: ctx?.package,
+            toddle: window.toddle,
+            env,
+            jsonPath: ctx?.jsonPath,
+            reportFormulaEvaluation,
+          },
+          { Attributes, Contexts },
+        ),
+        ...(previewStateOverrides?.variables ?? {}),
+      }
     }
 
     dataSignal.update((data) => {

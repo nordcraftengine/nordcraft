@@ -31,10 +31,12 @@ import {
 } from '@nordcraft/core/dist/utils/collections'
 import { isDefined } from '@nordcraft/core/dist/utils/util'
 
-export const removeTestData = (component: Component): Component =>
-  removeOptionalPropertiesIfEmpty<Component>(
+export const removeTestData = (component: Component): Component => {
+  const { testScenarios: _testScenarios, ...componentWithoutTestScenarios } =
+    component
+  return removeOptionalPropertiesIfEmpty<Component>(
     {
-      ...component,
+      ...componentWithoutTestScenarios,
       attributes: mapObject(
         filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
           component.attributes ?? {},
@@ -165,8 +167,10 @@ export const removeTestData = (component: Component): Component =>
       'onAttributeChange',
       'exported',
       'customElement',
+      'testScenarios',
     ],
   )
+}
 
 const processNodes = (
   nodes: Component['nodes'],

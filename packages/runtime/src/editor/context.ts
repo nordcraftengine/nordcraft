@@ -45,6 +45,7 @@ export function createStaticContextFromComponent(
     env: ToddleEnv
     contextProvidersCreated?: Set<string>
     componentMap?: Map<string, Component>
+    contextOverrides?: Record<string, Nullable<string>> | null
   },
 ): Record<string, Record<string, unknown>> {
   const contextProvidersCreated =
@@ -66,8 +67,23 @@ export function createStaticContextFromComponent(
       return [providerName, {}]
     }
 
+    const scenarioKey = options.contextOverrides?.[providerName]
+    const scenario = scenarioKey
+      ? providerComponent.testScenarios?.[scenarioKey]
+      : null
+
+    let providerAttributes = getAttributeTestValues(
+      providerComponent.attributes,
+    )
+    if (scenario?.attributes) {
+      providerAttributes = {
+        ...providerAttributes,
+        ...scenario.attributes,
+      }
+    }
+
     const data: ComponentData = {
-      Attributes: getAttributeTestValues(providerComponent.attributes),
+      Attributes: providerAttributes,
       // Recursively resolve contexts providers before their children to build up the fake context tree in preview mode
       Contexts: createStaticContextFromComponent(
         providerComponent,
@@ -95,9 +111,17 @@ export function createStaticContextFromComponent(
     // Exposed formulas can derive their preview output from URL data,
     // so we must populate Url parameters with their test data
     if (providerComponent.route) {
-      data['URL parameters'] = getRouteTestValues(providerComponent.route)
+      let urlParams = getRouteTestValues(providerComponent.route)
+      if (scenario?.path || scenario?.query) {
+        urlParams = {
+          ...urlParams,
+          ...((scenario?.path as Record<string, string>) ?? {}),
+          ...((scenario?.query as Record<string, string>) ?? {}),
+        }
+      }
+      data['URL parameters'] = urlParams
     }
-    data.Variables = mapObject(
+    let providerVariables = mapObject(
       filterObject<Nullable<ComponentVariable>, ComponentVariable>(
         providerComponent.variables ?? {},
         ([_, variable]) => isDefined(variable),
@@ -110,6 +134,13 @@ export function createStaticContextFromComponent(
         ]),
       ],
     )
+    if (scenario?.variables) {
+      providerVariables = {
+        ...providerVariables,
+        ...scenario.variables,
+      }
+    }
+    data.Variables = providerVariables
 
     return [
       providerName,
