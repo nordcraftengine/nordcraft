@@ -10,17 +10,6 @@ on:
       - 'package.json'
       - 'bun.lock'
       - '.github/workflows/e2e.yml'
-  push:
-    branches:
-      - main
-    paths:
-      - 'packages/core/**'
-      - 'packages/lib/**'
-      - 'packages/runtime/**'
-      - 'tests/e2e/**'
-      - 'package.json'
-      - 'bun.lock'
-      - '.github/workflows/e2e.yml'
 
 # This allows a subsequently queued workflow run to interrupt previous runs
 concurrency:
@@ -42,7 +31,9 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Build
         run: bun run build
+      - name: Install Playwright dependencies
+        run: cd tests/e2e && bun install --frozen-lockfile
       - name: Install Playwright browser
         run: bunx playwright install --with-deps chromium
       - name: Run E2E tests
-        run: bun run test:e2e
+        run: cd tests/e2e && bun run test:e2e
