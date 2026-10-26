@@ -31,8 +31,7 @@ export const animatedStyleNotInThemeRule: IssueRule = {
     for (const prop of animatedProperties) {
       if (
         !(themeProperties[prop as `--${string}`] as
-          | CustomPropertyDefinition
-          | undefined)
+          CustomPropertyDefinition | undefined)
       ) {
         report({
           path: [...path, 'style', prop],

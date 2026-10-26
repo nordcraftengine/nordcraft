@@ -321,8 +321,7 @@ export const createRoot = (
             clearPreviewStyleTimeout = undefined
           }
           let scrollStateRestorer:
-            | ReturnType<typeof getScrollStateRestorer>
-            | undefined
+            ReturnType<typeof getScrollStateRestorer> | undefined
 
           const switchComponent =
             message.data.component.name !== component?.name
