@@ -1,4 +1,4 @@
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
+import { ToddleComponent } from '@nordcraft/core'
 import type { ComponentFormulaNode, IssueRule } from '../../../types'
 import { getFormulasInComponent } from '../../../util/componentTraversal'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'

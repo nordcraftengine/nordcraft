@@ -17,15 +17,15 @@ import { median } from '../benchmarks/stats'
 import type {
   ComponentFormula,
   ComponentWorkflow,
+  Formula,
   WorkflowActionModel,
-} from '../packages/core/dist/component/component.types'
-import type { Formula } from '../packages/core/dist/formula/formula'
+} from '../packages/core'
 import { fixProject } from '../packages/search/src/fixProject'
 import { namedComponentFormulaRule } from '../packages/search/src/rules/issues/formulas/namedComponentFormulaRule'
 import { ISSUE_RULES } from '../packages/search/src/rules/issues/issueRules.index'
 import { namedComponentWorkflowRule } from '../packages/search/src/rules/issues/workflows/namedComponentWorkflowRule'
 import { searchProject } from '../packages/search/src/searchProject'
-import type { ProjectFiles } from '../packages/ssr/dist/ssr.types'
+import type { ProjectFiles } from '../packages/ssr'
 
 type BenchmarkRunner = () => Promise<void> | void
 

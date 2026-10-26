@@ -1,4 +1,4 @@
-import type { CustomActionModel } from '@nordcraft/core/dist/component/component.types'
+import type { CustomActionModel } from '@nordcraft/core'
 import type { ActionModelNode, IssueRule } from '../../../types'
 import { isLegacyAction } from '../../../util/helpers'
 import { replaceLegacyAction } from './legacyActionRule.fix'

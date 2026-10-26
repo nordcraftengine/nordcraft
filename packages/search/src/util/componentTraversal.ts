@@ -1,6 +1,4 @@
-import type { ActionModel } from '@nordcraft/core/dist/component/component.types'
-import type { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { Formula } from '@nordcraft/core/dist/formula/formula'
+import type { ActionModel, Formula, ToddleComponent } from '@nordcraft/core'
 import type { MemoFn } from '../types'
 
 export interface ComponentFormulaEntry {

@@ -1,6 +1,5 @@
-import type { CustomProperty } from '@nordcraft/core/dist/component/component.types'
-import type { CustomPropertyDefinition } from '@nordcraft/core/dist/styling/theme'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { CustomProperty, CustomPropertyDefinition } from '@nordcraft/core'
+import { isDefined } from '@nordcraft/core'
 import type { FixFunction, IssueRule, StyleNode } from '../../../types'
 
 const REGEX = /var\(\s*(--[\w-]+)/g

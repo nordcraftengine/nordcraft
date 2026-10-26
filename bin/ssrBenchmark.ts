@@ -14,17 +14,11 @@ import {
 } from '../benchmarks/ssrCases'
 import type {
   ComponentData,
-  PageComponent,
-} from '../packages/core/dist/component/component.types'
-import { isPageComponent } from '../packages/core/dist/component/isPageComponent'
-import type {
   FormulaContext,
+  PageComponent,
   ToddleServerEnv,
-} from '../packages/core/dist/formula/formula'
-import {
-  applyFormula,
-  type Formula,
-} from '../packages/core/dist/formula/formula'
+} from '../packages/core'
+import { applyFormula, isPageComponent, type Formula } from '../packages/core'
 import { takeIncludedComponents } from '../packages/ssr/dist/components/utils'
 import { renderPageBody } from '../packages/ssr/dist/rendering/components'
 import {

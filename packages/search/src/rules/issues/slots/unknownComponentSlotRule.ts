@@ -1,5 +1,5 @@
-import { ToddleComponent } from '@nordcraft/core/dist/component/ToddleComponent'
-import type { SlotNodeModel } from '@nordcraft/core/dist/component/component.types'
+import type { SlotNodeModel } from '@nordcraft/core'
+import { ToddleComponent } from '@nordcraft/core'
 import type { ComponentNodeNode, IssueRule } from '../../../types'
 
 export const unknownComponentSlotRule: IssueRule<

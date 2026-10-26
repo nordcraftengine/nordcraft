@@ -1,5 +1,5 @@
-import type { RouteDeclaration } from '@nordcraft/core/dist/component/component.types'
-import { isPageComponent } from '@nordcraft/core/dist/component/isPageComponent'
+import type { RouteDeclaration } from '@nordcraft/core'
+import { isPageComponent } from '@nordcraft/core'
 import type { ComponentNode, IssueRule } from '../../../types'
 
 export const duplicateRouteRule: IssueRule<

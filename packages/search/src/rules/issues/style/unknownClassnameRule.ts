@@ -1,4 +1,4 @@
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { isDefined } from '@nordcraft/core'
 import type { IssueRule, StyleVariantNode } from '../../../types'
 
 export const unknownClassnameRule: IssueRule<

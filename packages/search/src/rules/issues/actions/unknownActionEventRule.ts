@@ -1,4 +1,4 @@
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import { isDefined } from '@nordcraft/core'
 import type { CustomActionModelEventNode, IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 

@@ -1,5 +1,4 @@
-import type { ComponentWorkflow } from '@nordcraft/core/dist/component/component.types'
-import type { Nullable } from '@nordcraft/core/dist/types'
+import type { ComponentWorkflow, Nullable } from '@nordcraft/core'
 import type { ActionModelNode, IssueRule } from '../../../types'
 
 export const unknownTriggerWorkflowParameterRule: IssueRule<

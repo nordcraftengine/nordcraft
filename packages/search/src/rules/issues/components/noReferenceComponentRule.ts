@@ -1,5 +1,5 @@
-import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { isDefined } from '@nordcraft/core/dist/utils/util'
+import type { Component } from '@nordcraft/core'
+import { isDefined } from '@nordcraft/core'
 import type { ComponentNode, IssueRule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'

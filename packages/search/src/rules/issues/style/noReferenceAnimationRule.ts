@@ -1,5 +1,4 @@
-import type { NodeStyleModel } from '@nordcraft/core/dist/component/component.types'
-import type { Nullable } from '@nordcraft/core/dist/types'
+import type { NodeStyleModel, Nullable } from '@nordcraft/core'
 import type { AnimationNode, IssueRule } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 

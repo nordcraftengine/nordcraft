@@ -1,4 +1,4 @@
-import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
+import type { ProjectFiles } from '@nordcraft/ssr'
 import { describe, expect, test } from 'bun:test'
 import { create } from 'jsondiffpatch'
 import { fixProblems } from './fixProblems'

@@ -1,4 +1,4 @@
-import type { PluginActionV2 } from '@nordcraft/core/dist/types'
+import type { PluginActionV2 } from '@nordcraft/core'
 import type { IssueRule, ProjectPackageNode } from '../../../types'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 import { projectActionIsReferenced } from '../actions/projectActionIsReferenced.memo'
