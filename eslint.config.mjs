@@ -94,9 +94,9 @@ export default defineConfig([
   },
   {
     files: [
-      'packages/core/**/*.ts',
+      // 'packages/core/**/*.ts',
       'packages/runtime/**/*.ts',
-      'packages/ssr/**/*.ts',
+      // 'packages/ssr/**/*.ts',
     ],
     ignores: [
       '**/*.test.ts',
