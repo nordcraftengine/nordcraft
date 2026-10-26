@@ -16,6 +16,7 @@ This repository holds different packages that are used internally by the Nordcra
 - [ssr](https://www.npmjs.com/package/@nordcraft/ssr) 👈 holds server-side rendering, HTML generation, and routing logic
 - [lib](https://www.npmjs.com/package/@nordcraft/std-lib) 👈 holds all builtin [formulas](https://docs.nordcraft.com/formulas/overview#the-formula-editor) and [actions](https://docs.nordcraft.com/the-editor/data-panel#workflows) used by the runtime and during SSR
 - [search](https://www.npmjs.com/package/@nordcraft/search) 👈 holds all issue rules, validators, and search functionality for traversing a Nordcraft project
+- [schemas](https://www.npmjs.com/package/@nordcraft/schemas) 👈 holds validation schemas (powered by Valibot) for components, pages, workflows, and actions
 - [css-parser](packages/css-parser) 👈 the CSS parser used in the Nordcraft editor to power the style panel
 - [backend](packages/backend) 👈 full server runtime implementation using Hono, supporting Cloudflare Workers, Node.js, and Bun for serving and self-hosting Nordcraft applications
 - [editor](packages/editor) 👈 shared editor interfaces, element definitions, and WebRef schemas
@@ -24,6 +25,7 @@ All published packages support clean ESM imports directly from their package roo
 
 ```ts
 import { applyFormula } from '@nordcraft/core'
+import { ComponentSchema } from '@nordcraft/schemas'
 import { renderPageBody } from '@nordcraft/ssr'
 import { actions, formulas } from '@nordcraft/std-lib'
 import { findProblems } from '@nordcraft/search'
@@ -108,6 +110,7 @@ We're currently working on moving more of the server-side rendering logic into t
 The dependencies between the packages are as follows:
 
 - `core` is a dependency for all other packages
+- `schemas` is a dependency for `search`
 - `ssr` is a dependency for `search` and `backend`
 - `std-lib` is a dependency for `runtime`, `ssr`, and `backend`
 - `runtime` assets are synced and served by `backend`
