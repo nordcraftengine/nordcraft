@@ -7,10 +7,10 @@
     "watch": "tsgo --noEmit -w"
   },
   "dependencies": {
-    "hono": "4.12.28"
+    "hono": "4.13.14"
   },
   "devDependencies": {
-    "@types/node": "24.0.3",
-    "@typescript/native-preview": "7.0.0-dev.20251204.1"
+    "@types/node": "26.6.5",
+    "typescript": "7.0.2"
   }
 }
