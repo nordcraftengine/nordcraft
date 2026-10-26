@@ -14,6 +14,7 @@ COPY packages/editor/package.json ./packages/editor/
 COPY packages/css-parser/package.json ./packages/css-parser/
 COPY packages/lib/package.json ./packages/lib/
 COPY packages/runtime/package.json ./packages/runtime/
+COPY packages/schemas/package.json ./packages/schemas/
 COPY packages/search/package.json ./packages/search/
 COPY packages/ssr/package.json ./packages/ssr/
 COPY packages/backend/dist/ ./packages/backend/dist/

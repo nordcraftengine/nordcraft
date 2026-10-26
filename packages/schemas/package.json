@@ -1,0 +1,41 @@
+{
+  "name": "@nordcraft/schemas",
+  "description": "Validation schemas for Nordcraft components and pages.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/nordcraftengine/nordcraft",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nordcraftengine/nordcraft.git",
+    "directory": "packages/schemas"
+  },
+  "dependencies": {
+    "@nordcraft/core": "workspace:*",
+    "valibot": "1.5.0"
+  },
+  "scripts": {
+    "build": "tsgo",
+    "npm-publish": "bun run build && bun publish --access public",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "typecheck": "bun check",
+    "watch": "tsgo -w"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  }
+}

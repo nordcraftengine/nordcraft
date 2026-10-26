@@ -1,5 +1,5 @@
+import type { ComponentEvent, EventModel } from '@nordcraft/core'
 import * as v from 'valibot'
-import type { ComponentEvent, EventModel } from '../component.types'
 import { ActionModelSchema } from './action-schema'
 import { MetadataSchema, SCHEMA_DESCRIPTIONS } from './valibot-schemas'
 

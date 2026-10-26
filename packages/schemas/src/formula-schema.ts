@@ -1,8 +1,8 @@
-import * as v from 'valibot'
 import type {
   AndOperation,
   ApplyOperation,
   ArrayOperation,
+  ComponentFormula,
   Formula,
   FunctionArgument,
   FunctionOperation,
@@ -13,8 +13,8 @@ import type {
   SwitchOperation,
   ValueOperation,
   ValueOperationValue,
-} from '../../formula/formula'
-import type { ComponentFormula } from '../component.types'
+} from '@nordcraft/core'
+import * as v from 'valibot'
 import { MetadataSchema, SCHEMA_DESCRIPTIONS } from './valibot-schemas'
 
 // Value Operation

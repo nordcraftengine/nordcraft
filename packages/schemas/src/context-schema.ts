@@ -1,5 +1,5 @@
+import type { ComponentContext } from '@nordcraft/core'
 import * as v from 'valibot'
-import type { ComponentContext } from '../component.types'
 
 export const ComponentContextSchema: v.GenericSchema<
   unknown,

@@ -26,6 +26,7 @@ export default defineConfig([
   },
   {
     ignores: [
+      '**/.worktrees/**',
       '**/node_modules/',
       '**/*.js',
       '**/dist/',

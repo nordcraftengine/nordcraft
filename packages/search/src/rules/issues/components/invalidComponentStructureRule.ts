@@ -1,5 +1,5 @@
 import { get } from '@nordcraft/core'
-import { ShallowComponentSchema } from '@nordcraft/core/component/schemas/component-schema'
+import { ShallowComponentSchema } from '@nordcraft/schemas'
 import * as v from 'valibot'
 import type {
   ComponentNode,
