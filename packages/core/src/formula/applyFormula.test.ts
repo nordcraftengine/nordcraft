@@ -7,8 +7,8 @@ import {
   type ApplyOperation,
   type FormulaContext,
 } from './formula'
-import { valueFormula } from './formulaUtils'
 import { createTestFormulaContext } from './testUtils.test'
+import { valueFormula } from './valueFormula'
 
 describe('applyApplyFormula', () => {
   it('applies a simple value formula from the component', () => {

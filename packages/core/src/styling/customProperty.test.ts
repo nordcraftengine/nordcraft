@@ -52,33 +52,34 @@ describe('renderSyntaxDefinition()', () => {
   })
 
   test('it solves var(--...) references', () => {
-    const themes: Record<string, Theme> = {
-      default: {
-        fonts: [],
-        propertyDefinitions: {
-          '--my-property': {
-            syntax: { type: 'primitive', name: 'color' },
-            description: '',
-            inherits: true,
-            initialValue: 'var(--primary-color)',
-            values: { default: 'rebeccapurple' },
-          },
-          '--primary-color': {
-            syntax: { type: 'primitive', name: 'color' },
-            description: '',
-            inherits: true,
-            initialValue: 'var(--red-500)',
-            values: { default: 'rebeccapurple' },
-          },
-          '--red-500': {
-            syntax: { type: 'primitive', name: 'color' },
-            description: '',
-            inherits: true,
-            initialValue: '#f00',
-            values: { default: 'rebeccapurple' },
-          },
+    const defaultTheme: Theme = {
+      fonts: [],
+      propertyDefinitions: {
+        '--my-property': {
+          syntax: { type: 'primitive', name: 'color' },
+          description: '',
+          inherits: true,
+          initialValue: 'var(--primary-color)',
+          values: { default: 'rebeccapurple' },
+        },
+        '--primary-color': {
+          syntax: { type: 'primitive', name: 'color' },
+          description: '',
+          inherits: true,
+          initialValue: 'var(--red-500)',
+          values: { default: 'rebeccapurple' },
+        },
+        '--red-500': {
+          syntax: { type: 'primitive', name: 'color' },
+          description: '',
+          inherits: true,
+          initialValue: '#f00',
+          values: { default: 'rebeccapurple' },
         },
       },
+    }
+    const themes = {
+      default: defaultTheme,
     }
 
     expect(
@@ -93,19 +94,20 @@ describe('renderSyntaxDefinition()', () => {
   })
 
   test('it renders a fallback initial-value on broken references', () => {
-    const themes: Record<string, Theme> = {
-      default: {
-        fonts: [],
-        propertyDefinitions: {
-          '--my-property': {
-            syntax: { type: 'primitive', name: 'color' },
-            description: '',
-            inherits: true,
-            initialValue: 'var(--unknown-color)',
-            values: { default: 'rebeccapurple' },
-          },
+    const defaultTheme: Theme = {
+      fonts: [],
+      propertyDefinitions: {
+        '--my-property': {
+          syntax: { type: 'primitive', name: 'color' },
+          description: '',
+          inherits: true,
+          initialValue: 'var(--unknown-color)',
+          values: { default: 'rebeccapurple' },
         },
       },
+    }
+    const themes = {
+      default: defaultTheme,
     }
 
     expect(

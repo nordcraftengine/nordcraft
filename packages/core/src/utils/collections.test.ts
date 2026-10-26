@@ -58,7 +58,7 @@ describe('sortObjectEntries()', () => {
 describe('omitPaths()', () => {
   test('it filters out paths from an object', () => {
     expect(
-      omitPaths(
+      omitPaths<Record<string, unknown>>(
         {
           a: 'value',
           b: {

@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'bun:test'
 import { applyFormula, type SwitchOperation } from './formula'
-import { valueFormula } from './formulaUtils'
 import {
   applyEvaluateAllSwitchFormula,
   applySwitchFormula,
@@ -9,6 +8,7 @@ import {
   createTestFormulaContext,
   createTestFormulaContextForAllPaths,
 } from './testUtils.test'
+import { valueFormula } from './valueFormula'
 
 describe('applySwitchFormula', () => {
   it('returns the first matching case value', () => {

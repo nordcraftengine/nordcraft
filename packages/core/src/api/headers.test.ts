@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test'
 import { mapHeadersToObject } from './headers'
 
 describe('mapHeadersToObject()', () => {

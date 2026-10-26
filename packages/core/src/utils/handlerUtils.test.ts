@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test'
 import { safeFunctionName } from './handlerUtils'
 
 describe('safeFunctionName', () => {

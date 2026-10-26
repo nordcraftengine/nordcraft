@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'bun:test'
 import type { VariableActionModel } from '../component/component.types'
 import type { GlobalFormulas } from '../formula/formulaTypes'
-import { pathFormula, valueFormula } from '../formula/formulaUtils'
+import { pathFormula } from '../formula/pathFormula.helper'
+import { valueFormula } from '../formula/valueFormula'
 import { ToddleApiV2 } from './ToddleApiV2'
 import type { ApiRequest } from './apiTypes'
 import { ApiMethod } from './apiTypes'
@@ -163,15 +164,17 @@ describe('ToddleApiV2', () => {
 
     expect(formulaList).toContain(apiWithBody.autoFetch!)
     expect(formulaList).toContain(apiWithBody.url!)
-    expect(formulaList).toContain(apiWithBody.inputs.id.formula!)
-    expect(formulaList).toContain(apiWithBody.headers!['Content-Type'].formula)
-    expect(formulaList).toContain(apiWithBody.path!.node.formula)
-    expect(formulaList).toContain(apiWithBody.queryParams!.q.formula)
-    expect(formulaList).toContain(apiWithBody.queryParams!.q.enabled!)
+    expect(formulaList).toContain(apiWithBody.inputs['id']!.formula!)
+    expect(formulaList).toContain(apiWithBody.headers!['Content-Type']!.formula)
+    expect(formulaList).toContain(apiWithBody.path!['node']!.formula)
+    expect(formulaList).toContain(apiWithBody.queryParams!['q']!.formula)
+    expect(formulaList).toContain(apiWithBody.queryParams!['q']!.enabled!)
     expect(formulaList).toContain(apiWithBody.body!)
     expect(formulaList).toContain(apiWithBody.client!.debounce!.formula!)
-    expect(formulaList).toContain(apiWithBody.redirectRules!.rule1.formula)
-    expect(formulaList).toContain(apiWithBody.redirectRules!.rule1.statusCode!)
+    expect(formulaList).toContain(apiWithBody.redirectRules!['rule1']!.formula)
+    expect(formulaList).toContain(
+      apiWithBody.redirectRules!['rule1']!.statusCode!,
+    )
     expect(formulaList).toContain(apiWithBody.isError!.formula)
     expect(formulaList).toContain(apiWithBody.timeout!.formula)
     expect(formulaList).toContain(apiWithBody.server!.proxy!.enabled.formula)
@@ -183,7 +186,7 @@ describe('ToddleApiV2', () => {
     // Check if it yields from actions as well
     const firstAction = apiWithBody.client!.onCompleted!.actions?.at(0)
     const actionFormula = (firstAction as VariableActionModel).data
-    expect(formulaList).toContain(actionFormula)
+    expect(formulaList).toContain(actionFormula!)
   })
 
   test('formulasInApi skips body for GET requests', () => {

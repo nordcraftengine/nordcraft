@@ -1,5 +1,6 @@
 import { describe, expect, it, test } from 'bun:test'
-import { pathFormula, valueFormula } from '../formula/formulaUtils'
+import { pathFormula } from '../formula/pathFormula.helper'
+import { valueFormula } from '../formula/valueFormula'
 import {
   createApiRequest,
   getRequestBody,
