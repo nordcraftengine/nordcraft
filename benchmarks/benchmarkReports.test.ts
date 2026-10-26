@@ -120,16 +120,33 @@ describe('benchmark PR comments collapse to a one-liner when 1:1', () => {
       bootstrapIterations: 1000,
       bootstrapSeed: 0,
       timeVerdict: 'ok',
+      baseHeapMedianKb: 100,
+      headHeapMedianKb: 100,
+      deltaHeapKb: 0,
+      deltaHeapPercent: 0,
+      heapVerdict: 'ok',
     }
     const clean = [
-      { ...base, timeStatus: '1:1' },
-      { ...base, timeStatus: 'stable' },
+      { ...base, timeStatus: '1:1', heapStatus: '1:1' },
+      { ...base, timeStatus: 'stable', heapStatus: 'stable' },
     ]
     expect(isSsrClean(clean)).toBe(true)
     expect(isSsrClean([])).toBe(false)
-    expect(isSsrClean([{ timeStatus: 'regression' }])).toBe(false)
-    expect(isSsrClean([{ timeStatus: 'improvement' }])).toBe(false)
-    expect(isSsrClean([{ timeStatus: 'inconclusive' }])).toBe(false)
+    expect(isSsrClean([{ timeStatus: 'regression', heapStatus: '1:1' }])).toBe(
+      false,
+    )
+    expect(isSsrClean([{ timeStatus: 'improvement', heapStatus: '1:1' }])).toBe(
+      false,
+    )
+    expect(
+      isSsrClean([{ timeStatus: 'inconclusive', heapStatus: '1:1' }]),
+    ).toBe(false)
+    expect(isSsrClean([{ timeStatus: '1:1', heapStatus: 'regression' }])).toBe(
+      false,
+    )
+    expect(isSsrClean([{ timeStatus: '1:1', heapStatus: 'improvement' }])).toBe(
+      false,
+    )
 
     const markdown = renderSsrMarkdown({ config, results: clean as never })
     expect(markdown).toBe(SSR_CLEAN_MARKDOWN)
@@ -140,6 +157,21 @@ describe('benchmark PR comments collapse to a one-liner when 1:1', () => {
       results: [{ ...base, timeStatus: 'regression' }] as never,
     })
     expect(noisy.split('\n').length).toBeGreaterThan(1)
+    expect(noisy).toContain('Base/Head heap')
+
+    const heapRegression = renderSsrMarkdown({
+      config,
+      results: [
+        {
+          ...base,
+          timeStatus: 'stable',
+          heapStatus: 'regression',
+          heapVerdict: '⚠️ +12.0% (+1.00 MB)',
+        },
+      ] as never,
+    })
+    expect(heapRegression.split('\n').length).toBeGreaterThan(1)
+    expect(heapRegression).toContain('⚠️ +12.0% (+1.00 MB)')
   })
 
   test('Issues benchmark renders one line for 1:1/stable', () => {

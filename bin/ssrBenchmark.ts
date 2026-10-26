@@ -39,9 +39,14 @@ type BenchmarkProject = {
 
 type BenchmarkRunner = () => Promise<void>
 
+type BenchmarkSample = {
+  timeMs: number
+  heapDeltaKb: number
+}
+
 type WorkerRequest = { type: 'close' } | { type: 'run'; count?: number }
 
-type WorkerResponse = { timeMs: number } | { error: string }
+type WorkerResponse = BenchmarkSample | { error: string }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
@@ -424,13 +429,29 @@ const collectGarbage = () => {
   }
 }
 
-const measure = async (runner: BenchmarkRunner, repeat: number, count = 1) => {
+const measure = async (
+  runner: BenchmarkRunner,
+  repeat: number,
+  count = 1,
+): Promise<BenchmarkSample> => {
   collectGarbage()
+  const heapBefore = process.memoryUsage().heapUsed
   const start = performance.now()
   for (let i = 0; i < count * repeat; i++) {
     await runner()
   }
-  return (performance.now() - start) / (count * repeat)
+  const timeMs = (performance.now() - start) / (count * repeat)
+  // Bun only refreshes the used heap size when the GC runs, so collect before
+  // reading it. This measures the heap retained by the benchmark execution.
+  collectGarbage()
+  const heapAfter = process.memoryUsage().heapUsed
+  return {
+    timeMs,
+    heapDeltaKb: Math.max(
+      0,
+      (heapAfter - heapBefore) / 1024 / (count * repeat),
+    ),
+  }
 }
 
 const writeWorkerResponse = (response: WorkerResponse) => {
@@ -474,7 +495,7 @@ const runWorker = async (runner: BenchmarkRunner, repeat: number) => {
       if (!Number.isInteger(count) || count < 1) {
         throw new Error('Worker run count must be a positive integer')
       }
-      writeWorkerResponse({ timeMs: await measure(runner, repeat, count) })
+      writeWorkerResponse(await measure(runner, repeat, count))
     } catch (error) {
       writeWorkerResponse({
         error: error instanceof Error ? error.message : String(error),
@@ -489,13 +510,17 @@ const runDirect = async (runner: BenchmarkRunner, options: SsrArgs) => {
   }
 
   const timesMs: number[] = []
+  const heapsKb: number[] = []
   for (let i = 0; i < options.runs; i++) {
-    timesMs.push(await measure(runner, options.repeat))
+    const sample = await measure(runner, options.repeat)
+    timesMs.push(sample.timeMs)
+    heapsKb.push(sample.heapDeltaKb)
   }
   const result = {
     caseId: options.caseId,
     repeat: options.repeat,
     timesMs,
+    heapsKb,
   }
 
   if (options.outputPath) {

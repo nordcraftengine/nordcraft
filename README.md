@@ -47,6 +47,9 @@ interleaved samples using the same statistics and verdicts as the runtime benchm
   - `ssr.renderPageBody (example project HomePage)`
 - Samples are reported as milliseconds per operation. `--repeat` controls how many
   case executions are included in each measured sample.
+- Heap usage is reported alongside timing. The worker forces garbage collection before
+  and after each sample and records the retained process heap delta per execution, so
+  regressions and improvements are shown next to the timing verdict.
 - Reports contain median/IQR values, a 95% bootstrap confidence interval, a Welch
   p-value, and a shared regression verdict.
 - A regression is reported only when it is statistically significant and exceeds both
