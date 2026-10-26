@@ -17,7 +17,7 @@ import {
   mapHeadersToObject,
   mapValues,
 } from '@nordcraft/core'
-import * as libFormulas from '@nordcraft/std-lib/lib'
+import * as libFormulas from '@nordcraft/std-lib/formulas'
 import { getPathSegments } from '../routing/routing'
 import type { InstalledPackage, ProjectFiles } from '../ssr.types'
 import { getRequestCookies } from './cookies'
@@ -107,7 +107,7 @@ export const getServerToddleObject = (
   const coreFormulas = Object.fromEntries(
     Object.entries(libFormulas).map(([name, module]) => [
       '@toddle/' + name,
-      (module as any).default as any,
+      module.default as any,
     ]),
   )
   return {
