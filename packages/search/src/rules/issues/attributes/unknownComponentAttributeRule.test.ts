@@ -1,5 +1,5 @@
 import type { ComponentNodeModel } from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
 import type { ProjectFiles } from '@nordcraft/ssr/dist/ssr.types'
 import { describe, expect, test } from 'bun:test'
 import { fixProject } from '../../../fixProject'

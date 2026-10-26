@@ -5,7 +5,7 @@ import type {
   FormulaContext,
   ToddleServerEnv,
 } from '@nordcraft/core/dist/formula/formula'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
 import { beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import { evaluateComponentApis, RedirectError } from './api'
 

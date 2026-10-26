@@ -1,8 +1,6 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import {
-  pathFormula,
-  valueFormula,
-} from '@nordcraft/core/dist/formula/formulaUtils'
+import { pathFormula } from '@nordcraft/core/dist/formula/pathFormula.helper'
+import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
 import { describe, expect, test } from 'bun:test'
 import { resolveClasses } from './classes'
 

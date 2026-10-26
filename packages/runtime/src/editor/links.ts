@@ -1,5 +1,5 @@
 import type { Component } from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
 
 /**
  * Modifies all link nodes on a component

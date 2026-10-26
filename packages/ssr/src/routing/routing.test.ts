@@ -1,5 +1,5 @@
 import type { PageComponent } from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
 import { describe, expect, test } from 'bun:test'
 import { getServerToddleObject, serverEnv } from '../rendering/formulaContext'
 import type { Route } from '../ssr.types'

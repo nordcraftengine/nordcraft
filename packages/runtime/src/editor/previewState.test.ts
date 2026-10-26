@@ -2,7 +2,7 @@ import type {
   Component,
   ComponentData,
 } from '@nordcraft/core/dist/component/component.types'
-import { valueFormula } from '@nordcraft/core/dist/formula/formulaUtils'
+import { valueFormula } from '@nordcraft/core/dist/formula/valueFormula'
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
 import '../happydom'
 import { signal } from '../signal/signal'
