@@ -1,15 +1,18 @@
-import type { IssueRule } from '../../../types'
+import type { ComponentAttributeNode, IssueRule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 import { componentIsReferenced } from '../components/componentIsReferenced.memo'
 
-export const noReferenceAttributeInInstanceRule: IssueRule<void> = {
+export const noReferenceAttributeInInstanceRule: IssueRule<
+  void,
+  ComponentAttributeNode
+> = {
   code: 'no-reference attribute in instance',
   level: 'info',
   category: 'No References',
+  nodeTypes: 'component-attribute',
   visit: (report, args, state) => {
     if (
-      args.nodeType !== 'component-attribute' ||
       (state?.projectDetails?.type === 'package' &&
         args.component.exported === true) ||
       contextlessEvaluateFormula(args.component.customElement?.enabled)

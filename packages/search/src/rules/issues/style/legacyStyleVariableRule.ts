@@ -5,28 +5,20 @@ import type {
 import type { CssSyntax } from '@nordcraft/core/dist/styling/customProperty'
 import type { StyleTokenCategory } from '@nordcraft/core/dist/styling/theme'
 import type { Nullable } from '@nordcraft/core/dist/types'
-import type {
-  FixFunction,
-  IssueRule,
-  NodeType,
-  StyleVariableNode,
-} from '../../../types'
+import type { FixFunction, IssueRule, StyleVariableNode } from '../../../types'
 
 export const legacyStyleVariableRule: IssueRule<
   {
     name: string
   },
-  NodeType,
+  StyleVariableNode,
   StyleVariableNode
 > = {
   code: 'legacy style variable',
   level: 'warning',
   category: 'Deprecation',
+  nodeTypes: 'style-variable',
   visit: (report, data) => {
-    if (data.nodeType !== 'style-variable') {
-      return
-    }
-
     report({
       path: data.path,
       info: {

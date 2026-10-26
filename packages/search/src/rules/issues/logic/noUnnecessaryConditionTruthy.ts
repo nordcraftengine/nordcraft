@@ -1,12 +1,13 @@
-import type { IssueRule } from '../../../types'
+import type { FormulaNode, IssueRule } from '../../../types'
 import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
-export const noUnnecessaryConditionTruthy: IssueRule = {
+export const noUnnecessaryConditionTruthy: IssueRule<unknown, FormulaNode> = {
   code: 'no-unnecessary-condition-truthy',
   level: 'info',
   category: 'Quality',
-  visit: (report, { path, value, nodeType }) => {
-    if (nodeType !== 'formula' || value.type !== 'or') {
+  nodeTypes: 'formula',
+  visit: (report, { path, value }) => {
+    if (value.type !== 'or') {
       return
     }
 

@@ -1,4 +1,4 @@
-import type { ActionModelNode, IssueRule, NodeType } from '../../../types'
+import type { ActionModelNode, IssueRule } from '../../../types'
 import { addContextSubscription } from './unknownContextWorkflowRule.fix'
 
 export const unknownContextWorkflowRule: IssueRule<
@@ -11,10 +11,10 @@ export const unknownContextWorkflowRule: IssueRule<
   code: 'unknown context workflow',
   level: 'error',
   category: 'Unknown Reference',
-  visit: (report, { path, files, value, nodeType }) => {
+  nodeTypes: 'action-model',
+  visit: (report, { path, files, value }) => {
     if (
       path[0] !== 'components' ||
-      (nodeType as NodeType['nodeType']) !== 'action-model' ||
       value.type !== 'TriggerWorkflow' ||
       !value.contextProvider
     ) {
