@@ -152,7 +152,10 @@ export function createNode({
         }
       } else if (!show) {
         childDataSignal?.destroy()
-        elements.forEach((elem) => elem.remove())
+        const elemCount = elements.length
+        for (let i = 0; i < elemCount; i++) {
+          elements[i]!.remove()
+        }
         elements.splice(0, elements.length)
       }
     }
@@ -162,7 +165,10 @@ export function createNode({
       destroy: () => {
         unsubscribePreview?.()
         childDataSignal?.destroy()
-        elements.forEach((elem) => elem.remove())
+        const elemCount = elements.length
+        for (let i = 0; i < elemCount; i++) {
+          elements[i]!.remove()
+        }
         elements.splice(0, elements.length)
       },
     })
@@ -219,7 +225,11 @@ export function createNode({
         }
         return entries
       }
-      return Object.entries(list)
+      const entries: [string, unknown][] = []
+      for (const key in list) {
+        entries.push([key, list[key]])
+      }
+      return entries
     })
 
     repeatSignal.subscribe(
@@ -266,7 +276,10 @@ export function createNode({
           if (!seenKeys.has(key)) {
             item.cleanup()
             item.dataSignal.destroy()
-            item.elements.forEach((e) => e.remove())
+            const elemCount = item.elements.length
+            for (let i = 0; i < elemCount; i++) {
+              item.elements[i]!.remove()
+            }
             if (defaultElement === key) {
               defaultElement = null
             }
@@ -375,10 +388,13 @@ export function createNode({
       },
       {
         destroy: () =>
-          Array.from(repeatItems.values()).forEach((e) => {
+          repeatItems.forEach((e) => {
             e.cleanup()
             e.dataSignal.destroy()
-            e.elements.forEach((e) => e.remove())
+            const elemCount = e.elements.length
+            for (let i = 0; i < elemCount; i++) {
+              e.elements[i]!.remove()
+            }
           }),
       },
     )

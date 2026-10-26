@@ -13,24 +13,27 @@ export function subscribeToContext(
   component: Component,
   ctx: ComponentContext,
 ) {
-  Object.entries(component.contexts ?? {}).forEach(
-    ([providerName, context]) => {
+  if (component.contexts) {
+    for (const providerName in component.contexts) {
+      const context = component.contexts[providerName]
       const providerKey = [ctx.package, providerName]
         .filter(isDefined)
         .join('/')
       const provider = ctx.providers[providerKey] ?? ctx.providers[providerName]
 
       if (provider) {
-        context.formulas.forEach((formulaName) => {
+        for (const formulaName of context.formulas) {
           const formulaDataSignal = provider.formulaDataSignals[formulaName]
           if (!formulaDataSignal) {
+            const availableFormulas: string[] = []
+            for (const key in provider.formulaDataSignals) {
+              availableFormulas.push(key)
+            }
             // eslint-disable-next-line no-console
             console.warn(
-              `Component error(${component.name}): Provider ${providerName} does not expose a formula named "${formulaName}". Available formulas are: ["${Object.keys(
-                provider.formulaDataSignals,
-              ).join('", "')}"]`,
+              `Component error(${component.name}): Provider ${providerName} does not expose a formula named "${formulaName}". Available formulas are: ["${availableFormulas.join('", "')}"]`,
             )
-            return
+            continue
           }
 
           const unsubscribe = formulaDataSignal.subscribe((value) => {
@@ -56,7 +59,7 @@ export function subscribeToContext(
             )
           })
           componentDataSignal.subscriptions.push(unsubscribe)
-        })
+        }
       }
 
       // In preview and absence of a real provider, we fake providers with their testData values.
@@ -70,6 +73,6 @@ export function subscribeToContext(
           context,
         })
       }
-    },
-  )
+    }
+  }
 }

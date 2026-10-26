@@ -188,6 +188,21 @@ export function createComponent({
     })
   }
 
+  const onEvent = (eventTrigger: string, data: any) => {
+    if (!node.events) return
+    for (const eventKey in node.events) {
+      const eventHandler = node.events[eventKey]
+      if (eventHandler?.trigger === eventTrigger) {
+        if (eventHandler.actions) {
+          for (const action of eventHandler.actions) {
+            void handleAction(action, { ...dataSignal.get(), Event: data }, ctx)
+          }
+        }
+        break
+      }
+    }
+  }
+
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
   const apis: Record<string, ContextApi> = {}
   const componentApis = component.apis
@@ -200,11 +215,14 @@ export function createComponent({
       }
     }
     if (hasApis) {
-      sortApis(
-        Object.entries(componentApis).filter(
-          (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-        ),
-      ).forEach(([name, api]) => {
+      const apiEntries: [string, ComponentAPI][] = []
+      for (const name in componentApis) {
+        const api = componentApis[name]
+        if (isDefined(api)) {
+          apiEntries.push([name, api])
+        }
+      }
+      for (const [name, api] of sortApis(apiEntries)) {
         if (isLegacyApi(api)) {
           apis[name] = createLegacyAPI(api, {
             ...ctx,
@@ -215,20 +233,7 @@ export function createComponent({
             isRootComponent: false,
             formulaCache,
             package: node.package ?? ctx.package,
-            triggerEvent: (eventTrigger, data) => {
-              const eventHandler = Object.values(node.events ?? {}).find(
-                (e) => e?.trigger === eventTrigger,
-              )
-              if (eventHandler) {
-                eventHandler.actions?.forEach((action) =>
-                  handleAction(
-                    action,
-                    { ...dataSignal.get(), Event: data },
-                    ctx,
-                  ),
-                )
-              }
-            },
+            triggerEvent: onEvent,
           })
         } else {
           apis[name] = createAPI({
@@ -242,41 +247,18 @@ export function createComponent({
               isRootComponent: false,
               formulaCache,
               package: node.package ?? ctx.package,
-              triggerEvent: (eventTrigger, data) => {
-                const eventHandler = Object.values(node.events ?? {}).find(
-                  (e) => e?.trigger === eventTrigger,
-                )
-                if (eventHandler) {
-                  eventHandler.actions?.forEach((action) =>
-                    handleAction(
-                      action,
-                      { ...dataSignal.get(), Event: data },
-                      ctx,
-                    ),
-                  )
-                }
-              },
+              triggerEvent: onEvent,
             },
             componentData: componentDataSignal.get(),
           })
         }
-      })
+      }
     }
   }
-  Object.values(apis)
-    .filter(isContextApiV2)
-    .forEach((api) => {
+  for (const apiName in apis) {
+    const api = apis[apiName]
+    if (isContextApiV2(api)) {
       api.triggerActions(componentDataSignal.get())
-    })
-
-  const onEvent = (eventTrigger: string, data: any) => {
-    const eventHandler = Object.values(node.events ?? {}).find(
-      (e) => e?.trigger === eventTrigger,
-    )
-    if (eventHandler) {
-      eventHandler.actions?.forEach((action) =>
-        handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
-      )
     }
   }
 
@@ -291,21 +273,22 @@ export function createComponent({
             reportFormulaEvaluation: ctx.reportFormulaEvaluation,
           }
         : apiFormulaCtx
-    const formulaDataSignals = Object.fromEntries(
-      Object.entries(component.formulas ?? {})
-        .filter(([, formula]) => formula?.exposeInContext)
-        .map(([name, formula]) => [
-          name,
-          componentDataSignal.map((data) =>
+    const formulaDataSignals: Record<string, Signal<any>> = {}
+    if (component.formulas) {
+      for (const name in component.formulas) {
+        const formula = component.formulas[name]
+        if (formula?.exposeInContext) {
+          formulaDataSignals[name] = componentDataSignal.map((data) =>
             applyFormula(
               (formula as ComponentFormula).formula,
               providerFormulaCtx,
               data,
               IS_PREVIEW ? ['formulas', name] : undefined,
             ),
-          ),
-        ]),
-    )
+          )
+        }
+      }
+    }
 
     providers = {
       ...providers,
@@ -391,40 +374,17 @@ export function createComponent({
   })
 
   // Custom properties instance overrides are added after the child tree is rendered to ensure correct order
-  Object.entries(node.customProperties ?? {})
-    .filter(([_, { formula }]) => formulaHasValue(formula))
-    .forEach(([customPropertyName, customProperty]) =>
-      subscribeCustomProperty({
-        selector: getNodeSelector(path, {
-          componentName: ctx.component.name,
-          nodeId: node.id,
-        }),
-        signal: dataSignal.map((data) =>
-          appendUnit(
-            applyFormula(
-              customProperty.formula,
-              formulaCtx,
-              data,
-              IS_PREVIEW
-                ? ['customProperties', customPropertyName, 'formula']
-                : undefined,
-            ),
-            customProperty.unit,
-          ),
-        ),
-        customPropertyName,
-        root: ctx.root,
-      }),
-    )
-  node.variants?.forEach((variant) => {
-    Object.entries(variant.customProperties ?? {})
-      .filter(([_, { formula }]) => formulaHasValue(formula))
-      .forEach(([customPropertyName, customProperty]) =>
+  if (node.customProperties) {
+    for (const customPropertyName in node.customProperties) {
+      const customProperty =
+        node.customProperties[
+          customPropertyName as keyof typeof node.customProperties
+        ]
+      if (customProperty && formulaHasValue(customProperty.formula)) {
         subscribeCustomProperty({
           selector: getNodeSelector(path, {
             componentName: ctx.component.name,
             nodeId: node.id,
-            variant,
           }),
           signal: dataSignal.map((data) =>
             appendUnit(
@@ -440,11 +400,48 @@ export function createComponent({
             ),
           ),
           customPropertyName,
-          variant,
           root: ctx.root,
-        }),
-      )
-  })
+        })
+      }
+    }
+  }
+  if (node.variants) {
+    for (const variant of node.variants) {
+      if (variant.customProperties) {
+        for (const customPropertyName in variant.customProperties) {
+          const customProperty =
+            variant.customProperties[
+              customPropertyName as keyof typeof variant.customProperties
+            ]
+          if (customProperty && formulaHasValue(customProperty.formula)) {
+            subscribeCustomProperty({
+              selector: getNodeSelector(path, {
+                componentName: ctx.component.name,
+                nodeId: node.id,
+                variant,
+              }),
+              signal: dataSignal.map((data) =>
+                appendUnit(
+                  applyFormula(
+                    customProperty.formula,
+                    formulaCtx,
+                    data,
+                    IS_PREVIEW
+                      ? ['customProperties', customPropertyName, 'formula']
+                      : undefined,
+                  ),
+                  customProperty.unit,
+                ),
+              ),
+              customPropertyName,
+              variant,
+              root: ctx.root,
+            })
+          }
+        }
+      }
+    }
+  }
 
   return renderedComponent
 }

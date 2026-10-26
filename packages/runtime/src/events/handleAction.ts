@@ -172,8 +172,15 @@ export function handleAction(
         break
       }
       case 'SetURLParameters': {
-        const parameters = Object.entries(action.parameters ?? {})
-        if (parameters.length === 0) {
+        if (!action.parameters) {
+          return
+        }
+        let hasParams = false
+        for (const _ in action.parameters) {
+          hasParams = true
+          break
+        }
+        if (!hasParams) {
           return
         }
         const current = ctx.toddle.locationSignal.get()
@@ -190,12 +197,22 @@ export function handleAction(
           current.route?.path.some(
             (p) => p.name === param && p.type === 'param',
           )
-        const isValidQueryParameter = (param: string) =>
-          Object.values(current.route?.query ?? {}).some(
-            (q) => q.name === param,
-          )
+        const isValidQueryParameter = (param: string) => {
+          if (!current.route?.query) return false
+          for (const key in current.route.query) {
+            if (current.route.query[key]?.name === param) {
+              return true
+            }
+          }
+          return false
+        }
 
-        for (const [parameter, formula] of parameters) {
+        let hasPathUpdates = false
+        let hasQueryUpdates = false
+        const pathUpdateKeys: string[] = []
+        const queryUpdateKeys: string[] = []
+        for (const parameter in action.parameters) {
+          const formula = action.parameters[parameter]
           const value =
             applyFormula(
               formula,
@@ -206,14 +223,15 @@ export function handleAction(
           if (isValidPathParameter(parameter)) {
             historyMode = 'push'
             pathUpdates[parameter] = value as string
+            hasPathUpdates = true
+            pathUpdateKeys.push(parameter)
           } else if (isValidQueryParameter(parameter)) {
             queryUpdates[parameter] = value as string
+            hasQueryUpdates = true
+            queryUpdateKeys.push(parameter)
           }
         }
-        if (
-          Object.keys(pathUpdates).length === 0 &&
-          Object.keys(queryUpdates).length === 0
-        ) {
+        if (!hasPathUpdates && !hasQueryUpdates) {
           // No path/query parameter matched
           // We'll exit early to avoid deep equal below
           break
@@ -222,11 +240,11 @@ export function handleAction(
         const newLocation = {
           ...current,
           params: {
-            ...omitKeys(current.params, Object.keys(pathUpdates)),
+            ...omitKeys(current.params, pathUpdateKeys),
             ...pathUpdates,
           },
           query: {
-            ...omitKeys(current.query, Object.keys(queryUpdates)),
+            ...omitKeys(current.query, queryUpdateKeys),
             ...queryUpdates,
           },
         }
@@ -360,9 +378,9 @@ export function handleAction(
             return
           }
 
-          workflow.actions.forEach((action) =>
-            handleAction(
-              action,
+          for (const actionItem of workflow.actions) {
+            void handleAction(
+              actionItem,
               {
                 ...data,
                 ...provider.ctx.dataSignal.get(),
@@ -372,25 +390,27 @@ export function handleAction(
               event,
               (callbackName, callbackData) => {
                 const callback = callbacks?.[callbackName]
-                callback?.actions?.forEach(
-                  (action) =>
-                    action &&
-                    handleAction(
-                      action,
-                      {
-                        ...data,
-                        ...ctx.dataSignal.get(),
-                        Parameters: parameters,
-                        Event: callbackData,
-                      },
-                      ctx,
-                      event,
-                      workflowCallback,
-                    ),
-                )
+                if (callback?.actions) {
+                  for (const callbackAction of callback.actions) {
+                    if (callbackAction) {
+                      void handleAction(
+                        callbackAction,
+                        {
+                          ...data,
+                          ...ctx.dataSignal.get(),
+                          Parameters: parameters,
+                          Event: callbackData,
+                        },
+                        ctx,
+                        event,
+                        workflowCallback,
+                      )
+                    }
+                  }
+                }
               },
-            ),
-          )
+            )
+          }
           return
         }
 
@@ -402,9 +422,9 @@ export function handleAction(
           return
         }
 
-        workflow.actions.forEach((action) =>
-          handleAction(
-            action,
+        for (const actionItem of workflow.actions) {
+          void handleAction(
+            actionItem,
             {
               ...data,
               ...ctx.dataSignal.get(),
@@ -414,25 +434,27 @@ export function handleAction(
             event,
             (callbackName, callbackData) => {
               const callback = callbacks?.[callbackName]
-              callback?.actions?.forEach(
-                (action) =>
-                  action &&
-                  handleAction(
-                    action,
-                    {
-                      ...data,
-                      ...ctx.dataSignal.get(),
-                      Parameters: parameters,
-                      Event: callbackData,
-                    },
-                    ctx,
-                    event,
-                    workflowCallback,
-                  ),
-              )
+              if (callback?.actions) {
+                for (const callbackAction of callback.actions) {
+                  if (callbackAction) {
+                    void handleAction(
+                      callbackAction,
+                      {
+                        ...data,
+                        ...ctx.dataSignal.get(),
+                        Parameters: parameters,
+                        Event: callbackData,
+                      },
+                      ctx,
+                      event,
+                      workflowCallback,
+                    )
+                  }
+                }
+              }
             },
-          ),
-        )
+          )
+        }
         break
       }
       default: {
@@ -440,18 +462,18 @@ export function handleAction(
           // create a handler for actions triggering events
           const triggerActionEvent = (trigger: string, eventData: any) => {
             const subEvent = action.events?.[trigger]
-            if (subEvent) {
-              subEvent.actions?.forEach((action) =>
-                handleAction(
-                  action,
+            if (subEvent?.actions) {
+              for (const subAction of subEvent.actions) {
+                void handleAction(
+                  subAction,
                   eventData
                     ? { ...data, ...ctx.dataSignal.get(), Event: eventData }
                     : { ...data, ...ctx.dataSignal.get() },
                   ctx,
                   eventData ?? event,
                   workflowCallback,
-                ),
-              )
+                )
+              }
             }
           }
           const newAction =

@@ -79,12 +79,12 @@ export class ToddleComponent extends HTMLElement {
     this.#files = {
       themes: options.themes,
     }
-    this.#attributeNames = new Map(
-      Object.keys(component.attributes ?? {}).map((key) => [
-        key.toLowerCase(),
-        key,
-      ]),
-    )
+    this.#attributeNames = new Map()
+    if (component.attributes) {
+      for (const key in component.attributes) {
+        this.#attributeNames.set(key.toLowerCase(), key)
+      }
+    }
 
     // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
     const abortController = new AbortController()
@@ -115,11 +115,16 @@ export class ToddleComponent extends HTMLElement {
   }
 
   connectedCallback() {
-    sortApis(
-      Object.entries(this.#component.apis ?? {}).filter(
-        (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-      ),
-    ).forEach(([name, api]) => {
+    const apiEntries: [string, ComponentAPI][] = []
+    if (this.#component.apis) {
+      for (const name in this.#component.apis) {
+        const api = this.#component.apis[name]
+        if (isDefined(api)) {
+          apiEntries.push([name, api])
+        }
+      }
+    }
+    for (const [name, api] of sortApis(apiEntries)) {
       if (isLegacyApi(api)) {
         this.#ctx.apis[name] = createLegacyAPI(
           api,
@@ -134,31 +139,33 @@ export class ToddleComponent extends HTMLElement {
           componentData: this.#signal.get(),
         })
       }
-    })
-    Object.values(this.#ctx.apis)
-      .filter(isContextApiV2)
-      .forEach((api) => {
+    }
+    for (const apiName in this.#ctx.apis) {
+      const api = this.#ctx.apis[apiName]
+      if (isContextApiV2(api)) {
         api.triggerActions(this.#signal.get())
-      })
+      }
+    }
 
     let providers = this.#ctx.providers
     if (isContextProvider(this.#component)) {
       // Subscribe to exposed formulas and update the component's data signal
-      const formulaDataSignals = Object.fromEntries(
-        Object.entries(this.#component.formulas ?? {})
-          .filter(([, formula]) => formula?.exposeInContext)
-          .map(([name, formula]) => [
-            name,
-            this.#signal.map((data) =>
+      const formulaDataSignals: Record<string, Signal<any>> = {}
+      if (this.#component.formulas) {
+        for (const name in this.#component.formulas) {
+          const formula = this.#component.formulas[name]
+          if (formula?.exposeInContext) {
+            formulaDataSignals[name] = this.#signal.map((data) =>
               applyFormula(
                 (formula as ComponentFormula).formula,
                 this.#ctx,
                 data,
                 IS_PREVIEW ? ['formulas', name] : undefined,
               ),
-            ),
-          ]),
-      )
+            )
+          }
+        }
+      }
 
       providers = {
         ...providers,
@@ -218,11 +225,18 @@ export class ToddleComponent extends HTMLElement {
     })
 
     this.#shadowRoot.innerHTML = ''
+    let hasThemes = false
+    if (this.#files.themes) {
+      for (const _ in this.#files.themes) {
+        hasThemes = true
+        break
+      }
+    }
     const styles = createStylesheet(
       this.#ctx.component,
       this.#ctx.components,
-      Object.entries(this.#files.themes ?? {}).length > 0
-        ? this.#files.themes
+      hasThemes
+        ? (this.#files.themes as Record<string, any>)
         : { defaultTheme },
       { includeResetStyle: true, createFontFaces: false },
     )

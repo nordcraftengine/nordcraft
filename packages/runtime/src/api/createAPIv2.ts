@@ -101,17 +101,15 @@ export function createAPI({
     }
 
     // Make sure inputs are also available in the formula context
-    const evaluatedInputs = Object.entries(api.inputs).reduce<
-      Record<string, unknown>
-    >((acc, [key, value]) => {
-      acc[key] = applyFormula(
-        value.formula,
+    const evaluatedInputs: Record<string, unknown> = {}
+    for (const key in api.inputs) {
+      evaluatedInputs[key] = applyFormula(
+        api.inputs[key].formula,
         ctx,
         baseData,
         IS_PREVIEW ? ['inputs', key] : undefined,
       )
-      return acc
-    }, {})
+    }
 
     return {
       ...baseData,
@@ -180,34 +178,38 @@ export function createAPI({
     switch (eventName) {
       case 'message': {
         const event = createApiEvent('message', data.body)
-        api.client?.onMessage?.actions?.forEach((action) => {
-          handleAction(
-            action,
-            {
-              ...getApiData(api, componentData),
-              Event: event,
-            },
-            ctx,
-            event,
-            workflowCallback,
-          )
-        })
+        if (api.client?.onMessage?.actions) {
+          for (const action of api.client.onMessage.actions) {
+            handleAction(
+              action,
+              {
+                ...getApiData(api, componentData),
+                Event: event,
+              },
+              ctx,
+              event,
+              workflowCallback,
+            )
+          }
+        }
         break
       }
       case 'success': {
         const event = createApiEvent('success', data.body)
-        api.client?.onCompleted?.actions?.forEach((action) => {
-          handleAction(
-            action,
-            {
-              ...getApiData(api, componentData),
-              Event: event,
-            },
-            ctx,
-            event,
-            workflowCallback,
-          )
-        })
+        if (api.client?.onCompleted?.actions) {
+          for (const action of api.client.onCompleted.actions) {
+            handleAction(
+              action,
+              {
+                ...getApiData(api, componentData),
+                Event: event,
+              },
+              ctx,
+              event,
+              workflowCallback,
+            )
+          }
+        }
         break
       }
       case 'failed': {
@@ -215,18 +217,20 @@ export function createAPI({
           error: data.body,
           status: data.status,
         })
-        api.client?.onFailed?.actions?.forEach((action) => {
-          handleAction(
-            action,
-            {
-              ...getApiData(api, componentData),
-              Event: event,
-            },
-            ctx,
-            event,
-            workflowCallback,
-          )
-        })
+        if (api.client?.onFailed?.actions) {
+          for (const action of api.client.onFailed.actions) {
+            handleAction(
+              action,
+              {
+                ...getApiData(api, componentData),
+                Event: event,
+              },
+              ctx,
+              event,
+              workflowCallback,
+            )
+          }
+        }
         break
       }
     }
@@ -919,7 +923,9 @@ export function createAPI({
         const concatenated = this.currentChunk + chunk
         const split = delimiter ? concatenated.split(delimiter) : [concatenated]
         this.currentChunk = split.pop() ?? ''
-        split.forEach((c) => this.add(c))
+        for (const c of split) {
+          this.add(c)
+        }
       },
     }
 
@@ -1204,25 +1210,30 @@ export function createAPI({
       workflowCallback,
     }) => {
       // Inputs might already be evaluated. If they are we add them as a value formula to be evaluated later.
-      const inputs = Object.entries(actionInputs ?? {}).reduce<
-        Record<
-          string,
-          {
-            formula: Formula
-          }
-        >
-      >((acc, [inputName, input]) => {
-        if (input !== null && typeof input === 'object' && 'formula' in input) {
-          acc[inputName] = input as {
-            formula: Formula
-          }
-        } else {
-          acc[inputName] = {
-            formula: { type: 'value', value: input },
+      const inputs: Record<
+        string,
+        {
+          formula: Formula
+        }
+      > = {}
+      if (actionInputs) {
+        for (const inputName in actionInputs) {
+          const input = actionInputs[inputName]
+          if (
+            input !== null &&
+            typeof input === 'object' &&
+            'formula' in input
+          ) {
+            inputs[inputName] = input as {
+              formula: Formula
+            }
+          } else {
+            inputs[inputName] = {
+              formula: { type: 'value', value: input },
+            }
           }
         }
-        return acc
-      }, {})
+      }
 
       const apiWithInputsAndActions: ApiRequest = {
         ...api,

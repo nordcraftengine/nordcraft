@@ -94,8 +94,9 @@ export default defineConfig([
   },
   {
     files: [
-      // 'packages/core/**/*.ts',
       'packages/runtime/**/*.ts',
+      // Let's enable this for core/ and ssr/ in separate PRs
+      // 'packages/core/**/*.ts',
       // 'packages/ssr/**/*.ts',
     ],
     ignores: [
@@ -113,7 +114,8 @@ export default defineConfig([
             'Avoid Object.keys/values/entries in hot paths; it allocates temporary arrays. Use for..in or helpers from collections instead.',
         },
         {
-          selector: "CallExpression[callee.property.name='forEach']",
+          selector:
+            "CallExpression[callee.property.name='forEach']:not([callee.object.name=/([Mm]ap|repeatItems)/]):not([callee.object.callee.name='Map'])",
           message:
             'Avoid Array.prototype.forEach in hot paths due to function call overhead. Use a standard loop instead.',
         },

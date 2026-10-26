@@ -169,10 +169,10 @@ export function renderComponent(
             }
           })
       }
-      if (hasOnLoadActions) {
-        component.onLoad?.actions?.forEach((action) => {
+      if (hasOnLoadActions && component.onLoad?.actions) {
+        for (const action of component.onLoad.actions) {
           void handleAction(action, dataSignal.get(), ctx)
-        })
+        }
       }
     })
   }
@@ -190,7 +190,7 @@ function getAttributeChanges(
   const changes: AttributeChanges = {}
   if (!attributes || !next) return changes
 
-  for (const key of Object.keys(next)) {
+  for (const key in next) {
     // Cheap lookup first, so we skip the deep-equal for unmapped attributes
     const name = attributes[key]?.name
     if (!name) continue

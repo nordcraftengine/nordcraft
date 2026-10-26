@@ -69,12 +69,17 @@ function getFormulaCacheConfig(formula: Formula, component: Component) {
       paths.push(op.path)
     }
     if (Array.isArray((op as any)?.arguments)) {
-      ;(op as FunctionOperation)?.arguments?.forEach((arg) =>
-        visitOperation(arg.formula),
-      )
+      const args = (op as FunctionOperation)?.arguments
+      if (args) {
+        for (const arg of args) {
+          visitOperation(arg.formula)
+        }
+      }
     }
     if (op.type === 'record' && Array.isArray(op.entries)) {
-      op.entries.forEach((arg) => visitOperation(arg.formula))
+      for (const arg of op.entries) {
+        visitOperation(arg.formula)
+      }
     }
 
     if (op.type === 'apply') {
@@ -101,13 +106,12 @@ function getFormulaCacheConfig(formula: Formula, component: Component) {
   }
 
   const keys: Array<string | number>[] = []
-  paths
-    .sort((a, b) => a.length - b.length)
-    .forEach((path) => {
-      if (!keys.some((key) => key.every((k, i) => k === path[i]))) {
-        keys.push(path)
-      }
-    })
+  paths.sort((a, b) => a.length - b.length)
+  for (const path of paths) {
+    if (!keys.some((key) => key.every((k, i) => k === path[i]))) {
+      keys.push(path)
+    }
+  }
   return {
     canCache: true,
     keys,

@@ -20,9 +20,9 @@ export class ApiAbortHandler {
   }
 
   public abort = () => {
-    this.abortControllers.forEach((controller) => {
+    for (const controller of this.abortControllers) {
       controller.abort()
-    })
+    }
     this.abortControllers = []
   }
 

@@ -30,14 +30,18 @@ export const getLocationUrl = ({
     path = compile(page as string, { encode: encodeURIComponent })(params)
   }
   const hashString = hash === undefined || hash === '' ? '' : '#' + hash
-  const queryString = Object.entries(query)
-    .filter(([_, q]) => q !== null)
-    .map(([key, value]) => {
-      return `${encodeURIComponent(
-        route?.query[key]?.name ?? key,
-      )}=${encodeURIComponent(String(value))}`
-    })
-    .join('&')
+  const queryParts: string[] = []
+  for (const key in query) {
+    const value = query[key]
+    if (value !== null) {
+      queryParts.push(
+        `${encodeURIComponent(
+          route?.query[key]?.name ?? key,
+        )}=${encodeURIComponent(String(value))}`,
+      )
+    }
+  }
+  const queryString = queryParts.join('&')
 
   return `${path}${hashString}${
     queryString.length > 0 ? '?' + queryString : ''

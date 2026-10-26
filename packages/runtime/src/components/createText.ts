@@ -56,7 +56,8 @@ export function createText({
   ) {
     let slotName: string | undefined | null
 
-    for (const node of Object.values(ctx.component.nodes)) {
+    for (const nodeKey in ctx.component.nodes) {
+      const node = ctx.component.nodes[nodeKey]
       if (node?.type !== 'slot') continue
 
       if (node.children?.includes(id)) {
