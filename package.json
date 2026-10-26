@@ -11,7 +11,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "3.3.7",
     "@eslint/js": "10.0.1",
-    "@happy-dom/global-registrator": "20.8.9",
+    "@happy-dom/global-registrator": "21.0.4",
     "@html-eslint/eslint-plugin": "0.67.0",
     "@html-eslint/parser": "0.67.0",
     "@octokit/core": "7.0.8",
@@ -21,7 +21,7 @@
     "@typescript/native-preview": "7.0.0-dev.20260318.1",
     "esbuild": "0.28.1",
     "eslint": "10.12.0",
-    "happy-dom": "20.14.6",
+    "happy-dom": "21.0.4",
     "playwright": "1.64.1",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier": "3.8.3"
