@@ -45,6 +45,9 @@ jobs:
       - name: Install dependencies (head)
         run: bun install --frozen-lockfile
 
+      - name: Build packages (head)
+        run: bun run build
+
       - name: Run SSR benchmark
         id: benchmark_run
         continue-on-error: true
