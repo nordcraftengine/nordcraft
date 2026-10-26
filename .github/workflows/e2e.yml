@@ -44,4 +44,4 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: bunx playwright install chromium --with-deps
       - name: Run E2E tests
-        run: cd tests/e2e && bun run test:e2e
+        run: cd packages/e2e && bun run test:e2e
