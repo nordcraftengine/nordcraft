@@ -15,7 +15,6 @@
     "@html-eslint/eslint-plugin": "0.67.0",
     "@html-eslint/parser": "0.67.0",
     "@octokit/core": "7.0.8",
-    "@playwright/test": "1.63.0",
     "@types/bun": "1.4.3",
     "@typescript-eslint/eslint-plugin": "8.71.2",
     "@typescript-eslint/parser": "8.71.2",
@@ -23,7 +22,6 @@
     "esbuild": "0.28.1",
     "eslint": "10.12.0",
     "happy-dom": "20.14.6",
-    "playwright": "1.63.0",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier": "3.8.3"
   },
@@ -35,7 +33,6 @@
     "benchmark:ssr:compare": "bun bin/compareBenchmarks.ts",
     "benchmark:ssr:run": "bun bin/runSsrBenchmarks.ts",
     "test:benchmarks": "bun test benchmarks",
-    "test:e2e": "playwright test --config tests/e2e/playwright.config.ts",
     "clean": "rm -rf node_modules && rm bun.lock && rm -rf packages/core/node_modules && rm -rf packages/lib/node_modules && rm -rf packages/runtime/node_modules && rm -rf packages/ssr/node_modules && rm -rf packages/search/node_modules && bun i && rm -rf packages/backend/dist && rm -rf packages/core/dist && rm -rf packages/lib/dist && rm -rf packages/runtime/dist && rm -rf packages/search/dist && rm -rf packages/ssr/dist && rm -rf packages/css-parser/dist",
     "link": "cd packages/core && bun link && cd ../lib && bun link && cd ../ssr && bun link && cd ../search && bun link && cd ../runtime && bun link",
     "lint": "eslint --quiet --report-unused-disable-directives .",
