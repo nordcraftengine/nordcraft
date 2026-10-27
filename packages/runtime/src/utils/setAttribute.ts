@@ -52,12 +52,15 @@ export function setAttribute(
       if (toBoolean(value)) {
         elem.setAttribute(attr, String(value))
         if (
-          // autofocus often does not work in the editor
-          IS_PREVIEW &&
           attr === 'autofocus' &&
           document.body.getAttribute('data-mode') !== 'design'
         ) {
-          setTimeout(() => elem.focus(), 100)
+          // Push to end of queue to ensure the element is attached to the DOM before focusing
+          queueMicrotask(
+            () =>
+              elem.isConnected &&
+              (elem as HTMLElement).focus({ preventScroll: true }),
+          )
         }
       } else {
         elem.removeAttribute(attr)
