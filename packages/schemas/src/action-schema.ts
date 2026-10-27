@@ -1,4 +1,5 @@
 import type {
+  AbortFetchActionModel,
   ActionModel,
   CustomActionModel,
   EventActionModel,
@@ -142,6 +143,24 @@ const FetchActionModelSchema: v.GenericSchema<unknown, FetchActionModel> =
     }),
     v.description('Model describing the action of fetching data from an API.'),
   )
+
+const AbortFetchActionModelSchema: v.GenericSchema<
+  unknown,
+  AbortFetchActionModel
+> = v.pipe(
+  v.object({
+    type: v.literal('AbortFetch'),
+    api: v.pipe(
+      v.string(),
+      v.description(
+        'Key of the API to abort. This is the key defined in the APIs object in the file. Only v2 APIs can be aborted.',
+      ),
+    ),
+  }),
+  v.description(
+    'Model describing the action of aborting an in-flight API request.',
+  ),
+)
 
 const CustomActionModelSchema: v.GenericSchema<unknown, CustomActionModel> =
   v.pipe(
@@ -335,6 +354,7 @@ export const ActionModelSchema: v.GenericSchema<unknown, ActionModel> = v.lazy(
       EventActionModelSchema,
       SwitchActionModelSchema,
       FetchActionModelSchema,
+      AbortFetchActionModelSchema,
       CustomActionModelSchema,
       SetURLParameterActionSchema,
       SetMultiUrlParameterActionSchema,
