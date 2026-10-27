@@ -9,10 +9,16 @@ const REGEXP_QUOTE = /"/g
 const REGEXP_LT = /</g
 const REGEXP_GT = />/g
 
-const validAttrTypes = ['string', 'number', 'boolean']
-
 export const escapeAttrValue = (value: any) => {
-  if (!isDefined(value) || !validAttrTypes.includes(typeof value)) {
+  if (!isDefined(value)) {
+    return ''
+  }
+  const valueType = typeof value
+  if (
+    valueType !== 'string' &&
+    valueType !== 'number' &&
+    valueType !== 'boolean'
+  ) {
     return ''
   }
   return escapeHtml(escapeQuote(String(value)))
@@ -49,35 +55,39 @@ export function getNodeAttrs({
   data: ComponentData
 }) {
   const { style, ...restAttrs } = node.attrs ?? {}
-  const nodeAttrs = Object.entries(restAttrs).reduce<string[]>(
-    (appliedAttributes, [name, attrValue]) => {
-      const value = applyFormula(attrValue, formulaContext, data)
-      if (toBoolean(value)) {
-        appliedAttributes.push(`${name}="${escapeAttrValue(value)}"`)
-      }
-      return appliedAttributes
-    },
-    [],
-  )
-  const styleVariables = Object.values(node['style-variables'] ?? {}).map(
-    (styleVariable) => {
-      return `--${styleVariable.name}: ${
-        String(applyFormula(styleVariable.formula, formulaContext, data)) +
-        (styleVariable.unit ?? '')
-      }`
-    },
-  )
+  const nodeAttrs: string[] = []
+  for (const name in restAttrs) {
+    const value = applyFormula(restAttrs[name], formulaContext, data)
+    if (toBoolean(value)) {
+      nodeAttrs.push(`${name}="${escapeAttrValue(value)}"`)
+    }
+  }
+  const styleVariables = node['style-variables']
+  if (!style && !styleVariables) {
+    return nodeAttrs
+  }
+  const styles: string[] = []
+  if (style) {
+    const styleValue = applyFormula(style, formulaContext, data)
+    if (styleValue) {
+      styles.push(String(styleValue))
+    }
+  }
+  if (styleVariables) {
+    for (const styleVariable of Object.values(styleVariables)) {
+      styles.push(
+        `--${styleVariable.name}: ${
+          String(applyFormula(styleVariable.formula, formulaContext, data)) +
+          (styleVariable.unit ?? '')
+        }`,
+      )
+    }
+  }
 
   // Handle the style-attribute independently to merge with style variables
-  const styles = [
-    ...(style ? [applyFormula(style, formulaContext, data)] : []),
-    ...styleVariables,
-  ]
-    .filter(Boolean)
-    .map(String)
-    .join('; ')
-  if (styles.length > 0) {
-    return [...nodeAttrs, `style="${escapeAttrValue(styles)};"`]
+  const joinedStyles = styles.join('; ')
+  if (joinedStyles.length > 0) {
+    return [...nodeAttrs, `style="${escapeAttrValue(joinedStyles)};"`]
   }
 
   return nodeAttrs
