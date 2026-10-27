@@ -164,6 +164,47 @@ export const isRuntimeClean = (
       (r.heapStatus === '1:1' || r.heapStatus === 'stable'),
   )
 
+export const formatRuntimeCleanMarkdown = ({
+  baseRuntimeBytes,
+  headRuntimeBytes,
+  deltaSizeStr,
+  baseRuntimeCompressedBytes,
+  headRuntimeCompressedBytes,
+  deltaCompressedSizeStr,
+}: {
+  baseRuntimeBytes: number
+  headRuntimeBytes: number
+  deltaSizeStr: string
+  baseRuntimeCompressedBytes?: number
+  headRuntimeCompressedBytes?: number
+  deltaCompressedSizeStr?: string
+}) => {
+  const deltaBytes = headRuntimeBytes - baseRuntimeBytes
+  if (deltaBytes === 0) {
+    if (
+      baseRuntimeCompressedBytes !== undefined &&
+      headRuntimeCompressedBytes !== undefined &&
+      headRuntimeCompressedBytes !== baseRuntimeCompressedBytes &&
+      deltaCompressedSizeStr !== undefined
+    ) {
+      const compDelta = headRuntimeCompressedBytes - baseRuntimeCompressedBytes
+      const compDirection = compDelta < 0 ? 'decreased' : 'increased'
+      return `${RUNTIME_CLEAN_MARKDOWN} Runtime size (compressed) has ${compDirection}: ${deltaCompressedSizeStr}.`
+    }
+    return RUNTIME_CLEAN_MARKDOWN
+  }
+
+  const direction = deltaBytes < 0 ? 'decreased' : 'increased'
+  const compressedSuffix =
+    deltaCompressedSizeStr !== undefined &&
+    baseRuntimeCompressedBytes !== undefined &&
+    headRuntimeCompressedBytes !== undefined
+      ? ` (compressed: ${deltaCompressedSizeStr})`
+      : ''
+
+  return `${RUNTIME_CLEAN_MARKDOWN} Runtime size has ${direction}: ${deltaSizeStr}${compressedSuffix}.`
+}
+
 export const getCompressedSize = (filePath: string): number => {
   try {
     return brotliCompressSync(fs.readFileSync(filePath)).length
@@ -231,7 +272,14 @@ export const renderRuntimeMarkdown = ({
   deltaCompressedSizeStr?: string
 }) => {
   if (isRuntimeClean(results)) {
-    return RUNTIME_CLEAN_MARKDOWN
+    return formatRuntimeCleanMarkdown({
+      baseRuntimeBytes,
+      headRuntimeBytes,
+      deltaSizeStr,
+      baseRuntimeCompressedBytes,
+      headRuntimeCompressedBytes,
+      deltaCompressedSizeStr,
+    })
   }
   const hasRegressions = results.some(
     (r) => r.timeStatus === 'regression' || r.heapStatus === 'regression',

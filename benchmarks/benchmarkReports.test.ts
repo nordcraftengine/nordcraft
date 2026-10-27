@@ -274,5 +274,37 @@ describe('benchmark PR comments collapse to a one-liner when 1:1', () => {
     })
     expect(markdown).toBe(RUNTIME_CLEAN_MARKDOWN)
     expect(markdown.split('\n')).toHaveLength(1)
+
+    const markdownDecreased = renderRuntimeMarkdown({
+      config,
+      results: clean as never,
+      isPageBundleIdentical: false,
+      baseRuntimeBytes: 1000,
+      headRuntimeBytes: 900,
+      deltaSizeStr: '-100 B (-10.0%)',
+      baseRuntimeCompressedBytes: 500,
+      headRuntimeCompressedBytes: 450,
+      deltaCompressedSizeStr: '-50 B (-10.0%)',
+    })
+    expect(markdownDecreased).toBe(
+      `${RUNTIME_CLEAN_MARKDOWN} Runtime size has decreased: -100 B (-10.0%) (compressed: -50 B (-10.0%)).`,
+    )
+    expect(markdownDecreased.split('\n')).toHaveLength(1)
+
+    const markdownIncreased = renderRuntimeMarkdown({
+      config,
+      results: clean as never,
+      isPageBundleIdentical: false,
+      baseRuntimeBytes: 1000,
+      headRuntimeBytes: 1100,
+      deltaSizeStr: '+100 B (+10.0%)',
+      baseRuntimeCompressedBytes: 500,
+      headRuntimeCompressedBytes: 550,
+      deltaCompressedSizeStr: '+50 B (+10.0%)',
+    })
+    expect(markdownIncreased).toBe(
+      `${RUNTIME_CLEAN_MARKDOWN} Runtime size has increased: +100 B (+10.0%) (compressed: +50 B (+10.0%)).`,
+    )
+    expect(markdownIncreased.split('\n')).toHaveLength(1)
   })
 })
