@@ -12,7 +12,7 @@ export const imageWithoutDimensionRule: IssueRule<unknown, ComponentNodeNode> =
     level: 'warning',
     category: 'Performance',
     nodeTypes: 'component-node',
-    visit: (report, { path, value }) => {
+    visit: (report, { path, value, files, component }) => {
       if (value?.type !== 'element' || !['img', 'source'].includes(value.tag)) {
         return
       }
@@ -23,6 +23,7 @@ export const imageWithoutDimensionRule: IssueRule<unknown, ComponentNodeNode> =
 
       if (isDefined(value.attrs?.width)) {
         const widthEval = contextlessEvaluateFormula(value.attrs.width, {
+          component,
           formulas: files.formulas,
           packages: files.packages,
         })
@@ -32,6 +33,7 @@ export const imageWithoutDimensionRule: IssueRule<unknown, ComponentNodeNode> =
 
       if (isDefined(value.attrs?.height)) {
         const heightEval = contextlessEvaluateFormula(value.attrs.height, {
+          component,
           formulas: files.formulas,
           packages: files.packages,
         })

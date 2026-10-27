@@ -20,7 +20,8 @@ export const noStaticNodeCondition: IssueRule<
   level: 'warning',
   category: 'Quality',
   nodeTypes: 'formula',
-  visit: (report, { path, value }) => {
+  visit: (report, args) => {
+    const { path, value, files } = args
     if (
       !(
         path.length === 5 &&

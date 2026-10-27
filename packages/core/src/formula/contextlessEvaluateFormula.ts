@@ -211,7 +211,6 @@ export const createStaticFormulaContext = (
 
   const formulaContext: FormulaContext = {
     component,
-    data: ctx.data ?? { Attributes: {} },
     package: null,
     toddle: {
       getFormula,
@@ -500,7 +499,7 @@ export const contextlessEvaluateFormula = (
           const handler = formulaContext.toddle.getFormula(formula.name)
           if (typeof handler === 'function') {
             try {
-              const result = applyFormula(formula, formulaContext)
+              const result = applyFormula(formula, formulaContext, ctx.data)
               if (!hasFailed()) {
                 return {
                   isStatic: true,
@@ -582,7 +581,7 @@ export const contextlessEvaluateFormula = (
       // Try evaluating with applyFormula
       const { formulaContext, hasFailed } = createStaticFormulaContext(ctx)
       try {
-        const result = applyFormula(formula, formulaContext)
+        const result = applyFormula(formula, formulaContext, ctx.data)
         if (!hasFailed()) {
           return {
             isStatic: true,
@@ -654,7 +653,7 @@ export const contextlessEvaluateFormula = (
       // Try evaluating with applyFormula
       const { formulaContext, hasFailed } = createStaticFormulaContext(ctx)
       try {
-        const result = applyFormula(formula, formulaContext)
+        const result = applyFormula(formula, formulaContext, ctx.data)
         if (!hasFailed()) {
           return {
             isStatic: true,

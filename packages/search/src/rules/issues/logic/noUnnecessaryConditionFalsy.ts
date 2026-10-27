@@ -6,18 +6,16 @@ export const noUnnecessaryConditionFalsy: IssueRule<unknown, FormulaNode> = {
   level: 'info',
   category: 'Quality',
   nodeTypes: 'formula',
-  visit: (report, { path, value }) => {
+  visit: (report, { path, value, files }) => {
     if (value.type !== 'and') {
       return
     }
 
-    const component =
-      path[0] === 'components' ? files.components[path[1]] : undefined
-
     if (
       (value.arguments ?? []).some((arg) => {
         const { result, isStatic } = contextlessEvaluateFormula(arg.formula, {
-          component,
+          component:
+            path[0] === 'components' ? files.components[path[1]] : undefined,
           formulas: files.formulas,
           packages: files.packages,
         })

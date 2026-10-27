@@ -35,7 +35,8 @@ export function createRequiredElementAttributeRule({
     level: level,
     category: 'Accessibility',
     nodeTypes: 'component-node',
-    visit: (report, { path, value }) => {
+    visit: (report, args) => {
+      const { path, value, files } = args
       if (value?.type === 'element' && value.tag === tag) {
         const attributes = Array.isArray(attribute) ? attribute : [attribute]
         if (
