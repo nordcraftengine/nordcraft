@@ -29,8 +29,11 @@ import * as libFormulas from '@nordcraft/std-lib/formulas'
 import fastDeepEqual from 'fast-deep-equal'
 import { match } from 'path-to-regexp'
 import { isContextApiV2 } from './api/apiUtils'
-import { createLegacyAPI } from './api/createAPI'
-import { createAPI } from './api/createAPIv2'
+import {
+  getApiV2Factory,
+  getLegacyApiFactory,
+  loadApiModules,
+} from './api/modules'
 import { sortApis } from './api/sortApis'
 import { getDynamicMetaEntries } from './components/meta'
 import { renderComponent } from './components/renderComponent'
@@ -138,7 +141,7 @@ export const initGlobalObject = (code?: {
   )
 }
 
-export const createRoot = (domNode: HTMLElement) => {
+export const createRoot = async (domNode: HTMLElement) => {
   const component = window.__toddle.component
   if (!domNode) {
     throw new Error('Cant find root domNode')
@@ -147,6 +150,9 @@ export const createRoot = (domNode: HTMLElement) => {
   if (!window.toddle.components) {
     throw new Error('Missing components')
   }
+
+  // Only load the API runtime(s) actually used by the page and its components
+  await loadApiModules([component, ...window.toddle.components])
 
   window.addEventListener('popstate', () => {
     if (!component) {
@@ -242,9 +248,9 @@ export const createRoot = (domNode: HTMLElement) => {
     ),
   ).forEach(([name, api]) => {
     if (isLegacyApi(api)) {
-      ctx.apis[name] = createLegacyAPI(api, ctx)
+      ctx.apis[name] = getLegacyApiFactory()(api, ctx)
     } else {
-      ctx.apis[name] = createAPI({
+      ctx.apis[name] = getApiV2Factory()({
         apiRequest: api,
         ctx,
         componentData: dataSignal.get(),

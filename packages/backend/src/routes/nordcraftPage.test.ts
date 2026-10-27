@@ -59,6 +59,29 @@ describe('nordcraftPage', () => {
     } as any)
   })
 
+  const renderPage = async ({
+    page = mockPage,
+    files = mockFiles,
+  }: {
+    page?: any
+    files?: any
+  } = {}) => {
+    const app = new Hono()
+    app.use('*', timing())
+    app.get('/test', (c) => {
+      return nordcraftPage({
+        hono: c as any,
+        project: mockProject,
+        files,
+        page,
+        status: 200,
+        options: mockOptions,
+      })
+    })
+    const client: any = testClient(app)
+    return client.test.$get()
+  }
+
   it('should set response headers correctly', async () => {
     const app = new Hono()
     app.use('*', timing())
@@ -78,5 +101,82 @@ describe('nordcraftPage', () => {
     expect(res.headers.get('Cache-Control')).toBe('public, max-age=30')
     expect(res.headers.get('X-Custom-Header')).toBe('CustomValue')
     expect(res.headers.get('Content-Type')).toContain('text/html')
+  })
+
+  it('does not preload API runtimes when no APIs are declared', async () => {
+    const res = await renderPage()
+    const html = await res.text()
+    expect(html).not.toContain('/_static/api-v1.main.esm.js')
+    expect(html).not.toContain('/_static/api-v2.main.esm.js')
+  })
+
+  it('preloads the API v1 runtime when a legacy API is declared', async () => {
+    const res = await renderPage({
+      page: {
+        ...mockPage,
+        apis: {
+          legacy: {
+            name: 'Legacy API',
+            type: 'REST',
+          },
+        },
+      },
+    })
+    const html = await res.text()
+    expect(html).toContain('/_static/api-v1.main.esm.js')
+    expect(html).not.toContain('/_static/api-v2.main.esm.js')
+  })
+
+  it('preloads the API v2 runtime when an API v2 is declared', async () => {
+    const res = await renderPage({
+      page: {
+        ...mockPage,
+        apis: {
+          'API v2': {
+            name: 'API v2',
+            type: 'http',
+            version: 2,
+            inputs: {},
+          },
+        },
+      },
+    })
+    const html = await res.text()
+    expect(html).not.toContain('/_static/api-v1.main.esm.js')
+    expect(html).toContain('/_static/api-v2.main.esm.js')
+  })
+
+  it('preloads API runtimes used by included components', async () => {
+    const res = await renderPage({
+      page: {
+        ...mockPage,
+        nodes: {
+          root: {
+            type: 'component',
+            name: 'child-component',
+          },
+        },
+      },
+      files: {
+        ...mockFiles,
+        components: {
+          'child-component': {
+            name: 'child-component',
+            apis: {
+              'API v2': {
+                name: 'API v2',
+                type: 'http',
+                version: 2,
+                inputs: {},
+              },
+            },
+            nodes: {},
+          },
+        },
+      },
+    })
+    const html = await res.text()
+    expect(html).toContain('/_static/api-v2.main.esm.js')
+    expect(html).not.toContain('/_static/api-v1.main.esm.js')
   })
 })

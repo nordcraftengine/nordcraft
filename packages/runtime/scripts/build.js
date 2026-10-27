@@ -6,3 +6,4 @@ Promise.all(
     esbuild.build(getBundleOptions(name)),
   ),
 ).catch(() => process.exit(1))
+

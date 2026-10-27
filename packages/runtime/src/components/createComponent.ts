@@ -19,8 +19,7 @@ import {
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import { isContextApiV2 } from '../api/apiUtils'
-import { createLegacyAPI } from '../api/createAPI'
-import { createAPI } from '../api/createAPIv2'
+import { getApiV2Factory, getLegacyApiFactory } from '../api/modules'
 import { sortApis } from '../api/sortApis'
 import { isContextProvider } from '../context/isContextProvider'
 import { subscribeToContext } from '../context/subscribeToContext'
@@ -207,7 +206,7 @@ export function createComponent({
         ),
       ).forEach(([name, api]) => {
         if (isLegacyApi(api)) {
-          apis[name] = createLegacyAPI(api, {
+          apis[name] = getLegacyApiFactory()(api, {
             ...ctx,
             apis,
             component,
@@ -232,7 +231,7 @@ export function createComponent({
             },
           })
         } else {
-          apis[name] = createAPI({
+          apis[name] = getApiV2Factory()({
             apiRequest: api,
             ctx: {
               ...ctx,

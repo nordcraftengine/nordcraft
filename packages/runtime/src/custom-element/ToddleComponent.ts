@@ -22,8 +22,11 @@ import {
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
-import { createLegacyAPI } from '../api/createAPI'
-import { createAPI } from '../api/createAPIv2'
+import {
+  getApiV2Factory,
+  getLegacyApiFactory,
+  loadApiModules,
+} from '../api/modules'
 import { sortApis } from '../api/sortApis'
 import { renderComponent } from '../components/renderComponent'
 import { isContextProvider } from '../context/isContextProvider'
@@ -118,19 +121,23 @@ export class ToddleComponent extends HTMLElement {
     }
   }
 
-  connectedCallback() {
+  async connectedCallback() {
+    await loadApiModules([this.#component, ...this.#ctx.components])
+    if (!this.isConnected) {
+      return
+    }
     sortApis(
       Object.entries(this.#component.apis ?? {}).filter(
         (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
       ),
     ).forEach(([name, api]) => {
       if (isLegacyApi(api)) {
-        this.#ctx.apis[name] = createLegacyAPI(
+        this.#ctx.apis[name] = getLegacyApiFactory()(
           api,
           IS_PREVIEW ? { ...this.#ctx, jsonPath: ['apis', name] } : this.#ctx,
         )
       } else {
-        this.#ctx.apis[name] = createAPI({
+        this.#ctx.apis[name] = getApiV2Factory()({
           apiRequest: api,
           ctx: IS_PREVIEW
             ? { ...this.#ctx, jsonPath: ['apis', name] }
