@@ -37,9 +37,10 @@ const testCoreFormulas: Record<string, (...args: any[]) => any> = {
 }
 
 const testCtxWithCoreFormulas = (
-  extra: EvaluationContext = {},
+  extra: Partial<EvaluationContext> = {},
 ): EvaluationContext => {
   return {
+    component: undefined,
     ...extra,
     toddle: {
       getFormula: (name: string) => testCoreFormulas[name],
@@ -48,6 +49,8 @@ const testCtxWithCoreFormulas = (
     },
   }
 }
+
+const emptyCtx: EvaluationContext = { component: undefined }
 
 describe('contextlessEvaluateFormula', () => {
   describe('value formula', () => {
@@ -58,7 +61,7 @@ describe('contextlessEvaluateFormula', () => {
             type: 'value',
             value: true,
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -68,14 +71,14 @@ describe('contextlessEvaluateFormula', () => {
 
     test('evaluates number and string value formulas', () => {
       expect(
-        contextlessEvaluateFormula({ type: 'value', value: 123 }, {}),
+        contextlessEvaluateFormula({ type: 'value', value: 123 }, emptyCtx),
       ).toEqual({
         isStatic: true,
         result: 123,
       })
 
       expect(
-        contextlessEvaluateFormula({ type: 'value', value: 'hello' }, {}),
+        contextlessEvaluateFormula({ type: 'value', value: 'hello' }, emptyCtx),
       ).toEqual({
         isStatic: true,
         result: 'hello',
@@ -91,7 +94,7 @@ describe('contextlessEvaluateFormula', () => {
             type: 'path',
             path: ['Variables', 'myVariable'],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -116,7 +119,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -136,7 +139,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -153,7 +156,7 @@ describe('contextlessEvaluateFormula', () => {
             type: 'and',
             arguments: [],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -168,7 +171,7 @@ describe('contextlessEvaluateFormula', () => {
             type: 'or',
             arguments: [],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -186,7 +189,7 @@ describe('contextlessEvaluateFormula', () => {
               { formula: { type: 'value', value: true } },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -204,7 +207,7 @@ describe('contextlessEvaluateFormula', () => {
               { formula: { type: 'value', value: [] } },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -224,7 +227,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -243,7 +246,7 @@ describe('contextlessEvaluateFormula', () => {
               { formula: { type: 'value', value: false } },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -263,7 +266,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -283,7 +286,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -302,7 +305,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -320,7 +323,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -340,7 +343,7 @@ describe('contextlessEvaluateFormula', () => {
               { name: 'num', formula: { type: 'value', value: 42 } },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -361,7 +364,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -381,7 +384,7 @@ describe('contextlessEvaluateFormula', () => {
               { name: 'b', formula: { type: 'value', value: 2 } },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -402,7 +405,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -429,7 +432,7 @@ describe('contextlessEvaluateFormula', () => {
             ],
             default: { type: 'value', value: 'default' },
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -449,7 +452,7 @@ describe('contextlessEvaluateFormula', () => {
             ],
             default: { type: 'value', value: 'default' },
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -474,7 +477,7 @@ describe('contextlessEvaluateFormula', () => {
             ],
             default: { type: 'value', value: 'default' },
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -495,7 +498,7 @@ describe('contextlessEvaluateFormula', () => {
             ],
             default: { type: 'value', value: 'default' },
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -516,7 +519,7 @@ describe('contextlessEvaluateFormula', () => {
             ],
             default: { type: 'value', value: 'default' },
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -537,7 +540,7 @@ describe('contextlessEvaluateFormula', () => {
             ],
             default: { type: 'value', value: 'default' },
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -558,7 +561,7 @@ describe('contextlessEvaluateFormula', () => {
               { name: '1', formula: { type: 'value', value: 3 } },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -575,7 +578,7 @@ describe('contextlessEvaluateFormula', () => {
               { name: '1', formula: { type: 'value', value: 'world' } },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -593,7 +596,7 @@ describe('contextlessEvaluateFormula', () => {
               { name: '1', formula: { type: 'value', value: 5 } },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -615,7 +618,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -635,7 +638,7 @@ describe('contextlessEvaluateFormula', () => {
               { name: '1', formula: { type: 'value', value: 2 } },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -654,7 +657,7 @@ describe('contextlessEvaluateFormula', () => {
               { name: 'stop', formula: { type: 'value', value: 10 } },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -668,7 +671,7 @@ describe('contextlessEvaluateFormula', () => {
             name: 'range',
             arguments: [],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -682,7 +685,7 @@ describe('contextlessEvaluateFormula', () => {
             name: '@toddle/randomNumber',
             arguments: [],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -696,7 +699,7 @@ describe('contextlessEvaluateFormula', () => {
             name: '@toddle/now',
             arguments: [],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -710,7 +713,7 @@ describe('contextlessEvaluateFormula', () => {
             name: '@toddle/Id',
             arguments: [],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -724,7 +727,7 @@ describe('contextlessEvaluateFormula', () => {
             name: '@toddle/currentURL',
             arguments: [],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -738,7 +741,7 @@ describe('contextlessEvaluateFormula', () => {
             name: '@toddle/getCookie',
             arguments: [{ formula: { type: 'value', value: 'token' } }],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -782,7 +785,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -827,7 +830,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -856,7 +859,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -898,7 +901,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -947,7 +950,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -983,7 +986,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -1036,7 +1039,7 @@ describe('contextlessEvaluateFormula', () => {
               },
             ],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: true,
@@ -1055,6 +1058,7 @@ describe('contextlessEvaluateFormula', () => {
             arguments: [{ name: 'val', formula: { type: 'value', value: 10 } }],
           },
           {
+            component: undefined,
             formulas: {
               myCustomFormula: {
                 name: 'myCustomFormula',
@@ -1089,6 +1093,7 @@ describe('contextlessEvaluateFormula', () => {
             arguments: [{ name: 'val', formula: { type: 'value', value: 10 } }],
           },
           {
+            component: undefined,
             formulas: {
               myCodeFormula: {
                 name: 'myCodeFormula',
@@ -1118,6 +1123,7 @@ describe('contextlessEvaluateFormula', () => {
             ],
           },
           {
+            component: undefined,
             formulas: {
               myCustomFormula: {
                 name: 'myCustomFormula',
@@ -1145,6 +1151,7 @@ describe('contextlessEvaluateFormula', () => {
             arguments: [{ name: 'val', formula: { type: 'value', value: 10 } }],
           },
           {
+            component: undefined,
             formulas: {
               myCustomFormula: {
                 name: 'myCustomFormula',
@@ -1172,6 +1179,7 @@ describe('contextlessEvaluateFormula', () => {
             arguments: [],
           },
           {
+            component: undefined,
             formulas: {
               formulaA: {
                 name: 'formulaA',
@@ -1210,6 +1218,7 @@ describe('contextlessEvaluateFormula', () => {
             arguments: [{ name: 'x', formula: { type: 'value', value: 5 } }],
           },
           {
+            component: undefined,
             packages: {
               'my-package': {
                 formulas: {
@@ -1580,7 +1589,7 @@ describe('contextlessEvaluateFormula', () => {
             name: 'missing',
             arguments: [],
           },
-          {},
+          emptyCtx,
         ),
       ).toEqual({
         isStatic: false,
@@ -1792,7 +1801,7 @@ describe('contextlessEvaluateFormula', () => {
         ],
       }
 
-      expect(compressFormula(andFormula, {})).toEqual({
+      expect(compressFormula(andFormula, emptyCtx)).toEqual({
         type: 'value',
         value: false,
       })
@@ -1805,10 +1814,122 @@ describe('contextlessEvaluateFormula', () => {
         ],
       }
 
-      expect(compressFormula(orFormula, {})).toEqual({
+      expect(compressFormula(orFormula, emptyCtx)).toEqual({
         type: 'value',
         value: true,
       })
+    })
+  })
+
+  describe('evaluation cache', () => {
+    test('returns the identical cached result object for repeated evaluations of the same formula', () => {
+      const formula = {
+        type: 'function' as const,
+        name: '@toddle/add',
+        arguments: [
+          { name: '0', formula: { type: 'value' as const, value: 10 } },
+          { name: '1', formula: { type: 'value' as const, value: 20 } },
+        ],
+      }
+      const ctx = testCtxWithCoreFormulas()
+
+      const firstResult = contextlessEvaluateFormula(formula, ctx)
+      const secondResult = contextlessEvaluateFormula(formula, ctx)
+
+      expect(firstResult).toEqual({ isStatic: true, result: 30 })
+      expect(firstResult).toBe(secondResult)
+    })
+
+    test('caches sub-formulas evaluated during parent formula evaluation', () => {
+      const childFormula = {
+        type: 'function' as const,
+        name: '@toddle/multiply',
+        arguments: [
+          { name: '0', formula: { type: 'value' as const, value: 3 } },
+          { name: '1', formula: { type: 'value' as const, value: 4 } },
+        ],
+      }
+      const parentFormula = {
+        type: 'function' as const,
+        name: '@toddle/add',
+        arguments: [
+          { name: '0', formula: childFormula },
+          { name: '1', formula: { type: 'value' as const, value: 5 } },
+        ],
+      }
+      const ctx = testCtxWithCoreFormulas()
+
+      // Evaluating parent evaluates child recursively
+      contextlessEvaluateFormula(parentFormula, ctx)
+
+      // Evaluating child directly should now hit the cache
+      const childResult = contextlessEvaluateFormula(childFormula, ctx)
+      expect(childResult).toEqual({ isStatic: true, result: 12 })
+
+      const childResultAgain = contextlessEvaluateFormula(childFormula, ctx)
+      expect(childResult).toBe(childResultAgain)
+    })
+
+    test('isolates functionScope cache so Args path formulas do not cross-pollute scopes', () => {
+      const argsPathFormula = {
+        type: 'path' as const,
+        path: ['Args', 'item'],
+      }
+
+      // In standard scope, Args path is not static
+      const outsideScopeResult1 = contextlessEvaluateFormula(argsPathFormula, {
+        component: undefined,
+        inFunctionScope: false,
+      })
+      const outsideScopeResult2 = contextlessEvaluateFormula(argsPathFormula, {
+        component: undefined,
+        inFunctionScope: false,
+      })
+      expect(outsideScopeResult1).toEqual({
+        isStatic: false,
+        result: undefined,
+      })
+      expect(outsideScopeResult1).toBe(outsideScopeResult2)
+
+      // In function scope, Args path is static
+      const insideScopeResult1 = contextlessEvaluateFormula(argsPathFormula, {
+        component: undefined,
+        inFunctionScope: true,
+      })
+      const insideScopeResult2 = contextlessEvaluateFormula(argsPathFormula, {
+        component: undefined,
+        inFunctionScope: true,
+      })
+      expect(insideScopeResult1).toEqual({ isStatic: true, result: undefined })
+      expect(insideScopeResult1).toBe(insideScopeResult2)
+
+      // Re-verifying outside scope still returns cached outside result
+      const outsideScopeResult3 = contextlessEvaluateFormula(argsPathFormula, {
+        component: undefined,
+        inFunctionScope: false,
+      })
+      expect(outsideScopeResult3).toBe(outsideScopeResult1)
+    })
+
+    test('bypasses cache when ctx.data is provided to ensure dynamic evaluation with data', () => {
+      const argsFormula = {
+        type: 'path' as const,
+        path: ['Args', 'item'],
+      }
+
+      const evalWithData1 = contextlessEvaluateFormula(argsFormula, {
+        component: undefined,
+        inFunctionScope: true,
+        data: { Args: { item: 'first' } },
+      })
+      expect(evalWithData1).toEqual({ isStatic: true, result: 'first' })
+
+      const evalWithData2 = contextlessEvaluateFormula(argsFormula, {
+        component: undefined,
+        inFunctionScope: true,
+        data: { Args: { item: 'second' } },
+      })
+      expect(evalWithData2).toEqual({ isStatic: true, result: 'second' })
     })
   })
 })

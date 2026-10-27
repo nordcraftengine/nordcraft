@@ -240,13 +240,23 @@ export const toFormulaContext = (ctx: EvaluationContext): FormulaContext =>
  *  result: unknown; // The evaluated value of the formula
  * }
  */
+export type ContextlessEvaluation = {
+  isStatic: boolean
+  result: unknown
+}
+
+// Formulas are treated as immutable during evaluation/search, so evaluations are cached
+// by object identity. Multiple rules evaluate the same formula objects (and
+// shared sub-graphs are evaluated once via the recursive calls below).
+// Separate caches are maintained for standard scope and function scope
+// because 'Args' path formulas evaluate differently based on inFunctionScope.
+const defaultCache = new WeakMap<Formula, ContextlessEvaluation>()
+const functionScopeCache = new WeakMap<Formula, ContextlessEvaluation>()
+
 export const contextlessEvaluateFormula = (
   formula: Nullable<Formula>,
   ctx: EvaluationContext,
-): {
-  isStatic: boolean
-  result: unknown
-} => {
+) => {
   if (!formula) {
     return {
       isStatic: true,
@@ -254,6 +264,25 @@ export const contextlessEvaluateFormula = (
     }
   }
 
+  const cache = ctx.data
+    ? undefined
+    : ctx.inFunctionScope
+      ? functionScopeCache
+      : defaultCache
+  const cached = cache?.get(formula)
+  if (cached) {
+    return cached
+  }
+
+  const evaluated = evaluateFormula(formula, ctx)
+  cache?.set(formula, evaluated)
+  return evaluated
+}
+
+const evaluateFormula = (
+  formula: Formula,
+  ctx: EvaluationContext,
+): ContextlessEvaluation => {
   switch (formula.type) {
     case 'value': {
       return {
