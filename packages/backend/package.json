@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@nordcraft/runtime": "workspace:*",
-    "@types/node": "26.1.0",
+    "@types/node": "26.6.5",
     "wrangler": "4.151.1"
   }
 }
