@@ -31,12 +31,21 @@ describe('SSR benchmark runner configuration', () => {
   })
 
   test('validates worker response shapes', () => {
-    expect(isWorkerResponse({ timeMs: 12.5 })).toBe(true)
+    expect(isWorkerResponse({ timeMs: 12.5, heapDeltaKb: 32 })).toBe(true)
     expect(isWorkerResponse({ error: 'render failed' })).toBe(true)
-    expect(isWorkerResponse({ timeMs: Number.NaN })).toBe(false)
-    expect(isWorkerResponse({ timeMs: -1 })).toBe(false)
-    expect(isWorkerResponse({ timeMs: 0 })).toBe(false)
-    expect(isWorkerResponse({ timeMs: 1, error: 'ambiguous' })).toBe(false)
+    expect(isWorkerResponse({ timeMs: Number.NaN, heapDeltaKb: 32 })).toBe(
+      false,
+    )
+    expect(isWorkerResponse({ timeMs: -1, heapDeltaKb: 32 })).toBe(false)
+    expect(isWorkerResponse({ timeMs: 0, heapDeltaKb: 32 })).toBe(false)
+    expect(isWorkerResponse({ timeMs: 12.5 })).toBe(false)
+    expect(isWorkerResponse({ timeMs: 12.5, heapDeltaKb: Number.NaN })).toBe(
+      false,
+    )
+    expect(isWorkerResponse({ timeMs: 12.5, heapDeltaKb: -1 })).toBe(false)
+    expect(
+      isWorkerResponse({ timeMs: 1, heapDeltaKb: 2, error: 'ambiguous' }),
+    ).toBe(false)
     expect(isWorkerResponse(null)).toBe(false)
   })
 

@@ -20,9 +20,12 @@ import {
   type SsrBenchmarkCaseId,
 } from '../benchmarks/ssrCases'
 import {
+  evaluateHeapVerdict,
+  formatKb,
   formatMs,
   formatPercent,
   hasInformativeTimingSamples,
+  median,
   summarizeTimeBenchmark,
 } from '../benchmarks/stats'
 
@@ -45,10 +48,15 @@ export type Config = {
   exportMarkdown?: string
 }
 
-export type WorkerResponse = { timeMs: number } | { error: string }
+export type SsrBenchmarkSample = {
+  timeMs: number
+  heapDeltaKb: number
+}
+
+export type WorkerResponse = SsrBenchmarkSample | { error: string }
 
 type SsrWorker = {
-  run: (count?: number) => Promise<number>
+  run: (count?: number) => Promise<SsrBenchmarkSample>
   close: () => Promise<void>
 }
 
@@ -211,7 +219,11 @@ export const isWorkerResponse = (value: unknown): value is WorkerResponse => {
     'timeMs' in value &&
     typeof value.timeMs === 'number' &&
     Number.isFinite(value.timeMs) &&
-    value.timeMs > 0
+    value.timeMs > 0 &&
+    'heapDeltaKb' in value &&
+    typeof value.heapDeltaKb === 'number' &&
+    Number.isFinite(value.heapDeltaKb) &&
+    value.heapDeltaKb >= 0
   )
 }
 
@@ -354,7 +366,7 @@ const startWorker = ({
     if ('error' in response) {
       throw new Error(`SSR benchmark worker failed: ${response.error}`)
     }
-    return response.timeMs
+    return response
   }
 
   let closed = false
@@ -418,12 +430,12 @@ const runCase = async ({
 
   let headWorker: SsrWorker | undefined
   let baseWorker: SsrWorker | undefined
-  const baseTimes: number[] = []
-  const headTimes: number[] = []
+  const baseSamples: SsrBenchmarkSample[] = []
+  const headSamples: SsrBenchmarkSample[] = []
 
-  const runFor = async (worker: SsrWorker, times: number[]) => {
-    if (times.length < config.runs) {
-      times.push(await worker.run())
+  const runFor = async (worker: SsrWorker, samples: SsrBenchmarkSample[]) => {
+    if (samples.length < config.runs) {
+      samples.push(await worker.run())
     }
   }
 
@@ -469,9 +481,9 @@ const runCase = async ({
           : (['head', 'base', 'base', 'head'] as const)
       for (const side of order) {
         if (side === 'base' && activeBaseWorker) {
-          await runFor(activeBaseWorker, baseTimes)
+          await runFor(activeBaseWorker, baseSamples)
         } else if (side === 'head') {
-          await runFor(activeHeadWorker, headTimes)
+          await runFor(activeHeadWorker, headSamples)
         }
       }
     }
@@ -498,29 +510,48 @@ const runCase = async ({
     throw closeFailure.error
   }
 
-  if (headTimes.length !== config.runs) {
+  if (headSamples.length !== config.runs) {
     throw new Error(
       `Benchmark ${caseId} did not collect the requested number of samples`,
     )
   }
-  if (!hasInformativeTimingSamples(headTimes)) {
+  if (!hasInformativeTimingSamples(headSamples.map(({ timeMs }) => timeMs))) {
     throw new Error(`Benchmark ${caseId} returned invalid timing samples`)
+  }
+  if (
+    headSamples.some(
+      ({ heapDeltaKb }) => !Number.isFinite(heapDeltaKb) || heapDeltaKb < 0,
+    )
+  ) {
+    throw new Error(`Benchmark ${caseId} returned invalid heap samples`)
   }
 
   if (baseWorker) {
-    if (baseTimes.length !== config.runs) {
+    if (baseSamples.length !== config.runs) {
       throw new Error(
         `Benchmark ${caseId} did not collect the requested number of base samples`,
       )
     }
-    if (!hasInformativeTimingSamples(baseTimes)) {
+    if (!hasInformativeTimingSamples(baseSamples.map(({ timeMs }) => timeMs))) {
       throw new Error(
         `Benchmark ${caseId} returned invalid base timing samples`,
       )
     }
+    if (
+      baseSamples.some(
+        ({ heapDeltaKb }) => !Number.isFinite(heapDeltaKb) || heapDeltaKb < 0,
+      )
+    ) {
+      throw new Error(`Benchmark ${caseId} returned invalid base heap samples`)
+    }
   } else {
-    baseTimes.push(...headTimes)
+    baseSamples.push(...headSamples)
   }
+
+  const baseTimes = baseSamples.map(({ timeMs }) => timeMs)
+  const headTimes = headSamples.map(({ timeMs }) => timeMs)
+  const baseHeaps = baseSamples.map(({ heapDeltaKb }) => heapDeltaKb)
+  const headHeaps = headSamples.map(({ heapDeltaKb }) => heapDeltaKb)
 
   const isAATest = !baseWorker
   const summary = summarizeTimeBenchmark({
@@ -534,10 +565,22 @@ const runCase = async ({
     bootstrapSeed: config.bootstrapSeed,
   })
 
+  const baseHeapMedianKb = median(baseHeaps)
+  const headHeapMedianKb = median(headHeaps)
+  const deltaHeapKb = headHeapMedianKb - baseHeapMedianKb
+  const deltaHeapPercent =
+    baseHeapMedianKb > 0 ? (deltaHeapKb / baseHeapMedianKb) * 100 : 0
+  const heapResult = evaluateHeapVerdict({
+    isByteIdentical: false,
+    deltaHeapPercent,
+    deltaHeapKb,
+    noiseThresholdPercent: config.noiseThresholdPercent,
+  })
+
   await Bun.write(
     join(headOutputDir, `${caseId}.json`),
     `${JSON.stringify(
-      { caseId, repeat: config.repeat, timesMs: headTimes },
+      { caseId, repeat: config.repeat, timesMs: headTimes, heapsKb: headHeaps },
       null,
       2,
     )}\n`,
@@ -546,7 +589,12 @@ const runCase = async ({
     await Bun.write(
       join(baseOutputDir, `${caseId}.json`),
       `${JSON.stringify(
-        { caseId, repeat: config.repeat, timesMs: baseTimes },
+        {
+          caseId,
+          repeat: config.repeat,
+          timesMs: baseTimes,
+          heapsKb: baseHeaps,
+        },
         null,
         2,
       )}\n`,
@@ -558,16 +606,28 @@ const runCase = async ({
     name,
     mode: isAATest ? 'a/a' : 'comparison',
     ...summary,
+    baseHeaps,
+    headHeaps,
+    baseHeapMedianKb,
+    headHeapMedianKb,
+    deltaHeapKb,
+    deltaHeapPercent,
+    heapStatus: heapResult.status,
+    heapVerdict: heapResult.verdict,
   }
 }
 
 export const SSR_CLEAN_MARKDOWN =
-  '✅ SSR Benchmark: No regressions or improvements — performance is 1:1.'
+  '✅ SSR Benchmark: No regressions or improvements — performance and memory are 1:1.'
 
-export const isSsrClean = (results: ReadonlyArray<{ timeStatus: string }>) =>
+export const isSsrClean = (
+  results: ReadonlyArray<{ timeStatus: string; heapStatus: string }>,
+) =>
   results.length > 0 &&
   results.every(
-    (result) => result.timeStatus === '1:1' || result.timeStatus === 'stable',
+    (result) =>
+      (result.timeStatus === '1:1' || result.timeStatus === 'stable') &&
+      (result.heapStatus === '1:1' || result.heapStatus === 'stable'),
   )
 
 export const renderSsrMarkdown = ({
@@ -581,7 +641,8 @@ export const renderSsrMarkdown = ({
     return SSR_CLEAN_MARKDOWN
   }
   const hasRegressions = results.some(
-    (result) => result.timeStatus === 'regression',
+    (result) =>
+      result.timeStatus === 'regression' || result.heapStatus === 'regression',
   )
   const hasInconclusive = results.some(
     (result) => result.timeStatus === 'inconclusive',
@@ -594,24 +655,27 @@ export const renderSsrMarkdown = ({
     `- **Noise & Equivalence Threshold**: ±${config.noiseThresholdPercent.toFixed(1)}% (noise or statistically indistinguishable deltas are reported as 1:1)`,
     `- **Allowed Regression Threshold**: ${config.maxRegressionPercent.toFixed(1)}% and ${config.maxRegressionMs.toFixed(2)} ms`,
     `- **Measurement**: interleaved Bun worker trials${config.repeat > 1 ? `, ${config.repeat} executions per sample` : ''}`,
+    `- **Heap measurement**: forced GC before and after each sample, reported as retained heap delta per execution`,
     `- **Worker response deadline**: ${config.responseTimeoutMs} ms`,
     `- **Bootstrap**: ${config.bootstrapIterations} iterations, seed ${config.bootstrapSeed}`,
     `- **Mode**: ${config.baseRef ? 'base/head comparison' : 'A/A (head-only; no independent base)'}`,
     '',
     hasRegressions
-      ? '> ⚠️ **Warning**: Performance regression detected above threshold in one or more scenarios.'
+      ? '> ⚠️ **Warning**: Performance or memory regression detected above threshold in one or more scenarios.'
       : hasInconclusive
         ? '> ⚠️ **Warning**: One or more scenarios were inconclusive because their timing samples were invalid or degenerate.'
-        : '> ✅ **No regressions detected**. SSR performance is 1:1, stable, or improved.',
+        : '> ✅ **No regressions detected**. SSR performance and memory are 1:1, stable, or improved.',
     '',
-    '| Case | Base median (IQR) | Head median (IQR) | Delta | 95% CI | p-value | Verdict |',
-    '| :--- | ---: | ---: | ---: | ---: | ---: | :---: |',
+    '| Case | Base median (IQR) | Head median (IQR) | Delta | 95% CI | p-value | Time Verdict | Base/Head heap | Heap Delta | Heap Verdict |',
+    '| :--- | ---: | ---: | ---: | ---: | ---: | :---: | ---: | ---: | :---: |',
     ...results.map((result) => {
       const base = `${formatMs(result.baseMedianMs)} (${formatMs(result.baseIqrMs)})`
       const head = `${formatMs(result.headMedianMs)} (${formatMs(result.headIqrMs)})`
       const delta = `${formatPercent(result.deltaPercent)} (${formatMs(result.deltaMs)})`
       const ci = `${formatPercent(result.ciLowPercent)} / ${formatPercent(result.ciHighPercent)}`
-      return `| **${result.id}** | ${base} | ${head} | ${delta} | ${ci} | ${result.pValue.toExponential(2)} | ${result.timeVerdict} |`
+      const heap = `${formatKb(result.baseHeapMedianKb)} / ${formatKb(result.headHeapMedianKb)}`
+      const heapDelta = `${result.deltaHeapKb >= 0 ? '+' : ''}${formatKb(result.deltaHeapKb)} (${formatPercent(result.deltaHeapPercent)})`
+      return `| **${result.id}** | ${base} | ${head} | ${delta} | ${ci} | ${result.pValue.toExponential(2)} | ${result.timeVerdict} | ${heap} | ${heapDelta} | ${result.heapVerdict} |`
     }),
     '',
   ].join('\n')
@@ -629,7 +693,8 @@ const writeReport = async ({
   jsonPath: string
 }) => {
   const hasRegressions = results.some(
-    (result) => result.timeStatus === 'regression',
+    (result) =>
+      result.timeStatus === 'regression' || result.heapStatus === 'regression',
   )
   const hasInconclusive = results.some(
     (result) => result.timeStatus === 'inconclusive',
@@ -673,11 +738,14 @@ const writeReport = async ({
   )
   console.log(
     'Case'.padEnd(30) +
-      'Base/Head median'.padStart(22) +
+      'Base/Head time'.padStart(22) +
       'Delta'.padStart(18) +
-      '  Verdict',
+      '  Time verdict'.padEnd(24) +
+      'Base/Head heap'.padStart(21) +
+      'Heap delta'.padStart(18) +
+      '  Heap verdict',
   )
-  console.log('-'.repeat(100))
+  console.log('-'.repeat(150))
   for (const result of results) {
     console.log(
       result.id.padEnd(30) +
@@ -687,7 +755,16 @@ const writeReport = async ({
         `${formatPercent(result.deltaPercent)} (${formatMs(result.deltaMs)})`.padStart(
           18,
         ) +
-        `  ${result.timeVerdict}`,
+        '  ' +
+        result.timeVerdict.padEnd(22) +
+        `${formatKb(result.baseHeapMedianKb)} / ${formatKb(result.headHeapMedianKb)}`.padStart(
+          21,
+        ) +
+        `${result.deltaHeapKb >= 0 ? '+' : ''}${formatKb(result.deltaHeapKb)} (${formatPercent(result.deltaHeapPercent)})`.padStart(
+          18,
+        ) +
+        '  ' +
+        result.heapVerdict,
     )
   }
   console.log(
@@ -698,11 +775,25 @@ const writeReport = async ({
 
   if (hasRegressions && config.failOnRegression) {
     const regressions = results
-      .filter((result) => result.timeStatus === 'regression')
-      .map(
+      .filter(
         (result) =>
-          `${result.name}: ${formatPercent(result.deltaPercent)}, ${formatMs(result.deltaMs)}`,
+          result.timeStatus === 'regression' ||
+          result.heapStatus === 'regression',
       )
+      .map((result) => {
+        const details: string[] = []
+        if (result.timeStatus === 'regression') {
+          details.push(
+            `time ${formatPercent(result.deltaPercent)}, ${formatMs(result.deltaMs)}`,
+          )
+        }
+        if (result.heapStatus === 'regression') {
+          details.push(
+            `heap ${formatPercent(result.deltaHeapPercent)}, ${formatKb(result.deltaHeapKb)}`,
+          )
+        }
+        return `${result.name}: ${details.join(', ')}`
+      })
       .join(', ')
     throw new Error(`SSR benchmark regression above threshold: ${regressions}`)
   }
