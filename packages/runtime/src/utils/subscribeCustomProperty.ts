@@ -1,14 +1,41 @@
 import type { Signal } from '../signal/signal'
-import { signal } from '../signal/signal'
 
-import type { ComponentData, StyleVariant } from '@nordcraft/core'
-import { CUSTOM_PROPERTIES_STYLESHEET_ID } from '@nordcraft/core'
+import type {
+  ComponentData,
+  CustomProperty,
+  FormulaContext,
+  StyleVariant,
+} from '@nordcraft/core'
+import {
+  appendUnit,
+  applyFormula,
+  CUSTOM_PROPERTIES_STYLESHEET_ID,
+} from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
 import { CustomPropertyStyleSheet } from '../styles/CustomPropertyStyleSheet'
+import type { ComponentContext } from '../types'
+import { isStaticFormula } from './isStaticFormula'
 
 export const customPropertiesStylesheets = new WeakMap<
   Document | ShadowRoot,
   CustomPropertyStyleSheet
 >()
+
+function getStyleSheet(root: Document | ShadowRoot) {
+  let stylesheet = customPropertiesStylesheets.get(root)
+  if (!stylesheet) {
+    stylesheet = new CustomPropertyStyleSheet(
+      root,
+      (
+        root.getElementById(CUSTOM_PROPERTIES_STYLESHEET_ID) as
+          | HTMLStyleElement
+          | undefined
+      )?.sheet,
+    )
+    customPropertiesStylesheets.set(root, stylesheet)
+  }
+  return stylesheet
+}
 
 export function subscribeCustomProperty({
   selector,
@@ -23,24 +50,12 @@ export function subscribeCustomProperty({
   variant?: StyleVariant
   root: Document | ShadowRoot
 }) {
-  let stylesheet = customPropertiesStylesheets.get(root)
-  if (!stylesheet) {
-    stylesheet = new CustomPropertyStyleSheet(
-      root,
-      (
-        root.getElementById(CUSTOM_PROPERTIES_STYLESHEET_ID) as
-          | HTMLStyleElement
-          | undefined
-      )?.sheet,
-    )
-    customPropertiesStylesheets.set(root, stylesheet)
-  }
-
+  const stylesheet = getStyleSheet(root)
   signal.subscribe(
     stylesheet.registerProperty(selector, customPropertyName, variant),
     {
       destroy: () => {
-        stylesheet?.unregisterProperty(selector, customPropertyName, {
+        stylesheet.unregisterProperty(selector, customPropertyName, {
           mediaQuery: variant?.mediaQuery,
           startingStyle: variant?.startingStyle,
         })
@@ -49,36 +64,51 @@ export function subscribeCustomProperty({
   )
 }
 
-/**
- * Static counterpart of {@link subscribeCustomProperty} for precomputed
- * (value-formula) values. Uses a detached signal instead of a derived one:
- * no parent subscription, so parent updates never recompute it — while the
- * initial set and the unregister-on-unmount wiring behave exactly the same.
- */
-export function subscribeStaticCustomProperty({
+export function bindCustomProperty({
   selector,
   customPropertyName,
-  value,
+  customProperty: { formula, unit },
   variant,
-  root,
   dataSignal,
+  formulaCtx,
+  ctx,
+  reportPath,
 }: {
   selector: string
   customPropertyName: string
-  value: string
+  customProperty: CustomProperty
   variant?: StyleVariant
-  root: Document | ShadowRoot
   dataSignal: Signal<ComponentData>
+  formulaCtx: FormulaContext
+  ctx: ComponentContext
+  reportPath?: (string | number)[]
 }) {
-  const staticSignal = signal(value)
-  subscribeCustomProperty({
+  const stylesheet = getStyleSheet(ctx.root)
+  const update = stylesheet.registerProperty(
     selector,
     customPropertyName,
-    signal: staticSignal,
     variant,
-    root,
-  })
-  // The standalone signal has no parent subscription driving its teardown,
-  // so destroy it explicitly with the owning scope.
-  dataSignal.subscriptions.push(() => staticSignal.destroy())
+  )
+  const unregister = () => {
+    stylesheet.unregisterProperty(selector, customPropertyName, {
+      mediaQuery: variant?.mediaQuery,
+      startingStyle: variant?.startingStyle,
+    })
+  }
+  if (isStaticFormula(formula)) {
+    update(appendUnit(formula.value, unit))
+    dataSignal.subscriptions.push(unregister)
+    return
+  }
+  dataSignal.subscribeMap(
+    (data) => {
+      const val = applyFormula(formula, formulaCtx, data, reportPath)
+      if (IS_PREVIEW && reportPath) {
+        ctx.reportFormulaEvaluation?.(reportPath, val, ctx)
+      }
+      return appendUnit(val, unit)
+    },
+    update,
+    { destroy: unregister },
+  )
 }

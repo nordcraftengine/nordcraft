@@ -61,11 +61,13 @@ export const getThemeSignal = (
     // 2. Default to null
     //    2.1 No theme set explicitly will default to system preference
     //    2.2 Default theme (or initial value) is handled in CSS
-    const initialThemeValue =
-      document.cookie
-        .split('; ')
-        .find((row) => row.startsWith(`${THEME_COOKIE_NAME}=`))
-        ?.split('=')[1] ?? null
+    const cookie = document.cookie
+    const initialThemeValue = cookie
+      ? (cookie
+          .split('; ')
+          .find((row) => row.startsWith(`${THEME_COOKIE_NAME}=`))
+          ?.split('=')[1] ?? null)
+      : null
 
     const sig = signal<string | null>(initialThemeValue as string | null)
     activeCookieThemeSignal = sig
@@ -79,6 +81,9 @@ export const getThemeSignal = (
       cookieListenerRegistered = true
       cookieStore.addEventListener('change', handleCookieStoreChange)
     }
+    dataSignal.subscriptions.push(() => {
+      sig.destroy()
+    })
 
     return sig
   }

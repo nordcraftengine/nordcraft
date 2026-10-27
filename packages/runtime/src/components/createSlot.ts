@@ -33,7 +33,7 @@ export function createSlot({
     }
 
     children = ctx.children[slotName].flatMap((child, childIndex) => {
-      const childDataSignal = child.dataSignal.map((data) => data)
+      const childDataSignal = child.dataSignal.fork()
       dataSignal.subscriptions.push(() => childDataSignal.destroy())
 
       let basePath = child.path

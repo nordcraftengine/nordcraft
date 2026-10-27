@@ -13,7 +13,6 @@ import { Signal, signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { getComponent } from '../utils/getComponent'
 import { isStaticFormula } from '../utils/isStaticFormula'
-import type { OrderableItem } from '../utils/nodes'
 import { ensureEfficientOrdering, getNextSiblingElement } from '../utils/nodes'
 import { createComponent } from './createComponent'
 import { createElement } from './createElement'
@@ -127,7 +126,7 @@ export function createNode({
     const toggle = (show: boolean) => {
       if (show && elements.length === 0) {
         childDataSignal?.destroy()
-        childDataSignal = dataSignal.map((data) => data)
+        childDataSignal = dataSignal.fork()
         elements.push(
           ...create({
             node,
@@ -207,7 +206,6 @@ export function createNode({
       string | number,
       {
         dataSignal: Signal<ComponentData>
-        cleanup: () => void
         elements: ReadonlyArray<Element | Text>
       }
     >()
@@ -221,14 +219,8 @@ export function createNode({
         : undefined
     const repeatFormulaCtx =
       IS_PREVIEW && ctx.jsonPath ? { ...ctx, jsonPath: undefined } : ctx
-    const evaluateRepeatEntries = (
-      data: ComponentData,
-    ): Array<[string, unknown]> => {
-      const list = applyFormula(node?.repeat, repeatFormulaCtx, data, listPath)
 
-      if (typeof list !== 'object' || list === null) {
-        return []
-      }
+    const evaluateRepeatEntries = (list: unknown): Array<[string, unknown]> => {
       if (Array.isArray(list)) {
         const entries = new Array<[string, unknown]>(list.length)
         for (let i = 0; i < list.length; i++) {
@@ -236,54 +228,44 @@ export function createNode({
         }
         return entries
       }
-      return Object.entries(list)
+      return typeof list === 'object' && list !== null
+        ? Object.entries(list)
+        : []
     }
 
     let initialElements: ReadonlyArray<Element | Text> = []
-    let lastExplicitSyncParent: ComponentData | null = null
-    const destroyRepeatItems = () =>
-      Array.from(repeatItems.values()).forEach((e) => {
-        e.cleanup()
+    const destroyRepeatItems = () => {
+      for (const e of repeatItems.values()) {
         e.dataSignal.destroy()
-        e.elements.forEach((e) => e.remove())
-      })
+        for (let k = 0; k < e.elements.length; k++) {
+          e.elements[k]!.remove()
+        }
+      }
+      repeatItems.clear()
+    }
     const updateRepeatList = (list: Array<[string, unknown]>) => {
       const data = dataSignal.get()
       const parentListItem = data.ListItem
-      const parentListItemInfo = parentListItem
-        ? { Parent: parentListItem }
-        : {}
-      const repeatKeyFormula = node?.repeatKey
       const seenKeys = new Set<string | number>()
+      const childDatas: ComponentData[] = new Array(list.length)
       const childKeys: Array<string | number> = new Array(list.length)
-      const childDataCache: Array<ComponentData | undefined> = repeatKeyFormula
-        ? new Array(list.length)
-        : []
       for (let n = 0; n < list.length; n++) {
         const entry = list[n]!
         const Key = entry[0]
-        let childKey: string | number
-        if (repeatKeyFormula) {
-          const Item = entry[1]
-          const keyData = {
-            ...data,
-            ListItem: {
-              ...(parentListItem ? { Parent: parentListItem } : {}),
-              Item,
-              Index: n,
-              Key,
-            },
-          }
-          childDataCache[n] = keyData
-          childKey = applyFormula(
-            repeatKeyFormula,
-            repeatFormulaCtx,
-            keyData,
-            repeatKeyPath,
-          )
-        } else {
-          childKey = Key
-        }
+        const Item = entry[1]
+        const ListItem = parentListItem
+          ? { Parent: parentListItem, Item, Index: n, Key }
+          : { Item, Index: n, Key }
+        const childData = { ...data, ListItem }
+        childDatas[n] = childData
+        let childKey = node?.repeatKey
+          ? applyFormula(
+              node.repeatKey,
+              repeatFormulaCtx,
+              childData,
+              repeatKeyPath,
+            )
+          : Key
 
         if (seenKeys.has(childKey)) {
           console.warn(
@@ -296,113 +278,47 @@ export function createNode({
       }
 
       // Cleanup removed items before rendering new items to ensure clean state
-      repeatItems.forEach((item, key) => {
+      for (const [key, item] of repeatItems) {
         if (!seenKeys.has(key)) {
-          item.cleanup()
           item.dataSignal.destroy()
           item.elements.forEach((e) => e.remove())
           if (defaultElement === key) {
             defaultElement = null
           }
         }
-      })
+      }
 
       const newRepeatItems = new Map<
         string | number,
         {
           dataSignal: Signal<ComponentData>
-          cleanup: () => void
           elements: ReadonlyArray<Element | Text>
         }
       >()
-      const orderedElements: Array<OrderableItem> = []
-      let didExplicitUpdate = false
+      const orderedElements: Array<Element | Text> = []
       for (let n = 0; n < list.length; n++) {
-        const entry = list[n]!
-        const Key = entry[0]
-        const Item = entry[1]
+        const Key = list[n]![0]
         const childKey = childKeys[n]!
+        const childData = childDatas[n]!
         const existingItem = repeatItems.get(childKey)
         if (existingItem) {
-          didExplicitUpdate = true
           newRepeatItems.set(childKey, existingItem)
-          const nextListItem = {
-            ...parentListItemInfo,
-            Item,
-            Index: n,
-            Key,
-          }
           existingItem.dataSignal.set(
-            {
-              ...existingItem.dataSignal.value,
-              ListItem: nextListItem,
-            },
+            childData,
             // We can skip deep equality check as we know the ListItem object is always a fresh object with potentially new Index/Item.
             Signal.FORCE_UPDATE,
           )
-          const existingElements = existingItem.elements
-          for (let k = 0; k < existingElements.length; k++) {
-            orderedElements.push({
-              element: existingElements[k]!,
-              // Reused (previous) nodes already participate in the DOM, so
-              // they can use the state-preserving `moveBefore()`.
-              canMove: true,
-            })
+          for (let k = 0; k < existingItem.elements.length; k++) {
+            orderedElements.push(existingItem.elements[k]!)
           }
         } else {
-          const cachedChildData = childDataCache[n]
-          let newChildData: ComponentData
-          if (cachedChildData) {
-            newChildData = cachedChildData
-          } else {
-            const built = {
-              ...data,
-              ListItem: {
-                ...parentListItemInfo,
-                Item,
-                Index: n,
-                Key,
-              },
-            }
-            newChildData = built
-          }
-          const childDataSignal = signal<ComponentData>(newChildData)
-          const cleanup = dataSignal.subscribe(
-            (data) => {
-              if (firstRun) {
-                return
-              }
-              // Skips the redundant second push when this parent update was
-              // already applied explicitly by `updateRepeatList` above.
-              if (data === lastExplicitSyncParent) {
-                return
-              }
-
-              childDataSignal.set(
-                {
-                  ...data,
-                  ListItem: childDataSignal.value.ListItem,
-                },
-                Signal.FORCE_UPDATE,
-              )
-            },
-            {
-              destroy: () => childDataSignal.destroy(),
-            },
-          )
-
+          const childDataSignal = signal<ComponentData>(childData)
           const repeatIndex =
             Key === '0' && !defaultElement ? undefined : ++lifetimeSize
           const args = {
             node: node!,
             id,
             dataSignal: childDataSignal,
-            // Note that we use the lifetimeSize to ensure that no two items can ever get the same path.
-            // Consider a list [A, B, C]:
-            // - Update list to [B]
-            // - Update list to [A, C, B]
-            // Now C and B would have the same path `(1)` if we only used the index or Key, as B would have kept its reference, but the others would be recreated.
-            // With lifetimeSize, the keys would be A(3), B(1), C(4) - all unique.
             path: repeatIndex ? `${path}(${repeatIndex})` : path,
             ctx,
             namespace,
@@ -416,26 +332,16 @@ export function createNode({
           const elements = node!.condition ? conditional(args) : create(args)
           newRepeatItems.set(childKey, {
             dataSignal: childDataSignal,
-            cleanup,
             elements,
           })
           for (let k = 0; k < elements.length; k++) {
-            orderedElements.push({
-              element: elements[k]!,
-              // Freshly created nodes are detached — `moveBefore()` would
-              // throw `HierarchyRequestError` for those, so they must use
-              // insert instead.
-              canMove: false,
-            })
+            orderedElements.push(elements[k]!)
           }
         }
       }
 
       repeatItems = newRepeatItems
-      initialElements = orderedElements.map((item) => item.element)
-      if (didExplicitUpdate) {
-        lastExplicitSyncParent = data
-      }
+      initialElements = orderedElements
 
       // No reason to continue if we are on first run, as the render-phase for the parent
       // has not yet been reached, or if there are no items to render
@@ -450,59 +356,57 @@ export function createNode({
       )
     }
 
-    if (isStaticFormula(node?.repeat)) {
-      updateRepeatList(evaluateRepeatEntries(dataSignal.get()))
-      dataSignal.subscriptions.push(destroyRepeatItems)
-    } else {
-      let prevEntries: Array<[string, unknown]> | null = null
-      dataSignal.subscribe(
-        (data) => {
+    const repeatFormula = node?.repeat
+    const staticRepeat = isStaticFormula(repeatFormula)
+    if (staticRepeat) {
+      updateRepeatList(evaluateRepeatEntries(repeatFormula.value))
+    }
+    let prevEntries: Array<[string, unknown]> | null = null
+    dataSignal.subscribe(
+      (data) => {
+        if (!staticRepeat) {
+          const list = applyFormula(
+            node?.repeat,
+            repeatFormulaCtx,
+            data,
+            listPath,
+          )
           const prev = prevEntries
-          if (prev !== null) {
-            const list = applyFormula(
-              node?.repeat,
-              repeatFormulaCtx,
-              data,
-              listPath,
+          if (
+            !(
+              prev &&
+              Array.isArray(list) &&
+              list.length === prev.length &&
+              list.every((item, i) => item === prev[i]![1])
             )
-            if (Array.isArray(list)) {
-              if (list.length === prev.length) {
-                let unchanged = true
-                for (let i = 0; i < list.length; i++) {
-                  if (list[i] !== prev[i]![1]) {
-                    unchanged = false
-                    break
-                  }
-                }
-                if (unchanged) {
-                  return
-                }
-              }
-            }
-          }
-          const entries = evaluateRepeatEntries(data)
-          if (prev !== null && entries.length === prev.length) {
-            let unchanged = true
-            for (let i = 0; i < entries.length; i++) {
-              const entry = entries[i]!
-              const prevEntry = prev[i]!
-              if (entry[0] !== prevEntry[0] || entry[1] !== prevEntry[1]) {
-                unchanged = false
-                break
-              }
-            }
-            if (unchanged) {
+          ) {
+            const entries = evaluateRepeatEntries(list)
+            if (
+              entries.length !== prev?.length ||
+              entries.some(
+                (e, i) => e[0] !== prev[i]![0] || e[1] !== prev[i]![1],
+              )
+            ) {
+              prevEntries = entries
+              updateRepeatList(entries)
               return
             }
           }
-          prevEntries = entries
-          updateRepeatList(entries)
-        },
-        {
-          destroy: destroyRepeatItems,
-        },
-      )
-    }
+        } else if (firstRun) {
+          return
+        }
+        for (const item of repeatItems.values()) {
+          item.dataSignal.set(
+            {
+              ...data,
+              ListItem: item.dataSignal.value.ListItem,
+            },
+            Signal.FORCE_UPDATE,
+          )
+        }
+      },
+      { destroy: destroyRepeatItems },
+    )
 
     // We utilize that the signal subscription runs synchronously above,
     // so we already have populated elements to return initially.

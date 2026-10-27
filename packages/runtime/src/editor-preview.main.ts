@@ -1149,7 +1149,7 @@ export const createRoot = (
 
       // Clear old root signal and create a new one to not keep old signals with previous root around
       ctxDataSignal?.destroy()
-      ctxDataSignal = dataSignal.map((data) => data)
+      ctxDataSignal = dataSignal.fork()
       ctxDataSignal.subscribe(() => {
         requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
       })
