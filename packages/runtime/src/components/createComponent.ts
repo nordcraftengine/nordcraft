@@ -7,7 +7,6 @@ import type {
   SupportedNamespaces,
 } from '@nordcraft/core'
 import {
-  appendUnit,
   applyFormula,
   getNodeSelector,
   isDefined,
@@ -29,10 +28,7 @@ import { createFormulaCache } from '../utils/createFormulaCache'
 import { formulaHasValue } from '../utils/formulaHasValue'
 import { getComponent } from '../utils/getComponent'
 import { isStaticFormula } from '../utils/isStaticFormula'
-import {
-  subscribeCustomProperty,
-  subscribeStaticCustomProperty,
-} from '../utils/subscribeCustomProperty'
+import { bindCustomProperty } from '../utils/subscribeCustomProperty'
 import { renderComponent } from './renderComponent'
 
 export type RenderComponentNodeProps = {
@@ -85,10 +81,10 @@ export function createComponent({
           reportFormulaEvaluation: ctx.reportFormulaEvaluation,
         }
       : ctx
-  const attrs = node.attrs ?? {}
+  const attrs = node.attrs
   let hasDynamicAttrs = IS_PREVIEW
-  const initialAttributes: Record<string, unknown> = {}
   const initialData = dataSignal.get()
+  const initialAttributes: Record<string, unknown> = {}
   for (const attr in attrs) {
     const value = attrs[attr]
     if (value?.type !== 'value') {
@@ -100,44 +96,35 @@ export function createComponent({
         IS_PREVIEW && ctx.reportFormulaEvaluation ? ['attrs', attr] : undefined,
       )
     } else {
-      initialAttributes[attr] = value?.value
+      initialAttributes[attr] = value.value
     }
   }
 
   const formulaCache = createFormulaCache(component)
-  const apiFormulaCtx: FormulaContext = IS_PREVIEW
-    ? { ...formulaCtx, component, formulaCache }
-    : {
-        component,
-        formulaCache,
-        root: ctx.root,
-        package: ctx.package,
-        toddle: ctx.toddle,
-        env: ctx.env,
-      }
+  const apiFormulaCtx: FormulaContext = {
+    ...formulaCtx,
+    component,
+    formulaCache,
+  }
   const initialApis: Record<
     string,
     { data: null; isLoading: boolean; error: null }
   > = {}
-  const apisForInit = component.apis
-  if (apisForInit) {
-    for (const name in apisForInit) {
-      const api = apisForInit[name]
-      if (isDefined(api)) {
-        initialApis[name] = {
-          data: null,
-          isLoading:
-            api.autoFetch &&
-            applyFormula(
-              api.autoFetch,
-              apiFormulaCtx,
-              initialData,
-              IS_PREVIEW ? ['apis', name, 'autoFetch'] : undefined,
-            )
-              ? true
-              : false,
-          error: null,
-        }
+  for (const name in component.apis) {
+    const api = component.apis[name]
+    if (isDefined(api)) {
+      initialApis[name] = {
+        data: null,
+        isLoading: Boolean(
+          api.autoFetch &&
+          applyFormula(
+            api.autoFetch,
+            apiFormulaCtx,
+            initialData,
+            IS_PREVIEW ? ['apis', name, 'autoFetch'] : undefined,
+          ),
+        ),
+        error: null,
       }
     }
   }
@@ -151,37 +138,36 @@ export function createComponent({
 
   // Subscribe to global stores (currently only theme)
   // We subscribe before calculating variable initial values to ensure they can reference global store values
-  ctx.stores.theme.subscribe((newTheme) => {
-    if (componentDataSignal.get().Page?.Theme !== newTheme) {
-      const data = componentDataSignal.value
-      componentDataSignal.set(
-        {
-          ...data,
-          Page: {
-            ...data.Page,
-            Theme: newTheme,
+  componentDataSignal.subscriptions.push(
+    ctx.stores.theme.subscribe((newTheme) => {
+      if (componentDataSignal.get().Page?.Theme !== newTheme) {
+        const data = componentDataSignal.value
+        componentDataSignal.set(
+          {
+            ...data,
+            Page: {
+              ...data.Page,
+              Theme: newTheme,
+            },
           },
-        },
-        Signal.FORCE_UPDATE,
-      )
-    }
-  })
+          Signal.FORCE_UPDATE,
+        )
+      }
+    }),
+  )
 
   // Subscribe context before calculating variable initial values to ensure they can reference context values
   subscribeToContext(componentDataSignal, component, ctx)
   const initialVariables: Record<string, unknown> = {}
-  const componentVariables = component.variables
-  if (componentVariables) {
-    for (const name in componentVariables) {
-      const variable = componentVariables[name]
-      if (isDefined(variable)) {
-        initialVariables[name] = applyFormula(
-          variable.initialValue,
-          apiFormulaCtx,
-          componentDataSignal.get(),
-          IS_PREVIEW ? ['variables', name] : undefined,
-        )
-      }
+  for (const name in component.variables) {
+    const variable = component.variables[name]
+    if (isDefined(variable)) {
+      initialVariables[name] = applyFormula(
+        variable.initialValue,
+        apiFormulaCtx,
+        componentDataSignal.get(),
+        IS_PREVIEW ? ['variables', name] : undefined,
+      )
     }
   }
   componentDataSignal.value.Variables = initialVariables
@@ -205,77 +191,52 @@ export function createComponent({
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
   const apis: Record<string, ContextApi> = {}
-  const eventHandlers = node.events
-    ? Object.values(node.events).filter(isDefined)
-    : []
-  const triggerEventFromNode = (eventTrigger: string, data: any) => {
-    const eventHandler = eventHandlers.find((e) => e.trigger === eventTrigger)
-    if (eventHandler) {
-      eventHandler.actions?.forEach((action) =>
+  const onEvent = (eventTrigger: string, data: any) => {
+    Object.values(node.events ?? {})
+      .find((e) => e?.trigger === eventTrigger)
+      ?.actions?.forEach((action) =>
         handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
       )
-    }
   }
-  const componentApis = component.apis
-  if (componentApis) {
-    let hasApis = false
-    for (const key in componentApis) {
-      if (isDefined(componentApis[key])) {
-        hasApis = true
-        break
-      }
-    }
-    if (hasApis) {
-      sortApis(
-        Object.entries(componentApis).filter(
-          (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-        ),
-      ).forEach(([name, api]) => {
-        if (isLegacyApi(api)) {
-          apis[name] = createLegacyAPI(api, {
-            ...ctx,
-            apis,
-            component,
-            dataSignal: componentDataSignal,
-            abortSignal: abortController.signal,
-            isRootComponent: false,
-            formulaCache,
-            package: node.package ?? ctx.package,
-            triggerEvent: triggerEventFromNode,
-          })
-        } else {
-          apis[name] = createAPI({
-            apiRequest: api,
-            ctx: {
-              ...ctx,
-              apis,
-              component,
-              dataSignal: componentDataSignal,
-              abortSignal: abortController.signal,
-              isRootComponent: false,
-              formulaCache,
-              package: node.package ?? ctx.package,
-              triggerEvent: triggerEventFromNode,
-            },
-            componentData: componentDataSignal.get(),
-          })
-        }
+  sortApis(
+    Object.entries(component.apis ?? {}).filter(
+      (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
+    ),
+  ).forEach(([name, api]) => {
+    if (isLegacyApi(api)) {
+      apis[name] = createLegacyAPI(api, {
+        ...ctx,
+        apis,
+        component,
+        dataSignal: componentDataSignal,
+        abortSignal: abortController.signal,
+        isRootComponent: false,
+        formulaCache,
+        package: node.package ?? ctx.package,
+        triggerEvent: onEvent,
+      })
+    } else {
+      apis[name] = createAPI({
+        apiRequest: api,
+        ctx: {
+          ...ctx,
+          apis,
+          component,
+          dataSignal: componentDataSignal,
+          abortSignal: abortController.signal,
+          isRootComponent: false,
+          formulaCache,
+          package: node.package ?? ctx.package,
+          triggerEvent: onEvent,
+        },
+        componentData: componentDataSignal.get(),
       })
     }
-  }
+  })
   for (const name in apis) {
     const api = apis[name]
     if (api && isContextApiV2(api)) {
       api.triggerActions(componentDataSignal.get())
-    }
-  }
-
-  const onEvent = (eventTrigger: string, data: any) => {
-    const eventHandler = eventHandlers.find((e) => e.trigger === eventTrigger)
-    if (eventHandler) {
-      eventHandler.actions?.forEach((action) =>
-        handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
-      )
     }
   }
 
@@ -290,36 +251,33 @@ export function createComponent({
             reportFormulaEvaluation: ctx.reportFormulaEvaluation,
           }
         : apiFormulaCtx
-    const formulaDataSignals = Object.fromEntries(
-      Object.entries(component.formulas ?? {})
-        .filter(([, formula]) => formula?.exposeInContext)
-        .map(([name, formula]) => {
-          const exposed = (formula as ComponentFormula).formula
-          if (isStaticFormula(exposed)) {
-            return [
-              name,
-              signal(
-                applyFormula(
-                  exposed,
-                  providerFormulaCtx,
-                  componentDataSignal.get(),
-                ),
+    const formulaDataSignals: Record<string, Signal<ComponentData>> = {}
+    const componentFormulas = component.formulas
+    if (componentFormulas) {
+      for (const name in componentFormulas) {
+        const formula = componentFormulas[name]
+        if (!formula?.exposeInContext) {
+          continue
+        }
+        const exposed = (formula as ComponentFormula).formula
+        formulaDataSignals[name] = isStaticFormula(exposed)
+          ? signal(
+              applyFormula(
+                exposed,
+                providerFormulaCtx,
+                componentDataSignal.get(),
               ),
-            ]
-          }
-          return [
-            name,
-            componentDataSignal.map((data) =>
+            )
+          : componentDataSignal.map((data) =>
               applyFormula(
                 exposed,
                 providerFormulaCtx,
                 data,
                 IS_PREVIEW ? ['formulas', name] : undefined,
               ),
-            ),
-          ]
-        }),
-    )
+            )
+      }
+    }
 
     providers = {
       ...providers,
@@ -361,37 +319,36 @@ export function createComponent({
   }
 
   if (hasDynamicAttrs) {
-    let firstAttrRun = true
     dataSignal.subscribe(
       (data) => {
-        if (firstAttrRun) {
-          firstAttrRun = false
-          if (data === initialData) {
-            return
-          }
+        if (data === initialData) {
+          return
         }
         const prevAttrs = componentDataSignal.value.Attributes
         let nextAttrs: Record<string, unknown> | undefined
         for (const attr in attrs) {
           const value = attrs[attr]
-          const nextVal =
-            value?.type !== 'value'
-              ? applyFormula(
-                  value,
-                  formulaCtx,
-                  data,
-                  IS_PREVIEW && ctx.reportFormulaEvaluation
-                    ? ['attrs', attr]
-                    : undefined,
-                )
-              : value?.value
-          if (nextAttrs !== undefined) {
+          if (!IS_PREVIEW && value?.type === 'value') {
+            continue
+          }
+          const nextVal = applyFormula(
+            value,
+            formulaCtx,
+            data,
+            IS_PREVIEW && ctx.reportFormulaEvaluation
+              ? ['attrs', attr]
+              : undefined,
+          )
+          if (nextAttrs) {
             nextAttrs[attr] = nextVal
-          } else if (!fastDeepEqual(nextVal, prevAttrs?.[attr])) {
+          } else if (
+            nextVal !== prevAttrs?.[attr] &&
+            !fastDeepEqual(nextVal, prevAttrs?.[attr])
+          ) {
             nextAttrs = { ...prevAttrs, [attr]: nextVal }
           }
         }
-        if (nextAttrs !== undefined) {
+        if (nextAttrs) {
           componentDataSignal.set(
             {
               ...componentDataSignal.value,
@@ -442,90 +399,66 @@ export function createComponent({
   })
 
   // Custom properties instance overrides are added after the child tree is rendered to ensure correct order
-  Object.entries(node.customProperties ?? {})
-    .filter(([_, { formula }]) => formulaHasValue(formula))
-    .forEach(([customPropertyName, customProperty]) => {
-      if (isStaticFormula(customProperty.formula)) {
-        subscribeStaticCustomProperty({
-          selector: getNodeSelector(path, {
-            componentName: ctx.component.name,
-            nodeId,
-          }),
-          value: appendUnit(customProperty.formula.value, customProperty.unit),
-          customPropertyName,
-          root: ctx.root,
-          dataSignal,
-        })
-        return
+  const nodeCustomProperties = node.customProperties
+  if (nodeCustomProperties) {
+    let selector: string | undefined
+    for (const customPropertyName in nodeCustomProperties) {
+      const customProperty =
+        nodeCustomProperties[
+          customPropertyName as keyof typeof nodeCustomProperties
+        ]
+      if (!customProperty || !formulaHasValue(customProperty.formula)) {
+        continue
       }
-      subscribeCustomProperty({
-        selector: getNodeSelector(path, {
-          componentName: ctx.component.name,
-          nodeId,
-        }),
-        signal: dataSignal.map((data) =>
-          appendUnit(
-            applyFormula(
-              customProperty.formula,
-              formulaCtx,
-              data,
-              IS_PREVIEW
-                ? ['customProperties', customPropertyName, 'formula']
-                : undefined,
-            ),
-            customProperty.unit,
-          ),
-        ),
+      selector ??= getNodeSelector(path, {
+        componentName: ctx.component.name,
+        nodeId,
+      })
+      bindCustomProperty({
+        selector,
         customPropertyName,
-        root: ctx.root,
+        customProperty,
+        dataSignal,
+        formulaCtx,
+        ctx,
+        reportPath: IS_PREVIEW
+          ? ['customProperties', customPropertyName, 'formula']
+          : undefined,
       })
-    })
+    }
+  }
   node.variants?.forEach((variant) => {
-    Object.entries(variant.customProperties ?? {})
-      .filter(([_, { formula }]) => formulaHasValue(formula))
-      .forEach(([customPropertyName, customProperty]) => {
-        if (isStaticFormula(customProperty.formula)) {
-          subscribeStaticCustomProperty({
-            selector: getNodeSelector(path, {
-              componentName: ctx.component.name,
-              nodeId,
-              variant,
-            }),
-            value: appendUnit(
-              customProperty.formula.value,
-              customProperty.unit,
-            ),
-            customPropertyName,
-            variant,
-            root: ctx.root,
-            dataSignal,
-          })
-          return
-        }
-        subscribeCustomProperty({
-          selector: getNodeSelector(path, {
-            componentName: ctx.component.name,
-            nodeId,
-            variant,
-          }),
-          signal: dataSignal.map((data) =>
-            appendUnit(
-              applyFormula(
-                customProperty.formula,
-                formulaCtx,
-                data,
-                IS_PREVIEW
-                  ? ['customProperties', customPropertyName, 'formula']
-                  : undefined,
-              ),
-              customProperty.unit,
-            ),
-          ),
-          customPropertyName,
-          variant,
-          root: ctx.root,
-        })
+    const variantCustomProperties = variant.customProperties
+    if (!variantCustomProperties) {
+      return
+    }
+    let selector: string | undefined
+    for (const customPropertyName in variantCustomProperties) {
+      const customProperty =
+        variantCustomProperties[
+          customPropertyName as keyof typeof variantCustomProperties
+        ]
+      if (!customProperty || !formulaHasValue(customProperty.formula)) {
+        continue
+      }
+      selector ??= getNodeSelector(path, {
+        componentName: ctx.component.name,
+        nodeId,
+        variant,
       })
+      bindCustomProperty({
+        selector,
+        customPropertyName,
+        variant,
+        customProperty,
+        dataSignal,
+        formulaCtx,
+        ctx,
+        reportPath: IS_PREVIEW
+          ? ['customProperties', customPropertyName, 'formula']
+          : undefined,
+      })
+    }
   })
 
   return renderedComponent

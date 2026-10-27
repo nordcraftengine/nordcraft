@@ -99,4 +99,44 @@ describe('Signal', () => {
     expect(onDestroy).toHaveBeenCalledTimes(1)
     expect(s.subscribers.size).toBe(0)
   })
+
+  it('subscribeMap() only notifies when mapped value changes', () => {
+    const s = signal({ a: 1, b: 10 })
+    const received: number[] = []
+    const unsubscribe = s.subscribeMap(
+      (val) => val.a,
+      (a) => received.push(a),
+    )
+
+    expect(received).toEqual([1])
+
+    s.set({ a: 1, b: 20 })
+    expect(received).toEqual([1])
+
+    s.set({ a: 2, b: 20 })
+    expect(received).toEqual([1, 2])
+
+    unsubscribe()
+    s.set({ a: 3, b: 20 })
+    expect(received).toEqual([1, 2])
+  })
+
+  it('fork() forwards updates and cleans up on destroy', () => {
+    const parent = signal({ count: 1 })
+    const child = parent.fork()
+    const received: number[] = []
+    child.subscribeMap(
+      (val) => val.count,
+      (c) => received.push(c),
+    )
+
+    expect(received).toEqual([1])
+    parent.set({ count: 2 })
+    expect(received).toEqual([1, 2])
+
+    child.destroy()
+    expect(parent.subscribers.size).toBe(0)
+    parent.set({ count: 3 })
+    expect(received).toEqual([1, 2])
+  })
 })

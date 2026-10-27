@@ -1,6 +1,9 @@
 import type { ComponentAPI } from '@nordcraft/core'
 
 export const sortApis = (apis: Array<[string, ComponentAPI]>) => {
+  if (apis.length <= 1) {
+    return apis
+  }
   return [...apis].sort(([_, aObj], [__, bObj]) => {
     return compareApiDependencies(aObj, bObj)
   })

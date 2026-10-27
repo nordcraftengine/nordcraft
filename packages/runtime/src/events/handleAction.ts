@@ -15,6 +15,7 @@ import {
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
+import { Signal } from '../signal/signal'
 import type { ComponentContext, Location } from '../types'
 import { getLocationUrl } from '../utils/url'
 
@@ -65,23 +66,20 @@ export function handleAction(
 
         // Fast-path as it is cheaper to check just the value than performing a deep update
         // on the entire new state. We can then `{ force: true }` to skip deep equality check in signal.
-        if (fastDeepEqual(current, value)) {
+        if (current === value || fastDeepEqual(current, value)) {
           break
         }
 
-        ctx.dataSignal.update(
-          (data) => {
-            return {
-              ...data,
-              Variables: {
-                ...data.Variables,
-                [action.variable]: value,
-              },
-            }
-          },
+        const currentData = ctx.dataSignal.value
+        ctx.dataSignal.set(
           {
-            force: true,
+            ...currentData,
+            Variables: {
+              ...currentData.Variables,
+              [action.variable]: value,
+            },
           },
+          Signal.FORCE_UPDATE,
         )
         break
       }
@@ -172,7 +170,7 @@ export function handleAction(
             window.history.replaceState({}, '', historyUrl)
           }
         }
-        ctx.toddle.locationSignal.set(newLocation, { force: true })
+        ctx.toddle.locationSignal.set(newLocation, Signal.FORCE_UPDATE)
         break
       }
       case 'SetURLParameters': {
@@ -255,7 +253,7 @@ export function handleAction(
             window.history.replaceState({}, '', historyUrl)
           }
         }
-        ctx.toddle.locationSignal.set(newLocation, { force: true })
+        ctx.toddle.locationSignal.set(newLocation, Signal.FORCE_UPDATE)
         break
       }
       case 'Fetch': {
@@ -499,20 +497,18 @@ export function handleAction(
               result &&
               (typeof result === 'function' || result instanceof Promise)
             ) {
-              ctx.dataSignal.subscribe((data) => data, {
-                destroy: () => {
-                  if (result instanceof Promise) {
-                    result
-                      .then((cleanup) => {
-                        if (typeof cleanup === 'function') {
-                          cleanup()
-                        }
-                      })
-                      .catch((err) => console.error(err))
-                  } else {
-                    result()
-                  }
-                },
+              ctx.dataSignal.subscriptions.push(() => {
+                if (result instanceof Promise) {
+                  result
+                    .then((cleanup) => {
+                      if (typeof cleanup === 'function') {
+                        cleanup()
+                      }
+                    })
+                    .catch((err) => console.error(err))
+                } else {
+                  result()
+                }
               })
             }
 

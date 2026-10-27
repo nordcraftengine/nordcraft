@@ -1,9 +1,15 @@
-import type { Component, ComponentData } from '@nordcraft/core'
+import type {
+  Component,
+  ComponentContext as ComponentContextConfig,
+  ComponentData,
+  Nullable,
+} from '@nordcraft/core'
 import { isDefined } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import { providerContextMock } from '../editor/mockProviderContext'
 import { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
+import { isStaticFormula } from '../utils/isStaticFormula'
 
 export function subscribeToContext(
   componentDataSignal: Signal<ComponentData>,
@@ -14,18 +20,21 @@ export function subscribeToContext(
   if (!contexts) {
     return
   }
-  const entries = Object.entries(contexts)
-  if (entries.length === 0) {
-    return
-  }
-  entries.forEach(([providerName, context]) => {
+  for (const providerName in contexts) {
+    const providerContext: Nullable<ComponentContextConfig> =
+      contexts[providerName]
+    if (!providerContext) {
+      continue
+    }
     const providerKey = isDefined(ctx.package)
       ? `${ctx.package}/${providerName}`
       : providerName
     const provider = ctx.providers[providerKey] ?? ctx.providers[providerName]
 
     if (provider) {
-      context.formulas.forEach((formulaName) => {
+      const formulas: string[] = providerContext.formulas
+      for (let i = 0; i < formulas.length; i++) {
+        const formulaName = formulas[i]!
         const formulaDataSignal = provider.formulaDataSignals[formulaName]
         if (!formulaDataSignal) {
           // eslint-disable-next-line no-console
@@ -34,27 +43,25 @@ export function subscribeToContext(
               provider.formulaDataSignals,
             ).join('", "')}"]`,
           )
-          return
+          continue
         }
 
         const initialVal = formulaDataSignal.get()
-        if (componentDataSignal.value.Contexts?.[providerName]) {
-          componentDataSignal.value.Contexts[providerName][formulaName] =
-            initialVal
-        } else {
-          componentDataSignal.value.Contexts = {
-            ...componentDataSignal.value.Contexts,
-            [providerName]: {
-              ...componentDataSignal.value.Contexts?.[providerName],
-              [formulaName]: initialVal,
-            },
-          }
+        const initialContexts = (componentDataSignal.value.Contexts ??= {})
+        const initialProviderContext = (initialContexts[providerName] ??= {})
+        initialProviderContext[formulaName] = initialVal
+
+        const exposedFormula: unknown =
+          provider.component.formulas?.[formulaName]?.formula
+        if (isStaticFormula(exposedFormula)) {
+          continue
         }
 
         const unsubscribe = formulaDataSignal.subscribe((value) => {
           const data = componentDataSignal.value
           const currentContexts = data.Contexts
-          if (currentContexts?.[providerName]?.[formulaName] === value) {
+          const currentProviderContext = currentContexts?.[providerName]
+          if (currentProviderContext?.[formulaName] === value) {
             return
           }
 
@@ -64,7 +71,7 @@ export function subscribeToContext(
               Contexts: {
                 ...currentContexts,
                 [providerName]: {
-                  ...currentContexts?.[providerName],
+                  ...currentProviderContext,
                   [formulaName]: value,
                 },
               },
@@ -75,7 +82,7 @@ export function subscribeToContext(
           )
         })
         componentDataSignal.subscriptions.push(unsubscribe)
-      })
+      }
     }
 
     // In preview and absence of a real provider, we fake providers with their testData values.
@@ -86,8 +93,8 @@ export function subscribeToContext(
         component,
         ctx,
         providerName,
-        context,
+        context: providerContext,
       })
     }
-  })
+  }
 }
