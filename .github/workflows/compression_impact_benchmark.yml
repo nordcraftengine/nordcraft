@@ -1,0 +1,180 @@
+name: 'Test Data Compression Benchmark'
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/compression_impact_benchmark.yml'
+      - 'benchmarks/**'
+      - 'bin/runRuntimeBenchmark.ts'
+      - 'bin/runSsrBenchmarks.ts'
+      - 'bin/ssrBenchmark.ts'
+      - 'packages/core/**'
+      - 'packages/lib/**'
+      - 'packages/runtime/**'
+      - 'packages/ssr/**'
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build packages
+        run: bun run build
+
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(bunx playwright --version)" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright Chromium
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright Chromium & dependencies
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: bunx playwright install chromium --with-deps
+
+      - name: Run SSR test-data comparison
+        id: ssr_benchmark
+        continue-on-error: true
+        run: |
+          bun bin/runSsrBenchmarks.ts \
+            --compare-fixtures=true \
+            --skip-build=true \
+            --runs=15 \
+            --warmup=3 \
+            --fail-on-regression=false \
+            --output-dir=/tmp/compression-impact-ssr \
+            --export-markdown=/tmp/compression-impact-ssr.md \
+            --export-json=/tmp/compression-impact-ssr.json
+
+      - name: Run runtime test-data comparison
+        id: runtime_benchmark
+        continue-on-error: true
+        run: |
+          bun bin/runRuntimeBenchmark.ts \
+            --compare-fixtures=true \
+            --runs=15 \
+            --warmup=3 \
+            --fail-on-regression=false \
+            --export-markdown=/tmp/compression-impact-runtime.md \
+            --export-json=/tmp/compression-impact-runtime.json
+
+      - name: Compose PR comment
+        if: always()
+        run: |
+          {
+            echo "<!-- nordcraft-compression-impact-benchmark -->"
+            echo "## 🧪 Test Data Compression Impact"
+            echo
+            if [ -f /tmp/compression-impact-ssr.md ]; then
+              cat /tmp/compression-impact-ssr.md
+            else
+              echo "### SSR Test Data Impact Benchmark"
+              echo
+              echo "⚠️ The SSR comparison could not be generated. Check the workflow logs."
+            fi
+            echo
+            if [ -f /tmp/compression-impact-runtime.md ]; then
+              cat /tmp/compression-impact-runtime.md
+            else
+              echo "### Runtime Test Data Impact Benchmark"
+              echo
+              echo "⚠️ The runtime comparison could not be generated. Check the workflow logs."
+            fi
+            echo
+            echo "<sub>Project fixtures are compared as stored against the same fixtures sanitized in memory with \`removeTestData\`.</sub>"
+          } > /tmp/compression-impact-report.md
+
+      - name: Publish step summary
+        if: always()
+        continue-on-error: true
+        run: tee -a "$GITHUB_STEP_SUMMARY" < /tmp/compression-impact-report.md
+
+      - name: Comment on pull request
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('node:fs')
+            const marker = '<!-- nordcraft-compression-impact-benchmark -->'
+            const reportPath = '/tmp/compression-impact-report.md'
+            const report = fs.existsSync(reportPath)
+              ? fs.readFileSync(reportPath, 'utf8')
+              : '## 🧪 Test Data Compression Impact\n\n:warning: The benchmark report could not be generated. Check the workflow logs.'
+            const body = report.includes(marker) ? report : `${marker}\n${report}`
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            })
+            const existing = comments.find((comment) => comment.body?.includes(marker))
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              })
+            }
+
+      - name: Upload benchmark artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compression-impact-benchmark-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
+          path: |
+            /tmp/compression-impact-report.md
+            /tmp/compression-impact-ssr.md
+            /tmp/compression-impact-ssr.json
+            /tmp/compression-impact-ssr/head/*.json
+            /tmp/compression-impact-ssr/base/*.json
+            /tmp/compression-impact-runtime.md
+            /tmp/compression-impact-runtime.json
+
+      - name: Enforce benchmark result
+        if: always()
+        run: |
+          if [ "${{ steps.ssr_benchmark.outcome }}" != "success" ]; then
+            echo "SSR test-data comparison failed." >&2
+            exit 1
+          fi
+          if [ "${{ steps.runtime_benchmark.outcome }}" != "success" ]; then
+            echo "Runtime test-data comparison failed." >&2
+            exit 1
+          fi

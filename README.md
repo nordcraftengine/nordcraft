@@ -121,6 +121,13 @@ and after sanitation, so the serialization savings can be read next to the
 timing and heap verdicts. Both modes ignore `--base-ref` because the comparison
 is between fixture variants rather than code revisions.
 
+The `Test Data Compression Benchmark` workflow runs both comparisons on relevant
+pull requests and always posts the full tables as a single PR comment, including
+when the timing and heap verdicts are 1:1.
+
+- Workflow: `.github/workflows/compression_impact_benchmark.yml`
+- Comment marker: `<!-- nordcraft-compression-impact-benchmark -->`
+
 ## Status
 
 While we consume all packages internally in the Nordcraft framework, this project is currently in development and is not yet ready for other applications to consume.
