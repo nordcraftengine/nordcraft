@@ -14,6 +14,7 @@ import {
   createStylesheet,
   theme as defaultTheme,
   filterObject,
+  getApiVersionsInComponents,
   isDefined,
   isLegacyApi,
   mapObject,
@@ -121,11 +122,23 @@ export class ToddleComponent extends HTMLElement {
     }
   }
 
-  async connectedCallback() {
-    await loadApiModules([this.#component, ...this.#ctx.components])
-    if (!this.isConnected) {
+  connectedCallback() {
+    const components = [this.#component, ...this.#ctx.components]
+    const { v1, v2 } = getApiVersionsInComponents(components)
+    if (!v1 && !v2) {
+      // Components without APIs can render synchronously since no code needs loading
+      this.setup()
       return
     }
+
+    void loadApiModules(components).then(() => {
+      if (this.isConnected) {
+        this.setup()
+      }
+    })
+  }
+
+  private setup() {
     sortApis(
       Object.entries(this.#component.apis ?? {}).filter(
         (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),

@@ -17,6 +17,7 @@ import type {
 import {
   applyFormula,
   filterObject,
+  getApiVersionsInComponents,
   isDefined,
   isLegacyApi,
   mapObject,
@@ -141,7 +142,7 @@ export const initGlobalObject = (code?: {
   )
 }
 
-export const createRoot = async (domNode: HTMLElement) => {
+export const createRoot = (domNode: HTMLElement) => {
   const component = window.__toddle.component
   if (!domNode) {
     throw new Error('Cant find root domNode')
@@ -151,8 +152,27 @@ export const createRoot = async (domNode: HTMLElement) => {
     throw new Error('Missing components')
   }
 
+  const components = [component, ...window.toddle.components]
+  const { v1, v2 } = getApiVersionsInComponents(components)
+  if (!v1 && !v2) {
+    // Pages without APIs can render synchronously since no code needs loading
+    renderRoot(domNode)
+    return
+  }
+
   // Only load the API runtime(s) actually used by the page and its components
-  await loadApiModules([component, ...window.toddle.components])
+  return loadApiModules(components).then(() => renderRoot(domNode))
+}
+
+const renderRoot = (domNode: HTMLElement) => {
+  const component = window.__toddle.component
+  if (!domNode) {
+    throw new Error('Cant find root domNode')
+  }
+
+  if (!window.toddle.components) {
+    throw new Error('Missing components')
+  }
 
   window.addEventListener('popstate', () => {
     if (!component) {
