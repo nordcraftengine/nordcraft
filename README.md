@@ -45,7 +45,9 @@ Install using [bun](https://bun.sh/) by running `bun install`
 - Build: `bun run build` <-- builds all packages
 - Run unit tests: `bun test`
 - Run runtime benchmark: `bun run benchmark:runtime`
+- Run runtime test-data impact benchmark: `bun run benchmark:runtime:compressed`
 - Run SSR benchmark: `bun run benchmark:ssr:run`
+- Run SSR test-data impact benchmark: `bun run benchmark:ssr:compressed`
 - Run issues benchmark: `bun run benchmark:issues`
 - Run benchmark unit tests: `bun run test:benchmarks`
 
@@ -97,6 +99,27 @@ Useful comparison options:
 - `--max-regression-percent=3.0 --max-regression-ms=1.0`
 - `--noise-threshold-percent=1.5`
 - `--fail-on-regression=false` (generate a report without failing the process)
+
+### Test-data compression impact
+
+Projects often carry editor-only test data (`testValue`, `testScenarios`, and
+similar fields) that `removeTestData` strips before a project is shipped for
+rendering. The fixture comparison mode runs the existing fixture-backed runtime
+and SSR benchmark cases twice: once against the fixtures as they are stored and
+once against fixtures sanitized in memory with `removeTestData`.
+
+```sh
+# SSR render and heap impact
+bun run benchmark:ssr:compressed
+
+# Browser runtime mount, interaction, and heap impact
+bun run benchmark:runtime:compressed
+```
+
+The reports include a per-fixture payload comparison with raw/gzip sizes before
+and after sanitation, so the serialization savings can be read next to the
+timing and heap verdicts. Both modes ignore `--base-ref` because the comparison
+is between fixture variants rather than code revisions.
 
 ## Status
 

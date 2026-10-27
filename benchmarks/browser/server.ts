@@ -1,6 +1,9 @@
 /* eslint-disable no-console */
 import path from 'path'
 
+import type { ProjectFiles } from '../../packages/ssr/dist/ssr.types'
+import { compressBenchmarkProject, isFixtureMode } from '../fixtureCompression'
+
 export interface BenchmarkServerOptions {
   port?: number
   baseDistDir: string
@@ -33,13 +36,28 @@ export function startBenchmarkServer(options: BenchmarkServerOptions) {
       if (pathname.startsWith('/fixtures/')) {
         const relative = pathname.replace('/fixtures/', '')
         const targetPath = path.join(browserDir, 'fixtures', relative)
-        const file = Bun.file(targetPath)
-        if (await file.exists()) {
-          return new Response(file, {
-            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        const fixtures = url.searchParams.get('fixtures') ?? 'raw'
+        if (!isFixtureMode(fixtures)) {
+          return new Response(`Invalid fixture mode: ${fixtures}`, {
+            status: 400,
           })
         }
-        return new Response(`Fixture not found: ${relative}`, { status: 404 })
+        const file = Bun.file(targetPath)
+        if (!(await file.exists())) {
+          return new Response(`Fixture not found: ${relative}`, { status: 404 })
+        }
+        if (fixtures === 'compressed') {
+          const project = (await file.json()) as { files: ProjectFiles }
+          return new Response(
+            JSON.stringify(compressBenchmarkProject(project)),
+            {
+              headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            },
+          )
+        }
+        return new Response(file, {
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        })
       }
 
       if (pathname.startsWith('/bundle/base/')) {

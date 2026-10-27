@@ -7,6 +7,11 @@ import {
   parseBenchmarkArgs,
 } from '../benchmarks/cli'
 import {
+  compressProjectFiles,
+  parseFixtureMode,
+  type FixtureMode,
+} from '../benchmarks/fixtureCompression'
+import {
   isSsrBenchmarkCaseId,
   ssrBenchmarkUsage,
   type SsrBenchmarkCaseId,
@@ -72,6 +77,7 @@ type SsrArgs = {
   isWorker: boolean
   runs: number
   warmup: number
+  fixtures: FixtureMode
   outputPath?: string
   json: boolean
 }
@@ -82,7 +88,9 @@ export const parseSsrArgs = (
   const args = parseBenchmarkArgs(argv)
   const caseId = args.get('--case')
   if (!isSsrBenchmarkCaseId(caseId)) {
-    throw new Error(`Usage: bun bin/ssrBenchmark.ts ${ssrBenchmarkUsage()}`)
+    throw new Error(
+      `Usage: bun bin/ssrBenchmark.ts ${ssrBenchmarkUsage()} [--fixtures=raw|compressed]`,
+    )
   }
 
   return {
@@ -91,17 +99,24 @@ export const parseSsrArgs = (
     isWorker: getBoolean(args, '--worker', false),
     runs: getPositiveInteger(args, '--runs', 1),
     warmup: getNonNegativeInteger(args, '--warmup', 0),
+    fixtures: parseFixtureMode(args),
     outputPath: getOptionalString(args, '--output'),
     json: getBoolean(args, '--json', false),
   }
 }
 
-const loadProjectFixture = async (fileName: string) => {
+const loadProjectFixture = async (
+  fileName: string,
+  fixtures: FixtureMode = 'raw',
+) => {
   const fixtureUrl = new URL(
     `../benchmarks/browser/fixtures/${fileName}`,
     import.meta.url,
   )
-  return (await Bun.file(fixtureUrl).json()) as BenchmarkProject
+  const project = (await Bun.file(fixtureUrl).json()) as BenchmarkProject
+  return fixtures === 'compressed'
+    ? { ...project, files: compressProjectFiles(project.files) }
+    : project
 }
 
 const createFormulaCase = (): BenchmarkRunner => {
@@ -308,64 +323,67 @@ const resolvePageFormulaContext = (
   return { formulaContext, data: formulaContext.data }
 }
 
-const createCollectionsHotPathRenderCase =
-  async (): Promise<BenchmarkRunner> => {
-    const project = await loadProjectFixture('benchmark-project.json')
-    const files = project.files
-    const page = files.components.HomePage
+const createCollectionsHotPathRenderCase = async (
+  fixtures: FixtureMode,
+): Promise<BenchmarkRunner> => {
+  const project = await loadProjectFixture('benchmark-project.json', fixtures)
+  const files = project.files
+  const page = files.components.HomePage
 
-    if (!page || !isPageComponent(page)) {
-      throw new Error('No HomePage component found in benchmark project')
-    }
-
-    const pageComponent: PageComponent = page
-    const items = Array.from({ length: 80 }, (_, i) => ({
-      id: `item-${i}`,
-      title: `Card ${i}`,
-    }))
-    const includedComponents = takeIncludedComponents({
-      packages: files.packages,
-      root: pageComponent,
-      includeRoot: true,
-      projectComponents: files.components,
-    })
-    const req = new Request('http://localhost/benchmark')
-
-    return async () => {
-      const { formulaContext, data } = resolvePageFormulaContext(
-        getPageFormulaContext({
-          component: pageComponent,
-          branchName: 'main',
-          req,
-          logErrors: false,
-          files,
-        }),
-      )
-      data.Variables = {
-        ...data.Variables,
-        items,
-      }
-
-      const result = await renderPageBody({
-        component: pageComponent,
-        env: formulaContext.env,
-        evaluateComponentApis: async () => ({}),
-        files,
-        formulaContext,
-        data,
-        includedComponents,
-        req,
-        projectId: 'benchmark-project',
-      })
-
-      if (result.html.length === 0) {
-        throw new Error('Empty HTML from collections benchmark case')
-      }
-    }
+  if (!page || !isPageComponent(page)) {
+    throw new Error('No HomePage component found in benchmark project')
   }
 
-const createProjectRenderCase = async (): Promise<BenchmarkRunner> => {
-  const project = await loadProjectFixture('nordcraft.com.json')
+  const pageComponent: PageComponent = page
+  const items = Array.from({ length: 80 }, (_, i) => ({
+    id: `item-${i}`,
+    title: `Card ${i}`,
+  }))
+  const includedComponents = takeIncludedComponents({
+    packages: files.packages,
+    root: pageComponent,
+    includeRoot: true,
+    projectComponents: files.components,
+  })
+  const req = new Request('http://localhost/benchmark')
+
+  return async () => {
+    const { formulaContext, data } = resolvePageFormulaContext(
+      getPageFormulaContext({
+        component: pageComponent,
+        branchName: 'main',
+        req,
+        logErrors: false,
+        files,
+      }),
+    )
+    data.Variables = {
+      ...data.Variables,
+      items,
+    }
+
+    const result = await renderPageBody({
+      component: pageComponent,
+      env: formulaContext.env,
+      evaluateComponentApis: async () => ({}),
+      files,
+      formulaContext,
+      data,
+      includedComponents,
+      req,
+      projectId: 'benchmark-project',
+    })
+
+    if (result.html.length === 0) {
+      throw new Error('Empty HTML from collections benchmark case')
+    }
+  }
+}
+
+const createProjectRenderCase = async (
+  fixtures: FixtureMode,
+): Promise<BenchmarkRunner> => {
+  const project = await loadProjectFixture('nordcraft.com.json', fixtures)
   const files = project.files
   const page = files.components.nordcraft
 
@@ -413,6 +431,7 @@ const createProjectRenderCase = async (): Promise<BenchmarkRunner> => {
 
 const createFixturePageRenderCase = async ({
   fixtureFile,
+  fixtures,
   pageName,
   projectId,
   url = 'http://localhost/benchmark',
@@ -420,13 +439,14 @@ const createFixturePageRenderCase = async ({
   expectedMarker,
 }: {
   fixtureFile: string
+  fixtures: FixtureMode
   pageName: string
   projectId: string
   url?: string
   variables?: Record<string, unknown>
   expectedMarker?: string
 }): Promise<BenchmarkRunner> => {
-  const project = await loadProjectFixture(fixtureFile)
+  const project = await loadProjectFixture(fixtureFile, fixtures)
   const files = project.files
   const page = files.components[pageName]
 
@@ -490,18 +510,24 @@ const createFixturePageRenderCase = async ({
   }
 }
 
-const createPricingPageRenderCase = (): Promise<BenchmarkRunner> =>
+const createPricingPageRenderCase = (
+  fixtures: FixtureMode,
+): Promise<BenchmarkRunner> =>
   createFixturePageRenderCase({
     fixtureFile: 'nordcraft.com.json',
+    fixtures,
     pageName: 'pricing',
     projectId: 'nordcraft',
     url: 'http://localhost/pricing',
     expectedMarker: 'data-id',
   })
 
-const createLargeListRenderCase = (): Promise<BenchmarkRunner> =>
+const createLargeListRenderCase = (
+  fixtures: FixtureMode,
+): Promise<BenchmarkRunner> =>
   createFixturePageRenderCase({
     fixtureFile: 'benchmark-project.json',
+    fixtures,
     pageName: 'HomePage',
     projectId: 'benchmark-project',
     variables: {
@@ -513,49 +539,61 @@ const createLargeListRenderCase = (): Promise<BenchmarkRunner> =>
     expectedMarker: 'benchmark-list',
   })
 
-const createStyleVariablesRenderCase = (): Promise<BenchmarkRunner> =>
+const createStyleVariablesRenderCase = (
+  fixtures: FixtureMode,
+): Promise<BenchmarkRunner> =>
   createFixturePageRenderCase({
     fixtureFile: 'benchmark-project.json',
+    fixtures,
     pageName: 'StylesPage',
     projectId: 'benchmark-project',
     expectedMarker: 'styles-list',
   })
 
-const createContextPropagationRenderCase = (): Promise<BenchmarkRunner> =>
+const createContextPropagationRenderCase = (
+  fixtures: FixtureMode,
+): Promise<BenchmarkRunner> =>
   createFixturePageRenderCase({
     fixtureFile: 'benchmark-project.json',
+    fixtures,
     pageName: 'ContextPage',
     projectId: 'benchmark-project',
     expectedMarker: 'context-consumer-list',
   })
 
-const createConditionalSubtreeRenderCase = (): Promise<BenchmarkRunner> =>
+const createConditionalSubtreeRenderCase = (
+  fixtures: FixtureMode,
+): Promise<BenchmarkRunner> =>
   createFixturePageRenderCase({
     fixtureFile: 'benchmark-project.json',
+    fixtures,
     pageName: 'LifecyclePage',
     projectId: 'benchmark-project',
     variables: { showSubtree: true },
     expectedMarker: 'lifecycle-container',
   })
 
-export const createRunner = async (id: SsrBenchmarkCaseId) => {
+export const createRunner = async (
+  id: SsrBenchmarkCaseId,
+  { fixtures = 'raw' }: { fixtures?: FixtureMode } = {},
+) => {
   switch (id) {
     case 'formula':
       return createFormulaCase()
     case 'collections-hot-path':
-      return createCollectionsHotPathRenderCase()
+      return createCollectionsHotPathRenderCase(fixtures)
     case 'example-project-homepage':
-      return createProjectRenderCase()
+      return createProjectRenderCase(fixtures)
     case 'example-pricing-page':
-      return createPricingPageRenderCase()
+      return createPricingPageRenderCase(fixtures)
     case 'repeat-large-list':
-      return createLargeListRenderCase()
+      return createLargeListRenderCase(fixtures)
     case 'style-variables':
-      return createStyleVariablesRenderCase()
+      return createStyleVariablesRenderCase(fixtures)
     case 'context-propagation':
-      return createContextPropagationRenderCase()
+      return createContextPropagationRenderCase(fixtures)
     case 'conditional-subtree':
-      return createConditionalSubtreeRenderCase()
+      return createConditionalSubtreeRenderCase(fixtures)
   }
 }
 
@@ -668,7 +706,9 @@ const runDirect = async (runner: BenchmarkRunner, options: SsrArgs) => {
 
 export const main = async (argv: readonly string[] = Bun.argv.slice(2)) => {
   const options = parseSsrArgs(argv)
-  const runner = await createRunner(options.caseId)
+  const runner = await createRunner(options.caseId, {
+    fixtures: options.fixtures,
+  })
   if (options.isWorker) {
     await runWorker(runner, options.repeat)
   } else {

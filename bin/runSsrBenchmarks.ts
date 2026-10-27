@@ -16,6 +16,12 @@ import {
   parseBenchmarkArgs,
 } from '../benchmarks/cli'
 import {
+  loadFixtureSerializationResults,
+  renderFixtureSerializationTable,
+  type FixtureMode,
+  type FixtureSerializationResult,
+} from '../benchmarks/fixtureCompression'
+import {
   SSR_BENCHMARK_CASES,
   type SsrBenchmarkCaseId,
 } from '../benchmarks/ssrCases'
@@ -42,6 +48,7 @@ export type Config = {
   bootstrapSeed: number
   failOnRegression: boolean
   skipBuild: boolean
+  compareFixtures?: boolean
   outputDir?: string
   keepWorktree: boolean
   exportJson?: string
@@ -88,13 +95,14 @@ export const parseConfig = (argv: readonly string[] = Bun.argv.slice(2)) => {
     bootstrapSeed: getNumber(args, '--bootstrap-seed', 0),
     failOnRegression: getBoolean(args, '--fail-on-regression', true),
     skipBuild: getBoolean(args, '--skip-build', false),
+    compareFixtures: getBoolean(args, '--compare-fixtures', false),
     outputDir: getOptionalString(args, '--output-dir'),
     keepWorktree: getBoolean(args, '--keep-worktree', false),
     exportJson: getOptionalString(args, '--export-json'),
     exportMarkdown: getOptionalString(args, '--export-markdown'),
   }
 
-  if (config.baseRef && config.skipBuild) {
+  if (config.baseRef && config.skipBuild && !config.compareFixtures) {
     throw new Error(
       '--skip-build=true is not supported together with --base-ref. The base worktree needs dependencies and compiled dist files.',
     )
@@ -178,6 +186,7 @@ const copyBenchmarkAssets = (worktree: string) => {
   const assets = [
     'bin/ssrBenchmark.ts',
     'benchmarks/cli.ts',
+    'benchmarks/fixtureCompression.ts',
     'benchmarks/ssrCases.ts',
     'benchmarks/browser/fixtures/benchmark-project.json',
     'benchmarks/browser/fixtures/nordcraft.com.json',
@@ -232,11 +241,13 @@ const startWorker = ({
   caseId,
   repeat,
   responseTimeoutMs,
+  fixtures = 'raw',
 }: {
   cwd: string
   caseId: SsrBenchmarkCaseId
   repeat: number
   responseTimeoutMs: number
+  fixtures?: FixtureMode
 }): SsrWorker => {
   const child = spawn(
     'bun',
@@ -244,7 +255,8 @@ const startWorker = ({
       'bin/ssrBenchmark.ts',
       `--case=${caseId}`,
       `--repeat=${repeat}`,
-      '--worker=true',
+      `--worker=true`,
+      `--fixtures=${fixtures}`,
     ],
     {
       cwd,
@@ -412,6 +424,7 @@ const runCase = async ({
   name,
   config,
   baseWorktree,
+  fixtureModes,
   headOutputDir,
   baseOutputDir,
 }: {
@@ -419,6 +432,7 @@ const runCase = async ({
   name: string
   config: Config
   baseWorktree?: string
+  fixtureModes?: { base: FixtureMode; head: FixtureMode }
   headOutputDir: string
   baseOutputDir: string
 }) => {
@@ -427,6 +441,7 @@ const runCase = async ({
   if (baseWorktree) {
     preflightBuiltArtifacts(baseWorktree)
   }
+  const hasBase = Boolean(baseWorktree ?? fixtureModes)
 
   let headWorker: SsrWorker | undefined
   let baseWorker: SsrWorker | undefined
@@ -447,14 +462,16 @@ const runCase = async ({
       caseId,
       repeat: config.repeat,
       responseTimeoutMs: config.responseTimeoutMs,
+      fixtures: fixtureModes?.head ?? 'raw',
     })
     headWorker = activeHeadWorker
-    const activeBaseWorker = baseWorktree
+    const activeBaseWorker = hasBase
       ? startWorker({
-          cwd: baseWorktree,
+          cwd: baseWorktree ?? repositoryRoot,
           caseId,
           repeat: config.repeat,
           responseTimeoutMs: config.responseTimeoutMs,
+          fixtures: fixtureModes?.base ?? 'raw',
         })
       : undefined
     baseWorker = activeBaseWorker
@@ -633,11 +650,14 @@ export const isSsrClean = (
 export const renderSsrMarkdown = ({
   config,
   results,
+  fixtures,
 }: {
   config: Config
   results: Array<Awaited<ReturnType<typeof runCase>>>
+  fixtures?: FixtureSerializationResult[]
 }) => {
-  if (isSsrClean(results)) {
+  const isFixtureComparison = config.compareFixtures === true
+  if (!isFixtureComparison && isSsrClean(results)) {
     return SSR_CLEAN_MARKDOWN
   }
   const hasRegressions = results.some(
@@ -647,18 +667,28 @@ export const renderSsrMarkdown = ({
   const hasInconclusive = results.some(
     (result) => result.timeStatus === 'inconclusive',
   )
-  return [
-    '## ⚡ Nordcraft SSR Performance Benchmark',
+  const lines = [
+    isFixtureComparison
+      ? '## 🧪 Nordcraft SSR Test Data Impact Benchmark'
+      : '## ⚡ Nordcraft SSR Performance Benchmark',
     '',
     `- **Runs**: ${config.runs} (plus ${config.warmup} warmups)`,
-    `- **Base ref**: ${config.baseRef ?? 'head-only'}`,
+    ...(isFixtureComparison
+      ? [
+          '- **Base**: project fixtures with editor-only test data',
+          '- **Head**: project fixtures after `removeTestData` sanitation',
+          '- **Mode**: raw vs. compressed fixture comparison',
+        ]
+      : [
+          `- **Base ref**: ${config.baseRef ?? 'head-only'}`,
+          `- **Mode**: ${config.baseRef ? 'base/head comparison' : 'A/A (head-only; no independent base)'}`,
+        ]),
     `- **Noise & Equivalence Threshold**: ±${config.noiseThresholdPercent.toFixed(1)}% (noise or statistically indistinguishable deltas are reported as 1:1)`,
     `- **Allowed Regression Threshold**: ${config.maxRegressionPercent.toFixed(1)}% and ${config.maxRegressionMs.toFixed(2)} ms`,
     `- **Measurement**: interleaved Bun worker trials${config.repeat > 1 ? `, ${config.repeat} executions per sample` : ''}`,
     `- **Heap measurement**: forced GC before and after each sample, reported as retained heap delta per execution`,
     `- **Worker response deadline**: ${config.responseTimeoutMs} ms`,
     `- **Bootstrap**: ${config.bootstrapIterations} iterations, seed ${config.bootstrapSeed}`,
-    `- **Mode**: ${config.baseRef ? 'base/head comparison' : 'A/A (head-only; no independent base)'}`,
     '',
     hasRegressions
       ? '> ⚠️ **Warning**: Performance or memory regression detected above threshold in one or more scenarios.'
@@ -666,6 +696,18 @@ export const renderSsrMarkdown = ({
         ? '> ⚠️ **Warning**: One or more scenarios were inconclusive because their timing samples were invalid or degenerate.'
         : '> ✅ **No regressions detected**. SSR performance and memory are 1:1, stable, or improved.',
     '',
+  ]
+
+  if (isFixtureComparison && fixtures?.length) {
+    lines.push(
+      '### Fixture payload size',
+      '',
+      ...renderFixtureSerializationTable(fixtures),
+      '',
+    )
+  }
+
+  lines.push(
     '| Case | Base median (IQR) | Head median (IQR) | Delta | 95% CI | p-value | Time Verdict | Base/Head heap | Heap Delta | Heap Verdict |',
     '| :--- | ---: | ---: | ---: | ---: | ---: | :---: | ---: | ---: | :---: |',
     ...results.map((result) => {
@@ -678,17 +720,21 @@ export const renderSsrMarkdown = ({
       return `| **${result.id}** | ${base} | ${head} | ${delta} | ${ci} | ${result.pValue.toExponential(2)} | ${result.timeVerdict} | ${heap} | ${heapDelta} | ${result.heapVerdict} |`
     }),
     '',
-  ].join('\n')
+  )
+
+  return lines.join('\n')
 }
 
 const writeReport = async ({
   config,
   results,
+  fixtures,
   markdownPath,
   jsonPath,
 }: {
   config: Config
   results: Array<Awaited<ReturnType<typeof runCase>>>
+  fixtures?: FixtureSerializationResult[]
   markdownPath: string
   jsonPath: string
 }) => {
@@ -699,7 +745,7 @@ const writeReport = async ({
   const hasInconclusive = results.some(
     (result) => result.timeStatus === 'inconclusive',
   )
-  const markdown = renderSsrMarkdown({ config, results })
+  const markdown = renderSsrMarkdown({ config, results, fixtures })
 
   mkdirSync(dirname(markdownPath), { recursive: true })
   mkdirSync(dirname(jsonPath), { recursive: true })
@@ -725,7 +771,9 @@ const writeReport = async ({
           bootstrapIterations: config.bootstrapIterations,
           bootstrapSeed: config.bootstrapSeed,
           failOnRegression: config.failOnRegression,
+          compareFixtures: config.compareFixtures ?? false,
         },
+        fixtures,
         results,
       },
       null,
@@ -807,7 +855,7 @@ const main = async () => {
   const headOutputDir = join(outputRoot, 'head')
   const baseOutputDir = join(outputRoot, 'base')
   const baseWorktreePath = join(outputRoot, 'base-worktree')
-  if (config.outputDir && !config.baseRef) {
+  if (config.outputDir && (!config.baseRef || config.compareFixtures)) {
     removeBenchmarkWorktree(baseWorktreePath)
   }
   if (config.outputDir) {
@@ -817,7 +865,16 @@ const main = async () => {
   mkdirSync(headOutputDir, { recursive: true })
   mkdirSync(baseOutputDir, { recursive: true })
 
-  console.log('== Nordcraft SSR Performance Benchmark ==')
+  if (config.compareFixtures) {
+    console.log('== Nordcraft SSR Test Data Impact Benchmark ==')
+    if (config.baseRef) {
+      console.log(
+        `Comparing raw and compressed fixtures in the current checkout; ignoring --base-ref=${config.baseRef}`,
+      )
+    }
+  } else {
+    console.log('== Nordcraft SSR Performance Benchmark ==')
+  }
   console.log(
     `Configuration: runs=${config.runs}, warmup=${config.warmup}, repeat=${config.repeat}, threshold=±${config.noiseThresholdPercent}%`,
   )
@@ -830,7 +887,7 @@ const main = async () => {
       runCommand(['bun', 'run', 'build'], { cwd: repositoryRoot })
     }
 
-    if (config.baseRef) {
+    if (config.baseRef && !config.compareFixtures) {
       const activeBaseWorktree = baseWorktreePath
       baseWorktree = activeBaseWorktree
       writeSection(`Preparing base worktree (${config.baseRef})`)
@@ -848,19 +905,30 @@ const main = async () => {
       }
     }
 
+    const fixtureModes = config.compareFixtures
+      ? ({ base: 'raw', head: 'compressed' } as const)
+      : undefined
+    const benchmarkCases = config.compareFixtures
+      ? SSR_BENCHMARK_CASES.filter(({ id }) => id !== 'formula')
+      : SSR_BENCHMARK_CASES
     const results = []
-    for (const benchmarkCase of SSR_BENCHMARK_CASES) {
+    for (const benchmarkCase of benchmarkCases) {
       results.push(
         await runCase({
           caseId: benchmarkCase.id,
           name: benchmarkCase.name,
           config,
           baseWorktree,
+          fixtureModes,
           headOutputDir,
           baseOutputDir,
         }),
       )
     }
+
+    const fixtures = config.compareFixtures
+      ? await loadFixtureSerializationResults()
+      : undefined
 
     const markdownPath = config.exportMarkdown
       ? resolve(repositoryRoot, config.exportMarkdown)
@@ -871,6 +939,7 @@ const main = async () => {
     await writeReport({
       config,
       results,
+      fixtures,
       markdownPath,
       jsonPath,
     })
@@ -885,7 +954,7 @@ const main = async () => {
   }
 
   console.log(`\nHead benchmark outputs: ${headOutputDir}`)
-  if (baseWorktree) {
+  if (baseWorktree || config.compareFixtures) {
     console.log(`Base benchmark outputs: ${baseOutputDir}`)
   }
   console.log(`Benchmark output directory: ${outputRoot}`)

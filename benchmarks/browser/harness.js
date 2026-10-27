@@ -1,5 +1,6 @@
 const params = new URLSearchParams(window.location.search)
 const version = params.get('version') || 'head'
+const fixtures = params.get('fixtures') || 'raw'
 
 let project
 let nordcraftProject
@@ -8,7 +9,7 @@ let customElementRuntime
 async function loadFixture(url, name) {
   const [runtime, fixture] = await Promise.all([
     import(`/bundle/${version}/page.main.esm.js?fixture=${name}`),
-    fetch(url).then((r) => r.json()),
+    fetch(`${url}?fixtures=${fixtures}`).then((r) => r.json()),
   ])
   // Strip APIs to guarantee 100% offline, zero-network deterministic execution
   for (const comp of Object.values(fixture.files.components)) {

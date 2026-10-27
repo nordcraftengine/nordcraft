@@ -172,6 +172,29 @@ describe('benchmark PR comments collapse to a one-liner when 1:1', () => {
     })
     expect(heapRegression.split('\n').length).toBeGreaterThan(1)
     expect(heapRegression).toContain('⚠️ +12.0% (+1.00 MB)')
+
+    const fixtureComparison = renderSsrMarkdown({
+      config: { ...config, compareFixtures: true },
+      results: clean as never,
+      fixtures: [
+        {
+          id: 'benchmark-project',
+          originalBytes: 1000,
+          compressedBytes: 800,
+          savedBytes: 200,
+          reductionPercent: 20,
+          originalGzipBytes: 400,
+          compressedGzipBytes: 350,
+          gzipSavedBytes: 50,
+          gzipReductionPercent: 12.5,
+        },
+      ],
+    })
+    expect(fixtureComparison.split('\n').length).toBeGreaterThan(1)
+    expect(fixtureComparison).toContain('SSR Test Data Impact Benchmark')
+    expect(fixtureComparison).toContain('Fixture payload size')
+    expect(fixtureComparison).toContain('| **benchmark-project** |')
+    expect(fixtureComparison).toContain('raw vs. compressed fixture comparison')
   })
 
   test('Issues benchmark renders one line for 1:1/stable', () => {
@@ -274,5 +297,31 @@ describe('benchmark PR comments collapse to a one-liner when 1:1', () => {
     })
     expect(markdown).toBe(RUNTIME_CLEAN_MARKDOWN)
     expect(markdown.split('\n')).toHaveLength(1)
+
+    const fixtureComparison = renderRuntimeMarkdown({
+      config: { ...config, compareFixtures: true },
+      results: clean as never,
+      fixtures: [
+        {
+          id: 'nordcraft-com',
+          originalBytes: 1000,
+          compressedBytes: 800,
+          savedBytes: 200,
+          reductionPercent: 20,
+          originalGzipBytes: 400,
+          compressedGzipBytes: 350,
+          gzipSavedBytes: 50,
+          gzipReductionPercent: 12.5,
+        },
+      ],
+      isPageBundleIdentical: false,
+      baseRuntimeBytes: 1000,
+      headRuntimeBytes: 1000,
+      deltaSizeStr: '0 B',
+    })
+    expect(fixtureComparison.split('\n').length).toBeGreaterThan(1)
+    expect(fixtureComparison).toContain('Runtime Test Data Impact Benchmark')
+    expect(fixtureComparison).toContain('Fixture payload size')
+    expect(fixtureComparison).toContain('| **nordcraft-com** |')
   })
 })

@@ -16,6 +16,11 @@ import {
   parseBenchmarkArgs,
 } from '../benchmarks/cli'
 import {
+  loadFixtureSerializationResults,
+  renderFixtureSerializationTable,
+  type FixtureSerializationResult,
+} from '../benchmarks/fixtureCompression'
+import {
   computeSha256,
   evaluateHeapVerdict,
   formatKb,
@@ -195,6 +200,7 @@ export const formatSizeDelta = (
 export const renderRuntimeMarkdown = ({
   config,
   results,
+  fixtures,
   isPageBundleIdentical,
   baseRuntimeBytes,
   headRuntimeBytes,
@@ -222,6 +228,7 @@ export const renderRuntimeMarkdown = ({
       | 'heapVerdict'
     >
   >
+  fixtures?: FixtureSerializationResult[]
   isPageBundleIdentical: boolean
   baseRuntimeBytes: number
   headRuntimeBytes: number
@@ -230,23 +237,35 @@ export const renderRuntimeMarkdown = ({
   headRuntimeCompressedBytes?: number
   deltaCompressedSizeStr?: string
 }) => {
-  if (isRuntimeClean(results)) {
+  const isFixtureComparison = config.compareFixtures === true
+  if (!isFixtureComparison && isRuntimeClean(results)) {
     return RUNTIME_CLEAN_MARKDOWN
   }
   const hasRegressions = results.some(
     (r) => r.timeStatus === 'regression' || r.heapStatus === 'regression',
   )
   const markdownLines = [
-    '## ⚡ Nordcraft Runtime Performance Benchmark',
+    isFixtureComparison
+      ? '## 🧪 Nordcraft Runtime Test Data Impact Benchmark'
+      : '## ⚡ Nordcraft Runtime Performance Benchmark',
     '',
     `- **Noise & Equivalence Threshold**: ±${config.noiseThresholdPercent.toFixed(1)}% (Delta within CI or threshold reported as 1:1)`,
     `- **Bootstrap**: ${config.bootstrapIterations} iterations, seed ${config.bootstrapSeed}`,
-    `- **Base ref**: ${config.baseRef ?? 'head-only A/A'}`,
-    `- **Page Bundle Identity**: ${isPageBundleIdentical ? '`Identical build artifacts (1:1 confirmed)`' : '`Distinct build artifacts`'}`,
-    `- **Runtime Size**: Base ${formatKb(baseRuntimeBytes / 1024)} vs. Head ${formatKb(headRuntimeBytes / 1024)} (Delta: ${deltaSizeStr})`,
+    ...(isFixtureComparison
+      ? [
+          '- **Base**: project fixtures with editor-only test data',
+          '- **Head**: project fixtures after `removeTestData` sanitation',
+          '- **Mode**: raw vs. compressed fixture comparison',
+        ]
+      : [
+          `- **Base ref**: ${config.baseRef ?? 'head-only A/A'}`,
+          `- **Page Bundle Identity**: ${isPageBundleIdentical ? '`Identical build artifacts (1:1 confirmed)`' : '`Distinct build artifacts`'}`,
+          `- **Runtime Size**: Base ${formatKb(baseRuntimeBytes / 1024)} vs. Head ${formatKb(headRuntimeBytes / 1024)} (Delta: ${deltaSizeStr})`,
+        ]),
   ]
 
   if (
+    !isFixtureComparison &&
     baseRuntimeCompressedBytes !== undefined &&
     headRuntimeCompressedBytes !== undefined &&
     deltaCompressedSizeStr !== undefined
@@ -256,6 +275,15 @@ export const renderRuntimeMarkdown = ({
     )
   }
   markdownLines.push('')
+
+  if (isFixtureComparison && fixtures?.length) {
+    markdownLines.push(
+      '### Fixture payload size',
+      '',
+      ...renderFixtureSerializationTable(fixtures),
+      '',
+    )
+  }
 
   if (hasRegressions) {
     markdownLines.push(
@@ -303,6 +331,7 @@ export type RuntimeConfig = {
   bootstrapIterations: number
   bootstrapSeed: number
   failOnRegression: boolean
+  compareFixtures?: boolean
   exportJson?: string
   exportMarkdown?: string
 }
@@ -336,6 +365,7 @@ export const parseRuntimeConfig = (
     ),
     bootstrapSeed: getNumber(args, '--bootstrap-seed', 0),
     failOnRegression: getBoolean(args, '--fail-on-regression', true),
+    compareFixtures: getBoolean(args, '--compare-fixtures', false),
     exportJson: getOptionalString(args, '--export-json'),
     exportMarkdown: getOptionalString(args, '--export-markdown'),
   }
@@ -433,7 +463,11 @@ function cleanupWorktree(worktreeDir: string) {
 
 async function runBenchmark() {
   const config = parseArgs()
-  console.log('== Nordcraft Runtime Performance Benchmark ==')
+  console.log(
+    config.compareFixtures
+      ? '== Nordcraft Runtime Test Data Impact Benchmark =='
+      : '== Nordcraft Runtime Performance Benchmark ==',
+  )
   console.log(
     `Configuration: runs=${config.runs}, warmup=${config.warmup}, threshold=±${config.noiseThresholdPercent}%`,
   )
@@ -442,7 +476,17 @@ async function runBenchmark() {
   let createdWorktreePath: string | null = null
   let isAATest = false
 
-  if (!baseDistDir) {
+  if (config.compareFixtures) {
+    baseDistDir = config.headDir
+    console.log(
+      'Fixture comparison mode: comparing raw project fixtures to fixtures sanitized with removeTestData',
+    )
+    if (config.baseRef) {
+      console.log(
+        `Ignoring --base-ref=${config.baseRef} while comparing fixture payloads`,
+      )
+    }
+  } else if (!baseDistDir) {
     if (config.baseRef) {
       const baseArtifacts = await prepareBaseWorktree(config.baseRef)
       createdWorktreePath = baseArtifacts.worktreePath
@@ -464,6 +508,9 @@ async function runBenchmark() {
   let baseRuntimeCompressedBytes = 0
   let headRuntimeCompressedBytes = 0
   let isPageBundleIdentical = false
+  const fixtures = config.compareFixtures
+    ? await loadFixtureSerializationResults()
+    : undefined
   try {
     const getFileSize = (filePath: string) => {
       try {
@@ -513,7 +560,7 @@ async function runBenchmark() {
     if (!baseSha || !headSha) {
       throw new Error('Unable to hash the page runtime bundles')
     }
-    isPageBundleIdentical = baseSha === headSha
+    isPageBundleIdentical = !config.compareFixtures && baseSha === headSha
 
     console.log(
       `Base bundle SHA: ${baseSha ? baseSha.slice(0, 10) : 'unknown'}`,
@@ -563,9 +610,16 @@ async function runBenchmark() {
     const basePage = await baseContext.newPage()
     const headPage = await headContext.newPage()
 
+    const fixtureQuery = config.compareFixtures
+      ? { base: '&fixtures=raw', head: '&fixtures=compressed' }
+      : { base: '', head: '' }
     await Promise.all([
-      basePage.goto(`${serverUrl}/harness.html?version=base`),
-      headPage.goto(`${serverUrl}/harness.html?version=head`),
+      basePage.goto(
+        `${serverUrl}/harness.html?version=base${fixtureQuery.base}`,
+      ),
+      headPage.goto(
+        `${serverUrl}/harness.html?version=head${fixtureQuery.head}`,
+      ),
     ])
 
     await Promise.all([
@@ -654,9 +708,11 @@ async function runBenchmark() {
         )
       }
 
-      const isByteIdentical = scenario.bundles.every(
-        (bundle) => bundleIdentities.get(`${scenario.id}:${bundle}`) === true,
-      )
+      const isByteIdentical =
+        !config.compareFixtures &&
+        scenario.bundles.every(
+          (bundle) => bundleIdentities.get(`${scenario.id}:${bundle}`) === true,
+        )
 
       const timeResult = summarizeTimeBenchmark({
         baseTimes,
@@ -794,6 +850,7 @@ async function runBenchmark() {
   const markdownContent = renderRuntimeMarkdown({
     config,
     results,
+    fixtures,
     isPageBundleIdentical,
     baseRuntimeBytes,
     headRuntimeBytes,
@@ -823,7 +880,9 @@ async function runBenchmark() {
             bootstrapIterations: config.bootstrapIterations,
             bootstrapSeed: config.bootstrapSeed,
             failOnRegression: config.failOnRegression,
+            compareFixtures: config.compareFixtures ?? false,
           },
+          fixtures,
           isByteIdentical: isPageBundleIdentical,
           isAATest,
           runtimeSize: {

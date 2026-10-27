@@ -30,6 +30,18 @@ describe('SSR benchmark runner configuration', () => {
     expect(config.warmup).toBe(0)
   })
 
+  test('supports comparing raw and compressed project fixtures', () => {
+    const config = parseConfig([
+      '--compare-fixtures=true',
+      '--base-ref=origin/main',
+      '--skip-build=true',
+    ])
+
+    expect(config.compareFixtures).toBe(true)
+    expect(config.skipBuild).toBe(true)
+    expect(parseConfig([]).compareFixtures).toBe(false)
+  })
+
   test('validates worker response shapes', () => {
     expect(isWorkerResponse({ timeMs: 12.5, heapDeltaKb: 32 })).toBe(true)
     expect(isWorkerResponse({ error: 'render failed' })).toBe(true)
