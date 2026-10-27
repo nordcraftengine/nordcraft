@@ -57,9 +57,7 @@ export function setAttribute(
         ) {
           // Push to end of queue to ensure the element is attached to the DOM before focusing
           queueMicrotask(
-            () =>
-              elem.isConnected &&
-              (elem as HTMLElement).focus({ preventScroll: true }),
+            () => elem.isConnected && (elem as HTMLElement).focus(),
           )
         }
       } else {
