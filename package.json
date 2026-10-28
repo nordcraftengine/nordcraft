@@ -27,6 +27,7 @@
     "prettier": "3.8.3"
   },
   "scripts": {
+    "analyze:runtime": "bun run --cwd packages/runtime analyze",
     "benchmark:runtime": "bun bin/runRuntimeBenchmark.ts",
     "benchmark:issues": "bun bin/runIssuesBenchmark.ts",
     "build": "cd packages/core && bun run build && cd ../schemas && bun run build && cd ../lib && bun run build && cd ../ssr && bun run build && cd ../search && bun run build && cd ../runtime && bun run build",
