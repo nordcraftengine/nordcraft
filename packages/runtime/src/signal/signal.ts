@@ -1,10 +1,10 @@
 import fastDeepEqual from 'fast-deep-equal'
 
 function notifySubscriber<T>(
-  this: T,
+  this: Signal<T>,
   subscriber: { notify: (value: T) => void },
 ) {
-  subscriber.notify(this)
+  subscriber.notify(this.value)
 }
 
 export class Signal<T> {
@@ -33,7 +33,7 @@ export class Signal<T> {
 
     if (options?.force || fastDeepEqual(value, this.value) === false) {
       this.value = value
-      this.subscribers.forEach(notifySubscriber, this.value)
+      this.subscribers.forEach(notifySubscriber, this)
     }
   }
 
@@ -111,7 +111,6 @@ export class Signal<T> {
     config?: { destroy?: () => void },
   ) {
     let prev = f(this.value)
-    notify(prev)
     const subscriber = {
       notify: (value: T) => {
         const next = f(value)
@@ -123,6 +122,7 @@ export class Signal<T> {
       destroy: config?.destroy,
     }
     this.subscribers.add(subscriber)
+    notify(prev)
     return () => {
       this.subscribers.delete(subscriber)
     }

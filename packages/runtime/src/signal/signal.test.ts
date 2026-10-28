@@ -121,6 +121,44 @@ describe('Signal', () => {
     expect(received).toEqual([1, 2])
   })
 
+  it('reads current value during reentrant subscriber notifications', () => {
+    const s = signal(1)
+    const firstReceived: number[] = []
+    const secondReceived: number[] = []
+
+    s.subscribe((val) => {
+      firstReceived.push(val)
+      if (val === 2) {
+        s.set(3)
+      }
+    })
+    s.subscribe((val) => {
+      secondReceived.push(val)
+    })
+
+    s.set(2)
+    expect(firstReceived).toEqual([1, 2, 3])
+    expect(secondReceived).toEqual([1, 3, 3])
+    expect(s.get()).toBe(3)
+  })
+
+  it('subscribeMap() notifies when initial callback synchronously updates the source signal', () => {
+    const s = signal(1)
+    const received: number[] = []
+
+    s.subscribeMap(
+      (val) => val * 10,
+      (mapped) => {
+        received.push(mapped)
+        if (mapped === 10) {
+          s.set(2)
+        }
+      },
+    )
+
+    expect(received).toEqual([10, 20])
+  })
+
   it('fork() forwards updates and cleans up on destroy', () => {
     const parent = signal({ count: 1 })
     const child = parent.fork()

@@ -117,9 +117,7 @@ export const applyFunctionFormula = (
             )
       }
       try {
-        return legacyFunc.length > 1
-          ? legacyFunc(args, { ...activeCtx, data } as any)
-          : (legacyFunc as (args: unknown[]) => any)(args)
+        return legacyFunc(args, { ...activeCtx, data } as any)
       } catch (e) {
         ctx.toddle.errors.push(e as Error)
         if (ctx.env?.logErrors) {

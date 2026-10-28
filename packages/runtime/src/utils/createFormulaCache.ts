@@ -7,11 +7,15 @@ import type {
 import { get, isDefined } from '@nordcraft/core'
 import type { FormulaCache } from '../types'
 
+// Components without memoized formulas can share this empty cache. The object
+// itself is never written to (only the per-formula entries returned by `get`).
+const EMPTY_FORMULA_CACHE: FormulaCache = Object.create(null)
+
 export function createFormulaCache(component: Component): FormulaCache {
   if (!isDefined(component.formulas)) {
-    return {}
+    return EMPTY_FORMULA_CACHE
   }
-  const cache: FormulaCache = {}
+  let cache: FormulaCache | undefined
   const formulas = component.formulas
   for (const name in formulas) {
     const f = formulas[name]
@@ -22,6 +26,7 @@ export function createFormulaCache(component: Component): FormulaCache {
     if (!canCache) {
       continue
     }
+    cache ??= Object.create(null) as FormulaCache
     let cacheInput: any
     let cacheData: any
 
@@ -43,7 +48,7 @@ export function createFormulaCache(component: Component): FormulaCache {
       },
     }
   }
-  return cache
+  return cache ?? EMPTY_FORMULA_CACHE
 }
 
 function getFormulaCacheConfig(formula: Formula, component: Component) {
