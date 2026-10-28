@@ -13,7 +13,7 @@ import { signal, type Signal } from '../signal/signal'
 // its subscribers, since the listener closure captures the signal) and (b) add
 // an event listener per mounted component.
 let activeCookieThemeSignal: Signal<string | null> | null = null
-let cookieListenerRegistered = false
+let registeredCookieStore: CookieStore | null = null
 
 const handleCookieStoreChange = (event: CookieChangeEvent) => {
   if (!activeCookieThemeSignal) {
@@ -74,14 +74,21 @@ export const getThemeSignal = (
     sig.subscriptions.push(() => {
       if (activeCookieThemeSignal === sig) {
         activeCookieThemeSignal = null
+        if (registeredCookieStore) {
+          registeredCookieStore.removeEventListener?.(
+            'change',
+            handleCookieStoreChange,
+          )
+          registeredCookieStore = null
+        }
       }
     })
     dataSignal.subscriptions.push(() => {
       sig.destroy()
     })
     // Listen to cookie store API changes for 'nc-theme'
-    if (!cookieListenerRegistered && 'cookieStore' in window) {
-      cookieListenerRegistered = true
+    if ('cookieStore' in window && registeredCookieStore !== cookieStore) {
+      registeredCookieStore = cookieStore
       cookieStore.addEventListener('change', handleCookieStoreChange)
     }
 
