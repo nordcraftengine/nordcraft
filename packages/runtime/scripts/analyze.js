@@ -11,9 +11,10 @@ const {
 
 const DEFAULT_BUNDLE = 'page.main'
 
-const HELP = `Usage: bun run analyze [bundle] [--verbose] [--open]
+const HELP = `Usage: bun run analyze [bundle] [--verbose] [--cli]
 
-Analyze the size of a runtime bundle built with esbuild.
+Analyze the size of a runtime bundle built with esbuild. By default, an interactive
+visual analyzer is served and opened in your browser.
 
 Arguments:
   bundle          Bundle to analyze (default: ${DEFAULT_BUNDLE}).
@@ -24,7 +25,7 @@ Arguments:
                   analyzed as well.
 
 Options:
-  -o, --open      Open the interactive visual analyzer in your browser
+  -c, --cli       Output the analysis to the terminal only (do not open browser)
   -v, --verbose   Show the size of each individual file
   -h, --help      Show this help message`
 
@@ -36,7 +37,7 @@ if (args.includes('--help') || args.includes('-h')) {
 }
 
 const verbose = args.includes('--verbose') || args.includes('-v')
-const open = args.includes('--open') || args.includes('-o')
+const cliOnly = args.includes('--cli') || args.includes('-c')
 const requested = args.find((arg) => !arg.startsWith('-')) ?? DEFAULT_BUNDLE
 const entryPoint = getSourceEntry(requested)
 
@@ -56,7 +57,7 @@ const analyze = async () => {
   const report = await esbuild.analyzeMetafile(result.metafile, { verbose })
   console.log(report)
 
-  if (open) {
+  if (!cliOnly) {
     const server = serveAnalyzer(result.metafile)
     const url = `http://localhost:${server.port}`
     console.log(`Serving bundle analyzer at ${url}`)
