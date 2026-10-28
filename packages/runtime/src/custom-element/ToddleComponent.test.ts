@@ -76,3 +76,74 @@ describe('ToddleComponent attributeChangedCallback()', () => {
     )
   })
 })
+
+describe('ToddleComponent theme lifecycle', () => {
+  test('it restores cookie theme listener and refreshes theme on reconnect', () => {
+    const listeners = new Set<(event: any) => void>()
+    const originalCookieStoreDescriptor =
+      Object.getOwnPropertyDescriptor(window, 'cookieStore') ??
+      Object.getOwnPropertyDescriptor(
+        Object.getPrototypeOf(window),
+        'cookieStore',
+      )
+    Object.defineProperty(window, 'cookieStore', {
+      value: {
+        addEventListener: (type: string, fn: (event: any) => void) => {
+          if (type === 'change') {
+            listeners.add(fn)
+          }
+        },
+        removeEventListener: (type: string, fn: (event: any) => void) => {
+          if (type === 'change') {
+            listeners.delete(fn)
+          }
+        },
+      },
+      configurable: true,
+      writable: true,
+    })
+
+    let freshEl: ToddleComponent | undefined
+    try {
+      document.cookie = 'nc-theme=light'
+      freshEl = defineAndCreate()
+      expect(listeners.size).toBe(1)
+
+      freshEl.connectedCallback()
+      expect(freshEl.getAttribute('data-nc-theme')).toBe('light')
+      expect(freshEl.__signal.get().Page?.Theme).toBe('light')
+
+      freshEl.disconnectedCallback()
+      expect(listeners.size).toBe(0)
+
+      // Theme cookie changes while disconnected
+      document.cookie = 'nc-theme=dark'
+      freshEl.connectedCallback()
+      expect(freshEl.getAttribute('data-nc-theme')).toBe('dark')
+      expect(freshEl.__signal.get().Page?.Theme).toBe('dark')
+      expect(listeners.size).toBe(1)
+
+      // Theme cookie changes while reconnected via cookieStore event
+      for (const listener of listeners) {
+        listener({
+          changed: [{ name: 'nc-theme', value: 'contrast' }],
+          deleted: [],
+        })
+      }
+      expect(freshEl.getAttribute('data-nc-theme')).toBe('contrast')
+      expect(freshEl.__signal.get().Page?.Theme).toBe('contrast')
+    } finally {
+      freshEl?.disconnectedCallback()
+      if (originalCookieStoreDescriptor) {
+        Object.defineProperty(
+          window,
+          'cookieStore',
+          originalCookieStoreDescriptor,
+        )
+      } else {
+        delete (window as any).cookieStore
+      }
+      document.cookie = 'nc-theme=; Max-Age=0'
+    }
+  })
+})
