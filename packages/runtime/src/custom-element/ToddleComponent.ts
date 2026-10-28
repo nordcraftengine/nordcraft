@@ -53,6 +53,7 @@ export class ToddleComponent extends HTMLElement {
   // (which receives lowercased names from observedAttributes) can look them up in the
   // component's attributes without scanning the whole object on every change.
   #attributeNames: Map<string, string>
+  #isSetup = false
 
   constructor(
     component: Component,
@@ -123,6 +124,9 @@ export class ToddleComponent extends HTMLElement {
   }
 
   connectedCallback() {
+    if (this.#isSetup) {
+      return
+    }
     const components = [this.#component, ...this.#ctx.components]
     const { v1, v2 } = getApiVersionsInComponents(components)
     if (!v1 && !v2) {
@@ -132,13 +136,17 @@ export class ToddleComponent extends HTMLElement {
     }
 
     void loadApiModules(components).then(() => {
-      if (this.isConnected) {
+      if (this.isConnected && !this.#isSetup) {
         this.setup()
       }
     })
   }
 
   private setup() {
+    if (this.#isSetup) {
+      return
+    }
+    this.#isSetup = true
     sortApis(
       Object.entries(this.#component.apis ?? {}).filter(
         (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),

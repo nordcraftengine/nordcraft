@@ -1,6 +1,6 @@
 /* eslint-disable max-params */
 import '../compileTime'
-import type { Component, ComponentData } from '../component/component.types'
+import type { ComponentData } from '../component/component.types'
 import type { Formula, FormulaContext } from '../formula/formula'
 import { applyFormula } from '../formula/formula'
 import type { Nullable } from '../types'
@@ -11,86 +11,15 @@ import type {
   ApiBase,
   ApiPerformance,
   ApiRequest,
-  ComponentAPI,
-  LegacyComponentAPI,
   ToddleRequestInit,
 } from './apiTypes'
 import { ApiMethod } from './apiTypes'
 import { isJsonHeader } from './headers'
-import type { LegacyToddleApi } from './LegacyToddleApi'
 import type { ToddleApiV2 } from './ToddleApiV2'
 
+export * from './apiVersions'
+
 export const NON_BODY_RESPONSE_CODES = [101, 204, 205, 304]
-
-export const isLegacyApi = <Handler>(
-  api: ComponentAPI | LegacyToddleApi<Handler> | ToddleApiV2<Handler>,
-): api is LegacyComponentAPI | LegacyToddleApi<Handler> => !('version' in api)
-
-export type ApiVersions = {
-  v1: boolean
-  v2: boolean
-}
-
-/**
- * Get the API versions used by a component (or page).
- */
-export const getApiVersionsInComponent = (
-  component: Pick<Component, 'apis'>,
-): ApiVersions => {
-  const versions: ApiVersions = { v1: false, v2: false }
-  for (const api of Object.values(component.apis ?? {})) {
-    if (!isDefined(api)) {
-      continue
-    }
-    if (isLegacyApi(api)) {
-      versions.v1 = true
-    } else {
-      versions.v2 = true
-    }
-    if (versions.v1 && versions.v2) {
-      break
-    }
-  }
-  return versions
-}
-
-/**
- * Get the API versions used by a set of components.
- */
-export const getApiVersionsInComponents = (
-  components: Iterable<Pick<Component, 'apis'>>,
-): ApiVersions => {
-  const versions: ApiVersions = { v1: false, v2: false }
-  for (const component of components) {
-    const componentVersions = getApiVersionsInComponent(component)
-    versions.v1 ||= componentVersions.v1
-    versions.v2 ||= componentVersions.v2
-    if (versions.v1 && versions.v2) {
-      break
-    }
-  }
-  return versions
-}
-
-/**
- * Check if a component (or page) has any API v1 (legacy) APIs declared.
- */
-export const hasApiV1 = (component: Pick<Component, 'apis'>) =>
-  getApiVersionsInComponent(component).v1
-
-/**
- * Check if a component (or page) has any API v2 APIs declared.
- */
-export const hasApiV2 = (component: Pick<Component, 'apis'>) =>
-  getApiVersionsInComponent(component).v2
-
-/**
- * Check if a component (or page) has any APIs declared.
- */
-export const hasApis = (component: Pick<Component, 'apis'>) => {
-  const { v1, v2 } = getApiVersionsInComponent(component)
-  return v1 || v2
-}
 
 export const createApiRequest = <Handler>({
   api,

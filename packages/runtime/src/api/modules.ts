@@ -1,4 +1,4 @@
-import type { Component } from '@nordcraft/core'
+import type { ApiVersions, Component } from '@nordcraft/core'
 import { getApiVersionsInComponents } from '@nordcraft/core'
 import type { createLegacyAPI } from './createAPI'
 import type { createAPI } from './createAPIv2'
@@ -26,24 +26,49 @@ const apiModuleUrl = (version: ApiVersion) =>
 const importModule = <T>(url: string) =>
   import(/* @vite-ignore */ url) as Promise<T>
 
-const loadApiV1 = () =>
-  (loading[1] ??= importModule<ApiV1Module>(apiModuleUrl(1)).then((module) => {
-    factories.createLegacyAPI = module.createLegacyAPI
-  }))
+const loadApiV1 = () => {
+  if (factories.createLegacyAPI) {
+    return Promise.resolve()
+  }
+  return (loading[1] ??= importModule<ApiV1Module>(apiModuleUrl(1))
+    .then((module) => {
+      factories.createLegacyAPI = module.createLegacyAPI
+    })
+    .catch((err) => {
+      loading[1] = undefined
+      throw err
+    }))
+}
 
-const loadApiV2 = () =>
-  (loading[2] ??= importModule<ApiV2Module>(apiModuleUrl(2)).then((module) => {
-    factories.createAPI = module.createAPI
-  }))
+const loadApiV2 = () => {
+  if (factories.createAPI) {
+    return Promise.resolve()
+  }
+  return (loading[2] ??= importModule<ApiV2Module>(apiModuleUrl(2))
+    .then((module) => {
+      factories.createAPI = module.createAPI
+    })
+    .catch((err) => {
+      loading[2] = undefined
+      throw err
+    }))
+}
+
+const isApiVersions = (value: unknown): value is ApiVersions =>
+  typeof value === 'object' && value !== null && 'v1' in value && 'v2' in value
 
 /**
- * Load the API runtime modules required by the given components.
+ * Load the API runtime modules required by the given components or API version flags.
  *
  * Only the modules that are actually needed are imported. The imports are
  * cached, so calling this multiple times only loads each module once.
  */
-export const loadApiModules = async (components: Iterable<Component>) => {
-  const { v1, v2 } = getApiVersionsInComponents(components)
+export const loadApiModules = async (
+  target: Iterable<Component> | ApiVersions,
+) => {
+  const { v1, v2 } = isApiVersions(target)
+    ? target
+    : getApiVersionsInComponents(target)
   await Promise.all([
     v1 ? loadApiV1() : undefined,
     v2 ? loadApiV2() : undefined,

@@ -1,3 +1,4 @@
+import type { ApiVersions } from './api/apiVersions'
 import type { Component, ComponentData } from './component/component.types'
 import type { Formula, ToddleEnv } from './formula/formula'
 import type { PluginFormula } from './formula/formulaTypes'
@@ -156,6 +157,7 @@ export interface ToddleInternals {
   // Flag that indicates if the page is done with the createRoot function.
   isPageLoaded: boolean
   cookies: string[]
+  apiVersions?: ApiVersions
 }
 
 export interface Comment {

@@ -152,16 +152,17 @@ export const createRoot = (domNode: HTMLElement) => {
     throw new Error('Missing components')
   }
 
-  const components = [component, ...window.toddle.components]
-  const { v1, v2 } = getApiVersionsInComponents(components)
-  if (!v1 && !v2) {
+  const apiVersions =
+    window.__toddle.apiVersions ??
+    getApiVersionsInComponents([component, ...window.toddle.components])
+  if (!apiVersions.v1 && !apiVersions.v2) {
     // Pages without APIs can render synchronously since no code needs loading
     renderRoot(domNode)
     return
   }
 
   // Only load the API runtime(s) actually used by the page and its components
-  return loadApiModules(components).then(() => renderRoot(domNode))
+  return loadApiModules(apiVersions).then(() => renderRoot(domNode))
 }
 
 const renderRoot = (domNode: HTMLElement) => {

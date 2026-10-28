@@ -5,7 +5,7 @@ import type { HonoEnv } from '../../hono'
 import type { PageLoaderUrls } from '../loaders/types'
 import { InMemoryCache } from '../utils/cache'
 
-const pageStateCache = new InMemoryCache<string>({
+export const pageStateCache = new InMemoryCache<string>({
   ttlSeconds: 60 * 60 * 10, // 10 hours
   swrSeconds: 60 * 60 * 10, // 10 hours
 })

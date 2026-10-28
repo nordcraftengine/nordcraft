@@ -7,6 +7,7 @@ import { Hono } from 'hono'
 import { testClient } from 'hono/testing'
 import { timing } from 'hono/timing'
 import { nordcraftPage } from './nordcraftPage'
+import { pageStateCache } from './pageState'
 
 describe('nordcraftPage', () => {
   const mockProject = {
@@ -178,5 +179,39 @@ describe('nordcraftPage', () => {
     const html = await res.text()
     expect(html).toContain('/_static/api-v2.main.esm.js')
     expect(html).not.toContain('/_static/api-v1.main.esm.js')
+  })
+
+  it('includes apiVersions in page state and orders preload tags before script', async () => {
+    pageStateCache.clear()
+    const res = await renderPage({
+      page: {
+        ...mockPage,
+        apis: {
+          'API v2': {
+            name: 'API v2',
+            type: 'http',
+            version: 2,
+            inputs: {},
+          },
+        },
+      },
+    })
+    const html = await res.text()
+    const preloadIndex = html.indexOf(
+      '<link rel="modulepreload" href="/_static/api-v2.main.esm.js" />',
+    )
+    const scriptIndex = html.indexOf(
+      '<script type="module" src="/.nordcraft/page-state/',
+    )
+    expect(preloadIndex).toBeGreaterThan(-1)
+    expect(scriptIndex).toBeGreaterThan(-1)
+    expect(preloadIndex).toBeLessThan(scriptIndex)
+
+    const pageStateUrlMatch = html.match(/<script type="module" src="([^"]+)"/)
+    const pageStateUrl = pageStateUrlMatch?.[1]
+    expect(pageStateUrl).toBeDefined()
+    const fullUrl = new URL(pageStateUrl!, 'http://localhost').href
+    const cachedState = pageStateCache.get(fullUrl)
+    expect(cachedState?.value).toContain('"apiVersions":{"v1":false,"v2":true}')
   })
 })

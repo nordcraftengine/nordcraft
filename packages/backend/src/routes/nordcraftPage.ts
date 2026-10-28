@@ -156,6 +156,7 @@ export const nordcraftPage = async ({
     components: includedComponents.map(resolveClasses()),
     isPageLoaded: false,
     cookies: Object.keys(formulaContext.env.request.cookies),
+    apiVersions,
   }
   endTime(hono, nordcraftPageTimingKey)
 
@@ -182,7 +183,6 @@ export const nordcraftPage = async ({
     `<link rel="modulepreload" href="/_static/page.main.esm.js" />`,
     // Tell the browser to start fetching the state for hydration as early as possible
     `<link rel="modulepreload" href="${pageStateUrl}" />`,
-    `<script type="module" src="${pageStateUrl}"></script>`,
   ]
   if (apiVersions.v1) {
     // Only preload the API runtime if the page (or its components) uses API v1
@@ -202,6 +202,9 @@ export const nordcraftPage = async ({
       `<link rel="modulepreload" href="${customCodeUrl}" />`,
     )
   }
+  additionalHeadScripts.push(
+    `<script type="module" src="${pageStateUrl}"></script>`,
+  )
 
   head = `${head}\n${additionalHeadScripts.join('\n')}`
 
