@@ -17,8 +17,6 @@ import { ApiMethod } from './apiTypes'
 import { isJsonHeader } from './headers'
 import type { ToddleApiV2 } from './ToddleApiV2'
 
-export * from './apiVersions'
-
 export const NON_BODY_RESPONSE_CODES = [101, 204, 205, 304]
 
 export const createApiRequest = <Handler>({
