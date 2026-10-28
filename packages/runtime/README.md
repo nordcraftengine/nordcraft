@@ -16,3 +16,5 @@ bun run analyze page.main --verbose
 ```
 
 Any bundle name, esbuild output file or source entry point can be passed to the script. Use `--verbose` for a per-file breakdown.
+
+> **Note:** Sibling packages must be built beforehand (e.g. via `bun run build` at the repository root) so that workspace dependencies such as `@nordcraft/core` can be resolved.

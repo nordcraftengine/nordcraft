@@ -1,11 +1,10 @@
-const fs = require('fs')
-const path = require('path')
 const esbuild = require('esbuild')
 const {
-  NORDCRAFT_RUNTIME_DEFINES,
   PACKAGE_ROOT,
   RUNTIME_BUNDLES,
   getBuildOptions,
+  getDefine,
+  getSourceEntry,
 } = require('./bundleConfig')
 
 const DEFAULT_BUNDLE = 'page.main'
@@ -25,48 +24,6 @@ Arguments:
 Options:
   -v, --verbose   Show the size of each individual file
   -h, --help      Show this help message`
-
-// Resolve a bundle name, an esbuild output file or a source entry point to the
-// source file that should be bundled for analysis.
-const getSourceEntry = (value) => {
-  let relativePath = path.isAbsolute(value)
-    ? path.relative(PACKAGE_ROOT, value)
-    : value
-
-  relativePath = relativePath.replace(/^\.\//, '')
-  if (relativePath.startsWith('packages/runtime/')) {
-    relativePath = relativePath.slice('packages/runtime/'.length)
-  }
-  if (relativePath.startsWith('dist/')) {
-    relativePath = relativePath.slice('dist/'.length)
-  }
-
-  // Output files have an optional .esm suffix, a .js extension and optionally a
-  // source map extension, e.g. dist/page.main.esm.js.map.
-  relativePath = relativePath
-    .replace(/\.map$/, '')
-    .replace(/\.esm$/, '')
-    .replace(/\.(esm\.)?js$/, '')
-    .replace(/\.(ts|tsx)$/, '')
-
-  const sourceBase = relativePath.startsWith('src/')
-    ? relativePath
-    : `src/${relativePath}`
-
-  return [`${sourceBase}.ts`, `${sourceBase}.tsx`].find((candidate) =>
-    fs.existsSync(path.resolve(PACKAGE_ROOT, candidate)),
-  )
-}
-
-const getDefine = (entryPoint) => {
-  const name = path.basename(entryPoint).replace(/\.tsx?$/, '')
-  if (RUNTIME_BUNDLES[name]) {
-    return RUNTIME_BUNDLES[name].define
-  }
-  return name.includes('preview')
-    ? NORDCRAFT_RUNTIME_DEFINES.preview
-    : NORDCRAFT_RUNTIME_DEFINES.page
-}
 
 const args = process.argv.slice(2)
 
