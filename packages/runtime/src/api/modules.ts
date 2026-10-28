@@ -22,8 +22,7 @@ const loading: Partial<Record<ApiVersion, Promise<void>>> = {}
 const apiModuleUrl = (version: ApiVersion) =>
   new URL(`./api-v${version}.main.esm.js`, import.meta.url).href
 
-const importModule = <T>(url: string) =>
-  import(/* @vite-ignore */ url) as Promise<T>
+const importModule = <T>(url: string) => import(url) as Promise<T>
 
 const loadApiV1 = () => {
   if (factories.createLegacyAPI) {
