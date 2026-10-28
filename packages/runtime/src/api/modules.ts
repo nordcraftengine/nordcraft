@@ -1,14 +1,22 @@
 import type { ApiVersions } from '@nordcraft/core'
 import type { createLegacyAPI } from './createAPI'
 import type { createAPI } from './createAPIv2'
+import type { SetupComponentApis } from './setupComponentApis'
 
 type ApiModuleFactories = {
   createLegacyAPI?: typeof createLegacyAPI
   createAPI?: typeof createAPI
+  setupComponentApis?: SetupComponentApis
 }
 
-type ApiV1Module = { createLegacyAPI: typeof createLegacyAPI }
-type ApiV2Module = { createAPI: typeof createAPI }
+type ApiV1Module = {
+  createLegacyAPI: typeof createLegacyAPI
+  setupComponentApis: SetupComponentApis
+}
+type ApiV2Module = {
+  createAPI: typeof createAPI
+  setupComponentApis: SetupComponentApis
+}
 
 type ApiVersion = 1 | 2
 
@@ -31,6 +39,7 @@ const loadApiV1 = () => {
   return (loading[1] ??= importModule<ApiV1Module>(apiModuleUrl(1))
     .then((module) => {
       factories.createLegacyAPI = module.createLegacyAPI
+      factories.setupComponentApis ??= module.setupComponentApis
     })
     .catch((err) => {
       loading[1] = undefined
@@ -45,6 +54,7 @@ const loadApiV2 = () => {
   return (loading[2] ??= importModule<ApiV2Module>(apiModuleUrl(2))
     .then((module) => {
       factories.createAPI = module.createAPI
+      factories.setupComponentApis ??= module.setupComponentApis
     })
     .catch((err) => {
       loading[2] = undefined
@@ -72,6 +82,7 @@ export const loadApiModules = async (apiVersions: ApiVersions) => {
 export const registerApiModules = (modules: ApiModuleFactories) => {
   factories.createLegacyAPI ??= modules.createLegacyAPI
   factories.createAPI ??= modules.createAPI
+  factories.setupComponentApis ??= modules.setupComponentApis
 }
 
 export const getLegacyApiFactory = () => {
@@ -86,4 +97,20 @@ export const getApiV2Factory = () => {
     throw new Error('The API v2 runtime has not been loaded')
   }
   return factories.createAPI
+}
+
+export const setupComponentApis = (params: {
+  apis: Parameters<SetupComponentApis>[0]['apis']
+  createCtx: Parameters<SetupComponentApis>[0]['createCtx']
+  componentData: Parameters<SetupComponentApis>[0]['componentData']
+  targetApis: Parameters<SetupComponentApis>[0]['targetApis']
+}) => {
+  if (!factories.setupComponentApis) {
+    throw new Error('The API runtime has not been loaded')
+  }
+  return factories.setupComponentApis({
+    ...params,
+    createLegacyAPI: factories.createLegacyAPI,
+    createAPI: factories.createAPI,
+  })
 }

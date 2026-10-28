@@ -14,9 +14,16 @@ import {
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
-import { isContextApiV2 } from '../api/apiUtils'
-import type { ComponentContext, Location } from '../types'
+import type {
+  ComponentContext,
+  ContextApi,
+  ContextApiV2,
+  Location,
+} from '../types'
 import { getLocationUrl } from '../utils/url'
+
+const isContextApiV2 = (api: ContextApi): api is ContextApiV2 =>
+  'triggerActions' in api
 
 // eslint-disable-next-line max-params
 export function handleAction(

@@ -2,7 +2,6 @@ import type {
   ActionHandler,
   ArgumentInputDataFunction,
   Component,
-  ComponentAPI,
   ComponentData,
   ComponentFormula,
   ComponentVariable,
@@ -18,7 +17,6 @@ import {
   applyFormula,
   filterObject,
   isDefined,
-  isLegacyApi,
   mapObject,
   THEME_DATA_ATTRIBUTE,
   VOID_HTML_ELEMENTS,
@@ -28,13 +26,7 @@ import * as libActions from '@nordcraft/std-lib/actions'
 import * as libFormulas from '@nordcraft/std-lib/formulas'
 import fastDeepEqual from 'fast-deep-equal'
 import { match } from 'path-to-regexp'
-import { isContextApiV2 } from './api/apiUtils'
-import {
-  getApiV2Factory,
-  getLegacyApiFactory,
-  loadApiModules,
-} from './api/modules'
-import { sortApis } from './api/sortApis'
+import { loadApiModules, setupComponentApis } from './api/modules'
 import { getDynamicMetaEntries } from './components/meta'
 import { renderComponent } from './components/renderComponent'
 import { isContextProvider } from './context/isContextProvider'
@@ -258,28 +250,14 @@ const renderRoot = (domNode: HTMLElement) => {
     env,
   }
 
-  // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
-  sortApis(
-    Object.entries(component.apis ?? {}).filter(
-      (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-    ),
-  ).forEach(([name, api]) => {
-    if (isLegacyApi(api)) {
-      ctx.apis[name] = getLegacyApiFactory()(api, ctx)
-    } else {
-      ctx.apis[name] = getApiV2Factory()({
-        apiRequest: api,
-        ctx,
-        componentData: dataSignal.get(),
-      })
-    }
-  })
-  // Trigger actions for all APIs after all of them are created.
-  Object.values(ctx.apis)
-    .filter(isContextApiV2)
-    .forEach((api) => {
-      api.triggerActions(dataSignal.get())
+  if (component.apis && Object.keys(component.apis).length > 0) {
+    setupComponentApis({
+      apis: component.apis,
+      createCtx: () => ctx,
+      componentData: dataSignal.get(),
+      targetApis: ctx.apis,
     })
+  }
 
   let providers = ctx.providers
   if (isContextProvider(component)) {

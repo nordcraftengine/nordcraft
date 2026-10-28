@@ -4,6 +4,7 @@ import {
   getLegacyApiFactory,
   loadApiModules,
   registerApiModules,
+  setupComponentApis,
 } from './modules'
 
 describe('runtime API modules', () => {
@@ -14,6 +15,9 @@ describe('runtime API modules', () => {
     )
     expect(() => getApiV2Factory()).toThrow(
       'The API v2 runtime has not been loaded',
+    )
+    expect(() => setupComponentApis({} as any)).toThrow(
+      'The API runtime has not been loaded',
     )
   })
 
@@ -26,10 +30,12 @@ describe('runtime API modules', () => {
   test('registers and retrieves API module factories directly', () => {
     const dummyV1 = (() => {}) as any
     const dummyV2 = (() => {}) as any
+    const dummySetup = (() => {}) as any
 
     registerApiModules({
       createLegacyAPI: dummyV1,
       createAPI: dummyV2,
+      setupComponentApis: dummySetup,
     })
 
     expect(getLegacyApiFactory()).toBe(dummyV1)
