@@ -1,6 +1,5 @@
 import type {
   Component,
-  ComponentAPI,
   ComponentData,
   ComponentFormula,
   Theme,
@@ -20,13 +19,16 @@ import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
-import { sortApis } from '../api/sortApis'
+import { sortApiEntries } from '../api/sortApis'
 import { renderComponent } from '../components/renderComponent'
 import { isContextProvider } from '../context/isContextProvider'
 import { Signal, signal } from '../signal/signal'
 import type { ComponentContext, LocationSignal } from '../types'
+import { createFormulaCache } from '../utils/createFormulaCache'
 import { getThemeSignal } from '../utils/getThemeSignal'
 import { isStaticFormula } from '../utils/isStaticFormula'
+
+const DEFAULT_THEMES = { defaultTheme }
 
 /**
  * Base class for all toddle components
@@ -106,7 +108,7 @@ export class ToddleComponent extends HTMLElement {
       components: options.components,
       component: this.#component,
       dataSignal: this.#signal,
-      formulaCache: {},
+      formulaCache: createFormulaCache(component),
       apis: {},
       abortSignal: abortController.signal,
       children: {},
@@ -122,11 +124,24 @@ export class ToddleComponent extends HTMLElement {
   }
 
   connectedCallback() {
-    sortApis(
-      Object.entries(this.#component.apis ?? {}).filter(
-        (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-      ),
-    ).forEach(([name, api]) => {
+    if (this.#ctx.abortSignal.aborted) {
+      const abortController = new AbortController()
+      this.#signal.subscriptions.push(() =>
+        abortController.abort(`Component ${this.#component.name} unmounted`),
+      )
+      this.#ctx.abortSignal = abortController.signal
+      const themeSignal = getThemeSignal(
+        this.#component,
+        this.#signal,
+        this.#ctx.env,
+      )
+      this.#ctx.stores.theme = themeSignal
+      this.#signal.value.Page = {
+        ...this.#signal.value.Page,
+        Theme: themeSignal.get(),
+      }
+    }
+    sortApiEntries(this.#component.apis).forEach(([name, api]) => {
       if (isLegacyApi(api)) {
         this.#ctx.apis[name] = createLegacyAPI(
           api,
@@ -240,9 +255,9 @@ export class ToddleComponent extends HTMLElement {
     const styles = createStylesheet(
       this.#ctx.component,
       this.#ctx.components,
-      Object.entries(this.#files.themes ?? {}).length > 0
+      Object.keys(this.#files.themes ?? {}).length > 0
         ? this.#files.themes
-        : { defaultTheme },
+        : DEFAULT_THEMES,
       { includeResetStyle: true, createFontFaces: false },
     )
     const stylesElem = document.createElement('style')
@@ -270,12 +285,14 @@ export class ToddleComponent extends HTMLElement {
     }
 
     // Update the signal with complex value
-    if (fastDeepEqual(this.#signal.get().Attributes?.[name], value) === false) {
+    const data = this.#signal.value
+    const currentAttr = data.Attributes?.[name]
+    if (fastDeepEqual(currentAttr, value) === false) {
       this.#signal.set(
         {
-          ...this.#signal.get(),
+          ...data,
           Attributes: {
-            ...this.#signal.get().Attributes,
+            ...data.Attributes,
             [name]: value,
           },
         },
@@ -306,17 +323,14 @@ export class ToddleComponent extends HTMLElement {
       return
     }
 
-    if (
-      fastDeepEqual(
-        this.#signal.get().Attributes?.[attributeName],
-        newValue,
-      ) === false
-    ) {
+    const data = this.#signal.value
+    const currentAttr = data.Attributes?.[attributeName]
+    if (fastDeepEqual(currentAttr, newValue) === false) {
       this.#signal.set(
         {
-          ...this.#signal.get(),
+          ...data,
           Attributes: {
-            ...this.#signal.get().Attributes,
+            ...data.Attributes,
             [attributeName]: newValue,
           },
         },
