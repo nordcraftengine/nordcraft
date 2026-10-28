@@ -2,7 +2,6 @@ import type { PageComponent, ToddleInternals } from '@nordcraft/core'
 import {
   applyFormula,
   theme as defaultTheme,
-  getApiVersionsInComponents,
   THEME_DATA_ATTRIBUTE,
   toBoolean,
 } from '@nordcraft/core'
@@ -13,6 +12,7 @@ import type {
 } from '@nordcraft/ssr'
 import {
   evaluateResponseHeaders,
+  getApiVersionsInComponents,
   getCharset,
   getHeadItems,
   getHtmlLanguage,

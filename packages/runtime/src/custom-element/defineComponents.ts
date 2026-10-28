@@ -1,4 +1,4 @@
-import type { Component, Theme, Toddle } from '@nordcraft/core'
+import type { ApiVersions, Component, Theme, Toddle } from '@nordcraft/core'
 import { safeCustomElementName } from '@nordcraft/core'
 import type { LocationSignal } from '../types'
 import { ToddleComponent } from './ToddleComponent'
@@ -26,6 +26,7 @@ export const defineComponents = (
   options: {
     components: Component[]
     themes: Record<string, Theme>
+    apiVersions?: ApiVersions
   },
   toddle: Toddle<LocationSignal, never>,
 ) => {

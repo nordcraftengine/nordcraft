@@ -3,21 +3,16 @@ import { pathFormula } from '../formula/pathFormula.helper'
 import { valueFormula } from '../formula/valueFormula'
 import {
   createApiRequest,
-  getApiVersionsInComponent,
-  getApiVersionsInComponents,
   getRequestBody,
   getRequestHeaders,
   getRequestPath,
   getRequestQueryParams,
   getUrl,
-  hasApis,
-  hasApiV1,
-  hasApiV2,
   isLegacyApi,
   requestHash,
   toFormData,
 } from './api'
-import type { ApiRequest, ComponentAPI } from './apiTypes'
+import type { ApiRequest } from './apiTypes'
 import { ApiMethod } from './apiTypes'
 import { LegacyToddleApi } from './LegacyToddleApi'
 import { ToddleApiV2 } from './ToddleApiV2'
@@ -539,58 +534,6 @@ describe('isLegacyApi()', () => {
         ),
       ),
     ).toBe(false)
-  })
-})
-
-describe('API versions in components', () => {
-  const legacyApi: ComponentAPI = { name: 'Legacy API', type: 'REST' }
-  const apiV2: ComponentAPI = {
-    name: 'New API',
-    type: 'http',
-    version: 2,
-    inputs: {},
-  }
-
-  test('it detects API versions in a single component', () => {
-    expect(getApiVersionsInComponent({})).toEqual({ v1: false, v2: false })
-    expect(getApiVersionsInComponent({ apis: {} })).toEqual({
-      v1: false,
-      v2: false,
-    })
-    expect(
-      getApiVersionsInComponent({
-        apis: { legacy: legacyApi, v2: apiV2 },
-      }),
-    ).toEqual({ v1: true, v2: true })
-  })
-
-  test('it handles null API declarations', () => {
-    expect(
-      getApiVersionsInComponent({
-        apis: { legacy: null, v2: undefined },
-      }),
-    ).toEqual({ v1: false, v2: false })
-  })
-
-  test('it detects API versions across components', () => {
-    expect(
-      getApiVersionsInComponents([{ apis: { legacy: legacyApi } }, {}]),
-    ).toEqual({ v1: true, v2: false })
-    expect(
-      getApiVersionsInComponents([
-        { apis: { legacy: legacyApi } },
-        { apis: { v2: apiV2 } },
-      ]),
-    ).toEqual({ v1: true, v2: true })
-  })
-
-  test('it exposes helpers for checking API versions', () => {
-    expect(hasApis({})).toBe(false)
-    expect(hasApiV1({ apis: { legacy: legacyApi } })).toBe(true)
-    expect(hasApiV2({ apis: { legacy: legacyApi } })).toBe(false)
-    expect(hasApiV1({ apis: { v2: apiV2 } })).toBe(false)
-    expect(hasApiV2({ apis: { v2: apiV2 } })).toBe(true)
-    expect(hasApis({ apis: { v2: apiV2 } })).toBe(true)
   })
 })
 

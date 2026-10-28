@@ -1,5 +1,4 @@
-import type { ApiVersions, Component } from '@nordcraft/core'
-import { getApiVersionsInComponents } from '@nordcraft/core'
+import type { ApiVersions } from '@nordcraft/core'
 import type { createLegacyAPI } from './createAPI'
 import type { createAPI } from './createAPIv2'
 
@@ -54,24 +53,16 @@ const loadApiV2 = () => {
     }))
 }
 
-const isApiVersions = (value: unknown): value is ApiVersions =>
-  typeof value === 'object' && value !== null && 'v1' in value && 'v2' in value
-
 /**
- * Load the API runtime modules required by the given components or API version flags.
+ * Load the API runtime modules required by the given API version flags.
  *
  * Only the modules that are actually needed are imported. The imports are
  * cached, so calling this multiple times only loads each module once.
  */
-export const loadApiModules = async (
-  target: Iterable<Component> | ApiVersions,
-) => {
-  const { v1, v2 } = isApiVersions(target)
-    ? target
-    : getApiVersionsInComponents(target)
+export const loadApiModules = async (apiVersions: ApiVersions) => {
   await Promise.all([
-    v1 ? loadApiV1() : undefined,
-    v2 ? loadApiV2() : undefined,
+    apiVersions.v1 ? loadApiV1() : undefined,
+    apiVersions.v2 ? loadApiV2() : undefined,
   ])
 }
 

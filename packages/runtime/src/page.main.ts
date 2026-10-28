@@ -17,7 +17,6 @@ import type {
 import {
   applyFormula,
   filterObject,
-  getApiVersionsInComponents,
   isDefined,
   isLegacyApi,
   mapObject,
@@ -143,7 +142,6 @@ export const initGlobalObject = (code?: {
 }
 
 export const createRoot = (domNode: HTMLElement) => {
-  const component = window.__toddle.component
   if (!domNode) {
     throw new Error('Cant find root domNode')
   }
@@ -152,10 +150,8 @@ export const createRoot = (domNode: HTMLElement) => {
     throw new Error('Missing components')
   }
 
-  const apiVersions =
-    window.__toddle.apiVersions ??
-    getApiVersionsInComponents([component, ...window.toddle.components])
-  if (!apiVersions.v1 && !apiVersions.v2) {
+  const apiVersions = window.__toddle.apiVersions
+  if (!apiVersions?.v1 && !apiVersions?.v2) {
     // Pages without APIs can render synchronously since no code needs loading
     renderRoot(domNode)
     return

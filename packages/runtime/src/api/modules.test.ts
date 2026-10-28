@@ -18,13 +18,9 @@ describe('runtime API modules', () => {
   })
 
   test('loadApiModules does not import when no APIs are requested', async () => {
-    // With ApiVersions flag
     await expect(
       loadApiModules({ v1: false, v2: false }),
     ).resolves.toBeUndefined()
-
-    // With component list without APIs
-    await expect(loadApiModules([{ apis: {} } as any])).resolves.toBeUndefined()
   })
 
   test('registers and retrieves API module factories directly', () => {

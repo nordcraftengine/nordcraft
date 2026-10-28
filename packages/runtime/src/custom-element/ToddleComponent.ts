@@ -1,4 +1,5 @@
 import type {
+  ApiVersions,
   Component,
   ComponentAPI,
   ComponentData,
@@ -14,7 +15,6 @@ import {
   createStylesheet,
   theme as defaultTheme,
   filterObject,
-  getApiVersionsInComponents,
   isDefined,
   isLegacyApi,
   mapObject,
@@ -54,14 +54,20 @@ export class ToddleComponent extends HTMLElement {
   // component's attributes without scanning the whole object on every change.
   #attributeNames: Map<string, string>
   #isSetup = false
+  #apiVersions?: ApiVersions
 
   constructor(
     component: Component,
-    options: { components: Component[]; themes: Record<string, Theme> },
+    options: {
+      components: Component[]
+      themes: Record<string, Theme>
+      apiVersions?: ApiVersions
+    },
     toddle: Toddle<LocationSignal, never>,
   ) {
     super()
     this.toddle = toddle
+    this.#apiVersions = options.apiVersions
     const internals = this.attachInternals()
     if (internals.shadowRoot) {
       // Not used yet, but can be used to hydrate rather than render the shadow dom
@@ -127,15 +133,13 @@ export class ToddleComponent extends HTMLElement {
     if (this.#isSetup) {
       return
     }
-    const components = [this.#component, ...this.#ctx.components]
-    const { v1, v2 } = getApiVersionsInComponents(components)
-    if (!v1 && !v2) {
+    if (!this.#apiVersions?.v1 && !this.#apiVersions?.v2) {
       // Components without APIs can render synchronously since no code needs loading
       this.setup()
       return
     }
 
-    void loadApiModules(components).then(() => {
+    void loadApiModules(this.#apiVersions).then(() => {
       if (this.isConnected && !this.#isSetup) {
         this.setup()
       }

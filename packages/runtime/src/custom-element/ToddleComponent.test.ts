@@ -75,4 +75,30 @@ describe('ToddleComponent attributeChangedCallback()', () => {
       `Unable to find attribute unknownattr on component ${component.name}`,
     )
   })
+
+  test('it initializes synchronously when apiVersions is omitted or false', () => {
+    const tag = 'test-toddle-no-api'
+    if (!customElements.get(tag)) {
+      customElements.define(
+        tag,
+        class extends ToddleComponent {
+          constructor() {
+            super(
+              component,
+              {
+                components: [component],
+                themes: {},
+                apiVersions: { v1: false, v2: false },
+              },
+              toddle,
+            )
+          }
+        },
+      )
+    }
+    const el = document.createElement(tag) as ToddleComponent
+    document.body.appendChild(el)
+    expect(el.shadowRoot?.innerHTML).toContain('<style>')
+    document.body.removeChild(el)
+  })
 })
