@@ -1,5 +1,4 @@
 import type {
-  ComponentAPI,
   ComponentData,
   ComponentFormula,
   ComponentNodeModel,
@@ -17,7 +16,7 @@ import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
-import { sortApis } from '../api/sortApis'
+import { sortApiEntries } from '../api/sortApis'
 import { isContextProvider } from '../context/isContextProvider'
 import { subscribeToContext } from '../context/subscribeToContext'
 import { registerComponentToLogState } from '../debug/logState'
@@ -198,11 +197,7 @@ export function createComponent({
         handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
       )
   }
-  sortApis(
-    Object.entries(component.apis ?? {}).filter(
-      (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-    ),
-  ).forEach(([name, api]) => {
+  sortApiEntries(component.apis).forEach(([name, api]) => {
     if (isLegacyApi(api)) {
       apis[name] = createLegacyAPI(api, {
         ...ctx,

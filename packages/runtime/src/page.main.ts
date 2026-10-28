@@ -2,7 +2,6 @@ import type {
   ActionHandler,
   ArgumentInputDataFunction,
   Component,
-  ComponentAPI,
   ComponentData,
   ComponentFormula,
   ComponentVariable,
@@ -31,7 +30,7 @@ import { match } from 'path-to-regexp'
 import { isContextApiV2 } from './api/apiUtils'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
-import { sortApis } from './api/sortApis'
+import { sortApiEntries } from './api/sortApis'
 import { getDynamicMetaEntries } from './components/meta'
 import { renderComponent } from './components/renderComponent'
 import { isContextProvider } from './context/isContextProvider'
@@ -62,6 +61,7 @@ export const initGlobalObject = (code?: {
     const legacyActions: Record<string, ActionHandler> = {}
     const legacyFormulas: Record<string, FormulaHandler> = {}
     const argumentInputDataList: Record<string, ArgumentInputDataFunction> = {}
+    const project = window.__toddle.project
     const toddle: Toddle<LocationSignal, never> = {
       isEqual: fastDeepEqual,
       errors: [],
@@ -93,15 +93,19 @@ export const initGlobalObject = (code?: {
       },
       getFormula: (name) => legacyFormulas[name],
       getCustomAction: (name, packageName) => {
+        const actions = toddle.actions[packageName ?? project]
         return (
-          toddle.actions[packageName ?? window.__toddle.project]?.[name] ??
-          toddle.actions[window.__toddle.project]?.[name]
+          actions?.[name] ??
+          (isDefined(packageName) ? toddle.actions[project]?.[name] : undefined)
         )
       },
       getCustomFormula: (name, packageName) => {
+        const formulas = toddle.formulas[packageName ?? project]
         return (
-          toddle.formulas[packageName ?? window.__toddle.project]?.[name] ??
-          toddle.formulas[window.__toddle.project]?.[name]
+          formulas?.[name] ??
+          (isDefined(packageName)
+            ? toddle.formulas[project]?.[name]
+            : undefined)
         )
       },
       // eslint-disable-next-line max-params
@@ -256,11 +260,7 @@ export const createRoot = (domNode: HTMLElement) => {
   })
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
-  sortApis(
-    Object.entries(component.apis ?? {}).filter(
-      (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-    ),
-  ).forEach(([name, api]) => {
+  sortApiEntries(component.apis).forEach(([name, api]) => {
     if (isLegacyApi(api)) {
       ctx.apis[name] = createLegacyAPI(api, ctx)
     } else {

@@ -224,31 +224,35 @@ export function createElement({
       hasDynamicCustomProperties = true
     }
   }
-  node['style-variables']?.forEach((styleVariable, i) => {
-    const { name, formula, unit } = styleVariable
-    if (isStaticFormula(formula)) {
-      const staticValue: any = formula.value
-      elem.style.setProperty(
-        `--${name}`,
-        unit ? staticValue + unit : staticValue,
+  const styleVariables = node['style-variables']
+  if (styleVariables) {
+    for (let i = 0; i < styleVariables.length; i++) {
+      const styleVariable = styleVariables[i]!
+      const { name, formula, unit } = styleVariable
+      if (isStaticFormula(formula)) {
+        const staticValue: any = formula.value
+        elem.style.setProperty(
+          `--${name}`,
+          unit ? staticValue + unit : staticValue,
+        )
+        continue
+      }
+      const styleVarPath =
+        IS_PREVIEW && ctx.reportFormulaEvaluation
+          ? ['nodes', id, 'style-variables', i, 'formula']
+          : undefined
+      dataSignal.subscribeMap(
+        (data) => {
+          const value = applyFormula(formula, formulaCtx, data, styleVarPath)
+          if (IS_PREVIEW && styleVarPath) {
+            ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
+          }
+          return unit ? value + unit : value
+        },
+        (value) => elem.style.setProperty(`--${name}`, value),
       )
-      return
     }
-    const styleVarPath =
-      IS_PREVIEW && ctx.reportFormulaEvaluation
-        ? ['nodes', id, 'style-variables', i, 'formula']
-        : undefined
-    dataSignal.subscribeMap(
-      (data) => {
-        const value = applyFormula(formula, formulaCtx, data, styleVarPath)
-        if (IS_PREVIEW && styleVarPath) {
-          ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
-        }
-        return unit ? value + unit : value
-      },
-      (value) => elem.style.setProperty(`--${name}`, value),
-    )
-  })
+  }
 
   const customProperties = node.customProperties
   if (customProperties) {
@@ -282,45 +286,49 @@ export function createElement({
     }
   }
 
-  node.variants?.forEach((variant, variantIndex) => {
-    const variantCustomProperties = variant.customProperties
-    if (!variantCustomProperties) {
-      return
-    }
-    let variantSelector: string | undefined
-    for (const customPropertyName in variantCustomProperties) {
-      const customProperty =
-        variantCustomProperties[
-          customPropertyName as keyof typeof variantCustomProperties
-        ]!
-      if (!formulaHasValue(customProperty.formula)) {
+  const variants = node.variants
+  if (variants) {
+    for (let variantIndex = 0; variantIndex < variants.length; variantIndex++) {
+      const variant = variants[variantIndex]!
+      const variantCustomProperties = variant.customProperties
+      if (!variantCustomProperties) {
         continue
       }
-      hasDynamicCustomProperties = true
-      variantSelector ??= getNodeSelector(path, { variant })
-      bindCustomProperty({
-        customPropertyName,
-        selector: variantSelector,
-        variant,
-        customProperty,
-        dataSignal,
-        formulaCtx,
-        ctx,
-        reportPath:
-          IS_PREVIEW && ctx.reportFormulaEvaluation
-            ? [
-                'nodes',
-                id,
-                'variants',
-                variantIndex,
-                'customProperties',
-                customPropertyName,
-                'formula',
-              ]
-            : undefined,
-      })
+      let variantSelector: string | undefined
+      for (const customPropertyName in variantCustomProperties) {
+        const customProperty =
+          variantCustomProperties[
+            customPropertyName as keyof typeof variantCustomProperties
+          ]!
+        if (!formulaHasValue(customProperty.formula)) {
+          continue
+        }
+        hasDynamicCustomProperties = true
+        variantSelector ??= getNodeSelector(path, { variant })
+        bindCustomProperty({
+          customPropertyName,
+          selector: variantSelector,
+          variant,
+          customProperty,
+          dataSignal,
+          formulaCtx,
+          ctx,
+          reportPath:
+            IS_PREVIEW && ctx.reportFormulaEvaluation
+              ? [
+                  'nodes',
+                  id,
+                  'variants',
+                  variantIndex,
+                  'customProperties',
+                  customPropertyName,
+                  'formula',
+                ]
+              : undefined,
+        })
+      }
     }
-  })
+  }
 
   if (path && hasDynamicCustomProperties) {
     elem.classList.add(getPathClassName(path))
@@ -341,7 +349,7 @@ export function createElement({
 
   // for script, style & SVG<text> tags we only render text child.
   // this can be removed once we fix the editor to handle raw text nodes without wrapping <span>
-  const nodeTag = node.tag.toLocaleLowerCase()
+  const nodeTag = node.tag.toLowerCase()
   if (nodeTag === 'script' || nodeTag === 'style') {
     const textNodes = (node.children ?? [])
       .map((child) => ctx.component.nodes?.[child])

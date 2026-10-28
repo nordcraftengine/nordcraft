@@ -88,7 +88,7 @@ export function createText({
     dataSignal.subscribeMap(
       (data) => String(applyFormula(value, ctx, data, valuePath)),
       (value) => {
-        elem.textContent = value
+        elem.innerText = value
       },
     )
   } else {
@@ -99,7 +99,7 @@ export function createText({
         ctx,
       )
     }
-    elem.textContent = String(value.value)
+    elem.innerText = String(value.value)
   }
   return elem
 }

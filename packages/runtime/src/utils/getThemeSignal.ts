@@ -76,14 +76,14 @@ export const getThemeSignal = (
         activeCookieThemeSignal = null
       }
     })
+    dataSignal.subscriptions.push(() => {
+      sig.destroy()
+    })
     // Listen to cookie store API changes for 'nc-theme'
     if (!cookieListenerRegistered && 'cookieStore' in window) {
       cookieListenerRegistered = true
       cookieStore.addEventListener('change', handleCookieStoreChange)
     }
-    dataSignal.subscriptions.push(() => {
-      sig.destroy()
-    })
 
     return sig
   }
