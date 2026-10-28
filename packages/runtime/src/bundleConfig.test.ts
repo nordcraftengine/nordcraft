@@ -9,6 +9,7 @@ import {
   getBundleOptions,
   getDefine,
   getSourceEntry,
+  serveAnalyzer,
 } from '../scripts/bundleConfig'
 
 describe('bundleConfig', () => {
@@ -111,6 +112,46 @@ describe('bundleConfig', () => {
       expect(getDefine('src/some-component.ts')).toEqual(
         NORDCRAFT_RUNTIME_DEFINES.page,
       )
+    })
+  })
+
+  describe('serveAnalyzer', () => {
+    test('serves the bundle analyzer HTML, CSS, JS, and metafile endpoint', async () => {
+      const mockMetafile = {
+        inputs: {},
+        outputs: {},
+      }
+      const server = serveAnalyzer(mockMetafile)
+
+      try {
+        const htmlRes = await server.fetch('http://localhost/')
+        expect(htmlRes.status).toBe(200)
+        expect(htmlRes.headers.get('Content-Type')).toContain('text/html')
+        const htmlText = await htmlRes.text()
+        expect(htmlText).toContain('Nordcraft')
+        expect(htmlText).toContain('useTreemap')
+
+        const cssRes = await server.fetch('http://localhost/index.css')
+        expect(cssRes.status).toBe(200)
+        expect(cssRes.headers.get('Content-Type')).toContain('text/css')
+
+        const jsRes = await server.fetch('http://localhost/index.js')
+        expect(jsRes.status).toBe(200)
+        expect(jsRes.headers.get('Content-Type')).toContain('javascript')
+
+        const metaRes = await server.fetch('http://localhost/metafile.json')
+        expect(metaRes.status).toBe(200)
+        expect(metaRes.headers.get('Content-Type')).toContain(
+          'application/json',
+        )
+        const metaJson = await metaRes.json()
+        expect(metaJson).toEqual(mockMetafile)
+
+        const notFoundRes = await server.fetch('http://localhost/unknown-path')
+        expect(notFoundRes.status).toBe(404)
+      } finally {
+        server.stop()
+      }
     })
   })
 })

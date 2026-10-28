@@ -35,6 +35,7 @@ export default defineConfig([
       'examples/**/*',
       'benchmarks/**/*.html',
       'tests/e2e/index.html',
+      'packages/runtime/scripts/analyzer/**/*',
       'packages/lib/actions.ts',
       'packages/lib/formulas.ts',
       'packages/lib/lib.ts',

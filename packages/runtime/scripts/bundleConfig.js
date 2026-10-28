@@ -99,6 +99,52 @@ const getDefine = (entryPoint) => {
     : NORDCRAFT_RUNTIME_DEFINES.page
 }
 
+const serveAnalyzer = (metafile, options = {}) => {
+  const analyzerDir = path.resolve(__dirname, 'analyzer')
+  const html = fs.readFileSync(path.join(analyzerDir, 'index.html'), 'utf8')
+  const css = fs.readFileSync(path.join(analyzerDir, 'index.css'), 'utf8')
+  const js = fs.readFileSync(path.join(analyzerDir, 'index.js'), 'utf8')
+
+  return Bun.serve({
+    port: options.port ?? (process.env.PORT ? Number(process.env.PORT) : 0),
+    fetch(req) {
+      const url = new URL(req.url)
+      if (url.pathname === '/' || url.pathname === '/index.html') {
+        return new Response(html, {
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        })
+      }
+      if (url.pathname === '/index.css') {
+        return new Response(css, {
+          headers: { 'Content-Type': 'text/css; charset=utf-8' },
+        })
+      }
+      if (url.pathname === '/index.js') {
+        return new Response(js, {
+          headers: { 'Content-Type': 'application/javascript; charset=utf-8' },
+        })
+      }
+      if (url.pathname === '/metafile.json') {
+        return new Response(JSON.stringify(metafile), {
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        })
+      }
+      return new Response('Not found', { status: 404 })
+    },
+  })
+}
+
+const openBrowser = (url) => {
+  const { exec } = require('child_process')
+  const cmd =
+    process.platform === 'darwin'
+      ? 'open'
+      : process.platform === 'win32'
+        ? 'start'
+        : 'xdg-open'
+  exec(`${cmd} ${url}`)
+}
+
 module.exports = {
   NORDCRAFT_RUNTIME_DEFINES,
   PACKAGE_ROOT,
@@ -107,4 +153,6 @@ module.exports = {
   getBundleOptions,
   getSourceEntry,
   getDefine,
+  serveAnalyzer,
+  openBrowser,
 }
