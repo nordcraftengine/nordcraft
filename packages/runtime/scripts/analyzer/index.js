@@ -1,4 +1,3 @@
-// Source: https://github.com/evanw/esbuild/tree/master/docs/src/analyze (MIT License)
 'use strict'
 ;(() => {
   var m = document,
@@ -19,14 +18,14 @@
     rt = (e) => {
       try {
         return he.getItem(e)
-      } catch {
+      } catch (t) {
         return null
       }
     },
     nt = (e, t) => {
       try {
         he.setItem(e, t)
-      } catch {}
+      } catch (i) {}
     },
     Te = (e) => Yl.test(e)
   var Se = (e) => e.replace(Xl, ''),
@@ -65,15 +64,14 @@
       if (Vl) {
         let n = e.lineWidth,
           r = n / 2
-        e.fillStyle = t
-        e.fillRect(i - r, p - r, o + n, n)
-        e.fillRect(i - r, p + r, n, s - n)
-        e.fillRect(i - r, p + s - r, o + n, n)
-        e.fillRect(i + o - r, p + r, n, s - n)
+        ;((e.fillStyle = t),
+          e.fillRect(i - r, p - r, o + n, n),
+          e.fillRect(i - r, p + r, n, s - n),
+          e.fillRect(i - r, p + s - r, o + n, n),
+          e.fillRect(i + o - r, p + r, n, s - n))
         return
       }
-      e.strokeStyle = t
-      e.strokeRect(i, p, o, s)
+      ;((e.strokeStyle = t), e.strokeRect(i, p, o, s))
     },
     Tt = (e) => m.createTextNode(e),
     xt = (e) => {
@@ -162,12 +160,12 @@
   te.addEventListener('resize', () => yt && yt())
   try {
     Yt.addEventListener('change', Xt)
-  } catch {
+  } catch (e) {
     Yt.addListener(Xt)
   }
   try {
     gt = new Intl.NumberFormat()
-  } catch {}
+  } catch (e) {}
   var Et = m.getElementById('dragTarget'),
     $l = m.getElementById('importButton'),
     Nt = 0,
@@ -184,18 +182,16 @@
     e.preventDefault()
   }
   m.ondragenter = (e) => {
-    e.preventDefault()
-    Qt(e) && ((Et.style.display = 'block'), Nt++)
+    ;(e.preventDefault(), Qt(e) && ((Et.style.display = 'block'), Nt++))
   }
   m.ondragleave = (e) => {
-    e.preventDefault()
-    Qt(e) && --Nt === 0 && (Et.style.display = 'none')
+    ;(e.preventDefault(), Qt(e) && --Nt === 0 && (Et.style.display = 'none'))
   }
   m.ondrop = (e) => {
-    e.preventDefault()
-    Et.style.display = 'none'
-    Nt = 0
-    e.dataTransfer && e.dataTransfer.files && el(e.dataTransfer.files)
+    ;(e.preventDefault(),
+      (Et.style.display = 'none'),
+      (Nt = 0),
+      e.dataTransfer && e.dataTransfer.files && el(e.dataTransfer.files))
   }
   $l.onclick = function () {
     vt && m.body.removeChild(vt)
@@ -227,9 +223,10 @@
       for (let r = 0; r < o; r++) {
         let l = p[r],
           a = s.n,
-          f = a[l]
-        ;((n += f = l + (r + 1 < o ? '/' : '')),
-          Pe.call(a, l) || ((f = { r: f, e: n, t: 0, n: {} }), (a[l] = f)),
+          f = a[l],
+          u = l + (r + 1 < o ? '/' : '')
+        ;((n += u),
+          Pe.call(a, l) || ((f = { r: u, e: n, t: 0, n: {} }), (a[l] = f)),
           (f.t += i),
           (s = f))
       }
@@ -583,8 +580,12 @@
             e.appendChild(r))
         } else if (!r) return
         let f = Tt(l + ' '),
-          u = Tt(` is included in the bundle.\n`)
-        ;(r.firstChild && r.append(`\n`), r.append(f, xt(a.e), u))
+          u = Tt(` is included in the bundle.
+`)
+        ;(r.firstChild &&
+          r.append(`
+`),
+          r.append(f, xt(a.e), u))
         let N = a.x
         if (N) {
           let H = N.h || Zt(N.e) || Kt(N.e, qt(a.e)),
@@ -613,7 +614,14 @@
             (x.append('url(', xe(Ae, JSON.stringify(H)), ')'),
               (l = 'URL reference'))
           else return
-          ;((u.textContent = ` contains:\n`), x.append(P, `\n`), r.append(x))
+          ;((u.textContent = ` contains:
+`),
+            x.append(
+              P,
+              `
+`,
+            ),
+            r.append(x))
         } else f.textContent = 'So ' + f.textContent.toLowerCase()
       }
     },
@@ -702,10 +710,7 @@
       }
       return (
         o.sort(ve),
-        {
-          u: { r: '', e: '', p: '', t: i, l: o, g: !1 },
-          b: p + 1,
-        }
+        { u: { r: '', e: '', p: '', t: i, l: o, g: !1 }, b: p + 1 }
       )
     },
     Ht = (e, t, i, p, o) => {
@@ -1158,28 +1163,22 @@
                 W = b + v
               if (W - S < 1.5 / _) return S
               let A = 2 / _
-              if (
-                (v > A && (A = v),
-                T & 2
-                  ? ((I.fillStyle = Je(I, g.e, U, B, 1)),
-                    I.beginPath(),
-                    I.arc(U, B, c, b, b + A, !1),
-                    I.arc(U, B, R, b + A, b, !0),
-                    I.fill(),
-                    s &&
-                      (T & 8 || g.i === s) &&
-                      ((I.fillStyle = 'rgba(255, 255, 255, 0.3)'), I.fill()))
-                  : (T & 4 || A === h.PI * 2 ? R : c,
-                    T & 1 && c > 0 && I.arc(U, B, c, b + A, b, !0),
-                    I.moveTo(
-                      U + (T & 4 || A === h.PI * 2 ? R : c) * h.cos(b),
-                      B + (T & 4 || A === h.PI * 2 ? R : c) * h.sin(b),
-                    ),
-                    I.arc(U, B, R, b, b + A, !1),
-                    A === h.PI * 2 ||
-                      I.lineTo(U + c * h.cos(b + A), B + c * h.sin(b + A))))
-              ) {
-                // done
+              if ((v > A && (A = v), T & 2))
+                ((I.fillStyle = Je(I, g.e, U, B, 1)),
+                  I.beginPath(),
+                  I.arc(U, B, c, b, b + A, !1),
+                  I.arc(U, B, R, b + A, b, !0),
+                  I.fill(),
+                  s &&
+                    (T & 8 || g.i === s) &&
+                    ((I.fillStyle = 'rgba(255, 255, 255, 0.3)'), I.fill()))
+              else {
+                let ue = A === h.PI * 2,
+                  Ne = T & 4 || ue ? R : c
+                ;(T & 1 && c > 0 && I.arc(U, B, c, b + A, b, !0),
+                  I.moveTo(U + Ne * h.cos(b), B + Ne * h.sin(b)),
+                  I.arc(U, B, R, b, b + A, !1),
+                  ue || I.lineTo(U + c * h.cos(b + A), B + c * h.sin(b + A)))
               }
               let Q = g.t,
                 le = T & 10,
@@ -1303,7 +1302,7 @@
                 } else c = '<b>' + z(We(c)) + '</b>'
                 ;(me === 2
                   ? (c += z(Ee(d.e, ' \u2013 ')))
-                  : (c += ' \u2013 ' + z(ae(d.t))),
+                  : ' \u2013 ' + z(ae(d.t)),
                   w(g.pageX, g.pageY + 20, c),
                   (P.style.cursor = 'pointer'))
               } else L()
@@ -1454,9 +1453,7 @@
                           G[!I[0] && G.length > 1 ? 1 : 0].focus())
                     })),
                   D.insertBefore(j, D.firstChild),
-                  o == p.u && (j.tabIndex = -1),
-                  I.unshift(o),
-                  G.unshift(j))
+                  o == p.u && ((j.tabIndex = -1), I.unshift(o), G.unshift(j)))
               }
               ;((x.innerHTML = ''), x.append(ee, U))
             },
@@ -1566,13 +1563,7 @@
             l: [],
           })
       }
-      return (
-        o.sort(ve),
-        {
-          u: { r: '', e: '', p: '', t: i, l: o },
-          b: p + 1,
-        }
-      )
+      return (o.sort(ve), { u: { r: '', e: '', p: '', t: i, l: o }, b: p + 1 })
     },
     _l = (e) => {
       let t = pr(e),
@@ -1710,18 +1701,18 @@
         },
         Z = (y) => {
           let w = (g, d, c) => {
-            if (M >= c && M < c + g.t) {
-              if (O >= d && O < d + 24 && g.e) return g
-              if (O >= d + 24)
-                for (let b of g.l) {
-                  let v = w(b, d + 24, c)
-                  if (v) return v
-                  c += b.t
-                }
-            }
-            return null
-          }
-          let L = y.pageX,
+              if (M >= c && M < c + g.t) {
+                if (O >= d && O < d + 24 && g.e) return g
+                if (O >= d + 24)
+                  for (let b of g.l) {
+                    let v = w(b, d + 24, c)
+                    if (v) return v
+                    c += b.t
+                  }
+              }
+              return null
+            },
+            L = y.pageX,
             O = y.pageY
           for (let g = r; g; g = g.offsetParent)
             ((L -= g.offsetLeft), (O -= g.offsetTop))
@@ -1782,7 +1773,7 @@
         (r.onmousemove = (y) => {
           fe(y)
         }),
-        (r.onmouseout = () => {
+        (r.onmouseout = (y) => {
           ee(null)
         }),
         (r.onclick = (y) => {
@@ -1965,12 +1956,20 @@
     }
   jl()
   te.addEventListener('storage', jl)
+  var elLoadExample = m.getElementById('loadExample')
+  if (elLoadExample) {
+    elLoadExample.onclick = () => {
+      fetch('example-metafile.json')
+        .then((e) => e.text())
+        .then(et)
+    }
+  }
   if (location.hash !== '') {
     try {
       et(atob(location.hash.slice(1)))
-    } catch {}
+    } catch (e) {}
     try {
       history.replaceState({}, '', location.pathname)
-    } catch {}
+    } catch (e) {}
   }
 })()
