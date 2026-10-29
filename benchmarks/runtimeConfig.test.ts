@@ -14,6 +14,13 @@ describe('runtime benchmark configuration', () => {
     expect(config.bootstrapIterations).toBe(1000)
     expect(config.bootstrapSeed).toBe(0)
     expect(config.failOnRegression).toBe(true)
+    expect(config.compareFixtures).toBe(false)
+  })
+
+  test('supports comparing raw and compressed project fixtures', () => {
+    const config = parseRuntimeConfig(['--compare-fixtures=true'])
+
+    expect(config.compareFixtures).toBe(true)
   })
 
   test('supports explicit head-only A/A and parsed report options', () => {
