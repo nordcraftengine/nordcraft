@@ -18,6 +18,7 @@ const ALL_NODE_TYPES_MAP: Record<NodeType['nodeType'], true> = {
   'component-formula': true,
   'component-node': true,
   'component-node-attribute': true,
+  'component-test-scenario': true,
   'component-variable': true,
   'component-workflow': true,
   'custom-property': true,
