@@ -131,6 +131,9 @@ export function ensureEfficientOrdering(
     ? insertBeforeElement.previousSibling
     : parentElement.lastChild
 
+  const canMoveBefore =
+    typeof parentElement.moveBefore === 'function' && parentElement.isConnected
+
   // We'll process the items array in reverse order to minimize the number of DOM operations.
   for (let i = items.length - 1; i >= 0; i--) {
     const item = items[i]
@@ -139,6 +142,9 @@ export function ensureEfficientOrdering(
     if (item === currentMarker) {
       // The item is in the correct position, move the marker to the previous sibling.
       currentMarker = item.previousSibling
+    } else if (canMoveBefore && item.parentNode === parentElement) {
+      // The item is already a child of parentElement, so move it atomically to preserve DOM state (e.g. CSS transitions).
+      parentElement.moveBefore(item, insertBeforeElement)
     } else {
       // The item is either not in the DOM or not in the correct position.
       // Insert the item before the insertBeforeElement (or append it if insertBeforeElement is null).

@@ -250,4 +250,49 @@ describe('ensureEfficientOrdering', () => {
     expect(parent.childNodes[1]).toBe(item1)
     expect(parent.childNodes[2]).toBe(item2)
   })
+
+  it('should use moveBefore for existing connected children and insertBefore for new children when supported', () => {
+    const parent = document.createElement('div')
+    document.body.appendChild(parent)
+    const item1 = document.createElement('div')
+    const item2 = document.createElement('div')
+    const newItem = document.createElement('div')
+    parent.append(item2, item1)
+
+    const moved: Node[] = []
+    const inserted: Node[] = []
+    const origInsertBefore = parent.insertBefore.bind(parent)
+    parent.moveBefore = (node: Node, child: Node | null) => {
+      moved.push(node)
+      origInsertBefore(node, child)
+    }
+    parent.insertBefore = (<T extends Node>(node: T, child: Node | null): T => {
+      inserted.push(node)
+      return origInsertBefore(node, child)
+    }) as typeof parent.insertBefore
+
+    ensureEfficientOrdering(parent, [newItem, item1, item2])
+
+    expect(moved).toEqual([item2])
+    expect(inserted).toEqual([newItem])
+    expect(Array.from(parent.childNodes)).toEqual([newItem, item1, item2])
+    parent.remove()
+  })
+
+  it('should fall back to insertBefore when parent is disconnected even if moveBefore exists', () => {
+    const parent = document.createElement('div')
+    const item1 = document.createElement('div')
+    const item2 = document.createElement('div')
+    parent.append(item2, item1)
+
+    let moveCalled = false
+    parent.moveBefore = () => {
+      moveCalled = true
+    }
+
+    ensureEfficientOrdering(parent, [item1, item2])
+
+    expect(moveCalled).toBe(false)
+    expect(Array.from(parent.childNodes)).toEqual([item1, item2])
+  })
 })
