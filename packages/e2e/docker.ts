@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import type { ChildProcess } from 'node:child_process'
 import { spawn, spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { writeFixtureProject } from './fixture-project'
@@ -11,6 +12,9 @@ const fixtureDir = path.join(import.meta.dir, '.fixtures-dist')
 const containerName = `nordcraft-e2e-${process.pid}`
 const baseUrl = `http://127.0.0.1:${port}`
 
+let docker: ChildProcess | undefined
+let tests: ChildProcess | undefined
+
 const run = (command: string, args: string[]) =>
   spawnSync(command, args, { stdio: 'ignore' })
 
@@ -18,7 +22,23 @@ const removeContainer = () => {
   run('docker', ['rm', '-f', containerName])
 }
 
+const cleanup = () => {
+  removeContainer()
+  docker?.kill('SIGTERM')
+  tests?.kill('SIGTERM')
+}
+
+process.on('SIGINT', () => {
+  cleanup()
+  process.exit(130)
+})
+process.on('SIGTERM', () => {
+  cleanup()
+  process.exit(143)
+})
+
 const fail = (message: string): never => {
+  cleanup()
   console.error(message)
   process.exit(1)
 }
@@ -40,7 +60,7 @@ const healthFixture =
 const healthPath = `/${encodeURIComponent(healthFixture)}`
 removeContainer()
 
-const docker = spawn(
+docker = spawn(
   'docker',
   [
     'run',
@@ -63,6 +83,10 @@ const docker = spawn(
 )
 
 let dockerExited = false
+docker.on('error', (error) => {
+  dockerExited = true
+  console.error(`Failed to start backend container: ${error.message}`)
+})
 docker.on('exit', (code) => {
   dockerExited = true
   if (code !== 0 && code !== null) {
@@ -88,24 +112,10 @@ const waitForBackend = async () => {
   throw new Error(`Timed out waiting for the backend at ${baseUrl}`)
 }
 
-const cleanup = () => {
-  removeContainer()
-  docker.kill('SIGTERM')
-}
-
-process.on('SIGINT', () => {
-  cleanup()
-  process.exit(130)
-})
-process.on('SIGTERM', () => {
-  cleanup()
-  process.exit(143)
-})
-
 try {
   await waitForBackend()
 
-  const tests = spawn(
+  tests = spawn(
     'bunx',
     ['playwright', 'test', '--config', 'playwright.config.ts'],
     {
@@ -119,8 +129,9 @@ try {
     },
   )
 
-  const exitCode = await new Promise<number | null>((resolve) => {
-    tests.on('exit', resolve)
+  const exitCode = await new Promise<number | null>((resolve, reject) => {
+    tests?.on('error', reject)
+    tests?.on('close', resolve)
   })
   cleanup()
   process.exit(exitCode ?? 1)

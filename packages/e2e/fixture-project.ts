@@ -20,7 +20,7 @@ const RUNTIME_FILES = [
 const fixtureComponentName = (fixtureName: string, componentName: string) =>
   `${fixtureName}__${componentName}`
 
-const renameComponentReferences = (
+export const renameComponentReferences = (
   value: unknown,
   componentNames: Map<string, string>,
 ): unknown => {
@@ -29,14 +29,16 @@ const renameComponentReferences = (
   }
   if (value && typeof value === 'object') {
     const record = value as Record<string, unknown>
+    let updated: Record<string, unknown> = record
+
     if (
       record.type === 'path' &&
       Array.isArray(record.path) &&
       record.path[0] === 'Contexts' &&
       typeof record.path[1] === 'string'
     ) {
-      return {
-        ...record,
+      updated = {
+        ...updated,
         path: [
           'Contexts',
           componentNames.get(record.path[1]) ?? record.path[1],
@@ -49,20 +51,20 @@ const renameComponentReferences = (
       typeof record.name === 'string' &&
       !record.package
     ) {
-      return {
-        ...record,
+      updated = {
+        ...updated,
         name: componentNames.get(record.name) ?? record.name,
       }
     }
     if (typeof record.contextProvider === 'string') {
-      return {
-        ...record,
+      updated = {
+        ...updated,
         contextProvider:
           componentNames.get(record.contextProvider) ?? record.contextProvider,
       }
     }
     return Object.fromEntries(
-      Object.entries(record).map(([key, item]) => [
+      Object.entries(updated).map(([key, item]) => [
         key,
         renameComponentReferences(item, componentNames),
       ]),
@@ -82,14 +84,14 @@ const renameComponent = (
   return {
     ...renamed,
     name: componentNames.get(component.name) ?? component.name,
-    contexts: component.contexts
+    contexts: renamed.contexts
       ? Object.fromEntries(
-          Object.entries(component.contexts).map(([provider, context]) => [
+          Object.entries(renamed.contexts).map(([provider, context]) => [
             componentNames.get(provider) ?? provider,
             context,
           ]),
         )
-      : component.contexts,
+      : renamed.contexts,
   }
 }
 
