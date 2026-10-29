@@ -14,7 +14,7 @@
     "valibot": "1.5.0"
   },
   "scripts": {
-    "build": "tsgo",
+    "build": "tsgo -p tsconfig.build.json",
     "npm-publish": "bun run build && bun publish --access public",
     "test": "bun test",
     "test:watch": "bun test --watch",
