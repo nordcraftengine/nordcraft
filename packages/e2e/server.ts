@@ -1,44 +1,20 @@
 /* eslint-disable no-console */
 import { nordcraftPage } from '@nordcraft/backend/routes/nordcraftPage'
 import { pageStateHandler } from '@nordcraft/backend/routes/pageState'
-import type { Component } from '@nordcraft/core/dist/component/component.types'
-import type { PluginActionV2 } from '@nordcraft/core/dist/types'
 import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
 import { Hono } from 'hono'
 import { timing } from 'hono/timing'
-import fs from 'node:fs'
 import path from 'node:path'
+import { API_RESPONSE_DELAY_MS, API_RESPONSE_ITEMS } from './fixtures/constants'
+import { createCustomCode, loadFixtures } from './fixtures/loader'
 
 initIsEqual()
 
 const port = Number(process.env.PORT ?? 4173)
 const repoRoot = path.resolve(import.meta.dir, '../..')
 const runtimeDistDir = path.join(repoRoot, 'packages/runtime/dist')
-const fixturesDir = path.join(import.meta.dir, 'fixtures')
 
-const API_RESPONSE_DELAY_MS = 750
-
-interface FixtureModule {
-  page: string
-  components: Component[]
-  customActions?: Record<string, PluginActionV2>
-}
-
-const loadFixtures = async () => {
-  const fixtureFiles = fs
-    .readdirSync(fixturesDir)
-    .filter((file) => file.endsWith('.fixture.ts'))
-
-  const fixtures = new Map<string, FixtureModule>()
-  for (const file of fixtureFiles) {
-    const fixturePath = path.join(fixturesDir, file)
-    const mod = (await import(fixturePath)) as FixtureModule
-    fixtures.set(file.replace('.fixture.ts', ''), mod)
-  }
-  return fixtures
-}
-
-const fixtures = await loadFixtures()
+const fixtures = await loadFixtures(path.join(import.meta.dir, 'fixtures'))
 
 const javascript = (body: string) =>
   new Response(body, {
@@ -71,25 +47,7 @@ app.get('/_custom_code/:fixture', (c) => {
     : rawParam
 
   const fixture = fixtureName ? fixtures.get(fixtureName) : undefined
-  const customActions = fixture?.customActions ?? {}
-
-  const serializedActions = Object.entries(customActions)
-    .map(
-      ([name, action]) =>
-        `"${name}": { arguments: ${JSON.stringify(action.arguments ?? [])}, handler: ${action.handler.toString()} }`,
-    )
-    .join(',\n')
-
-  const code = `
-export const loadCustomCode = () => {};
-export const formulas = {};
-export const actions = {
-  e2e: {
-    ${serializedActions}
-  }
-};
-`
-  return c.text(code, 200, {
+  return c.text(createCustomCode(fixture), 200, {
     'Content-Type': 'application/javascript; charset=utf-8',
     'Cache-Control': 'no-store',
   })
@@ -181,7 +139,7 @@ const server = Bun.serve({
         Number(url.searchParams.get('delay') ?? API_RESPONSE_DELAY_MS),
       )
       return Response.json({
-        items: ['file1.json', 'file2.json'],
+        items: API_RESPONSE_ITEMS,
       })
     }
 

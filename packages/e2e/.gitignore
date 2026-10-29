@@ -6,6 +6,9 @@ out
 dist
 *.tgz
 
+# generated fixture projects
+.fixtures-dist
+
 # code coverage
 coverage
 *.lcov
