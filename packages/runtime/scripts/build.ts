@@ -1,5 +1,5 @@
-const esbuild = require('esbuild')
-const { RUNTIME_BUNDLES, getBundleOptions } = require('./bundleConfig')
+import esbuild from 'esbuild'
+import { RUNTIME_BUNDLES, getBundleOptions } from './bundleConfig'
 
 Promise.all(
   Object.keys(RUNTIME_BUNDLES).map((name) =>

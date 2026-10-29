@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test'
 import path from 'path'
-// @ts-expect-error - JS script import
 import {
   NORDCRAFT_RUNTIME_DEFINES,
   PACKAGE_ROOT,
@@ -10,7 +9,7 @@ import {
   getDefine,
   getSourceEntry,
   serveAnalyzer,
-} from '../scripts/bundleConfig'
+} from './bundleConfig'
 
 describe('bundleConfig', () => {
   describe('getBuildOptions & getBundleOptions', () => {
