@@ -15,6 +15,8 @@ import type {
 import {
   appendUnit,
   applyFormula,
+  applySlotSuffix,
+  buildSlotSuffix,
   DATA_ATTR_ID,
   DATA_ATTR_NODE_ID,
   DATA_ATTR_NODE_TYPE,
@@ -26,6 +28,8 @@ import {
   getStaticStyleAndVariants,
   isDefined,
   mapValues,
+  repeatPath,
+  slotBasePath,
   toBoolean,
   ToddleComponent,
   toValidClassName,
@@ -172,7 +176,7 @@ const renderComponent = async ({
         entries.map((Item, Index) =>
           renderNode({
             id,
-            path: Index ? `${path}(${Index})` : path,
+            path: repeatPath(path, Index || undefined),
             node: nodeWithoutRepeat,
             data: {
               ...data,
@@ -199,7 +203,7 @@ const renderComponent = async ({
     switch (node.type) {
       case 'text': {
         if (!namespace || namespace === 'http://www.w3.org/1999/xhtml') {
-          return `<span ${DATA_ATTR_NODE_TYPE}="${DATA_NODE_TYPE_TEXT}" ${DATA_ATTR_NODE_ID}="${id}">${toEncodedText(
+          return `<span ${DATA_ATTR_NODE_TYPE}="${DATA_NODE_TYPE_TEXT}" ${DATA_ATTR_NODE_ID}="${id}" ${DATA_ATTR_ID}="${path}">${toEncodedText(
             String(applyFormula(node.value, formulaContext, data)),
           )}</span>`
         }
@@ -217,17 +221,18 @@ const renderComponent = async ({
             node,
             component.nodes,
           )
-          let currentSuffix = slotSuffix ?? ''
-          if (slotComponentIndex > 0) {
-            currentSuffix += `{${slotComponentIndex}}`
-          }
-          if (slotRepeatIndex && slotRepeatIndex > 0) {
-            currentSuffix += `(${slotRepeatIndex})`
-          }
+          const currentSuffix =
+            buildSlotSuffix({
+              slotSuffix,
+              slotComponentIndex,
+              slotRepeatIndex,
+            }) || undefined
+          // `defaultChild` expects `undefined` when empty to match the
+          // runtime convention.
           return typeof defaultChild === 'function'
-            ? await defaultChild(data.Contexts ?? {}, {
+            ? defaultChild(data.Contexts ?? {}, {
                 slotRepeatIndex,
-                slotSuffix: currentSuffix || undefined,
+                slotSuffix: currentSuffix,
                 slotPath: path,
               })
             : defaultChild
@@ -252,10 +257,6 @@ const renderComponent = async ({
       case 'element': {
         const lowerTag = node.tag.toLocaleLowerCase()
         switch (lowerTag) {
-          case 'script': {
-            // we do not want to run scripts twice.
-            return ''
-          }
           case 'svg': {
             namespace = 'http://www.w3.org/2000/svg'
             break
@@ -371,17 +372,15 @@ const renderComponent = async ({
               )
             : []
           innerHTML = childNodes.join('')
-        }
-        if (lowerTag === 'style') {
-          // render style content as text
-          const textNode = node.children?.[0]
-            ? component.nodes?.[node.children[0]]
-            : undefined
-          if (textNode?.type === 'text') {
-            innerHTML = String(
-              applyFormula(textNode.value, formulaContext, data),
+        } else {
+          // render script and style content as raw text (matching createElement)
+          innerHTML = (node.children ?? [])
+            .map((childId) => component.nodes?.[childId])
+            .filter((childNode) => childNode?.type === 'text')
+            .map((childNode) =>
+              String(applyFormula(childNode.value, formulaContext, data)),
             )
-          }
+            .join('')
         }
         const tag =
           component.version === 2 && isComponentRootNode
@@ -530,14 +529,11 @@ const renderComponent = async ({
               options?: SlottedContentOptions,
             ) => {
               const currentSuffix = options?.slotSuffix ?? ''
-              let basePath = `${path}.${i}[${slotName}]`
+              let basePath = slotBasePath(path, i, slotName)
               if (options?.slotPath?.startsWith(`${basePath}.`)) {
                 basePath = i > 0 ? `${options.slotPath}.${i}` : options.slotPath
               }
-              const finalPath =
-                currentSuffix && !basePath.endsWith(currentSuffix)
-                  ? `${basePath}${currentSuffix}`
-                  : basePath
+              const finalPath = applySlotSuffix(basePath, currentSuffix)
               return renderNode({
                 id: child,
                 path: finalPath,

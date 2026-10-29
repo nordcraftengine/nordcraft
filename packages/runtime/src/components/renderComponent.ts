@@ -23,8 +23,9 @@ import type {
 } from '../types'
 import { BatchQueue } from '../utils/BatchQueue'
 import { createNode } from './createNode'
+import type { HydrationState } from './hydration'
 
-interface RenderComponentProps {
+export interface RenderComponentProps {
   component: Component
   components: Component[]
   dataSignal: Signal<ComponentData>
@@ -57,6 +58,7 @@ interface RenderComponentProps {
   reportFormulaEvaluation?: FormulaEvaluationReporter
   slotRepeatIndex?: number
   slotSuffix?: string
+  hydration?: HydrationState
 }
 
 const BATCH_QUEUE = new BatchQueue()
@@ -86,6 +88,7 @@ export function renderComponent(
     env,
     slotRepeatIndex,
     slotSuffix,
+    hydration,
   } = props
   const stopMeasure = isMeasureEnabled()
     ? measure(
@@ -134,6 +137,7 @@ export function renderComponent(
     instance,
     slotRepeatIndex,
     slotSuffix,
+    hydration,
   })
   const hasAttributeChangeActions =
     (component.onAttributeChange?.actions?.length ?? 0) > 0

@@ -3,6 +3,7 @@ const version = params.get('version') || 'head'
 
 let project
 let nordcraftProject
+let nordcraftSsrTemplate
 let customElementRuntime
 
 async function loadFixture(url, name) {
@@ -25,6 +26,16 @@ async function initHarness() {
   ])
   project = loadedProject
   nordcraftProject = loadedNordcraft
+
+  // Pre-build a template of the SSR DOM for the nordcraft front page so
+  // `hydrate-nordcraft` can clone it in <0.5ms outside the timed region.
+  const tempContainer = document.createElement('div')
+  setupNordcraftPage('nordcraft')
+  nordcraftProject.runtime.createRoot(tempContainer)
+  const template = document.createElement('template')
+  template.innerHTML = tempContainer.innerHTML
+  nordcraftSsrTemplate = template
+  tempContainer.replaceChildren()
 
   customElementRuntime = await import(
     `/bundle/${version}/custom-element.main.esm.js`
@@ -121,6 +132,21 @@ const cases = {
     const app = document.getElementById('App')
     app.replaceChildren()
     setupNordcraftPage('nordcraft')
+    nordcraftProject.runtime.createRoot(app)
+  },
+
+  /**
+   * Scenario 2: hydrate-nordcraft
+   * Hydrates the pre-populated SSR DOM of the official front page ("nordcraft")
+   * of nordcraft.com (213 components, 2,500+ DOM nodes, 5,500+ formulas).
+   */
+  prepare_hydrate_nordcraft() {
+    const app = document.getElementById('App')
+    app.replaceChildren(nordcraftSsrTemplate.content.cloneNode(true))
+    setupNordcraftPage('nordcraft')
+  },
+  async 'hydrate-nordcraft'() {
+    const app = document.getElementById('App')
     nordcraftProject.runtime.createRoot(app)
   },
 
@@ -366,6 +392,10 @@ const cases = {
 window.__runCase = async function (caseId) {
   if (!cases[caseId]) {
     throw new Error(`Unknown benchmark case: ${caseId}`)
+  }
+  const prepareKey = `prepare_${caseId.replaceAll('-', '_')}`
+  if (typeof cases[prepareKey] === 'function') {
+    cases[prepareKey]()
   }
   if (window.gc) window.gc()
   const memBefore = performance.memory ? performance.memory.usedJSHeapSize : 0

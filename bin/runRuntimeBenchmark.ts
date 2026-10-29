@@ -99,6 +99,11 @@ export const RUNTIME_BENCHMARK_CASES = [
     bundles: ['page.main.esm.js'] as const,
   },
   {
+    id: 'hydrate-nordcraft',
+    name: "hydrate-nordcraft (hydrate SSR DOM of nordcraft.com front page 'nordcraft': 213 components & 2.5k nodes)",
+    bundles: ['page.main.esm.js'] as const,
+  },
+  {
     id: 'mount-pricing',
     name: "mount-pricing (real nordcraft.com 'pricing' page: 169 nodes, tables & formulas)",
     bundles: ['page.main.esm.js'] as const,
