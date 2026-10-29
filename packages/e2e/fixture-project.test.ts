@@ -52,7 +52,10 @@ describe('fixture project', () => {
       },
     }
 
-    const renamed = renameComponentReferences(node, componentNames) as typeof node
+    const renamed = renameComponentReferences(
+      node,
+      componentNames,
+    ) as typeof node
 
     expect(renamed.name).toBe('fixture__MyChild')
     expect(renamed.attrs.title.path).toEqual([
