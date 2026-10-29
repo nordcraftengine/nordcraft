@@ -60,43 +60,9 @@ const healthFixture =
 const healthPath = `/${encodeURIComponent(healthFixture)}`
 removeContainer()
 
-docker = spawn(
-  'docker',
-  [
-    'run',
-    '--rm',
-    '--name',
-    containerName,
-    '-p',
-    `${port}:3000`,
-    '-e',
-    'PORT=3000',
-    '-v',
-    `${fixtureDir}:/fixtures:ro`,
-    '--entrypoint',
-    '/app/nordcraft-backend',
-    '-w',
-    '/fixtures',
-    image,
-  ],
-  { stdio: ['ignore', 'inherit', 'inherit'] },
-)
-
-let dockerExited = false
-docker.on('error', (error) => {
-  dockerExited = true
-  console.error(`Failed to start backend container: ${error.message}`)
-})
-docker.on('exit', (code) => {
-  dockerExited = true
-  if (code !== 0 && code !== null) {
-    console.error(`Backend container exited with code ${code}`)
-  }
-})
-
-const waitForBackend = async () => {
+const waitForBackend = async (isExited: () => boolean) => {
   for (let attempt = 0; attempt < 60; attempt++) {
-    if (dockerExited) {
+    if (isExited()) {
       throw new Error('Backend container exited before it became ready')
     }
     try {
@@ -113,7 +79,41 @@ const waitForBackend = async () => {
 }
 
 try {
-  await waitForBackend()
+  docker = spawn(
+    'docker',
+    [
+      'run',
+      '--rm',
+      '--name',
+      containerName,
+      '-p',
+      `${port}:3000`,
+      '-e',
+      'PORT=3000',
+      '-v',
+      `${fixtureDir}:/fixtures:ro`,
+      '--entrypoint',
+      '/app/nordcraft-backend',
+      '-w',
+      '/fixtures',
+      image,
+    ],
+    { stdio: ['ignore', 'inherit', 'inherit'] },
+  )
+
+  let dockerExited = false
+  docker.on('error', (error) => {
+    dockerExited = true
+    console.error(`Failed to start backend container: ${error.message}`)
+  })
+  docker.on('exit', (code) => {
+    dockerExited = true
+    if (code !== 0 && code !== null) {
+      console.error(`Backend container exited with code ${code}`)
+    }
+  })
+
+  await waitForBackend(() => dockerExited)
 
   tests = spawn(
     'bunx',
