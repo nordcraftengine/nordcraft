@@ -7,6 +7,7 @@ declare global {
       ready: boolean
       error: string | null
     }
+    __cookieChangeListeners?: number
   }
 }
 
