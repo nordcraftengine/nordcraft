@@ -2202,4 +2202,90 @@ describe('createNode()', () => {
     expect(reportedPaths).not.toContain('nodes/root/nodes/root/condition')
     expect(reportedPaths).not.toContain('nodes/root/nodes/root/attrs/title')
   })
+
+  test('updating repeat list data does not re-insert unchanged DOM nodes', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        items: [
+          { name: 'Lasse', active: false },
+          { name: 'Peter', active: false },
+          { name: 'Maria', active: false },
+        ],
+      },
+    })
+
+    const ctx = {
+      isRootComponent: false,
+      component: {
+        name: 'My Component',
+        nodes: {
+          repeat: {
+            type: 'element',
+            tag: 'div',
+            repeat: { type: 'path', path: ['Variables', 'items'] },
+            children: ['text'],
+            attrs: {},
+            events: {},
+            classes: {
+              active: {
+                formula: {
+                  type: 'path',
+                  path: ['ListItem', 'Item', 'active'],
+                },
+              },
+            },
+          },
+          text: {
+            type: 'text',
+            value: { type: 'path', path: ['ListItem', 'Item', 'name'] },
+          },
+        },
+      },
+      root: document,
+      env: { runtime: 'page' },
+      formulaCache: {},
+      toddle: { getCustomFormula: () => undefined },
+    } as any as ComponentContext
+
+    const nodes = createNode({
+      ctx,
+      namespace: 'http://www.w3.org/1999/xhtml',
+      dataSignal,
+      path: '0.0',
+      id: 'repeat',
+      parentElement,
+      instance: {},
+    })
+    parentElement.append(...nodes)
+
+    const insertedNodes: Node[] = []
+    const origInsertBefore = parentElement.insertBefore.bind(parentElement)
+    parentElement.insertBefore = (<T extends Node>(
+      node: T,
+      child: Node | null,
+    ): T => {
+      insertedNodes.push(node)
+      return origInsertBefore(node, child)
+    }) as typeof parentElement.insertBefore
+
+    // Update the second item in the list (without repeatKey, using index as key)
+    dataSignal.update((data) => ({
+      ...data,
+      Variables: {
+        ...data.Variables,
+        items: [
+          { name: 'Lasse', active: false },
+          { name: 'Peter', active: true },
+          { name: 'Maria', active: false },
+        ],
+      },
+    }))
+
+    expect(insertedNodes).toHaveLength(0)
+    expect(parentElement.children[1].classList.contains('active')).toBe(true)
+  })
 })

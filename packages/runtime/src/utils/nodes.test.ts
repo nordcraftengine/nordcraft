@@ -84,6 +84,25 @@ describe('getNextSiblingElement', () => {
     expect(getNextSiblingElement('0.1(3)', parent)).toBe(nextNode)
     expect(getNextSiblingElement('0.1(4)', parent)).toBe(nextNode)
   })
+
+  it('should skip repeat siblings of the same node when ignoreRepeat is true', () => {
+    const parent = document.createElement('div')
+    const child0 = document.createElement('div')
+    child0.setAttribute('data-id', '0.1')
+    const child1 = document.createElement('div')
+    child1.setAttribute('data-id', '0.1(1)')
+    const child2 = document.createElement('div')
+    child2.setAttribute('data-id', '0.1(2)')
+    parent.append(child0, child1, child2)
+
+    expect(getNextSiblingElement('0.1', parent, true)).toBeNull()
+
+    const nextNode = document.createElement('div')
+    nextNode.setAttribute('data-id', '0.2')
+    parent.appendChild(nextNode)
+
+    expect(getNextSiblingElement('0.1', parent, true)).toBe(nextNode)
+  })
 })
 
 describe('ensureEfficientOrdering and getNextSiblingElement together', () => {

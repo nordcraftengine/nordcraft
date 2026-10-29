@@ -369,7 +369,7 @@ export function createNode({
         ensureEfficientOrdering(
           parentElement,
           Array.from(repeatItems.values()).flatMap((e) => e.elements),
-          getNextSiblingElement(path, parentElement),
+          getNextSiblingElement(path, parentElement, true),
         )
       },
       {
