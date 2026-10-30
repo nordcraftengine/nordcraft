@@ -61,24 +61,27 @@ export function createLegacyAPI(
         : ''
 
     // build querystring
-    const queryParams = Object.values(api.queryParams ?? {})
-    const queryString =
-      queryParams.length > 0
-        ? '?' +
-          queryParams
-            .map(
-              (param, i) =>
-                `${param.name}=${encodeURIComponent(
-                  applyFormula(
-                    param.formula,
-                    ctx,
-                    data,
-                    IS_PREVIEW ? ['queryParams', i, 'formula'] : undefined,
-                  ),
-                )}`,
-            )
-            .join('&')
-        : ''
+    const queryParts: string[] = []
+    if (api.queryParams) {
+      let i = 0
+      for (const key in api.queryParams) {
+        const param = api.queryParams[key]
+        if (param) {
+          queryParts.push(
+            `${param.name}=${encodeURIComponent(
+              applyFormula(
+                param.formula,
+                ctx,
+                data,
+                IS_PREVIEW ? ['queryParams', i, 'formula'] : undefined,
+              ),
+            )}`,
+          )
+        }
+        i++
+      }
+    }
+    const queryString = queryParts.length > 0 ? '?' + queryParts.join('&') : ''
     const headers = isFormula(api.headers) // this is supporting a few legacy cases where the whole header object was set as a formula. This is no longer possible
       ? applyFormula(
           api.headers,
@@ -94,11 +97,14 @@ export function createLegacyAPI(
             IS_PREVIEW ? ['headers', key] : undefined,
           ),
         )
-    const contentType = String(
-      Object.entries(headers).find(
-        ([key]) => key.toLocaleLowerCase() === 'content-type',
-      )?.[1],
-    )
+    let contentTypeHeader: unknown
+    for (const key in headers) {
+      if (key.toLocaleLowerCase() === 'content-type') {
+        contentTypeHeader = (headers as Record<string, unknown>)[key]
+        break
+      }
+    }
+    const contentType = String(contentTypeHeader)
     const method = api.method ?? 'GET'
     const body =
       api.body && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
@@ -135,31 +141,33 @@ export function createLegacyAPI(
     switch (contentType) {
       case 'application/x-www-form-urlencoded': {
         if (typeof body === 'object' && body !== null) {
-          return Object.entries(body)
-            .map(([key, value]) => {
-              if (Array.isArray(value)) {
-                return value
-                  .map(
-                    (v) =>
-                      `${encodeURIComponent(key)}=${encodeURIComponent(v)}`,
-                  )
-                  .join('&')
-              } else {
-                return `${encodeURIComponent(key)}=${encodeURIComponent(
-                  String(value),
-                )}`
+          const parts: string[] = []
+          for (const key in body) {
+            const value = body[key]
+            if (Array.isArray(value)) {
+              for (const v of value) {
+                parts.push(
+                  `${encodeURIComponent(key)}=${encodeURIComponent(v)}`,
+                )
               }
-            })
-            .join('&')
+            } else {
+              parts.push(
+                `${encodeURIComponent(key)}=${encodeURIComponent(
+                  String(value),
+                )}`,
+              )
+            }
+          }
+          return parts.join('&')
         }
         return ''
       }
       case 'multipart/form-data': {
         const formData = new FormData()
         if (typeof body === 'object' && body !== null) {
-          Object.entries(body).forEach(([key, value]) => {
-            formData.set(key, value as string | Blob)
-          })
+          for (const key in body) {
+            formData.set(key, body[key] as string | Blob)
+          }
         }
         return formData
       }
@@ -189,9 +197,11 @@ export function createLegacyAPI(
         { force: true },
       )
     }
-    api.onCompleted?.actions?.forEach((action) => {
-      handleAction(action, ctx.dataSignal.get(), ctx)
-    })
+    if (api.onCompleted?.actions) {
+      for (const action of api.onCompleted.actions) {
+        handleAction(action, ctx.dataSignal.get(), ctx)
+      }
+    }
   }
 
   function apiError(error: any) {
@@ -213,9 +223,11 @@ export function createLegacyAPI(
         { force: true },
       )
     }
-    api.onFailed?.actions?.forEach((action) => {
-      handleAction(action, ctx.dataSignal.get(), ctx)
-    })
+    if (api.onFailed?.actions) {
+      for (const action of api.onFailed.actions) {
+        handleAction(action, ctx.dataSignal.get(), ctx)
+      }
+    }
   }
 
   // Execute the request to the cloudflare Query proxy

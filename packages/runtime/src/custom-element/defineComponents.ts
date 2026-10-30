@@ -29,35 +29,38 @@ export const defineComponents = (
   },
   toddle: Toddle<LocationSignal, never>,
 ) => {
-  componentNames
-    .map<Component>(
-      (name) =>
-        options.components.find(
-          (component) => component.name === name,
-        ) as Component,
+  for (const name of componentNames) {
+    const component = options.components.find(
+      (c) => c.name === name,
+    ) as Component
+    if (!component) {
+      continue
+    }
+    const tag = safeCustomElementName(component.name)
+    if (customElements.get(tag)) {
+      // eslint-disable-next-line no-console
+      console.warn(`Component ${tag} already defined`)
+      continue
+    }
+
+    customElements.define(
+      tag,
+      class extends ToddleComponent {
+        constructor() {
+          super(component, options, toddle)
+        }
+
+        // When read from DOM, all attributes are lower case, so we must observe them as such
+        static get observedAttributes() {
+          const attrs: string[] = []
+          if (component.attributes) {
+            for (const key in component.attributes) {
+              attrs.push(key.toLowerCase())
+            }
+          }
+          return attrs
+        }
+      },
     )
-    .forEach((component) => {
-      const tag = safeCustomElementName(component.name)
-      if (customElements.get(tag)) {
-        // eslint-disable-next-line no-console
-        console.warn(`Component ${tag} already defined`)
-        return
-      }
-
-      customElements.define(
-        tag,
-        class extends ToddleComponent {
-          constructor() {
-            super(component, options, toddle)
-          }
-
-          // When read from DOM, all attributes are lower case, so we must observe them as such
-          static get observedAttributes() {
-            return Object.keys(component.attributes ?? {}).map((key) =>
-              key.toLowerCase(),
-            )
-          }
-        },
-      )
-    })
+  }
 }

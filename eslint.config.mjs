@@ -96,4 +96,39 @@ export default defineConfig([
       'no-console': 'error',
     },
   },
+  {
+    files: [
+      'packages/runtime/**/*.ts',
+      // Let's enable this for core/ and ssr/ in separate PRs
+      // 'packages/core/**/*.ts',
+      // 'packages/ssr/**/*.ts',
+    ],
+    ignores: [
+      '**/*.test.ts',
+      'packages/runtime/src/editor/**',
+      'packages/runtime/src/editor-preview*.ts',
+    ],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "CallExpression[callee.object.name='Object'][callee.property.name=/^(keys|values|entries)$/]",
+          message:
+            'Avoid Object.keys/values/entries in hot paths; it allocates temporary arrays. Use for..in or helpers from collections instead.',
+        },
+        {
+          selector:
+            "CallExpression[callee.property.name='forEach']:not([callee.object.name=/([Mm]ap|repeatItems)/]):not([callee.object.callee.name='Map'])",
+          message:
+            'Avoid Array.prototype.forEach in hot paths due to function call overhead. Use a standard loop instead.',
+        },
+        {
+          selector: "UnaryExpression[operator='delete']",
+          message:
+            'Avoid delete operator in hot paths as it alters object hidden classes/shapes. Set property to undefined instead.',
+        },
+      ],
+    },
+  },
 ])

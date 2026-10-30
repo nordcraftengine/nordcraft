@@ -171,10 +171,14 @@ export class CustomPropertyStyleSheet {
     let result =
       selector + (options?.startingStyle ? ' { @starting-style { }}' : ' { }')
     if (options?.mediaQuery) {
-      result = `@media (${Object.entries(options.mediaQuery)
-        .map(([key, value]) => `${key}: ${value}`)
-        .filter(Boolean)
-        .join(') and (')}) { ${result}}`
+      const parts: string[] = []
+      for (const key in options.mediaQuery) {
+        const value = options.mediaQuery[key as keyof MediaQuery]
+        if (value !== undefined && value !== null && value !== '') {
+          parts.push(`${key}: ${value}`)
+        }
+      }
+      result = `@media (${parts.join(') and (')}) { ${result}}`
     }
 
     return result

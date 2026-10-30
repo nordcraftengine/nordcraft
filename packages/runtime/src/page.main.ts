@@ -124,18 +124,20 @@ export const initGlobalObject = (code?: {
   })()
 
   // load default formulas and actions
-  Object.entries(libFormulas).forEach(([name, module]) =>
+  for (const name in libFormulas) {
+    const module = (libFormulas as Record<string, any>)[name]
     window.toddle.registerFormula(
       '@toddle/' + name,
       module.default as FormulaHandler,
       'getArgumentInputData' in module
         ? module.getArgumentInputData
         : undefined,
-    ),
-  )
-  Object.entries(libActions).forEach(([name, module]) =>
-    window.toddle.registerAction('@toddle/' + name, module.default),
-  )
+    )
+  }
+  for (const name in libActions) {
+    const module = (libActions as Record<string, any>)[name]
+    window.toddle.registerAction('@toddle/' + name, module.default)
+  }
 }
 
 export const createRoot = (domNode: HTMLElement) => {
@@ -236,11 +238,16 @@ export const createRoot = (domNode: HTMLElement) => {
   }
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
-  sortApis(
-    Object.entries(component.apis ?? {}).filter(
-      (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-    ),
-  ).forEach(([name, api]) => {
+  const apiEntries: [string, ComponentAPI][] = []
+  if (component.apis) {
+    for (const name in component.apis) {
+      const api = component.apis[name]
+      if (isDefined(api)) {
+        apiEntries.push([name, api])
+      }
+    }
+  }
+  for (const [name, api] of sortApis(apiEntries)) {
     if (isLegacyApi(api)) {
       ctx.apis[name] = createLegacyAPI(api, ctx)
     } else {
@@ -250,27 +257,29 @@ export const createRoot = (domNode: HTMLElement) => {
         componentData: dataSignal.get(),
       })
     }
-  })
+  }
   // Trigger actions for all APIs after all of them are created.
-  Object.values(ctx.apis)
-    .filter(isContextApiV2)
-    .forEach((api) => {
+  for (const apiName in ctx.apis) {
+    const api = ctx.apis[apiName]
+    if (isContextApiV2(api)) {
       api.triggerActions(dataSignal.get())
-    })
+    }
+  }
 
   let providers = ctx.providers
   if (isContextProvider(component)) {
     // Subscribe to exposed formulas and update the component's data signal
-    const formulaDataSignals = Object.fromEntries(
-      Object.entries(component.formulas ?? {})
-        .filter(([, formula]) => formula?.exposeInContext)
-        .map(([name, formula]) => [
-          name,
-          dataSignal.map((data) =>
+    const formulaDataSignals: Record<string, Signal<any>> = {}
+    if (component.formulas) {
+      for (const name in component.formulas) {
+        const formula = component.formulas[name]
+        if (formula?.exposeInContext) {
+          formulaDataSignals[name] = dataSignal.map((data) =>
             applyFormula((formula as ComponentFormula).formula, ctx, data),
-          ),
-        ]),
-    )
+          )
+        }
+      }
+    }
 
     providers = {
       ...providers,
@@ -316,9 +325,9 @@ export const createRoot = (domNode: HTMLElement) => {
     instance: {},
   })
   domNode.innerText = ''
-  elements.forEach((elem) => {
+  for (const elem of elements) {
     domNode.appendChild(elem)
-  })
+  }
   window.__toddle.isPageLoaded = true
 }
 
@@ -326,17 +335,18 @@ function parseUrl(component: Component) {
   const path = window.location.pathname.split('/').slice(1)
   let params: Record<string, string | null> = {}
   if (component.route) {
-    component.route.path.forEach((segment, i) => {
+    for (let i = 0; i < component.route.path.length; i++) {
+      const segment = component.route.path[i]!
       if (segment.type === 'param') {
         if (isDefined(path[i]) && path[i] !== '') {
-          params[segment.name] = decodeURIComponent(path[i])
+          params[segment.name] = decodeURIComponent(path[i]!)
         } else {
           params[segment.name] = null
         }
       } else {
         params[segment.name] = segment.name
       }
-    })
+    }
   } else {
     const urlPattern = match<Record<string, string>>(component.page ?? '', {
       decode: decodeURIComponent,
@@ -351,9 +361,12 @@ function parseUrl(component: Component) {
   const query = parseQuery(window.location.search) as Record<string, string>
   // Explicitly set all query params to null by default
   // to avoid undefined values in the runtime
-  const defaultQueryParams = Object.keys(component.route?.query ?? {}).reduce<
-    Record<string, null>
-  >((params, key) => ({ ...params, [key]: null }), {})
+  const defaultQueryParams: Record<string, null> = {}
+  if (component.route?.query) {
+    for (const key in component.route.query) {
+      defaultQueryParams[key] = null
+    }
+  }
   return {
     params,
     hash: hash?.slice(1),
@@ -418,7 +431,12 @@ const setupMetaUpdates = (
   const dynamicDescription =
     descriptionFormula && descriptionFormula.type !== 'value'
   const dynamicMetaFormulas = getDynamicMetaEntries(meta)
-  if (dynamicDescription || Object.keys(dynamicMetaFormulas).length > 0) {
+  let hasDynamicMetaFormulas = false
+  for (const _ in dynamicMetaFormulas) {
+    hasDynamicMetaFormulas = true
+    break
+  }
+  if (dynamicDescription || hasDynamicMetaFormulas) {
     const findMetaElement = (name: string) =>
       [...document.getElementsByTagName('meta')].find(
         (el) => el.name === name || el.getAttribute('property') === name,
@@ -436,9 +454,16 @@ const setupMetaUpdates = (
       if (isDefined(id)) {
         existingElement = document.querySelector(`[data-toddle-id="${id}"]`)
       } else {
-        const identifier = Object.entries(entry.attrs ?? {}).find(([key]) =>
-          ['property', 'name'].includes(key.toLowerCase()),
-        )?.[1]
+        let identifier: string | undefined
+        if (entry.attrs) {
+          for (const key in entry.attrs) {
+            const lower = key.toLowerCase()
+            if (lower === 'property' || lower === 'name') {
+              identifier = entry.attrs[key]
+              break
+            }
+          }
+        }
         if (isDefined(identifier)) {
           existingElement = findMetaElement(identifier)
         }
@@ -452,12 +477,11 @@ const setupMetaUpdates = (
         document.getElementsByTagName('head')[0].appendChild(existingElement)
       }
       // Apply all attributes to the element
-      Object.entries(entry.attrs ?? {}).forEach(([key, value]) => {
-        if (!component) {
-          return
+      if (component && entry.attrs) {
+        for (const key in entry.attrs) {
+          existingElement!.setAttribute(key, entry.attrs[key])
         }
-        existingElement!.setAttribute(key, value)
-      })
+      }
       if (
         typeof entry.content === 'string' &&
         !VOID_HTML_ELEMENTS.includes(entry.tag.toLowerCase())
@@ -485,18 +509,28 @@ const setupMetaUpdates = (
             document
               .getElementsByTagName('head')[0]
               .appendChild(descriptionElement)
-            if (
-              meta &&
-              !Object.values(meta).some((m) =>
-                Object.entries(m.attrs ?? {}).some(
-                  ([k, value]) =>
-                    k.toLowerCase() === 'property' &&
-                    value?.type === 'value' &&
-                    typeof value.value === 'string' &&
-                    value.value.toLowerCase() === 'og:description',
-                ),
-              )
-            ) {
+            let hasOgDescription = false
+            if (meta) {
+              for (const mKey in meta) {
+                const m = meta[mKey]
+                if (m.attrs) {
+                  for (const k in m.attrs) {
+                    const value = m.attrs[k]
+                    if (
+                      k.toLowerCase() === 'property' &&
+                      value?.type === 'value' &&
+                      typeof value.value === 'string' &&
+                      value.value.toLowerCase() === 'og:description'
+                    ) {
+                      hasOgDescription = true
+                      break
+                    }
+                  }
+                  if (hasOgDescription) break
+                }
+              }
+            }
+            if (meta && !hasOgDescription) {
               // If there is no formula for the og:description meta tag,
               // add it with the same value as the description meta tag
               // this mimics the behavior from our SSR
@@ -512,23 +546,23 @@ const setupMetaUpdates = (
           }
         })
     }
-    if (Object.keys(dynamicMetaFormulas).length > 0) {
+    if (hasDynamicMetaFormulas) {
       for (const id in dynamicMetaFormulas) {
         const entry = dynamicMetaFormulas[id]
         if (entry) {
           dataSignal
             .map((data) => {
               // Return the new values for all attributes (we assume they're strings)
-              const values = Object.entries(entry.attrs ?? {}).reduce(
-                (agg, [key, formula]) =>
-                  component
-                    ? {
-                        ...agg,
-                        [key]: applyFormula(formula, formulaContext, data),
-                      }
-                    : agg,
-                {},
-              )
+              const values: Record<string, any> = {}
+              if (component && entry.attrs) {
+                for (const key in entry.attrs) {
+                  values[key] = applyFormula(
+                    entry.attrs[key],
+                    formulaContext,
+                    data,
+                  )
+                }
+              }
               return {
                 attrs: values,
                 content: entry.content

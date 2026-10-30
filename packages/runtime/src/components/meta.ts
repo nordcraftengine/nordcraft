@@ -12,10 +12,13 @@ export const getDynamicMetaEntries = (
     const entry = meta[key]
     if (isDefined(entry.content) && entry.content.type !== 'value') {
       dynamicMetaEntries[key] = entry
-    } else if (
-      Object.values(entry.attrs ?? {}).some((a) => a?.type !== 'value')
-    ) {
-      dynamicMetaEntries[key] = entry
+    } else if (entry.attrs) {
+      for (const attrKey in entry.attrs) {
+        if (entry.attrs[attrKey]?.type !== 'value') {
+          dynamicMetaEntries[key] = entry
+          break
+        }
+      }
     }
   }
   return dynamicMetaEntries

@@ -5,22 +5,25 @@ export function omitSubnodeStyleForComponent<T extends Component | undefined>(
   component: T,
 ): T {
   const clone = structuredClone(component)
-  Object.entries(clone?.nodes ?? {}).forEach(([nodeId, node]) => {
-    if (
-      isDefined(node) &&
-      (node.type === 'element' || node.type === 'component') &&
-      nodeId !== 'root'
-    ) {
-      delete node.style
-      delete node.animations
-      node.variants = node.variants?.map(
-        ({ customProperties }) =>
-          ({
-            customProperties,
-          }) as StyleVariant,
-      )
+  if (clone?.nodes) {
+    for (const nodeId in clone.nodes) {
+      const node = clone.nodes[nodeId]
+      if (
+        isDefined(node) &&
+        (node.type === 'element' || node.type === 'component') &&
+        nodeId !== 'root'
+      ) {
+        node.style = undefined
+        node.animations = undefined
+        node.variants = node.variants?.map(
+          ({ customProperties }) =>
+            ({
+              customProperties,
+            }) as StyleVariant,
+        )
+      }
     }
-  })
+  }
 
   return clone
 }

@@ -92,7 +92,8 @@ export function createElement({
     let slotName: string | undefined | null
     let hasSlotElements = false
 
-    for (const node of Object.values(ctx.component.nodes)) {
+    for (const nodeKey in ctx.component.nodes) {
+      const node = ctx.component.nodes[nodeKey]
       if (node?.type !== 'slot') continue
 
       hasSlotElements = true
@@ -110,9 +111,13 @@ export function createElement({
 
     if (hasSlotElements && id === 'root') {
       elem.setAttribute('data-has-slots-elements', 'true')
-      const slotNodes = Object.values(ctx.component.nodes).filter(
-        (node) => node?.type === 'slot',
-      )
+      const slotNodes: (NodeModel | undefined | null)[] = []
+      for (const nodeKey in ctx.component.nodes) {
+        const node = ctx.component.nodes[nodeKey]
+        if (node?.type === 'slot') {
+          slotNodes.push(node)
+        }
+      }
       if (slotNodes.length === 1) {
         const onlySlot = slotNodes[0]
         elem.setAttribute(
@@ -219,22 +224,25 @@ export function createElement({
       })
     }
   }
-  node['style-variables']?.forEach((styleVariable, i) => {
-    const { name, formula, unit } = styleVariable
-    const styleVarPath =
-      IS_PREVIEW && ctx.reportFormulaEvaluation
-        ? ['nodes', id, 'style-variables', i, 'formula']
-        : undefined
-    const signal = dataSignal.map((data) => {
-      const value = applyFormula(formula, formulaCtx, data, styleVarPath)
-      if (IS_PREVIEW && styleVarPath) {
-        ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
-      }
-      return unit ? value + unit : value
-    })
+  if (node['style-variables']) {
+    for (let i = 0; i < node['style-variables'].length; i++) {
+      const styleVariable = node['style-variables'][i]!
+      const { name, formula, unit } = styleVariable
+      const styleVarPath =
+        IS_PREVIEW && ctx.reportFormulaEvaluation
+          ? ['nodes', id, 'style-variables', i, 'formula']
+          : undefined
+      const signal = dataSignal.map((data) => {
+        const value = applyFormula(formula, formulaCtx, data, styleVarPath)
+        if (IS_PREVIEW && styleVarPath) {
+          ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
+        }
+        return unit ? value + unit : value
+      })
 
-    signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
-  })
+      signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
+    }
+  }
 
   const customProperties = node.customProperties ?? {}
   for (const customPropertyName in customProperties) {
@@ -266,46 +274,53 @@ export function createElement({
     })
   }
 
-  node.variants?.forEach((variant, variantIndex) => {
-    const variantCustomProperties = variant.customProperties ?? {}
-    for (const customPropertyName in variantCustomProperties) {
-      const { formula, unit } =
-        variantCustomProperties[
-          customPropertyName as keyof typeof variantCustomProperties
-        ]!
-      if (!formulaHasValue(formula)) {
-        continue
-      }
-      hasDynamicCustomProperties = true
-      const variantCpPath =
-        IS_PREVIEW && ctx.reportFormulaEvaluation
-          ? [
-              'nodes',
-              id,
-              'variants',
-              variantIndex,
-              'customProperties',
-              customPropertyName,
-              'formula',
-            ]
-          : undefined
-      subscribeCustomProperty({
-        customPropertyName,
-        selector: getNodeSelector(path, {
+  if (node.variants) {
+    for (
+      let variantIndex = 0;
+      variantIndex < node.variants.length;
+      variantIndex++
+    ) {
+      const variant = node.variants[variantIndex]!
+      const variantCustomProperties = variant.customProperties ?? {}
+      for (const customPropertyName in variantCustomProperties) {
+        const { formula, unit } =
+          variantCustomProperties[
+            customPropertyName as keyof typeof variantCustomProperties
+          ]!
+        if (!formulaHasValue(formula)) {
+          continue
+        }
+        hasDynamicCustomProperties = true
+        const variantCpPath =
+          IS_PREVIEW && ctx.reportFormulaEvaluation
+            ? [
+                'nodes',
+                id,
+                'variants',
+                variantIndex,
+                'customProperties',
+                customPropertyName,
+                'formula',
+              ]
+            : undefined
+        subscribeCustomProperty({
+          customPropertyName,
+          selector: getNodeSelector(path, {
+            variant,
+          }),
           variant,
-        }),
-        variant,
-        signal: dataSignal.map((data) => {
-          const val = applyFormula(formula, formulaCtx, data, variantCpPath)
-          if (IS_PREVIEW && variantCpPath) {
-            ctx.reportFormulaEvaluation?.(variantCpPath, val, ctx)
-          }
-          return appendUnit(val, unit)
-        }),
-        root: ctx.root,
-      })
+          signal: dataSignal.map((data) => {
+            const val = applyFormula(formula, formulaCtx, data, variantCpPath)
+            if (IS_PREVIEW && variantCpPath) {
+              ctx.reportFormulaEvaluation?.(variantCpPath, val, ctx)
+            }
+            return appendUnit(val, unit)
+          }),
+          root: ctx.root,
+        })
+      }
     }
-  })
+  }
 
   if (path && hasDynamicCustomProperties) {
     initialClasses.push(getPathClassName(path))
@@ -333,21 +348,21 @@ export function createElement({
   const nodeTag = node.tag.toLocaleLowerCase()
   if (nodeTag === 'script' || nodeTag === 'style') {
     const textValues: Array<Signal<string> | string> = []
-    ;(node.children ?? [])
-      .map<NodeModel | undefined | null>(
-        (child) => ctx.component.nodes?.[child],
-      )
-      .filter((node) => node?.type === 'text')
-      .forEach((node) => {
-        if (node.value.type === 'value') {
-          textValues.push(String(node.value.value))
-        } else {
-          const textSignal = dataSignal.map((data) => {
-            return String(applyFormula(node.value, formulaCtx, data))
-          })
-          textValues.push(textSignal)
+    if (node.children) {
+      for (let i = 0; i < node.children.length; i++) {
+        const child = ctx.component.nodes?.[node.children[i]]
+        if (child?.type === 'text') {
+          if (child.value.type === 'value') {
+            textValues.push(String(child.value.value))
+          } else {
+            const textSignal = dataSignal.map((data) => {
+              return String(applyFormula(child.value, formulaCtx, data))
+            })
+            textValues.push(textSignal)
+          }
         }
-      })
+      }
+    }
 
     // if all values are string, we can directly set textContent
     if (textValues.every((value) => typeof value === 'string')) {
@@ -355,15 +370,16 @@ export function createElement({
     }
 
     // for each signal, we subscribe and rewrite the entire textContent from all text nodes
-    textValues
-      .filter((value) => typeof value !== 'string')
-      .forEach((valueSignal) => {
+    for (let i = 0; i < textValues.length; i++) {
+      const valueSignal = textValues[i]!
+      if (typeof valueSignal !== 'string') {
         valueSignal.subscribe(() => {
           elem.textContent = textValues
             .map((value) => (typeof value === 'string' ? value : value.get()))
             .join('')
         })
-      })
+      }
+    }
   } else {
     const childNodes: (Element | Text)[] = []
     const children = node.children ?? []
@@ -408,30 +424,35 @@ const getEventHandler =
     ctx: ComponentContext
   }) =>
   (e: Event) => {
-    event?.actions?.forEach((action) => {
-      if (e instanceof DragEvent) {
-        ;(e as any).data = getDragData(e)
-      }
-      if (e instanceof ClipboardEvent) {
-        try {
-          ;(e as any).data = Array.from(e.clipboardData?.items ?? []).reduce<
-            Record<string, any>
-          >((dragData, item) => {
-            try {
-              dragData[item.type] = JSON.parse(
-                e.clipboardData?.getData(item.type) as any,
-              )
-            } catch {
-              dragData[item.type] = e.clipboardData?.getData(item.type)
-            }
-            return dragData
-          }, {})
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error('Could not get paste data', e)
+    if (event?.actions) {
+      const actions = event.actions
+      const len = actions.length
+      for (let i = 0; i < len; i++) {
+        const action = actions[i]!
+        if (e instanceof DragEvent) {
+          ;(e as any).data = getDragData(e)
         }
+        if (e instanceof ClipboardEvent) {
+          try {
+            ;(e as any).data = Array.from(e.clipboardData?.items ?? []).reduce<
+              Record<string, any>
+            >((dragData, item) => {
+              try {
+                dragData[item.type] = JSON.parse(
+                  e.clipboardData?.getData(item.type) as any,
+                )
+              } catch {
+                dragData[item.type] = e.clipboardData?.getData(item.type)
+              }
+              return dragData
+            }, {})
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error('Could not get paste data', e)
+          }
+        }
+        void handleAction(action, { ...dataSignal.get(), Event: e }, ctx, e)
       }
-      void handleAction(action, { ...dataSignal.get(), Event: e }, ctx, e)
-    })
+    }
     return false
   }

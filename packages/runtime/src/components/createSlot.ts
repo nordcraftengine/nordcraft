@@ -118,9 +118,9 @@ export function createSlot({
   if (IS_CUSTOM_ELEMENT && ctx.isRootComponent) {
     const webComponentSlot = document.createElement('slot')
     webComponentSlot.setAttribute('name', slotName)
-    children.forEach((child) => {
+    for (const child of children) {
       webComponentSlot.appendChild(child)
-    })
+    }
 
     return [webComponentSlot]
   }
