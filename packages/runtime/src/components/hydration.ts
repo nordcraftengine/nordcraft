@@ -32,15 +32,18 @@ export interface HydrationState {
   missesByType: Record<string, number>
   /** Last parent element queried in `claimHydratedChild`. */
   lastParent?: Element | ShadowRoot
-  /** Cursor into `lastParent.children` for O(1) sequential child claiming. */
-  lastIndex: number
+  /** Next child index to inspect in `lastParent.children` for O(1) sequential child claiming. */
+  nextIndex: number
 }
 
 export interface HydrationResult {
   claimedCount: number
-  createdPaths: string[]
-  sweptPaths: string[]
-  missesByType: Record<`expected:${string}` | `created:${string}` | `swept:${string}`, number>
+  created: number
+  swept: number
+  missesByType: Record<
+    `expected:${string}` | `created:${string}` | `swept:${string}`,
+    number
+  >
 }
 
 export const createHydrationState = (): HydrationState => ({
@@ -50,7 +53,7 @@ export const createHydrationState = (): HydrationState => ({
   createdPaths: [],
   sweptPaths: [],
   missesByType: {},
-  lastIndex: 0,
+  nextIndex: 0,
 })
 
 /**
@@ -71,37 +74,35 @@ export function claimHydratedChild(
   if (len === 0) {
     return null
   }
+
+  const claimInRange = (from: number, to: number): Element | null => {
+    for (let i = from; i < to; i++) {
+      const child = children[i]!
+      if (
+        child.getAttribute(DATA_ATTR_ID) === path &&
+        !hydration.adopted.has(child)
+      ) {
+        hydration.adopted.add(child)
+        hydration.claimedCount++
+        hydration.lastParent = parent
+        hydration.nextIndex = i + 1
+        return child
+      }
+    }
+    return null
+  }
+
+  // Hydration traverses siblings in DOM order in the common case. When querying
+  // the same parent consecutively, start at `nextIndex` (the sibling right after
+  // the previously claimed child) so sequential claims resolve in O(1) instead
+  // of scanning from index 0 every time. If the forward pass misses (e.g. out-of-order
+  // claims or skipped nodes), wrap around and check the earlier siblings [0, start).
   const start =
-    hydration.lastParent === parent && hydration.lastIndex < len
-      ? hydration.lastIndex
+    hydration.lastParent === parent && hydration.nextIndex < len
+      ? hydration.nextIndex
       : 0
-  for (let i = start; i < len; i++) {
-    const child = children[i]!
-    if (
-      child.getAttribute(DATA_ATTR_ID) === path &&
-      !hydration.adopted.has(child)
-    ) {
-      hydration.adopted.add(child)
-      hydration.claimedCount++
-      hydration.lastParent = parent
-      hydration.lastIndex = i + 1
-      return child
-    }
-  }
-  for (let i = 0; i < start; i++) {
-    const child = children[i]!
-    if (
-      child.getAttribute(DATA_ATTR_ID) === path &&
-      !hydration.adopted.has(child)
-    ) {
-      hydration.adopted.add(child)
-      hydration.claimedCount++
-      hydration.lastParent = parent
-      hydration.lastIndex = i + 1
-      return child
-    }
-  }
-  return null
+
+  return claimInRange(start, len) ?? claimInRange(0, start)
 }
 
 export function noteHydrationFallback(
@@ -183,25 +184,14 @@ export function reportHydrationResult(hydration: HydrationState): void {
     globalThis as { __nc_hydration_result?: HydrationResult }
   ).__nc_hydration_result = {
     claimedCount: hydration.claimedCount,
-    createdPaths: hydration.createdPaths,
-    sweptPaths: hydration.sweptPaths,
+    created,
+    swept,
     missesByType: hydration.missesByType,
-  }
-  if (created > 0 || swept > 0) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      `Hydration misses: adopted ${hydration.claimedCount} SSR node(s)` +
-        (created > 0
-          ? `, created ${created} (${hydration.createdPaths.join(', ')})`
-          : '') +
-        (swept > 0
-          ? `, removed ${swept} (${hydration.sweptPaths.join(', ')})`
-          : ''),
-      hydration.missesByType,
-    )
   }
 
   // Release DOM references for garbage collection
   hydration.adopted.clear()
   hydration.lastParent = undefined
+  hydration.createdPaths.length = 0
+  hydration.sweptPaths.length = 0
 }

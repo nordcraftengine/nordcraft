@@ -385,7 +385,7 @@ describe('fresh items added to slotted-component repeats', () => {
       createdPaths: [],
       sweptPaths: [],
       missesByType: {},
-      lastIndex: 0,
+      nextIndex: 0,
     }
     createNode({
       ctx,
