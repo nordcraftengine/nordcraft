@@ -1,4 +1,5 @@
 import type { Component, NodeModel, SlotNodeModel } from '@nordcraft/core'
+import { applySlotSuffix, buildSlotSuffix } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
@@ -13,6 +14,7 @@ export function createSlot({
   namespace,
   slotRepeatIndex,
   slotSuffix,
+  hydration,
 }: NodeRenderer<SlotNodeModel>): ReadonlyArray<Element | Text> {
   const slotName = node.name ?? 'default'
   let children: Array<Element | Text> = []
@@ -24,13 +26,11 @@ export function createSlot({
       ctx.component.nodes,
     )
 
-    let currentSuffix = slotSuffix ?? ''
-    if (slotComponentIndex > 0) {
-      currentSuffix += `{${slotComponentIndex}}`
-    }
-    if (slotRepeatIndex && slotRepeatIndex > 0) {
-      currentSuffix += `(${slotRepeatIndex})`
-    }
+    const currentSuffix = buildSlotSuffix(
+      slotSuffix,
+      slotComponentIndex,
+      slotRepeatIndex,
+    )
 
     children = ctx.children[slotName].flatMap((child, childIndex) => {
       const childDataSignal = child.dataSignal.map((data) => data)
@@ -41,10 +41,8 @@ export function createSlot({
         basePath = childIndex > 0 ? `${slotPath}.${childIndex}` : slotPath
       }
 
-      const path =
-        currentSuffix && !basePath.endsWith(currentSuffix)
-          ? basePath + currentSuffix
-          : basePath
+      // Shared hydration contract for slotted paths.
+      const path = applySlotSuffix(basePath, currentSuffix)
 
       return createNode({
         ...child,
@@ -58,8 +56,9 @@ export function createSlot({
         instance,
         namespace,
         path,
-        slotRepeatIndex,
+        slotRepeatIndex: undefined,
         slotSuffix: currentSuffix || undefined,
+        hydration,
       })
     })
   } else {
@@ -78,6 +77,7 @@ export function createSlot({
         namespace,
         slotRepeatIndex,
         slotSuffix,
+        hydration,
       })
     })
     if (IS_PREVIEW && ctx.env?.runtime === 'preview') {

@@ -16,6 +16,7 @@ import {
   isDefined,
   isLegacyApi,
   mapObject,
+  slotBasePath,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import { isContextApiV2 } from '../api/apiUtils'
@@ -33,6 +34,7 @@ import { createFormulaCache } from '../utils/createFormulaCache'
 import { formulaHasValue } from '../utils/formulaHasValue'
 import { getComponent } from '../utils/getComponent'
 import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
+import type { HydrationState } from './hydration'
 import { renderComponent } from './renderComponent'
 
 export type RenderComponentNodeProps = {
@@ -45,6 +47,7 @@ export type RenderComponentNodeProps = {
   namespace?: SupportedNamespaces
   slotRepeatIndex?: number
   slotSuffix?: string
+  hydration?: HydrationState
 }
 
 export function createComponent({
@@ -57,6 +60,7 @@ export function createComponent({
   namespace,
   slotRepeatIndex,
   slotSuffix,
+  hydration,
 }: RenderComponentNodeProps): ReadonlyArray<Element | Text> {
   const nodeLookupKey = ctx.package ? `${ctx.package}/${node.name}` : node.name
   const component = getComponent(nodeLookupKey, ctx.components, !IS_PREVIEW)
@@ -336,7 +340,7 @@ export function createComponent({
     children[slotName] = children[slotName] ?? []
     children[slotName].push({
       id: childId,
-      path: `${path}.${i}[${slotName}]`,
+      path: slotBasePath(path, i, slotName),
       dataSignal,
       ctx: {
         ...ctx,
@@ -376,6 +380,7 @@ export function createComponent({
     toddle: ctx.toddle,
     env: ctx.env,
     namespace,
+    hydration,
     // If the root node is another component, then append and forward previous instance
     instance:
       node.id === 'root'

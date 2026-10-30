@@ -7,7 +7,7 @@ import type {
   SupportedNamespaces,
   TextNodeModel,
 } from '@nordcraft/core'
-import { applyFormula, toBoolean } from '@nordcraft/core'
+import { applyFormula, repeatPath, toBoolean } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
@@ -18,6 +18,7 @@ import { createComponent } from './createComponent'
 import { createElement } from './createElement'
 import { createSlot } from './createSlot'
 import { createText } from './createText'
+import type { HydrationState } from './hydration'
 
 export function createNode({
   id,
@@ -29,6 +30,7 @@ export function createNode({
   instance,
   slotRepeatIndex,
   slotSuffix,
+  hydration,
 }: {
   id: string
   dataSignal: Signal<ComponentData>
@@ -39,6 +41,7 @@ export function createNode({
   instance: Record<string, string>
   slotRepeatIndex?: number
   slotSuffix?: string
+  hydration?: HydrationState
 }): ReadonlyArray<Element | Text> {
   const node = ctx.component.nodes?.[id]
   if (!node) {
@@ -89,6 +92,7 @@ export function createNode({
     instance,
     slotRepeatIndex,
     slotSuffix,
+    hydration,
   }: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
     let firstRun = true
     let childDataSignal: Signal<ComponentData> | null = null
@@ -123,6 +127,7 @@ export function createNode({
             instance,
             slotRepeatIndex,
             slotSuffix,
+            hydration,
           }),
         )
 
@@ -322,25 +327,20 @@ export function createNode({
             )
 
             const repeatIndex =
-              Key === '0' && !defaultElement ? undefined : ++lifetimeSize
+              i === 0 && !defaultElement ? undefined : ++lifetimeSize
             const args = {
               node: node!,
               id,
               dataSignal: childDataSignal,
-              // Note that we use the lifetimeSize to ensure that no two items can ever get the same path.
-              // Consider a list [A, B, C]:
-              // - Update list to [B]
-              // - Update list to [A, C, B]
-              // Now C and B would have the same path `(1)` if we only used the index or Key, as B would have kept its reference, but the others would be recreated.
-              // With lifetimeSize, the keys would be A(3), B(1), C(4) - all unique.
-              path: repeatIndex ? `${path}(${repeatIndex})` : path,
+              path: repeatPath(path, repeatIndex),
               ctx,
               namespace,
               parentElement,
               instance,
               slotRepeatIndex: repeatIndex,
+              hydration,
             }
-            if (Key === '0' && !defaultElement) {
+            if (i === 0 && !defaultElement) {
               defaultElement = childKey
             }
             const elements = node!.condition ? conditional(args) : create(args)
@@ -404,6 +404,7 @@ export function createNode({
       instance,
       slotRepeatIndex,
       slotSuffix,
+      hydration,
     })
   }
   return create({
@@ -417,6 +418,7 @@ export function createNode({
     instance,
     slotRepeatIndex,
     slotSuffix,
+    hydration,
   })
 }
 
@@ -435,4 +437,5 @@ export type NodeRenderer<NodeType> = {
    */
   slotRepeatIndex?: number
   slotSuffix?: string
+  hydration?: HydrationState
 }

@@ -11,14 +11,17 @@ export const NORDCRAFT_RUNTIME_DEFINES = {
   page: {
     IS_PREVIEW: 'false',
     IS_CUSTOM_ELEMENT: 'false',
+    IS_PAGE: 'true',
   },
   preview: {
     IS_PREVIEW: 'true',
     IS_CUSTOM_ELEMENT: 'false',
+    IS_PAGE: 'false',
   },
   'custom-element': {
     IS_PREVIEW: 'false',
     IS_CUSTOM_ELEMENT: 'true',
+    IS_PAGE: 'false',
   },
 } satisfies Record<string, Record<string, string>>
 
