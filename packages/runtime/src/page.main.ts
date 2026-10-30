@@ -311,7 +311,8 @@ export const createRoot = (domNode: HTMLElement) => {
   // We can only setup meta updates after the dataSignal has been initiated with API data etc.
   setupMetaUpdates(component, dataSignal)
 
-  const hydration = createHydrationState()
+  const hydration =
+    domNode.children.length > 0 ? createHydrationState() : undefined
   const elements = renderComponent({
     ...ctx,
     providers,
@@ -322,15 +323,22 @@ export const createRoot = (domNode: HTMLElement) => {
     instance: {},
     hydration,
   })
-  // Claimed nodes are already in place; ensure any fallback-created root
-  // elements are attached, then sweep stale SSR leftovers.
-  elements.forEach((elem) => {
-    if (elem.parentNode !== domNode) {
+  if (hydration) {
+    // Claimed nodes are already in place; ensure any fallback-created root
+    // elements are attached, then sweep stale SSR leftovers.
+    elements.forEach((elem) => {
+      if (elem.parentNode !== domNode) {
+        domNode.appendChild(elem)
+      }
+    })
+    sweepUnhydratedNodes(domNode, hydration)
+    reportHydrationResult(hydration)
+  } else {
+    domNode.innerText = ''
+    elements.forEach((elem) => {
       domNode.appendChild(elem)
-    }
-  })
-  sweepUnhydratedNodes(domNode, hydration)
-  reportHydrationResult(hydration)
+    })
+  }
   window.__toddle.isPageLoaded = true
 }
 

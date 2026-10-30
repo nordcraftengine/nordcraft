@@ -74,24 +74,30 @@ export function createElement({
 
   let elem: HTMLElement | SVGElement | MathMLElement | null = null
   let claimed = false
-  if (IS_PAGE && hydration) {
-    const candidate = claimHydratedChild(parentElement, path, hydration)
-    if (candidate && hydrationTagMatches(candidate, tag)) {
-      elem = candidate as HTMLElement | SVGElement | MathMLElement
-      claimed = true
-    } else if (candidate) {
-      // SSR/CSR unexpected tag at a stable path, drop the stale node.
-      candidate.remove()
+  if (IS_PAGE && hydration && !hydration.sealed) {
+    if (parentElement.children.length > 0) {
+      const candidate = claimHydratedChild(parentElement, path, hydration)
+      if (candidate && hydrationTagMatches(candidate, tag)) {
+        elem = candidate as HTMLElement | SVGElement | MathMLElement
+        claimed = true
+      } else if (candidate) {
+        // SSR/CSR unexpected tag at a stable path, drop the stale node.
+        candidate.remove()
+      }
     }
-  }
-  if (!elem) {
-    elem = namespace
-      ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
-      : document.createElement(tag)
-    if (IS_PAGE && hydration) {
+    if (!elem) {
+      elem = namespace
+        ? (document.createElementNS(namespace, tag) as
+            | SVGElement
+            | MathMLElement)
+        : document.createElement(tag)
       hydration.adopted.add(elem)
       noteHydrationFallback(hydration, path, tag)
     }
+  } else {
+    elem = namespace
+      ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
+      : document.createElement(tag)
   }
   if (
     IS_PAGE &&

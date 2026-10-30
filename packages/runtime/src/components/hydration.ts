@@ -109,14 +109,17 @@ export function noteHydrationFallback(
   path: string,
   tag = 'unknown',
 ): void {
-  const lower = tag.toLowerCase()
-  if (lower === 'script') {
+  if (hydration.sealed) {
+    return
+  }
+
+  if (tag === 'script' || tag === 'SCRIPT') {
     hydration.missesByType['expected:script'] =
       (hydration.missesByType['expected:script'] ?? 0) + 1
     return
   }
   hydration.createdPaths.push(path)
-  const key = `created:${lower}`
+  const key = `created:${tag.toLowerCase()}`
   hydration.missesByType[key] = (hydration.missesByType[key] ?? 0) + 1
 }
 

@@ -58,21 +58,23 @@ export function createText({
   const { value } = node
   let elem: HTMLSpanElement | null = null
   let claimed = false
-  if (IS_PAGE && hydration && parentElement) {
-    const candidate = claimHydratedChild(parentElement, path, hydration)
-    if (candidate && hydrationTagMatches(candidate, 'span')) {
-      elem = candidate as HTMLSpanElement
-      claimed = true
-    } else if (candidate) {
-      candidate.remove()
+  if (IS_PAGE && hydration && !hydration.sealed) {
+    if (parentElement && parentElement.children.length > 0) {
+      const candidate = claimHydratedChild(parentElement, path, hydration)
+      if (candidate && hydrationTagMatches(candidate, 'span')) {
+        elem = candidate as HTMLSpanElement
+        claimed = true
+      } else if (candidate) {
+        candidate.remove()
+      }
     }
-  }
-  if (!elem) {
-    elem = document.createElement('span')
-    if (IS_PAGE && hydration) {
+    if (!elem) {
+      elem = document.createElement('span')
       hydration.adopted.add(elem)
       noteHydrationFallback(hydration, path, 'text')
     }
+  } else {
+    elem = document.createElement('span')
   }
 
   // This is editor only logic and we should move out of the runtime bundle when possible
