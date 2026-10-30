@@ -2,7 +2,6 @@ import type {
   ActionHandler,
   ArgumentInputDataFunction,
   Component,
-  ComponentAPI,
   ComponentData,
   ComponentFormula,
   ComponentVariable,
@@ -18,7 +17,6 @@ import {
   applyFormula,
   filterObject,
   isDefined,
-  isLegacyApi,
   mapObject,
   THEME_DATA_ATTRIBUTE,
   VOID_HTML_ELEMENTS,
@@ -28,10 +26,7 @@ import * as libActions from '@nordcraft/std-lib/actions'
 import * as libFormulas from '@nordcraft/std-lib/formulas'
 import fastDeepEqual from 'fast-deep-equal'
 import { match } from 'path-to-regexp'
-import { isContextApiV2 } from './api/apiUtils'
-import { createLegacyAPI } from './api/createAPI'
-import { createAPI } from './api/createAPIv2'
-import { sortApis } from './api/sortApis'
+import { loadApiModules, setupComponentApis } from './api/modules'
 import { getDynamicMetaEntries } from './components/meta'
 import { renderComponent } from './components/renderComponent'
 import { isContextProvider } from './context/isContextProvider'
@@ -139,6 +134,26 @@ export const initGlobalObject = (code?: {
 }
 
 export const createRoot = (domNode: HTMLElement) => {
+  if (!domNode) {
+    throw new Error('Cant find root domNode')
+  }
+
+  if (!window.toddle.components) {
+    throw new Error('Missing components')
+  }
+
+  const apiVersions = window.__toddle.apiVersions
+  if (!apiVersions?.v1 && !apiVersions?.v2) {
+    // Pages without APIs can render synchronously since no code needs loading
+    renderRoot(domNode)
+    return
+  }
+
+  // Only load the API runtime(s) actually used by the page and its components
+  return loadApiModules(apiVersions).then(() => renderRoot(domNode))
+}
+
+const renderRoot = (domNode: HTMLElement) => {
   const component = window.__toddle.component
   if (!domNode) {
     throw new Error('Cant find root domNode')
@@ -235,28 +250,14 @@ export const createRoot = (domNode: HTMLElement) => {
     env,
   }
 
-  // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
-  sortApis(
-    Object.entries(component.apis ?? {}).filter(
-      (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-    ),
-  ).forEach(([name, api]) => {
-    if (isLegacyApi(api)) {
-      ctx.apis[name] = createLegacyAPI(api, ctx)
-    } else {
-      ctx.apis[name] = createAPI({
-        apiRequest: api,
-        ctx,
-        componentData: dataSignal.get(),
-      })
-    }
-  })
-  // Trigger actions for all APIs after all of them are created.
-  Object.values(ctx.apis)
-    .filter(isContextApiV2)
-    .forEach((api) => {
-      api.triggerActions(dataSignal.get())
+  if (component.apis && Object.keys(component.apis).length > 0) {
+    setupComponentApis({
+      apis: component.apis,
+      createCtx: () => ctx,
+      componentData: dataSignal.get(),
+      targetApis: ctx.apis,
     })
+  }
 
   let providers = ctx.providers
   if (isContextProvider(component)) {

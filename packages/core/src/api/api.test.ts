@@ -8,12 +8,12 @@ import {
   getRequestPath,
   getRequestQueryParams,
   getUrl,
-  isLegacyApi,
   requestHash,
   toFormData,
 } from './api'
 import type { ApiRequest } from './apiTypes'
 import { ApiMethod } from './apiTypes'
+import { isLegacyApi } from './apiVersions'
 import { LegacyToddleApi } from './LegacyToddleApi'
 import { ToddleApiV2 } from './ToddleApiV2'
 

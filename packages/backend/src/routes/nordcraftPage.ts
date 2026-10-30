@@ -12,6 +12,7 @@ import type {
 } from '@nordcraft/ssr'
 import {
   evaluateResponseHeaders,
+  getApiVersionsInComponents,
   getCharset,
   getHeadItems,
   getHtmlLanguage,
@@ -80,6 +81,7 @@ export const nordcraftPage = async ({
     packages: files.packages,
     includeRoot: true,
   }).map((component) => processComponentApis(component, files))
+  const apiVersions = getApiVersionsInComponents(includedComponents)
 
   let apiCache: ApiCache
   let body: string
@@ -154,6 +156,7 @@ export const nordcraftPage = async ({
     components: includedComponents.map(resolveClasses()),
     isPageLoaded: false,
     cookies: Object.keys(formulaContext.env.request.cookies),
+    apiVersions,
   }
   endTime(hono, nordcraftPageTimingKey)
 
@@ -180,14 +183,28 @@ export const nordcraftPage = async ({
     `<link rel="modulepreload" href="/_static/page.main.esm.js" />`,
     // Tell the browser to start fetching the state for hydration as early as possible
     `<link rel="modulepreload" href="${pageStateUrl}" />`,
-    `<script type="module" src="${pageStateUrl}"></script>`,
   ]
+  if (apiVersions.v1) {
+    // Only preload the API runtime if the page (or its components) uses API v1
+    additionalHeadScripts.push(
+      `<link rel="modulepreload" href="/_static/api-v1.main.esm.js" />`,
+    )
+  }
+  if (apiVersions.v2) {
+    // Only preload the API runtime if the page (or its components) uses API v2
+    additionalHeadScripts.push(
+      `<link rel="modulepreload" href="/_static/api-v2.main.esm.js" />`,
+    )
+  }
   if (typeof customCodeUrl === 'string') {
     // Tell the browser to start fetching custom code for the page as early as possible
     additionalHeadScripts.push(
       `<link rel="modulepreload" href="${customCodeUrl}" />`,
     )
   }
+  additionalHeadScripts.push(
+    `<script type="module" src="${pageStateUrl}"></script>`,
+  )
 
   head = `${head}\n${additionalHeadScripts.join('\n')}`
 

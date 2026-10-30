@@ -148,9 +148,16 @@ const server = Bun.serve({
     // Static runtime bundle requested by the nordcraftPage template (/_static/page.main.esm.js)
     if (
       pathname === '/_static/page.main.esm.js' ||
-      pathname === '/runtime/page.main.esm.js'
+      pathname === '/_static/api-v1.main.esm.js' ||
+      pathname === '/_static/api-v2.main.esm.js' ||
+      pathname === '/runtime/page.main.esm.js' ||
+      pathname === '/runtime/api-v1.main.esm.js' ||
+      pathname === '/runtime/api-v2.main.esm.js'
     ) {
-      const file = Bun.file(path.join(runtimeDistDir, 'page.main.esm.js'))
+      const fileName = pathname.startsWith('/_static/')
+        ? pathname.slice('/_static/'.length)
+        : pathname.slice('/runtime/'.length)
+      const file = Bun.file(path.join(runtimeDistDir, fileName))
       if (!(await file.exists())) {
         return notFound('Runtime bundle not found. Run "bun run build" first.')
       }

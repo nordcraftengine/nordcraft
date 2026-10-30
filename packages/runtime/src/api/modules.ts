@@ -1,0 +1,116 @@
+import type { ApiVersions } from '@nordcraft/core'
+import type { createLegacyAPI } from './createAPI'
+import type { createAPI } from './createAPIv2'
+import type { SetupComponentApis } from './setupComponentApis'
+
+type ApiModuleFactories = {
+  createLegacyAPI?: typeof createLegacyAPI
+  createAPI?: typeof createAPI
+  setupComponentApis?: SetupComponentApis
+}
+
+type ApiV1Module = {
+  createLegacyAPI: typeof createLegacyAPI
+  setupComponentApis: SetupComponentApis
+}
+type ApiV2Module = {
+  createAPI: typeof createAPI
+  setupComponentApis: SetupComponentApis
+}
+
+type ApiVersion = 1 | 2
+
+const factories: ApiModuleFactories = {}
+
+const loading: Partial<Record<ApiVersion, Promise<void>>> = {}
+
+// The API modules are built as separate assets and served next to the
+// runtime. Resolving the URL relative to this module keeps working no matter
+// where the runtime is hosted.
+const apiModuleUrl = (version: ApiVersion) =>
+  new URL(`./api-v${version}.main.esm.js`, import.meta.url).href
+
+const importModule = <T>(url: string) => import(url) as Promise<T>
+
+const loadApiV1 = () => {
+  if (factories.createLegacyAPI) {
+    return Promise.resolve()
+  }
+  return (loading[1] ??= importModule<ApiV1Module>(apiModuleUrl(1))
+    .then((module) => {
+      factories.createLegacyAPI = module.createLegacyAPI
+      factories.setupComponentApis ??= module.setupComponentApis
+    })
+    .catch((err) => {
+      loading[1] = undefined
+      throw err
+    }))
+}
+
+const loadApiV2 = () => {
+  if (factories.createAPI) {
+    return Promise.resolve()
+  }
+  return (loading[2] ??= importModule<ApiV2Module>(apiModuleUrl(2))
+    .then((module) => {
+      factories.createAPI = module.createAPI
+      factories.setupComponentApis ??= module.setupComponentApis
+    })
+    .catch((err) => {
+      loading[2] = undefined
+      throw err
+    }))
+}
+
+/**
+ * Load the API runtime modules required by the given API version flags.
+ *
+ * Only the modules that are actually needed are imported. The imports are
+ * cached, so calling this multiple times only loads each module once.
+ */
+export const loadApiModules = async (apiVersions: ApiVersions) => {
+  await Promise.all([
+    apiVersions.v1 ? loadApiV1() : undefined,
+    apiVersions.v2 ? loadApiV2() : undefined,
+  ])
+}
+
+/**
+ * Register the API factories directly. This is used by runtimes that bundle
+ * the API code themselves (e.g. the editor preview).
+ */
+export const registerApiModules = (modules: ApiModuleFactories) => {
+  factories.createLegacyAPI ??= modules.createLegacyAPI
+  factories.createAPI ??= modules.createAPI
+  factories.setupComponentApis ??= modules.setupComponentApis
+}
+
+export const getLegacyApiFactory = () => {
+  if (!factories.createLegacyAPI) {
+    throw new Error('The API v1 runtime has not been loaded')
+  }
+  return factories.createLegacyAPI
+}
+
+export const getApiV2Factory = () => {
+  if (!factories.createAPI) {
+    throw new Error('The API v2 runtime has not been loaded')
+  }
+  return factories.createAPI
+}
+
+export const setupComponentApis = (params: {
+  apis: Parameters<SetupComponentApis>[0]['apis']
+  createCtx: Parameters<SetupComponentApis>[0]['createCtx']
+  componentData: Parameters<SetupComponentApis>[0]['componentData']
+  targetApis: Parameters<SetupComponentApis>[0]['targetApis']
+}) => {
+  if (!factories.setupComponentApis) {
+    throw new Error('The API runtime has not been loaded')
+  }
+  return factories.setupComponentApis({
+    ...params,
+    createLegacyAPI: factories.createLegacyAPI,
+    createAPI: factories.createAPI,
+  })
+}

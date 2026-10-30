@@ -1,5 +1,4 @@
 import type {
-  ComponentAPI,
   ComponentData,
   ComponentFormula,
   ComponentNodeModel,
@@ -14,14 +13,10 @@ import {
   filterObject,
   getNodeSelector,
   isDefined,
-  isLegacyApi,
   mapObject,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
-import { isContextApiV2 } from '../api/apiUtils'
-import { createLegacyAPI } from '../api/createAPI'
-import { createAPI } from '../api/createAPIv2'
-import { sortApis } from '../api/sortApis'
+import { setupComponentApis } from '../api/modules'
 import { isContextProvider } from '../context/isContextProvider'
 import { subscribeToContext } from '../context/subscribeToContext'
 import { registerComponentToLogState } from '../debug/logState'
@@ -201,74 +196,33 @@ export function createComponent({
       }
     }
     if (hasApis) {
-      sortApis(
-        Object.entries(componentApis).filter(
-          (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-        ),
-      ).forEach(([name, api]) => {
-        if (isLegacyApi(api)) {
-          apis[name] = createLegacyAPI(api, {
-            ...ctx,
-            apis,
-            component,
-            dataSignal: componentDataSignal,
-            abortSignal: abortController.signal,
-            isRootComponent: false,
-            formulaCache,
-            package: node.package ?? ctx.package,
-            triggerEvent: (eventTrigger, data) => {
-              const eventHandler = Object.values(node.events ?? {}).find(
-                (e) => e?.trigger === eventTrigger,
+      setupComponentApis({
+        apis: componentApis,
+        createCtx: () => ({
+          ...ctx,
+          apis,
+          component,
+          dataSignal: componentDataSignal,
+          abortSignal: abortController.signal,
+          isRootComponent: false,
+          formulaCache,
+          package: node.package ?? ctx.package,
+          triggerEvent: (eventTrigger, data) => {
+            const eventHandler = Object.values(node.events ?? {}).find(
+              (e) => e?.trigger === eventTrigger,
+            )
+            if (eventHandler) {
+              eventHandler.actions?.forEach((action) =>
+                handleAction(action, { ...dataSignal.get(), Event: data }, ctx),
               )
-              if (eventHandler) {
-                eventHandler.actions?.forEach((action) =>
-                  handleAction(
-                    action,
-                    { ...dataSignal.get(), Event: data },
-                    ctx,
-                  ),
-                )
-              }
-            },
-          })
-        } else {
-          apis[name] = createAPI({
-            apiRequest: api,
-            ctx: {
-              ...ctx,
-              apis,
-              component,
-              dataSignal: componentDataSignal,
-              abortSignal: abortController.signal,
-              isRootComponent: false,
-              formulaCache,
-              package: node.package ?? ctx.package,
-              triggerEvent: (eventTrigger, data) => {
-                const eventHandler = Object.values(node.events ?? {}).find(
-                  (e) => e?.trigger === eventTrigger,
-                )
-                if (eventHandler) {
-                  eventHandler.actions?.forEach((action) =>
-                    handleAction(
-                      action,
-                      { ...dataSignal.get(), Event: data },
-                      ctx,
-                    ),
-                  )
-                }
-              },
-            },
-            componentData: componentDataSignal.get(),
-          })
-        }
+            }
+          },
+        }),
+        componentData: componentDataSignal.get(),
+        targetApis: apis,
       })
     }
   }
-  Object.values(apis)
-    .filter(isContextApiV2)
-    .forEach((api) => {
-      api.triggerActions(componentDataSignal.get())
-    })
 
   const onEvent = (eventTrigger: string, data: any) => {
     const eventHandler = Object.values(node.events ?? {}).find(

@@ -1,8 +1,7 @@
 import type { ComponentData } from '@nordcraft/core'
 import { isLegacyApi, omitKeys } from '@nordcraft/core'
 import fastDeepEqual from 'fast-deep-equal'
-import { createLegacyAPI } from '../api/createAPI'
-import { createAPI } from '../api/createAPIv2'
+import { getApiV2Factory, getLegacyApiFactory } from '../api/modules'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
 
@@ -40,7 +39,7 @@ export const syncComponentApis = (
             ]),
           }
         })
-        newCtx.apis[api] = createLegacyAPI(apiInstance, {
+        newCtx.apis[api] = getLegacyApiFactory()(apiInstance, {
           ...newCtx,
           jsonPath: ['apis', api],
         })
@@ -48,7 +47,7 @@ export const syncComponentApis = (
     } else {
       const existingApi = newCtx.apis[api] as ContextApiV2 | undefined
       if (!existingApi) {
-        newCtx.apis[api] = createAPI({
+        newCtx.apis[api] = getApiV2Factory()({
           apiRequest: apiInstance,
           ctx: { ...newCtx, jsonPath: ['apis', api] },
           componentData: dataSignal.get(),

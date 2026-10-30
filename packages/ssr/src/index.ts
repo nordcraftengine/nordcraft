@@ -1,6 +1,7 @@
 export * from './components/utils'
 export * from './custom-code/codeRefs'
 export * from './rendering/api'
+export * from './rendering/apiVersions'
 export * from './rendering/attributes'
 export * from './rendering/classes'
 export * from './rendering/components'

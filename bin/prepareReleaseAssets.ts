@@ -94,6 +94,17 @@ const run = async () => {
     define: NORDCRAFT_RUNTIME_DEFINES['custom-element'],
   })
 
+  await bundleFiles(
+    [
+      'packages/runtime/src/api-v1.main.ts',
+      'packages/runtime/src/api-v2.main.ts',
+    ],
+    {
+      format: 'esm',
+      define: NORDCRAFT_RUNTIME_DEFINES.page,
+    },
+  )
+
   await bundleFiles([createTempFileFromValue('reset.css', RESET_STYLES)])
 
   // Build the backend worker

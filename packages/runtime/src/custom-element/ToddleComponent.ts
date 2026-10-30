@@ -1,6 +1,6 @@
 import type {
+  ApiVersions,
   Component,
-  ComponentAPI,
   ComponentData,
   ComponentFormula,
   ComponentVariable,
@@ -15,16 +15,12 @@ import {
   theme as defaultTheme,
   filterObject,
   isDefined,
-  isLegacyApi,
   mapObject,
   THEME_DATA_ATTRIBUTE,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
-import { isContextApiV2 } from '../api/apiUtils'
-import { createLegacyAPI } from '../api/createAPI'
-import { createAPI } from '../api/createAPIv2'
-import { sortApis } from '../api/sortApis'
+import { loadApiModules, setupComponentApis } from '../api/modules'
 import { renderComponent } from '../components/renderComponent'
 import { isContextProvider } from '../context/isContextProvider'
 import type { Signal } from '../signal/signal'
@@ -49,14 +45,21 @@ export class ToddleComponent extends HTMLElement {
   // (which receives lowercased names from observedAttributes) can look them up in the
   // component's attributes without scanning the whole object on every change.
   #attributeNames: Map<string, string>
+  #isSetup = false
+  #apiVersions?: ApiVersions
 
   constructor(
     component: Component,
-    options: { components: Component[]; themes: Record<string, Theme> },
+    options: {
+      components: Component[]
+      themes: Record<string, Theme>
+      apiVersions?: ApiVersions
+    },
     toddle: Toddle<LocationSignal, never>,
   ) {
     super()
     this.toddle = toddle
+    this.#apiVersions = options.apiVersions
     const internals = this.attachInternals()
     if (internals.shadowRoot) {
       // Not used yet, but can be used to hydrate rather than render the shadow dom
@@ -119,31 +122,36 @@ export class ToddleComponent extends HTMLElement {
   }
 
   connectedCallback() {
-    sortApis(
-      Object.entries(this.#component.apis ?? {}).filter(
-        (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-      ),
-    ).forEach(([name, api]) => {
-      if (isLegacyApi(api)) {
-        this.#ctx.apis[name] = createLegacyAPI(
-          api,
-          IS_PREVIEW ? { ...this.#ctx, jsonPath: ['apis', name] } : this.#ctx,
-        )
-      } else {
-        this.#ctx.apis[name] = createAPI({
-          apiRequest: api,
-          ctx: IS_PREVIEW
-            ? { ...this.#ctx, jsonPath: ['apis', name] }
-            : this.#ctx,
-          componentData: this.#signal.get(),
-        })
+    if (this.#isSetup) {
+      return
+    }
+    if (!this.#apiVersions?.v1 && !this.#apiVersions?.v2) {
+      // Components without APIs can render synchronously since no code needs loading
+      this.setup()
+      return
+    }
+
+    void loadApiModules(this.#apiVersions).then(() => {
+      if (this.isConnected && !this.#isSetup) {
+        this.setup()
       }
     })
-    Object.values(this.#ctx.apis)
-      .filter(isContextApiV2)
-      .forEach((api) => {
-        api.triggerActions(this.#signal.get())
+  }
+
+  private setup() {
+    if (this.#isSetup) {
+      return
+    }
+    this.#isSetup = true
+    if (this.#component.apis && Object.keys(this.#component.apis).length > 0) {
+      setupComponentApis({
+        apis: this.#component.apis,
+        createCtx: (name) =>
+          IS_PREVIEW ? { ...this.#ctx, jsonPath: ['apis', name] } : this.#ctx,
+        componentData: this.#signal.get(),
+        targetApis: this.#ctx.apis,
       })
+    }
 
     let providers = this.#ctx.providers
     if (isContextProvider(this.#component)) {

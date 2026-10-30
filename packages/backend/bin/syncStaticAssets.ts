@@ -32,6 +32,10 @@ fs.mkdirSync(staticDir, { recursive: true })
   'page.main.esm.js',
   'page.main.esm.js.map',
   'custom-element.main.esm.js',
+  'api-v1.main.esm.js',
+  'api-v1.main.esm.js.map',
+  'api-v2.main.esm.js',
+  'api-v2.main.esm.js.map',
 ].forEach((f) => {
   const source = resolvePath('../node_modules/@nordcraft/runtime/dist', f)
   const destination = resolvePath('../dist/assets/_static', f)

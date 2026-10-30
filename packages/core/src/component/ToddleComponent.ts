@@ -1,5 +1,5 @@
-import { isLegacyApi } from '../api/api'
 import type { ComponentAPI } from '../api/apiTypes'
+import { isLegacyApi } from '../api/apiVersions'
 import { LegacyToddleApi } from '../api/LegacyToddleApi'
 import { ToddleApiV2 } from '../api/ToddleApiV2'
 import { isFormula, type Formula } from '../formula/formula'

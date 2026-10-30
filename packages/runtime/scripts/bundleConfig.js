@@ -32,6 +32,14 @@ const RUNTIME_BUNDLES = {
     entryPoint: 'src/custom-element.main.ts',
     define: NORDCRAFT_RUNTIME_DEFINES['custom-element'],
   },
+  'api-v1.main': {
+    entryPoint: 'src/api-v1.main.ts',
+    define: NORDCRAFT_RUNTIME_DEFINES.page,
+  },
+  'api-v2.main': {
+    entryPoint: 'src/api-v2.main.ts',
+    define: NORDCRAFT_RUNTIME_DEFINES.page,
+  },
 }
 
 const getBuildOptions = ({ entryPoint, define }) => ({

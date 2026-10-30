@@ -6,6 +6,7 @@ import {
 } from '@nordcraft/core'
 import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr'
 import {
+  getApiVersionsInComponents,
   getFontCssUrl,
   removeTestData,
   replaceTagInNodes,
@@ -75,6 +76,10 @@ export const customElement =
         projectComponents: files.components,
         packages: files.packages,
       })
+      const apiVersions = getApiVersionsInComponents([
+        component,
+        ...includedComponents,
+      ])
       const customCodeSearchParams = new URLSearchParams([
         ['entry', component.name],
       ])
@@ -201,6 +206,7 @@ if(!globalThis.toddle || !globalThis.toddle.isEqual) {
 // Define the custom element
 defineComponents(${JSON.stringify([component.name])}, ${JSON.stringify({
         themes,
+        apiVersions,
         components: includedComponents
           .map(replaceTagInNodes(safeCustomElementName(component.name), 'div'))
           .map(removeTestData)

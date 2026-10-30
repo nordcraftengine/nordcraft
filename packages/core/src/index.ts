@@ -1,5 +1,6 @@
 export * from './api/api'
 export * from './api/apiTypes'
+export * from './api/apiVersions'
 export * from './api/headers'
 export * from './api/LegacyToddleApi'
 export * from './api/template'

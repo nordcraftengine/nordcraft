@@ -14,10 +14,12 @@ import {
 
 describe('bundleConfig', () => {
   describe('getBuildOptions & getBundleOptions', () => {
-    test('defines RUNTIME_BUNDLES for page.main and custom-element.main', () => {
+    test('defines RUNTIME_BUNDLES for runtime entry points', () => {
       expect(Object.keys(RUNTIME_BUNDLES)).toEqual([
         'page.main',
         'custom-element.main',
+        'api-v1.main',
+        'api-v2.main',
       ])
     })
 
@@ -59,6 +61,8 @@ describe('bundleConfig', () => {
       expect(getSourceEntry('custom-element.main')).toBe(
         'src/custom-element.main.ts',
       )
+      expect(getSourceEntry('api-v1.main')).toBe('src/api-v1.main.ts')
+      expect(getSourceEntry('api-v2.main')).toBe('src/api-v2.main.ts')
     })
 
     test('resolves dist output paths with various extensions', () => {

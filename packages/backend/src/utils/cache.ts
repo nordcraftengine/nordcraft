@@ -55,6 +55,9 @@ export class InMemoryCache<V> {
   delete(key: string) {
     this.cache.delete(key)
   }
+  clear() {
+    this.cache.clear()
+  }
   size() {
     return this.cache.size
   }

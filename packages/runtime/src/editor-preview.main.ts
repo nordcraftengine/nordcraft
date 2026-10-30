@@ -19,6 +19,10 @@ import {
   type ComponentFormula,
 } from '@nordcraft/core'
 import fastDeepEqual from 'fast-deep-equal'
+import { createLegacyAPI } from './api/createAPI'
+import { createAPI } from './api/createAPIv2'
+import { registerApiModules } from './api/modules'
+import { setupComponentApis } from './api/setupComponentApis'
 import { createNode } from './components/createNode'
 import { isContextProvider } from './context/isContextProvider'
 import { syncComponentApis } from './editor/api'
@@ -109,6 +113,9 @@ import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
 import type { ComponentContext } from './types'
 import { createFormulaCache } from './utils/createFormulaCache'
+
+// The editor preview always bundles the API runtimes
+registerApiModules({ createLegacyAPI, createAPI, setupComponentApis })
 
 export { getDOMNodeFromNodeId } from './editor/dom'
 export { initGlobalObject } from './editor/global'
