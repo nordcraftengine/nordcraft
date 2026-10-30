@@ -61,12 +61,14 @@ export const isNodeOrAncestorConditional = (
   nodeLookup?.node?.condition !== undefined ||
   nodeLookup?.ancestors.some((a) => a.condition !== undefined) === true
 
+// TODO: This string parsing logic is ugly and error-prone. Consider storing the index and repeat index on the DOM elements directly or in a weak map.
 /**
  * @returns The next sibling element or null if this is the last element. A nc sibling is a sibling with a higher index or the same index but a higher repeat index.
  */
 export const getNextSiblingElement = (
   path: string,
   parentElement: Element | ShadowRoot,
+  ignoreRepeat = false,
 ) => {
   const lastDot = path.lastIndexOf('.')
   const lastPathPart = lastDot === -1 ? path : path.slice(lastDot + 1)
@@ -76,7 +78,9 @@ export const getNextSiblingElement = (
       ? parseInt(lastPathPart, 10)
       : parseInt(lastPathPart.slice(0, parenIndex), 10)
   const repeatIndex =
-    parenIndex === -1 ? 0 : parseInt(lastPathPart.slice(parenIndex + 1), 10)
+    ignoreRepeat || parenIndex === -1
+      ? 0
+      : parseInt(lastPathPart.slice(parenIndex + 1), 10)
 
   const children = parentElement.children
   for (let i = 0; i < children.length; i++) {
@@ -93,7 +97,7 @@ export const getNextSiblingElement = (
       childParenIndex === -1
         ? parseInt(lastChildPathPart, 10)
         : parseInt(lastChildPathPart.slice(0, childParenIndex), 10)
-    if (childIndex === index) {
+    if (!ignoreRepeat && childIndex === index) {
       const childRepeatIndex =
         childParenIndex === -1
           ? 0
@@ -127,6 +131,9 @@ export function ensureEfficientOrdering(
     ? insertBeforeElement.previousSibling
     : parentElement.lastChild
 
+  const canMoveBefore =
+    typeof parentElement.moveBefore === 'function' && parentElement.isConnected
+
   // We'll process the items array in reverse order to minimize the number of DOM operations.
   for (let i = items.length - 1; i >= 0; i--) {
     const item = items[i]
@@ -135,6 +142,9 @@ export function ensureEfficientOrdering(
     if (item === currentMarker) {
       // The item is in the correct position, move the marker to the previous sibling.
       currentMarker = item.previousSibling
+    } else if (canMoveBefore && item.parentNode === parentElement) {
+      // The item is already a child of parentElement, so move it atomically to preserve DOM state (e.g. CSS transitions).
+      parentElement.moveBefore(item, insertBeforeElement)
     } else {
       // The item is either not in the DOM or not in the correct position.
       // Insert the item before the insertBeforeElement (or append it if insertBeforeElement is null).
