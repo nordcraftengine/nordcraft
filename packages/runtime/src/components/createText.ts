@@ -16,12 +16,7 @@ import {
 } from '@nordcraft/core'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
-import {
-  claimHydratedChild,
-  hydrationTagMatches,
-  noteHydrationFallback,
-  type HydrationState,
-} from './hydration'
+import { claimHydratedChild, type HydrationState } from './hydration'
 
 export type RenderTextProps = {
   node: TextNodeModel
@@ -56,25 +51,18 @@ export function createText({
   }
 
   const { value } = node
-  let elem: HTMLSpanElement | null = null
-  let claimed = false
-  if (IS_PAGE && hydration && !hydration.sealed) {
-    if (parentElement && parentElement.children.length > 0) {
-      const candidate = claimHydratedChild(parentElement, path, hydration)
-      if (candidate && hydrationTagMatches(candidate, 'span')) {
-        elem = candidate as HTMLSpanElement
-        claimed = true
-      } else if (candidate) {
-        candidate.remove()
-      }
-    }
-    if (!elem) {
-      elem = document.createElement('span')
-      hydration.adopted.add(elem)
-      noteHydrationFallback(hydration, path, 'text')
-    }
-  } else {
-    elem = document.createElement('span')
+  const claimed =
+    IS_PAGE && hydration && !hydration.sealed && parentElement
+      ? (claimHydratedChild(
+          parentElement,
+          path,
+          hydration,
+          'span',
+        ) as HTMLSpanElement | null)
+      : null
+  const elem = claimed ?? document.createElement('span')
+  if (IS_PAGE && hydration && !hydration.sealed && !claimed) {
+    hydration.adopted.add(elem)
   }
 
   // This is editor only logic and we should move out of the runtime bundle when possible

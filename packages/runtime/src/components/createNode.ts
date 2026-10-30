@@ -18,7 +18,7 @@ import { createComponent } from './createComponent'
 import { createElement } from './createElement'
 import { createSlot } from './createSlot'
 import { createText } from './createText'
-import { peekHydratedChild, type HydrationState } from './hydration'
+import type { HydrationState } from './hydration'
 
 export function createNode({
   id,
@@ -158,11 +158,6 @@ export function createNode({
         childDataSignal?.destroy()
         elements.forEach((elem) => elem.remove())
         elements.splice(0, elements.length)
-        if (IS_PAGE && firstRun && hydration) {
-          // SSR rendered this node but the client hides it
-          // (e.g. a browser-only formula) — remove the stale SSR node.
-          peekHydratedChild(parentElement, path)?.remove()
-        }
       }
     }
 
@@ -337,12 +332,6 @@ export function createNode({
               node: node!,
               id,
               dataSignal: childDataSignal,
-              // Note that we use the lifetimeSize to ensure that no two items can ever get the same path.
-              // Consider a list [A, B, C]:
-              // - Update list to [B]
-              // - Update list to [A, C, B]
-              // Now C and B would have the same path `(1)` if we only used the index or Key, as B would have kept its reference, but the others would be recreated.
-              // With lifetimeSize, the keys would be A(3), B(1), C(4) - all unique.
               path: repeatPath(path, repeatIndex),
               ctx,
               namespace,

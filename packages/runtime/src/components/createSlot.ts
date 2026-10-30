@@ -26,11 +26,11 @@ export function createSlot({
       ctx.component.nodes,
     )
 
-    const currentSuffix = buildSlotSuffix({
+    const currentSuffix = buildSlotSuffix(
       slotSuffix,
       slotComponentIndex,
       slotRepeatIndex,
-    })
+    )
 
     children = ctx.children[slotName].flatMap((child, childIndex) => {
       const childDataSignal = child.dataSignal.map((data) => data)

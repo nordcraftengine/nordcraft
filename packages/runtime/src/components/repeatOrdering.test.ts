@@ -381,10 +381,6 @@ describe('fresh items added to slotted-component repeats', () => {
     const hydration: any = {
       adopted: new Set(),
       sealed: false,
-      claimedCount: 0,
-      createdPaths: [],
-      sweptPaths: [],
-      missesByType: {},
       nextIndex: 0,
     }
     createNode({

@@ -58,15 +58,11 @@ export function parseRepeatSuffix(segment: string): {
  * - `{k}` disambiguates several slots with the same name in one component.
  * - `(n)` disambiguates repeated content projected into a slot.
  */
-export function buildSlotSuffix({
-  slotSuffix,
-  slotComponentIndex,
-  slotRepeatIndex,
-}: {
-  slotSuffix?: string
-  slotComponentIndex?: number
-  slotRepeatIndex?: number
-}): string {
+export function buildSlotSuffix(
+  slotSuffix?: string,
+  slotComponentIndex?: number,
+  slotRepeatIndex?: number,
+): string {
   let currentSuffix = slotSuffix ?? ''
   if (slotComponentIndex && slotComponentIndex > 0) {
     const compSuffix = `{${slotComponentIndex}}`

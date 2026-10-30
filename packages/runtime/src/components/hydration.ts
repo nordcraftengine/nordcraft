@@ -22,49 +22,63 @@ export interface HydrationState {
    * nodes.
    */
   sealed: boolean
-  /** Adopted SSR nodes, for miss reporting. */
-  claimedCount: number
-  /** Stable paths that had to be created fresh (SSR/CSR skew). */
-  createdPaths: string[]
-  /** Stable paths of stale SSR nodes removed by the sweep. */
-  sweptPaths: string[]
-  /** Miss counts grouped by category (e.g. `created:div`, `swept:span`, `expected:script`). */
-  missesByType: Record<string, number>
   /** Last parent element queried in `claimHydratedChild`. */
   lastParent?: Element | ShadowRoot
   /** Next child index to inspect in `lastParent.children` for O(1) sequential child claiming. */
   nextIndex: number
 }
 
-export interface HydrationResult {
-  claimedCount: number
-  created: number
-  swept: number
-  missesByType: Record<
-    `expected:${string}` | `created:${string}` | `swept:${string}`,
-    number
-  >
-}
-
 export const createHydrationState = (): HydrationState => ({
   adopted: new Set(),
   sealed: false,
-  claimedCount: 0,
-  createdPaths: [],
-  sweptPaths: [],
-  missesByType: {},
   nextIndex: 0,
 })
 
+// eslint-disable-next-line max-params
+function claimInRange(
+  children: HTMLCollection,
+  from: number,
+  to: number,
+  parent: Element | ShadowRoot,
+  path: string,
+  hydration: HydrationState,
+  tag?: string,
+): Element | null {
+  for (let i = from; i < to; i++) {
+    const child = children[i]!
+    if (
+      child.getAttribute(DATA_ATTR_ID) === path &&
+      !hydration.adopted.has(child)
+    ) {
+      if (tag && child.tagName.toLowerCase() !== tag.toLowerCase()) {
+        // SSR/CSR unexpected tag at a stable path, drop the stale node.
+        child.remove()
+        hydration.lastParent = parent
+        hydration.nextIndex = i
+        return null
+      }
+      hydration.adopted.add(child)
+      hydration.lastParent = parent
+      hydration.nextIndex = i + 1
+      return child
+    }
+  }
+  return null
+}
+
 /**
  * Find a direct child of `parent` with the expected stable path and adopt it.
+ * When `tag` is provided, a matching child with a different tag name is
+ * removed and `null` is returned so the caller builds a replacement node.
  * Returns `null` when no such child exists (caller creates a fresh node), or
  * once the hydration pass is sealed.
  */
+// eslint-disable-next-line max-params
 export function claimHydratedChild(
   parent: Element | ShadowRoot,
   path: string,
   hydration: HydrationState,
+  tag?: string,
 ): Element | null {
   if (hydration.sealed) {
     return null
@@ -72,23 +86,6 @@ export function claimHydratedChild(
   const children = parent.children
   const len = children.length
   if (len === 0) {
-    return null
-  }
-
-  const claimInRange = (from: number, to: number): Element | null => {
-    for (let i = from; i < to; i++) {
-      const child = children[i]!
-      if (
-        child.getAttribute(DATA_ATTR_ID) === path &&
-        !hydration.adopted.has(child)
-      ) {
-        hydration.adopted.add(child)
-        hydration.claimedCount++
-        hydration.lastParent = parent
-        hydration.nextIndex = i + 1
-        return child
-      }
-    }
     return null
   }
 
@@ -102,45 +99,10 @@ export function claimHydratedChild(
       ? hydration.nextIndex
       : 0
 
-  return claimInRange(start, len) ?? claimInRange(0, start)
-}
-
-export function noteHydrationFallback(
-  hydration: HydrationState,
-  path: string,
-  tag = 'unknown',
-): void {
-  if (hydration.sealed) {
-    return
-  }
-
-  if (tag === 'script' || tag === 'SCRIPT') {
-    hydration.missesByType['expected:script'] =
-      (hydration.missesByType['expected:script'] ?? 0) + 1
-    return
-  }
-  hydration.createdPaths.push(path)
-  const key = `created:${tag.toLowerCase()}`
-  hydration.missesByType[key] = (hydration.missesByType[key] ?? 0) + 1
-}
-
-/** Find a direct child by path without adopting it (for stale-node removal). */
-export function peekHydratedChild(
-  parent: Element | ShadowRoot,
-  path: string,
-): Element | null {
-  const children = parent.children
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i]!
-    if (child.getAttribute(DATA_ATTR_ID) === path) {
-      return child
-    }
-  }
-  return null
-}
-
-export function hydrationTagMatches(element: Element, tag: string): boolean {
-  return element.tagName.toLowerCase() === tag.toLowerCase()
+  return (
+    claimInRange(children, start, len, parent, path, hydration, tag) ??
+    claimInRange(children, 0, start, parent, path, hydration, tag)
+  )
 }
 
 export function sweepUnhydratedNodes(
@@ -149,6 +111,9 @@ export function sweepUnhydratedNodes(
 ): void {
   sweepUnhydratedChildren(root, hydration)
   hydration.sealed = true
+  // Release DOM references for garbage collection
+  hydration.adopted.clear()
+  hydration.lastParent = undefined
 }
 
 function sweepUnhydratedChildren(
@@ -160,38 +125,10 @@ function sweepUnhydratedChildren(
     const child = children[i]!
     if (!hydration.adopted.has(child)) {
       if (child.hasAttribute(DATA_ATTR_ID)) {
-        hydration.sweptPaths.push(child.getAttribute(DATA_ATTR_ID)!)
-        const key = `swept:${child.tagName.toLowerCase()}`
-        hydration.missesByType[key] = (hydration.missesByType[key] ?? 0) + 1
         child.remove()
       }
       continue
     }
     sweepUnhydratedChildren(child, hydration)
   }
-}
-
-/**
- * Report unexpected hydration misses (fallback creations + stale removals) and
- * save diagnostics on `globalThis.__nc_hydration_result`. Expected SSR/CSR
- * differences (such as client-only `<script>` tags or raw SVG text nodes) do
- * not trigger a console warning.
- */
-export function reportHydrationResult(hydration: HydrationState): void {
-  const created = hydration.createdPaths.length
-  const swept = hydration.sweptPaths.length
-  ;(
-    globalThis as { __nc_hydration_result?: HydrationResult }
-  ).__nc_hydration_result = {
-    claimedCount: hydration.claimedCount,
-    created,
-    swept,
-    missesByType: hydration.missesByType,
-  }
-
-  // Release DOM references for garbage collection
-  hydration.adopted.clear()
-  hydration.lastParent = undefined
-  hydration.createdPaths.length = 0
-  hydration.sweptPaths.length = 0
 }

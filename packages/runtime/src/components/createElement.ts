@@ -30,11 +30,7 @@ import { setAttribute } from '../utils/setAttribute'
 import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
-import {
-  claimHydratedChild,
-  hydrationTagMatches,
-  noteHydrationFallback,
-} from './hydration'
+import { claimHydratedChild } from './hydration'
 
 // Cache class names by node definition object. Repeat items share the same
 // node reference, so this avoids re-stringifying/hashing identical style
@@ -72,32 +68,21 @@ export function createElement({
     namespace = String(node.attrs['xmlns'].value) as SupportedNamespaces
   }
 
-  let elem: HTMLElement | SVGElement | MathMLElement | null = null
-  let claimed = false
-  if (IS_PAGE && hydration && !hydration.sealed) {
-    if (parentElement.children.length > 0) {
-      const candidate = claimHydratedChild(parentElement, path, hydration)
-      if (candidate && hydrationTagMatches(candidate, tag)) {
-        elem = candidate as HTMLElement | SVGElement | MathMLElement
-        claimed = true
-      } else if (candidate) {
-        // SSR/CSR unexpected tag at a stable path, drop the stale node.
-        candidate.remove()
-      }
-    }
-    if (!elem) {
-      elem = namespace
-        ? (document.createElementNS(namespace, tag) as
-            | SVGElement
-            | MathMLElement)
-        : document.createElement(tag)
-      hydration.adopted.add(elem)
-      noteHydrationFallback(hydration, path, tag)
-    }
-  } else {
-    elem = namespace
+  const claimed =
+    IS_PAGE && hydration && !hydration.sealed
+      ? (claimHydratedChild(parentElement, path, hydration, tag) as
+          | HTMLElement
+          | SVGElement
+          | MathMLElement
+          | null)
+      : null
+  const elem =
+    claimed ??
+    (namespace
       ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
-      : document.createElement(tag)
+      : document.createElement(tag))
+  if (IS_PAGE && hydration && !hydration.sealed && !claimed) {
+    hydration.adopted.add(elem)
   }
   if (
     IS_PAGE &&
@@ -189,9 +174,6 @@ export function createElement({
     if (ctx.isRootComponent === false && id !== 'root') {
       elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
     }
-  }
-  // Fast path: only allocate initialClasses when we actually need to add classes
-  if (!claimed) {
     const cachedClass = classNameByNode.get(node)
     if (cachedClass !== undefined) {
       elem.classList.add(cachedClass)

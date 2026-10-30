@@ -43,52 +43,16 @@ describe('nodePath (stable data-id contract)', () => {
   })
 
   test('buildSlotSuffix matches the SSR/runtime convention', () => {
-    expect(
-      buildSlotSuffix({
-        slotSuffix: undefined,
-        slotComponentIndex: 0,
-        slotRepeatIndex: undefined,
-      }),
-    ).toBe('')
+    expect(buildSlotSuffix(undefined, 0, undefined)).toBe('')
     // Second slot with the same name
-    expect(
-      buildSlotSuffix({
-        slotSuffix: undefined,
-        slotComponentIndex: 1,
-        slotRepeatIndex: undefined,
-      }),
-    ).toBe('{1}')
+    expect(buildSlotSuffix(undefined, 1, undefined)).toBe('{1}')
     // Repeated content projected into a slot
-    expect(
-      buildSlotSuffix({
-        slotSuffix: undefined,
-        slotComponentIndex: 0,
-        slotRepeatIndex: 2,
-      }),
-    ).toBe('(2)')
+    expect(buildSlotSuffix(undefined, 0, 2)).toBe('(2)')
     // Both, stacked on a forwarded suffix
-    expect(
-      buildSlotSuffix({
-        slotSuffix: '(1)',
-        slotComponentIndex: 1,
-        slotRepeatIndex: 2,
-      }),
-    ).toBe('(1){1}(2)')
+    expect(buildSlotSuffix('(1)', 1, 2)).toBe('(1){1}(2)')
     // Does not duplicate identical suffixes already present
-    expect(
-      buildSlotSuffix({
-        slotSuffix: '(1)',
-        slotComponentIndex: 0,
-        slotRepeatIndex: 1,
-      }),
-    ).toBe('(1)')
-    expect(
-      buildSlotSuffix({
-        slotSuffix: '{1}',
-        slotComponentIndex: 1,
-        slotRepeatIndex: undefined,
-      }),
-    ).toBe('{1}')
+    expect(buildSlotSuffix('(1)', 0, 1)).toBe('(1)')
+    expect(buildSlotSuffix('{1}', 1, undefined)).toBe('{1}')
   })
 
   test('applySlotSuffix is idempotent', () => {

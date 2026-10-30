@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type {
   ComponentData,
   SupportedNamespaces,
@@ -12,10 +11,6 @@ import { createNode } from './createNode'
 import {
   claimHydratedChild,
   createHydrationState,
-  hydrationTagMatches,
-  noteHydrationFallback,
-  peekHydratedChild,
-  reportHydrationResult,
   sweepUnhydratedNodes,
 } from './hydration'
 import { renderComponent } from './renderComponent'
@@ -76,14 +71,19 @@ const hydrate = ({
 }
 
 describe('hydration helpers', () => {
-  test('hydrationTagMatches compares case-insensitively', () => {
-    const el = document.createElement('div')
-    expect(hydrationTagMatches(el, 'div')).toBe(true)
-    expect(hydrationTagMatches(el, 'DIV')).toBe(true)
-    expect(hydrationTagMatches(el, 'span')).toBe(false)
+  test('claimHydratedChild compares tag case-insensitively and removes mismatched candidate', () => {
+    const parent = document.createElement('div')
+    parent.innerHTML =
+      '<div data-id="0"></div><span data-id="0.0">x</span><p data-id="0.1">y</p>'
+    const hydration = createHydrationState()
+    expect(claimHydratedChild(parent, '0', hydration, 'DIV')).not.toBeNull()
+    expect(claimHydratedChild(parent, '0.0', hydration, 'span')).not.toBeNull()
+    // Mismatched tag removes the stale node and returns null
+    expect(claimHydratedChild(parent, '0.1', hydration, 'div')).toBeNull()
+    expect(parent.querySelector('[data-id="0.1"]')).toBeNull()
   })
 
-  test('claimHydratedChild adopts once; peek does not adopt', () => {
+  test('claimHydratedChild adopts once', () => {
     const parent = document.createElement('div')
     parent.innerHTML = '<div data-id="0"></div><span data-id="0.0">x</span>'
     const hydration = createHydrationState()
@@ -91,9 +91,7 @@ describe('hydration helpers', () => {
     expect(first.tagName).toBe('SPAN')
     // Already adopted — second claim misses
     expect(claimHydratedChild(parent, '0.0', hydration)).toBeNull()
-    // Peek finds without adopting
     const other = createHydrationState()
-    expect(peekHydratedChild(parent, '0')).not.toBeNull()
     expect(other.adopted.size).toBe(0)
     expect(claimHydratedChild(parent, '0', other)).not.toBeNull()
   })
@@ -110,10 +108,9 @@ describe('hydration helpers', () => {
     expect(parent.querySelector('[data-id="0.0"]')?.textContent).toBe('keep')
     // Foreign nodes without data-id are left alone
     expect(parent.querySelector('.overlay')).not.toBeNull()
-    // Sweep records removals and seals the state for miss reporting
-    expect(hydration.sweptPaths).toEqual(['stale'])
-    expect(hydration.claimedCount).toBe(2)
+    // Sweep seals the state and clears references
     expect(hydration.sealed).toBe(true)
+    expect(hydration.adopted.size).toBe(0)
   })
 
   test('sealed state short-circuits claims after the sweep', () => {
@@ -128,69 +125,6 @@ describe('hydration helpers', () => {
     parent.appendChild(late)
     expect(claimHydratedChild(parent, '0.1', hydration)).toBeNull()
     expect(hydration.adopted.has(late)).toBe(false)
-  })
-
-  test('noteHydrationFallback records missing paths and categorises by type', () => {
-    const hydration = createHydrationState()
-    noteHydrationFallback(hydration, '0.1', 'div')
-    noteHydrationFallback(hydration, '0.2', 'text')
-    noteHydrationFallback(hydration, '0.3', 'script')
-    expect(hydration.createdPaths).toEqual(['0.1', '0.2'])
-    expect(hydration.missesByType).toEqual({
-      'created:div': 1,
-      'created:text': 1,
-      'expected:script': 1,
-    })
-  })
-
-  test('reportHydrationResult warns on unexpected misses, silent when clean or expected, and sets globalThis.__nc_hydration_result', () => {
-    const warnings: string[] = []
-    const origWarn = console.warn
-    console.warn = (...args: any[]) => {
-      warnings.push(
-        args
-          .map((a) => (typeof a === 'string' ? a : JSON.stringify(a)))
-          .join(' '),
-      )
-    }
-    try {
-      reportHydrationResult(createHydrationState())
-      expect(warnings).toHaveLength(0)
-
-      // Expected misses (such as client-only <script> tags) do not warn
-      const expectedOnly = createHydrationState()
-      expectedOnly.claimedCount = 2
-      noteHydrationFallback(expectedOnly, '0.0', 'script')
-      reportHydrationResult(expectedOnly)
-      expect(warnings).toHaveLength(0)
-      expect((globalThis as any).__nc_hydration_result).toEqual({
-        claimedCount: 2,
-        createdPaths: [],
-        sweptPaths: [],
-        missesByType: { 'expected:script': 1 },
-      })
-
-      const skewed = createHydrationState()
-      skewed.claimedCount = 3
-      noteHydrationFallback(skewed, '0.1', 'div')
-      skewed.sweptPaths.push('0.5')
-      skewed.missesByType['swept:span'] = 1
-      reportHydrationResult(skewed)
-      expect(warnings).toHaveLength(1)
-      expect(warnings[0]).toContain('adopted 3 SSR node(s)')
-      expect(warnings[0]).toContain('0.1')
-      expect(warnings[0]).toContain('0.5')
-      expect(warnings[0]).toContain('created:div')
-      expect(warnings[0]).toContain('swept:span')
-      expect((globalThis as any).__nc_hydration_result).toEqual({
-        claimedCount: 3,
-        createdPaths: ['0.1'],
-        sweptPaths: ['0.5'],
-        missesByType: { 'created:div': 1, 'swept:span': 1 },
-      })
-    } finally {
-      console.warn = origWarn
-    }
   })
 })
 
@@ -746,7 +680,7 @@ describe('hydration (SSR resumability)', () => {
         },
       },
     })
-    const { hydration } = hydrate({
+    hydrate({
       ctx,
       dataSignal,
       parentElement,
@@ -754,9 +688,7 @@ describe('hydration (SSR resumability)', () => {
       id: 'root',
     })
 
-    // Both the root svg and its child elements (<path>, <text>) are adopted with zero misses
-    expect(hydration.createdPaths).toEqual([])
-    expect(hydration.sweptPaths).toEqual([])
+    // Both the root svg and its child elements (<path>, <text>) are adopted
     expect(parentElement.querySelector('[data-id="0.0"]')).toBe(ssrSvg)
     expect(parentElement.querySelector('[data-id="0.0.0"]')).toBe(ssrPath)
     expect(parentElement.querySelector('[data-id="0.0.1"]')).toBe(ssrTextEl)
@@ -844,7 +776,7 @@ describe('hydration (SSR resumability)', () => {
         },
       },
     })
-    const { hydration } = hydrate({
+    hydrate({
       ctx,
       dataSignal,
       parentElement,
@@ -852,15 +784,13 @@ describe('hydration (SSR resumability)', () => {
       id: 'root',
     })
 
-    expect(hydration.createdPaths).toEqual([])
-    expect(hydration.sweptPaths).toEqual([])
     expect(parentElement.querySelector('[data-id="0.0"]')).toBe(ssrChild)
     expect(ssrChild.getAttribute('data-id')).toBe('0.0')
     expect(ssrChild.getAttribute('data-node-id')).toBe('child')
     dataSignal.destroy()
   })
 
-  test('<script> elements omitted by SSR are created on the client without triggering unexpected hydration misses', () => {
+  test('<script> elements omitted by SSR are created on the client during hydration', () => {
     const parentElement = document.createElement('div')
     parentElement.innerHTML = '<div data-node-id="root" data-id="0"></div>'
     const dataSignal = signal<ComponentData>({
@@ -890,7 +820,7 @@ describe('hydration (SSR resumability)', () => {
         },
       },
     })
-    const { hydration } = hydrate({
+    hydrate({
       ctx,
       dataSignal,
       parentElement,
@@ -901,9 +831,6 @@ describe('hydration (SSR resumability)', () => {
     const createdScript = parentElement.querySelector('[data-id="0.0"]')
     expect(createdScript?.tagName).toBe('SCRIPT')
     expect(createdScript?.textContent).toBe('window.__testScriptRan = true')
-    expect(hydration.createdPaths).toEqual([])
-    expect(hydration.sweptPaths).toEqual([])
-    expect(hydration.missesByType).toEqual({ 'expected:script': 1 })
     dataSignal.destroy()
   })
 })

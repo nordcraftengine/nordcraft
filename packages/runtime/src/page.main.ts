@@ -34,7 +34,6 @@ import { createAPI } from './api/createAPIv2'
 import { sortApis } from './api/sortApis'
 import {
   createHydrationState,
-  reportHydrationResult,
   sweepUnhydratedNodes,
 } from './components/hydration'
 import { getDynamicMetaEntries } from './components/meta'
@@ -332,7 +331,6 @@ export const createRoot = (domNode: HTMLElement) => {
       }
     })
     sweepUnhydratedNodes(domNode, hydration)
-    reportHydrationResult(hydration)
   } else {
     domNode.innerText = ''
     elements.forEach((elem) => {

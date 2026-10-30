@@ -222,11 +222,8 @@ const renderComponent = async ({
             component.nodes,
           )
           const currentSuffix =
-            buildSlotSuffix({
-              slotSuffix,
-              slotComponentIndex,
-              slotRepeatIndex,
-            }) || undefined
+            buildSlotSuffix(slotSuffix, slotComponentIndex, slotRepeatIndex) ??
+            undefined
           // `defaultChild` expects `undefined` when empty to match the
           // runtime convention.
           return typeof defaultChild === 'function'
