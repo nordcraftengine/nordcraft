@@ -74,6 +74,7 @@ import type { UnknownContextWorkflowRuleFix } from './rules/issues/workflows/unk
 export type Code =
   | 'animated style not in theme'
   | 'duplicate action argument name'
+  | 'duplicate default test scenario'
   | 'duplicate event trigger'
   | 'duplicate formula argument name'
   | 'duplicate route'

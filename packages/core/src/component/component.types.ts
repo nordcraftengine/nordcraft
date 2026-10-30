@@ -226,6 +226,7 @@ export interface Component {
 }
 
 export interface TestScenario extends NordcraftMetadata {
+  isDefault?: Nullable<boolean>
   attributes?: Nullable<ComponentData['Attributes']>
   variables?: ComponentData['Variables']
   apis?: ComponentData['Apis']
