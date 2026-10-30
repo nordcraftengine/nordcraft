@@ -76,4 +76,66 @@ describe('context component lookup', () => {
 
     expect(result).toHaveProperty('ThemeContext')
   })
+
+  test('createStaticContextFromComponent uses provider default scenario when no override specified', () => {
+    const provider: Component = {
+      name: 'ThemeContext',
+      attributes: {
+        theme: {
+          name: 'theme',
+          testValue: 'light',
+        },
+      },
+      testScenarios: {
+        darkScenario: {
+          isDefault: true,
+          attributes: {
+            theme: 'dark',
+          },
+        },
+        customScenario: {
+          attributes: {
+            theme: 'blue',
+          },
+        },
+      },
+      formulas: {
+        currentTheme: {
+          formula: {
+            type: 'path',
+            path: ['Attributes', 'theme'],
+          },
+        },
+      },
+      nodes: { root: { type: 'element', tag: 'div', children: [] } },
+    }
+    const consumer: Component = {
+      name: 'Consumer',
+      contexts: {
+        ThemeContext: {
+          formulas: ['currentTheme'],
+          workflows: [],
+        },
+      },
+      nodes: { root: { type: 'element', tag: 'div', children: [] } },
+    }
+
+    const env = {
+      isServer: false as const,
+      branchName: 'main',
+      request: undefined,
+      runtime: 'preview' as const,
+      logErrors: false,
+    }
+
+    const result = createStaticContextFromComponent(
+      consumer,
+      [provider, consumer],
+      {
+        env,
+      },
+    )
+
+    expect(result.ThemeContext?.currentTheme).toBe('dark')
+  })
 })
