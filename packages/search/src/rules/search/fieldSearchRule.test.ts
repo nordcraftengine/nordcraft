@@ -461,4 +461,112 @@ describe('fieldSearchRule', () => {
       after: ': img',
     })
   })
+
+  test('it should find test scenarios by name, component, and mock attributes', () => {
+    const filesWithScenario: ProjectFiles = {
+      formulas: {},
+      components: {
+        UserProfile: {
+          name: 'UserProfile',
+          nodes: {},
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
+          route: {
+            path: [],
+            query: {},
+          },
+          workflows: {},
+          testScenarios: {
+            adminUser: {
+              attributes: {
+                role: 'admin',
+              },
+              variables: {
+                loginCount: 5,
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const byName = Array.from(
+      searchProject({
+        withDetails: true,
+        files: filesWithScenario,
+        rules: [
+          createFieldSearchRule({
+            query: '<component-test-scenario>name:"adminUser"',
+          }),
+        ],
+      }),
+    )
+    expect(byName).toHaveLength(1)
+    expect(byName[0].path).toEqual([
+      'components',
+      'UserProfile',
+      'testScenarios',
+      'adminUser',
+    ])
+    expect(byName[0].details.field).toBe('name')
+
+    const byComponent = Array.from(
+      searchProject({
+        withDetails: true,
+        files: filesWithScenario,
+        rules: [
+          createFieldSearchRule({
+            query: '<component-test-scenario>component:"UserProfile"',
+          }),
+        ],
+      }),
+    )
+    expect(byComponent).toHaveLength(1)
+
+    const byAttribute = Array.from(
+      searchProject({
+        withDetails: true,
+        files: filesWithScenario,
+        rules: [
+          createFieldSearchRule({
+            query: '<component-test-scenario>attributes.role:"admin"',
+          }),
+        ],
+      }),
+    )
+    expect(byAttribute).toHaveLength(1)
+
+    const plainTextName = Array.from(
+      searchProject({
+        withDetails: true,
+        files: filesWithScenario,
+        rules: [
+          createFieldSearchRule({
+            query: 'adminUser',
+          }),
+        ],
+      }),
+    )
+    expect(plainTextName).toHaveLength(1)
+    expect(plainTextName[0].details.nodeType).toBe('component-test-scenario')
+
+    const plainTextValue = Array.from(
+      searchProject({
+        withDetails: true,
+        files: filesWithScenario,
+        rules: [
+          createFieldSearchRule({
+            query: 'admin',
+          }),
+        ],
+      }),
+    )
+    expect(
+      plainTextValue.some(
+        (r) => r.details.nodeType === 'component-test-scenario',
+      ),
+    ).toBe(true)
+  })
 })

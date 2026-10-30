@@ -356,6 +356,7 @@ function* visitNode(
     case 'component-event':
     case 'component-formula':
     case 'component-node-attribute':
+    case 'component-test-scenario':
     case 'component-variable':
     case 'component-workflow':
     case 'custom-property':
@@ -524,6 +525,26 @@ function* visitNode(
               memo: context.memo,
               files: context.files,
             })
+          }
+        }
+      }
+
+      if (ruleIndex.has('component-test-scenario')) {
+        const testScenarios = data.value.testScenarios
+        if (testScenarios) {
+          for (const key in testScenarios) {
+            const scenario = testScenarios[key]
+            if (isDefined(scenario)) {
+              yield* visitNode(context, {
+                nodeType: 'component-test-scenario',
+                value: scenario,
+                scenarioKey: key,
+                path: [...path, 'testScenarios', key],
+                component,
+                memo: context.memo,
+                files: context.files,
+              })
+            }
           }
         }
       }

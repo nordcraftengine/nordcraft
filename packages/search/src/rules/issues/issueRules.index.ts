@@ -11,6 +11,7 @@ import miscRules from './miscellaneous/miscRules.index'
 import routingRules from './routing/routingRules.index'
 import slotRules from './slots/slotRules.index'
 import styleRules from './style/styleRules.index'
+import testScenarioRules from './testScenarios/testScenarioRules.index'
 import variableRules from './variables/variableRules.index'
 import workflowRules from './workflows/workflowRules.index'
 
@@ -28,6 +29,7 @@ export type AllRuleTypes =
   | (typeof routingRules)[number]
   | (typeof slotRules)[number]
   | (typeof styleRules)[number]
+  | (typeof testScenarioRules)[number]
   | (typeof variableRules)[number]
   | (typeof workflowRules)[number]
 
@@ -45,6 +47,7 @@ export const ISSUE_RULES: AllRuleTypes[] = [
   ...routingRules,
   ...slotRules,
   ...styleRules,
+  ...testScenarioRules,
   ...variableRules,
   ...workflowRules,
 ]

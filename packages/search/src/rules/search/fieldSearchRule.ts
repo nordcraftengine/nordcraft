@@ -18,6 +18,7 @@ const ALL_NODE_TYPES_MAP: Record<NodeType['nodeType'], true> = {
   'component-formula': true,
   'component-node': true,
   'component-node-attribute': true,
+  'component-test-scenario': true,
   'component-variable': true,
   'component-workflow': true,
   'custom-property': true,
@@ -351,13 +352,26 @@ export function createFieldSearchRule({
 
   return {
     nodeTypes: queryNodeTypes.length > 0 ? queryNodeTypes : ALL_NODE_TYPES,
-    visit: (report, { path, value, nodeType }) => {
+    visit: (report, data) => {
+      const { path, value, nodeType } = data
       if (
         typeof value !== 'object' ||
         value === null ||
         parsedQuery.length === 0
       )
         return
+
+      const target: Record<string, unknown> =
+        nodeType === 'component-test-scenario' &&
+        'scenarioKey' in data &&
+        'component' in data
+          ? {
+              name: data.scenarioKey,
+              scenarioKey: data.scenarioKey,
+              component: data.component.name,
+              ...(value as Record<string, unknown>),
+            }
+          : (value as Record<string, unknown>)
 
       let matchContext: any = null
       let matchedFieldName: string | null = null
@@ -367,26 +381,25 @@ export function createFieldSearchRule({
           return false
         }
 
-        const evalRes = evaluateValue(value, p, '')
+        const evalRes = evaluateValue(target, p, '')
         if (evalRes) {
           if (typeof evalRes === 'object' && evalRes.hasMatch) {
             matchContext = evalRes.context
             matchedFieldName = (evalRes as any).field ?? matchedFieldName
           }
-          {
-            return true
-          }
+          return true
         }
 
-        return Object.entries(value).some(([k, v]) => {
+        for (const k in target) {
           if (
             (skippedFields?.[nodeType] as Array<string> | undefined)?.includes(
               k,
             )
           ) {
-            return false
+            continue
           }
 
+          const v = target[k]
           const resValue = evaluateValue(v, p, k)
           if (resValue) {
             if (typeof resValue === 'object' && resValue.hasMatch) {
@@ -396,8 +409,27 @@ export function createFieldSearchRule({
             return true
           }
 
-          return false
-        })
+          if (
+            nodeType === 'component-test-scenario' &&
+            typeof v === 'object' &&
+            v !== null &&
+            !Array.isArray(v)
+          ) {
+            for (const subKey in v) {
+              const subVal = (v as Record<string, unknown>)[subKey]
+              const subRes = evaluateValue(subVal, p, subKey)
+              if (subRes) {
+                if (typeof subRes === 'object' && subRes.hasMatch) {
+                  matchContext = subRes.context
+                  matchedFieldName = (subRes as any).field ?? `${k}.${subKey}`
+                }
+                return true
+              }
+            }
+          }
+        }
+
+        return false
       })
 
       if (allMatched) {
