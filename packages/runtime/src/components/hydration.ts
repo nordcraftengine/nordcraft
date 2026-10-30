@@ -40,7 +40,7 @@ export interface HydrationResult {
   claimedCount: number
   createdPaths: string[]
   sweptPaths: string[]
-  missesByType: Record<string, number>
+  missesByType: Record<`expected:${string}` | `created:${string}` | `swept:${string}`, number>
 }
 
 export const createHydrationState = (): HydrationState => ({
