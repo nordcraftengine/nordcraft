@@ -13,7 +13,7 @@ import { signal, type Signal } from '../signal/signal'
 // its subscribers, since the listener closure captures the signal) and (b) add
 // an event listener per mounted component.
 let activeCookieThemeSignal: Signal<string | null> | null = null
-let cookieListenerRegistered = false
+let registeredCookieStore: CookieStore | null = null
 
 const handleCookieStoreChange = (event: CookieChangeEvent) => {
   if (!activeCookieThemeSignal) {
@@ -61,22 +61,34 @@ export const getThemeSignal = (
     // 2. Default to null
     //    2.1 No theme set explicitly will default to system preference
     //    2.2 Default theme (or initial value) is handled in CSS
-    const initialThemeValue =
-      document.cookie
-        .split('; ')
-        .find((row) => row.startsWith(`${THEME_COOKIE_NAME}=`))
-        ?.split('=')[1] ?? null
+    const cookie = document.cookie
+    const initialThemeValue = cookie
+      ? (cookie
+          .split('; ')
+          .find((row) => row.startsWith(`${THEME_COOKIE_NAME}=`))
+          ?.split('=')[1] ?? null)
+      : null
 
     const sig = signal<string | null>(initialThemeValue as string | null)
     activeCookieThemeSignal = sig
     sig.subscriptions.push(() => {
       if (activeCookieThemeSignal === sig) {
         activeCookieThemeSignal = null
+        if (registeredCookieStore) {
+          registeredCookieStore.removeEventListener?.(
+            'change',
+            handleCookieStoreChange,
+          )
+          registeredCookieStore = null
+        }
       }
     })
+    dataSignal.subscriptions.push(() => {
+      sig.destroy()
+    })
     // Listen to cookie store API changes for 'nc-theme'
-    if (!cookieListenerRegistered && 'cookieStore' in window) {
-      cookieListenerRegistered = true
+    if ('cookieStore' in window && registeredCookieStore !== cookieStore) {
+      registeredCookieStore = cookieStore
       cookieStore.addEventListener('change', handleCookieStoreChange)
     }
 

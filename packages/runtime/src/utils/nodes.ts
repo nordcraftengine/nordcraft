@@ -136,7 +136,7 @@ export function ensureEfficientOrdering(
 
   // We'll process the items array in reverse order to minimize the number of DOM operations.
   for (let i = items.length - 1; i >= 0; i--) {
-    const item = items[i]
+    const item = items[i]!
 
     // Check if the item is already in the correct position by comparing it with the currentMarker.
     if (item === currentMarker) {

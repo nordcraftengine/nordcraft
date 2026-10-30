@@ -99,4 +99,82 @@ describe('Signal', () => {
     expect(onDestroy).toHaveBeenCalledTimes(1)
     expect(s.subscribers.size).toBe(0)
   })
+
+  it('subscribeMap() only notifies when mapped value changes', () => {
+    const s = signal({ a: 1, b: 10 })
+    const received: number[] = []
+    const unsubscribe = s.subscribeMap(
+      (val) => val.a,
+      (a) => received.push(a),
+    )
+
+    expect(received).toEqual([1])
+
+    s.set({ a: 1, b: 20 })
+    expect(received).toEqual([1])
+
+    s.set({ a: 2, b: 20 })
+    expect(received).toEqual([1, 2])
+
+    unsubscribe()
+    s.set({ a: 3, b: 20 })
+    expect(received).toEqual([1, 2])
+  })
+
+  it('reads current value during reentrant subscriber notifications', () => {
+    const s = signal(1)
+    const firstReceived: number[] = []
+    const secondReceived: number[] = []
+
+    s.subscribe((val) => {
+      firstReceived.push(val)
+      if (val === 2) {
+        s.set(3)
+      }
+    })
+    s.subscribe((val) => {
+      secondReceived.push(val)
+    })
+
+    s.set(2)
+    expect(firstReceived).toEqual([1, 2, 3])
+    expect(secondReceived).toEqual([1, 3, 3])
+    expect(s.get()).toBe(3)
+  })
+
+  it('subscribeMap() notifies when initial callback synchronously updates the source signal', () => {
+    const s = signal(1)
+    const received: number[] = []
+
+    s.subscribeMap(
+      (val) => val * 10,
+      (mapped) => {
+        received.push(mapped)
+        if (mapped === 10) {
+          s.set(2)
+        }
+      },
+    )
+
+    expect(received).toEqual([10, 20])
+  })
+
+  it('fork() forwards updates and cleans up on destroy', () => {
+    const parent = signal({ count: 1 })
+    const child = parent.fork()
+    const received: number[] = []
+    child.subscribeMap(
+      (val) => val.count,
+      (c) => received.push(c),
+    )
+
+    expect(received).toEqual([1])
+    parent.set({ count: 2 })
+    expect(received).toEqual([1, 2])
+
+    child.destroy()
+    expect(parent.subscribers.size).toBe(0)
+    parent.set({ count: 3 })
+    expect(received).toEqual([1, 2])
+  })
 })

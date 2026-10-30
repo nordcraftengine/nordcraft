@@ -15,7 +15,7 @@ export function createSlot({
   slotSuffix,
 }: NodeRenderer<SlotNodeModel>): ReadonlyArray<Element | Text> {
   const slotName = node.name ?? 'default'
-  let children: Array<Element | Text> = []
+  const children: Array<Element | Text> = []
   // Is slotted content provided?
   if (ctx.children[slotName]) {
     const slotComponentIndex = getSlotComponentIndex(
@@ -32,8 +32,14 @@ export function createSlot({
       currentSuffix += `(${slotRepeatIndex})`
     }
 
-    children = ctx.children[slotName].flatMap((child, childIndex) => {
-      const childDataSignal = child.dataSignal.map((data) => data)
+    const slottedChildren = ctx.children[slotName]
+    for (
+      let childIndex = 0;
+      childIndex < slottedChildren.length;
+      childIndex++
+    ) {
+      const child = slottedChildren[childIndex]!
+      const childDataSignal = child.dataSignal.fork()
       dataSignal.subscriptions.push(() => childDataSignal.destroy())
 
       let basePath = child.path
@@ -46,7 +52,7 @@ export function createSlot({
           ? basePath + currentSuffix
           : basePath
 
-      return createNode({
+      const nodes = createNode({
         ...child,
         dataSignal: childDataSignal,
         parentElement,
@@ -61,25 +67,35 @@ export function createSlot({
         slotRepeatIndex,
         slotSuffix: currentSuffix || undefined,
       })
-    })
+      for (let i = 0; i < nodes.length; i++) {
+        children.push(nodes[i]!)
+      }
+    }
   } else {
     // Otherwise, return placeholder content
-    children = (node.children ?? []).flatMap((child, i) => {
-      return createNode({
-        id: child,
-        path: slotPath + '.' + i,
-        dataSignal,
-        ctx:
-          IS_PREVIEW && (ctx.reportFormulaEvaluation || ctx.jsonPath)
-            ? { ...ctx, jsonPath: ['nodes', child] }
-            : ctx,
-        parentElement,
-        instance,
-        namespace,
-        slotRepeatIndex,
-        slotSuffix,
-      })
-    })
+    const placeholderChildren = node.children
+    if (placeholderChildren) {
+      for (let i = 0; i < placeholderChildren.length; i++) {
+        const child = placeholderChildren[i]!
+        const nodes = createNode({
+          id: child,
+          path: slotPath + '.' + i,
+          dataSignal,
+          ctx:
+            IS_PREVIEW && (ctx.reportFormulaEvaluation || ctx.jsonPath)
+              ? { ...ctx, jsonPath: ['nodes', child] }
+              : ctx,
+          parentElement,
+          instance,
+          namespace,
+          slotRepeatIndex,
+          slotSuffix,
+        })
+        for (let j = 0; j < nodes.length; j++) {
+          children.push(nodes[j]!)
+        }
+      }
+    }
     if (IS_PREVIEW && ctx.env?.runtime === 'preview') {
       for (const child of children) {
         if (!(child instanceof Element)) {

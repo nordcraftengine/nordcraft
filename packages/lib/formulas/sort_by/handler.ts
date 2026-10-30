@@ -16,9 +16,8 @@ const handler: FormulaHandler<Array<unknown>> = ([
   }
   const ascendingModifier = ascending ? 1 : -1
   // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
-  return [...array].sort((a: any, b: any) => {
-    const keyA = formula({ item: a })
-    const keyB = formula({ item: b })
+  const keyed = array.map((item) => [item, formula({ item })] as const)
+  keyed.sort(([, keyA]: any, [, keyB]: any) => {
     if (Array.isArray(keyA) && Array.isArray(keyB)) {
       for (const i in keyA) {
         if (keyA[i] === keyB[i]) {
@@ -28,12 +27,12 @@ const handler: FormulaHandler<Array<unknown>> = ([
       }
       return 0
     }
-
     if (keyA === keyB) {
       return 0
     }
     return (keyA > keyB ? 1 : -1) * ascendingModifier
   })
+  return keyed.map(([item]) => item)
 }
 
 export default handler
