@@ -1,5 +1,5 @@
+import { contextlessEvaluateFormula } from '@nordcraft/core'
 import type { ActionModelNode, IssueRule } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 // Workflow action switches support multiple cases (unlike formula switches,
 // which are if/else). Any case after an always-true case - including the
@@ -15,7 +15,7 @@ export const noUnreachableActionSwitchCaseRule: IssueRule<
   level: 'warning',
   category: 'Quality',
   nodeTypes: 'action-model',
-  visit: (report, { nodeType, path, value }) => {
+  visit: (report, { nodeType, path, value, files }) => {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (nodeType !== 'action-model' || value.type !== 'Switch') {
       return
@@ -38,7 +38,14 @@ export const noUnreachableActionSwitchCaseRule: IssueRule<
         })
         continue
       }
-      const { isStatic, result } = contextlessEvaluateFormula(c.condition)
+      const { isStatic, result } = contextlessEvaluateFormula(c.condition, {
+        component:
+          path[0] === 'components'
+            ? files.components[path[1] as string]
+            : undefined,
+        formulas: files.formulas,
+        packages: files.packages,
+      })
       if (isStatic && Boolean(result) === true) {
         alwaysTrueIndex = i
       }
