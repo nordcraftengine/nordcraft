@@ -187,4 +187,34 @@ describe('contextlessEvaluateFormula', () => {
       result: true,
     })
   })
+
+  test('should return static true for record formula with array entries', () => {
+    expect(
+      contextlessEvaluateFormula({
+        type: 'record',
+        entries: [
+          { name: 'a', formula: { type: 'value', value: 1 } },
+          { name: 'b', formula: { type: 'value', value: 'two' } },
+        ],
+      }),
+    ).toEqual({
+      isStatic: true,
+      result: { a: 1, b: 'two' },
+    })
+  })
+
+  test('should return static false for record formula with non-static entry', () => {
+    expect(
+      contextlessEvaluateFormula({
+        type: 'record',
+        entries: [
+          { name: 'a', formula: { type: 'value', value: 1 } },
+          { name: 'b', formula: { type: 'path', path: ['Variables', 'x'] } },
+        ],
+      }),
+    ).toEqual({
+      isStatic: false,
+      result: { a: 1, b: undefined },
+    })
+  })
 })
