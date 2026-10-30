@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const port = 4173
+const port = Number(process.env.E2E_PORT ?? 4173)
+const externalServer = process.env.E2E_EXTERNAL_SERVER === '1'
 
 export default defineConfig({
   testDir: './specs',
@@ -19,11 +20,15 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'bun server.ts',
-    url: `http://127.0.0.1:${port}/health`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
-    env: { PORT: String(port) },
-  },
+  ...(externalServer
+    ? {}
+    : {
+        webServer: {
+          command: 'bun server.ts',
+          url: `http://127.0.0.1:${port}/health`,
+          reuseExistingServer: !process.env.CI,
+          timeout: 30_000,
+          env: { PORT: String(port) },
+        },
+      }),
 })

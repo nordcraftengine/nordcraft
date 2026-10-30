@@ -2,7 +2,9 @@
   "name": "e2e",
   "private": true,
   "scripts": {
+    "test": "bun test fixture-project.test.ts",
     "test:e2e": "playwright test --config playwright.config.ts",
+    "test:e2e:docker": "bun docker.ts",
     "typecheck": "bun check",
     "watch": "tsgo -w"
   },
