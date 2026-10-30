@@ -10,7 +10,6 @@
     "moduleResolution": "bundler",
     "outDir": "./dist",
     "preserveConstEnums": true,
-    "rootDir": "src",
     "skipLibCheck": true,
     "strict": true,
     "strictBuiltinIteratorReturn": true,
@@ -18,6 +17,6 @@
     "types": ["bun"],
     "verbatimModuleSyntax": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": ["src", "scripts"],
+  "exclude": ["node_modules", "dist"]
 }

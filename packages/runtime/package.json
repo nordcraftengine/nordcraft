@@ -16,8 +16,8 @@
     "path-to-regexp": "6.3.0"
   },
   "scripts": {
-    "analyze": "bun scripts/analyze.js",
-    "build": "tsgo -p tsconfig.build.json && bun scripts/build.js",
+    "analyze": "bun scripts/analyze.ts",
+    "build": "tsgo -p tsconfig.build.json && bun scripts/build.ts",
     "npm-publish": "bun run build && bun publish --access public",
     "typecheck": "bun check",
     "watch": "tsgo -w"

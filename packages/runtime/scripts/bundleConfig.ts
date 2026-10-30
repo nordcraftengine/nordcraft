@@ -1,11 +1,13 @@
-const fs = require('fs')
-const path = require('path')
+import { exec } from 'child_process'
+import type { BuildOptions, Metafile } from 'esbuild'
+import fs from 'fs'
+import path from 'path'
 
-const PACKAGE_ROOT = path.resolve(__dirname, '..')
+export const PACKAGE_ROOT = path.resolve(__dirname, '..')
 
 // Compile-time flags for dead-code elimination (see
 // `packages/core/src/compileTime.ts`).
-const NORDCRAFT_RUNTIME_DEFINES = {
+export const NORDCRAFT_RUNTIME_DEFINES = {
   page: {
     IS_PREVIEW: 'false',
     IS_CUSTOM_ELEMENT: 'false',
@@ -18,12 +20,15 @@ const NORDCRAFT_RUNTIME_DEFINES = {
     IS_PREVIEW: 'false',
     IS_CUSTOM_ELEMENT: 'true',
   },
-}
+} satisfies Record<string, Record<string, string>>
 
 // In order to serve page.main.js + custom-element.main.js as ES modules, it's useful if
 // we build them as part of the runtime package. This way, we can import them from other
 // packages without having to worry about the build process.
-const RUNTIME_BUNDLES = {
+export const RUNTIME_BUNDLES: Record<
+  string,
+  { entryPoint: string; define: Record<string, string> }
+> = {
   'page.main': {
     entryPoint: 'src/page.main.ts',
     define: NORDCRAFT_RUNTIME_DEFINES.page,
@@ -34,7 +39,13 @@ const RUNTIME_BUNDLES = {
   },
 }
 
-const getBuildOptions = ({ entryPoint, define }) => ({
+export const getBuildOptions = ({
+  entryPoint,
+  define,
+}: {
+  entryPoint: string
+  define: Record<string, string>
+}): BuildOptions => ({
   absWorkingDir: PACKAGE_ROOT,
   entryPoints: [entryPoint],
   bundle: true,
@@ -47,7 +58,7 @@ const getBuildOptions = ({ entryPoint, define }) => ({
   define,
 })
 
-const getBundleOptions = (name) => {
+export const getBundleOptions = (name: string) => {
   const bundle = RUNTIME_BUNDLES[name]
   if (!bundle) {
     throw new Error(`Unknown runtime bundle: ${name}`)
@@ -58,7 +69,7 @@ const getBundleOptions = (name) => {
 
 // Resolve a bundle name, an esbuild output file or a source entry point to the
 // source file that should be bundled for analysis.
-const getSourceEntry = (value, root = PACKAGE_ROOT) => {
+export const getSourceEntry = (value: string, root = PACKAGE_ROOT) => {
   let relativePath = path.isAbsolute(value) ? path.relative(root, value) : value
 
   relativePath = relativePath.replace(/^\.\//, '')
@@ -86,7 +97,7 @@ const getSourceEntry = (value, root = PACKAGE_ROOT) => {
   )
 }
 
-const getDefine = (entryPoint) => {
+export const getDefine = (entryPoint: string) => {
   const name = path.basename(entryPoint).replace(/\.tsx?$/, '')
   if (RUNTIME_BUNDLES[name]) {
     return RUNTIME_BUNDLES[name].define
@@ -99,7 +110,10 @@ const getDefine = (entryPoint) => {
     : NORDCRAFT_RUNTIME_DEFINES.page
 }
 
-const serveAnalyzer = (metafile, options = {}) => {
+export const serveAnalyzer = (
+  metafile: Metafile,
+  options: { port?: number } = {},
+) => {
   const analyzerDir = path.resolve(__dirname, 'analyzer')
   const html = fs.readFileSync(path.join(analyzerDir, 'index.html'), 'utf8')
   const css = fs.readFileSync(path.join(analyzerDir, 'index.css'), 'utf8')
@@ -134,8 +148,7 @@ const serveAnalyzer = (metafile, options = {}) => {
   })
 }
 
-const openBrowser = (url) => {
-  const { exec } = require('child_process')
+export const openBrowser = (url: string) => {
   const cmd =
     process.platform === 'darwin'
       ? 'open'
@@ -143,16 +156,4 @@ const openBrowser = (url) => {
         ? 'start'
         : 'xdg-open'
   exec(`${cmd} ${url}`)
-}
-
-module.exports = {
-  NORDCRAFT_RUNTIME_DEFINES,
-  PACKAGE_ROOT,
-  RUNTIME_BUNDLES,
-  getBuildOptions,
-  getBundleOptions,
-  getSourceEntry,
-  getDefine,
-  serveAnalyzer,
-  openBrowser,
 }

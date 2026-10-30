@@ -1,13 +1,13 @@
-const esbuild = require('esbuild')
-const {
-  PACKAGE_ROOT,
+/* eslint-disable no-console */
+import esbuild from 'esbuild'
+import {
   RUNTIME_BUNDLES,
   getBuildOptions,
   getDefine,
   getSourceEntry,
   openBrowser,
   serveAnalyzer,
-} = require('./bundleConfig')
+} from './bundleConfig'
 
 const DEFAULT_BUNDLE = 'page.main'
 
