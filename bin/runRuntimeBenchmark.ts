@@ -95,17 +95,17 @@ interface BenchmarkCaseResult {
 export const RUNTIME_BENCHMARK_CASES = [
   {
     id: 'mount-nordcraft',
-    name: "mount-nordcraft (real nordcraft.com front page 'nordcraft': 213 components & 2.5k nodes)",
+    name: "mount-nordcraft (hydrate SSR DOM of nordcraft.com front page 'nordcraft': 213 components & 2.5k nodes)",
     bundles: ['page.main.esm.js'] as const,
   },
   {
-    id: 'hydrate-nordcraft',
-    name: "hydrate-nordcraft (hydrate SSR DOM of nordcraft.com front page 'nordcraft': 213 components & 2.5k nodes)",
+    id: 'mount-nordcraft-no-hydrate',
+    name: "mount-nordcraft-no-hydrate (nordcraft.com front page 'nordcraft' without SSR: 213 components & 2.5k nodes)",
     bundles: ['page.main.esm.js'] as const,
   },
   {
     id: 'mount-pricing',
-    name: "mount-pricing (real nordcraft.com 'pricing' page: 169 nodes, tables & formulas)",
+    name: "mount-pricing (hydrate SSR DOM of nordcraft.com 'pricing' page: 169 nodes, tables & formulas)",
     bundles: ['page.main.esm.js'] as const,
   },
   {

@@ -292,7 +292,7 @@ describe('stable data-ids (hydration contract)', () => {
     expect(html).not.toContain('stale-component')
   })
 
-  test('renders <script> elements with data-id and raw text content for hydration', async () => {
+  test('skips <script> elements during SSR until custom code formulas are supported', async () => {
     const component = {
       name: 'ScriptPage',
       route: { path: [], query: {} },
@@ -319,9 +319,7 @@ describe('stable data-ids (hydration contract)', () => {
     } as unknown as Component
 
     const { html } = await render({ component })
-    expect(dataIds(html)).toEqual(['0', '0.0'])
-    expect(html).toContain(
-      '<script type="module" data-id="0.0" data-node-id="inline-script">console.log(1 < 2)</script>',
-    )
+    expect(dataIds(html)).toEqual(['0'])
+    expect(html).not.toContain('<script')
   })
 })

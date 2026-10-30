@@ -58,9 +58,9 @@ describe('runtime benchmark configuration', () => {
       'custom-element.main.esm.js',
     ])
 
-    const hydrateNordcraft = RUNTIME_BENCHMARK_CASES.find(
-      ({ id }) => id === 'hydrate-nordcraft',
+    const noHydrateNordcraft = RUNTIME_BENCHMARK_CASES.find(
+      ({ id }) => id === 'mount-nordcraft-no-hydrate',
     )
-    expect(hydrateNordcraft?.bundles).toEqual(['page.main.esm.js'])
+    expect(noHydrateNordcraft?.bundles).toEqual(['page.main.esm.js'])
   })
 })

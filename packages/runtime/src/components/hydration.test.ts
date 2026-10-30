@@ -12,7 +12,6 @@ import { createNode } from './createNode'
 import {
   claimHydratedChild,
   createHydrationState,
-  hasHydratableContent,
   hydrationTagMatches,
   noteHydrationFallback,
   peekHydratedChild,
@@ -77,14 +76,6 @@ const hydrate = ({
 }
 
 describe('hydration helpers', () => {
-  test('hasHydratableContent detects SSR anchors', () => {
-    const empty = document.createElement('div')
-    expect(hasHydratableContent(empty)).toBe(false)
-    const ssr = document.createElement('div')
-    ssr.innerHTML = '<div data-id="0"></div>'
-    expect(hasHydratableContent(ssr)).toBe(true)
-  })
-
   test('hydrationTagMatches compares case-insensitively', () => {
     const el = document.createElement('div')
     expect(hydrationTagMatches(el, 'div')).toBe(true)
@@ -139,32 +130,64 @@ describe('hydration helpers', () => {
     expect(hydration.adopted.has(late)).toBe(false)
   })
 
-  test('noteHydrationFallback records missing paths', () => {
+  test('noteHydrationFallback records missing paths and categorises by type', () => {
     const hydration = createHydrationState()
-    noteHydrationFallback(hydration, '0.1')
-    noteHydrationFallback(hydration, '0.2')
+    noteHydrationFallback(hydration, '0.1', 'div')
+    noteHydrationFallback(hydration, '0.2', 'text')
+    noteHydrationFallback(hydration, '0.3', 'script')
     expect(hydration.createdPaths).toEqual(['0.1', '0.2'])
+    expect(hydration.missesByType).toEqual({
+      'created:div': 1,
+      'created:text': 1,
+      'expected:script': 1,
+    })
   })
 
-  test('reportHydrationResult warns on misses, silent when clean', () => {
+  test('reportHydrationResult warns on unexpected misses, silent when clean or expected, and sets globalThis.__nc_hydration_result', () => {
     const warnings: string[] = []
     const origWarn = console.warn
     console.warn = (...args: any[]) => {
-      warnings.push(args.join(' '))
+      warnings.push(
+        args
+          .map((a) => (typeof a === 'string' ? a : JSON.stringify(a)))
+          .join(' '),
+      )
     }
     try {
       reportHydrationResult(createHydrationState())
       expect(warnings).toHaveLength(0)
 
+      // Expected misses (such as client-only <script> tags) do not warn
+      const expectedOnly = createHydrationState()
+      expectedOnly.claimedCount = 2
+      noteHydrationFallback(expectedOnly, '0.0', 'script')
+      reportHydrationResult(expectedOnly)
+      expect(warnings).toHaveLength(0)
+      expect((globalThis as any).__nc_hydration_result).toEqual({
+        claimedCount: 2,
+        createdPaths: [],
+        sweptPaths: [],
+        missesByType: { 'expected:script': 1 },
+      })
+
       const skewed = createHydrationState()
       skewed.claimedCount = 3
-      noteHydrationFallback(skewed, '0.1')
+      noteHydrationFallback(skewed, '0.1', 'div')
       skewed.sweptPaths.push('0.5')
+      skewed.missesByType['swept:span'] = 1
       reportHydrationResult(skewed)
       expect(warnings).toHaveLength(1)
       expect(warnings[0]).toContain('adopted 3 SSR node(s)')
       expect(warnings[0]).toContain('0.1')
       expect(warnings[0]).toContain('0.5')
+      expect(warnings[0]).toContain('created:div')
+      expect(warnings[0]).toContain('swept:span')
+      expect((globalThis as any).__nc_hydration_result).toEqual({
+        claimedCount: 3,
+        createdPaths: ['0.1'],
+        sweptPaths: ['0.5'],
+        missesByType: { 'created:div': 1, 'swept:span': 1 },
+      })
     } finally {
       console.warn = origWarn
     }
@@ -837,13 +860,9 @@ describe('hydration (SSR resumability)', () => {
     dataSignal.destroy()
   })
 
-  test('<script> elements rendered by SSR are adopted during hydration without re-executing', () => {
+  test('<script> elements omitted by SSR are created on the client without triggering unexpected hydration misses', () => {
     const parentElement = document.createElement('div')
-    parentElement.innerHTML =
-      '<div data-node-id="root" data-id="0">' +
-      '<script type="module" data-id="0.0" data-node-id="inline-script">window.__testScriptRan = true</script>' +
-      '</div>'
-    const ssrScript = parentElement.querySelector('[data-id="0.0"]')!
+    parentElement.innerHTML = '<div data-node-id="root" data-id="0"></div>'
     const dataSignal = signal<ComponentData>({
       Attributes: {},
       Variables: {},
@@ -879,9 +898,12 @@ describe('hydration (SSR resumability)', () => {
       id: 'root',
     })
 
-    expect(parentElement.querySelector('[data-id="0.0"]')).toBe(ssrScript)
+    const createdScript = parentElement.querySelector('[data-id="0.0"]')
+    expect(createdScript?.tagName).toBe('SCRIPT')
+    expect(createdScript?.textContent).toBe('window.__testScriptRan = true')
     expect(hydration.createdPaths).toEqual([])
     expect(hydration.sweptPaths).toEqual([])
+    expect(hydration.missesByType).toEqual({ 'expected:script': 1 })
     dataSignal.destroy()
   })
 })

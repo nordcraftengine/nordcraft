@@ -4,6 +4,7 @@ const version = params.get('version') || 'head'
 let project
 let nordcraftProject
 let nordcraftSsrTemplate
+let pricingSsrTemplate
 let customElementRuntime
 
 async function loadFixture(url, name) {
@@ -19,6 +20,18 @@ async function loadFixture(url, name) {
   return fixture
 }
 
+function buildSsrTemplate(pageName) {
+  const tempContainer = document.createElement('div')
+  setupNordcraftPage(pageName)
+  nordcraftProject.runtime.createRoot(tempContainer)
+  // SSR skips <script> tags, so strip them from the template to match SSR output
+  tempContainer.querySelectorAll('script').forEach((el) => el.remove())
+  const template = document.createElement('template')
+  template.innerHTML = tempContainer.innerHTML
+  tempContainer.replaceChildren()
+  return template
+}
+
 async function initHarness() {
   const [loadedProject, loadedNordcraft] = await Promise.all([
     loadFixture('/fixtures/benchmark-project.json', 'benchmark'),
@@ -27,15 +40,10 @@ async function initHarness() {
   project = loadedProject
   nordcraftProject = loadedNordcraft
 
-  // Pre-build a template of the SSR DOM for the nordcraft front page so
-  // `hydrate-nordcraft` can clone it in <0.5ms outside the timed region.
-  const tempContainer = document.createElement('div')
-  setupNordcraftPage('nordcraft')
-  nordcraftProject.runtime.createRoot(tempContainer)
-  const template = document.createElement('template')
-  template.innerHTML = tempContainer.innerHTML
-  nordcraftSsrTemplate = template
-  tempContainer.replaceChildren()
+  // Pre-build templates of the SSR DOM for the nordcraft front page and pricing
+  // page so the hydration benchmarks can clone them in <0.5ms outside the timed region.
+  nordcraftSsrTemplate = buildSsrTemplate('nordcraft')
+  pricingSsrTemplate = buildSsrTemplate('pricing')
 
   customElementRuntime = await import(
     `/bundle/${version}/custom-element.main.esm.js`
@@ -125,40 +133,43 @@ function setupSyntheticEnvironment(itemsCount = 50) {
 const cases = {
   /**
    * Scenario 1: mount-nordcraft
-   * Mounts the official front page ("nordcraft") of nordcraft.com
-   * (213 components, 2,500+ DOM nodes, 5,500+ formulas).
-   */
-  async 'mount-nordcraft'() {
-    const app = document.getElementById('App')
-    app.replaceChildren()
-    setupNordcraftPage('nordcraft')
-    nordcraftProject.runtime.createRoot(app)
-  },
-
-  /**
-   * Scenario 2: hydrate-nordcraft
    * Hydrates the pre-populated SSR DOM of the official front page ("nordcraft")
    * of nordcraft.com (213 components, 2,500+ DOM nodes, 5,500+ formulas).
    */
-  prepare_hydrate_nordcraft() {
+  prepare_mount_nordcraft() {
     const app = document.getElementById('App')
     app.replaceChildren(nordcraftSsrTemplate.content.cloneNode(true))
     setupNordcraftPage('nordcraft')
   },
-  async 'hydrate-nordcraft'() {
+  async 'mount-nordcraft'() {
     const app = document.getElementById('App')
     nordcraftProject.runtime.createRoot(app)
   },
 
   /**
-   * Scenario 2: mount-pricing
-   * Mounts the official "pricing" page of nordcraft.com
-   * (169 nodes, feature tables, accordion, and pricing formulas).
+   * Scenario 2: mount-nordcraft-no-hydrate
+   * Mounts the official front page ("nordcraft") of nordcraft.com from scratch
+   * without SSR DOM (213 components, 2,500+ DOM nodes, 5,500+ formulas).
    */
-  async 'mount-pricing'() {
+  async 'mount-nordcraft-no-hydrate'() {
     const app = document.getElementById('App')
     app.replaceChildren()
+    setupNordcraftPage('nordcraft')
+    nordcraftProject.runtime.createRoot(app)
+  },
+
+  /**
+   * Scenario 3: mount-pricing
+   * Hydrates the pre-populated SSR DOM of the official "pricing" page of nordcraft.com
+   * (169 nodes, feature tables, accordion, and pricing formulas).
+   */
+  prepare_mount_pricing() {
+    const app = document.getElementById('App')
+    app.replaceChildren(pricingSsrTemplate.content.cloneNode(true))
     setupNordcraftPage('pricing')
+  },
+  async 'mount-pricing'() {
+    const app = document.getElementById('App')
     nordcraftProject.runtime.createRoot(app)
   },
 

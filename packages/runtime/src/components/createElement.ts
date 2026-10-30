@@ -74,7 +74,7 @@ export function createElement({
 
   let elem: HTMLElement | SVGElement | MathMLElement | null = null
   let claimed = false
-  if (hydration) {
+  if (IS_PAGE && hydration) {
     const candidate = claimHydratedChild(parentElement, path, hydration)
     if (candidate && hydrationTagMatches(candidate, tag)) {
       elem = candidate as HTMLElement | SVGElement | MathMLElement
@@ -88,12 +88,17 @@ export function createElement({
     elem = namespace
       ? (document.createElementNS(namespace, tag) as SVGElement | MathMLElement)
       : document.createElement(tag)
-    if (hydration) {
+    if (IS_PAGE && hydration) {
       hydration.adopted.add(elem)
-      noteHydrationFallback(hydration, path)
+      noteHydrationFallback(hydration, path, tag)
     }
   }
-  if (claimed && namespace && namespace !== 'http://www.w3.org/1999/xhtml') {
+  if (
+    IS_PAGE &&
+    claimed &&
+    namespace &&
+    namespace !== 'http://www.w3.org/1999/xhtml'
+  ) {
     // Raw text inside svg/math has no stable anchors (SSR renders it without
     // a wrapping span), so remove any SSR text nodes while keeping child
     // elements intact for hydration.
@@ -398,10 +403,7 @@ export function createElement({
       })
 
     // if all values are string, we can directly set textContent
-    if (
-      textValues.every((value) => typeof value === 'string') &&
-      (!claimed || nodeTag !== 'script')
-    ) {
+    if (textValues.every((value) => typeof value === 'string')) {
       elem.textContent = textValues.join('')
     }
 
@@ -409,13 +411,7 @@ export function createElement({
     textValues
       .filter((value) => typeof value !== 'string')
       .forEach((valueSignal) => {
-        let firstRun = true
         valueSignal.subscribe(() => {
-          if (firstRun && claimed && nodeTag === 'script') {
-            firstRun = false
-            return
-          }
-          firstRun = false
           elem.textContent = textValues
             .map((value) => (typeof value === 'string' ? value : value.get()))
             .join('')
@@ -446,9 +442,7 @@ export function createElement({
         childNodes.push(nodes[j]!)
       }
     }
-    if (!claimed || elem.childNodes.length === 0) {
-      // Index loop over `appendChild` instead of `append(...childNodes)`:
-      // same DOM result for Node items, without the spread allocation.
+    if (!IS_PAGE || !claimed || elem.childNodes.length === 0) {
       for (let i = 0; i < childNodes.length; i++) {
         elem.appendChild(childNodes[i]!)
       }

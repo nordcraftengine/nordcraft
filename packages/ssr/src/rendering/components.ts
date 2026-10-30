@@ -257,6 +257,12 @@ const renderComponent = async ({
       case 'element': {
         const lowerTag = node.tag.toLocaleLowerCase()
         switch (lowerTag) {
+          case 'script': {
+            // We do not render script tags on the server until we support custom code formulas during SSR.
+            // Otherwise script tags could be empty of malformed during SSR.
+            // Override client-side later does not cause a script tag to run again.
+            return ''
+          }
           case 'svg': {
             namespace = 'http://www.w3.org/2000/svg'
             break
@@ -354,7 +360,7 @@ const renderComponent = async ({
 
         let innerHTML = ''
 
-        if (lowerTag !== 'script' && lowerTag !== 'style') {
+        if (lowerTag !== 'style') {
           const childNodes = node.children
             ? await Promise.all(
                 node.children.map((child, i) =>
@@ -373,7 +379,7 @@ const renderComponent = async ({
             : []
           innerHTML = childNodes.join('')
         } else {
-          // render script and style content as raw text (matching createElement)
+          // render style content as raw text (matching createElement)
           innerHTML = (node.children ?? [])
             .map((childId) => component.nodes?.[childId])
             .filter((childNode) => childNode?.type === 'text')

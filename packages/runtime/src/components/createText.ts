@@ -58,7 +58,7 @@ export function createText({
   const { value } = node
   let elem: HTMLSpanElement | null = null
   let claimed = false
-  if (hydration && parentElement) {
+  if (IS_PAGE && hydration && parentElement) {
     const candidate = claimHydratedChild(parentElement, path, hydration)
     if (candidate && hydrationTagMatches(candidate, 'span')) {
       elem = candidate as HTMLSpanElement
@@ -69,9 +69,9 @@ export function createText({
   }
   if (!elem) {
     elem = document.createElement('span')
-    if (hydration) {
+    if (IS_PAGE && hydration) {
       hydration.adopted.add(elem)
-      noteHydrationFallback(hydration, path)
+      noteHydrationFallback(hydration, path, 'text')
     }
   }
 

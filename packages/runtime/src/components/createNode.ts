@@ -158,7 +158,7 @@ export function createNode({
         childDataSignal?.destroy()
         elements.forEach((elem) => elem.remove())
         elements.splice(0, elements.length)
-        if (firstRun && hydration) {
+        if (IS_PAGE && firstRun && hydration) {
           // SSR rendered this node but the client hides it
           // (e.g. a browser-only formula) — remove the stale SSR node.
           peekHydratedChild(parentElement, path)?.remove()
