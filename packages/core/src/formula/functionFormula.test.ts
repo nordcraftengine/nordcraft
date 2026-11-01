@@ -152,5 +152,4 @@ describe('applyFunctionFormula', () => {
     }
     expect(applyFunctionFormula(formula, ctx, {})).toBe('main')
   })
-  })
 })

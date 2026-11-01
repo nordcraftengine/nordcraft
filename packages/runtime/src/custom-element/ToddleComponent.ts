@@ -2,14 +2,11 @@ import type {
   Component,
   ComponentData,
   ComponentFormula,
-  Theme,
   Toddle,
   ToddleEnv,
 } from '@nordcraft/core'
 import {
   applyFormula,
-  createStylesheet,
-  theme as defaultTheme,
   isDefined,
   isLegacyApi,
   THEME_DATA_ATTRIBUTE,
@@ -28,8 +25,6 @@ import { createFormulaCache } from '../utils/createFormulaCache'
 import { getThemeSignal } from '../utils/getThemeSignal'
 import { isStaticFormula } from '../utils/isStaticFormula'
 
-const DEFAULT_THEMES = { defaultTheme }
-
 /**
  * Base class for all toddle components
  */
@@ -42,15 +37,15 @@ export class ToddleComponent extends HTMLElement {
   #ctx: ComponentContext
   #shadowRoot: ShadowRoot
   #signal: Signal<ComponentData>
-  #files: { themes: Record<string, Theme> }
   // Maps lowercased attribute names to their original case, so attributeChangedCallback
   // (which receives lowercased names from observedAttributes) can look them up in the
   // component's attributes without scanning the whole object on every change.
   #attributeNames: Map<string, string>
+  #isSettingAttribute = false
 
   constructor(
     component: Component,
-    options: { components: Component[]; themes: Record<string, Theme> },
+    options: { components: Component[]; styleSheet: CSSStyleSheet },
     toddle: Toddle<LocationSignal, never>,
   ) {
     super()
@@ -78,9 +73,7 @@ export class ToddleComponent extends HTMLElement {
       toddle,
       env,
     })
-    this.#files = {
-      themes: options.themes,
-    }
+    this.#shadowRoot.adoptedStyleSheets = [options.styleSheet]
     this.#attributeNames = new Map()
     const componentAttrs = component.attributes
     if (componentAttrs) {
@@ -141,6 +134,49 @@ export class ToddleComponent extends HTMLElement {
         Theme: themeSignal.get(),
       }
     }
+
+    this.#ctx.stores.theme.subscribe((newTheme) => {
+      if (this.#signal.get().Page?.Theme !== newTheme) {
+        const data = this.#signal.value
+        this.#signal.set(
+          {
+            ...data,
+            Page: {
+              ...data.Page,
+              Theme: newTheme,
+            },
+          },
+          Signal.FORCE_UPDATE,
+        )
+      }
+      if (isDefined(newTheme)) {
+        this.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
+      } else {
+        this.removeAttribute(THEME_DATA_ATTRIBUTE)
+      }
+    })
+
+    // Re-evaluate variable initial values now that initial DOM attributes and theme are populated
+    const componentVariables = this.#component.variables
+    if (componentVariables) {
+      const data = this.#signal.value
+      const nextVariables: Record<string, unknown> = {}
+      for (const name in componentVariables) {
+        const variable = componentVariables[name]
+        if (isDefined(variable)) {
+          nextVariables[name] = applyFormula(
+            variable.initialValue,
+            this.#ctx,
+            data,
+          )
+        }
+      }
+      this.#signal.set({
+        ...data,
+        Variables: nextVariables,
+      })
+    }
+
     sortApiEntries(this.#component.apis).forEach(([name, api]) => {
       if (isLegacyApi(api)) {
         this.#ctx.apis[name] = createLegacyAPI(
@@ -204,27 +240,6 @@ export class ToddleComponent extends HTMLElement {
     }
 
     this.#ctx.providers = providers
-
-    this.#ctx.stores.theme.subscribe((newTheme) => {
-      if (this.#signal.get().Page?.Theme !== newTheme) {
-        const data = this.#signal.value
-        this.#signal.set(
-          {
-            ...data,
-            Page: {
-              ...data.Page,
-              Theme: newTheme,
-            },
-          },
-          Signal.FORCE_UPDATE,
-        )
-      }
-      if (isDefined(newTheme)) {
-        this.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
-      } else {
-        this.removeAttribute(THEME_DATA_ATTRIBUTE)
-      }
-    })
     this.render()
   }
 
@@ -251,18 +266,7 @@ export class ToddleComponent extends HTMLElement {
       instance: { [this.#component.name]: 'root' },
     })
 
-    this.#shadowRoot.innerHTML = ''
-    const styles = createStylesheet(
-      this.#ctx.component,
-      this.#ctx.components,
-      Object.keys(this.#files.themes ?? {}).length > 0
-        ? this.#files.themes
-        : DEFAULT_THEMES,
-      { includeResetStyle: true, createFontFaces: false },
-    )
-    const stylesElem = document.createElement('style')
-    stylesElem.appendChild(document.createTextNode(styles))
-    this.#shadowRoot.appendChild(stylesElem)
+    this.#shadowRoot.replaceChildren()
     const rootElement = elements[0] as Element | null
     if (rootElement) {
       this.#shadowRoot.appendChild(rootElement)
@@ -271,29 +275,34 @@ export class ToddleComponent extends HTMLElement {
 
   // Overload the setAttribute method to allow setting complex attributes
   setAttribute(name: string, value: unknown) {
-    switch (typeof value) {
-      case 'number':
-        super.setAttribute(name, String(value))
-        break
-      case 'string':
-        super.setAttribute(name, value)
-        // Return early, as signal is updated through attributeChangedCallback on string values
-        return this
-      default:
-        super.setAttribute(name, `[Object ${typeof value}]`)
-        break
+    if (typeof value === 'string') {
+      super.setAttribute(name, value)
+      // Return early, as signal is updated through attributeChangedCallback on string values
+      return this
     }
+
+    this.#isSettingAttribute = true
+    try {
+      super.setAttribute(
+        name,
+        typeof value === 'number' ? String(value) : `[Object ${typeof value}]`,
+      )
+    } finally {
+      this.#isSettingAttribute = false
+    }
+
+    const attributeName = this.#attributeNames.get(name.toLowerCase()) ?? name
 
     // Update the signal with complex value
     const data = this.#signal.value
-    const currentAttr = data.Attributes?.[name]
+    const currentAttr = data.Attributes?.[attributeName]
     if (fastDeepEqual(currentAttr, value) === false) {
       this.#signal.set(
         {
           ...data,
           Attributes: {
             ...data.Attributes,
-            [name]: value,
+            [attributeName]: value,
           },
         },
         Signal.FORCE_UPDATE,
@@ -305,23 +314,18 @@ export class ToddleComponent extends HTMLElement {
 
   // Overload the getAttribute method to point to source of truth (the signal)
   getAttribute<T>(name: string) {
+    const attributeName = this.#attributeNames.get(name.toLowerCase()) ?? name
     return (
-      (this.#signal.get().Attributes?.[name] as T) || super.getAttribute(name)
+      (this.#signal.get().Attributes?.[attributeName] as T) ??
+      super.getAttribute(name)
     )
   }
 
   attributeChangedCallback(name: string, oldValue: never, newValue: string) {
+    if (this.#isSettingAttribute) {
+      return
+    }
     const attributeName = this.getAttributeCaseInsensitive(name)
-    const currentRawValue = this.getAttribute(attributeName)
-    // Is this is a complex value that has already been set by `setAttribute`
-    if (newValue === '[Object object]') {
-      return
-    }
-
-    //Has this just been set by `setAttribute` as a number
-    if (parseFloat(newValue) === currentRawValue) {
-      return
-    }
 
     const data = this.#signal.value
     const currentAttr = data.Attributes?.[attributeName]
