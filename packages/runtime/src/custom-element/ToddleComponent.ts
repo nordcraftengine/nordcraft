@@ -2,14 +2,11 @@ import type {
   Component,
   ComponentData,
   ComponentFormula,
-  Theme,
   Toddle,
   ToddleEnv,
 } from '@nordcraft/core'
 import {
   applyFormula,
-  createStylesheet,
-  theme as defaultTheme,
   isDefined,
   isLegacyApi,
   THEME_DATA_ATTRIBUTE,
@@ -28,8 +25,6 @@ import { createFormulaCache } from '../utils/createFormulaCache'
 import { getThemeSignal } from '../utils/getThemeSignal'
 import { isStaticFormula } from '../utils/isStaticFormula'
 
-const DEFAULT_THEMES = { defaultTheme }
-
 /**
  * Base class for all toddle components
  */
@@ -42,7 +37,6 @@ export class ToddleComponent extends HTMLElement {
   #ctx: ComponentContext
   #shadowRoot: ShadowRoot
   #signal: Signal<ComponentData>
-  #files: { themes: Record<string, Theme> }
   // Maps lowercased attribute names to their original case, so attributeChangedCallback
   // (which receives lowercased names from observedAttributes) can look them up in the
   // component's attributes without scanning the whole object on every change.
@@ -50,7 +44,7 @@ export class ToddleComponent extends HTMLElement {
 
   constructor(
     component: Component,
-    options: { components: Component[]; themes: Record<string, Theme> },
+    options: { components: Component[]; styleSheet: CSSStyleSheet },
     toddle: Toddle<LocationSignal, never>,
   ) {
     super()
@@ -78,9 +72,7 @@ export class ToddleComponent extends HTMLElement {
       toddle,
       env,
     })
-    this.#files = {
-      themes: options.themes,
-    }
+    this.#shadowRoot.adoptedStyleSheets = [options.styleSheet]
     this.#attributeNames = new Map()
     const componentAttrs = component.attributes
     if (componentAttrs) {
@@ -251,18 +243,7 @@ export class ToddleComponent extends HTMLElement {
       instance: { [this.#component.name]: 'root' },
     })
 
-    this.#shadowRoot.innerHTML = ''
-    const styles = createStylesheet(
-      this.#ctx.component,
-      this.#ctx.components,
-      Object.keys(this.#files.themes ?? {}).length > 0
-        ? this.#files.themes
-        : DEFAULT_THEMES,
-      { includeResetStyle: true, createFontFaces: false },
-    )
-    const stylesElem = document.createElement('style')
-    stylesElem.appendChild(document.createTextNode(styles))
-    this.#shadowRoot.appendChild(stylesElem)
+    this.#shadowRoot.replaceChildren()
     const rootElement = elements[0] as Element | null
     if (rootElement) {
       this.#shadowRoot.appendChild(rootElement)

@@ -25,6 +25,9 @@ const component = {
 
 const toddle = { branch: 'main' } as unknown as Toddle<LocationSignal, never>
 
+const sharedStyleSheet = new CSSStyleSheet()
+sharedStyleSheet.replaceSync(':host { color: red; }')
+
 const defineAndCreate = () => {
   const tag = 'test-toddle-attr'
   if (!customElements.get(tag)) {
@@ -32,7 +35,11 @@ const defineAndCreate = () => {
       tag,
       class extends ToddleComponent {
         constructor() {
-          super(component, { components: [component], themes: {} }, toddle)
+          super(
+            component,
+            { components: [component], styleSheet: sharedStyleSheet },
+            toddle,
+          )
         }
 
         static get observedAttributes() {
@@ -45,6 +52,21 @@ const defineAndCreate = () => {
   }
   return document.createElement(tag) as ToddleComponent
 }
+
+describe('ToddleComponent stylesheet', () => {
+  test('it adopts the shared stylesheet instead of creating one per instance', () => {
+    const first = defineAndCreate()
+    const second = defineAndCreate()
+    first.connectedCallback()
+    second.connectedCallback()
+
+    expect(first.shadowRoot?.adoptedStyleSheets).toEqual([sharedStyleSheet])
+    expect(second.shadowRoot?.adoptedStyleSheets).toEqual([sharedStyleSheet])
+
+    first.disconnectedCallback()
+    second.disconnectedCallback()
+  })
+})
 
 describe('ToddleComponent attributeChangedCallback()', () => {
   test('it sets the value on the underlying camelCased attribute', () => {
