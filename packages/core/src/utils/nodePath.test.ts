@@ -50,9 +50,10 @@ describe('nodePath (stable data-id contract)', () => {
     expect(buildSlotSuffix(undefined, 0, 2)).toBe('(2)')
     // Both, stacked on a forwarded suffix
     expect(buildSlotSuffix('(1)', 1, 2)).toBe('(1){1}(2)')
-    // Does not duplicate identical suffixes already present
-    expect(buildSlotSuffix('(1)', 0, 1)).toBe('(1)')
-    expect(buildSlotSuffix('{1}', 1, undefined)).toBe('{1}')
+    // Preserves disambiguators across distinct slot depths
+    expect(buildSlotSuffix('{1}', 0, undefined)).toBe('{1}')
+    expect(buildSlotSuffix('{1}', 1, undefined)).toBe('{1}{1}')
+    expect(buildSlotSuffix('(1)', 0, 1)).toBe('(1)(1)')
   })
 
   test('applySlotSuffix is idempotent', () => {

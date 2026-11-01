@@ -65,16 +65,10 @@ export function buildSlotSuffix(
 ): string {
   let currentSuffix = slotSuffix ?? ''
   if (slotComponentIndex && slotComponentIndex > 0) {
-    const compSuffix = `{${slotComponentIndex}}`
-    if (!currentSuffix.endsWith(compSuffix)) {
-      currentSuffix += compSuffix
-    }
+    currentSuffix += `{${slotComponentIndex}}`
   }
   if (slotRepeatIndex && slotRepeatIndex > 0) {
-    const repSuffix = `(${slotRepeatIndex})`
-    if (!currentSuffix.endsWith(repSuffix)) {
-      currentSuffix += repSuffix
-    }
+    currentSuffix += `(${slotRepeatIndex})`
   }
   return currentSuffix
 }

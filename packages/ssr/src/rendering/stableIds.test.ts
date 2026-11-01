@@ -258,6 +258,83 @@ describe('stable data-ids (hydration contract)', () => {
     expect(dataIds(first.html)).toEqual(dataIds(second.html))
   })
 
+  test('nested components with duplicate slot names keep unique data-ids across slot depths', async () => {
+    const outerLayout: Component = {
+      name: 'OuterTwoSlots',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['slot-1', 'slot-2'],
+          attrs: {},
+          events: {},
+        },
+        'slot-1': { type: 'slot', children: [] },
+        'slot-2': { type: 'slot', children: [] },
+      },
+    } as unknown as Component
+    const innerLayout: Component = {
+      name: 'InnerTwoSlots',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'section',
+          children: ['inner-1', 'inner-2'],
+          attrs: {},
+          events: {},
+        },
+        'inner-1': { type: 'slot', children: [] },
+        'inner-2': { type: 'slot', children: [] },
+      },
+    } as unknown as Component
+    const page = {
+      name: 'NestedSlotPage',
+      route: { path: [], query: {} },
+      nodes: {
+        root: {
+          type: 'component',
+          name: 'OuterTwoSlots',
+          attrs: {},
+          events: {},
+          children: ['inner'],
+        },
+        inner: {
+          type: 'component',
+          name: 'InnerTwoSlots',
+          attrs: {},
+          events: {},
+          children: ['leaf'],
+        },
+        leaf: {
+          type: 'element',
+          tag: 'span',
+          attrs: {},
+          events: {},
+          children: [],
+        },
+      },
+    } as unknown as Component
+
+    const { html } = await render({
+      component: page,
+      components: {
+        OuterTwoSlots: outerLayout,
+        InnerTwoSlots: innerLayout,
+      },
+    })
+    const ids = dataIds(html)
+    expect(new Set(ids).size).toBe(ids.length)
+    expect(ids).toEqual([
+      '0',
+      '0.0[default]',
+      '0.0[default].0[default]',
+      '0.0[default].0[default]{1}',
+      '0.0[default]{1}',
+      '0.0[default]{1}.0[default]{1}',
+      '0.0[default]{1}.0[default]{1}{1}',
+    ])
+  })
+
   test('ignores user-authored data-id, data-node-id, and data-component attributes in node.attrs', async () => {
     const component = {
       name: 'SanitizedAttrsPage',

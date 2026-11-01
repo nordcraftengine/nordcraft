@@ -30,7 +30,7 @@ import { setAttribute } from '../utils/setAttribute'
 import { subscribeCustomProperty } from '../utils/subscribeCustomProperty'
 import type { NodeRenderer } from './createNode'
 import { createNode } from './createNode'
-import { claimHydratedChild } from './hydration'
+import { claimHydratedChild, reconcileHydratedChildren } from './hydration'
 
 // Cache class names by node definition object. Repeat items share the same
 // node reference, so this avoids re-stringifying/hashing identical style
@@ -84,15 +84,15 @@ export function createElement({
   if (IS_PAGE && hydration && !hydration.sealed && !claimed) {
     hydration.adopted.add(elem)
   }
+  const nodeTag = node.tag.toLocaleLowerCase()
   if (
     IS_PAGE &&
     claimed &&
-    namespace &&
-    namespace !== 'http://www.w3.org/1999/xhtml'
+    ((namespace && namespace !== 'http://www.w3.org/1999/xhtml') ||
+      nodeTag === 'option')
   ) {
-    // Raw text inside svg/math has no stable anchors (SSR renders it without
-    // a wrapping span), so remove any SSR text nodes while keeping child
-    // elements intact for hydration.
+    // Raw text inside svg/math or parser-stripped <option> text has no stable
+    // anchors, so remove any SSR text nodes while keeping child elements intact.
     for (let i = elem.childNodes.length - 1; i >= 0; i--) {
       const childNode = elem.childNodes[i]!
       if (childNode.nodeType === Node.TEXT_NODE) {
@@ -174,42 +174,6 @@ export function createElement({
     if (ctx.isRootComponent === false && id !== 'root') {
       elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
     }
-    const cachedClass = classNameByNode.get(node)
-    if (cachedClass !== undefined) {
-      elem.classList.add(cachedClass)
-    } else if (node.style || node.variants?.some((v) => v.style)) {
-      const classHash = getClassName([node.style, node.variants])
-      classNameByNode.set(node, classHash)
-      elem.classList.add(classHash)
-    }
-  }
-  if (node.classes) {
-    for (const className in node.classes) {
-      const formula = node.classes[className].formula
-      if (formula) {
-        const classSignal = dataSignal.map((data) =>
-          toBoolean(applyFormula(formula, formulaCtx, data)),
-        )
-        classSignal.subscribe((show) =>
-          show
-            ? elem.classList.add(className)
-            : elem.classList.remove(className),
-        )
-      } else if (!claimed) {
-        elem.classList.add(className)
-      }
-    }
-  }
-
-  let hasDynamicCustomProperties = false
-  if (instance && id === 'root') {
-    for (const key in instance) {
-      if (!claimed) {
-        elem.classList.add(toValidClassName(`${key}:${instance[key]}`))
-      }
-      // TODO: We should forward info on whether the instance has dynamic custom properties, but for now we assume that if the instance has any custom properties, they are dynamic.
-      hasDynamicCustomProperties = true
-    }
   }
 
   const attrs = node.attrs
@@ -238,7 +202,7 @@ export function createElement({
         continue
       }
       if (value.type === 'value') {
-        if (!claimed) {
+        if (!claimed || attr === 'value') {
           setAttribute(elem, attr, value.value)
         }
       } else {
@@ -257,6 +221,45 @@ export function createElement({
           setAttribute(elem, attr, val)
         })
       }
+    }
+  }
+
+  if (!claimed) {
+    const cachedClass = classNameByNode.get(node)
+    if (cachedClass !== undefined) {
+      elem.classList.add(cachedClass)
+    } else if (node.style || node.variants?.some((v) => v.style)) {
+      const classHash = getClassName([node.style, node.variants])
+      classNameByNode.set(node, classHash)
+      elem.classList.add(classHash)
+    }
+  }
+  if (node.classes) {
+    for (const className in node.classes) {
+      const formula = node.classes[className].formula
+      if (formula) {
+        const classSignal = dataSignal.map((data) =>
+          toBoolean(applyFormula(formula, formulaCtx, data)),
+        )
+        classSignal.subscribe((show) =>
+          show
+            ? elem.classList.add(className)
+            : elem.classList.remove(className),
+        )
+      } else {
+        elem.classList.add(className)
+      }
+    }
+  }
+
+  let hasDynamicCustomProperties = false
+  if (instance && id === 'root') {
+    for (const key in instance) {
+      if (!claimed) {
+        elem.classList.add(toValidClassName(`${key}:${instance[key]}`))
+      }
+      // TODO: We should forward info on whether the instance has dynamic custom properties, but for now we assume that if the instance has any custom properties, they are dynamic.
+      hasDynamicCustomProperties = true
     }
   }
   node['style-variables']?.forEach((styleVariable, i) => {
@@ -371,7 +374,6 @@ export function createElement({
 
   // for script, style & SVG<text> tags we only render text child.
   // this can be removed once we fix the editor to handle raw text nodes without wrapping <span>
-  const nodeTag = node.tag.toLocaleLowerCase()
   if (nodeTag === 'script' || nodeTag === 'style') {
     const textValues: Array<Signal<string> | string> = []
     ;(node.children ?? [])
@@ -435,19 +437,7 @@ export function createElement({
         elem.appendChild(childNodes[i]!)
       }
     } else {
-      // elem was adopted from SSR: ensure all childNodes are in elem in the
-      // exact order of childNodes.
-      let insertBeforeElement: Node | null = null
-      for (let i = childNodes.length - 1; i >= 0; i--) {
-        const childNode = childNodes[i]!
-        if (
-          childNode.nextSibling !== insertBeforeElement ||
-          childNode.parentNode !== elem
-        ) {
-          elem.insertBefore(childNode, insertBeforeElement)
-        }
-        insertBeforeElement = childNode
-      }
+      reconcileHydratedChildren(elem, childNodes, hydration!)
     }
   }
   dataSignal.subscriptions.push(() => {

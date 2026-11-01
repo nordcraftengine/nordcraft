@@ -34,6 +34,7 @@ import { createAPI } from './api/createAPIv2'
 import { sortApis } from './api/sortApis'
 import {
   createHydrationState,
+  reconcileHydratedChildren,
   sweepUnhydratedNodes,
 } from './components/hydration'
 import { getDynamicMetaEntries } from './components/meta'
@@ -323,13 +324,9 @@ export const createRoot = (domNode: HTMLElement) => {
     hydration,
   })
   if (hydration) {
-    // Claimed nodes are already in place; ensure any fallback-created root
-    // elements are attached, then sweep stale SSR leftovers.
-    elements.forEach((elem) => {
-      if (elem.parentNode !== domNode) {
-        domNode.appendChild(elem)
-      }
-    })
+    // Reconcile adopted and fallback-created root elements in forward order,
+    // then sweep stale SSR leftovers.
+    reconcileHydratedChildren(domNode, elements, hydration)
     sweepUnhydratedNodes(domNode, hydration)
   } else {
     domNode.innerText = ''

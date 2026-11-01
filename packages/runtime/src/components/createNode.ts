@@ -338,6 +338,7 @@ export function createNode({
               parentElement,
               instance,
               slotRepeatIndex: repeatIndex,
+              slotSuffix,
               hydration,
             }
             if (i === 0 && !defaultElement) {

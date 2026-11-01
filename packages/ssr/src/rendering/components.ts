@@ -41,7 +41,6 @@ import { escapeAttrValue, getNodeAttrs, toEncodedText } from './attributes'
 
 type CustomPropertyRule = `--${string}: ${string}`
 type SlottedContentOptions = {
-  slotRepeatIndex?: number
   slotSuffix?: string
   slotPath?: string
 }
@@ -228,7 +227,6 @@ const renderComponent = async ({
           // runtime convention.
           return typeof defaultChild === 'function'
             ? defaultChild(data.Contexts ?? {}, {
-                slotRepeatIndex,
                 slotSuffix: currentSuffix,
                 slotPath: path,
               })
@@ -287,7 +285,10 @@ const renderComponent = async ({
         if (node.classes) {
           for (const className in node.classes) {
             const { formula } = node.classes[className]!
-            if (toBoolean(applyFormula(formula, formulaContext, data))) {
+            if (
+              !formula ||
+              toBoolean(applyFormula(formula, formulaContext, data))
+            ) {
               classList.push(className)
             }
           }
@@ -608,7 +609,7 @@ const renderComponent = async ({
                 },
                 // pass package name to child component if it's defined
                 packageName,
-                slotRepeatIndex: options?.slotRepeatIndex,
+                slotRepeatIndex: undefined,
                 slotSuffix: currentSuffix || undefined,
               })
             }

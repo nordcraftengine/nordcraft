@@ -22,16 +22,14 @@ export interface HydrationState {
    * nodes.
    */
   sealed: boolean
-  /** Last parent element queried in `claimHydratedChild`. */
-  lastParent?: Element | ShadowRoot
-  /** Next child index to inspect in `lastParent.children` for O(1) sequential child claiming. */
-  nextIndex: number
+  /** Next child index to inspect per parent for O(1) sequential child claiming. */
+  nextIndex: WeakMap<Element | ShadowRoot, number>
 }
 
 export const createHydrationState = (): HydrationState => ({
   adopted: new Set(),
   sealed: false,
-  nextIndex: 0,
+  nextIndex: new WeakMap(),
 })
 
 // eslint-disable-next-line max-params
@@ -53,13 +51,11 @@ function claimInRange(
       if (tag && child.tagName.toLowerCase() !== tag.toLowerCase()) {
         // SSR/CSR unexpected tag at a stable path, drop the stale node.
         child.remove()
-        hydration.lastParent = parent
-        hydration.nextIndex = i
+        hydration.nextIndex.set(parent, i)
         return null
       }
       hydration.adopted.add(child)
-      hydration.lastParent = parent
-      hydration.nextIndex = i + 1
+      hydration.nextIndex.set(parent, i + 1)
       return child
     }
   }
@@ -89,20 +85,36 @@ export function claimHydratedChild(
     return null
   }
 
-  // Hydration traverses siblings in DOM order in the common case. When querying
-  // the same parent consecutively, start at `nextIndex` (the sibling right after
-  // the previously claimed child) so sequential claims resolve in O(1) instead
-  // of scanning from index 0 every time. If the forward pass misses (e.g. out-of-order
+  // Hydration traverses siblings in DOM order in the common case. Track the
+  // cursor per parent so descending into a child subtree does not reset its
+  // parent's sibling scan. If the forward pass misses (e.g. out-of-order
   // claims or skipped nodes), wrap around and check the earlier siblings [0, start).
-  const start =
-    hydration.lastParent === parent && hydration.nextIndex < len
-      ? hydration.nextIndex
-      : 0
+  const next = hydration.nextIndex.get(parent) ?? 0
+  const start = next < len ? next : 0
 
   return (
     claimInRange(children, start, len, parent, path, hydration, tag) ??
     claimInRange(children, 0, start, parent, path, hydration, tag)
   )
+}
+
+export function reconcileHydratedChildren(
+  parent: Element | ShadowRoot,
+  children: ReadonlyArray<Element | Text>,
+  hydration: HydrationState,
+): void {
+  let cursor: ChildNode | null = parent.firstChild
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]!
+    while (cursor && !hydration.adopted.has(cursor as Element)) {
+      cursor = cursor.nextSibling
+    }
+    if (child === cursor) {
+      cursor = cursor.nextSibling
+    } else {
+      parent.insertBefore(child, cursor)
+    }
+  }
 }
 
 export function sweepUnhydratedNodes(
@@ -113,7 +125,6 @@ export function sweepUnhydratedNodes(
   hydration.sealed = true
   // Release DOM references for garbage collection
   hydration.adopted.clear()
-  hydration.lastParent = undefined
 }
 
 function sweepUnhydratedChildren(
@@ -123,10 +134,8 @@ function sweepUnhydratedChildren(
   const children = root.children
   for (let i = children.length - 1; i >= 0; i--) {
     const child = children[i]!
-    if (!hydration.adopted.has(child)) {
-      if (child.hasAttribute(DATA_ATTR_ID)) {
-        child.remove()
-      }
+    if (!hydration.adopted.has(child) && child.hasAttribute(DATA_ATTR_ID)) {
+      child.remove()
       continue
     }
     sweepUnhydratedChildren(child, hydration)

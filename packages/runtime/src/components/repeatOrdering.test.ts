@@ -4,6 +4,7 @@ import '../happydom'
 import { signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { createNode } from './createNode'
+import { createHydrationState } from './hydration'
 
 const xhtml = 'http://www.w3.org/1999/xhtml' as any
 
@@ -378,11 +379,7 @@ describe('fresh items added to slotted-component repeats', () => {
     // Simulate SSR parent claimed, but slotted children are fallback-created (SSR skew)
     parentElement.innerHTML =
       '<div data-id="0"><section data-id="0.0"></section></div>'
-    const hydration: any = {
-      adopted: new Set(),
-      sealed: false,
-      nextIndex: 0,
-    }
+    const hydration = createHydrationState()
     createNode({
       ctx,
       namespace: xhtml,

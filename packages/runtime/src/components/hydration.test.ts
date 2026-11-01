@@ -11,6 +11,7 @@ import { createNode } from './createNode'
 import {
   claimHydratedChild,
   createHydrationState,
+  reconcileHydratedChildren,
   sweepUnhydratedNodes,
 } from './hydration'
 import { renderComponent } from './renderComponent'
@@ -111,6 +112,73 @@ describe('hydration helpers', () => {
     // Sweep seals the state and clears references
     expect(hydration.sealed).toBe(true)
     expect(hydration.adopted.size).toBe(0)
+  })
+
+  test('sweepUnhydratedNodes recurses through unmarked wrappers (e.g. implicit tbody) while preserving them', () => {
+    const table = document.createElement('table')
+    table.innerHTML =
+      '<tbody><tr data-id="0.0"><td data-id="0.0.0">stale</td></tr></tbody>'
+    const hydration = createHydrationState()
+    const freshRow = document.createElement('tr')
+    freshRow.setAttribute('data-id', '0.0')
+    hydration.adopted.add(freshRow)
+    table.appendChild(freshRow)
+
+    sweepUnhydratedNodes(table, hydration)
+    expect(table.querySelector('tbody')).not.toBeNull()
+    expect(table.querySelectorAll('[data-id="0.0"]').length).toBe(1)
+    expect(table.querySelector('[data-id="0.0"]')).toBe(freshRow)
+  })
+
+  test('reconcileHydratedChildren preserves forward order when mixing fallback and adopted roots', () => {
+    const parent = document.createElement('div')
+    parent.innerHTML = '<div data-id="0.1">B</div>'
+    const hydration = createHydrationState()
+    const adoptedB = claimHydratedChild(parent, '0.1', hydration)!
+    const clientOnlyA = document.createElement('div')
+    clientOnlyA.setAttribute('data-id', '0.0')
+    clientOnlyA.textContent = 'A'
+    hydration.adopted.add(clientOnlyA)
+
+    reconcileHydratedChildren(parent, [clientOnlyA, adoptedB], hydration)
+    sweepUnhydratedNodes(parent, hydration)
+    expect([...parent.children].map((c) => c.textContent)).toEqual(['A', 'B'])
+    expect(parent.children[1]).toBe(adoptedB)
+  })
+
+  test('claimHydratedChild preserves per-parent cursor when descending into child elements', () => {
+    const parent = document.createElement('ul')
+    parent.innerHTML =
+      '<li data-id="0.0"><span data-id="0.0.0">a</span></li>' +
+      '<li data-id="0.0(1)"><span data-id="0.0(1).0">b</span></li>' +
+      '<li data-id="0.0(2)"><span data-id="0.0(2).0">c</span></li>' +
+      '<li data-id="0.0(3)"><span data-id="0.0(3).0">d</span></li>'
+    const hydration = createHydrationState()
+    let liAttrReads = 0
+    const origGetAttr = Element.prototype.getAttribute
+    Element.prototype.getAttribute = function (name: string) {
+      if (this.tagName === 'LI' && name === 'data-id') {
+        liAttrReads++
+      }
+      return origGetAttr.call(this, name)
+    }
+    try {
+      for (const suffix of ['', '(1)', '(2)', '(3)']) {
+        const li = claimHydratedChild(parent, `0.0${suffix}`, hydration, 'li')!
+        expect(li).not.toBeNull()
+        const span = claimHydratedChild(
+          li,
+          `0.0${suffix}.0`,
+          hydration,
+          'span',
+        )!
+        expect(span).not.toBeNull()
+      }
+    } finally {
+      Element.prototype.getAttribute = origGetAttr
+    }
+    // Each <li> should be inspected exactly once (O(N), not O(N^2))
+    expect(liAttrReads).toBe(4)
   })
 
   test('sealed state short-circuits claims after the sweep', () => {
@@ -831,6 +899,196 @@ describe('hydration (SSR resumability)', () => {
     const createdScript = parentElement.querySelector('[data-id="0.0"]')
     expect(createdScript?.tagName).toBe('SCRIPT')
     expect(createdScript?.textContent).toBe('window.__testScriptRan = true')
+    dataSignal.destroy()
+  })
+
+  test('fallback children before an adopted sibling are inserted in forward order', () => {
+    const parentElement = document.createElement('div')
+    parentElement.innerHTML =
+      '<div data-node-id="root" data-id="0"><p data-node-id="para" data-id="0.2">kept</p></div>'
+    const ssrRoot = parentElement.querySelector('[data-id="0"]')!
+    const ssrPara = parentElement.querySelector('[data-id="0.2"]')!
+    const insertedIds: Array<string | null> = []
+    const origInsertBefore = ssrRoot.insertBefore.bind(ssrRoot)
+    ssrRoot.insertBefore = (<T extends Node>(
+      node: T,
+      child: Node | null,
+    ): T => {
+      insertedIds.push(
+        node instanceof Element ? node.getAttribute('data-id') : null,
+      )
+      return origInsertBefore(node, child)
+    }) as typeof ssrRoot.insertBefore
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {},
+    })
+    const ctx = baseCtx({
+      name: 'ScriptOrderPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['script-1', 'script-2', 'para'],
+          attrs: {},
+          events: {},
+        },
+        'script-1': {
+          type: 'element',
+          tag: 'script',
+          children: ['s1-text'],
+          attrs: {},
+          events: {},
+        },
+        's1-text': {
+          type: 'text',
+          value: { type: 'value', value: 'window.__step = 1' },
+        },
+        'script-2': {
+          type: 'element',
+          tag: 'script',
+          children: ['s2-text'],
+          attrs: {},
+          events: {},
+        },
+        's2-text': {
+          type: 'text',
+          value: { type: 'value', value: 'window.__step = 2' },
+        },
+        para: {
+          type: 'element',
+          tag: 'p',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+      },
+    })
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    expect(insertedIds).toEqual(['0.0', '0.1'])
+    expect(ssrRoot.children[2]).toBe(ssrPara)
+    dataSignal.destroy()
+  })
+
+  test('adopted <option> clears parser-stripped raw text before rebuilding text children', () => {
+    const parentElement = document.createElement('div')
+    // Browsers strip <span> wrappers inside <option>, leaving raw text "Foo".
+    parentElement.innerHTML =
+      '<select data-node-id="root" data-id="0"><option data-node-id="opt" data-id="0.0">Foo</option></select>'
+    const ssrOption = parentElement.querySelector('[data-id="0.0"]')!
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {},
+    })
+    const ctx = baseCtx({
+      name: 'SelectPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'select',
+          children: ['opt'],
+          attrs: {},
+          events: {},
+        },
+        opt: {
+          type: 'element',
+          tag: 'option',
+          children: ['opt-text'],
+          attrs: {},
+          events: {},
+        },
+        'opt-text': {
+          type: 'text',
+          value: { type: 'value', value: 'Foo' },
+        },
+      },
+    })
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    expect(parentElement.querySelector('[data-id="0.0"]')).toBe(ssrOption)
+    expect(ssrOption.textContent).toBe('Foo')
+    dataSignal.destroy()
+  })
+
+  test('adopted <textarea> restores its static .value property and unconditional classes', () => {
+    const parentElement = document.createElement('div')
+    parentElement.innerHTML =
+      '<div data-node-id="root" data-id="0">' +
+      '<textarea value="hello" data-node-id="ta" data-id="0.0"></textarea>' +
+      '</div>'
+    const ssrTextarea = parentElement.querySelector(
+      '[data-id="0.0"]',
+    ) as HTMLTextAreaElement
+    // Simulate browser HTML parser behavior where <textarea value="hello"> does not populate .value
+    ssrTextarea.value = ''
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {},
+    })
+    const ctx = baseCtx({
+      name: 'TextareaPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['ta'],
+          attrs: {},
+          events: {},
+        },
+        ta: {
+          type: 'element',
+          tag: 'textarea',
+          children: [],
+          attrs: { value: { type: 'value', value: 'hello' } },
+          classes: { 'always-on': {} },
+          events: {},
+        },
+      },
+    })
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    expect(ssrTextarea.value).toBe('hello')
+    expect(ssrTextarea.classList.contains('always-on')).toBe(true)
+    dataSignal.destroy()
+  })
+
+  test('attrs.class merges with generated style and instance classes on fresh mount', () => {
+    const parentElement = document.createElement('div')
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {},
+    })
+    const ctx = baseCtx({
+      name: 'ClassMergePage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: [],
+          style: { color: 'red' },
+          classes: { 'static-cls': {} },
+          attrs: { class: { type: 'value', value: 'attr-cls' } },
+          events: {},
+        },
+      },
+    })
+    const nodes = createNode({
+      ctx,
+      namespace: xhtml,
+      dataSignal,
+      path: '0',
+      id: 'root',
+      parentElement,
+      instance: { Page: 'root' },
+    })
+    const root = nodes[0] as HTMLElement
+    expect(root.classList.contains('attr-cls')).toBe(true)
+    expect(root.classList.contains('static-cls')).toBe(true)
+    expect(root.classList.contains('Page:root')).toBe(true)
+    expect(root.classList.length).toBe(5)
     dataSignal.destroy()
   })
 })
