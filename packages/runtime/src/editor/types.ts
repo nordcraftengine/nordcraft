@@ -217,7 +217,9 @@ export type EditorPostMessageType =
       type: 'keydown'
       event: {
         key: string
+        code?: string
         metaKey: boolean
+        ctrlKey?: boolean
         shiftKey: boolean
         altKey: boolean
       }
@@ -226,7 +228,9 @@ export type EditorPostMessageType =
       type: 'keyup'
       event: {
         key: string
+        code?: string
         metaKey: boolean
+        ctrlKey?: boolean
         shiftKey: boolean
         altKey: boolean
       }
@@ -235,7 +239,9 @@ export type EditorPostMessageType =
       type: 'keypress'
       event: {
         key: string
+        code?: string
         metaKey: boolean
+        ctrlKey?: boolean
         shiftKey: boolean
         altKey: boolean
       }

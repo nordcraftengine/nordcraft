@@ -4,17 +4,30 @@ import { postMessageToEditor } from './postMessageToEditor'
 export const initKeyListeners = () => {
   const handleKeyEvent =
     (type: 'keydown' | 'keyup' | 'keypress') => (event: KeyboardEvent) => {
-      if (isInputTarget(event)) {
+      const isTargetInput = isInputTarget(event)
+      const key = event.key.toLowerCase()
+      const isCmdShortcut =
+        (event.metaKey || event.ctrlKey) &&
+        (key === 'd' || // design mode
+          key === 'p' || // play mode
+          key === 'i' || // interactive mode (formerly test mode)
+          key === 'k') // quick actions
+
+      if (isTargetInput && !isCmdShortcut) {
         return
       }
-      if (type === 'keydown' && event.key === 'k' && event.metaKey) {
+
+      if (type === 'keydown' && isCmdShortcut) {
         event.preventDefault()
       }
+
       postMessageToEditor({
         type,
         event: {
           key: event.key,
+          code: event.code,
           metaKey: event.metaKey,
+          ctrlKey: event.ctrlKey,
           shiftKey: event.shiftKey,
           altKey: event.altKey,
         },
