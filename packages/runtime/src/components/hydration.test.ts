@@ -1193,3 +1193,792 @@ describe('hydration list replacement', () => {
     parentElement.remove()
   })
 })
+
+describe('hydration SSR/CSR inconsistencies and fallbacks', () => {
+  test('creates missing elements at start, middle, and end while adopting existing siblings in order', () => {
+    const parentElement = document.createElement('div')
+    parentElement.innerHTML =
+      '<div data-node-id="root" data-id="0">' +
+      '<span data-node-id="stale-before" data-id="0.9">stale-1</span>' +
+      '<p data-node-id="second" data-id="0.1"><span data-node-type="text" data-node-id="second-txt" data-id="0.1.0">B</span></p>' +
+      '<em data-node-id="fourth" data-id="0.3"><span data-node-type="text" data-node-id="fourth-txt" data-id="0.3.0">D</span></em>' +
+      '<span data-node-id="stale-after" data-id="0.10">stale-2</span>' +
+      '</div>'
+
+    const ssrRoot = parentElement.querySelector('[data-id="0"]')!
+    const ssrSecond = parentElement.querySelector('[data-id="0.1"]')!
+    const ssrFourth = parentElement.querySelector('[data-id="0.3"]')!
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: { dynamicC: 'C' },
+    })
+    const ctx = baseCtx({
+      name: 'PartialSsrPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['first', 'second', 'third', 'fourth', 'fifth'],
+          attrs: {},
+          events: {},
+        },
+        first: {
+          type: 'element',
+          tag: 'header',
+          children: ['first-txt'],
+          attrs: { 'data-role': { type: 'value', value: 'hdr' } },
+          classes: { 'hdr-cls': {} },
+          events: {},
+        },
+        'first-txt': {
+          type: 'text',
+          value: { type: 'value', value: 'A' },
+        },
+        second: {
+          type: 'element',
+          tag: 'p',
+          children: ['second-txt'],
+          attrs: {},
+          events: {},
+        },
+        'second-txt': {
+          type: 'text',
+          value: { type: 'value', value: 'B' },
+        },
+        third: {
+          type: 'text',
+          value: { type: 'path', path: ['Variables', 'dynamicC'] },
+        },
+        fourth: {
+          type: 'element',
+          tag: 'em',
+          children: ['fourth-txt'],
+          attrs: {},
+          events: {},
+        },
+        'fourth-txt': {
+          type: 'text',
+          value: { type: 'value', value: 'D' },
+        },
+        fifth: {
+          type: 'element',
+          tag: 'footer',
+          children: ['fifth-txt'],
+          attrs: {},
+          events: {},
+        },
+        'fifth-txt': {
+          type: 'text',
+          value: { type: 'value', value: 'E' },
+        },
+      },
+    })
+
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    expect(parentElement.querySelector('[data-id="0"]')).toBe(ssrRoot)
+    // Adopted siblings preserve identity
+    expect(parentElement.querySelector('[data-id="0.1"]')).toBe(ssrSecond)
+    expect(parentElement.querySelector('[data-id="0.3"]')).toBe(ssrFourth)
+    // Stale nodes are swept
+    expect(parentElement.querySelector('[data-id="0.9"]')).toBeNull()
+    expect(parentElement.querySelector('[data-id="0.10"]')).toBeNull()
+
+    // Fallback-created nodes exist in exact order with full attributes/classes
+    const childIds = [...ssrRoot.children].map((c) => c.getAttribute('data-id'))
+    expect(childIds).toEqual(['0.0', '0.1', '0.2', '0.3', '0.4'])
+    expect([...ssrRoot.children].map((c) => c.textContent)).toEqual([
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+    ])
+
+    const createdHeader = ssrRoot.children[0] as HTMLElement
+    expect(createdHeader.tagName).toBe('HEADER')
+    expect(createdHeader.getAttribute('data-role')).toBe('hdr')
+    expect(createdHeader.classList.contains('hdr-cls')).toBe(true)
+
+    // Reactive fallback text node updates properly
+    dataSignal.update((d) => ({ ...d, Variables: { dynamicC: 'C-updated' } }))
+    expect(ssrRoot.children[2]?.textContent).toBe('C-updated')
+
+    dataSignal.destroy()
+  })
+
+  test('fallback-creates a missing intermediate component subtree with slots and repeats without sweeping its descendants', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+    // SSR rendered root and header (0.0), but missed 0.1 (the Card component subtree)
+    parentElement.innerHTML =
+      '<div data-node-id="root" data-id="0">' +
+      '<header data-node-id="hdr" data-id="0.0"><span data-node-type="text" data-node-id="hdr-txt" data-id="0.0.0">Title</span></header>' +
+      '</div>'
+    const ssrHeader = parentElement.querySelector('[data-id="0.0"]')!
+
+    const cardComp: any = {
+      name: 'Card',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'section',
+          children: ['card-list', 'card-slot'],
+          attrs: {},
+          events: {},
+        },
+        'card-list': {
+          type: 'element',
+          tag: 'ul',
+          children: ['card-item'],
+          attrs: {},
+          events: {},
+        },
+        'card-item': {
+          type: 'element',
+          tag: 'li',
+          repeat: { type: 'path', path: ['Attributes', 'tags'] },
+          children: ['item-txt'],
+          attrs: {},
+          events: {},
+        },
+        'item-txt': {
+          type: 'text',
+          value: { type: 'path', path: ['ListItem', 'Item'] },
+        },
+        'card-slot': {
+          type: 'slot',
+          children: [],
+        },
+      },
+    }
+
+    const pageComp: any = {
+      name: 'Page',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['hdr', 'card-inst'],
+          attrs: {},
+          events: {},
+        },
+        hdr: {
+          type: 'element',
+          tag: 'header',
+          children: ['hdr-txt'],
+          attrs: {},
+          events: {},
+        },
+        'hdr-txt': {
+          type: 'text',
+          value: { type: 'value', value: 'Title' },
+        },
+        'card-inst': {
+          type: 'component',
+          name: 'Card',
+          attrs: {
+            tags: { type: 'path', path: ['Variables', 'tags'] },
+          },
+          children: ['slotted-footer'],
+          events: {},
+        },
+        'slotted-footer': {
+          type: 'element',
+          tag: 'footer',
+          children: ['footer-txt'],
+          attrs: {},
+          events: {},
+        },
+        'footer-txt': {
+          type: 'text',
+          value: { type: 'path', path: ['Variables', 'footerLabel'] },
+        },
+      },
+    }
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        tags: ['t1', 't2'],
+        footerLabel: 'Slotted Footer',
+      },
+    })
+    const ctx = baseCtx(pageComp, { components: [cardComp] })
+
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    expect(parentElement.querySelector('[data-id="0.0"]')).toBe(ssrHeader)
+    const cardSection = parentElement.querySelector('[data-id="0.1"]')
+    expect(cardSection?.tagName).toBe('SECTION')
+
+    const items = parentElement.querySelectorAll('li')
+    expect([...items].map((li) => li.textContent)).toEqual(['t1', 't2'])
+
+    const footer = parentElement.querySelector('footer')
+    expect(footer?.textContent).toBe('Slotted Footer')
+
+    // Reactivity works inside the fallback-created component and slot
+    dataSignal.update((d) => ({
+      ...d,
+      Variables: {
+        tags: ['t1', 't2', 't3'],
+        footerLabel: 'Updated Footer',
+      },
+    }))
+    expect(
+      [...parentElement.querySelectorAll('li')].map((li) => li.textContent),
+    ).toEqual(['t1', 't2', 't3'])
+    expect(parentElement.querySelector('footer')?.textContent).toBe(
+      'Updated Footer',
+    )
+
+    dataSignal.destroy()
+    parentElement.remove()
+  })
+
+  test('adopted parent with only stale SSR children sweeps stale children and appends fallback children', () => {
+    const parentElement = document.createElement('div')
+    parentElement.innerHTML =
+      '<div data-node-id="root" data-id="0">' +
+      '<div data-node-id="old-1" data-id="0.88">stale 1</div>' +
+      '<div data-node-id="old-2" data-id="0.99">stale 2</div>' +
+      '</div>'
+    const ssrRoot = parentElement.querySelector('[data-id="0"]')!
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {},
+    })
+    const ctx = baseCtx({
+      name: 'AllStaleChildrenPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['a', 'b'],
+          attrs: {},
+          events: {},
+        },
+        a: {
+          type: 'element',
+          tag: 'span',
+          children: ['a-txt'],
+          attrs: {},
+          events: {},
+        },
+        'a-txt': {
+          type: 'text',
+          value: { type: 'value', value: 'Fresh A' },
+        },
+        b: {
+          type: 'element',
+          tag: 'p',
+          children: ['b-txt'],
+          attrs: {},
+          events: {},
+        },
+        'b-txt': {
+          type: 'text',
+          value: { type: 'value', value: 'Fresh B' },
+        },
+      },
+    })
+
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    expect(parentElement.querySelector('[data-id="0"]')).toBe(ssrRoot)
+    expect(parentElement.querySelector('[data-id="0.88"]')).toBeNull()
+    expect(parentElement.querySelector('[data-id="0.99"]')).toBeNull()
+    expect([...ssrRoot.children].map((c) => c.getAttribute('data-id'))).toEqual(
+      ['0.0', '0.1'],
+    )
+    expect([...ssrRoot.children].map((c) => c.textContent)).toEqual([
+      'Fresh A',
+      'Fresh B',
+    ])
+
+    dataSignal.destroy()
+  })
+
+  test('tag mismatch on middle sibling with subtree replaces it in place while keeping surrounding adopted siblings', () => {
+    const parentElement = document.createElement('div')
+    parentElement.innerHTML =
+      '<div data-node-id="root" data-id="0">' +
+      '<header data-node-id="first" data-id="0.0">Header</header>' +
+      '<div data-node-id="middle" data-id="0.1"><span data-node-id="old-child" data-id="0.1.0">Old Subtree</span></div>' +
+      '<footer data-node-id="last" data-id="0.2">Footer</footer>' +
+      '</div>'
+    const ssrHeader = parentElement.querySelector('[data-id="0.0"]')!
+    const ssrMismatchedDiv = parentElement.querySelector('[data-id="0.1"]')!
+    const ssrFooter = parentElement.querySelector('[data-id="0.2"]')!
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {},
+    })
+    const ctx = baseCtx({
+      name: 'MiddleTagMismatchPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['first', 'middle', 'last'],
+          attrs: {},
+          events: {},
+        },
+        first: {
+          type: 'element',
+          tag: 'header',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+        middle: {
+          type: 'element',
+          tag: 'article',
+          children: ['mid-heading'],
+          attrs: {},
+          events: {},
+        },
+        'mid-heading': {
+          type: 'element',
+          tag: 'h2',
+          children: ['mid-txt'],
+          attrs: {},
+          events: {},
+        },
+        'mid-txt': {
+          type: 'text',
+          value: { type: 'value', value: 'New Subtree' },
+        },
+        last: {
+          type: 'element',
+          tag: 'footer',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+      },
+    })
+
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    const root = parentElement.querySelector('[data-id="0"]')!
+    expect(root.children.length).toBe(3)
+    expect(root.children[0]).toBe(ssrHeader)
+    expect(root.children[2]).toBe(ssrFooter)
+    expect(root.children[1]).not.toBe(ssrMismatchedDiv)
+    expect(root.children[1]?.tagName).toBe('ARTICLE')
+    expect(root.children[1]?.querySelector('h2')?.textContent).toBe(
+      'New Subtree',
+    )
+
+    dataSignal.destroy()
+  })
+
+  test('tag mismatch when SSR has a non-span element at a TextNodeModel path replaces it with a text span', () => {
+    const parentElement = document.createElement('div')
+    parentElement.innerHTML =
+      '<div data-node-id="root" data-id="0">' +
+      '<div data-node-id="txt" data-id="0.0">Wrong Tag</div>' +
+      '<p data-node-id="after" data-id="0.1">Kept</p>' +
+      '</div>'
+    const ssrAfter = parentElement.querySelector('[data-id="0.1"]')!
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {},
+    })
+    const ctx = baseCtx({
+      name: 'TextTagMismatchPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['txt', 'after'],
+          attrs: {},
+          events: {},
+        },
+        txt: {
+          type: 'text',
+          value: { type: 'value', value: 'Correct Text Span' },
+        },
+        after: {
+          type: 'element',
+          tag: 'p',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+      },
+    })
+
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    const root = parentElement.querySelector('[data-id="0"]')!
+    expect(root.children.length).toBe(2)
+    expect(root.children[0]?.tagName).toBe('SPAN')
+    expect(root.children[0]?.getAttribute('data-node-type')).toBe('text')
+    expect(root.children[0]?.textContent).toBe('Correct Text Span')
+    expect(root.children[1]).toBe(ssrAfter)
+
+    dataSignal.destroy()
+  })
+
+  test('out-of-order SSR siblings are claimed via wrap-around scan and reordered to match CSR', () => {
+    const parentElement = document.createElement('div')
+    parentElement.innerHTML =
+      '<div data-node-id="root" data-id="0">' +
+      '<section data-node-id="c" data-id="0.2">Third</section>' +
+      '<header data-node-id="a" data-id="0.0">First</header>' +
+      '<main data-node-id="b" data-id="0.1">Second</main>' +
+      '</div>'
+    const ssrA = parentElement.querySelector('[data-id="0.0"]')!
+    const ssrB = parentElement.querySelector('[data-id="0.1"]')!
+    const ssrC = parentElement.querySelector('[data-id="0.2"]')!
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {},
+    })
+    const ctx = baseCtx({
+      name: 'OutOfOrderSsrPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['a', 'b', 'c'],
+          attrs: {},
+          events: {},
+        },
+        a: {
+          type: 'element',
+          tag: 'header',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+        b: {
+          type: 'element',
+          tag: 'main',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+        c: {
+          type: 'element',
+          tag: 'section',
+          children: [],
+          attrs: {},
+          events: {},
+        },
+      },
+    })
+
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    const root = parentElement.querySelector('[data-id="0"]')!
+    expect([...root.children]).toEqual([ssrA, ssrB, ssrC])
+
+    dataSignal.destroy()
+  })
+
+  test('repeat count mismatch: CSR has more items than SSR (adopts existing and fallback-creates missing items)', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+    // SSR rendered only 2 items, but CSR has 4 items initially
+    parentElement.innerHTML =
+      '<ul data-node-id="root" data-id="0">' +
+      '<li data-node-id="item" data-id="0.0"><span data-node-type="text" data-node-id="txt" data-id="0.0.0">A</span></li>' +
+      '<li data-node-id="item" data-id="0.0(1)"><span data-node-type="text" data-node-id="txt" data-id="0.0(1).0">B</span></li>' +
+      '</ul>'
+    const ssrLi0 = parentElement.querySelector('[data-id="0.0"]')!
+    const ssrLi1 = parentElement.querySelector('[data-id="0.0(1)"]')!
+
+    const items = [
+      { id: 'a', label: 'A' },
+      { id: 'b', label: 'B' },
+      { id: 'c', label: 'C' },
+      { id: 'd', label: 'D' },
+    ]
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: { items },
+    })
+    const ctx = baseCtx({
+      name: 'RepeatMoreOnCsrPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'ul',
+          children: ['item'],
+          attrs: {},
+          events: {},
+        },
+        item: {
+          type: 'element',
+          tag: 'li',
+          repeat: { type: 'path', path: ['Variables', 'items'] },
+          repeatKey: { type: 'path', path: ['ListItem', 'Item', 'id'] },
+          children: ['txt'],
+          attrs: {},
+          events: {},
+        },
+        txt: {
+          type: 'text',
+          value: { type: 'path', path: ['ListItem', 'Item', 'label'] },
+        },
+      },
+    })
+
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    const ul = parentElement.querySelector('[data-id="0"]')!
+    expect(ul.children.length).toBe(4)
+    expect(ul.children[0]).toBe(ssrLi0)
+    expect(ul.children[1]).toBe(ssrLi1)
+    expect([...ul.children].map((c) => c.getAttribute('data-id'))).toEqual([
+      '0.0',
+      '0.0(1)',
+      '0.0(2)',
+      '0.0(3)',
+    ])
+    expect([...ul.children].map((c) => c.textContent)).toEqual([
+      'A',
+      'B',
+      'C',
+      'D',
+    ])
+
+    const fallbackLi2 = ul.children[2]!
+    const fallbackLi3 = ul.children[3]!
+
+    // Reordering preserves both adopted and fallback-created item references
+    dataSignal.update((d) => ({
+      ...d,
+      Variables: { items: [items[3]!, items[1]!, items[2]!, items[0]!] },
+    }))
+    expect([...ul.children]).toEqual([fallbackLi3, ssrLi1, fallbackLi2, ssrLi0])
+
+    dataSignal.destroy()
+    parentElement.remove()
+  })
+
+  test('repeat count mismatch: CSR has fewer items than SSR (adopts subset, sweeps extras, and adds new items cleanly)', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+    // SSR rendered 4 items, CSR only has 2 items initially
+    parentElement.innerHTML =
+      '<ul data-node-id="root" data-id="0">' +
+      '<li data-node-id="item" data-id="0.0"><span data-node-type="text" data-node-id="txt" data-id="0.0.0">A</span></li>' +
+      '<li data-node-id="item" data-id="0.0(1)"><span data-node-type="text" data-node-id="txt" data-id="0.0(1).0">B</span></li>' +
+      '<li data-node-id="item" data-id="0.0(2)"><span data-node-type="text" data-node-id="txt" data-id="0.0(2).0">C</span></li>' +
+      '<li data-node-id="item" data-id="0.0(3)"><span data-node-type="text" data-node-id="txt" data-id="0.0(3).0">D</span></li>' +
+      '</ul>'
+    const ssrLi0 = parentElement.querySelector('[data-id="0.0"]')!
+    const ssrLi1 = parentElement.querySelector('[data-id="0.0(1)"]')!
+
+    const items = [
+      { id: 'a', label: 'A' },
+      { id: 'b', label: 'B' },
+    ]
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: { items },
+    })
+    const ctx = baseCtx({
+      name: 'RepeatFewerOnCsrPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'ul',
+          children: ['item'],
+          attrs: {},
+          events: {},
+        },
+        item: {
+          type: 'element',
+          tag: 'li',
+          repeat: { type: 'path', path: ['Variables', 'items'] },
+          repeatKey: { type: 'path', path: ['ListItem', 'Item', 'id'] },
+          children: ['txt'],
+          attrs: {},
+          events: {},
+        },
+        txt: {
+          type: 'text',
+          value: { type: 'path', path: ['ListItem', 'Item', 'label'] },
+        },
+      },
+    })
+
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    const ul = parentElement.querySelector('[data-id="0"]')!
+    expect(ul.children.length).toBe(2)
+    expect(ul.children[0]).toBe(ssrLi0)
+    expect(ul.children[1]).toBe(ssrLi1)
+    expect(parentElement.querySelector('[data-id="0.0(2)"]')).toBeNull()
+    expect(parentElement.querySelector('[data-id="0.0(3)"]')).toBeNull()
+
+    // Appending a new item after hydration builds a fresh node at 0.0(2)
+    dataSignal.update((d) => ({
+      ...d,
+      Variables: {
+        items: [...items, { id: 'e', label: 'E' }],
+      },
+    }))
+    expect(ul.children.length).toBe(3)
+    expect([...ul.children].map((c) => c.textContent)).toEqual(['A', 'B', 'E'])
+
+    dataSignal.destroy()
+    parentElement.remove()
+  })
+
+  test('repeat count mismatch: SSR rendered 0 items vs CSR has items, and SSR had items vs CSR has 0 items', () => {
+    // Case 1: SSR rendered empty <ul>, CSR has 2 items
+    const parent1 = document.createElement('div')
+    document.body.appendChild(parent1)
+    parent1.innerHTML = '<ul data-node-id="root" data-id="0"></ul>'
+    const ssrUl1 = parent1.querySelector('[data-id="0"]')!
+
+    const listComp = {
+      name: 'ZeroVsManyRepeatPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'ul',
+          children: ['item'],
+          attrs: {},
+          events: {},
+        },
+        item: {
+          type: 'element',
+          tag: 'li',
+          repeat: { type: 'path', path: ['Variables', 'items'] },
+          children: ['txt'],
+          attrs: {},
+          events: {},
+        },
+        txt: {
+          type: 'text',
+          value: { type: 'path', path: ['ListItem', 'Item'] },
+        },
+      },
+    }
+
+    const sig1 = signal<ComponentData>({
+      Attributes: {},
+      Variables: { items: ['One', 'Two'] },
+    })
+    hydrate({
+      ctx: baseCtx(listComp),
+      dataSignal: sig1,
+      parentElement: parent1,
+      path: '0',
+      id: 'root',
+    })
+    expect(parent1.querySelector('[data-id="0"]')).toBe(ssrUl1)
+    expect([...ssrUl1.children].map((c) => c.textContent)).toEqual([
+      'One',
+      'Two',
+    ])
+    sig1.destroy()
+    parent1.remove()
+
+    // Case 2: SSR rendered 2 items, CSR has 0 items initially, then adds 2 items later
+    const parent2 = document.createElement('div')
+    document.body.appendChild(parent2)
+    parent2.innerHTML =
+      '<ul data-node-id="root" data-id="0">' +
+      '<li data-node-id="item" data-id="0.0"><span data-node-type="text" data-node-id="txt" data-id="0.0.0">Old1</span></li>' +
+      '<li data-node-id="item" data-id="0.0(1)"><span data-node-type="text" data-node-id="txt" data-id="0.0(1).0">Old2</span></li>' +
+      '</ul>'
+    const ssrUl2 = parent2.querySelector('[data-id="0"]')!
+
+    const sig2 = signal<ComponentData>({
+      Attributes: {},
+      Variables: { items: [] },
+    })
+    hydrate({
+      ctx: baseCtx(listComp),
+      dataSignal: sig2,
+      parentElement: parent2,
+      path: '0',
+      id: 'root',
+    })
+    expect(parent2.querySelector('[data-id="0"]')).toBe(ssrUl2)
+    expect(ssrUl2.children.length).toBe(0)
+
+    sig2.update((d) => ({ ...d, Variables: { items: ['New1', 'New2'] } }))
+    expect([...ssrUl2.children].map((c) => c.textContent)).toEqual([
+      'New1',
+      'New2',
+    ])
+    sig2.destroy()
+    parent2.remove()
+  })
+
+  test('dynamic attributes, conditional classes, and style variables reconcile SSR/CSR differences on adopted elements', () => {
+    const parentElement = document.createElement('div')
+    parentElement.innerHTML =
+      '<button data-node-id="root" data-id="0" class="keep-cls ssr-active" disabled="true" data-state="ssr" style="--size: 10px;">Click</button>'
+    const ssrBtn = parentElement.querySelector('[data-id="0"]') as HTMLElement
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        isSsr: false,
+        isCsr: true,
+        disabled: false,
+        stateAttr: 'csr',
+        size: 24,
+      },
+    })
+    const ctx = baseCtx({
+      name: 'AttrClassSkewPage',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'button',
+          children: [],
+          classes: {
+            'keep-cls': {},
+            'ssr-active': {
+              formula: { type: 'path', path: ['Variables', 'isSsr'] },
+            },
+            'csr-active': {
+              formula: { type: 'path', path: ['Variables', 'isCsr'] },
+            },
+          },
+          attrs: {
+            disabled: { type: 'path', path: ['Variables', 'disabled'] },
+            'data-state': { type: 'path', path: ['Variables', 'stateAttr'] },
+          },
+          'style-variables': [
+            {
+              name: 'size',
+              formula: { type: 'path', path: ['Variables', 'size'] },
+              unit: 'px',
+            },
+          ],
+          events: {},
+        },
+      },
+    })
+
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    expect(parentElement.querySelector('[data-id="0"]')).toBe(ssrBtn)
+    expect(ssrBtn.classList.contains('keep-cls')).toBe(true)
+    expect(ssrBtn.classList.contains('ssr-active')).toBe(false)
+    expect(ssrBtn.classList.contains('csr-active')).toBe(true)
+    expect(ssrBtn.hasAttribute('disabled')).toBe(false)
+    expect(ssrBtn.getAttribute('data-state')).toBe('csr')
+    expect(ssrBtn.style.getPropertyValue('--size')).toBe('24px')
+
+    dataSignal.destroy()
+  })
+})
