@@ -25,6 +25,9 @@ const component = {
 
 const toddle = { branch: 'main' } as unknown as Toddle<LocationSignal, never>
 
+const sharedStyleSheet = new CSSStyleSheet()
+sharedStyleSheet.replaceSync(':host { color: red; }')
+
 const defineAndCreate = () => {
   const tag = 'test-toddle-attr'
   if (!customElements.get(tag)) {
@@ -32,7 +35,11 @@ const defineAndCreate = () => {
       tag,
       class extends ToddleComponent {
         constructor() {
-          super(component, { components: [component], themes: {} }, toddle)
+          super(
+            component,
+            { components: [component], styleSheet: sharedStyleSheet },
+            toddle,
+          )
         }
 
         static get observedAttributes() {
@@ -45,6 +52,21 @@ const defineAndCreate = () => {
   }
   return document.createElement(tag) as ToddleComponent
 }
+
+describe('ToddleComponent stylesheet', () => {
+  test('it adopts the shared stylesheet instead of creating one per instance', () => {
+    const first = defineAndCreate()
+    const second = defineAndCreate()
+    first.connectedCallback()
+    second.connectedCallback()
+
+    expect(first.shadowRoot?.adoptedStyleSheets).toEqual([sharedStyleSheet])
+    expect(second.shadowRoot?.adoptedStyleSheets).toEqual([sharedStyleSheet])
+
+    first.disconnectedCallback()
+    second.disconnectedCallback()
+  })
+})
 
 describe('ToddleComponent attributeChangedCallback()', () => {
   test('it sets the value on the underlying camelCased attribute', () => {
@@ -74,5 +96,76 @@ describe('ToddleComponent attributeChangedCallback()', () => {
     ).toThrow(
       `Unable to find attribute unknownattr on component ${component.name}`,
     )
+  })
+})
+
+describe('ToddleComponent theme lifecycle', () => {
+  test('it restores cookie theme listener and refreshes theme on reconnect', () => {
+    const listeners = new Set<(event: any) => void>()
+    const originalCookieStoreDescriptor =
+      Object.getOwnPropertyDescriptor(window, 'cookieStore') ??
+      Object.getOwnPropertyDescriptor(
+        Object.getPrototypeOf(window),
+        'cookieStore',
+      )
+    Object.defineProperty(window, 'cookieStore', {
+      value: {
+        addEventListener: (type: string, fn: (event: any) => void) => {
+          if (type === 'change') {
+            listeners.add(fn)
+          }
+        },
+        removeEventListener: (type: string, fn: (event: any) => void) => {
+          if (type === 'change') {
+            listeners.delete(fn)
+          }
+        },
+      },
+      configurable: true,
+      writable: true,
+    })
+
+    let freshEl: ToddleComponent | undefined
+    try {
+      document.cookie = 'nc-theme=light'
+      freshEl = defineAndCreate()
+      expect(listeners.size).toBe(1)
+
+      freshEl.connectedCallback()
+      expect(freshEl.getAttribute('data-nc-theme')).toBe('light')
+      expect(freshEl.__signal.get().Page?.Theme).toBe('light')
+
+      freshEl.disconnectedCallback()
+      expect(listeners.size).toBe(0)
+
+      // Theme cookie changes while disconnected
+      document.cookie = 'nc-theme=dark'
+      freshEl.connectedCallback()
+      expect(freshEl.getAttribute('data-nc-theme')).toBe('dark')
+      expect(freshEl.__signal.get().Page?.Theme).toBe('dark')
+      expect(listeners.size).toBe(1)
+
+      // Theme cookie changes while reconnected via cookieStore event
+      for (const listener of listeners) {
+        listener({
+          changed: [{ name: 'nc-theme', value: 'contrast' }],
+          deleted: [],
+        })
+      }
+      expect(freshEl.getAttribute('data-nc-theme')).toBe('contrast')
+      expect(freshEl.__signal.get().Page?.Theme).toBe('contrast')
+    } finally {
+      freshEl?.disconnectedCallback()
+      if (originalCookieStoreDescriptor) {
+        Object.defineProperty(
+          window,
+          'cookieStore',
+          originalCookieStoreDescriptor,
+        )
+      } else {
+        delete (window as any).cookieStore
+      }
+      document.cookie = 'nc-theme=; Max-Age=0'
+    }
   })
 })

@@ -28,7 +28,7 @@ export function handlePreviewAutofocus({
   if (!showSignal) {
     return
   }
-  let o: Signal<any> | undefined
+  let unsubscribe: (() => void) | undefined
   const setupAttribute = () => {
     if (value.type === 'value') {
       setAttribute(elem, attr, value.value)
@@ -37,16 +37,18 @@ export function handlePreviewAutofocus({
         ? ['nodes', id, 'attrs', attr]
         : undefined
       const formulaCtx = ctx.jsonPath ? { ...ctx, jsonPath: undefined } : ctx
-      o = dataSignal.map((data) => {
-        const val = applyFormula(value, formulaCtx, data, attrPath)
-        if (attrPath) {
-          ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
-        }
-        return val
-      })
-      o.subscribe((val) => {
-        setAttribute(elem, attr, val)
-      })
+      unsubscribe = dataSignal.subscribeMap(
+        (data) => {
+          const val = applyFormula(value, formulaCtx, data, attrPath)
+          if (attrPath) {
+            ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
+          }
+          return val
+        },
+        (val) => {
+          setAttribute(elem, attr, val)
+        },
+      )
     }
   }
   const setup = setupAttribute
@@ -54,7 +56,7 @@ export function handlePreviewAutofocus({
     if (testMode) {
       setup()
     } else {
-      o?.destroy()
+      unsubscribe?.()
       elem.removeAttribute(attr)
     }
   })

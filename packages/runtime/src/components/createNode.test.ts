@@ -2288,4 +2288,66 @@ describe('createNode()', () => {
     expect(insertedNodes).toHaveLength(0)
     expect(parentElement.children[1].classList.contains('active')).toBe(true)
   })
+
+  test('repeat nodes update ListItem.Key when switching from object to array with identical values', () => {
+    const parentElement = document.createElement('div')
+    document.body.appendChild(parentElement)
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        items: { a: 'x' },
+      },
+    })
+
+    const ctx = {
+      isRootComponent: false,
+      component: {
+        name: 'My Component',
+        nodes: {
+          repeat: {
+            type: 'element',
+            tag: 'div',
+            repeat: { type: 'path', path: ['Variables', 'items'] },
+            children: ['text'],
+            attrs: {},
+            events: {},
+          },
+          text: {
+            type: 'text',
+            value: { type: 'path', path: ['ListItem', 'Key'] },
+          },
+        },
+      },
+      root: document,
+      env: { runtime: 'page' },
+      formulaCache: {},
+      toddle: { getCustomFormula: () => undefined },
+    } as any as ComponentContext
+
+    const nodes = createNode({
+      ctx,
+      namespace: 'http://www.w3.org/1999/xhtml',
+      dataSignal,
+      id: 'repeat',
+      path: '0',
+      instance: {},
+      parentElement,
+    })
+    parentElement.append(...nodes)
+
+    expect(parentElement.children.length).toBe(1)
+    expect(parentElement.children[0].textContent).toBe('a')
+
+    dataSignal.update((data) => ({
+      ...data,
+      Variables: {
+        ...data.Variables,
+        items: ['x'],
+      },
+    }))
+
+    expect(parentElement.children.length).toBe(1)
+    expect(parentElement.children[0].textContent).toBe('0')
+  })
 })

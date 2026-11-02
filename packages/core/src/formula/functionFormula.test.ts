@@ -87,4 +87,26 @@ describe('applyFunctionFormula', () => {
     })
     expect(applyFunctionFormula(formula, ctx, {})).toEqual([1, 2, 3])
   })
+
+  it('passes context to legacy formula handlers with default or rest parameters', () => {
+    const formula: FunctionOperation = {
+      type: 'function',
+      name: 'legacyWithDefault',
+      arguments: [],
+    }
+    const baseCtx = createTestFormulaContext()
+    const ctx = {
+      ...baseCtx,
+      toddle: {
+        ...baseCtx.toddle,
+        getCustomFormula: () => undefined,
+        getFormula: (name: string) =>
+          name === 'legacyWithDefault'
+            ? (_args: unknown[] = [], legacyCtx: any) =>
+                legacyCtx?.env?.branchName
+            : undefined,
+      },
+    }
+    expect(applyFunctionFormula(formula, ctx, {})).toBe('main')
+  })
 })

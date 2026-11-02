@@ -1,55 +1,54 @@
 import type {
   Component,
   ComponentData,
-  ComponentFormula,
   Formula,
   FunctionOperation,
-  Nullable,
 } from '@nordcraft/core'
-import { filterObject, get, isDefined, mapObject } from '@nordcraft/core'
+import { get, isDefined } from '@nordcraft/core'
 import type { FormulaCache } from '../types'
+
+// Components without memoized formulas can share this empty cache. The object
+// itself is never written to (only the per-formula entries returned by `get`).
+const EMPTY_FORMULA_CACHE: FormulaCache = Object.create(null)
 
 export function createFormulaCache(component: Component): FormulaCache {
   if (!isDefined(component.formulas)) {
-    return {}
+    return EMPTY_FORMULA_CACHE
   }
-  return mapObject(
-    filterObject<Nullable<ComponentFormula>, ComponentFormula>(
-      component.formulas,
-      ([_, f]) => isDefined(f),
-    ),
-    ([name, f]) => {
-      const { canCache, keys } = f.memoize
-        ? getFormulaCacheConfig(f.formula, component)
-        : { canCache: false, keys: [] }
-      let cacheInput: any
-      let cacheData: any
+  let cache: FormulaCache | undefined
+  const formulas = component.formulas
+  for (const name in formulas) {
+    const f = formulas[name]
+    if (!f?.memoize) {
+      continue
+    }
+    const { canCache, keys } = getFormulaCacheConfig(f.formula, component)
+    if (!canCache) {
+      continue
+    }
+    cache ??= Object.create(null) as FormulaCache
+    let cacheInput: any
+    let cacheData: any
 
-      return [
-        name,
-        {
-          get: (data: ComponentData) => {
-            if (
-              canCache &&
-              cacheInput &&
-              keys.every((key) => {
-                return get(data, key) === get(cacheInput, key)
-              })
-            ) {
-              return { hit: true, data: cacheData }
-            }
-            return { hit: false }
-          },
-          set: (data: ComponentData, result: any) => {
-            if (canCache) {
-              cacheInput = data
-              cacheData = result
-            }
-          },
-        },
-      ]
-    },
-  )
+    cache[name] = {
+      get: (data: ComponentData) => {
+        if (
+          cacheInput &&
+          keys.every((key) => {
+            return get(data, key) === get(cacheInput, key)
+          })
+        ) {
+          return { hit: true, data: cacheData }
+        }
+        return { hit: false }
+      },
+      set: (data: ComponentData, result: any) => {
+        cacheInput = data
+        cacheData = result
+      },
+    }
+  }
+  return cache ?? EMPTY_FORMULA_CACHE
 }
 
 function getFormulaCacheConfig(formula: Formula, component: Component) {

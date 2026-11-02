@@ -32,7 +32,7 @@ import {
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
-import type { Signal } from '../signal/signal'
+import { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
 import { ApiAbortHandler } from './apiUtils'
 
@@ -271,7 +271,7 @@ export function createAPI({
             [api.name]: value,
           },
         },
-        { force: true },
+        Signal.FORCE_UPDATE,
       )
     }
 
@@ -317,7 +317,7 @@ export function createAPI({
               [api.name]: redirectValue,
             },
           },
-          { force: true },
+          Signal.FORCE_UPDATE,
         )
       }
     }
@@ -365,7 +365,7 @@ export function createAPI({
             [api.name]: value,
           },
         },
-        { force: true },
+        Signal.FORCE_UPDATE,
       )
     }
 
@@ -411,7 +411,7 @@ export function createAPI({
               [api.name]: redirectValue,
             },
           },
-          { force: true },
+          Signal.FORCE_UPDATE,
         )
       }
     }
@@ -453,7 +453,7 @@ export function createAPI({
               [api.name]: value,
             },
           },
-          { force: true },
+          Signal.FORCE_UPDATE,
         )
       }
 
@@ -894,7 +894,7 @@ export function createAPI({
                   [api.name]: value,
                 },
               },
-              { force: true },
+              Signal.FORCE_UPDATE,
             )
           }
           if ((api.client?.onMessage?.actions ?? []).length > 0) {
@@ -1172,21 +1172,20 @@ export function createAPI({
         // If it is set and autoFetch is false, we do not want to reset it.
         // We know the value has changed (a new key is added), so we can safely
         // `{ force: true }` to skip deep equality check in signal.
-        ctx.dataSignal.update(
-          (data) => {
-            return {
-              ...data,
-              Apis: {
-                ...(data.Apis ?? {}),
-                [api.name]: {
-                  isLoading: false,
-                  data: null,
-                  error: null,
-                },
+        const data = ctx.dataSignal.value
+        ctx.dataSignal.set(
+          {
+            ...data,
+            Apis: {
+              ...(data.Apis ?? {}),
+              [api.name]: {
+                isLoading: false,
+                data: null,
+                error: null,
               },
-            }
+            },
           },
-          { force: true },
+          Signal.FORCE_UPDATE,
         )
       }
     }

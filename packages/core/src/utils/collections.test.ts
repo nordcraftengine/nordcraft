@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test'
 import {
   filterObject,
+  get,
   mapObject,
   mapValues,
   omit,
@@ -125,5 +126,22 @@ describe('mapObject()', () => {
 
   test('it handles empty objects', () => {
     expect(mapObject({}, (kv) => kv)).toEqual({})
+  })
+})
+
+describe('get()', () => {
+  test('it resolves 0, 1, 2, 3, and 4+ segment paths', () => {
+    const data = { a: { b: { c: { d: 42 } } } }
+    expect(get(data, [])).toBe(data)
+    expect(get(data, ['a'])).toBe(data.a)
+    expect(get(data, ['a', 'b'])).toBe(data.a.b)
+    expect(get(data, ['a', 'b', 'c'])).toBe(data.a.b.c)
+    expect(get(data, ['a', 'b', 'c', 'd'])).toBe(42)
+  })
+
+  test('it returns undefined when intermediate value is null or undefined, and indexes into strings', () => {
+    const data = { a: { b: null }, str: 'hello' }
+    expect(get(data, ['a', 'b', 'c'])).toBeUndefined()
+    expect(get(data, ['str', 0])).toBe('h')
   })
 })

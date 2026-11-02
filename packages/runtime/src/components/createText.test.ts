@@ -114,4 +114,35 @@ describe('createText()', () => {
     })
     expect(textElement.textContent).toBe('Hello world')
   })
+  test('Newlines in text elements use innerText to preserve line breaks', () => {
+    const dataSignal = new Signal<ComponentData>({
+      Attributes: { text: 'first\nsecond' },
+    })
+    const dynamicTextElement = createText({
+      ctx: { dataSignal } as Partial<ComponentContext> as any,
+      dataSignal,
+      path: '',
+      id: '',
+      node: {
+        type: 'text',
+        value: {
+          type: 'path',
+          path: ['Attributes', 'text'],
+        },
+      },
+    }) as HTMLSpanElement
+    expect(dynamicTextElement.innerHTML).toBe('first<br>second')
+
+    const staticTextElement = createText({
+      ctx: {} as Partial<ComponentContext> as any,
+      dataSignal: undefined as any,
+      path: '',
+      id: '',
+      node: {
+        type: 'text',
+        value: valueFormula('line1\nline2'),
+      },
+    }) as HTMLSpanElement
+    expect(staticTextElement.innerHTML).toBe('line1<br>line2')
+  })
 })

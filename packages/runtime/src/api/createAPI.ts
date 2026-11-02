@@ -14,7 +14,7 @@ import {
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
-import type { Signal } from '../signal/signal'
+import { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 
 export type ApiRequest = {
@@ -186,7 +186,7 @@ export function createLegacyAPI(
             [api.name]: value,
           },
         },
-        { force: true },
+        Signal.FORCE_UPDATE,
       )
     }
     api.onCompleted?.actions?.forEach((action) => {
@@ -210,7 +210,7 @@ export function createLegacyAPI(
             [api.name]: value,
           },
         },
-        { force: true },
+        Signal.FORCE_UPDATE,
       )
     }
     api.onFailed?.actions?.forEach((action) => {
@@ -235,7 +235,7 @@ export function createLegacyAPI(
             [api.name]: value,
           },
         },
-        { force: true },
+        Signal.FORCE_UPDATE,
       )
     }
     let response
@@ -300,69 +300,70 @@ export function createLegacyAPI(
     }
   }
 
-  let payloadSignal: Signal<ApiRequest> | undefined
+  let unsubscribePayload: (() => void) | undefined
   if (!ctx.dataSignal.get().Apis?.[api.name]) {
-    ctx.dataSignal.update(
-      (data) => {
-        return {
-          ...data,
-          Apis: {
-            ...(data.Apis ?? {}),
-            [api.name]: data.Apis?.[api.name] ?? {
-              data: null,
-              isLoading:
-                api.autoFetch &&
-                applyFormula(
-                  api.autoFetch,
-                  ctx,
-                  data,
-                  IS_PREVIEW ? ['autoFetch'] : undefined,
-                )
-                  ? true
-                  : false,
-              error: null,
-            },
+    const data = ctx.dataSignal.value
+    ctx.dataSignal.set(
+      {
+        ...data,
+        Apis: {
+          ...(data.Apis ?? {}),
+          [api.name]: data.Apis?.[api.name] ?? {
+            data: null,
+            isLoading:
+              api.autoFetch &&
+              applyFormula(
+                api.autoFetch,
+                ctx,
+                data,
+                IS_PREVIEW ? ['autoFetch'] : undefined,
+              )
+                ? true
+                : false,
+            error: null,
           },
-        }
+        },
       },
-      { force: true },
+      Signal.FORCE_UPDATE,
     )
   }
   if (api.autoFetch) {
-    payloadSignal = ctx.dataSignal.map((data) => constructPayload(api, data))
     let firstRun = true
-    payloadSignal.subscribe((body) => {
-      const currentData = ctx.dataSignal.get()
-      if (
-        api.autoFetch &&
-        applyFormula(
-          api.autoFetch,
-          ctx,
-          currentData,
-          IS_PREVIEW ? ['autoFetch'] : undefined,
-        )
-      ) {
-        // We should only lookup cached data for pages since
-        // we don't fetch data for component APIs during SSR
-        if (firstRun && ctx.isRootComponent) {
-          firstRun = false
-          const cached = ctx.toddle?.pageState?.Apis?.[api.name]
-          if (cached?.data) {
-            if (typeof cached.data === 'string') {
-              // Mimic the behavior from getBody and parse
-              // the response to JSON if possible
-              apiSuccess(parseJSONWithDate(cached.data))
+    unsubscribePayload = ctx.dataSignal.subscribeMap(
+      (data) => constructPayload(api, data),
+      (body) => {
+        const currentData = ctx.dataSignal.get()
+        if (
+          api.autoFetch &&
+          applyFormula(
+            api.autoFetch,
+            ctx,
+            currentData,
+            IS_PREVIEW ? ['autoFetch'] : undefined,
+          )
+        ) {
+          // We should only lookup cached data for pages since
+          // we don't fetch data for component APIs during SSR
+          if (firstRun && ctx.isRootComponent) {
+            firstRun = false
+            const cached = ctx.toddle?.pageState?.Apis?.[api.name]
+            if (cached?.data) {
+              if (typeof cached.data === 'string') {
+                // Mimic the behavior from getBody and parse
+                // the response to JSON if possible
+                apiSuccess(parseJSONWithDate(cached.data))
+              } else {
+                apiSuccess(cached.data)
+              }
             } else {
-              apiSuccess(cached.data)
+              trigger(body)
             }
           } else {
             trigger(body)
           }
-        } else {
-          trigger(body)
         }
-      }
-    })
+      },
+    )
   }
   return {
     fetch: (request?: ApiRequest) => {
@@ -393,6 +394,6 @@ export function createLegacyAPI(
       }
       return trigger(payload)
     },
-    destroy: () => payloadSignal?.destroy(),
+    destroy: () => unsubscribePayload?.(),
   }
 }
