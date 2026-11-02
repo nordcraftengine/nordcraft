@@ -296,7 +296,9 @@ export function applyFormula(
     return report(undefined)
   }
 
-  if (!isFormula(formula)) {
+  // Fast path for the common case: only formula-shaped objects need dispatch.
+  // Anything else is a plain value and is returned as-is.
+  if (formula === null || typeof formula !== 'object') {
     return formula
   }
   try {
@@ -322,7 +324,10 @@ export function applyFormula(
       case 'apply':
         return applyApplyFormula(formula, ctx, data)
       default:
-        if (ctx?.env?.logErrors) {
+        if (
+          FORMULA_TYPES_SET.has((formula as Formula).type) &&
+          ctx?.env?.logErrors
+        ) {
           console.error('Could not recognize formula', formula)
         }
     }
@@ -333,5 +338,5 @@ export function applyFormula(
     return null
   }
 
-  return undefined
+  return formula
 }

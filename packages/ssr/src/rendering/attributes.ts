@@ -15,6 +15,8 @@ import {
 const REGEXP_QUOTE = /"/g
 const REGEXP_LT = /</g
 const REGEXP_GT = />/g
+// Attribute values only need escaping when they contain one of these chars.
+const REGEXP_ATTR_SPECIAL = /[<>"]/
 
 export const escapeAttrValue = (value: any) => {
   if (!isDefined(value)) {
@@ -28,7 +30,10 @@ export const escapeAttrValue = (value: any) => {
   ) {
     return ''
   }
-  return escapeHtml(escapeQuote(String(value)))
+  const str = String(value)
+  // Most values (class names, ids, urls, plain text) contain no special
+  // characters, so avoid allocating replacement strings for them.
+  return REGEXP_ATTR_SPECIAL.test(str) ? escapeHtml(escapeQuote(str)) : str
 }
 
 const escapeQuote = (value: string) => {
@@ -39,17 +44,27 @@ const escapeHtml = (html: string) => {
   return html.replace(REGEXP_LT, '&lt;').replace(REGEXP_GT, '&gt;')
 }
 
+const REGEXP_TEXT_SPECIAL = /[&<>"'\n]/
+const TEXT_ESCAPES: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '\n': '<br />',
+}
+
 /**
  * Escape a string to valid HTML text similar to how set innerText would work in the browser
  */
 export const toEncodedText = (str: string) => {
-  return str
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
-    .replaceAll('\n', '<br />')
+  // The common case is text with nothing to escape.
+  if (!REGEXP_TEXT_SPECIAL.test(str)) {
+    return str
+  }
+  // Single pass avoids creating a new intermediate string per replacement and
+  // can never double-escape an inserted entity.
+  return str.replace(REGEXP_TEXT_SPECIAL, (char) => TEXT_ESCAPES[char]!)
 }
 
 export function getNodeAttrs({

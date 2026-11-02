@@ -2,8 +2,6 @@ import type {
   ApiStatus,
   Component,
   ComponentData,
-  ComponentFormula,
-  ComponentVariable,
   FormulaContext,
   LegacyApiStatus,
   MediaQuery,
@@ -21,11 +19,8 @@ import {
   DATA_ATTR_NODE_ID,
   DATA_ATTR_NODE_TYPE,
   DATA_NODE_TYPE_TEXT,
-  filterObject,
-  getClassName,
   getNodeSelector,
   getPathClassName,
-  getStaticStyleAndVariants,
   isDefined,
   mapValues,
   repeatPath,
@@ -38,6 +33,13 @@ import {
 import type { ProjectFiles } from '../ssr.types'
 import type { ApiCache, ApiEvaluator } from './api'
 import { escapeAttrValue, getNodeAttrs, toEncodedText } from './attributes'
+import {
+  getComponentVariables,
+  getExposedContextFormulas,
+  getIncludedComponentNames,
+  getLowerCaseTag,
+  getStaticClassName,
+} from './staticCache'
 
 type CustomPropertyRule = `--${string}: ${string}`
 type SlottedContentOptions = {
@@ -250,7 +252,7 @@ const renderComponent = async ({
         }
       }
       case 'element': {
-        const lowerTag = node.tag.toLocaleLowerCase()
+        const lowerTag = getLowerCaseTag(node.tag)
         switch (lowerTag) {
           case 'script': {
             // We do not render script tags on the server until we support custom code formulas during SSR.
@@ -276,9 +278,9 @@ const renderComponent = async ({
         const classList: string[] = []
         // Fast path: Skip entirely when empty.
         if (node.style || node.customProperties || node.variants) {
-          const [style, variants] = getStaticStyleAndVariants(node)
-          if (style || variants) {
-            classList.push(getClassName([style, variants]))
+          const staticClassName = getStaticClassName(node)
+          if (staticClassName) {
+            classList.push(staticClassName)
           }
         }
 
@@ -423,16 +425,10 @@ const renderComponent = async ({
         const contexts = {
           ...data.Contexts,
           [component.name]: Object.fromEntries(
-            Object.entries(component.formulas ?? {})
-              .filter(([, formula]) => formula?.exposeInContext)
-              .map(([key, formula]) => [
-                key,
-                applyFormula(
-                  (formula as ComponentFormula).formula,
-                  formulaContext,
-                  data,
-                ),
-              ]),
+            getExposedContextFormulas(component).map(([key, formula]) => [
+              key,
+              applyFormula(formula.formula, formulaContext, data),
+            ]),
           ),
         }
 
@@ -458,9 +454,9 @@ const renderComponent = async ({
         // help Typescript know that childComponent is defined
         const childComponent = _childComponent
 
-        const isLocalComponent = includedComponents.some(
-          (c) => c.name === childComponent.name,
-        )
+        const isLocalComponent = getIncludedComponentNames(
+          includedComponents,
+        ).has(childComponent.name)
 
         const childFormulaContext: FormulaContext = {
           component: childComponent,
@@ -477,10 +473,7 @@ const renderComponent = async ({
           Apis: {},
         }
         childData.Variables = mapValues(
-          filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-            childComponent.variables ?? {},
-            ([_, variable]) => isDefined(variable),
-          ),
+          getComponentVariables(childComponent),
           ({ initialValue }) => {
             return applyFormula(initialValue, childFormulaContext, childData)
           },
@@ -560,25 +553,21 @@ const renderComponent = async ({
                     ...data.Contexts,
                     ...contexts,
                     [childComponent.name]: Object.fromEntries(
-                      Object.entries(childComponent.formulas ?? {})
-                        .filter(([, formula]) => formula?.exposeInContext)
-                        .map(([key, formula]) => [
+                      getExposedContextFormulas(childComponent).map(
+                        ([key, formula]) => [
                           key,
                           applyFormula(
-                            (formula as ComponentFormula).formula,
+                            formula.formula,
                             childContextFormulaCtx,
                             {
                               Contexts: {
                                 ...data.Contexts,
                                 ...Object.fromEntries(
-                                  Object.entries(childComponent.formulas ?? {})
-                                    .filter(
-                                      ([, formula]) => formula?.exposeInContext,
-                                    )
-                                    .map(([key, formula]) => [
+                                  getExposedContextFormulas(childComponent).map(
+                                    ([key, formula]) => [
                                       key,
                                       applyFormula(
-                                        (formula as ComponentFormula).formula,
+                                        formula.formula,
                                         parentContextFormulaCtx,
                                         {
                                           Attributes: attrs,
@@ -587,19 +576,14 @@ const renderComponent = async ({
                                           Page: data.Page,
                                         },
                                       ),
-                                    ]),
+                                    ],
+                                  ),
                                 ),
                               },
                               Apis: apis,
                               Attributes: attrs,
                               Variables: mapValues(
-                                filterObject<
-                                  Nullable<ComponentVariable>,
-                                  ComponentVariable
-                                >(
-                                  childComponent.variables ?? {},
-                                  ([_, variable]) => isDefined(variable),
-                                ),
+                                getComponentVariables(childComponent),
                                 ({ initialValue }) => {
                                   return applyFormula(
                                     initialValue,
@@ -614,7 +598,8 @@ const renderComponent = async ({
                               ),
                             },
                           ),
-                        ]),
+                        ],
+                      ),
                     ),
                   },
                 },
@@ -817,10 +802,7 @@ const createComponent = async ({
 
   // Variables initial value has access to component data like attributes, so must be applied after formulaContext is somewhat populated
   data.Variables = mapValues(
-    filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-      component.variables ?? {},
-      ([_, variable]) => isDefined(variable),
-    ),
+    getComponentVariables(component),
     ({ initialValue }) => {
       return applyFormula(initialValue, formulaContext, data)
     },
@@ -832,16 +814,10 @@ const createComponent = async ({
     [component.name]: {
       ...data.Contexts?.[component.name],
       ...Object.fromEntries(
-        Object.entries(component.formulas ?? {})
-          .filter(([, formula]) => formula?.exposeInContext)
-          .map(([key, formula]) => [
-            key,
-            applyFormula(
-              (formula as ComponentFormula).formula,
-              formulaContext,
-              data,
-            ),
-          ]),
+        getExposedContextFormulas(component).map(([key, formula]) => [
+          key,
+          applyFormula(formula.formula, formulaContext, data),
+        ]),
       ),
     },
   }
