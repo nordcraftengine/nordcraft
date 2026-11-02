@@ -64,7 +64,6 @@ export type NordcraftPreviewEvent =
     }
   | { type: 'theme'; theme: Record<string, OldTheme | Theme> }
   | { type: 'mode'; mode: EditorMode }
-  | { type: 'attrs'; attrs: Record<string, unknown> }
   | {
       type: 'selection'
       selectedNodeId: string | null

@@ -489,33 +489,6 @@ export const createRoot = (
           requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
           break
         }
-        case 'attrs': {
-          if (
-            message.data.attrs &&
-            fastDeepEqual(message.data.attrs, dataSignal.get().Attributes) ===
-              false
-          ) {
-            const attrs = message.data.attrs
-            dataSignal.update((data) => {
-              // TODO: We should figure out if "Props" is used anywhere and get rid of it if it's not
-              const newData: ComponentData & {
-                Props: Record<string, unknown>
-              } = {
-                ...data,
-                Location:
-                  data.Location && component?.page
-                    ? {
-                        ...data.Location,
-                        query: attrs as Record<string, string>,
-                      }
-                    : data.Location,
-                Props: attrs ?? {},
-              }
-              return newData
-            })
-          }
-          break
-        }
         case 'selection': {
           if (selectedNodeId !== message.data.selectedNodeId) {
             if (clearPreviewStyleTimeout) {
