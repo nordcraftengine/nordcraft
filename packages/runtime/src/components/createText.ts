@@ -16,6 +16,7 @@ import {
 } from '@nordcraft/core'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
+import { claimHydratedChild, type HydrationState } from './hydration'
 
 export type RenderTextProps = {
   node: TextNodeModel
@@ -24,6 +25,8 @@ export type RenderTextProps = {
   path: string
   namespace?: SupportedNamespaces
   ctx: ComponentContext
+  parentElement?: Element | ShadowRoot
+  hydration?: HydrationState
 }
 
 /**
@@ -39,6 +42,8 @@ export function createText({
   dataSignal,
   namespace,
   ctx,
+  parentElement,
+  hydration,
 }: RenderTextProps): HTMLSpanElement | Text {
   // Span element is not valid outside of the default namespace
   if (namespace && namespace !== 'http://www.w3.org/1999/xhtml') {
@@ -46,7 +51,19 @@ export function createText({
   }
 
   const { value } = node
-  const elem = document.createElement('span')
+  const claimed =
+    IS_PAGE && hydration && !hydration.sealed && parentElement
+      ? (claimHydratedChild(
+          parentElement,
+          path,
+          hydration,
+          'span',
+        ) as HTMLSpanElement | null)
+      : null
+  const elem = claimed ?? document.createElement('span')
+  if (IS_PAGE && hydration && !hydration.sealed && !claimed) {
+    hydration.adopted.add(elem)
+  }
 
   // This is editor only logic and we should move out of the runtime bundle when possible
   if (
@@ -70,18 +87,19 @@ export function createText({
       elem.setAttribute('data-node-slot-name', slotName)
     }
   }
-  if (ctx.isRootComponent) {
-    elem.setAttribute('data-is-root-component', 'true')
+  if (!claimed) {
+    if (ctx.isRootComponent) {
+      elem.setAttribute('data-is-root-component', 'true')
+    }
+    elem.setAttribute(DATA_ATTR_NODE_ID, id)
+    if (typeof id === 'string') {
+      elem.setAttribute(DATA_ATTR_ID, path)
+    }
+    if (ctx.isRootComponent === false) {
+      elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
+    }
+    elem.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
   }
-
-  elem.setAttribute(DATA_ATTR_NODE_ID, id)
-  if (typeof id === 'string') {
-    elem.setAttribute(DATA_ATTR_ID, path)
-  }
-  if (ctx.isRootComponent === false) {
-    elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
-  }
-  elem.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
   if (value.type !== 'value') {
     const valuePath =
       IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
@@ -99,7 +117,9 @@ export function createText({
         ctx,
       )
     }
-    elem.innerText = String(value.value)
+    if (!claimed) {
+      elem.innerText = String(value.value)
+    }
   }
   return elem
 }

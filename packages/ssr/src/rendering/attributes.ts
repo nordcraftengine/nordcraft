@@ -3,7 +3,14 @@ import type {
   ElementNodeModel,
   FormulaContext,
 } from '@nordcraft/core'
-import { applyFormula, isDefined, toBoolean } from '@nordcraft/core'
+import {
+  applyFormula,
+  DATA_ATTR_COMPONENT,
+  DATA_ATTR_ID,
+  DATA_ATTR_NODE_ID,
+  isDefined,
+  toBoolean,
+} from '@nordcraft/core'
 
 const REGEXP_QUOTE = /"/g
 const REGEXP_LT = /</g
@@ -57,6 +64,13 @@ export function getNodeAttrs({
   const { style, ...restAttrs } = node.attrs ?? {}
   const nodeAttrs: string[] = []
   for (const name in restAttrs) {
+    if (
+      name === DATA_ATTR_ID ||
+      name === DATA_ATTR_NODE_ID ||
+      name === DATA_ATTR_COMPONENT
+    ) {
+      continue
+    }
     const value = applyFormula(restAttrs[name], formulaContext, data)
     if (toBoolean(value)) {
       nodeAttrs.push(`${name}="${escapeAttrValue(value)}"`)

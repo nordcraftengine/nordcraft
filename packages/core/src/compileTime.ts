@@ -13,6 +13,7 @@
 declare global {
   var IS_PREVIEW: boolean
   var IS_CUSTOM_ELEMENT: boolean
+  var IS_PAGE: boolean
 }
 
 // Runtime fallback for unbundled environments (unit tests and SSR etc.) where
@@ -23,6 +24,9 @@ if (typeof IS_PREVIEW === 'undefined') {
 }
 if (typeof IS_CUSTOM_ELEMENT === 'undefined') {
   globalThis.IS_CUSTOM_ELEMENT = true
+}
+if (typeof IS_PAGE === 'undefined') {
+  globalThis.IS_PAGE = true
 }
 
 export {}
