@@ -3,6 +3,9 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-fallthrough */
 import type {
+  Component,
+  ComponentData,
+  ComponentFormula,
   FormulaContext,
   FormulaEvaluationReporter,
   Theme,
@@ -14,9 +17,6 @@ import {
   isPageComponent,
   THEME_COOKIE_NAME,
   THEME_DATA_ATTRIBUTE,
-  type Component,
-  type ComponentData,
-  type ComponentFormula,
 } from '@nordcraft/core'
 import fastDeepEqual from 'fast-deep-equal'
 import { createNode } from './components/createNode'
