@@ -6,13 +6,13 @@ import type {
 } from '@nordcraft/core'
 import {
   applyFormula,
+  deepEquals,
   isFormula,
   mapHeadersToObject,
   mapObject,
   parseJSONWithDate,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
-import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
@@ -177,7 +177,7 @@ export function createLegacyAPI(
       isLoading: false,
     }
 
-    if (fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
+    if (deepEquals(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
       ctx.dataSignal.set(
         {
           ...ctx.dataSignal.get(),
@@ -201,7 +201,7 @@ export function createLegacyAPI(
       error: error,
     }
 
-    if (fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
+    if (deepEquals(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
       ctx.dataSignal.set(
         {
           ...ctx.dataSignal.get(),
@@ -226,7 +226,7 @@ export function createLegacyAPI(
       error: null,
     }
 
-    if (fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
+    if (deepEquals(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
       ctx.dataSignal.set(
         {
           ...ctx.dataSignal.get(),

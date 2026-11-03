@@ -16,6 +16,7 @@ import type {
 } from '@nordcraft/core'
 import {
   applyFormula,
+  deepEquals,
   filterObject,
   isDefined,
   isLegacyApi,
@@ -26,7 +27,6 @@ import {
 import '@nordcraft/core/compileTime'
 import * as libActions from '@nordcraft/std-lib/actions'
 import * as libFormulas from '@nordcraft/std-lib/formulas'
-import fastDeepEqual from 'fast-deep-equal'
 import { match } from 'path-to-regexp'
 import { isContextApiV2 } from './api/apiUtils'
 import { createLegacyAPI } from './api/createAPI'
@@ -68,7 +68,7 @@ export const initGlobalObject = (code?: {
     const legacyFormulas: Record<string, FormulaHandler> = {}
     const argumentInputDataList: Record<string, ArgumentInputDataFunction> = {}
     const toddle: Toddle<LocationSignal, never> = {
-      isEqual: fastDeepEqual,
+      isEqual: deepEquals,
       errors: [],
       project: window.__toddle.project,
       branch: window.__toddle.branch,

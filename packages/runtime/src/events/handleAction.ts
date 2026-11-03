@@ -7,13 +7,13 @@ import type {
 } from '@nordcraft/core'
 import {
   applyFormula,
+  deepEquals,
   isDefined,
   mapObject,
   omitKeys,
   toBoolean,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
-import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import type { ComponentContext, Location } from '../types'
 import { getLocationUrl } from '../utils/url'
@@ -65,7 +65,7 @@ export function handleAction(
 
         // Fast-path as it is cheaper to check just the value than performing a deep update
         // on the entire new state. We can then `{ force: true }` to skip deep equality check in signal.
-        if (fastDeepEqual(current, value)) {
+        if (deepEquals(current, value)) {
           break
         }
 
@@ -127,7 +127,7 @@ export function handleAction(
           }
           // Short-circuit as it is cheaper to check just the params than performing a deep update
           // on the entire location. We can then `{ force: true }` to skip deep equality check in signal.
-          if (fastDeepEqual(current.params, newParams)) {
+          if (deepEquals(current.params, newParams)) {
             break
           }
           newLocation = {
@@ -146,7 +146,7 @@ export function handleAction(
           }
           // Short-circuit as it is cheaper to check just the query than performing a deep update
           // on the entire location. We can then `{ force: true }` to skip deep equality check in signal.
-          if (fastDeepEqual(current.query, newQuery)) {
+          if (deepEquals(current.query, newQuery)) {
             break
           }
           newLocation = {
@@ -237,7 +237,7 @@ export function handleAction(
         // Short-circuit as it is cheaper to check the new location once here than
         // performing a deep equality check on the entire location in the signal.
         // We can then `{ force: true }` to skip deep equality check in signal.
-        if (fastDeepEqual(newLocation, current)) {
+        if (deepEquals(newLocation, current)) {
           // No path/query parameter changed
           break
         }

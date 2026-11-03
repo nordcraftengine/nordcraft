@@ -1,4 +1,4 @@
-import fastDeepEqual from 'fast-deep-equal'
+import { deepEquals } from '@nordcraft/core'
 
 export class Signal<T> {
   value: T
@@ -24,7 +24,7 @@ export class Signal<T> {
       return
     }
 
-    if (options?.force || fastDeepEqual(value, this.value) === false) {
+    if (options?.force || deepEquals(value, this.value) === false) {
       this.value = value
       for (const subscriber of this.subscribers) {
         subscriber.notify(this.value)
@@ -86,5 +86,5 @@ export function signal<T>(value: T) {
 
 if (typeof window !== 'undefined') {
   ;(window as any).signal = signal
-  ;(window as any).deepEqual = fastDeepEqual
+  ;(window as any).deepEqual = deepEquals
 }

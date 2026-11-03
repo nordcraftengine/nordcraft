@@ -6,6 +6,7 @@ let nordcraftProject
 let nordcraftSsrTemplate
 let pricingSsrTemplate
 let customElementRuntime
+let signalHeavyUpdates
 
 async function loadFixture(url, name) {
   const [runtime, fixture] = await Promise.all([
@@ -113,6 +114,191 @@ function setupStylesPage() {
 
 function setupContextPage() {
   return setupPage(project, 'ContextPage')
+}
+
+const SMALL_CONSUMERS = 240
+const MEDIUM_CONSUMERS = 40
+const LARGE_CONSUMERS = 20
+const ITEM_COUNT = 60
+const CHANGED_ITEM_INDEX = 30
+
+/**
+ * Signal-heavy updates benchmark
+ * Models a standard project where a page-level data signal is fanned out to
+ * 300 derived component signals: 240 small text/attribute signals, 40 medium
+ * card signals and 20 large signals that receive the full shared dataset.
+ * Each update replaces the dataset snapshot with a deeply equal copy that has a
+ * single changed item, so most derived signals stay deeply equal and skip their
+ * subscribers while the ones showing the changed item update.
+ */
+function createSignalHeavyUpdates() {
+  // The runtime exposes its signal factory on `window` for introspection.
+  // Using it directly models the data-signal -> attribute-signal fan-out
+  // without paying for DOM work that would dilute the equality cost.
+  const signal = window.signal
+  if (typeof signal !== 'function') {
+    throw new Error('Runtime signal is unavailable')
+  }
+
+  const createDataset = (updated) => {
+    const dataset = {
+      metadata: { version: 3, source: 'benchmark', region: 'eu-west' },
+      items: Array.from({ length: ITEM_COUNT }, (_, i) => ({
+        id: i,
+        name: `Item ${i}`,
+        description: `Description for item ${i}`,
+        price: (i + 1) * 2.5,
+        available: i % 2 === 0,
+        category: {
+          id: i % 7,
+          name: `Category ${i % 7}`,
+          region: i % 3 === 0 ? 'eu' : 'us',
+        },
+      })),
+      settings: {
+        theme: 'dark',
+        pageSize: 25,
+        flags: { beta: true, search: false, export: true },
+      },
+    }
+    if (updated) {
+      // Keep the two snapshots deeply equal except for one nested field so the
+      // equality check has to walk most of the dataset before finding the diff.
+      dataset.items[CHANGED_ITEM_INDEX].name = 'Item 30 (updated)'
+    }
+    return dataset
+  }
+
+  const datasets = [createDataset(false), createDataset(true)]
+  const root = signal({
+    Variables: { revision: 0, dataset: datasets[0] },
+  })
+  const consumers = []
+  const graph = {
+    root,
+    datasets,
+    consumers,
+    notifications: 0,
+  }
+
+  const subscribe = (consumer) => {
+    consumer.subscribe(() => {
+      graph.notifications++
+    })
+    consumers.push(consumer)
+  }
+
+  // Text/attribute signals: only consumers showing the changed item update.
+  for (let i = 0; i < SMALL_CONSUMERS; i++) {
+    subscribe(
+      root.map((data) => {
+        const item = data.Variables.dataset.items[i % ITEM_COUNT]
+        return {
+          index: i,
+          label: item.name,
+          price: item.price,
+          available: item.available,
+          category: item.category.name,
+        }
+      }),
+    )
+  }
+
+  // Card signals that embed a full item plus a small slice of page settings.
+  for (let i = 0; i < MEDIUM_CONSUMERS; i++) {
+    subscribe(
+      root.map((data) => {
+        const dataset = data.Variables.dataset
+        return {
+          index: i,
+          item: dataset.items[(i * 7) % ITEM_COUNT],
+          page: {
+            theme: dataset.settings.theme,
+            pageSize: dataset.settings.pageSize,
+            region: dataset.metadata.region,
+          },
+        }
+      }),
+    )
+  }
+
+  // Shared views that receive the entire dataset snapshot.
+  for (let i = 0; i < LARGE_CONSUMERS; i++) {
+    subscribe(
+      root.map((data) => ({
+        index: i,
+        dataset: data.Variables.dataset,
+      })),
+    )
+  }
+
+  return graph
+}
+
+function runSignalHeavyUpdates(graph) {
+  const iterations = 100
+  const { root, datasets, consumers } = graph
+  graph.notifications = 0
+
+  for (let i = 0; i < iterations; i++) {
+    root.set(
+      {
+        Variables: {
+          revision: i + 1,
+          dataset: datasets[(i + 1) % 2],
+        },
+      },
+      { force: true },
+    )
+  }
+
+  // The 20 shared views always update. Of the 240 small and 40 medium signals,
+  // only the ones showing the changed item update.
+  const changedSmallConsumers = Math.ceil(SMALL_CONSUMERS / ITEM_COUNT)
+  const changedMediumConsumers = 1
+  const expectedNotifications =
+    iterations *
+    (LARGE_CONSUMERS + changedSmallConsumers + changedMediumConsumers)
+  if (graph.notifications !== expectedNotifications) {
+    throw new Error(
+      `Expected ${expectedNotifications} notifications, got ${graph.notifications}`,
+    )
+  }
+
+  const expectedSmall = {
+    index: 0,
+    label: 'Item 0',
+    price: 2.5,
+    available: true,
+    category: 'Category 0',
+  }
+  if (JSON.stringify(consumers[0].get()) !== JSON.stringify(expectedSmall)) {
+    throw new Error(
+      `Unexpected small signal value: ${JSON.stringify(consumers[0].get())}`,
+    )
+  }
+
+  const changedSmall = consumers[CHANGED_ITEM_INDEX].get()
+  if (changedSmall.label !== 'Item 30') {
+    throw new Error(
+      `Expected changed item to settle on 'Item 30', got '${changedSmall.label}'`,
+    )
+  }
+
+  const changedMedium = consumers[SMALL_CONSUMERS + CHANGED_ITEM_INDEX].get()
+  if (changedMedium.item.name !== 'Item 30') {
+    throw new Error(
+      `Expected medium signal to settle on 'Item 30', got '${changedMedium.item.name}'`,
+    )
+  }
+
+  const largeConsumer = consumers[SMALL_CONSUMERS + MEDIUM_CONSUMERS].get()
+  if (
+    largeConsumer.dataset !== datasets[0] ||
+    largeConsumer.dataset.items[CHANGED_ITEM_INDEX].name !== 'Item 30'
+  ) {
+    throw new Error('Unexpected large signal dataset snapshot')
+  }
 }
 
 function setupSyntheticEnvironment(itemsCount = 50) {
@@ -398,6 +584,23 @@ const cases = {
       )
     }
   },
+
+  /**
+   * Scenario 10: signal-heavy-updates
+   * Measures 100 updates of a page-level data signal fanned out to 300 derived
+   * component signals. Every update swaps in a deeply equal dataset snapshot
+   * with a single changed item, so most of the 240 small and 40 medium signals
+   * skip their subscribers while the 20 shared views update.
+   */
+  prepare_signal_heavy_updates() {
+    signalHeavyUpdates = createSignalHeavyUpdates()
+  },
+  async 'signal-heavy-updates'() {
+    if (!signalHeavyUpdates) {
+      throw new Error('Signal-heavy update graph was not prepared')
+    }
+    runSignalHeavyUpdates(signalHeavyUpdates)
+  },
 }
 
 window.__runCase = async function (caseId) {
@@ -413,6 +616,9 @@ window.__runCase = async function (caseId) {
   const t0 = performance.now()
   await cases[caseId]()
   const t1 = performance.now()
+  // Collect transient garbage so the heap delta reflects retained memory
+  // rather than whichever allocations happened to be uncollected at the end.
+  if (window.gc) window.gc()
   const memAfter = performance.memory ? performance.memory.usedJSHeapSize : 0
 
   return {

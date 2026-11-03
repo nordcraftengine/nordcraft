@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import handler from './handler'
 
-import fastDeepEqual from 'fast-deep-equal'
+import { deepEquals as fastDeepEqual } from '@nordcraft/core'
 ;(globalThis as any).toddle = { isEqual: fastDeepEqual }
 
 describe('Formula: Join', () => {

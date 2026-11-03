@@ -13,6 +13,7 @@ import {
   applyFormula,
   createApiEvent,
   createApiRequest,
+  deepEquals,
   isApiError,
   isDefined,
   isEventStreamHeader,
@@ -30,7 +31,6 @@ import {
   validateUrl,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
-import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
@@ -262,7 +262,7 @@ export function createAPI({
         performance,
       },
     }
-    if (fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
+    if (deepEquals(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
       ctx.dataSignal.set(
         {
           ...ctx.dataSignal.get(),
@@ -306,7 +306,7 @@ export function createAPI({
         },
       }
       if (
-        fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], redirectValue) ===
+        deepEquals(ctx.dataSignal.get().Apis?.[api.name], redirectValue) ===
         false
       ) {
         ctx.dataSignal.set(
@@ -356,7 +356,7 @@ export function createAPI({
         performance,
       },
     }
-    if (fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
+    if (deepEquals(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
       ctx.dataSignal.set(
         {
           ...ctx.dataSignal.get(),
@@ -400,7 +400,7 @@ export function createAPI({
         },
       }
       if (
-        fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], redirectValue) ===
+        deepEquals(ctx.dataSignal.get().Apis?.[api.name], redirectValue) ===
         false
       ) {
         ctx.dataSignal.set(
@@ -442,9 +442,7 @@ export function createAPI({
         data: ctx.dataSignal.get().Apis?.[api.name]?.data ?? null,
         error: null,
       }
-      if (
-        fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) === false
-      ) {
+      if (deepEquals(ctx.dataSignal.get().Apis?.[api.name], value) === false) {
         ctx.dataSignal.set(
           {
             ...ctx.dataSignal.get(),
@@ -883,8 +881,7 @@ export function createAPI({
             },
           }
           if (
-            fastDeepEqual(ctx.dataSignal.get().Apis?.[api.name], value) ===
-            false
+            deepEquals(ctx.dataSignal.get().Apis?.[api.name], value) === false
           ) {
             ctx.dataSignal.set(
               {

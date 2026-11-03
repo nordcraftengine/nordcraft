@@ -143,6 +143,11 @@ export const RUNTIME_BENCHMARK_CASES = [
     name: 'context-propagation (40 cycles: root context broadcast to 200 consumers)',
     bundles: ['page.main.esm.js'] as const,
   },
+  {
+    id: 'signal-heavy-updates',
+    name: 'signal-heavy-updates (100 updates: page data fanned out to 300 derived signals, most stay deeply equal)',
+    bundles: ['page.main.esm.js'] as const,
+  },
 ] as const
 
 export const areRuntimeBundlesIdentical = (

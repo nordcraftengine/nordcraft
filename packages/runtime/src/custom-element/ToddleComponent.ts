@@ -12,6 +12,7 @@ import type {
 import {
   applyFormula,
   createStylesheet,
+  deepEquals,
   theme as defaultTheme,
   filterObject,
   isDefined,
@@ -20,7 +21,6 @@ import {
   THEME_DATA_ATTRIBUTE,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
-import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
@@ -255,7 +255,7 @@ export class ToddleComponent extends HTMLElement {
     }
 
     // Update the signal with complex value
-    if (fastDeepEqual(this.#signal.get().Attributes?.[name], value) === false) {
+    if (deepEquals(this.#signal.get().Attributes?.[name], value) === false) {
       this.#signal.set(
         {
           ...this.#signal.get(),
@@ -292,10 +292,8 @@ export class ToddleComponent extends HTMLElement {
     }
 
     if (
-      fastDeepEqual(
-        this.#signal.get().Attributes?.[attributeName],
-        newValue,
-      ) === false
+      deepEquals(this.#signal.get().Attributes?.[attributeName], newValue) ===
+      false
     ) {
       this.#signal.set(
         {

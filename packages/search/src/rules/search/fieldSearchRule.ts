@@ -1,5 +1,4 @@
-import { isDefined } from '@nordcraft/core'
-import equal from 'fast-deep-equal'
+import { deepEquals as equal, isDefined } from '@nordcraft/core'
 import type { NodeType, SearchRule } from '../../types'
 import { parseSearchQuery } from '../../util/parseSearchQuery'
 
