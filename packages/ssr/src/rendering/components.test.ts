@@ -1347,4 +1347,86 @@ describe('renderPageBody', () => {
 
     expect(html).toContain('from-child-formula')
   })
+
+  test('merges node.attrs.class with style, classes, and instance classes into a single class attribute', async () => {
+    const childComponent: Component = {
+      name: 'CarouselChild',
+      attributes: {},
+      variables: {},
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          attrs: {
+            class: {
+              type: 'value',
+              value: 'nc-carousel-root',
+            },
+          },
+          style: {
+            display: 'flex',
+          },
+          events: {},
+          classes: {
+            'extra-class': {
+              formula: {
+                type: 'value',
+                value: true,
+              },
+            },
+          },
+          children: [],
+        },
+      },
+    }
+    const pageComponent: PageComponent = {
+      name: 'HomePage',
+      route: {
+        path: [],
+        query: {},
+      },
+      attributes: {},
+      variables: {},
+      nodes: {
+        root: {
+          type: 'component',
+          name: 'CarouselChild',
+          attrs: {},
+          children: [],
+          events: {},
+        },
+      },
+    }
+
+    const req = new Request('http://localhost')
+    const files: ProjectFiles = {
+      components: {
+        HomePage: pageComponent,
+        CarouselChild: childComponent,
+      },
+    }
+    const { formulaContext, data } = getPageFormulaContext({
+      component: pageComponent,
+      branchName: 'main',
+      req,
+      logErrors: false,
+      files,
+    })
+
+    const { html } = await renderPageBody({
+      evaluateComponentApis: async () => ({}),
+      component: pageComponent,
+      formulaContext,
+      data,
+      env: formulaContext.env,
+      files,
+      includedComponents: [pageComponent, childComponent],
+      projectId: 'my-project',
+      req,
+    })
+
+    expect(html).toBe(
+      '<div data-id="0" data-node-id="root" class="dspZcA extra-class HomePage:root bnID nc-carousel-root"></div>',
+    )
+  })
 })

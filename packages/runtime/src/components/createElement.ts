@@ -38,6 +38,11 @@ import { claimHydratedChild, reconcileHydratedChildren } from './hydration'
 // when cloned page components are discarded.
 const classNameByNode = new WeakMap<object, string>()
 
+function parseClassList(val: unknown): string[] | undefined {
+  const classes = toBoolean(val) ? String(val).trim() : ''
+  return classes ? classes.split(/\s+/) : undefined
+}
+
 export function createElement({
   node,
   dataSignal,
@@ -176,54 +181,6 @@ export function createElement({
     }
   }
 
-  const attrs = node.attrs
-  if (attrs) {
-    for (const attr in attrs) {
-      const value = attrs[attr]
-      if (!isDefined(value)) {
-        continue
-      }
-      if (
-        attr === DATA_ATTR_ID ||
-        attr === DATA_ATTR_NODE_ID ||
-        attr === DATA_ATTR_COMPONENT
-      ) {
-        continue
-      }
-      if (IS_PREVIEW && attr === 'autofocus' && ctx.toddle._preview) {
-        handlePreviewAutofocus({
-          elem,
-          attr,
-          value,
-          dataSignal,
-          id,
-          ctx,
-        })
-        continue
-      }
-      if (value.type === 'value') {
-        if (!claimed || attr === 'value') {
-          setAttribute(elem, attr, value.value)
-        }
-      } else {
-        const attrPath =
-          IS_PREVIEW && ctx.reportFormulaEvaluation
-            ? ['nodes', id, 'attrs', attr]
-            : undefined
-        const o = dataSignal.map((data) => {
-          const val = applyFormula(value, formulaCtx, data, attrPath)
-          if (IS_PREVIEW && attrPath) {
-            ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
-          }
-          return val
-        })
-        o.subscribe((val) => {
-          setAttribute(elem, attr, val)
-        })
-      }
-    }
-  }
-
   if (!claimed) {
     const cachedClass = classNameByNode.get(node)
     if (cachedClass !== undefined) {
@@ -262,22 +219,6 @@ export function createElement({
       hasDynamicCustomProperties = true
     }
   }
-  node['style-variables']?.forEach((styleVariable, i) => {
-    const { name, formula, unit } = styleVariable
-    const styleVarPath =
-      IS_PREVIEW && ctx.reportFormulaEvaluation
-        ? ['nodes', id, 'style-variables', i, 'formula']
-        : undefined
-    const signal = dataSignal.map((data) => {
-      const value = applyFormula(formula, formulaCtx, data, styleVarPath)
-      if (IS_PREVIEW && styleVarPath) {
-        ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
-      }
-      return unit ? value + unit : value
-    })
-
-    signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
-  })
 
   const customProperties = node.customProperties
   if (customProperties) {
@@ -358,6 +299,94 @@ export function createElement({
   if (!claimed && path && hasDynamicCustomProperties) {
     elem.classList.add(getPathClassName(path))
   }
+
+  const attrs = node.attrs
+  if (attrs) {
+    for (const attr in attrs) {
+      const value = attrs[attr]
+      if (!isDefined(value)) {
+        continue
+      }
+      if (
+        attr === DATA_ATTR_ID ||
+        attr === DATA_ATTR_NODE_ID ||
+        attr === DATA_ATTR_COMPONENT
+      ) {
+        continue
+      }
+      if (IS_PREVIEW && attr === 'autofocus' && ctx.toddle._preview) {
+        handlePreviewAutofocus({
+          elem,
+          attr,
+          value,
+          dataSignal,
+          id,
+          ctx,
+        })
+        continue
+      }
+      if (value.type === 'value') {
+        if (!claimed || attr === 'value') {
+          if (attr === 'class') {
+            const classes = parseClassList(value.value)
+            if (classes) {
+              elem.classList.add(...classes)
+            }
+          } else {
+            setAttribute(elem, attr, value.value)
+          }
+        }
+      } else {
+        const attrPath =
+          IS_PREVIEW && ctx.reportFormulaEvaluation
+            ? ['nodes', id, 'attrs', attr]
+            : undefined
+        const o = dataSignal.map((data) => {
+          const val = applyFormula(value, formulaCtx, data, attrPath)
+          if (IS_PREVIEW && attrPath) {
+            ctx.reportFormulaEvaluation?.(attrPath, val, ctx)
+          }
+          return val
+        })
+        if (attr === 'class') {
+          // Track and update only the classes coming from `attrs.class` via
+          // classList so we don't overwrite or remove built-in classes (style
+          // hashes, node.classes, instance classes, and custom property path classes).
+          let prevClasses: string[] | undefined
+          o.subscribe((val) => {
+            if (prevClasses) {
+              elem.classList.remove(...prevClasses)
+            }
+            prevClasses = parseClassList(val)
+            if (prevClasses) {
+              elem.classList.add(...prevClasses)
+            }
+          })
+        } else {
+          o.subscribe((val) => {
+            setAttribute(elem, attr, val)
+          })
+        }
+      }
+    }
+  }
+
+  node['style-variables']?.forEach((styleVariable, i) => {
+    const { name, formula, unit } = styleVariable
+    const styleVarPath =
+      IS_PREVIEW && ctx.reportFormulaEvaluation
+        ? ['nodes', id, 'style-variables', i, 'formula']
+        : undefined
+    const signal = dataSignal.map((data) => {
+      const value = applyFormula(formula, formulaCtx, data, styleVarPath)
+      if (IS_PREVIEW && styleVarPath) {
+        ctx.reportFormulaEvaluation?.(styleVarPath, value, ctx)
+      }
+      return unit ? value + unit : value
+    })
+
+    signal.subscribe((value) => elem.style.setProperty(`--${name}`, value))
+  })
 
   for (const key in node.events) {
     const event = node.events[key]
