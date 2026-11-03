@@ -18,6 +18,11 @@ import {
   RUNTIME_CLEAN_MARKDOWN,
 } from '../bin/runRuntimeBenchmark'
 import {
+  isSearchClean,
+  renderSearchMarkdown,
+  SEARCH_CLEAN_MARKDOWN,
+} from '../bin/runSearchBenchmark'
+import {
   isSsrClean,
   renderSsrMarkdown,
   SSR_CLEAN_MARKDOWN,
@@ -306,5 +311,63 @@ describe('benchmark PR comments collapse to a one-liner when 1:1', () => {
       `${RUNTIME_CLEAN_MARKDOWN} Runtime size has increased: +100 B (+10.0%) (compressed: +50 B (+10.0%)).`,
     )
     expect(markdownIncreased.split('\n')).toHaveLength(1)
+  })
+
+  test('Search benchmark renders one line for 1:1/stable', () => {
+    const config = {
+      baseRef: 'abc',
+      runs: 10,
+      warmup: 2,
+      repeat: 1,
+      profile: false,
+      noiseThresholdPercent: 2,
+      maxRegressionPercent: 5,
+      maxRegressionMs: 5,
+      responseTimeoutMs: 60_000,
+      bootstrapIterations: 1000,
+      bootstrapSeed: 0,
+      failOnRegression: false,
+      skipBuild: false,
+      keepWorktree: false,
+    }
+    const base = {
+      id: 'freetext-nordcraft' as const,
+      name: 'Search freetext',
+      mode: 'comparison' as const,
+      baseTimes: [1, 1],
+      headTimes: [1, 1],
+      baseMedianMs: 1,
+      headMedianMs: 1,
+      baseIqrMs: 0.1,
+      headIqrMs: 0.1,
+      deltaPercent: 0,
+      deltaMs: 0,
+      ciLowPercent: -1,
+      ciHighPercent: 1,
+      pValue: 0.6,
+      bootstrapIterations: 1000,
+      bootstrapSeed: 0,
+      timeVerdict: 'ok',
+    }
+    const markdown = renderSearchMarkdown({
+      config,
+      results: [
+        { ...base, timeStatus: '1:1' },
+        { ...base, timeStatus: 'stable' },
+      ],
+    })
+    expect({
+      clean: isSearchClean([{ timeStatus: '1:1' }, { timeStatus: 'stable' }]),
+      empty: isSearchClean([]),
+      improvement: isSearchClean([{ timeStatus: 'improvement' }]),
+      regression: isSearchClean([{ timeStatus: 'regression' }]),
+      markdown,
+    }).toEqual({
+      clean: true,
+      empty: false,
+      improvement: false,
+      regression: false,
+      markdown: SEARCH_CLEAN_MARKDOWN,
+    })
   })
 })
