@@ -31,21 +31,17 @@ export type ReferenceTargetKind =
   | 'formula'
   | 'workflow'
   | 'workflow-param'
-  | 'formula-arg'
   | 'context'
   | 'action'
   | 'variable'
   | 'attribute'
   | 'event'
   | 'api'
-  | 'api-input'
   | 'api-service'
   | 'url-param'
   | 'slot'
   | 'css'
-  | 'animation'
   | 'package'
-  | 'node'
 
 export interface ReferenceToken {
   kind: 'reference'
@@ -86,8 +82,6 @@ const REFERENCE_KIND_ALIASES: Readonly<Record<string, ReferenceTargetKind>> = {
   formula: 'formula',
   workflow: 'workflow',
   'workflow-param': 'workflow-param',
-  'formula-arg': 'formula-arg',
-  'formula-input': 'formula-arg',
   context: 'context',
   action: 'action',
   var: 'variable',
@@ -96,7 +90,6 @@ const REFERENCE_KIND_ALIASES: Readonly<Record<string, ReferenceTargetKind>> = {
   attribute: 'attribute',
   event: 'event',
   api: 'api',
-  'api-input': 'api-input',
   service: 'api-service',
   'api-service': 'api-service',
   'url-param': 'url-param',
@@ -105,9 +98,7 @@ const REFERENCE_KIND_ALIASES: Readonly<Record<string, ReferenceTargetKind>> = {
   css: 'css',
   theme: 'css',
   'style-var': 'css',
-  animation: 'animation',
   package: 'package',
-  node: 'node',
 }
 
 const VALID_TYPE_FILTERS: ReadonlySet<string> = new Set([

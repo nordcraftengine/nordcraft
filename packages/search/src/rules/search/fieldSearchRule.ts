@@ -48,6 +48,24 @@ const ALL_NODE_TYPES_MAP: Record<NodeType['nodeType'], true> = {
 
 const ALL_NODE_TYPES = Object.keys(ALL_NODE_TYPES_MAP) as NodeType['nodeType'][]
 
+const INTERNAL_IGNORED_FIELDS: Partial<
+  Record<NodeType['nodeType'], ReadonlySet<string>>
+> = {
+  component: new Set(['version']),
+  'component-api': new Set(['version']),
+  'component-node': new Set(['type']),
+  formula: new Set(['type']),
+  'action-model': new Set(['version']),
+  'project-action': new Set(['version']),
+  'style-declaration': new Set(['element']),
+  'style-variable': new Set(['element']),
+  'style-variant': new Set(['element']),
+  'custom-property': new Set(['element', 'variant']),
+  'component-event': new Set(['component']),
+  'action-custom-model-argument': new Set(['action']),
+  'action-custom-model-event': new Set(['action', 'event']),
+}
+
 interface MatchContext {
   before: string
   matched: string
@@ -70,11 +88,9 @@ interface PreparedFreetext {
   isJsonStructural: boolean
   parsedJson: unknown
   hasParsedJson: boolean
-  canMatchObjectLiteral: boolean
   canMatchTrue: boolean
   canMatchFalse: boolean
   canMatchNull: boolean
-  canMatchUndefined: boolean
   canMatchNumber: boolean
 }
 
@@ -110,11 +126,9 @@ function prepareFreetextToken(token: FreetextToken): PreparedFreetext {
       isJsonStructural: false,
       parsedJson: undefined,
       hasParsedJson: false,
-      canMatchObjectLiteral: token.value.test('[object Object]'),
       canMatchTrue: true,
       canMatchFalse: true,
       canMatchNull: true,
-      canMatchUndefined: true,
       canMatchNumber: true,
     }
   }
@@ -141,9 +155,6 @@ function prepareFreetextToken(token: FreetextToken): PreparedFreetext {
     isJsonStructural,
     parsedJson,
     hasParsedJson,
-    canMatchObjectLiteral: token.exact
-      ? targetLower === '[object object]'
-      : '[object object]'.includes(targetLower),
     canMatchTrue: token.exact
       ? targetLower === 'true'
       : 'true'.includes(targetLower),
@@ -153,9 +164,6 @@ function prepareFreetextToken(token: FreetextToken): PreparedFreetext {
     canMatchNull: token.exact
       ? targetLower === 'null'
       : 'null'.includes(targetLower),
-    canMatchUndefined: token.exact
-      ? targetLower === 'undefined'
-      : 'undefined'.includes(targetLower),
     canMatchNumber: targetLower.length === 0 || /[\d.e+-]/.test(targetLower),
   }
 }
@@ -207,14 +215,11 @@ function matchRegex(
   matcher: RegExp,
   key?: string,
 ): MatchResult {
-  if (Array.isArray(value)) {
+  if (value === null || value === undefined || typeof value === 'object') {
     return false
   }
 
-  const str =
-    typeof value === 'object' && value !== null
-      ? '[object Object]'
-      : String(value)
+  const str = String(value)
   const m = str.match(matcher)
   if (!m) {
     if (key) {
@@ -260,66 +265,64 @@ function matchString(
     return checkStringMatch(String(valToCheck), prepared)
   }
 
-  if (valToCheck === null) {
-    return prepared.canMatchNull ? checkStringMatch('null', prepared) : false
-  }
-
-  if (valToCheck === undefined) {
-    return prepared.canMatchUndefined
-      ? checkStringMatch('undefined', prepared)
-      : false
+  if (valToCheck === null || valToCheck === undefined) {
+    return false
   }
 
   if (Array.isArray(valToCheck)) {
-    if (!prepared.isJsonStructural) {
-      for (let i = 0; i < valToCheck.length; i++) {
-        const v: unknown = valToCheck[i]
-        if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
-          const recordVal = v as Record<string, unknown>
-          if (recordVal.type === 'value' || recordVal.type === 'formula') {
-            const inner = matchString(recordVal.value, prepared)
-            if (inner) {
-              return inner
-            }
-          }
-          continue
-        }
-        const m = matchString(v, prepared)
-        if (m) {
-          return m
-        }
-      }
-
-      if (prepared.hasComma) {
-        for (const sep of [',', ', ']) {
-          const res = checkStringMatch(valToCheck.join(sep), prepared)
-          if (res) {
-            return res
-          }
-        }
-      }
-      return false
-    }
-
-    return checkStringMatch(String(valToCheck), prepared)
-  }
-
-  if (typeof valToCheck === 'object') {
-    if (prepared.token.exact) {
+    if (prepared.isJsonStructural) {
       if (prepared.hasParsedJson && equal(valToCheck, prepared.parsedJson)) {
         return fullMatch(prepared.targetValue)
       }
       return false
     }
 
-    if (!prepared.canMatchObjectLiteral) {
-      return false
+    let allPrimitives = true
+    for (let i = 0; i < valToCheck.length; i++) {
+      const v: unknown = valToCheck[i]
+      if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
+        allPrimitives = false
+        const recordVal = v as Record<string, unknown>
+        if (recordVal.type === 'value' || recordVal.type === 'formula') {
+          const inner = matchString(recordVal.value, prepared)
+          if (inner) {
+            return inner
+          }
+        }
+        continue
+      }
+      if (typeof v !== 'string' && typeof v !== 'number') {
+        allPrimitives = false
+      }
+      const m = matchString(v, prepared)
+      if (m) {
+        return m
+      }
     }
 
-    return checkStringMatch('[object Object]', prepared)
+    if (prepared.hasComma && allPrimitives && valToCheck.length > 0) {
+      for (const sep of [',', ', ']) {
+        const res = checkStringMatch(valToCheck.join(sep), prepared)
+        if (res) {
+          return res
+        }
+      }
+    }
+    return false
   }
 
-  return checkStringMatch(String(valToCheck), prepared)
+  if (typeof valToCheck === 'object') {
+    if (
+      prepared.token.exact &&
+      prepared.hasParsedJson &&
+      equal(valToCheck, prepared.parsedJson)
+    ) {
+      return fullMatch(prepared.targetValue)
+    }
+    return false
+  }
+
+  return false
 }
 
 function evaluateFreetextOnValue(
@@ -331,6 +334,33 @@ function evaluateFreetextOnValue(
     return matchRegex(val, prepared.token.value, key)
   }
   return matchString(val, prepared)
+}
+
+function matchMetadataComments(
+  metadata: unknown,
+  prepared: PreparedFreetext,
+): MatchResult {
+  if (typeof metadata !== 'object' || metadata === null) {
+    return false
+  }
+  const comments = (metadata as Record<string, unknown>).comments
+  if (typeof comments !== 'object' || comments === null) {
+    return false
+  }
+  const commentsRecord = comments as Record<string, unknown>
+  for (const commentKey in commentsRecord) {
+    const entry = commentsRecord[commentKey]
+    if (typeof entry === 'object' && entry !== null) {
+      const text = (entry as Record<string, unknown>).text
+      if (typeof text === 'string') {
+        const m = evaluateFreetextOnValue(text, prepared, 'comments')
+        if (m) {
+          return { ...m, field: 'comments' }
+        }
+      }
+    }
+  }
+  return false
 }
 
 function matchFreetextOnNode(options: {
@@ -345,28 +375,88 @@ function matchFreetextOnNode(options: {
     return false
   }
 
-  if (prepared.hasParsedJson || prepared.canMatchObjectLiteral) {
+  if (prepared.hasParsedJson) {
     const directMatch = evaluateFreetextOnValue(value, prepared)
     if (directMatch) {
       return directMatch
     }
   }
 
+  // Unwrap synthetic wrapper NodeTypes so their actual user-facing fields are searched
+  if (nodeType === 'component-event') {
+    const nameMatch = evaluateFreetextOnValue(
+      data.value.event.name,
+      prepared,
+      'name',
+    )
+    if (nameMatch) {
+      return { ...nameMatch, field: 'name' }
+    }
+    return matchMetadataComments(
+      data.value.event['@nordcraft/metadata'],
+      prepared,
+    )
+  }
+
+  if (nodeType === 'project-theme-property') {
+    const keyMatch = evaluateFreetextOnValue(data.value.key, prepared, 'key')
+    if (keyMatch) {
+      return { ...keyMatch, field: 'key' }
+    }
+    const propDef = data.value.value
+    const initMatch = evaluateFreetextOnValue(
+      propDef.initialValue,
+      prepared,
+      'initialValue',
+    )
+    if (initMatch) {
+      return { ...initMatch, field: 'initialValue' }
+    }
+    const descMatch = evaluateFreetextOnValue(
+      propDef.description,
+      prepared,
+      'description',
+    )
+    if (descMatch) {
+      return { ...descMatch, field: 'description' }
+    }
+    return false
+  }
+
   const skippedForType = skippedFields?.[nodeType]
+  const internalIgnored = INTERNAL_IGNORED_FIELDS[nodeType]
   const valueRecord = value as Record<string, unknown>
-  const isRegex = prepared.token.value instanceof RegExp
+
   for (const k in valueRecord) {
-    if (skippedForType?.includes(k)) {
+    if (skippedForType?.includes(k) || internalIgnored?.has(k)) {
+      continue
+    }
+    if (k === '@nordcraft/metadata') {
+      const commentMatch = matchMetadataComments(valueRecord[k], prepared)
+      if (commentMatch) {
+        return commentMatch
+      }
       continue
     }
     const v = valueRecord[k]
+    if (v === null && nodeType === 'formula' && k === 'value') {
+      if (prepared.token.value instanceof RegExp) {
+        const m = matchRegex('null', prepared.token.value, k)
+        if (m) {
+          return { ...m, field: k }
+        }
+      } else if (prepared.canMatchNull) {
+        const m = checkStringMatch('null', prepared)
+        if (m) {
+          return { ...m, field: k }
+        }
+      }
+      continue
+    }
     if (
-      typeof v === 'object' &&
-      v !== null &&
-      !Array.isArray(v) &&
-      !isRegex &&
-      !prepared.hasParsedJson &&
-      !prepared.canMatchObjectLiteral
+      v === null ||
+      v === undefined ||
+      (typeof v === 'object' && !Array.isArray(v) && !prepared.hasParsedJson)
     ) {
       continue
     }

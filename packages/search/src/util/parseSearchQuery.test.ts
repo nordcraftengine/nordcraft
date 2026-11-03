@@ -274,13 +274,16 @@ describe('parseSearchQuery', () => {
     ] satisfies SearchQueryToken[])
   })
 
-  test('it falls back to freetext for unrecognized @ or key:value strings', () => {
-    const result = parseSearchQuery('@nordcraft/metadata background: red')
+  test('it falls back to freetext for unrecognized @ or key:value strings (including removed @node, @formula-arg, @api-input, @animation)', () => {
+    const result = parseSearchQuery(
+      '@nordcraft/metadata @node:root @formula-arg:fn/x @api-input:api/in @animation:fade background: red',
+    )
     expect(result).toEqual([
       {
         kind: 'freetext',
         exclude: false,
-        value: '@nordcraft/metadata background: red',
+        value:
+          '@nordcraft/metadata @node:root @formula-arg:fn/x @api-input:api/in @animation:fade background: red',
         exact: false,
       },
     ] satisfies SearchQueryToken[])

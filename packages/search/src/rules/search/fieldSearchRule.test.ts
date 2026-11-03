@@ -1011,7 +1011,7 @@ describe('fieldSearchRule & structured search', () => {
     ] satisfies SearchResult[])
   })
 
-  test('it finds references to a component API and API input (@api:ConsumerPage/usersApi and @api-input:ConsumerPage/usersApi/limit)', () => {
+  test('it finds references to a component API (@api:ConsumerPage/usersApi)', () => {
     const apiResults = Array.from(
       searchProject({
         withDetails: false,
@@ -1023,82 +1023,44 @@ describe('fieldSearchRule & structured search', () => {
         ],
       }),
     )
-    const inputResults = Array.from(
-      searchProject({
-        withDetails: false,
-        files,
-        rules: [
-          createFieldSearchRule({
-            query: '@api-input:ConsumerPage/usersApi/limit',
-          }),
-        ],
-      }),
-    )
 
-    expect({ apiResults, inputResults }).toEqual({
-      apiResults: [
-        {
-          path: [
-            'components',
-            'ConsumerPage',
-            'formulas',
-            'readApiAndUrl',
-            'formula',
-            'arguments',
-            0,
-            'formula',
-          ],
-          details: {
-            context: null,
-            field: null,
-            nodeType: 'formula',
-          },
+    expect(apiResults).toEqual([
+      {
+        path: [
+          'components',
+          'ConsumerPage',
+          'formulas',
+          'readApiAndUrl',
+          'formula',
+          'arguments',
+          0,
+          'formula',
+        ],
+        details: {
+          context: null,
+          field: null,
+          nodeType: 'formula',
         },
-        {
-          path: [
-            'components',
-            'ConsumerPage',
-            'workflows',
-            'onAction',
-            'actions',
-            '6',
-          ],
-          details: {
-            context: null,
-            field: null,
-            nodeType: 'action-model',
-          },
+      },
+      {
+        path: [
+          'components',
+          'ConsumerPage',
+          'workflows',
+          'onAction',
+          'actions',
+          '6',
+        ],
+        details: {
+          context: null,
+          field: null,
+          nodeType: 'action-model',
         },
-      ],
-      inputResults: [
-        {
-          path: ['components', 'ConsumerPage', 'apis', 'usersApi', 'url'],
-          details: {
-            context: null,
-            field: null,
-            nodeType: 'formula',
-          },
-        },
-        {
-          path: [
-            'components',
-            'ConsumerPage',
-            'workflows',
-            'onAction',
-            'actions',
-            '6',
-          ],
-          details: {
-            context: null,
-            field: null,
-            nodeType: 'action-model',
-          },
-        },
-      ],
-    })
+      },
+    ] satisfies SearchResult[])
   })
 
-  test('it finds references to an API service, URL parameter, workflow parameter, and formula argument', () => {
+  test('it finds references to an API service, URL parameter, and workflow parameter', () => {
     const serviceResults = Array.from(
       searchProject({
         withDetails: false,
@@ -1126,23 +1088,11 @@ describe('fieldSearchRule & structured search', () => {
         ],
       }),
     )
-    const formulaArgResults = Array.from(
-      searchProject({
-        withDetails: false,
-        files,
-        rules: [
-          createFieldSearchRule({
-            query: '@formula-arg:Broadcaster/activeChannel/prefix',
-          }),
-        ],
-      }),
-    )
 
     expect({
       serviceResults,
       urlParamResults,
       wfParamResults,
-      formulaArgResults,
     }).toEqual({
       serviceResults: [
         {
@@ -1236,40 +1186,10 @@ describe('fieldSearchRule & structured search', () => {
           },
         },
       ],
-      formulaArgResults: [
-        {
-          path: [
-            'components',
-            'Broadcaster',
-            'formulas',
-            'bFormulaKey',
-            'formula',
-          ],
-          details: {
-            context: null,
-            field: null,
-            nodeType: 'formula',
-          },
-        },
-        {
-          path: [
-            'components',
-            'Broadcaster',
-            'formulas',
-            'internalCaller',
-            'formula',
-          ],
-          details: {
-            context: null,
-            field: null,
-            nodeType: 'formula',
-          },
-        },
-      ],
     })
   })
 
-  test('it finds references to slots, CSS variables, animations, actions, and packages', () => {
+  test('it finds references to slots, CSS variables, actions, and packages', () => {
     const slotResults = Array.from(
       searchProject({
         withDetails: false,
@@ -1282,15 +1202,6 @@ describe('fieldSearchRule & structured search', () => {
         withDetails: false,
         files,
         rules: [createFieldSearchRule({ query: '@css:--primary-color' })],
-      }),
-    )
-    const animResults = Array.from(
-      searchProject({
-        withDetails: false,
-        files,
-        rules: [
-          createFieldSearchRule({ query: '@animation:ConsumerPage/fadeIn' }),
-        ],
       }),
     )
     const actionResults = Array.from(
@@ -1311,7 +1222,6 @@ describe('fieldSearchRule & structured search', () => {
     expect({
       slotResults,
       cssResults,
-      animResults,
       actionResults,
       pkgResults,
     }).toEqual({
@@ -1355,38 +1265,6 @@ describe('fieldSearchRule & structured search', () => {
             context: null,
             field: null,
             nodeType: 'project-theme-property',
-          },
-        },
-      ],
-      animResults: [
-        {
-          path: [
-            'components',
-            'ConsumerPage',
-            'nodes',
-            'rootDiv',
-            'style',
-            'animation',
-          ],
-          details: {
-            context: null,
-            field: null,
-            nodeType: 'style-declaration',
-          },
-        },
-        {
-          path: [
-            'components',
-            'ConsumerPage',
-            'nodes',
-            'rootDiv',
-            'animations',
-            'fadeIn',
-          ],
-          details: {
-            context: null,
-            field: null,
-            nodeType: 'animation',
           },
         },
       ],
@@ -1454,6 +1332,28 @@ describe('fieldSearchRule & structured search', () => {
           },
         },
       ],
+    })
+  })
+
+  test('it never matches [object Object] in freetext or regex search', () => {
+    const objectTextResults = Array.from(
+      searchProject({
+        withDetails: true,
+        files,
+        rules: [createFieldSearchRule({ query: 'object' })],
+      }),
+    )
+    const objectRegexResults = Array.from(
+      searchProject({
+        withDetails: true,
+        files,
+        rules: [createFieldSearchRule({ query: '/\\[object Object\\]/i' })],
+      }),
+    )
+
+    expect({ objectTextResults, objectRegexResults }).toEqual({
+      objectTextResults: [],
+      objectRegexResults: [],
     })
   })
 

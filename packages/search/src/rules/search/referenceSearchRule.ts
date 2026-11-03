@@ -31,26 +31,18 @@ export function getNodeTypesForReference(
       return ['action-model', 'component-node']
     case 'api':
       return ['formula', 'action-model']
-    case 'api-input':
-      return ['formula', 'action-model']
     case 'api-service':
       return ['component-api']
     case 'url-param':
       return ['formula', 'action-model']
     case 'workflow-param':
       return ['formula', 'action-model']
-    case 'formula-arg':
-      return ['formula']
     case 'slot':
       return ['component-node']
     case 'css':
       return ['style-declaration', 'custom-property', 'project-theme-property']
-    case 'animation':
-      return ['style-declaration', 'animation']
     case 'package':
       return ['component-node', 'component-context', 'formula', 'action-model']
-    case 'node':
-      return ['component-node']
   }
 }
 
@@ -1055,83 +1047,6 @@ function matchApiReference(data: NodeType, token: ReferenceToken): boolean {
   return false
 }
 
-function matchApiInputReference(
-  data: NodeType,
-  token: ReferenceToken,
-): boolean {
-  if (data.path[0] !== 'components') {
-    return false
-  }
-  const { segments } = token
-  if (segments.length < 2) {
-    return false
-  }
-  const compMatcher = segments.length >= 3 ? segments[0] : undefined
-  const apiMatcher = segments.length >= 3 ? segments[1] : segments[0]
-  const inputMatcher = segments[segments.length - 1]
-
-  if (data.nodeType === 'formula') {
-    if (
-      data.path[2] !== 'apis' ||
-      typeof data.path[3] !== 'string' ||
-      data.value.type !== 'path' ||
-      (data.value.path[0] !== 'Args' && data.value.path[0] !== 'ApiInputs') ||
-      !matchesSegment(data.value.path[1], inputMatcher)
-    ) {
-      return false
-    }
-    const currentComp = String(data.path[1])
-    if (
-      compMatcher !== undefined &&
-      !matchesSegment(currentComp, compMatcher)
-    ) {
-      return false
-    }
-    const apiKeys = getMemoizedComponentApiKeys({
-      files: data.files,
-      memo: data.memo,
-      compName: currentComp,
-      apiMatcher,
-    })
-    return apiKeys.has(data.path[3]) || matchesSegment(data.path[3], apiMatcher)
-  }
-
-  if (data.nodeType === 'action-model') {
-    if (data.value.type !== 'Fetch' || !data.value.inputs) {
-      return false
-    }
-    const currentComp = String(data.path[1])
-    if (
-      compMatcher !== undefined &&
-      !matchesSegment(currentComp, compMatcher)
-    ) {
-      return false
-    }
-    const apiKeys = getMemoizedComponentApiKeys({
-      files: data.files,
-      memo: data.memo,
-      compName: currentComp,
-      apiMatcher,
-    })
-    if (
-      !apiKeys.has(data.value.api) &&
-      !matchesSegment(data.value.api, apiMatcher)
-    ) {
-      return false
-    }
-    for (const inputKey in data.value.inputs) {
-      if (
-        isDefined(data.value.inputs[inputKey]) &&
-        matchesSegment(inputKey, inputMatcher)
-      ) {
-        return true
-      }
-    }
-  }
-
-  return false
-}
-
 function matchApiServiceReference(
   data: NodeType,
   token: ReferenceToken,
@@ -1294,111 +1209,6 @@ function matchWorkflowParamReference(
   return false
 }
 
-function matchFormulaArgReference(
-  data: NodeType,
-  token: ReferenceToken,
-): boolean {
-  if (data.nodeType !== 'formula') {
-    return false
-  }
-  const { segments, rootScoped } = token
-  if (segments.length < 2) {
-    return false
-  }
-
-  const formula = data.value
-  if (
-    (formula.type !== 'path' || formula.path[0] !== 'Args') &&
-    formula.type !== 'function' &&
-    formula.type !== 'apply'
-  ) {
-    return false
-  }
-
-  // Project formula arg: @formula-arg:/<formula>/<arg> or 2-segment matching a project formula
-  if (rootScoped || segments.length === 2) {
-    const [formulaMatcher, argMatcher] = segments
-
-    // 1. Inside project formula definition
-    if (formula.type === 'path' && data.path[0] === 'formulas') {
-      if (!matchesSegment(formula.path[1], argMatcher)) {
-        return false
-      }
-      const formulaKey = String(data.path[1] ?? '')
-      const projIds = getMemoizedProjectFormulaIds(
-        data.files,
-        data.memo,
-        formulaMatcher,
-      )
-      return (
-        projIds.has(formulaKey) || matchesSegment(formulaKey, formulaMatcher)
-      )
-    }
-
-    // 2. Call site of project formula
-    if (
-      formula.type === 'function' &&
-      !formula.package &&
-      Boolean(
-        formula.arguments?.some((a) => matchesSegment(a.name, argMatcher)),
-      )
-    ) {
-      const projIds = getMemoizedProjectFormulaIds(
-        data.files,
-        data.memo,
-        formulaMatcher,
-      )
-      return (
-        projIds.has(formula.name) ||
-        matchesSegment(formula.name, formulaMatcher)
-      )
-    }
-  }
-
-  // Component formula arg: @formula-arg:<Comp>/<Formula>/<Arg>
-  if (segments.length === 3 && data.path[0] === 'components') {
-    const [compMatcher, formulaMatcher, argMatcher] = segments
-    const currentComp = String(data.path[1])
-    if (!matchesSegment(currentComp, compMatcher)) {
-      return false
-    }
-
-    // 1. Inside component formula definition
-    if (
-      formula.type === 'path' &&
-      data.path[2] === 'formulas' &&
-      typeof data.path[3] === 'string' &&
-      matchesSegment(formula.path[1], argMatcher)
-    ) {
-      const { keys } = getMemoizedComponentFormulaKeys({
-        files: data.files,
-        memo: data.memo,
-        componentName: currentComp,
-        formulaMatcher,
-      })
-      return keys.has(data.path[3])
-    }
-
-    // 2. Call site (apply) of component formula
-    if (
-      formula.type === 'apply' &&
-      Boolean(
-        formula.arguments?.some((a) => matchesSegment(a.name, argMatcher)),
-      )
-    ) {
-      const { keys } = getMemoizedComponentFormulaKeys({
-        files: data.files,
-        memo: data.memo,
-        componentName: currentComp,
-        formulaMatcher,
-      })
-      return keys.has(formula.name)
-    }
-  }
-
-  return false
-}
-
 function matchSlotReference(data: NodeType, token: ReferenceToken): boolean {
   if (data.nodeType !== 'component-node' || !isDefined(data.value)) {
     return false
@@ -1517,39 +1327,6 @@ function matchCssReference(data: NodeType, token: ReferenceToken): boolean {
   return false
 }
 
-function matchAnimationReference(
-  data: NodeType,
-  token: ReferenceToken,
-): boolean {
-  const { segments } = token
-  const compMatcher = segments.length >= 2 ? segments[0] : undefined
-  const animMatcher = segments[segments.length - 1]
-
-  if (
-    compMatcher !== undefined &&
-    (data.path[0] !== 'components' ||
-      !matchesSegment(data.path[1], compMatcher))
-  ) {
-    return false
-  }
-
-  if (data.nodeType === 'animation') {
-    return matchesSegment(data.value.key, animMatcher)
-  }
-
-  if (data.nodeType === 'style-declaration') {
-    if (typeof data.value.styleValue !== 'string') {
-      return false
-    }
-    const tokens = data.value.styleValue
-      .split(',')
-      .flatMap((part) => part.trim().split(/\s+/))
-    return tokens.some((t) => matchesSegment(t, animMatcher))
-  }
-
-  return false
-}
-
 function matchPackageReference(data: NodeType, token: ReferenceToken): boolean {
   const pkgMatcher = token.segments[0]
 
@@ -1576,33 +1353,6 @@ function matchPackageReference(data: NodeType, token: ReferenceToken): boolean {
   }
 }
 
-function matchNodeReference(data: NodeType, token: ReferenceToken): boolean {
-  if (data.nodeType !== 'component-node' || !isDefined(data.value)) {
-    return false
-  }
-  const { segments } = token
-  const compMatcher = segments.length >= 2 ? segments[0] : undefined
-  const nodeIdMatcher = segments[segments.length - 1]
-
-  if (
-    compMatcher !== undefined &&
-    (data.path[0] !== 'components' ||
-      !matchesSegment(data.path[1], compMatcher))
-  ) {
-    return false
-  }
-
-  if (matchesSegment(data.path[3], nodeIdMatcher)) {
-    return true
-  }
-
-  return Boolean(
-    data.value.children?.some((childId) =>
-      matchesSegment(childId, nodeIdMatcher),
-    ),
-  )
-}
-
 export function matchReferenceToken(
   data: NodeType,
   token: ReferenceToken,
@@ -1626,26 +1376,18 @@ export function matchReferenceToken(
       return matchEventReference(data, token)
     case 'api':
       return matchApiReference(data, token)
-    case 'api-input':
-      return matchApiInputReference(data, token)
     case 'api-service':
       return matchApiServiceReference(data, token)
     case 'url-param':
       return matchUrlParamReference(data, token)
     case 'workflow-param':
       return matchWorkflowParamReference(data, token)
-    case 'formula-arg':
-      return matchFormulaArgReference(data, token)
     case 'slot':
       return matchSlotReference(data, token)
     case 'css':
       return matchCssReference(data, token)
-    case 'animation':
-      return matchAnimationReference(data, token)
     case 'package':
       return matchPackageReference(data, token)
-    case 'node':
-      return matchNodeReference(data, token)
   }
 }
 
@@ -1694,15 +1436,7 @@ export function shouldReferenceTraverseComponentChild(
     case 'variable':
     case 'api':
     case 'url-param':
-    case 'animation':
-    case 'node':
       if (segments.length >= 2) {
-        return matchesSegment(compName, segments[0])
-      }
-      return true
-
-    case 'api-input':
-      if (segments.length >= 3) {
         return matchesSegment(compName, segments[0])
       }
       return true
@@ -1785,16 +1519,6 @@ export function shouldReferenceTraverseComponentChild(
             componentHasMatchingContext(comp, segments[0])
           )
         }
-      }
-      return true
-
-    case 'formula-arg':
-      if (
-        !token.rootScoped &&
-        segments.length === 3 &&
-        childNodeType === 'formula'
-      ) {
-        return matchesSegment(compName, segments[0])
       }
       return true
 
