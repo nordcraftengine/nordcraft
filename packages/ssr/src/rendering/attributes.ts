@@ -67,7 +67,8 @@ export function getNodeAttrs({
     if (
       name === DATA_ATTR_ID ||
       name === DATA_ATTR_NODE_ID ||
-      name === DATA_ATTR_COMPONENT
+      name === DATA_ATTR_COMPONENT ||
+      name === 'class'
     ) {
       continue
     }

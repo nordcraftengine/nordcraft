@@ -356,6 +356,17 @@ const renderComponent = async ({
           classList.push(getPathClassName(path))
         }
 
+        if (node.attrs?.class) {
+          const classValue = applyFormula(
+            node.attrs.class,
+            formulaContext,
+            data,
+          )
+          if (toBoolean(classValue)) {
+            classList.push(String(classValue))
+          }
+        }
+
         let innerHTML = ''
 
         if (lowerTag !== 'style') {

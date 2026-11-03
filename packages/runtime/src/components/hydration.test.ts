@@ -1981,4 +1981,122 @@ describe('hydration SSR/CSR inconsistencies and fallbacks', () => {
 
     dataSignal.destroy()
   })
+
+  test('hydrating elements with dynamic or static attrs.class preserves built-in classes and appends attrs.class', () => {
+    const parentElement = document.createElement('div')
+    parentElement.innerHTML =
+      '<div data-id="0" data-node-id="root">' +
+      '<div data-id="0.0" data-node-id="root" class="cUimVL dHYsvb Page:emptyAttr AxitV"></div>' +
+      '<div data-id="0.1" data-node-id="root" class="cUimVL dHYsvb Page:dynAttr AxiNE nc-marquee"></div>' +
+      '<div data-id="0.2" data-node-id="root" class="dkounE Page:staticAttr Axjhn nc-carousel"></div>' +
+      '</div>'
+
+    const maxWidthComp = {
+      name: 'MaxWidth',
+      attributes: {
+        class: { name: 'class', testValue: undefined },
+      },
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: [],
+          style: { color: 'red' },
+          classes: {
+            dHYsvb: { formula: { type: 'value', value: true } },
+          },
+          attrs: {
+            class: { type: 'path', path: ['Attributes', 'class'] },
+          },
+          events: {},
+        },
+      },
+    }
+    const carouselComp = {
+      name: 'Carousel',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: [],
+          classes: {
+            dkounE: { formula: { type: 'value', value: true } },
+          },
+          attrs: {
+            class: { type: 'value', value: 'nc-carousel' },
+          },
+          events: {},
+        },
+      },
+    }
+    const pageComp = {
+      name: 'Page',
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          children: ['emptyAttr', 'dynAttr', 'staticAttr'],
+          attrs: {},
+          events: {},
+        },
+        emptyAttr: {
+          type: 'component',
+          name: 'MaxWidth',
+          attrs: {},
+          children: [],
+          events: {},
+        },
+        dynAttr: {
+          type: 'component',
+          name: 'MaxWidth',
+          attrs: {
+            class: { type: 'path', path: ['Variables', 'marqueeClass'] },
+          },
+          children: [],
+          events: {},
+        },
+        staticAttr: {
+          type: 'component',
+          name: 'Carousel',
+          attrs: {},
+          children: [],
+          events: {},
+        },
+      },
+    }
+
+    const dataSignal = signal<ComponentData>({
+      Attributes: {},
+      Variables: {
+        marqueeClass: 'nc-marquee',
+      },
+    })
+    const ctx = baseCtx(pageComp, {
+      components: [pageComp, maxWidthComp, carouselComp],
+    })
+
+    hydrate({ ctx, dataSignal, parentElement, path: '0', id: 'root' })
+
+    const children = [...parentElement.querySelector('[data-id="0"]')!.children]
+    dataSignal.update((data) => ({
+      ...data,
+      Variables: {
+        marqueeClass: 'nc-marquee nc-marquee-pausable',
+      },
+    }))
+    expect(children.map((el) => [...el.classList])).toEqual([
+      ['cUimVL', 'dHYsvb', 'Page:emptyAttr', 'AxitV'],
+      [
+        'cUimVL',
+        'dHYsvb',
+        'Page:dynAttr',
+        'AxiNE',
+        'nc-marquee',
+        'nc-marquee-pausable',
+      ],
+      ['dkounE', 'Page:staticAttr', 'Axjhn', 'nc-carousel'],
+    ])
+
+    dataSignal.destroy()
+  })
 })
