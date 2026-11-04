@@ -85,31 +85,37 @@ function areObjectsEqual(
   a: Record<string, unknown>,
   b: Record<string, unknown>,
 ): boolean {
-  const keysA = objectKeys(a)
-  const keysB = objectKeys(b)
-  const length = keysA.length
-  if (length !== keysB.length) {
-    return false
-  }
-  for (let i = length - 1; i >= 0; i--) {
-    const key = keysA[i] as string
-    if (
-      (key !== keysB[i] && !hasOwnProperty.call(b, key)) ||
-      !deepEquals(a[key], b[key])
-    ) {
-      return false
+  // Iterating `a` directly avoids allocating a key array. `for...in` yields
+  // inherited enumerable properties too, so own keys are filtered with
+  // `hasOwnProperty.call`; the final key count of `b` catches extra keys.
+  let count = 0
+  for (const key in a) {
+    if (hasOwnProperty.call(a, key)) {
+      count++
+      const aValue = a[key]
+      const bValue = b[key]
+      if (
+        !hasOwnProperty.call(b, key) ||
+        (aValue !== bValue && !deepEquals(aValue, bValue))
+      ) {
+        return false
+      }
     }
   }
-  return true
+  return objectKeys(b).length === count
 }
 
 function areArraysEqual(a: unknown[], b: unknown[]): boolean {
-  const length = a.length
-  if (length !== b.length) {
+  let index = a.length
+  if (index !== b.length) {
     return false
   }
-  for (let i = 0; i < length; i++) {
-    if (!deepEquals(a[i], b[i])) {
+  // Decrementing `while` and the inlined reference check avoid a recursive
+  // call for the common case of equal primitives and shared references.
+  while (index-- > 0) {
+    const aValue = a[index]
+    const bValue = b[index]
+    if (aValue !== bValue && !deepEquals(aValue, bValue)) {
       return false
     }
   }
