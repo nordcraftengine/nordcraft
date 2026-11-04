@@ -14,6 +14,7 @@ import type {
   ToddleEnv,
 } from '@nordcraft/core'
 import {
+  deepEquals,
   filterObject,
   isLegacyPluginAction,
   isToddleFormula,
@@ -21,7 +22,6 @@ import {
 } from '@nordcraft/core'
 import * as libActions from '@nordcraft/std-lib/actions'
 import * as libFormulas from '@nordcraft/std-lib/formulas'
-import fastDeepEqual from 'fast-deep-equal'
 import { signal } from '../signal/signal'
 import type { LocationSignal, PreviewShowSignal } from '../types'
 
@@ -106,7 +106,7 @@ export const initGlobalObject = () => {
     let legacyFormulas: Record<string, FormulaHandler | undefined> = {}
     const argumentInputDataList: Record<string, ArgumentInputDataFunction> = {}
     const toddle: Toddle<LocationSignal, PreviewShowSignal> = {
-      isEqual: fastDeepEqual,
+      isEqual: deepEquals,
       errors: [],
       formulas: {},
       actions: {},

@@ -1,6 +1,5 @@
 import type { ComponentData } from '@nordcraft/core'
-import { isLegacyApi, omitKeys } from '@nordcraft/core'
-import fastDeepEqual from 'fast-deep-equal'
+import { deepEquals, isLegacyApi, omitKeys } from '@nordcraft/core'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
 import type { Signal } from '../signal/signal'
@@ -20,7 +19,7 @@ export const syncComponentApis = (
     const previousApiInstance = previousCtx?.component.apis?.[api]
     if (isLegacyApi(apiInstance)) {
       if (
-        fastDeepEqual(
+        deepEquals(
           omitKeys(apiInstance, ['onCompleted', 'onFailed']),
           previousApiInstance && isLegacyApi(previousApiInstance)
             ? omitKeys(previousApiInstance, ['onCompleted', 'onFailed'])

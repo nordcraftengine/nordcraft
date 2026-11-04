@@ -8,9 +8,13 @@ import type {
   Toddle,
   ToddleEnv,
 } from '@nordcraft/core'
-import { isMeasureEnabled, measure, noopMeasure } from '@nordcraft/core'
+import {
+  deepEquals,
+  isMeasureEnabled,
+  measure,
+  noopMeasure,
+} from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
-import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
 import type {
@@ -198,7 +202,7 @@ function getAttributeChanges(
 
     const current = previous[key]
     const value = next[key]
-    if (!fastDeepEqual(current, value)) {
+    if (!deepEquals(current, value)) {
       changes[name] = { current, new: value }
     }
   }

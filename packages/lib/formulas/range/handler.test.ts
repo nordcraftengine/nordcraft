@@ -1,5 +1,5 @@
+import { deepEquals as isEqual } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
-import isEqual from 'fast-deep-equal'
 import handler from './handler'
 ;(globalThis as any).toddle = { isEqual }
 

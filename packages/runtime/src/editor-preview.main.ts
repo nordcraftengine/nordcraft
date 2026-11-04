@@ -12,13 +12,13 @@ import type {
 } from '@nordcraft/core'
 import {
   applyFormula,
+  deepEquals,
   isDefined,
   isLegacyApi,
   isPageComponent,
   THEME_COOKIE_NAME,
   THEME_DATA_ATTRIBUTE,
 } from '@nordcraft/core'
-import fastDeepEqual from 'fast-deep-equal'
 import { createNode } from './components/createNode'
 import { isContextProvider } from './context/isContextProvider'
 import { syncComponentApis } from './editor/api'
@@ -950,7 +950,7 @@ export const createRoot = (
     const scrollStateRestorer = storeScrollState()
     let { Attributes, Variables, Contexts } = dataSignal.get()
     if (
-      fastDeepEqual(ctx?.component.attributes, _component.attributes) === false
+      deepEquals(ctx?.component.attributes, _component.attributes) === false
     ) {
       Attributes = {
         ...getAttributeTestValues(_component.attributes),
@@ -959,7 +959,7 @@ export const createRoot = (
     }
     if (
       _component.route &&
-      fastDeepEqual(ctx?.component.route, _component.route) === false
+      deepEquals(ctx?.component.route, _component.route) === false
     ) {
       // Subscribe to the route signal so we can preview URL parameter changes in the editor
       routeSignal?.destroy()
@@ -1006,7 +1006,7 @@ export const createRoot = (
       }
     }
     if (
-      fastDeepEqual(
+      deepEquals(
         ctx?.component.route?.info?.meta,
         _component.route?.info?.meta,
       ) === false ||
@@ -1027,7 +1027,7 @@ export const createRoot = (
       )
     }
     if (
-      fastDeepEqual(_component.contexts, ctx?.component.contexts) === false ||
+      deepEquals(_component.contexts, ctx?.component.contexts) === false ||
       previewStateOverrides?.contexts
     ) {
       Contexts = createStaticContextFromComponent(
@@ -1041,9 +1041,7 @@ export const createRoot = (
         },
       )
     }
-    if (
-      fastDeepEqual(_component.variables, ctx?.component.variables) === false
-    ) {
+    if (deepEquals(_component.variables, ctx?.component.variables) === false) {
       Variables = {
         ...getVariableInitialValues(
           _component.variables,
@@ -1089,7 +1087,7 @@ export const createRoot = (
     }
 
     if (
-      fastDeepEqual(
+      deepEquals(
         newCtx.component.route?.info?.theme,
         ctx?.component.route?.info?.theme,
       ) === false
@@ -1105,9 +1103,8 @@ export const createRoot = (
 
     if (
       forceRerender ||
-      fastDeepEqual(newCtx.component.nodes, ctx?.component?.nodes) === false ||
-      fastDeepEqual(newCtx.component.formulas, ctx?.component?.formulas) ===
-        false
+      deepEquals(newCtx.component.nodes, ctx?.component?.nodes) === false ||
+      deepEquals(newCtx.component.formulas, ctx?.component?.formulas) === false
     ) {
       updateStyle(newCtx.component)
 
@@ -1263,8 +1260,8 @@ export const createRoot = (
     const selectionRect = getRectData(getDOMNodeFromNodeId(selectedNodeId))
     const highlightRect = getRectData(getDOMNodeFromNodeId(highlightedNodeId))
 
-    const selectionChanged = !fastDeepEqual(prevSelectionRect, selectionRect)
-    const highlightChanged = !fastDeepEqual(prevHighlightRect, highlightRect)
+    const selectionChanged = !deepEquals(prevSelectionRect, selectionRect)
+    const highlightChanged = !deepEquals(prevHighlightRect, highlightRect)
 
     if (selectionChanged || highlightChanged) {
       prevSelectionRect = selectionRect
