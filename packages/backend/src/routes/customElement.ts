@@ -120,7 +120,7 @@ ${
     // See https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#referencing_external_styles
     const linkElem = document.createElement("link");
     linkElem.setAttribute("rel", "stylesheet");
-    linkElem.setAttribute("href", "${fontStylesheetUrl.swap}");
+    linkElem.setAttribute("href", "${fontStylesheetUrl.block}");
     document.head.appendChild(linkElem);`
     : ''
 }

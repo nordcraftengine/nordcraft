@@ -9,12 +9,12 @@ export const getFontCssUrl = ({
   fonts: FontFamily[]
   baseForAbsoluteUrls?: string
   basePath?: string
-}): Record<'swap', string> | undefined => {
+}): Record<'block', string> | undefined => {
   if (fonts.length === 0) {
     return
   }
   const searchParams = new URLSearchParams()
-  searchParams.set('display', 'swap')
+  searchParams.set('display', 'block')
   for (const font of fonts) {
     const sortedWeights = easySort(
       (font.variants ?? []).filter((v) => !Number.isNaN(Number(v.weight))),
@@ -74,7 +74,7 @@ export const getFontCssUrl = ({
     return {
       // Eventually, we expect to support multiple types of font-display properties
       // and we might need to return a url for each type of font-display (e.g. swap, block, fallback)
-      swap: url,
+      block: url,
     }
   } catch (e) {
     // eslint-disable-next-line no-console
