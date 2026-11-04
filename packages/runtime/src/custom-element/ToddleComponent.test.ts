@@ -76,4 +76,79 @@ describe('ToddleComponent attributeChangedCallback()', () => {
       `Unable to find attribute unknownattr on component ${component.name}`,
     )
   })
+
+  test('preserves falsy values (0, false, empty string) and numeric-prefixed strings across setAttribute and getAttribute', () => {
+    const el = defineAndCreate()
+
+    el.setAttribute('myAttr', 0)
+    el.setAttribute('myOtherAttr', false)
+    expect({
+      myAttr: el.getAttribute('myAttr'),
+      myOtherAttr: el.getAttribute('myOtherAttr'),
+    }).toEqual({
+      myAttr: 0,
+      myOtherAttr: false,
+    })
+
+    el.setAttribute('myAttr', 5)
+    el.attributeChangedCallback('myattr', '5' as never, '5px')
+    expect(el.getAttribute('myAttr')).toBe('5px')
+  })
+
+  test('evaluates variable initialValue using initial attributes when connected', () => {
+    const compWithVar: Component = {
+      name: 'TestVarFromAttr',
+      attributes: {
+        initialGreeting: { name: 'initialGreeting', testValue: 'Fallback' },
+      },
+      variables: {
+        greeting: {
+          initialValue: {
+            type: 'path',
+            path: ['Attributes', 'initialGreeting'],
+          },
+        },
+      },
+      apis: {},
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          attrs: {},
+          style: {},
+          events: {},
+          classes: {},
+          children: [],
+        },
+      },
+    }
+    const tag = 'test-var-from-attr'
+    if (!customElements.get(tag)) {
+      customElements.define(
+        tag,
+        class extends ToddleComponent {
+          constructor() {
+            super(
+              compWithVar,
+              { components: [compWithVar], themes: {} },
+              toddle,
+            )
+          }
+
+          static get observedAttributes() {
+            return ['initialgreeting']
+          }
+        },
+      )
+    }
+
+    const el = document.createElement(tag) as ToddleComponent
+    el.setAttribute('initialGreeting', 'Hello from attribute')
+    document.body.appendChild(el)
+
+    expect(el.__signal.get().Variables).toEqual({
+      greeting: 'Hello from attribute',
+    })
+    el.remove()
+  })
 })
