@@ -92,7 +92,7 @@ export const getHeadItems = ({
       })
       if (fontStylesheetUrl) {
         preloadFonts.add(
-          `<link href="${escapeAttrValue(fontStylesheetUrl.swap.toString())}" rel="stylesheet" />`,
+          `<link href="${escapeAttrValue(fontStylesheetUrl.block.toString())}" rel="stylesheet" />`,
         )
       }
     }
@@ -131,7 +131,7 @@ export const getHeadItems = ({
       `<style id="${CUSTOM_PROPERTIES_STYLESHEET_ID}">${customProperties.join('\n')}</style>`,
     ],
     ...Array.from(preloadFonts).map<[HeadItemType, string]>((fontLink) => [
-      'link:font:swap',
+      'link:font:block',
       fontLink,
     ]),
     // Initialize default head items (meta + links)
