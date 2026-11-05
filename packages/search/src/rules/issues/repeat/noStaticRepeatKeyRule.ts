@@ -1,5 +1,5 @@
+import { contextlessEvaluateFormula } from '@nordcraft/core'
 import type { ComponentNodeNode, IssueRule } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 export const noStaticRepeatKeyRule: IssueRule<
   {
@@ -11,7 +11,7 @@ export const noStaticRepeatKeyRule: IssueRule<
   level: 'warning',
   category: 'Quality',
   nodeTypes: 'component-node',
-  visit: (report, { nodeType, path, value }) => {
+  visit: (report, { nodeType, path, value, files }) => {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (nodeType !== 'component-node' || !value || value.type === 'slot') {
       return
@@ -21,7 +21,13 @@ export const noStaticRepeatKeyRule: IssueRule<
     if (repeatKey == null) {
       return
     }
-    const { isStatic, result } = contextlessEvaluateFormula(repeatKey)
+    const component =
+      path[0] === 'components' ? files.components[path[1] as string] : undefined
+    const { isStatic, result } = contextlessEvaluateFormula(repeatKey, {
+      component,
+      formulas: files.formulas,
+      packages: files.packages,
+    })
     if (!isStatic) {
       return
     }
