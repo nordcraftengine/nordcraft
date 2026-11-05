@@ -1,18 +1,28 @@
 import fastDeepEqual from 'fast-deep-equal'
 
+// Shared identity mapper to avoid allocating a closure per identity map
+export const identity = <T>(value: T): T => value
+
 export class Signal<T> {
   value: T
   subscribers: Set<{
     notify: (value: T) => void
     destroy?: () => void
   }>
-  subscriptions: Array<() => void>
+  private _subscriptions?: Array<() => void>
+  private destroyHooks?: Array<() => void>
   destroying = false
+
+  get subscriptions(): Array<() => void> {
+    return (this._subscriptions ??= [])
+  }
+  set subscriptions(value: Array<() => void> | undefined) {
+    this._subscriptions = value
+  }
 
   constructor(value: T) {
     this.value = value
     this.subscribers = new Set()
-    this.subscriptions = []
   }
   get() {
     return this.value
@@ -43,6 +53,9 @@ export class Signal<T> {
       this.subscribers.delete(subscriber)
     }
   }
+  onDestroy(fn: () => void) {
+    ;(this.destroyHooks ??= []).push(fn)
+  }
   destroy() {
     // Prevent re-entrancy
     if (this.destroying) {
@@ -54,10 +67,18 @@ export class Signal<T> {
       subscriber.destroy?.()
     }
     this.subscribers.clear()
-    for (const subscription of this.subscriptions) {
-      subscription()
+    if (this.destroyHooks) {
+      for (const hook of this.destroyHooks) {
+        hook()
+      }
+      this.destroyHooks.length = 0
     }
-    this.subscriptions.splice(0, this.subscriptions.length)
+    if (this._subscriptions) {
+      for (const subscription of this._subscriptions) {
+        subscription()
+      }
+      this._subscriptions.length = 0
+    }
     this.destroying = false
   }
   cleanSubscribers() {

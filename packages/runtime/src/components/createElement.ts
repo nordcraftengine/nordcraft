@@ -469,7 +469,7 @@ export function createElement({
       reconcileHydratedChildren(elem, childNodes, hydration!)
     }
   }
-  dataSignal.subscriptions.push(() => {
+  dataSignal.onDestroy(() => {
     // TODO: Clean up event listeners, but after destruction of child signals (Maybe we need a "afterDestroy" hook on signals?)
     elem.parentNode?.removeChild(elem)
   })

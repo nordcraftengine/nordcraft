@@ -498,20 +498,18 @@ export function handleAction(
               result &&
               (typeof result === 'function' || result instanceof Promise)
             ) {
-              ctx.dataSignal.subscribe((data) => data, {
-                destroy: () => {
-                  if (result instanceof Promise) {
-                    result
-                      .then((cleanup) => {
-                        if (typeof cleanup === 'function') {
-                          cleanup()
-                        }
-                      })
-                      .catch((err) => console.error(err))
-                  } else {
-                    result()
-                  }
-                },
+              ctx.dataSignal.onDestroy(() => {
+                if (result instanceof Promise) {
+                  result
+                    .then((cleanup) => {
+                      if (typeof cleanup === 'function') {
+                        cleanup()
+                      }
+                    })
+                    .catch((err) => console.error(err))
+                } else {
+                  result()
+                }
               })
             }
 
