@@ -6,6 +6,7 @@ import {
 } from '@nordcraft/core'
 import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr'
 import {
+  getCustomElementFontLoaderScript,
   getFontCssUrl,
   removeTestData,
   replaceTagInNodes,
@@ -113,15 +114,7 @@ const actions = {};`
 
 ${
   isDefined(fontStylesheetUrl)
-    ? `
-    // Font loading in shadow-dom is not supported widely, so we inject in <head>
-    // Ideally, we would inject the stylesheet directly in the ToddleComponent,
-    // but it appears it doesn't fetch the fonts - only the stylesheet
-    // See https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#referencing_external_styles
-    const linkElem = document.createElement("link");
-    linkElem.setAttribute("rel", "stylesheet");
-    linkElem.setAttribute("href", "${fontStylesheetUrl.block}");
-    document.head.appendChild(linkElem);`
+    ? getCustomElementFontLoaderScript(Object.values(fontStylesheetUrl))
     : ''
 }
 

@@ -9,7 +9,7 @@
     "directory": "packages/ssr"
   },
   "scripts": {
-    "build": "tsgo -p tsconfig.build.json",
+    "build": "tsgo -p tsconfig.build.json && bun scripts/build.ts",
     "npm-publish": "bun run build && bun publish --access public",
     "test": "bun test",
     "test:watch": "bun test --watch",
