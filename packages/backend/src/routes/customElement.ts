@@ -6,8 +6,8 @@ import {
 } from '@nordcraft/core'
 import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr'
 import {
+  getCustomElementFontLoaderScript,
   getFontCssUrl,
-  getFontLoaderScript,
   removeTestData,
   replaceTagInNodes,
   resolveClasses,
@@ -114,7 +114,7 @@ const actions = {};`
 
 ${
   isDefined(fontStylesheetUrl)
-    ? getFontLoaderScript(Object.values(fontStylesheetUrl))
+    ? getCustomElementFontLoaderScript(Object.values(fontStylesheetUrl))
     : ''
 }
 

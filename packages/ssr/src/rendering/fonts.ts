@@ -85,7 +85,7 @@ export const getFontCssUrl = ({
 // Replaced at build time in dist/rendering/fonts.js with the esbuild-minified bundle by scripts/build.ts
 export const FONT_LOADER_SCRIPT: string = '__FONT_LOADER_SCRIPT__'
 
-export const getFontLoaderScript = (fontUrls: string[]) =>
+export const getCustomElementFontLoaderScript = (fontUrls: string[]) =>
   FONT_LOADER_SCRIPT.replace(
     '__FONT_URLS__',
     // Function replacer so `$` sequences in URLs aren't interpreted,

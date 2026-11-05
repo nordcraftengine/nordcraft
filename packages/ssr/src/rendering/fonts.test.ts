@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import { Window } from 'happy-dom'
 import {
   FONT_LOADER_SCRIPT,
-  getFontLoaderScript,
+  getCustomElementFontLoaderScript,
 } from '../../dist/rendering/fonts'
 
 const runScriptInWindow = (scriptContent: string, win: Window) => {
@@ -10,7 +10,7 @@ const runScriptInWindow = (scriptContent: string, win: Window) => {
   fn(win.document, win, win)
 }
 
-describe('getFontLoaderScript', () => {
+describe('getCustomElementFontLoaderScript', () => {
   test('FONT_LOADER_SCRIPT is built with esbuild into a minified IIFE', () => {
     expect(
       FONT_LOADER_SCRIPT.includes('(()=>{') &&
@@ -19,7 +19,7 @@ describe('getFontLoaderScript', () => {
   })
 
   test('does not re-inject font stylesheet when all fonts are already linked on the page', () => {
-    const script = getFontLoaderScript([
+    const script = getCustomElementFontLoaderScript([
       'https://toddle.toddle.site/.toddle/fonts/stylesheet/css2?display=block&family=Inter%3Awght%40400&family=Inter+Tight%3Awght%40600',
     ])
 
@@ -39,7 +39,7 @@ describe('getFontLoaderScript', () => {
   })
 
   test('filters out font families already linked on the page and prepends only missing fonts to head', () => {
-    const script = getFontLoaderScript([
+    const script = getCustomElementFontLoaderScript([
       'https://toddle.toddle.site/.toddle/fonts/stylesheet/css2?display=block&family=Inter%3Awght%40400&family=Rock+Salt%3Awght%40400',
     ])
 
@@ -60,7 +60,7 @@ describe('getFontLoaderScript', () => {
   })
 
   test('filters out font faces already present in document.fonts and requests only missing weights', () => {
-    const script = getFontLoaderScript([
+    const script = getCustomElementFontLoaderScript([
       'https://toddle.toddle.site/.toddle/fonts/stylesheet/css2?display=block&family=Inter+Tight%3Awght%40400%3B600&family=Rock+Salt%3Awght%40400',
     ])
 
