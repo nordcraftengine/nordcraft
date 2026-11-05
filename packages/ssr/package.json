@@ -9,13 +9,13 @@
     "directory": "packages/ssr"
   },
   "scripts": {
-    "build": "tsgo -p tsconfig.build.json && bun scripts/build.ts",
+    "build": "tsc -p tsconfig.build.json && bun scripts/build.ts",
     "npm-publish": "bun run build && bun publish --access public",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:watch:only": "bun test --watch --only",
     "typecheck": "bun check",
-    "watch": "tsgo -w"
+    "watch": "tsc -w"
   },
   "files": [
     "dist"

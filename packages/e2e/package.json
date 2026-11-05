@@ -6,7 +6,7 @@
     "test:e2e": "playwright test --config playwright.config.ts",
     "test:e2e:docker": "bun docker.ts",
     "typecheck": "bun check",
-    "watch": "tsgo -w"
+    "watch": "tsc -w"
   },
   "dependencies": {},
   "devDependencies": {

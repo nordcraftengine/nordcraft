@@ -14,7 +14,7 @@
     "upload-source-map": "bunx wrangler r2 object put public/editor/cssParser.browser.js.map --file=dist/cssParser.browser.js.map --remote",
     "deploy": "bun run upload-parser && bun run upload-source-map",
     "typecheck": "bun check",
-    "watch": "tsgo --noEmit -w",
+    "watch": "tsc --noEmit -w",
     "test:watch:only": "bun test --watch --only"
   },
   "files": [

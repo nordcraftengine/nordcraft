@@ -17,10 +17,10 @@
   },
   "scripts": {
     "analyze": "bun scripts/analyze.ts",
-    "build": "tsgo -p tsconfig.build.json && bun scripts/build.ts",
+    "build": "tsc -p tsconfig.build.json && bun scripts/build.ts",
     "npm-publish": "bun run build && bun publish --access public",
     "typecheck": "bun check",
-    "watch": "tsgo -w"
+    "watch": "tsc -w"
   },
   "files": [
     "dist"

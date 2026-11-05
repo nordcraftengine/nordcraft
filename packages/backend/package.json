@@ -30,8 +30,8 @@
     "test:watch": "bun test --watch",
     "test:watch:only": "bun test --watch --only",
     "typecheck": "bun check",
-    "typecheck:watch": "tsgo --noEmit --watch",
-    "watch": "tsgo --noEmit -w"
+    "typecheck:watch": "tsc --noEmit --watch",
+    "watch": "tsc --noEmit -w"
   },
   "dependencies": {
     "@hono/node-server": "2.1.5",

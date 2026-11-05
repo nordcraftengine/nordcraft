@@ -47,7 +47,7 @@ jobs:
       - name: Build
         run: bun run build
       - name: Typecheck benchmark scripts
-        run: bunx tsgo --noEmit
+        run: bunx tsc --noEmit
       - name: Run benchmark tests
         run: bun test benchmarks
   test-core:
