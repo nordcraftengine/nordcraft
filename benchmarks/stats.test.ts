@@ -247,6 +247,36 @@ describe('Benchmark Stats', () => {
     expect(result.verdict).toContain('Faster')
   })
 
+  test('evaluateVerdict requires both improvement thresholds', () => {
+    const result = evaluateVerdict({
+      isByteIdentical: false,
+      deltaPercent: -56.0,
+      deltaMs: -0.1,
+      noiseThresholdPercent: 1.5,
+      maxRegressionPercent: 3,
+      maxRegressionMs: 1,
+      pValue: 0.0001,
+      ci: { low: -60.0, high: -50.0 },
+    })
+    expect(result.status).toBe('stable')
+  })
+
+  test('evaluateVerdict settles sub-display deltas as 1:1', () => {
+    for (const deltaPercent of [-56.55, -17.11, 42.0]) {
+      const result = evaluateVerdict({
+        isByteIdentical: false,
+        deltaPercent,
+        deltaMs: -0.0001,
+        noiseThresholdPercent: 1.5,
+        maxRegressionPercent: 3,
+        maxRegressionMs: 0.5,
+        pValue: 0.0001,
+        ci: { low: -60.0, high: -50.0 },
+      })
+      expect(result.status).toBe('1:1')
+    }
+  })
+
   test('evaluateHeapVerdict handles identical code and small noise', () => {
     const ident = evaluateHeapVerdict({
       isByteIdentical: true,
