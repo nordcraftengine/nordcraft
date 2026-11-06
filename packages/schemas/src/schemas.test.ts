@@ -134,6 +134,26 @@ describe('component schemas with valibot', () => {
       })
       expect(result.success).toBe(true)
     })
+
+    test('validates action with index property', () => {
+      const result = v.safeParse(ActionModelSchema, {
+        type: 'SetVariable',
+        variable: 'counter',
+        data: { type: 'value', value: 1 },
+        index: 0,
+      })
+      expect(result).toEqual({
+        typed: true,
+        success: true,
+        output: {
+          type: 'SetVariable',
+          variable: 'counter',
+          data: { type: 'value', value: 1 },
+          index: 0,
+        },
+        issues: undefined,
+      })
+    })
   })
 
   describe('ComponentSchema and ShallowComponentSchema', () => {
@@ -159,6 +179,36 @@ describe('component schemas with valibot', () => {
 
     test('validates a complete component', () => {
       expect(v.safeParse(ComponentSchema, validComponent).success).toBe(true)
+    })
+
+    test('validates component workflow with actions as an indexed object', () => {
+      const componentWithObjectWorkflowActions = {
+        ...validComponent,
+        workflows: {
+          myWorkflow: {
+            name: 'myWorkflow',
+            parameters: [],
+            actions: {
+              act1: {
+                type: 'SetVariable',
+                variable: 'counter',
+                data: { type: 'value', value: 1 },
+                index: 0,
+              },
+              act2: {
+                type: 'TriggerEvent',
+                event: 'done',
+                data: { type: 'value', value: null },
+                index: 1,
+              },
+            },
+          },
+        },
+      }
+      expect(
+        v.safeParse(ComponentSchema, componentWithObjectWorkflowActions)
+          .success,
+      ).toBe(true)
     })
 
     test('validates page schema', () => {

@@ -129,8 +129,9 @@ describe('namedComponentWorkflowRule', () => {
     expect(myComp.workflows?.newName?.name).toBeUndefined()
 
     // Internal reference updated
-    const internalAction = myComp.workflows?.newName
-      ?.actions[0] as WorkflowActionModel
+    const internalAction = Object.values(
+      myComp.workflows?.newName?.actions ?? {},
+    )[0] as WorkflowActionModel
     expect(internalAction.workflow).toBe('newName')
 
     // Context consumer updated
@@ -232,8 +233,9 @@ describe('namedComponentWorkflowRule', () => {
     expect(myComp.workflows?.sameKey?.name).toBeUndefined()
 
     // Internal reference preserved / updated
-    const internalAction = myComp.workflows?.sameKey
-      ?.actions[0] as WorkflowActionModel
+    const internalAction = Object.values(
+      myComp.workflows?.sameKey?.actions ?? {},
+    )[0] as WorkflowActionModel
     expect(internalAction.workflow).toBe('sameKey')
 
     // Context consumer preserved / updated

@@ -473,4 +473,105 @@ describe('ToddleComponent.formulasInComponent', () => {
     expect(formulas).toContain('text/html')
     expect(formulas).toContain(200)
   })
+
+  test('it returns formulas and actions when workflow actions is an object', () => {
+    const demo = new ToddleComponent({
+      component: {
+        name: 'demo',
+        apis: {},
+        attributes: {},
+        nodes: {},
+        variables: {},
+        workflows: {
+          myWorkflow: {
+            name: 'my-workflow',
+            actions: {
+              actionB: {
+                index: 1,
+                type: 'SetVariable',
+                variable: 'x',
+                data: valueFormula('second'),
+              },
+              actionA: {
+                index: 0,
+                type: 'TriggerWorkflow',
+                workflow: 'otherWorkflow',
+                parameters: {
+                  param1: {
+                    formula: valueFormula('first'),
+                  },
+                },
+              },
+            },
+            parameters: [],
+          },
+        },
+      },
+      getComponent: () => undefined,
+      packageName: 'demo',
+      globalFormulas: { formulas: {}, packages: {} },
+    })
+
+    expect({
+      formulas: Array.from(demo.formulasInComponent()),
+      actions: Array.from(demo.actionModelsInComponent()),
+    }).toEqual({
+      formulas: [
+        {
+          path: ['workflows', 'myWorkflow', 'actions', 'actionB', 'data'],
+          formula: {
+            type: 'value',
+            value: 'second',
+          },
+          packageName: 'demo',
+        },
+        {
+          path: [
+            'workflows',
+            'myWorkflow',
+            'actions',
+            'actionA',
+            'parameters',
+            'param1',
+            'formula',
+          ],
+          formula: {
+            type: 'value',
+            value: 'first',
+          },
+          packageName: 'demo',
+        },
+      ],
+      actions: [
+        [
+          ['workflows', 'myWorkflow', 'actions', 'actionB'],
+          {
+            index: 1,
+            type: 'SetVariable',
+            variable: 'x',
+            data: {
+              type: 'value',
+              value: 'second',
+            },
+          },
+        ],
+        [
+          ['workflows', 'myWorkflow', 'actions', 'actionA'],
+          {
+            index: 0,
+            type: 'TriggerWorkflow',
+            workflow: 'otherWorkflow',
+            parameters: {
+              param1: {
+                formula: {
+                  type: 'value',
+                  value: 'first',
+                },
+              },
+            },
+          },
+        ],
+      ],
+    })
+  })
 })
