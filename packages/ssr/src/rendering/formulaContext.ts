@@ -93,8 +93,6 @@ export const getPageFormulaContext = ({
   }
 }
 
-// The mapping from formula name to standard library handler is static, so build
-// it once at module load instead of on every page render.
 const CORE_FORMULAS: Record<string, any> = Object.fromEntries(
   Object.entries(libFormulas).map(([name, module]) => [
     '@toddle/' + name,
