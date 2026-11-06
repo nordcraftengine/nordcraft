@@ -134,7 +134,7 @@ export const set = <T = unknown>(
     const clone: any = Array.isArray(current)
       ? [...current]
       : isObject(current)
-        ? { ...current }
+        ? { ...(current as Record<string, any>) } // We check if it's an array above
         : {}
 
     if (index === len - 1) {
