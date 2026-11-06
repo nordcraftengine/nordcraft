@@ -1,9 +1,7 @@
 /* eslint-disable max-params */
 import type {
   ComponentData,
-  ComponentVariable,
   FormulaContext,
-  Nullable,
   PageComponent,
   PageRoute,
   PluginFormula,
@@ -11,7 +9,6 @@ import type {
 } from '@nordcraft/core'
 import {
   applyFormula,
-  filterObject,
   isDefined,
   isToddleFormula,
   mapHeadersToObject,
@@ -22,6 +19,7 @@ import { getPathSegments } from '../routing/routing'
 import type { InstalledPackage, ProjectFiles } from '../ssr.types'
 import { getRequestCookies } from './cookies'
 import { escapeSearchParameters } from './request'
+import { getComponentVariables } from './staticCache'
 
 /**
  * Builds a FormulaContext that can be used to evaluate formulas for a page component
@@ -78,15 +76,11 @@ export const getPageFormulaContext = ({
       ? getThemeInitialValue(component, formulaContext, data, env)
       : null,
   }
-  data.Variables = mapValues(
-    filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-      component?.variables ?? {},
-      ([_, variable]) => isDefined(variable),
-    ),
-    ({ initialValue }) => {
-      return applyFormula(initialValue, formulaContext, data)
-    },
-  )
+  data.Variables = component
+    ? mapValues(getComponentVariables(component), ({ initialValue }) => {
+        return applyFormula(initialValue, formulaContext, data)
+      })
+    : {}
   // Re-apply theme after variables have been initialized to ensure it has access to any variables if needed
   data.Page = {
     Theme: component
@@ -99,19 +93,20 @@ export const getPageFormulaContext = ({
   }
 }
 
+const CORE_FORMULAS: Record<string, any> = Object.fromEntries(
+  Object.entries(libFormulas).map(([name, module]) => [
+    '@toddle/' + name,
+    module.default as any,
+  ]),
+)
+
 export const getServerToddleObject = (
   files: Pick<ProjectFiles, 'formulas' | 'packages'> & {
     packages?: Partial<Record<string, Pick<InstalledPackage, 'formulas'>>>
   },
 ): FormulaContext['toddle'] => {
-  const coreFormulas = Object.fromEntries(
-    Object.entries(libFormulas).map(([name, module]) => [
-      '@toddle/' + name,
-      module.default as any,
-    ]),
-  )
   return {
-    getFormula: (name: string) => coreFormulas[name],
+    getFormula: (name: string) => CORE_FORMULAS[name],
     getCustomFormula: (
       name: string,
       packageName: string | null | undefined,
