@@ -65,6 +65,7 @@ import type {
   AddToThemeFix,
 } from './rules/issues/style/unknownCSSVariable'
 import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noReferenceVariableRule'
+import type { LegacyWorkflowActionsRuleFix } from './rules/issues/workflows/legacyWorkflowActionsRule'
 import type { NamedComponentWorkflowRuleFix } from './rules/issues/workflows/namedComponentWorkflowRule'
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
 import type { UnknownContextWorkflowRuleFix } from './rules/issues/workflows/unknownContextWorkflowRule'
@@ -95,6 +96,7 @@ export type Code =
   | 'legacy formula'
   | 'legacy style variable'
   | 'legacy theme'
+  | 'legacy workflow actions'
   | 'named component formula'
   | 'named component workflow'
   | 'no context consumers'
@@ -302,7 +304,7 @@ export type ComponentWorkflowNode = {
         testValue: any
       }[]
     >
-    actions: ActionModel[]
+    actions: Nullable<ActionModel>[] | Record<string, Nullable<ActionModel>>
     exposeInContext?: Nullable<boolean>
   }
   component: ToddleComponent<Function>
@@ -503,6 +505,7 @@ export type FixType =
   | LegacyActionRuleFix
   | LegacyFormulaRuleFix
   | LegacyStyleVariableRuleFix
+  | LegacyWorkflowActionsRuleFix
   | NoContextFormulaArgumentsRuleFix
   | NoPostNavigateActionRuleFix
   | NoReferenceAnimationRuleFix

@@ -7,6 +7,7 @@ import type {
 } from '@nordcraft/core'
 import {
   applyFormula,
+  easySort,
   isDefined,
   mapObject,
   omitKeys,
@@ -364,7 +365,13 @@ export function handleAction(
             return
           }
 
-          workflow.actions.forEach((action) =>
+          const providerActions = !Array.isArray(workflow.actions)
+            ? easySort(
+                Object.values(workflow.actions).filter(isDefined),
+                (a) => a.index ?? Infinity,
+              )
+            : (workflow.actions as ActionModel[])
+          providerActions.forEach((action) =>
             handleAction(
               action,
               {
@@ -406,7 +413,13 @@ export function handleAction(
           return
         }
 
-        workflow.actions.forEach((action) =>
+        const workflowActions = !Array.isArray(workflow.actions)
+          ? easySort(
+              Object.values(workflow.actions).filter(isDefined),
+              (a) => a.index ?? Infinity,
+            )
+          : (workflow.actions as ActionModel[])
+        workflowActions.forEach((action) =>
           handleAction(
             action,
             {

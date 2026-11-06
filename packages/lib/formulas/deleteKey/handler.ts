@@ -43,7 +43,7 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = ([
       } else {
         return {
           ...collection,
-          [key]: run(collection[key], path),
+          [key]: run((collection as any)[key], path),
         }
       }
     }
