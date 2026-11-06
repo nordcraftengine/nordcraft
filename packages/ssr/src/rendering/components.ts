@@ -37,7 +37,6 @@ import {
   getComponentVariables,
   getExposedContextFormulas,
   getIncludedComponentNames,
-  getLowerCaseTag,
   getStaticClassName,
 } from './staticCache'
 
@@ -252,7 +251,7 @@ const renderComponent = async ({
         }
       }
       case 'element': {
-        const lowerTag = getLowerCaseTag(node.tag)
+        const lowerTag = node.tag.toLowerCase()
         switch (lowerTag) {
           case 'script': {
             // We do not render script tags on the server until we support custom code formulas during SSR.

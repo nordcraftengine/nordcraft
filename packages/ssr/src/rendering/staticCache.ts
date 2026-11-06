@@ -14,6 +14,8 @@ import {
 // Component definitions and nodes are immutable snapshots of a project while a
 // page is being rendered. The helpers below memoize derived data on those
 // objects so repeated component instances do not redo the same work.
+// A node cache may be utilized when multiple instances of a component is used
+// or when nodes are used inside a repeat loop.
 
 /**
  * `includedComponents` is created per render. Cache the name lookup per array
@@ -35,13 +37,12 @@ export const getIncludedComponentNames = (
   return names
 }
 
-/**
- * Static styles (including static style-variables) never change for a given
- * node snapshot, but computing the class name re-stringifies the merged style
- * for every node render. Cache the result on the node object itself.
- */
 const STATIC_CLASS_NAMES = new WeakMap<object, string>()
 
+/**
+ * Static styles (including static style-variables) never across node instances,
+ * but computing the class name re-stringifies the merged style for every node render.
+ */
 export const getStaticClassName = (
   node: Parameters<typeof getStaticStyleAndVariants>[0],
 ) => {
@@ -55,30 +56,15 @@ export const getStaticClassName = (
   return className
 }
 
-/**
- * Tag names repeat heavily between nodes, and lower-casing them on every render
- * shows up in profiles. The set of distinct tags in a project is tiny.
- */
-const LOWER_CASE_TAGS = new Map<string, string>()
-
-export const getLowerCaseTag = (tag: string) => {
-  let lowerTag = LOWER_CASE_TAGS.get(tag)
-  if (lowerTag === undefined) {
-    lowerTag = tag.toLocaleLowerCase()
-    LOWER_CASE_TAGS.set(tag, lowerTag)
-  }
-  return lowerTag
-}
-
-/**
- * Variables without an initial value are skipped on every component instance.
- * Filter them once per component definition instead.
- */
 const COMPONENT_VARIABLES = new WeakMap<
   Component,
   Record<string, ComponentVariable>
 >()
 
+/**
+ * Variables without an initial value are skipped on every component instance.
+ * Filter them once per component definition instead.
+ */
 export const getComponentVariables = (component: Component) => {
   let variables = COMPONENT_VARIABLES.get(component)
   if (!variables) {
@@ -91,16 +77,16 @@ export const getComponentVariables = (component: Component) => {
   return variables
 }
 
-/**
- * Most components do not expose any formulas in their context, but the entries
- * are collected and filtered for every rendered instance. Cache the filtered
- * list per component definition.
- */
 const COMPONENT_CONTEXT_FORMULAS = new WeakMap<
   Component,
   Array<[string, ComponentFormula]>
 >()
 
+/**
+ * Most components do not expose any formulas in their context, but the entries
+ * are collected and filtered for every rendered instance. Cache the filtered
+ * list per component definition.
+ */
 export const getExposedContextFormulas = (component: Component) => {
   let formulas = COMPONENT_CONTEXT_FORMULAS.get(component)
   if (!formulas) {
