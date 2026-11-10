@@ -12,7 +12,9 @@ const createClientContext = (
 ): HandlerContext => ({
   component: { name: 'test', nodes: {} },
   data: { Attributes: {} },
-  root: (isShadowRoot ? new MockShadowRoot() : { cookie }) as Document,
+  root: (isShadowRoot
+    ? Object.create(globalThis.ShadowRoot.prototype)
+    : { cookie }) as Document,
   env: {
     branchName: 'main',
     isServer: false,
