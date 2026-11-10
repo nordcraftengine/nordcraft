@@ -13,7 +13,7 @@ const handler: FormulaHandler<string> = ([name], { env, root }) => {
       root.cookie
         .split('; ')
         ?.find((row) => row.startsWith(`${name}=`))
-        ?.split('=')[1] ?? null
+        ?.slice(name.length + 1) ?? null
     )
   } else {
     return env.request.cookies[name] ?? null
