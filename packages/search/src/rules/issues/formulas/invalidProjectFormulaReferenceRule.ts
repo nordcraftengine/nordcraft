@@ -60,7 +60,9 @@ export const invalidProjectFormulaReferenceRule: IssueRule<{
       return
     }
 
-    const validation = validateStaticPath(formulaEval.result, segments)
+    const validation = validateStaticPath(formulaEval.result, segments, {
+      allowStringIndexing: true,
+    })
     if (!validation.isValid) {
       report({
         path,

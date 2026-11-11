@@ -21,9 +21,26 @@ export const normalizePathSegments = (
 export const validateStaticPath = (
   data: unknown,
   segments: (string | number)[],
+  options?: { allowStringIndexing?: boolean },
 ): { isValid: true } | { isValid: false; invalidKey: string | number } => {
   let current: unknown = data
   for (const segment of segments) {
+    if (typeof current === 'string') {
+      if (!options?.allowStringIndexing) {
+        return { isValid: false, invalidKey: segment }
+      }
+      const index = Number(segment)
+      if (
+        !Number.isInteger(index) ||
+        index < 0 ||
+        index >= current.length ||
+        String(index) !== String(segment)
+      ) {
+        return { isValid: false, invalidKey: segment }
+      }
+      current = undefined
+      continue
+    }
     if (
       current === null ||
       current === undefined ||
@@ -31,24 +48,11 @@ export const validateStaticPath = (
     ) {
       return { isValid: false, invalidKey: segment }
     }
-    if (Array.isArray(current)) {
-      const index = typeof segment === 'number' ? segment : Number(segment)
-      if (
-        !Number.isInteger(index) ||
-        index < 0 ||
-        index >= current.length ||
-        (typeof segment === 'string' && !/^\d+$/.test(segment))
-      ) {
-        return { isValid: false, invalidKey: segment }
-      }
-      current = current[index]
-    } else {
-      const key = String(segment)
-      if (!Object.prototype.hasOwnProperty.call(current, key)) {
-        return { isValid: false, invalidKey: segment }
-      }
-      current = (current as Record<string, unknown>)[key]
+    const key = String(segment)
+    if (!Object.prototype.hasOwnProperty.call(current, key)) {
+      return { isValid: false, invalidKey: segment }
     }
+    current = (current as Record<string, unknown>)[key]
   }
   return { isValid: true }
 }

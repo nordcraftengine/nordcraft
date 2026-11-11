@@ -375,4 +375,164 @@ describe('invalidComponentFormulaReferenceRule', () => {
 
     expect(problems).toHaveLength(0)
   })
+
+  test('should report error when @toddle/get references an unknown property on a static object component formula', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  type: 'element',
+                  attrs: {},
+                  classes: {
+                    'my-class': {
+                      formula: {
+                        type: 'function',
+                        name: '@toddle/get',
+                        arguments: [
+                          {
+                            name: 'Object',
+                            formula: {
+                              type: 'apply',
+                              name: 'myObjectFormula',
+                              arguments: [],
+                            },
+                          },
+                          {
+                            name: 'Path',
+                            formula: {
+                              type: 'value',
+                              value: 'missingKey',
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                  events: {},
+                  tag: 'div',
+                  children: [],
+                  style: {},
+                },
+              },
+              formulas: {
+                myObjectFormula: {
+                  name: 'myObjectFormula',
+                  formula: {
+                    type: 'object',
+                    arguments: [
+                      {
+                        name: 'existingKey',
+                        formula: {
+                          type: 'value',
+                          value: 'hello',
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [invalidComponentFormulaReferenceRule],
+      }),
+    )
+
+    expect(problems).toEqual([
+      {
+        code: 'invalid component formula reference',
+        path: [
+          'components',
+          'test',
+          'nodes',
+          'root',
+          'classes',
+          'my-class',
+          'formula',
+        ],
+        level: 'error',
+        category: 'Unknown Reference',
+        info: {
+          title: 'Invalid formula reference',
+          description:
+            'Property **missingKey** does not exist on formula **myObjectFormula**.',
+        },
+        details: {
+          formulaName: 'myObjectFormula',
+          invalidKey: 'missingKey',
+        },
+      },
+    ])
+  })
+
+  test('should not report error when @toddle/get indexes a valid character on a static string component formula', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          components: {
+            test: {
+              name: 'test',
+              nodes: {
+                root: {
+                  type: 'element',
+                  attrs: {},
+                  classes: {
+                    'my-class': {
+                      formula: {
+                        type: 'function',
+                        name: '@toddle/get',
+                        arguments: [
+                          {
+                            name: 'Object',
+                            formula: {
+                              type: 'apply',
+                              name: 'greetingFormula',
+                              arguments: [],
+                            },
+                          },
+                          {
+                            name: 'Path',
+                            formula: {
+                              type: 'value',
+                              value: 1,
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                  events: {},
+                  tag: 'div',
+                  children: [],
+                  style: {},
+                },
+              },
+              formulas: {
+                greetingFormula: {
+                  name: 'greetingFormula',
+                  formula: {
+                    type: 'value',
+                    value: 'hello',
+                  },
+                },
+              },
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [invalidComponentFormulaReferenceRule],
+      }),
+    )
+
+    expect(problems).toEqual([])
+  })
 })

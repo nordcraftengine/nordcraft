@@ -382,4 +382,114 @@ describe('invalidContextFormulaReferenceRule', () => {
 
     expect(problems).toHaveLength(0)
   })
+
+  test('should allow @toddle/get string indexing on a static context formula while rejecting direct path string indexing', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          components: {
+            consumer: {
+              name: 'consumer',
+              nodes: {
+                root: {
+                  type: 'element',
+                  attrs: {},
+                  classes: {
+                    'valid-get': {
+                      formula: {
+                        type: 'function',
+                        name: '@toddle/get',
+                        arguments: [
+                          {
+                            name: 'Object',
+                            formula: {
+                              type: 'path',
+                              path: ['Contexts', 'provider', 'greeting'],
+                            },
+                          },
+                          {
+                            name: 'Path',
+                            formula: {
+                              type: 'value',
+                              value: 1,
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    'invalid-path': {
+                      formula: {
+                        type: 'path',
+                        path: ['Contexts', 'provider', 'greeting', 1],
+                      },
+                    },
+                  },
+                  events: {},
+                  tag: 'div',
+                  children: [],
+                  style: {},
+                },
+              },
+              contexts: {
+                provider: {
+                  formulas: ['greeting'],
+                  workflows: [],
+                  componentName: 'provider',
+                },
+              },
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+            provider: {
+              name: 'provider',
+              nodes: {},
+              formulas: {
+                greeting: {
+                  name: 'greeting',
+                  exposeInContext: true,
+                  formula: {
+                    type: 'value',
+                    value: 'hello',
+                  },
+                },
+              },
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+          },
+        },
+        rules: [invalidContextFormulaReferenceRule],
+      }),
+    )
+
+    expect(problems).toEqual([
+      {
+        code: 'invalid context formula reference',
+        path: [
+          'components',
+          'consumer',
+          'nodes',
+          'root',
+          'classes',
+          'invalid-path',
+          'formula',
+        ],
+        level: 'error',
+        category: 'Unknown Reference',
+        info: {
+          title: 'Invalid context formula reference',
+          description:
+            'Property **1** does not exist on context formula **greeting**.',
+        },
+        details: {
+          providerName: 'provider',
+          formulaName: 'greeting',
+          invalidKey: 1,
+        },
+      },
+    ])
+  })
 })

@@ -103,13 +103,45 @@ describe('validateStaticPropertyPath', () => {
     test('validates array indexing', () => {
       expect(validateStaticPath(['a', 'b'], [0])).toEqual({ isValid: true })
       expect(validateStaticPath(['a', 'b'], ['1'])).toEqual({ isValid: true })
+      expect(validateStaticPath(['a', 'b'], ['length'])).toEqual({
+        isValid: true,
+      })
       expect(validateStaticPath(['a', 'b'], [2])).toEqual({
         isValid: false,
         invalidKey: 2,
       })
+      expect(validateStaticPath(['a', 'b'], ['01'])).toEqual({
+        isValid: false,
+        invalidKey: '01',
+      })
       expect(validateStaticPath(['a', 'b'], ['not-a-number'])).toEqual({
         isValid: false,
         invalidKey: 'not-a-number',
+      })
+    })
+
+    test('validates string indexing when allowStringIndexing is enabled', () => {
+      expect(
+        validateStaticPath('hello', [1], { allowStringIndexing: true }),
+      ).toEqual({ isValid: true })
+      expect(
+        validateStaticPath('hello', ['1'], { allowStringIndexing: true }),
+      ).toEqual({ isValid: true })
+      expect(
+        validateStaticPath('hello', [5], { allowStringIndexing: true }),
+      ).toEqual({
+        isValid: false,
+        invalidKey: 5,
+      })
+      expect(
+        validateStaticPath('hello', ['char'], { allowStringIndexing: true }),
+      ).toEqual({
+        isValid: false,
+        invalidKey: 'char',
+      })
+      expect(validateStaticPath('hello', [1])).toEqual({
+        isValid: false,
+        invalidKey: 1,
       })
     })
 

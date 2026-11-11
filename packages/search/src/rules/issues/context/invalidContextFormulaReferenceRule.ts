@@ -22,6 +22,8 @@ export const invalidContextFormulaReferenceRule: IssueRule<{
     let providerName: string | undefined
     let formulaName: string | undefined
     let segments: (string | number)[] = []
+    let extraSegments: (string | number)[] = []
+    let allowStringIndexing = false
 
     if (value.type === 'path' && value.path[0] === 'Contexts') {
       providerName = value.path[1] as string | undefined
@@ -42,7 +44,7 @@ export const invalidContextFormulaReferenceRule: IssueRule<{
 
       providerName = objectFormula.path[1] as string | undefined
       formulaName = objectFormula.path[2] as string | undefined
-      const extraSegments = objectFormula.path.slice(3)
+      extraSegments = objectFormula.path.slice(3)
 
       const pathEval = contextlessEvaluateFormula(pathFormula)
       if (!pathEval.isStatic) {
@@ -55,6 +57,7 @@ export const invalidContextFormulaReferenceRule: IssueRule<{
       }
 
       segments = [...extraSegments, ...normalized]
+      allowStringIndexing = true
     } else {
       return
     }
@@ -82,7 +85,16 @@ export const invalidContextFormulaReferenceRule: IssueRule<{
       return
     }
 
-    const validation = validateStaticPath(formulaEval.result, segments)
+    const extraValidation =
+      extraSegments.length > 0
+        ? validateStaticPath(formulaEval.result, extraSegments)
+        : undefined
+    const validation =
+      extraValidation && !extraValidation.isValid
+        ? extraValidation
+        : validateStaticPath(formulaEval.result, segments, {
+            allowStringIndexing,
+          })
     if (!validation.isValid) {
       report({
         path,
