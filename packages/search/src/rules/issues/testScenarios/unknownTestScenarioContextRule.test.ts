@@ -16,10 +16,12 @@ describe('unknownTestScenarioContextRule', () => {
               apis: {},
               attributes: {},
               variables: {},
-              testScenarios: {
-                default: {
-                  contexts: {
-                    missingComponent: 'someScenario',
+              meta: {
+                testScenarios: {
+                  default: {
+                    contexts: {
+                      missingComponent: 'someScenario',
+                    },
                   },
                 },
               },
@@ -35,6 +37,7 @@ describe('unknownTestScenarioContextRule', () => {
     expect(problems[0].path).toEqual([
       'components',
       'consumer',
+      'meta',
       'testScenarios',
       'default',
       'contexts',
@@ -54,8 +57,10 @@ describe('unknownTestScenarioContextRule', () => {
               apis: {},
               attributes: {},
               variables: {},
-              testScenarios: {
-                existingScenario: {},
+              meta: {
+                testScenarios: {
+                  existingScenario: {},
+                },
               },
             },
             consumer: {
@@ -72,10 +77,12 @@ describe('unknownTestScenarioContextRule', () => {
                   workflows: [],
                 },
               },
-              testScenarios: {
-                default: {
-                  contexts: {
-                    provider: 'nonExistentScenario',
+              meta: {
+                testScenarios: {
+                  default: {
+                    contexts: {
+                      provider: 'nonExistentScenario',
+                    },
                   },
                 },
               },
@@ -91,6 +98,7 @@ describe('unknownTestScenarioContextRule', () => {
     expect(problems[0].path).toEqual([
       'components',
       'consumer',
+      'meta',
       'testScenarios',
       'default',
       'contexts',
@@ -111,8 +119,10 @@ describe('unknownTestScenarioContextRule', () => {
               apis: {},
               attributes: {},
               variables: {},
-              testScenarios: {
-                pkgScenario: {},
+              meta: {
+                testScenarios: {
+                  pkgScenario: {},
+                },
               },
             },
           },
@@ -134,10 +144,12 @@ describe('unknownTestScenarioContextRule', () => {
               workflows: [],
             },
           },
-          testScenarios: {
-            default: {
-              contexts: {
-                'myPkg/pkgProvider': 'missingPkgScenario',
+          meta: {
+            testScenarios: {
+              default: {
+                contexts: {
+                  'myPkg/pkgProvider': 'missingPkgScenario',
+                },
               },
             },
           },
@@ -157,6 +169,7 @@ describe('unknownTestScenarioContextRule', () => {
     expect(problems[0].path).toEqual([
       'components',
       'consumer',
+      'meta',
       'testScenarios',
       'default',
       'contexts',
@@ -176,8 +189,10 @@ describe('unknownTestScenarioContextRule', () => {
               apis: {},
               attributes: {},
               variables: {},
-              testScenarios: {
-                existingScenario: {},
+              meta: {
+                testScenarios: {
+                  existingScenario: {},
+                },
               },
             },
             consumer: {
@@ -194,10 +209,12 @@ describe('unknownTestScenarioContextRule', () => {
                   workflows: [],
                 },
               },
-              testScenarios: {
-                default: {
-                  contexts: {
-                    provider: 'existingScenario',
+              meta: {
+                testScenarios: {
+                  default: {
+                    contexts: {
+                      provider: 'existingScenario',
+                    },
                   },
                 },
               },
@@ -223,7 +240,9 @@ describe('unknownTestScenarioContextRule', () => {
               apis: {},
               attributes: {},
               variables: {},
-              testScenarios: {},
+              meta: {
+                testScenarios: {},
+              },
             },
             consumer: {
               name: 'consumer',
@@ -232,10 +251,12 @@ describe('unknownTestScenarioContextRule', () => {
               apis: {},
               attributes: {},
               variables: {},
-              testScenarios: {
-                default: {
-                  contexts: {
-                    provider: null,
+              meta: {
+                testScenarios: {
+                  default: {
+                    contexts: {
+                      provider: null,
+                    },
                   },
                 },
               },
@@ -251,6 +272,7 @@ describe('unknownTestScenarioContextRule', () => {
     expect(problems[0].path).toEqual([
       'components',
       'consumer',
+      'meta',
       'testScenarios',
       'default',
       'contexts',
@@ -269,10 +291,12 @@ describe('unknownTestScenarioContextRule', () => {
           attributes: {},
           variables: {},
           contexts: {},
-          testScenarios: {
-            default: {
-              contexts: {
-                unsubscribedProvider: 'someScenario',
+          meta: {
+            testScenarios: {
+              default: {
+                contexts: {
+                  unsubscribedProvider: 'someScenario',
+                },
               },
             },
           },
@@ -287,7 +311,7 @@ describe('unknownTestScenarioContextRule', () => {
     })
 
     expect(
-      updatedFiles.components?.consumer?.testScenarios?.default?.contexts,
+      updatedFiles.components?.consumer?.meta?.testScenarios?.default?.contexts,
     ).toEqual({})
   })
 })

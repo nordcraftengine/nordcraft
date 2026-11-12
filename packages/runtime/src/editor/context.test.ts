@@ -86,16 +86,18 @@ describe('context component lookup', () => {
           testValue: 'light',
         },
       },
-      testScenarios: {
-        darkScenario: {
-          isDefault: true,
-          attributes: {
-            theme: 'dark',
+      meta: {
+        testScenarios: {
+          darkScenario: {
+            isDefault: true,
+            attributes: {
+              theme: 'dark',
+            },
           },
-        },
-        customScenario: {
-          attributes: {
-            theme: 'blue',
+          customScenario: {
+            attributes: {
+              theme: 'blue',
+            },
           },
         },
       },

@@ -478,13 +478,15 @@ describe('fieldSearchRule', () => {
             query: {},
           },
           workflows: {},
-          testScenarios: {
-            adminUser: {
-              attributes: {
-                role: 'admin',
-              },
-              variables: {
-                loginCount: 5,
+          meta: {
+            testScenarios: {
+              adminUser: {
+                attributes: {
+                  role: 'admin',
+                },
+                variables: {
+                  loginCount: 5,
+                },
               },
             },
           },
@@ -507,6 +509,7 @@ describe('fieldSearchRule', () => {
     expect(byName[0].path).toEqual([
       'components',
       'UserProfile',
+      'meta',
       'testScenarios',
       'adminUser',
     ])
@@ -568,5 +571,44 @@ describe('fieldSearchRule', () => {
         (r) => r.details.nodeType === 'component-test-scenario',
       ),
     ).toBe(true)
+  })
+
+  test('it should find components by meta description', () => {
+    const filesWithMeta: ProjectFiles = {
+      formulas: {},
+      components: {
+        ProfileCard: {
+          name: 'ProfileCard',
+          nodes: {},
+          formulas: {},
+          apis: {},
+          attributes: {},
+          variables: {},
+          route: {
+            path: [],
+            query: {},
+          },
+          workflows: {},
+          meta: {
+            description: 'Displays a user avatar and profile details',
+          },
+        },
+      },
+    }
+
+    const results = Array.from(
+      searchProject({
+        withDetails: true,
+        files: filesWithMeta,
+        rules: [
+          createFieldSearchRule({
+            query:
+              '<component>meta.description:"Displays a user avatar and profile details"',
+          }),
+        ],
+      }),
+    )
+    expect(results).toHaveLength(1)
+    expect(results[0].path).toEqual(['components', 'ProfileCard'])
   })
 })

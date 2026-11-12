@@ -16,12 +16,14 @@ describe('duplicateDefaultTestScenarioRule', () => {
               apis: {},
               attributes: {},
               variables: {},
-              testScenarios: {
-                first: {
-                  isDefault: true,
-                },
-                second: {
-                  isDefault: true,
+              meta: {
+                testScenarios: {
+                  first: {
+                    isDefault: true,
+                  },
+                  second: {
+                    isDefault: true,
+                  },
                 },
               },
             },
@@ -36,6 +38,7 @@ describe('duplicateDefaultTestScenarioRule', () => {
     expect(problems[0].path).toEqual([
       'components',
       'myComp',
+      'meta',
       'testScenarios',
       'second',
       'isDefault',
@@ -54,12 +57,14 @@ describe('duplicateDefaultTestScenarioRule', () => {
               apis: {},
               attributes: {},
               variables: {},
-              testScenarios: {
-                first: {
-                  isDefault: true,
-                },
-                second: {
-                  isDefault: false,
+              meta: {
+                testScenarios: {
+                  first: {
+                    isDefault: true,
+                  },
+                  second: {
+                    isDefault: false,
+                  },
                 },
               },
             },
@@ -82,12 +87,14 @@ describe('duplicateDefaultTestScenarioRule', () => {
           apis: {},
           attributes: {},
           variables: {},
-          testScenarios: {
-            first: {
-              isDefault: true,
-            },
-            second: {
-              isDefault: true,
+          meta: {
+            testScenarios: {
+              first: {
+                isDefault: true,
+              },
+              second: {
+                isDefault: true,
+              },
             },
           },
         },
@@ -101,10 +108,10 @@ describe('duplicateDefaultTestScenarioRule', () => {
     })
 
     expect(
-      updatedFiles.components?.myComp?.testScenarios?.first?.isDefault,
+      updatedFiles.components?.myComp?.meta?.testScenarios?.first?.isDefault,
     ).toBe(true)
     expect(
-      updatedFiles.components?.myComp?.testScenarios?.second?.isDefault,
+      updatedFiles.components?.myComp?.meta?.testScenarios?.second?.isDefault,
     ).toBeUndefined()
   })
 })

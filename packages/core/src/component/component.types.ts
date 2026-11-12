@@ -216,6 +216,11 @@ export interface Component {
   }>
   // Used to indicate if a page or any of its child components use custom actions/formulas
   customCode?: Nullable<boolean>
+  meta?: Nullable<ComponentMeta>
+}
+
+export interface ComponentMeta {
+  description?: Nullable<string> // Useful for AI agents
   testScenarios?: Nullable<Record<string, Nullable<TestScenario>>>
   meta?: Nullable<{
     canvas?: Nullable<{

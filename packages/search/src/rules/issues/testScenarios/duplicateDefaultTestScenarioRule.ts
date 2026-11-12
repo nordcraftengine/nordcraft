@@ -10,17 +10,17 @@ export const duplicateDefaultTestScenarioRule: IssueRule<
   category: 'Quality',
   nodeTypes: 'component',
   visit: (report, { path, value }) => {
-    if (!value.testScenarios) {
+    if (!value.meta?.testScenarios) {
       return
     }
 
     let foundDefault = false
-    for (const key in value.testScenarios) {
-      const scenario = value.testScenarios[key]
+    for (const key in value.meta.testScenarios) {
+      const scenario = value.meta.testScenarios[key]
       if (scenario?.isDefault) {
         if (foundDefault) {
           report({
-            path: [...path, 'testScenarios', key, 'isDefault'],
+            path: [...path, 'meta', 'testScenarios', key, 'isDefault'],
             info: {
               title: 'Duplicate default test scenario',
               description: `Multiple test scenarios are marked as default on "${value.name}". Only one scenario should be marked as default.`,

@@ -530,7 +530,7 @@ function* visitNode(
       }
 
       if (ruleIndex.has('component-test-scenario')) {
-        const testScenarios = data.value.testScenarios
+        const testScenarios = data.value.meta?.testScenarios
         if (testScenarios) {
           for (const key in testScenarios) {
             const scenario = testScenarios[key]
@@ -539,7 +539,7 @@ function* visitNode(
                 nodeType: 'component-test-scenario',
                 value: scenario,
                 scenarioKey: key,
-                path: [...path, 'testScenarios', key],
+                path: [...path, 'meta', 'testScenarios', key],
                 component,
                 memo: context.memo,
                 files: context.files,

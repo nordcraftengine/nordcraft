@@ -600,4 +600,8 @@ export class ToddleComponent<Handler> {
   get customElement() {
     return this.component.customElement
   }
+
+  get meta() {
+    return this.component.meta
+  }
 }

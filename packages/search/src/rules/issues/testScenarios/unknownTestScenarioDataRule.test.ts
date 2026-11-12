@@ -19,11 +19,13 @@ describe('unknownTestScenarioDataRule', () => {
                 validAttr: { name: 'validAttr', testValue: 'ok' },
               },
               variables: {},
-              testScenarios: {
-                default: {
-                  attributes: {
-                    validAttr: 'ok',
-                    unknownAttr: 'broken',
+              meta: {
+                testScenarios: {
+                  default: {
+                    attributes: {
+                      validAttr: 'ok',
+                      unknownAttr: 'broken',
+                    },
                   },
                 },
               },
@@ -39,6 +41,7 @@ describe('unknownTestScenarioDataRule', () => {
     expect(problems[0].path).toEqual([
       'components',
       'myComp',
+      'meta',
       'testScenarios',
       'default',
       'attributes',
@@ -60,11 +63,13 @@ describe('unknownTestScenarioDataRule', () => {
               variables: {
                 validVar: { initialValue: { type: 'value', value: 1 } },
               },
-              testScenarios: {
-                default: {
-                  variables: {
-                    validVar: 2,
-                    unknownVar: 3,
+              meta: {
+                testScenarios: {
+                  default: {
+                    variables: {
+                      validVar: 2,
+                      unknownVar: 3,
+                    },
                   },
                 },
               },
@@ -80,6 +85,7 @@ describe('unknownTestScenarioDataRule', () => {
     expect(problems[0].path).toEqual([
       'components',
       'myComp',
+      'meta',
       'testScenarios',
       'default',
       'variables',
@@ -108,11 +114,13 @@ describe('unknownTestScenarioDataRule', () => {
               },
               attributes: {},
               variables: {},
-              testScenarios: {
-                default: {
-                  apis: {
-                    validApi: { data: null, isLoading: false, error: null },
-                    unknownApi: { data: null, isLoading: false, error: null },
+              meta: {
+                testScenarios: {
+                  default: {
+                    apis: {
+                      validApi: { data: null, isLoading: false, error: null },
+                      unknownApi: { data: null, isLoading: false, error: null },
+                    },
                   },
                 },
               },
@@ -128,6 +136,7 @@ describe('unknownTestScenarioDataRule', () => {
     expect(problems[0].path).toEqual([
       'components',
       'myComp',
+      'meta',
       'testScenarios',
       'default',
       'apis',
@@ -154,12 +163,14 @@ describe('unknownTestScenarioDataRule', () => {
                 ],
                 query: {},
               },
-              testScenarios: {
-                default: {
-                  path: {
-                    userId: '456',
-                    users: 'invalidStaticSegment',
-                    unknownParam: '789',
+              meta: {
+                testScenarios: {
+                  default: {
+                    path: {
+                      userId: '456',
+                      users: 'invalidStaticSegment',
+                      unknownParam: '789',
+                    },
                   },
                 },
               },
@@ -172,10 +183,19 @@ describe('unknownTestScenarioDataRule', () => {
 
     expect(problems).toHaveLength(2)
     expect(problems.map((p) => p.path)).toEqual([
-      ['components', 'myPage', 'testScenarios', 'default', 'path', 'users'],
       [
         'components',
         'myPage',
+        'meta',
+        'testScenarios',
+        'default',
+        'path',
+        'users',
+      ],
+      [
+        'components',
+        'myPage',
+        'meta',
         'testScenarios',
         'default',
         'path',
@@ -196,10 +216,12 @@ describe('unknownTestScenarioDataRule', () => {
               apis: {},
               attributes: {},
               variables: {},
-              testScenarios: {
-                default: {
-                  path: {
-                    userId: '123',
+              meta: {
+                testScenarios: {
+                  default: {
+                    path: {
+                      userId: '123',
+                    },
                   },
                 },
               },
@@ -214,6 +236,7 @@ describe('unknownTestScenarioDataRule', () => {
     expect(problems[0].path).toEqual([
       'components',
       'myComp',
+      'meta',
       'testScenarios',
       'default',
       'path',
@@ -239,11 +262,13 @@ describe('unknownTestScenarioDataRule', () => {
                   filter: { name: 'filter', testValue: 'all' },
                 },
               },
-              testScenarios: {
-                default: {
-                  query: {
-                    filter: 'active',
-                    unknownQuery: 'value',
+              meta: {
+                testScenarios: {
+                  default: {
+                    query: {
+                      filter: 'active',
+                      unknownQuery: 'value',
+                    },
                   },
                 },
               },
@@ -258,6 +283,7 @@ describe('unknownTestScenarioDataRule', () => {
     expect(problems[0].path).toEqual([
       'components',
       'myPage',
+      'meta',
       'testScenarios',
       'default',
       'query',
@@ -277,10 +303,12 @@ describe('unknownTestScenarioDataRule', () => {
               apis: {},
               attributes: {},
               variables: {},
-              testScenarios: {
-                default: {
-                  query: {
-                    filter: 'active',
+              meta: {
+                testScenarios: {
+                  default: {
+                    query: {
+                      filter: 'active',
+                    },
                   },
                 },
               },
@@ -295,6 +323,7 @@ describe('unknownTestScenarioDataRule', () => {
     expect(problems[0].path).toEqual([
       'components',
       'myComp',
+      'meta',
       'testScenarios',
       'default',
       'query',
@@ -333,22 +362,24 @@ describe('unknownTestScenarioDataRule', () => {
                   sort: { name: 'sort', testValue: 'asc' },
                 },
               },
-              testScenarios: {
-                default: {
-                  attributes: {
-                    theme: 'light',
-                  },
-                  variables: {
-                    count: 10,
-                  },
-                  apis: {
-                    getUser: { data: null, isLoading: false, error: null },
-                  },
-                  path: {
-                    id: '2',
-                  },
-                  query: {
-                    sort: 'desc',
+              meta: {
+                testScenarios: {
+                  default: {
+                    attributes: {
+                      theme: 'light',
+                    },
+                    variables: {
+                      count: 10,
+                    },
+                    apis: {
+                      getUser: { data: null, isLoading: false, error: null },
+                    },
+                    path: {
+                      id: '2',
+                    },
+                    query: {
+                      sort: 'desc',
+                    },
                   },
                 },
               },
@@ -374,11 +405,13 @@ describe('unknownTestScenarioDataRule', () => {
             validAttr: { name: 'validAttr', testValue: 'ok' },
           },
           variables: {},
-          testScenarios: {
-            default: {
-              attributes: {
-                validAttr: 'ok',
-                unknownAttr: 'broken',
+          meta: {
+            testScenarios: {
+              default: {
+                attributes: {
+                  validAttr: 'ok',
+                  unknownAttr: 'broken',
+                },
               },
             },
           },
@@ -393,7 +426,7 @@ describe('unknownTestScenarioDataRule', () => {
     })
 
     expect(
-      updatedFiles.components?.myComp?.testScenarios?.default?.attributes,
+      updatedFiles.components?.myComp?.meta?.testScenarios?.default?.attributes,
     ).toEqual({
       validAttr: 'ok',
     })

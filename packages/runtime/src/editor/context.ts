@@ -70,9 +70,9 @@ export function createStaticContextFromComponent(
 
     const override = options.contextOverrides?.[providerName]
     let scenarioKey = override
-    if (override === undefined && providerComponent.testScenarios) {
-      for (const k in providerComponent.testScenarios) {
-        if (providerComponent.testScenarios[k]?.isDefault) {
+    if (override === undefined && providerComponent.meta?.testScenarios) {
+      for (const k in providerComponent.meta.testScenarios) {
+        if (providerComponent.meta.testScenarios[k]?.isDefault) {
           scenarioKey = k
           break
         }
@@ -80,7 +80,7 @@ export function createStaticContextFromComponent(
     }
     const scenario =
       typeof scenarioKey === 'string'
-        ? providerComponent.testScenarios?.[scenarioKey]
+        ? providerComponent.meta?.testScenarios?.[scenarioKey]
         : null
 
     let providerAttributes = getAttributeTestValues(

@@ -72,10 +72,15 @@ const commonComponentEntries = (type: 'component' | 'page') => ({
     ),
     v.description(SCHEMA_DESCRIPTIONS.onAttributeChange(type)),
   ),
-  testScenarios: v.pipe(
-    v.nullish(record(v.string(), v.any())),
+  meta: v.pipe(
+    v.nullish(
+      v.object({
+        description: v.nullish(v.string()),
+        testScenarios: v.nullish(record(v.string(), v.any())),
+      }),
+    ),
     v.description(
-      'Test scenarios for previewing the component or page with different state overrides during development.',
+      'Metadata for the component or page, including description and test scenarios.',
     ),
   ),
 })
@@ -162,10 +167,15 @@ const shallowCommonComponentEntries = (type: 'component' | 'page') => ({
     v.nullish(v.any()),
     v.description(SCHEMA_DESCRIPTIONS.onAttributeChange(type)),
   ),
-  testScenarios: v.pipe(
-    v.nullish(record(v.string(), v.any())),
+  meta: v.pipe(
+    v.nullish(
+      v.object({
+        description: v.nullish(v.string()),
+        testScenarios: v.nullish(record(v.string(), v.any())),
+      }),
+    ),
     v.description(
-      'Test scenarios for previewing the component or page with different state overrides during development.',
+      'Metadata for the component or page, including description and test scenarios.',
     ),
   ),
 })

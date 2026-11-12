@@ -175,10 +175,12 @@ describe('applyPreviewState', () => {
         },
       },
       nodes: {},
-      testScenarios: {
-        'Logged in': {
-          variables: {
-            user: { id: 'user-1', name: 'Alice' },
+      meta: {
+        testScenarios: {
+          'Logged in': {
+            variables: {
+              user: { id: 'user-1', name: 'Alice' },
+            },
           },
         },
       },

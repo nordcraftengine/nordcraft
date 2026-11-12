@@ -42,7 +42,10 @@ export const unknownTestScenarioContextRule: IssueRule<
         continue
       }
 
-      if (!scenarioName || !providerComponent.testScenarios?.[scenarioName]) {
+      if (
+        !scenarioName ||
+        !providerComponent.meta?.testScenarios?.[scenarioName]
+      ) {
         report({
           path: [...path, 'contexts', providerKey],
           info: {

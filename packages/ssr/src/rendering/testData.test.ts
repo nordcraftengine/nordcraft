@@ -495,22 +495,53 @@ describe('removeTestData', () => {
       cleanedComponent.nodes.root.events.Change.actions[0].arguments,
     ).toBeUndefined()
   })
-  test('it removes testScenarios from component', () => {
+  test('it removes testScenarios from component.meta while keeping description', () => {
     const cleanedComponent = removeTestData({
       name: 'test',
       variables: {},
       apis: {},
       nodes: {},
       attributes: {},
-      testScenarios: {
-        'scenario-1': {
-          attributes: { prop: 'custom' },
-          variables: { count: 42 },
-          path: { id: 'test' },
-          query: { tab: 'details' },
+      meta: {
+        description: 'Component description',
+        testScenarios: {
+          'scenario-1': {
+            attributes: { prop: 'custom' },
+            variables: { count: 42 },
+            path: { id: 'test' },
+            query: { tab: 'details' },
+          },
         },
       },
     })
-    expect(cleanedComponent.testScenarios).toBeUndefined()
+    expect(cleanedComponent).toEqual({
+      name: 'test',
+      meta: {
+        description: 'Component description',
+      },
+    })
+  })
+
+  test('it removes meta completely if it only contains testScenarios', () => {
+    const cleanedComponent = removeTestData({
+      name: 'test',
+      variables: {},
+      apis: {},
+      nodes: {},
+      attributes: {},
+      meta: {
+        testScenarios: {
+          'scenario-1': {
+            attributes: { prop: 'custom' },
+            variables: { count: 42 },
+            path: { id: 'test' },
+            query: { tab: 'details' },
+          },
+        },
+      },
+    })
+    expect(cleanedComponent).toEqual({
+      name: 'test',
+    })
   })
 })
