@@ -148,6 +148,7 @@ export const removeTestData = (component: Component): Component => {
             },
           }
         : undefined),
+      meta: undefined, // We always want to remove this data
     },
     [
       'version',
@@ -166,6 +167,7 @@ export const removeTestData = (component: Component): Component => {
       'exported',
       'customElement',
       'testScenarios',
+      'meta',
     ],
   )
 }

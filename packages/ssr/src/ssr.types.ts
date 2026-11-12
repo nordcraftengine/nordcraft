@@ -1,7 +1,10 @@
 import type {
   ApiBase,
   Component,
+  CustomProperty,
+  CustomPropertyName,
   Formula,
+  Nullable,
   OldTheme,
   PluginAction,
   PluginFormula,
@@ -47,6 +50,10 @@ export interface ProjectFiles {
     }
     editorSettings?: {
       snapSize?: number
+      canvas?: Nullable<{
+        style?: Nullable<Record<string, any>>
+        customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
+      }>
     }
   }
   themes?: Record<string, Theme>
