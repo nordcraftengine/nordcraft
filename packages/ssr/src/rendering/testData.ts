@@ -30,19 +30,11 @@ import {
 } from '@nordcraft/core'
 
 export const removeTestData = (component: Component): Component => {
-  const cleanedMeta = component.meta
-    ? removeOptionalPropertiesIfEmpty(
-        omitKeys(component.meta, ['testScenarios']),
-        ['description'],
-      )
-    : undefined
-  const meta =
-    cleanedMeta && Object.keys(cleanedMeta).length > 0 ? cleanedMeta : undefined
+  const { meta: _meta, ...componentWithoutMeta } = component
 
   return removeOptionalPropertiesIfEmpty<Component>(
     {
-      ...component,
-      meta,
+      ...componentWithoutMeta,
       attributes: mapObject(
         filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
           component.attributes ?? {},

@@ -1,4 +1,9 @@
-import type { Component, PageComponent } from '@nordcraft/core'
+import type {
+  Component,
+  ComponentMeta,
+  PageComponent,
+  TestScenario,
+} from '@nordcraft/core'
 import * as v from 'valibot'
 import { ActionModelSchema } from './action-schema'
 import { ComponentAPISchema } from './api-schema'
@@ -8,9 +13,133 @@ import { ComponentEventSchema } from './event-schema'
 import { ComponentFormulaSchema } from './formula-schema'
 import { NodeModelSchema } from './node-schema'
 import { RouteSchema } from './route-schema'
-import { record, SCHEMA_DESCRIPTIONS } from './valibot-schemas'
+import { MetadataSchema, record, SCHEMA_DESCRIPTIONS } from './valibot-schemas'
 import { ComponentVariableSchema } from './variable-schema'
 import { ComponentWorkflowSchema } from './workflow-schema'
+
+export const TestScenarioApiStatusSchema = v.pipe(
+  v.object({
+    data: v.pipe(v.unknown(), v.description('Mock response data for the API.')),
+    isLoading: v.pipe(
+      v.boolean(),
+      v.description('Mock loading state of the API.'),
+    ),
+    error: v.pipe(
+      v.unknown(),
+      v.description('Mock error state or payload for the API.'),
+    ),
+    response: v.pipe(
+      v.nullish(
+        v.object({
+          status: v.pipe(
+            v.nullish(v.number()),
+            v.description('Mock HTTP status code (e.g. 200, 404).'),
+          ),
+          headers: v.pipe(
+            v.nullish(record(v.string(), v.string())),
+            v.description('Mock HTTP response headers.'),
+          ),
+          performance: v.pipe(
+            v.nullish(
+              v.object({
+                requestStart: v.nullish(v.number()),
+                responseStart: v.nullish(v.number()),
+                responseEnd: v.nullish(v.number()),
+              }),
+            ),
+            v.description('Mock performance metrics for the API request.'),
+          ),
+          debug: v.pipe(
+            v.nullish(v.unknown()),
+            v.description('Optional debug information for the API.'),
+          ),
+        }),
+      ),
+      v.description(
+        'Mock HTTP response metadata including status and headers.',
+      ),
+    ),
+    inputs: v.pipe(
+      v.nullish(record(v.string(), v.unknown())),
+      v.description('Mock inputs passed into the API request.'),
+    ),
+  }),
+  v.description('Mock state for an API in the component.'),
+)
+
+export const TestScenarioSchema: v.GenericSchema<unknown, TestScenario> =
+  v.pipe(
+    v.object({
+      '@nordcraft/metadata': v.pipe(
+        v.nullish(MetadataSchema),
+        v.description('Metadata associated with this test scenario.'),
+      ),
+      isDefault: v.pipe(
+        v.nullish(v.boolean()),
+        v.description(
+          'Whether this is the default test scenario for previewing the component or page.',
+        ),
+      ),
+      attributes: v.pipe(
+        v.nullish(record(v.string(), v.unknown())),
+        v.description('Mock attribute values to use during preview/testing.'),
+      ),
+      variables: v.pipe(
+        v.nullish(record(v.string(), v.unknown())),
+        v.description(
+          'Mock variable values to override the variable initial values during preview/testing.',
+        ),
+      ),
+      apis: v.pipe(
+        v.nullish(record(v.string(), v.nullish(TestScenarioApiStatusSchema))),
+        v.description(
+          'Mock states for APIs in the component during this scenario.',
+        ),
+      ),
+      path: v.pipe(
+        v.nullish(record(v.string(), v.nullish(v.string()))),
+        v.description(
+          'Mock dynamic path parameter values for page routes (e.g. { id: "123" }).',
+        ),
+      ),
+      query: v.pipe(
+        v.nullish(record(v.string(), v.nullish(v.string()))),
+        v.description(
+          'Mock URL query parameter values for page routes (e.g. { tab: "overview" }).',
+        ),
+      ),
+      contexts: v.pipe(
+        v.nullish(record(v.string(), v.nullish(v.string()))),
+        v.description(
+          'Mapping of subscribed context providers to the specific test scenario to use from each provider.',
+        ),
+      ),
+    }),
+    v.description(
+      'A test scenario defining mock inputs, state, and environment overrides for previewing and testing a component or page.',
+    ),
+  )
+
+export const ComponentMetaSchema: v.GenericSchema<unknown, ComponentMeta> =
+  v.pipe(
+    v.object({
+      description: v.pipe(
+        v.nullish(v.string()),
+        v.description(
+          'A description explaining the purpose and usage of the component or page.',
+        ),
+      ),
+      testScenarios: v.pipe(
+        v.nullish(record(v.string(), v.nullish(TestScenarioSchema))),
+        v.description(
+          'Test scenarios for previewing the component or page with different state overrides during development.',
+        ),
+      ),
+    }),
+    v.description(
+      'Metadata for the component or page, including description and test scenarios.',
+    ),
+  )
 
 const commonComponentEntries = (type: 'component' | 'page') => ({
   name: v.pipe(v.string(), v.description(`Name of the ${type}`)),
@@ -73,12 +202,7 @@ const commonComponentEntries = (type: 'component' | 'page') => ({
     v.description(SCHEMA_DESCRIPTIONS.onAttributeChange(type)),
   ),
   meta: v.pipe(
-    v.nullish(
-      v.object({
-        description: v.nullish(v.string()),
-        testScenarios: v.nullish(record(v.string(), v.any())),
-      }),
-    ),
+    v.nullish(ComponentMetaSchema),
     v.description(
       'Metadata for the component or page, including description and test scenarios.',
     ),
