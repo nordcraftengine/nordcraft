@@ -1,9 +1,81 @@
+import type { ProjectFiles } from '@nordcraft/ssr'
 import { describe, expect, test } from 'bun:test'
 import { fixProject } from '../../../fixProject'
 import { searchProject } from '../../../searchProject'
+import type { IssueResult } from '../../../types'
 import { unknownTestScenarioContextRule } from './unknownTestScenarioContextRule'
 
 describe('unknownTestScenarioContextRule', () => {
+  test('should detect when component does not subscribe to the context provider', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          components: {
+            provider: {
+              name: 'provider',
+              nodes: {},
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+              meta: {
+                testScenarios: {
+                  someScenario: {},
+                },
+              },
+            },
+            consumer: {
+              name: 'consumer',
+              nodes: {},
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+              contexts: {},
+              meta: {
+                testScenarios: {
+                  default: {
+                    contexts: {
+                      provider: 'someScenario',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        rules: [unknownTestScenarioContextRule],
+      }),
+    )
+
+    expect(problems).toEqual([
+      {
+        path: [
+          'components',
+          'consumer',
+          'meta',
+          'testScenarios',
+          'default',
+          'contexts',
+          'provider',
+        ],
+        code: 'unknown test scenario context',
+        category: 'Unknown Reference',
+        level: 'error',
+        info: {
+          title: 'Unknown context provider in test scenario',
+          description:
+            'Context provider **provider** is not subscribed by "consumer".',
+        },
+        details: {
+          providerName: 'provider',
+          scenarioName: 'someScenario',
+        },
+        fixes: ['delete-test-scenario-reference'],
+      } satisfies IssueResult,
+    ])
+  })
+
   test('should detect when context component does not exist', () => {
     const problems = Array.from(
       searchProject({
@@ -16,6 +88,13 @@ describe('unknownTestScenarioContextRule', () => {
               apis: {},
               attributes: {},
               variables: {},
+              contexts: {
+                missingComponent: {
+                  componentName: 'missingComponent',
+                  formulas: [],
+                  workflows: [],
+                },
+              },
               meta: {
                 testScenarios: {
                   default: {
@@ -32,16 +111,30 @@ describe('unknownTestScenarioContextRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(1)
-    expect(problems[0].code).toBe('unknown test scenario context')
-    expect(problems[0].path).toEqual([
-      'components',
-      'consumer',
-      'meta',
-      'testScenarios',
-      'default',
-      'contexts',
-      'missingComponent',
+    expect(problems).toEqual([
+      {
+        path: [
+          'components',
+          'consumer',
+          'meta',
+          'testScenarios',
+          'default',
+          'contexts',
+          'missingComponent',
+        ],
+        code: 'unknown test scenario context',
+        category: 'Unknown Reference',
+        level: 'error',
+        info: {
+          title: 'Unknown context component in test scenario',
+          description: 'Component **missingComponent** does not exist.',
+        },
+        details: {
+          providerName: 'missingComponent',
+          scenarioName: 'someScenario',
+        },
+        fixes: ['delete-test-scenario-reference'],
+      } satisfies IssueResult,
     ])
   })
 
@@ -93,24 +186,114 @@ describe('unknownTestScenarioContextRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(1)
-    expect(problems[0].code).toBe('unknown test scenario context')
-    expect(problems[0].path).toEqual([
-      'components',
-      'consumer',
-      'meta',
-      'testScenarios',
-      'default',
-      'contexts',
-      'provider',
+    expect(problems).toEqual([
+      {
+        path: [
+          'components',
+          'consumer',
+          'meta',
+          'testScenarios',
+          'default',
+          'contexts',
+          'provider',
+        ],
+        code: 'unknown test scenario context',
+        category: 'Unknown Reference',
+        level: 'error',
+        info: {
+          title: 'Unknown test scenario in context provider',
+          description:
+            'Scenario **nonExistentScenario** does not exist in "provider".',
+        },
+        details: {
+          providerName: 'provider',
+          scenarioName: 'nonExistentScenario',
+        },
+        fixes: ['delete-test-scenario-reference'],
+      } satisfies IssueResult,
+    ])
+  })
+
+  test('should detect when referenced scenario is an empty string on provider component', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          components: {
+            provider: {
+              name: 'provider',
+              nodes: {},
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+              meta: {
+                testScenarios: {
+                  existingScenario: {},
+                },
+              },
+            },
+            consumer: {
+              name: 'consumer',
+              nodes: {},
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+              contexts: {
+                provider: {
+                  componentName: 'provider',
+                  formulas: [],
+                  workflows: [],
+                },
+              },
+              meta: {
+                testScenarios: {
+                  default: {
+                    contexts: {
+                      provider: '',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        rules: [unknownTestScenarioContextRule],
+      }),
+    )
+
+    expect(problems).toEqual([
+      {
+        path: [
+          'components',
+          'consumer',
+          'meta',
+          'testScenarios',
+          'default',
+          'contexts',
+          'provider',
+        ],
+        code: 'unknown test scenario context',
+        category: 'Unknown Reference',
+        level: 'error',
+        info: {
+          title: 'Unknown test scenario in context provider',
+          description: 'Scenario **** does not exist in "provider".',
+        },
+        details: {
+          providerName: 'provider',
+          scenarioName: '',
+        },
+        fixes: ['delete-test-scenario-reference'],
+      } satisfies IssueResult,
     ])
   })
 
   test('should handle package context provider scenario validation', () => {
-    const files = {
+    const files: Omit<ProjectFiles, 'config'> = {
       packages: {
         myPkg: {
-          name: 'myPkg',
+          manifest: { name: 'myPkg', commit: '1' },
           components: {
             pkgProvider: {
               name: 'pkgProvider',
@@ -159,21 +342,36 @@ describe('unknownTestScenarioContextRule', () => {
 
     const problems = Array.from(
       searchProject({
-        files: files as any,
+        files,
         rules: [unknownTestScenarioContextRule],
       }),
     )
 
-    expect(problems).toHaveLength(1)
-    expect(problems[0].code).toBe('unknown test scenario context')
-    expect(problems[0].path).toEqual([
-      'components',
-      'consumer',
-      'meta',
-      'testScenarios',
-      'default',
-      'contexts',
-      'myPkg/pkgProvider',
+    expect(problems).toEqual([
+      {
+        path: [
+          'components',
+          'consumer',
+          'meta',
+          'testScenarios',
+          'default',
+          'contexts',
+          'myPkg/pkgProvider',
+        ],
+        code: 'unknown test scenario context',
+        category: 'Unknown Reference',
+        level: 'error',
+        info: {
+          title: 'Unknown test scenario in context provider',
+          description:
+            'Scenario **missingPkgScenario** does not exist in "myPkg/pkgProvider".',
+        },
+        details: {
+          providerName: 'myPkg/pkgProvider',
+          scenarioName: 'missingPkgScenario',
+        },
+        fixes: ['delete-test-scenario-reference'],
+      } satisfies IssueResult,
     ])
   })
 
@@ -225,10 +423,10 @@ describe('unknownTestScenarioContextRule', () => {
       }),
     )
 
-    expect(problems).toBeEmpty()
+    expect(problems).toEqual([])
   })
 
-  test('should detect when scenario name is null or invalid', () => {
+  test('should not report when scenario name is null (opt-out from default scenario) on a subscribed provider', () => {
     const problems = Array.from(
       searchProject({
         files: {
@@ -241,7 +439,9 @@ describe('unknownTestScenarioContextRule', () => {
               attributes: {},
               variables: {},
               meta: {
-                testScenarios: {},
+                testScenarios: {
+                  defaultScenario: { isDefault: true },
+                },
               },
             },
             consumer: {
@@ -251,6 +451,13 @@ describe('unknownTestScenarioContextRule', () => {
               apis: {},
               attributes: {},
               variables: {},
+              contexts: {
+                provider: {
+                  componentName: 'provider',
+                  formulas: [],
+                  workflows: [],
+                },
+              },
               meta: {
                 testScenarios: {
                   default: {
@@ -267,21 +474,76 @@ describe('unknownTestScenarioContextRule', () => {
       }),
     )
 
-    expect(problems).toHaveLength(1)
-    expect(problems[0].code).toBe('unknown test scenario context')
-    expect(problems[0].path).toEqual([
-      'components',
-      'consumer',
-      'meta',
-      'testScenarios',
-      'default',
-      'contexts',
-      'provider',
+    expect(problems).toEqual([])
+  })
+
+  test('should detect when scenario name is null on an unsubscribed provider', () => {
+    const problems = Array.from(
+      searchProject({
+        files: {
+          components: {
+            provider: {
+              name: 'provider',
+              nodes: {},
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+            },
+            consumer: {
+              name: 'consumer',
+              nodes: {},
+              formulas: {},
+              apis: {},
+              attributes: {},
+              variables: {},
+              contexts: {},
+              meta: {
+                testScenarios: {
+                  default: {
+                    contexts: {
+                      provider: null,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        rules: [unknownTestScenarioContextRule],
+      }),
+    )
+
+    expect(problems).toEqual([
+      {
+        path: [
+          'components',
+          'consumer',
+          'meta',
+          'testScenarios',
+          'default',
+          'contexts',
+          'provider',
+        ],
+        code: 'unknown test scenario context',
+        category: 'Unknown Reference',
+        level: 'error',
+        info: {
+          title: 'Unknown context provider in test scenario',
+          description:
+            'Context provider **provider** is not subscribed by "consumer".',
+        },
+        details: {
+          providerName: 'provider',
+          scenarioName: null,
+        },
+        fixes: ['delete-test-scenario-reference'],
+      } satisfies IssueResult,
     ])
   })
 
   test('should fix unknown test scenario context by deleting the reference', () => {
-    const files = {
+    const files: Omit<ProjectFiles, 'config'> = {
       components: {
         consumer: {
           name: 'consumer',

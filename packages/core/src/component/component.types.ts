@@ -221,7 +221,7 @@ export interface Component {
 
 export interface ComponentMeta {
   description?: Nullable<string> // Useful for AI agents
-  tags?: Nullable<Partial<string[]>> // Useful for AI agents
+  tags?: Nullable<string[]> // Useful for AI agents
   testScenarios?: Nullable<Record<string, Nullable<TestScenario>>>
   meta?: Nullable<{
     canvas?: Nullable<{

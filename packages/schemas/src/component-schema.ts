@@ -129,6 +129,12 @@ export const ComponentMetaSchema: v.GenericSchema<unknown, ComponentMeta> =
           'A description explaining the purpose and usage of the component or page.',
         ),
       ),
+      tags: v.pipe(
+        v.nullish(v.array(v.string())),
+        v.description(
+          'Tags categorizing the component or page for organization and discovery.',
+        ),
+      ),
       testScenarios: v.pipe(
         v.nullish(record(v.string(), v.nullish(TestScenarioSchema))),
         v.description(
@@ -137,7 +143,7 @@ export const ComponentMetaSchema: v.GenericSchema<unknown, ComponentMeta> =
       ),
     }),
     v.description(
-      'Metadata for the component or page, including description and test scenarios.',
+      'Metadata for the component or page, including description, tags, and test scenarios.',
     ),
   )
 
@@ -295,11 +301,12 @@ const shallowCommonComponentEntries = (type: 'component' | 'page') => ({
     v.nullish(
       v.object({
         description: v.nullish(v.string()),
+        tags: v.nullish(v.array(v.string())),
         testScenarios: v.nullish(record(v.string(), v.any())),
       }),
     ),
     v.description(
-      'Metadata for the component or page, including description and test scenarios.',
+      'Metadata for the component or page, including description, tags, and test scenarios.',
     ),
   ),
 })

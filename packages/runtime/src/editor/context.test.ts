@@ -138,6 +138,76 @@ describe('context component lookup', () => {
       },
     )
 
-    expect(result.ThemeContext?.currentTheme).toBe('dark')
+    expect(result).toEqual({
+      ThemeContext: {
+        currentTheme: 'dark',
+      },
+    })
+  })
+
+  test('createStaticContextFromComponent opts out of provider default scenario when override is null', () => {
+    const provider: Component = {
+      name: 'ThemeContext',
+      attributes: {
+        theme: {
+          name: 'theme',
+          testValue: 'light',
+        },
+      },
+      meta: {
+        testScenarios: {
+          darkScenario: {
+            isDefault: true,
+            attributes: {
+              theme: 'dark',
+            },
+          },
+        },
+      },
+      formulas: {
+        currentTheme: {
+          formula: {
+            type: 'path',
+            path: ['Attributes', 'theme'],
+          },
+        },
+      },
+      nodes: { root: { type: 'element', tag: 'div', children: [] } },
+    }
+    const consumer: Component = {
+      name: 'Consumer',
+      contexts: {
+        ThemeContext: {
+          formulas: ['currentTheme'],
+          workflows: [],
+        },
+      },
+      nodes: { root: { type: 'element', tag: 'div', children: [] } },
+    }
+
+    const env = {
+      isServer: false as const,
+      branchName: 'main',
+      request: undefined,
+      runtime: 'preview' as const,
+      logErrors: false,
+    }
+
+    const result = createStaticContextFromComponent(
+      consumer,
+      [provider, consumer],
+      {
+        env,
+        contextOverrides: {
+          ThemeContext: null,
+        },
+      },
+    )
+
+    expect(result).toEqual({
+      ThemeContext: {
+        currentTheme: 'light',
+      },
+    })
   })
 })
