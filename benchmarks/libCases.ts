@@ -1,0 +1,805 @@
+/**
+ * Every formula and action in `packages/lib` gets its own benchmark case so
+ * a regression in a single std-lib function can be attributed to that function.
+ *
+ * `benchmarks/libCases.test.ts` fails when a std-lib function has no case, so
+ * new std-lib functions cannot silently skip the benchmark suite.
+ *
+ * Cases marked with `skipBenchmark: true` measure thin 1:1 JavaScript
+ * passthroughs (single-operator arithmetic, trivial coercions, environment
+ * reads) or nondeterministic functions. Their timings sit below timer
+ * resolution, so running them only adds noise. The runner skips them by
+ * default in CI and local runs, but they stay fully wired: pass
+ * `--case=<id>` to run one explicitly, `--include-skipped=true` to run them
+ * all, or delete the flag to re-enable a case permanently.
+ */
+export const LIB_BENCHMARK_CASES = [
+  {
+    id: 'formula-id',
+    name: 'lib.Id · Id',
+    kind: 'formula',
+    target: 'Id',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-absolute',
+    name: 'lib.absolute · Absolute',
+    kind: 'formula',
+    target: 'absolute',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-add',
+    name: 'lib.add · Add',
+    kind: 'formula',
+    target: 'add',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-append',
+    name: 'lib.append · Append',
+    kind: 'formula',
+    target: 'append',
+  },
+  {
+    id: 'formula-boolean',
+    name: 'lib.boolean · Boolean',
+    kind: 'formula',
+    target: 'boolean',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-branch-name',
+    name: 'lib.branchName · Branch Name',
+    kind: 'formula',
+    target: 'branchName',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-can-share',
+    name: 'lib.canShare · Can Share',
+    kind: 'formula',
+    target: 'canShare',
+  },
+  {
+    id: 'formula-capitalize',
+    name: 'lib.capitalize · Capitalize',
+    kind: 'formula',
+    target: 'capitalize',
+  },
+  {
+    id: 'formula-clamp',
+    name: 'lib.clamp · Clamp',
+    kind: 'formula',
+    target: 'clamp',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-concatenate',
+    name: 'lib.concatenate · Concatenate',
+    kind: 'formula',
+    target: 'concatenate',
+  },
+  {
+    id: 'formula-current-url',
+    name: 'lib.currentURL · Current URL',
+    kind: 'formula',
+    target: 'currentURL',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-date-from-string',
+    name: 'lib.dateFromString · Date From String',
+    kind: 'formula',
+    target: 'dateFromString',
+  },
+  {
+    id: 'formula-date-from-timestamp',
+    name: 'lib.dateFromTimestamp · Date From Timestamp',
+    kind: 'formula',
+    target: 'dateFromTimestamp',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-decode-base64',
+    name: 'lib.decodeBase64 · Decode base64',
+    kind: 'formula',
+    target: 'decodeBase64',
+  },
+  {
+    id: 'formula-decode-uricomponent',
+    name: 'lib.decodeURIComponent · Decode URI Component',
+    kind: 'formula',
+    target: 'decodeURIComponent',
+  },
+  {
+    id: 'formula-default-to',
+    name: 'lib.defaultTo · Default to',
+    kind: 'formula',
+    target: 'defaultTo',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-delete-key',
+    name: 'lib.deleteKey · Delete',
+    kind: 'formula',
+    target: 'deleteKey',
+  },
+  {
+    id: 'formula-divide',
+    name: 'lib.divide · Divide',
+    kind: 'formula',
+    target: 'divide',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-drop',
+    name: 'lib.drop · Drop',
+    kind: 'formula',
+    target: 'drop',
+  },
+  {
+    id: 'formula-drop-last',
+    name: 'lib.dropLast · Drop last',
+    kind: 'formula',
+    target: 'dropLast',
+  },
+  {
+    id: 'formula-encode-base64',
+    name: 'lib.encodeBase64 · Encode to base64',
+    kind: 'formula',
+    target: 'encodeBase64',
+  },
+  {
+    id: 'formula-encode-json',
+    name: 'lib.encodeJSON · Encode JSON',
+    kind: 'formula',
+    target: 'encodeJSON',
+  },
+  {
+    id: 'formula-encode-uricomponent',
+    name: 'lib.encodeURIComponent · Encode URI Component',
+    kind: 'formula',
+    target: 'encodeURIComponent',
+  },
+  {
+    id: 'formula-entries',
+    name: 'lib.entries · Entries',
+    kind: 'formula',
+    target: 'entries',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-equals',
+    name: 'lib.equals · Equals',
+    kind: 'formula',
+    target: 'equals',
+  },
+  {
+    id: 'formula-every',
+    name: 'lib.every · Every',
+    kind: 'formula',
+    target: 'every',
+  },
+  {
+    id: 'formula-filter',
+    name: 'lib.filter · Filter',
+    kind: 'formula',
+    target: 'filter',
+  },
+  {
+    id: 'formula-find',
+    name: 'lib.find · Find',
+    kind: 'formula',
+    target: 'find',
+  },
+  {
+    id: 'formula-find-index',
+    name: 'lib.findIndex · Find index',
+    kind: 'formula',
+    target: 'findIndex',
+  },
+  {
+    id: 'formula-find-last',
+    name: 'lib.findLast · Find Last',
+    kind: 'formula',
+    target: 'findLast',
+  },
+  {
+    id: 'formula-first',
+    name: 'lib.first · First',
+    kind: 'formula',
+    target: 'first',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-flatten',
+    name: 'lib.flatten · Flatten',
+    kind: 'formula',
+    target: 'flatten',
+  },
+  {
+    id: 'formula-format-date',
+    name: 'lib.formatDate · Format Date',
+    kind: 'formula',
+    target: 'formatDate',
+  },
+  {
+    id: 'formula-format-number',
+    name: 'lib.formatNumber · Format Number',
+    kind: 'formula',
+    target: 'formatNumber',
+  },
+  {
+    id: 'formula-from-entries',
+    name: 'lib.fromEntries · From entries',
+    kind: 'formula',
+    target: 'fromEntries',
+  },
+  {
+    id: 'formula-get',
+    name: 'lib.get · Get',
+    kind: 'formula',
+    target: 'get',
+  },
+  {
+    id: 'formula-get-cookie',
+    name: 'lib.getCookie · Get Cookie',
+    kind: 'formula',
+    target: 'getCookie',
+  },
+  {
+    id: 'formula-get-element-by-id',
+    name: 'lib.getElementById · Get element by id',
+    kind: 'formula',
+    target: 'getElementById',
+  },
+  {
+    id: 'formula-get-from-local-storage',
+    name: 'lib.getFromLocalStorage · Get from Local Storage',
+    kind: 'formula',
+    target: 'getFromLocalStorage',
+  },
+  {
+    id: 'formula-get-from-session-storage',
+    name: 'lib.getFromSessionStorage · Get from Session Storage',
+    kind: 'formula',
+    target: 'getFromSessionStorage',
+  },
+  {
+    id: 'formula-get-http-only-cookie',
+    name: 'lib.getHttpOnlyCookie · Get Http-Only Cookie',
+    kind: 'formula',
+    target: 'getHttpOnlyCookie',
+  },
+  {
+    id: 'formula-greater-or-equeal',
+    name: 'lib.greaterOrEqueal · Greater or equal',
+    kind: 'formula',
+    target: 'greaterOrEqueal',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-greater-than',
+    name: 'lib.greaterThan · Greater than',
+    kind: 'formula',
+    target: 'greaterThan',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-group-by',
+    name: 'lib.groupBy · Group by',
+    kind: 'formula',
+    target: 'groupBy',
+  },
+  {
+    id: 'formula-includes',
+    name: 'lib.includes · Includes',
+    kind: 'formula',
+    target: 'includes',
+  },
+  {
+    id: 'formula-index-of',
+    name: 'lib.indexOf · Index of',
+    kind: 'formula',
+    target: 'indexOf',
+  },
+  {
+    id: 'formula-is-server',
+    name: 'lib.isServer · Is Server',
+    kind: 'formula',
+    target: 'isServer',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-join',
+    name: 'lib.join · Join',
+    kind: 'formula',
+    target: 'join',
+  },
+  {
+    id: 'formula-json',
+    name: 'lib.json · JSON',
+    kind: 'formula',
+    target: 'json',
+  },
+  {
+    id: 'formula-key-by',
+    name: 'lib.keyBy · Key by',
+    kind: 'formula',
+    target: 'keyBy',
+  },
+  {
+    id: 'formula-languages',
+    name: 'lib.languages · Languages',
+    kind: 'formula',
+    target: 'languages',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-last',
+    name: 'lib.last · Last',
+    kind: 'formula',
+    target: 'last',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-last-index-of',
+    name: 'lib.lastIndexOf · Last Index of',
+    kind: 'formula',
+    target: 'lastIndexOf',
+  },
+  {
+    id: 'formula-less-or-equal',
+    name: 'lib.lessOrEqual · Less or equal',
+    kind: 'formula',
+    target: 'lessOrEqual',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-less-than',
+    name: 'lib.lessThan · Less than',
+    kind: 'formula',
+    target: 'lessThan',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-logarithm',
+    name: 'lib.logarithm · Logarithm',
+    kind: 'formula',
+    target: 'logarithm',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-lowercase',
+    name: 'lib.lowercase · Lower case',
+    kind: 'formula',
+    target: 'lowercase',
+  },
+  {
+    id: 'formula-map',
+    name: 'lib.map · Map',
+    kind: 'formula',
+    target: 'map',
+  },
+  {
+    id: 'formula-matches',
+    name: 'lib.matches · Matches',
+    kind: 'formula',
+    target: 'matches',
+  },
+  {
+    id: 'formula-max',
+    name: 'lib.max · Max',
+    kind: 'formula',
+    target: 'max',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-min',
+    name: 'lib.min · Min',
+    kind: 'formula',
+    target: 'min',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-minus',
+    name: 'lib.minus · Minus',
+    kind: 'formula',
+    target: 'minus',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-modulo',
+    name: 'lib.modulo · Modulo',
+    kind: 'formula',
+    target: 'modulo',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-multiply',
+    name: 'lib.multiply · Multiply',
+    kind: 'formula',
+    target: 'multiply',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-not',
+    name: 'lib.not · Not',
+    kind: 'formula',
+    target: 'not',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-not-equal',
+    name: 'lib.notEqual · Not equal',
+    kind: 'formula',
+    target: 'notEqual',
+  },
+  {
+    id: 'formula-now',
+    name: 'lib.now · Now',
+    kind: 'formula',
+    target: 'now',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-number',
+    name: 'lib.number · Number',
+    kind: 'formula',
+    target: 'number',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-parse-json',
+    name: 'lib.parseJSON · Parse JSON',
+    kind: 'formula',
+    target: 'parseJSON',
+  },
+  {
+    id: 'formula-parse-url',
+    name: 'lib.parseURL · Parse URL',
+    kind: 'formula',
+    target: 'parseURL',
+  },
+  {
+    id: 'formula-power',
+    name: 'lib.power · Power',
+    kind: 'formula',
+    target: 'power',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-prepend',
+    name: 'lib.prepend · Prepend',
+    kind: 'formula',
+    target: 'prepend',
+  },
+  {
+    id: 'formula-random-number',
+    name: 'lib.randomNumber · Random number',
+    kind: 'formula',
+    target: 'randomNumber',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-range',
+    name: 'lib.range · Range',
+    kind: 'formula',
+    target: 'range',
+  },
+  {
+    id: 'formula-reduce',
+    name: 'lib.reduce · Reduce',
+    kind: 'formula',
+    target: 'reduce',
+  },
+  {
+    id: 'formula-replace-all',
+    name: 'lib.replaceAll · Replace all',
+    kind: 'formula',
+    target: 'replaceAll',
+  },
+  {
+    id: 'formula-reverse',
+    name: 'lib.reverse · Reverse',
+    kind: 'formula',
+    target: 'reverse',
+  },
+  {
+    id: 'formula-round',
+    name: 'lib.round · Round',
+    kind: 'formula',
+    target: 'round',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-round-down',
+    name: 'lib.roundDown · Round down',
+    kind: 'formula',
+    target: 'roundDown',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-round-up',
+    name: 'lib.roundUp · Round up',
+    kind: 'formula',
+    target: 'roundUp',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-set',
+    name: 'lib.set · Set',
+    kind: 'formula',
+    target: 'set',
+  },
+  {
+    id: 'formula-shuffle',
+    name: 'lib.shuffle · Shuffle',
+    kind: 'formula',
+    target: 'shuffle',
+  },
+  {
+    id: 'formula-size',
+    name: 'lib.size · Size',
+    kind: 'formula',
+    target: 'size',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-some',
+    name: 'lib.some · Some',
+    kind: 'formula',
+    target: 'some',
+  },
+  {
+    id: 'formula-sort-by',
+    name: 'lib.sort_by · Sort by',
+    kind: 'formula',
+    target: 'sort_by',
+  },
+  {
+    id: 'formula-split',
+    name: 'lib.split · Split',
+    kind: 'formula',
+    target: 'split',
+  },
+  {
+    id: 'formula-square-root',
+    name: 'lib.squareRoot · Square root',
+    kind: 'formula',
+    target: 'squareRoot',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-starts-with',
+    name: 'lib.startsWith · Starts with',
+    kind: 'formula',
+    target: 'startsWith',
+  },
+  {
+    id: 'formula-string',
+    name: 'lib.string · String',
+    kind: 'formula',
+    target: 'string',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-sum',
+    name: 'lib.sum · Sum',
+    kind: 'formula',
+    target: 'sum',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-take',
+    name: 'lib.take · Take',
+    kind: 'formula',
+    target: 'take',
+  },
+  {
+    id: 'formula-take-last',
+    name: 'lib.takeLast · Take last',
+    kind: 'formula',
+    target: 'takeLast',
+  },
+  {
+    id: 'formula-timestamp',
+    name: 'lib.timestamp · Timestamp',
+    kind: 'formula',
+    target: 'timestamp',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-trim',
+    name: 'lib.trim · Trim',
+    kind: 'formula',
+    target: 'trim',
+  },
+  {
+    id: 'formula-type-of',
+    name: 'lib.typeOf · Type of',
+    kind: 'formula',
+    target: 'typeOf',
+    skipBenchmark: true,
+  },
+  {
+    id: 'formula-unique',
+    name: 'lib.unique · Unique',
+    kind: 'formula',
+    target: 'unique',
+  },
+  {
+    id: 'formula-uppercase',
+    name: 'lib.uppercase · Uppercase',
+    kind: 'formula',
+    target: 'uppercase',
+  },
+  {
+    id: 'formula-user-agent',
+    name: 'lib.userAgent · User Agent',
+    kind: 'formula',
+    target: 'userAgent',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-clear-local-storage',
+    name: 'lib.clearLocalStorage · Clear local storage',
+    kind: 'action',
+    target: 'clearLocalStorage',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-clear-session-storage',
+    name: 'lib.clearSessionStorage · Clear session storage',
+    kind: 'action',
+    target: 'clearSessionStorage',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-copy-to-clipboard',
+    name: 'lib.copyToClipboard · Copy to clipboard',
+    kind: 'action',
+    target: 'copyToClipboard',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-delete-from-local-storage',
+    name: 'lib.deleteFromLocalStorage · Delete from local storage',
+    kind: 'action',
+    target: 'deleteFromLocalStorage',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-delete-from-session-storage',
+    name: 'lib.deleteFromSessionStorage · Delete from session storage',
+    kind: 'action',
+    target: 'deleteFromSessionStorage',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-focus',
+    name: 'lib.focus · Focus',
+    kind: 'action',
+    target: 'focus',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-got-to-url',
+    name: 'lib.gotToURL · Go to URL',
+    kind: 'action',
+    target: 'gotToURL',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-interval',
+    name: 'lib.interval · Interval',
+    kind: 'action',
+    target: 'interval',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-log-to-console',
+    name: 'lib.logToConsole · Log to console',
+    kind: 'action',
+    target: 'logToConsole',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-prevent-default',
+    name: 'lib.preventDefault · Prevent default',
+    kind: 'action',
+    target: 'preventDefault',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-save-to-local-storage',
+    name: 'lib.saveToLocalStorage · Save to local storage',
+    kind: 'action',
+    target: 'saveToLocalStorage',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-save-to-session-storage',
+    name: 'lib.saveToSessionStorage · Save to session storage',
+    kind: 'action',
+    target: 'saveToSessionStorage',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-set-cookie',
+    name: 'lib.setCookie · Set cookie',
+    kind: 'action',
+    target: 'setCookie',
+  },
+  {
+    id: 'action-set-http-only-cookie',
+    name: 'lib.setHttpOnlyCookie · Set HttpOnly cookie',
+    kind: 'action',
+    target: 'setHttpOnlyCookie',
+  },
+  {
+    id: 'action-set-session-cookies',
+    name: 'lib.setSessionCookies · Set session cookies',
+    kind: 'action',
+    target: 'setSessionCookies',
+  },
+  {
+    id: 'action-set-theme',
+    name: 'lib.setTheme · Set theme',
+    kind: 'action',
+    target: 'setTheme',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-share',
+    name: 'lib.share · Share',
+    kind: 'action',
+    target: 'share',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-sleep',
+    name: 'lib.sleep · Sleep',
+    kind: 'action',
+    target: 'sleep',
+    skipBenchmark: true,
+  },
+  {
+    id: 'action-stop-propagation',
+    name: 'lib.stopPropagation · Stop propagation',
+    kind: 'action',
+    target: 'stopPropagation',
+    skipBenchmark: true,
+  },
+] as const
+
+export type LibBenchmarkKind = (typeof LIB_BENCHMARK_CASES)[number]['kind']
+
+export type LibBenchmarkCase = (typeof LIB_BENCHMARK_CASES)[number]
+
+export type LibBenchmarkCaseId = LibBenchmarkCase['id']
+
+export const isLibBenchmarkCaseId = (
+  value: string | undefined,
+): value is LibBenchmarkCaseId =>
+  LIB_BENCHMARK_CASES.some((benchmarkCase) => benchmarkCase.id === value)
+
+export const LIB_BENCHMARK_CASE_IDS = LIB_BENCHMARK_CASES.map(
+  (benchmarkCase) => benchmarkCase.id,
+)
+
+export const findLibBenchmarkCase = (id: LibBenchmarkCaseId) =>
+  LIB_BENCHMARK_CASES.find((benchmarkCase) => benchmarkCase.id === id)
+
+export const isSkippedLibBenchmarkCase = (
+  benchmarkCase: LibBenchmarkCase,
+): boolean =>
+  'skipBenchmark' in benchmarkCase && benchmarkCase.skipBenchmark === true
+
+export const SKIPPED_LIB_BENCHMARK_CASE_IDS = LIB_BENCHMARK_CASES.filter(
+  isSkippedLibBenchmarkCase,
+).map(({ id }) => id)
+
+export const libBenchmarkUsage = () =>
+  `--case=<${LIB_BENCHMARK_CASES.map(({ id }) => id).join('|')}>`
