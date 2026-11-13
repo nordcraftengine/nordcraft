@@ -148,7 +148,6 @@ export const removeTestData = (component: Component): Component => {
             },
           }
         : undefined),
-      meta: undefined, // We always want to remove this data
     },
     [
       'version',

@@ -219,7 +219,7 @@ export interface Component {
   testScenarios?: Nullable<Record<string, Nullable<TestScenario>>>
   meta?: Nullable<{
     canvas?: Nullable<{
-      style?: Nullable<Record<string, any>>
+      style?: Nullable<NodeStyleModel>
       customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
     }>
   }>

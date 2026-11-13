@@ -4,6 +4,7 @@ import type {
   CustomProperty,
   CustomPropertyName,
   Formula,
+  NodeStyleModel,
   Nullable,
   OldTheme,
   PluginAction,
@@ -51,7 +52,7 @@ export interface ProjectFiles {
     editorSettings?: {
       snapSize?: number
       canvas?: Nullable<{
-        style?: Nullable<Record<string, any>>
+        style?: Nullable<NodeStyleModel>
         customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
       }>
     }
