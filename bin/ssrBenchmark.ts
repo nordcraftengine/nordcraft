@@ -26,6 +26,7 @@ import {
 } from '../packages/core/dist/formula/formula'
 import { takeIncludedComponents } from '../packages/ssr/dist/components/utils'
 import { renderPageBody } from '../packages/ssr/dist/rendering/components'
+import { initIsEqual } from '../packages/ssr/dist/rendering/equals'
 import {
   getPageFormulaContext,
   serverEnv,
@@ -667,6 +668,7 @@ const runDirect = async (runner: BenchmarkRunner, options: SsrArgs) => {
 }
 
 export const main = async (argv: readonly string[] = Bun.argv.slice(2)) => {
+  initIsEqual()
   const options = parseSsrArgs(argv)
   const runner = await createRunner(options.caseId)
   if (options.isWorker) {
