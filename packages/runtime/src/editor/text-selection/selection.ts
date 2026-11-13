@@ -21,13 +21,12 @@ export const handleTextNodeSelection = (
   let isFinished = false
   const handleKeyDown = (e: KeyboardEvent) => {
     e.stopPropagation()
-    if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
+    if (e.key === 'Tab') {
       e.preventDefault()
       finishEditing()
     }
     if (e.key === 'Escape') {
       e.preventDefault()
-      node.textContent = initialContent
       finishEditing()
     }
   }
