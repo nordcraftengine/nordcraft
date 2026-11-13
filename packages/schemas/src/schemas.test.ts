@@ -3,9 +3,11 @@ import * as v from 'valibot'
 import { ActionModelSchema } from './action-schema'
 import { ComponentAPISchema } from './api-schema'
 import {
+  ComponentMetaSchema,
   ComponentSchema,
   PageSchema,
   ShallowComponentSchema,
+  TestScenarioSchema,
 } from './component-schema'
 import { FormulaSchema } from './formula-schema'
 import { RouteSchema } from './route-schema'
@@ -229,6 +231,156 @@ describe('component schemas with valibot', () => {
         },
       }
       expect(v.safeParse(RouteSchema, route).success).toBe(true)
+    })
+  })
+
+  describe('TestScenarioSchema and ComponentMetaSchema', () => {
+    test('validates a complete test scenario', () => {
+      const scenario = {
+        isDefault: true,
+        attributes: {
+          theme: 'dark',
+          count: 42,
+        },
+        variables: {
+          user: { name: 'Alice' },
+        },
+        apis: {
+          getUser: {
+            data: { id: '1' },
+            isLoading: false,
+            error: null,
+            response: {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
+            },
+            inputs: { userId: '1' },
+          },
+        },
+        path: {
+          id: '123',
+        },
+        query: {
+          tab: 'details',
+        },
+        contexts: {
+          AuthProvider: 'loggedIn',
+        },
+        '@nordcraft/metadata': {
+          comments: null,
+        },
+      }
+      expect(v.safeParse(TestScenarioSchema, scenario).success).toBe(true)
+    })
+
+    test('validates an empty test scenario', () => {
+      expect(v.safeParse(TestScenarioSchema, {}).success).toBe(true)
+    })
+
+    test('rejects a test scenario with invalid isDefault type', () => {
+      const invalid = {
+        isDefault: 'not-a-boolean',
+      }
+      expect(v.safeParse(TestScenarioSchema, invalid).success).toBe(false)
+    })
+
+    test('validates component metadata with description, tags, and scenarios', () => {
+      const meta = {
+        description: 'A button component with variant states',
+        tags: ['ui', 'button'],
+        testScenarios: {
+          primary: {
+            isDefault: true,
+            attributes: { variant: 'primary' },
+          },
+          secondary: {
+            attributes: { variant: 'secondary' },
+          },
+        },
+      }
+      const result = v.safeParse(ComponentMetaSchema, meta)
+      expect(result).toEqual({
+        typed: true,
+        success: true,
+        output: meta,
+        issues: undefined,
+      })
+    })
+
+    test('rejects invalid tags in ComponentMetaSchema', () => {
+      expect(
+        v.safeParse(ComponentMetaSchema, {
+          tags: [123],
+        }).success,
+      ).toBe(false)
+      expect(
+        v.safeParse(ComponentMetaSchema, {
+          tags: [null],
+        }).success,
+      ).toBe(false)
+    })
+
+    test('validates component with meta in ComponentSchema', () => {
+      const component = {
+        name: 'MyComponent',
+        nodes: {},
+        attributes: {},
+        variables: {},
+        formulas: {},
+        workflows: {},
+        apis: {},
+        meta: {
+          description: 'A component description',
+          tags: ['profile'],
+          testScenarios: {
+            default: {
+              isDefault: true,
+              attributes: { title: 'Test' },
+            },
+          },
+        },
+      }
+      const result = v.safeParse(ComponentSchema, component)
+      expect(result).toEqual({
+        typed: true,
+        success: true,
+        output: component,
+        issues: undefined,
+      })
+    })
+
+    test('validates and preserves tags in ShallowComponentSchema', () => {
+      const component = {
+        name: 'MyShallowComponent',
+        nodes: {},
+        attributes: {},
+        variables: {},
+        formulas: {},
+        workflows: {},
+        apis: {},
+        meta: {
+          description: 'A shallow component description',
+          tags: ['card', 'layout'],
+          testScenarios: {
+            default: {
+              isDefault: true,
+            },
+          },
+        },
+      }
+      const result = v.safeParse(ShallowComponentSchema, component)
+      expect(result).toEqual({
+        typed: true,
+        success: true,
+        output: component,
+        issues: undefined,
+      })
+      expect(
+        v.safeParse(ShallowComponentSchema, {
+          ...component,
+          meta: { tags: [123] },
+        }).success,
+      ).toBe(false)
     })
   })
 })

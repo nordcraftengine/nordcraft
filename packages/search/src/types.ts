@@ -22,6 +22,7 @@ import type {
   PluginFormula,
   StyleVariable,
   StyleVariant,
+  TestScenario,
   Theme,
   ToddleComponent,
 } from '@nordcraft/core'
@@ -64,6 +65,7 @@ import type {
   AddToRootNodeFix,
   AddToThemeFix,
 } from './rules/issues/style/unknownCSSVariable'
+import type { DeleteTestScenarioReferenceFix } from './rules/issues/testScenarios/unknownTestScenarioDataRule'
 import type { NoReferenceVariableRuleFix } from './rules/issues/variables/noReferenceVariableRule'
 import type { NamedComponentWorkflowRuleFix } from './rules/issues/workflows/namedComponentWorkflowRule'
 import type { NoPostNavigateActionRuleFix } from './rules/issues/workflows/noPostNavigateAction'
@@ -72,6 +74,7 @@ import type { UnknownContextWorkflowRuleFix } from './rules/issues/workflows/unk
 export type Code =
   | 'animated style not in theme'
   | 'duplicate action argument name'
+  | 'duplicate default test scenario'
   | 'duplicate event trigger'
   | 'duplicate formula argument name'
   | 'duplicate route'
@@ -164,6 +167,8 @@ export type Code =
   | 'unknown repeat item formula'
   | 'unknown set url parameter'
   | 'unknown set url parameters'
+  | 'unknown test scenario context'
+  | 'unknown test scenario data'
   | 'unknown trigger event'
   | 'unknown trigger workflow parameter'
   | 'unknown trigger workflow'
@@ -396,6 +401,13 @@ export type ComponentNodeNode = {
   component: ToddleComponent<Function>
 } & Base
 
+export type ComponentTestScenarioNode = {
+  nodeType: 'component-test-scenario'
+  value: TestScenario
+  scenarioKey: string
+  component: ToddleComponent<Function>
+} & Base
+
 export type ProjectThemeNode = {
   nodeType: 'project-theme'
   value: Theme
@@ -476,6 +488,7 @@ export type NodeType =
   | ComponentNode
   | ComponentNodeAttributeNode
   | ComponentNodeNode
+  | ComponentTestScenarioNode
   | ComponentVariableNode
   | ComponentWorkflowNode
   | CustomActionModelArgumentNode
@@ -499,6 +512,7 @@ export type FixType =
   | AddToRootNodeFix
   | ChangeDataTypeFix
   | DeleteFetchInputFix
+  | DeleteTestScenarioReferenceFix
   | InvalidStyleSyntaxRuleFix
   | LegacyActionRuleFix
   | LegacyFormulaRuleFix

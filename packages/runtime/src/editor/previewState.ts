@@ -3,6 +3,7 @@ import type {
   ComponentData,
   FormulaContext,
   FormulaEvaluationReporter,
+  Nullable,
   TestScenario,
   ToddleEnv,
 } from '@nordcraft/core'
@@ -19,7 +20,7 @@ import { createStaticContextFromComponent } from './context'
 export type PreviewStateOverrides = TestScenario
 
 export const applyPreviewState = (options: {
-  overrides: TestScenario | null | undefined
+  overrides: Nullable<TestScenario>
   component: Component | null
   components?: Component[]
   dataSignal: Signal<ComponentData>
