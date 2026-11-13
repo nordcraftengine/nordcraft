@@ -1,6 +1,7 @@
 import { createActionNameRule } from './createActionNameRule'
 import { duplicateActionArgumentNameRule } from './duplicateActionArgumentNameRule'
 import { legacyActionRule } from './legacyActionRule'
+import { legacyCustomActionRule } from './legacyCustomActionRule'
 import { noReferenceProjectActionRule } from './noReferenceProjectActionRule'
 import { unknownActionArgumentRule } from './unknownActionArgumentRule'
 import { unknownActionEventRule } from './unknownActionEventRule'
@@ -18,6 +19,7 @@ export default [
   }),
   duplicateActionArgumentNameRule,
   legacyActionRule,
+  legacyCustomActionRule,
   noReferenceProjectActionRule,
   unknownActionArgumentRule,
   unknownActionEventRule,
