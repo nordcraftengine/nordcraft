@@ -64,10 +64,34 @@ const evaluateFormula = (formula: Formula): ContextlessEvaluation => {
       }
     }
 
+    case 'object': {
+      const entries = Array.isArray(formula.arguments)
+        ? formula.arguments.map(
+            (entry) =>
+              [entry.name, contextlessEvaluateFormula(entry.formula)] as const,
+          )
+        : []
+
+      const results = entries.map(([, res]) => res)
+
+      return {
+        isStatic: results.every((res) => res.isStatic),
+        result: Object.fromEntries(
+          entries.map(([key, res]) => [key, res.result]),
+        ),
+      }
+    }
+
     case 'record': {
-      const entries = Object.entries(formula.entries ?? {}).map(
-        ([key, arg]) => [key, contextlessEvaluateFormula(arg.formula)] as const,
-      )
+      const entries = Array.isArray(formula.entries)
+        ? formula.entries.map(
+            (entry, i) =>
+              [
+                entry.name ?? `${i}`,
+                contextlessEvaluateFormula(entry.formula),
+              ] as const,
+          )
+        : []
 
       const results = entries.map(([, res]) => res)
 
