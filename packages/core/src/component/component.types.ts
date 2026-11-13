@@ -217,6 +217,12 @@ export interface Component {
   // Used to indicate if a page or any of its child components use custom actions/formulas
   customCode?: Nullable<boolean>
   testScenarios?: Nullable<Record<string, Nullable<TestScenario>>>
+  meta?: Nullable<{
+    canvas?: Nullable<{
+      style?: Nullable<NodeStyleModel>
+      customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
+    }>
+  }>
 }
 
 export interface TestScenario extends NordcraftMetadata {

@@ -166,6 +166,7 @@ export const removeTestData = (component: Component): Component => {
       'exported',
       'customElement',
       'testScenarios',
+      'meta',
     ],
   )
 }
