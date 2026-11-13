@@ -14,10 +14,16 @@ import * as v from 'valibot'
 import { FormulaSchema } from './formula-schema'
 import { record } from './valibot-schemas'
 
+const actionIndexSchema = v.pipe(
+  v.nullish(v.number()),
+  v.description('Index defining the order of the action in a workflow.'),
+)
+
 // Action Models
 const VariableActionModelSchema: v.GenericSchema<unknown, VariableActionModel> =
   v.pipe(
     v.object({
+      index: actionIndexSchema,
       type: v.literal('SetVariable'),
       variable: v.pipe(
         v.string(),
@@ -34,6 +40,7 @@ const VariableActionModelSchema: v.GenericSchema<unknown, VariableActionModel> =
 const EventActionModelSchema: v.GenericSchema<unknown, EventActionModel> =
   v.pipe(
     v.object({
+      index: actionIndexSchema,
       type: v.literal('TriggerEvent'),
       event: v.pipe(
         v.string(),
@@ -52,6 +59,7 @@ const EventActionModelSchema: v.GenericSchema<unknown, EventActionModel> =
 const SwitchActionModelSchema: v.GenericSchema<unknown, SwitchActionModel> =
   v.pipe(
     v.object({
+      index: actionIndexSchema,
       type: v.literal('Switch'),
       cases: v.pipe(
         v.nullish(
@@ -93,6 +101,7 @@ const SwitchActionModelSchema: v.GenericSchema<unknown, SwitchActionModel> =
 const FetchActionModelSchema: v.GenericSchema<unknown, FetchActionModel> =
   v.pipe(
     v.object({
+      index: actionIndexSchema,
       type: v.literal('Fetch'),
       api: v.pipe(
         v.string(),
@@ -149,6 +158,7 @@ const AbortFetchActionModelSchema: v.GenericSchema<
   AbortFetchActionModel
 > = v.pipe(
   v.object({
+    index: actionIndexSchema,
     type: v.literal('AbortFetch'),
     api: v.pipe(
       v.string(),
@@ -165,6 +175,7 @@ const AbortFetchActionModelSchema: v.GenericSchema<
 const CustomActionModelSchema: v.GenericSchema<unknown, CustomActionModel> =
   v.pipe(
     v.object({
+      index: actionIndexSchema,
       type: v.literal('Custom'),
       name: v.pipe(
         v.string(),
@@ -228,6 +239,7 @@ const CustomActionModelSchema: v.GenericSchema<unknown, CustomActionModel> =
 const BuiltInActionModelSchema: v.GenericSchema<unknown, CustomActionModel> =
   v.pipe(
     v.object({
+      index: actionIndexSchema,
       name: v.pipe(
         v.string(),
         v.description(
@@ -283,6 +295,7 @@ const SetURLParameterActionSchema: v.GenericSchema<
   SetURLParameterAction
 > = v.pipe(
   v.object({
+    index: actionIndexSchema,
     type: v.literal('SetURLParameter'),
     parameter: v.string(),
     data: FormulaSchema,
@@ -298,6 +311,7 @@ const SetMultiUrlParameterActionSchema: v.GenericSchema<
   SetMultiUrlParameterAction
 > = v.pipe(
   v.object({
+    index: actionIndexSchema,
     type: v.literal('SetURLParameters'),
     parameters: v.pipe(
       record(v.string(), FormulaSchema),
@@ -320,6 +334,7 @@ const SetMultiUrlParameterActionSchema: v.GenericSchema<
 const WorkflowActionModelSchema: v.GenericSchema<unknown, WorkflowActionModel> =
   v.pipe(
     v.object({
+      index: actionIndexSchema,
       type: v.literal('TriggerWorkflow'),
       workflow: v.pipe(
         v.string(),

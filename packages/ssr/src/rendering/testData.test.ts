@@ -513,4 +513,56 @@ describe('removeTestData', () => {
     })
     expect(cleanedComponent.testScenarios).toBeUndefined()
   })
+  test('it normalizes object workflow actions into a sorted array', () => {
+    const cleanedComponent = removeTestData({
+      name: 'test',
+      variables: {},
+      apis: {},
+      nodes: {},
+      attributes: {},
+      workflows: {
+        myWorkflow: {
+          name: 'myWorkflow',
+          parameters: [],
+          actions: {
+            secondAction: {
+              index: 1,
+              type: 'Custom',
+              description: 'Should be removed',
+              name: 'Second',
+            },
+            firstAction: {
+              index: 0,
+              type: 'SetVariable',
+              variable: 'count',
+              data: valueFormula(1),
+            },
+          },
+        },
+      },
+    })
+    expect(cleanedComponent).toEqual({
+      name: 'test',
+      workflows: {
+        myWorkflow: {
+          name: 'myWorkflow',
+          parameters: [],
+          actions: [
+            {
+              type: 'SetVariable',
+              variable: 'count',
+              data: {
+                type: 'value',
+                value: 1,
+              },
+            },
+            {
+              type: 'Custom',
+              name: 'Second',
+            },
+          ],
+        },
+      },
+    })
+  })
 })

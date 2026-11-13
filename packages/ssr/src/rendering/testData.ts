@@ -19,6 +19,7 @@ import type {
   WorkflowCallbackActionModel,
 } from '@nordcraft/core'
 import {
+  easySort,
   filterObject,
   isDefined,
   isFormula,
@@ -107,7 +108,13 @@ export const removeTestData = (component: Component): Component => {
                   ...omitKeys(value, ['testValue']),
                   // We should find all actions (also nested actions and non-workflow actions) and remove
                   // the description from them. This is a start though
-                  actions: value.actions.map(removeActionTestData),
+                  actions: (Array.isArray(value.actions)
+                    ? value.actions
+                    : easySort(
+                        Object.values(value.actions).filter(isDefined),
+                        (a) => a.index ?? Infinity,
+                      )
+                  ).map(removeActionTestData),
                   parameters: (value.parameters ?? []).map((p) =>
                     omitKeys(p, ['testValue']),
                   ),
@@ -317,10 +324,11 @@ const removeOptionalPropertiesIfEmpty = <T extends object>(
   return newObj
 }
 
-const removeActionTestData = (action: ActionModel): ActionModel => {
-  if (!isDefined(action)) {
-    return action
+const removeActionTestData = (_action: Nullable<ActionModel>): ActionModel => {
+  if (!isDefined(_action)) {
+    return _action as any
   }
+  const action = omitKeys(_action, ['index'])
   switch (action.type) {
     case 'SetVariable':
       return removeOptionalPropertiesIfEmpty<VariableActionModel>(

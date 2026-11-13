@@ -246,7 +246,7 @@ export interface ComponentWorkflow extends NordcraftMetadata {
   name?: string
   parameters: Array<{ name: string; testValue: any }>
   callbacks?: Nullable<Array<{ name: string; testValue: any }>>
-  actions: ActionModel[]
+  actions: Nullable<ActionModel>[] | Record<string, Nullable<ActionModel>>
   exposeInContext?: Nullable<boolean>
   testValue?: Nullable<unknown>
 }
@@ -344,7 +344,11 @@ export interface ActionModelActions {
   actions?: Nullable<ActionModel[]>
 }
 
-export interface CustomActionModel {
+export interface BaseActionModel {
+  index?: Nullable<number>
+}
+
+export interface CustomActionModel extends BaseActionModel {
   // Some legacy custom actions use an undefined type
   type?: Nullable<'Custom'>
   package?: Nullable<string>
@@ -358,7 +362,7 @@ export interface CustomActionModel {
   label?: Nullable<string>
 }
 
-export interface SwitchActionModel {
+export interface SwitchActionModel extends BaseActionModel {
   type: 'Switch'
   data?: Nullable<string | number | boolean | Formula>
   cases?: Nullable<
@@ -372,7 +376,7 @@ export interface SwitchActionModel {
   arguments?: never
 }
 
-export interface VariableActionModel {
+export interface VariableActionModel extends BaseActionModel {
   type: 'SetVariable'
   variable: string
   data: Nullable<Formula>
@@ -380,7 +384,7 @@ export interface VariableActionModel {
   arguments?: never
 }
 
-export interface FetchActionModel {
+export interface FetchActionModel extends BaseActionModel {
   type: 'Fetch'
   api: string
   inputs?: Nullable<Record<string, { formula?: Nullable<Formula> }>>
@@ -389,12 +393,12 @@ export interface FetchActionModel {
   onMessage?: Nullable<ActionModelActions>
 }
 
-export interface AbortFetchActionModel {
+export interface AbortFetchActionModel extends BaseActionModel {
   type: 'AbortFetch'
   api: string
 }
 
-export interface SetURLParameterAction {
+export interface SetURLParameterAction extends BaseActionModel {
   type: 'SetURLParameter'
   parameter: string
   data?: Nullable<Formula>
@@ -403,13 +407,13 @@ export interface SetURLParameterAction {
   arguments?: never
 }
 
-export interface SetMultiUrlParameterAction {
+export interface SetMultiUrlParameterAction extends BaseActionModel {
   type: 'SetURLParameters'
   parameters: Record<string, Formula>
   historyMode?: Nullable<'replace' | 'push'>
 }
 
-export interface EventActionModel {
+export interface EventActionModel extends BaseActionModel {
   type: 'TriggerEvent'
   event: string
   data?: Nullable<Formula>
@@ -417,7 +421,7 @@ export interface EventActionModel {
   arguments?: never
 }
 
-export interface WorkflowActionModel {
+export interface WorkflowActionModel extends BaseActionModel {
   type: 'TriggerWorkflow'
   workflow: string
   parameters?: Nullable<Record<string, { formula?: Nullable<Formula> }>>
@@ -427,7 +431,7 @@ export interface WorkflowActionModel {
   contextProvider?: Nullable<string>
 }
 
-export interface WorkflowCallbackActionModel {
+export interface WorkflowCallbackActionModel extends BaseActionModel {
   type: 'TriggerWorkflowCallback'
   event: string
   data?: Nullable<Formula>

@@ -1,4 +1,5 @@
 import { duplicateWorkflowParameterRule } from './duplicateWorkflowParameterRule'
+import { legacyWorkflowActionsRule } from './legacyWorkflowActionsRule'
 import { namedComponentWorkflowRule } from './namedComponentWorkflowRule'
 import { noPostNavigateAction } from './noPostNavigateAction'
 import { noReferenceComponentWorkflowRule } from './noReferenceComponentWorkflowRule'
@@ -8,6 +9,7 @@ import { unknownWorkflowParameterRule } from './unknownWorkflowParameterRule'
 
 export default [
   duplicateWorkflowParameterRule,
+  legacyWorkflowActionsRule,
   noPostNavigateAction,
   noReferenceComponentWorkflowRule,
   namedComponentWorkflowRule,
