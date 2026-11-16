@@ -1,7 +1,9 @@
 import type {
   Component,
   ComponentFormula,
+  ComponentNodeModel,
   ComponentVariable,
+  ElementNodeModel,
   Nullable,
 } from '@nordcraft/core'
 import {
