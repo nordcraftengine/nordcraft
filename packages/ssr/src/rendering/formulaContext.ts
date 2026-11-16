@@ -3,11 +3,7 @@ import type {
   CodeFormula,
   ComponentData,
   FormulaContext,
-<<<<<<< HEAD
-=======
   FormulaHandlerV2,
-  Nullable,
->>>>>>> 3fb0baf8 (Self hosting support for custom formulas in SSR)
   PageComponent,
   PageRoute,
   PluginFormula,
