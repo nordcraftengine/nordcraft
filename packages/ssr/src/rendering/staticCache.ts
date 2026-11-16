@@ -44,7 +44,7 @@ const STATIC_CLASS_NAMES = new WeakMap<object, string>()
  * but computing the class name re-stringifies the merged style for every node render.
  */
 export const getStaticClassName = (
-  node: Parameters<typeof getStaticStyleAndVariants>[0],
+  node: ElementNodeModel | ComponentNodeModel,
 ) => {
   const cached = STATIC_CLASS_NAMES.get(node)
   if (cached !== undefined) {
