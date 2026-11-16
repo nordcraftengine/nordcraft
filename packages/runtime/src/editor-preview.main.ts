@@ -54,7 +54,11 @@ import {
   handleDragStarted,
   trackHoverTarget,
 } from './editor/drag-drop/dragHandlers'
-import { getFormattedTime, throttleToIdleCallback } from './editor/editorUtils'
+import {
+  getFormattedTime,
+  handleGetComputedStyle,
+  throttleToIdleCallback,
+} from './editor/editorUtils'
 import { env, registerActions, registerFormulas } from './editor/global'
 import { introspectApiRequest } from './editor/graphql'
 import { insertHeadTags } from './editor/head'
@@ -82,6 +86,7 @@ import {
 import { handleRenderError } from './editor/renderError'
 import { requestResizeCanvas, resizeCanvas } from './editor/resizeCanvas'
 import { captureScreenshot } from './editor/screenshot'
+import { createSnapTargetsController } from './editor/snap-targets/snapTargets'
 import {
   getScrollStateRestorer,
   storeScrollState,
@@ -92,7 +97,6 @@ import { handleTextMouseMove } from './editor/text-selection/mouseMove'
 import { handleTextNodeSelection } from './editor/text-selection/selection'
 import { insertTheme, setupThemeSubscription } from './editor/theme'
 import {
-  handleGetComputedStyle,
   handleSetTimelineKeyframes,
   handleSetTimelineTime,
   type AnimationState,
@@ -219,6 +223,7 @@ export const createRoot = (
   let metaKey = false
   let clearPreviewStyleTimeout: ReturnType<typeof setTimeout> | undefined
   let previewStateOverrides: PreviewStateOverrides | null | undefined = null
+  const snapTargets = createSnapTargetsController()
 
   const setupDataSignalSubscribers = () => {
     dataSignal.subscribe((data) => {
@@ -332,6 +337,7 @@ export const createRoot = (
           // Re-initialize state, subscribers, signals and ctx when switching component
           // But only if a component was already loaded
           if (switchComponent && component) {
+            snapTargets.stop()
             document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES)?.remove()
             // Store scroll state for the previous component
             storeScrollState(component?.name)
@@ -467,6 +473,7 @@ export const createRoot = (
           break
         }
         case 'mode': {
+          snapTargets.stop()
           if (clearPreviewStyleTimeout) {
             clearTimeout(clearPreviewStyleTimeout)
             clearPreviewStyleTimeout = undefined
@@ -491,6 +498,7 @@ export const createRoot = (
         }
         case 'selection': {
           if (selectedNodeId !== message.data.selectedNodeId) {
+            snapTargets.stop()
             if (clearPreviewStyleTimeout) {
               clearTimeout(clearPreviewStyleTimeout)
               clearPreviewStyleTimeout = undefined
@@ -742,6 +750,7 @@ export const createRoot = (
           dragState = handleDragStarted(message.data, selectedNodeId, altKey)
           break
         case 'drag-ended':
+          snapTargets.stop()
           if (dragState) {
             const data = message.data
             const state = dragState
@@ -763,6 +772,7 @@ export const createRoot = (
           )
           break
         case 'insert-ended':
+          snapTargets.stop()
           if (insertState) {
             const data = message.data
             const state = insertState
@@ -905,6 +915,13 @@ export const createRoot = (
           await captureScreenshot(message.data)
           break
         }
+        case 'getSnapTargets': {
+          snapTargets.start({
+            nodeId: message.data.nodeId,
+            maxTargets: message.data.maxTargets,
+          })
+          break
+        }
       }
     },
   )
@@ -923,6 +940,7 @@ export const createRoot = (
   requestResizeCanvas(resizeCanvasOptions)
 
   window.addEventListener('beforeunload', () => {
+    snapTargets.stop()
     if (clearPreviewStyleTimeout) {
       clearTimeout(clearPreviewStyleTimeout)
       clearPreviewStyleTimeout = undefined

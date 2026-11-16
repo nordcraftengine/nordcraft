@@ -1,6 +1,13 @@
 /* eslint-disable max-params */
 
 import { escapeRegex } from './dom'
+import {
+  getBorderLengths,
+  getChain,
+  getInlineRect,
+  getPaddingLengths,
+  getTransformStyles,
+} from './editorUtils'
 
 type Scale = [x: number, y: number]
 
@@ -98,11 +105,11 @@ export function getRectData(selectedNode: Element | null | undefined) {
     // Multiply transform-origin by this to get it in overlay-box px.
     boxScale,
     boundingClientRect: toRectData(selectedNode.getBoundingClientRect()),
-    border: lengths(style, SIDES, 'border', 'Width'),
+    border: getBorderLengths(style),
     borderRadius: borderRadius
       ? borderRadius.split(' ')
       : lengths(style, CORNER_NAMES, 'border', 'Radius'),
-    padding: lengths(style, SIDES, 'padding'),
+    padding: getPaddingLengths(style),
     margin: lengths(style, SIDES, 'margin'),
     gap: gap.split(' '),
     boxSizing,
@@ -178,7 +185,7 @@ function getParentRectData(parent: Element, cache: FrameCache) {
     ...getBasicRectData(parent, cache),
     rowGap: style.rowGap,
     columnGap: style.columnGap,
-    padding: lengths(style, SIDES, 'padding'),
+    padding: getPaddingLengths(style),
   }
 }
 
@@ -204,15 +211,6 @@ export function getRepeatItemsData(
   return repeatNodes.length
     ? repeatNodes.map((node) => getBasicRectData(node, cache))
     : null
-}
-
-/** `el` and its ancestors (innermost first), stopping before <html>. */
-function getChain(el: Element | null) {
-  const chain: Element[] = []
-  for (; el && el !== document.documentElement; el = el.parentElement) {
-    chain.push(el)
-  }
-  return chain
 }
 
 /** The nearest ancestor with a real `perspective`, if any. */
@@ -339,21 +337,6 @@ function parseOrigin(
       : parseFloat(token) || 0
 
   return [resolve(x, width), resolve(y, height), parseFloat(z) || 0]
-}
-
-function getTransformStyles(el: Element) {
-  const computed = getStyle(el)
-  const inline = (el as HTMLElement).style
-
-  const get = (name: 'transform' | 'rotate' | 'scale' | 'translate'): string =>
-    computed[name] || inline?.getPropertyValue(name) || 'none'
-
-  return {
-    transform: get('transform'),
-    rotate: get('rotate'),
-    scale: get('scale'),
-    translate: get('translate'),
-  }
 }
 
 /**
@@ -716,21 +699,6 @@ function getBoxSize(el: HTMLElement, computed: CSSStyleDeclaration) {
     Math.abs(box.height - height) <= 1
     ? box
     : { width, height }
-}
-
-function getInlineRect(node: Element): DOMRect {
-  try {
-    const range = document.createRange()
-    range.selectNodeContents(node)
-    const rangeRect = range.getBoundingClientRect()
-    if (rangeRect.width > 0 && rangeRect.height > 0) {
-      return rangeRect
-    }
-  } catch {
-    // fall through to getBoundingClientRect below
-  }
-
-  return node.getBoundingClientRect()
 }
 
 /**
