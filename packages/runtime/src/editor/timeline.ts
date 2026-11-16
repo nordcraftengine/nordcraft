@@ -9,7 +9,6 @@ import {
   SELECTOR_PREVIEW_ANIMATION_STYLES,
 } from './const'
 import { getDOMNodeFromNodeId } from './dom'
-import { postMessageToEditor } from './postMessageToEditor'
 
 export interface AnimationState {
   animatedElementId: string | null
@@ -19,56 +18,6 @@ export interface AnimationState {
   repeatedElementsValues: Array<{ delay: string; duration: string }>
   timelineTime: { delay: string; duration: string }
   iterationCount: string
-}
-
-export const handleGetComputedStyle = (
-  selectedNodeId: string | null,
-  styles: string[] | undefined,
-  animationState: AnimationState | null,
-) => {
-  const selectedNode = getDOMNodeFromNodeId(selectedNodeId)
-  if (!selectedNode) {
-    return
-  }
-
-  const computedStyle = window.getComputedStyle(selectedNode)
-
-  postMessageToEditor({
-    type: 'computedStyle',
-    computedStyle: Object.fromEntries(
-      (styles ?? []).map((style) => {
-        const input = computedStyle.getPropertyValue(style)
-
-        const allValues = input.split(' ')
-
-        const result = allValues
-          .map((value) => {
-            // If it is a float or float with unit we want to round to 2 decimal
-            if (value.match(/^(-?\d+)\.\d+([a-z]*|%?)$/)) {
-              const split = value.match(/([0-9.]+)\s*(.*)/) ?? ''
-
-              const number = split[1]
-              const unit = split[2]
-
-              const roundNumber = Number(Number(number).toFixed(2))
-              const rounded = roundNumber.toString() + unit
-
-              return rounded
-            } else {
-              return value
-            }
-          })
-          .join(' ')
-
-        return [style, result]
-      }),
-    ),
-    repeatedItemsValues: animationState?.repeatedElementsValues ?? [],
-    timelineTime: animationState?.timelineTime ?? {
-      delay: '0s',
-      duration: '0s',
-    },
-  })
 }
 
 export const handleSetTimelineKeyframes = (
