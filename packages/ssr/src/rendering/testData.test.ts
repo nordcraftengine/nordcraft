@@ -495,22 +495,27 @@ describe('removeTestData', () => {
       cleanedComponent.nodes.root.events.Change.actions[0].arguments,
     ).toBeUndefined()
   })
-  test('it removes testScenarios from component', () => {
+  test('it removes the whole meta object from component', () => {
     const cleanedComponent = removeTestData({
       name: 'test',
       variables: {},
       apis: {},
       nodes: {},
       attributes: {},
-      testScenarios: {
-        'scenario-1': {
-          attributes: { prop: 'custom' },
-          variables: { count: 42 },
-          path: { id: 'test' },
-          query: { tab: 'details' },
+      meta: {
+        description: 'Component description',
+        testScenarios: {
+          'scenario-1': {
+            attributes: { prop: 'custom' },
+            variables: { count: 42 },
+            path: { id: 'test' },
+            query: { tab: 'details' },
+          },
         },
       },
     })
-    expect(cleanedComponent.testScenarios).toBeUndefined()
+    expect(cleanedComponent).toEqual({
+      name: 'test',
+    })
   })
 })

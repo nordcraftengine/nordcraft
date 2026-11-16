@@ -30,11 +30,11 @@ import {
 } from '@nordcraft/core'
 
 export const removeTestData = (component: Component): Component => {
-  const { testScenarios: _testScenarios, ...componentWithoutTestScenarios } =
-    component
+  const { meta: _meta, ...componentWithoutMeta } = component
+
   return removeOptionalPropertiesIfEmpty<Component>(
     {
-      ...componentWithoutTestScenarios,
+      ...componentWithoutMeta,
       attributes: mapObject(
         filterObject<Nullable<ComponentAttribute>, ComponentAttribute>(
           component.attributes ?? {},
@@ -165,7 +165,6 @@ export const removeTestData = (component: Component): Component => {
       'onAttributeChange',
       'exported',
       'customElement',
-      'testScenarios',
       'meta',
     ],
   )
