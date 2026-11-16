@@ -45,6 +45,7 @@ const escapeHtml = (html: string) => {
 }
 
 const REGEXP_TEXT_SPECIAL = /[&<>"'\n]/
+const REGEXP_TEXT_SPECIAL_GLOBAL = /[&<>"'\n]/g
 const TEXT_ESCAPES: Record<string, string> = {
   '&': '&amp;',
   '<': '&lt;',
@@ -64,7 +65,7 @@ export const toEncodedText = (str: string) => {
   }
   // Single pass avoids creating a new intermediate string per replacement and
   // can never double-escape an inserted entity.
-  return str.replace(REGEXP_TEXT_SPECIAL, (char) => TEXT_ESCAPES[char]!)
+  return str.replace(REGEXP_TEXT_SPECIAL_GLOBAL, (char) => TEXT_ESCAPES[char]!)
 }
 
 export function getNodeAttrs({
