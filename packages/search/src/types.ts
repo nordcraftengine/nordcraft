@@ -558,6 +558,10 @@ export interface IssueRule<
 
 export interface SearchRule<T = unknown, V extends NodeType = NodeType> {
   nodeTypes: V['nodeType'] | V['nodeType'][]
+  shouldTraverseChildType?: (
+    parent: NodeType,
+    childNodeType: NodeType['nodeType'],
+  ) => boolean
   visit: (
     report: (args: { path: (string | number)[]; details?: T }) => void,
     data: V,

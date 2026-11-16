@@ -55,6 +55,22 @@ function createRuleIndex(rules: Rule[]): RuleIndex {
   return byNodeType
 }
 
+function shouldVisitChildType(
+  ruleIndex: RuleIndex,
+  parent: NodeType,
+  childNodeType: NodeType['nodeType'],
+): boolean {
+  const rules = ruleIndex.get(childNodeType)
+  if (!rules || rules.length === 0) {
+    return false
+  }
+  return rules.some(
+    (rule) =>
+      !rule.shouldTraverseChildType ||
+      rule.shouldTraverseChildType(parent, childNodeType),
+  )
+}
+
 interface SearchContext {
   files: Omit<ProjectFiles, 'config'> & Partial<Pick<ProjectFiles, 'config'>>
   rules: Rule[]
@@ -380,7 +396,7 @@ function* visitNode(
         },
       })
 
-      if (ruleIndex.has('component-attribute')) {
+      if (shouldVisitChildType(ruleIndex, data, 'component-attribute')) {
         const attributes = data.value.attributes
         if (attributes) {
           for (const key in attributes) {
@@ -399,7 +415,7 @@ function* visitNode(
         }
       }
 
-      if (ruleIndex.has('component-variable')) {
+      if (shouldVisitChildType(ruleIndex, data, 'component-variable')) {
         const variables = data.value.variables
         if (variables) {
           for (const key in variables) {
@@ -419,8 +435,8 @@ function* visitNode(
       }
 
       if (
-        ruleIndex.has('component-api') ||
-        ruleIndex.has('component-api-input')
+        shouldVisitChildType(ruleIndex, data, 'component-api') ||
+        shouldVisitChildType(ruleIndex, data, 'component-api-input')
       ) {
         const apis = data.value.apis
         if (apis) {
@@ -437,7 +453,10 @@ function* visitNode(
               memo: context.memo,
               files: context.files,
             })
-            if (!isLegacyApi(api) && ruleIndex.has('component-api-input')) {
+            if (
+              !isLegacyApi(api) &&
+              shouldVisitChildType(ruleIndex, data, 'component-api-input')
+            ) {
               const inputs = api.inputs
               if (inputs) {
                 for (const inputKey in inputs) {
@@ -457,7 +476,7 @@ function* visitNode(
         }
       }
 
-      if (ruleIndex.has('component-formula')) {
+      if (shouldVisitChildType(ruleIndex, data, 'component-formula')) {
         const formulas = data.value.formulas
         if (formulas) {
           for (const key in formulas) {
@@ -476,7 +495,7 @@ function* visitNode(
         }
       }
 
-      if (ruleIndex.has('component-workflow')) {
+      if (shouldVisitChildType(ruleIndex, data, 'component-workflow')) {
         const workflows = data.value.workflows
         if (workflows) {
           for (const key in workflows) {
@@ -495,7 +514,7 @@ function* visitNode(
         }
       }
 
-      if (ruleIndex.has('component-event')) {
+      if (shouldVisitChildType(ruleIndex, data, 'component-event')) {
         const events = data.value.events
         if (events) {
           for (let i = 0; i < events.length; i++) {
@@ -513,7 +532,7 @@ function* visitNode(
         }
       }
 
-      if (ruleIndex.has('component-context')) {
+      if (shouldVisitChildType(ruleIndex, data, 'component-context')) {
         const contexts = data.value.contexts
         if (contexts) {
           for (const key in contexts) {
@@ -528,8 +547,21 @@ function* visitNode(
         }
       }
 
-      const nodes = data.value.nodes
+      const shouldVisitNodes =
+        shouldVisitChildType(ruleIndex, data, 'component-node') ||
+        shouldVisitChildType(ruleIndex, data, 'component-node-attribute') ||
+        shouldVisitChildType(ruleIndex, data, 'style-declaration') ||
+        shouldVisitChildType(ruleIndex, data, 'style-variable') ||
+        shouldVisitChildType(ruleIndex, data, 'custom-property') ||
+        shouldVisitChildType(ruleIndex, data, 'animation') ||
+        shouldVisitChildType(ruleIndex, data, 'style-variant')
+      const nodes = shouldVisitNodes ? data.value.nodes : undefined
       if (nodes) {
+        const shouldVisitNodeAttrs = shouldVisitChildType(
+          ruleIndex,
+          data,
+          'component-node-attribute',
+        )
         for (const key in nodes) {
           const node = nodes[key]
           yield* visitNode(context, {
@@ -543,7 +575,7 @@ function* visitNode(
           if (
             isDefined(node) &&
             (node.type === 'component' || node.type === 'element') &&
-            ruleIndex.has('component-node-attribute')
+            shouldVisitNodeAttrs
           ) {
             const attrs = node.attrs
             if (attrs) {
@@ -562,7 +594,7 @@ function* visitNode(
         }
       }
 
-      if (ruleIndex.has('formula')) {
+      if (shouldVisitChildType(ruleIndex, data, 'formula')) {
         for (const {
           path: formulaPath,
           formula,
@@ -584,9 +616,9 @@ function* visitNode(
       }
 
       if (
-        ruleIndex.has('action-model') ||
-        ruleIndex.has('action-custom-model-argument') ||
-        ruleIndex.has('action-custom-model-event')
+        shouldVisitChildType(ruleIndex, data, 'action-model') ||
+        shouldVisitChildType(ruleIndex, data, 'action-custom-model-argument') ||
+        shouldVisitChildType(ruleIndex, data, 'action-custom-model-event')
       ) {
         for (const [
           actionPath,
