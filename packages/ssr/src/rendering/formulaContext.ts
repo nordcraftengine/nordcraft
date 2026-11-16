@@ -1,7 +1,13 @@
 /* eslint-disable max-params */
 import type {
+  CodeFormula,
   ComponentData,
   FormulaContext,
+<<<<<<< HEAD
+=======
+  FormulaHandlerV2,
+  Nullable,
+>>>>>>> 3fb0baf8 (Self hosting support for custom formulas in SSR)
   PageComponent,
   PageRoute,
   PluginFormula,
@@ -16,7 +22,11 @@ import {
 } from '@nordcraft/core'
 import * as libFormulas from '@nordcraft/std-lib/formulas'
 import { getPathSegments } from '../routing/routing'
-import type { InstalledPackage, ProjectFiles } from '../ssr.types'
+import type {
+  InstalledPackage,
+  ProjectFiles,
+  SsrFormulaHandler,
+} from '../ssr.types'
 import { getRequestCookies } from './cookies'
 import { escapeSearchParameters } from './request'
 import { getComponentVariables } from './staticCache'
@@ -36,7 +46,7 @@ export const getPageFormulaContext = ({
   component: PageComponent | undefined
   req: Request
   logErrors: boolean
-  files: ProjectFiles
+  files: ProjectFiles<SsrFormulaHandler>
 }): {
   formulaContext: FormulaContext & { env: ToddleServerEnv }
   data: ComponentData
@@ -100,9 +110,16 @@ const CORE_FORMULAS: Record<string, any> = Object.fromEntries(
   ]),
 )
 
+const isCompiledCodeFormula = (
+  formula: PluginFormula<SsrFormulaHandler>,
+): formula is CodeFormula<FormulaHandlerV2> =>
+  !isToddleFormula(formula) && typeof formula.handler === 'function'
+
 export const getServerToddleObject = (
-  files: Pick<ProjectFiles, 'formulas' | 'packages'> & {
-    packages?: Partial<Record<string, Pick<InstalledPackage, 'formulas'>>>
+  files: Pick<ProjectFiles<SsrFormulaHandler>, 'formulas' | 'packages'> & {
+    packages?: Partial<
+      Record<string, Pick<InstalledPackage<SsrFormulaHandler>, 'formulas'>>
+    >
   },
 ): FormulaContext['toddle'] => {
   return {
@@ -111,15 +128,14 @@ export const getServerToddleObject = (
       name: string,
       packageName: string | null | undefined,
     ) => {
-      let formula: PluginFormula<string> | undefined
+      const formula = isDefined(packageName)
+        ? files.packages?.[packageName]?.formulas?.[name]
+        : files.formulas?.[name]
 
-      if (isDefined(packageName)) {
-        formula = files.packages?.[packageName]?.formulas?.[name]
-      } else {
-        formula = files.formulas?.[name]
+      if (!formula) {
+        return undefined
       }
-
-      if (formula && isToddleFormula(formula)) {
+      if (isToddleFormula(formula) || isCompiledCodeFormula(formula)) {
         return formula
       }
     },

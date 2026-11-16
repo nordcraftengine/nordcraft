@@ -17,7 +17,11 @@ import {
   VOID_HTML_ELEMENTS,
 } from '@nordcraft/core'
 import { escapeAttrValue } from '../rendering/attributes'
-import type { ProjectFiles, ToddleProject } from '../ssr.types'
+import type {
+  ProjectFiles,
+  SsrFormulaHandler,
+  ToddleProject,
+} from '../ssr.types'
 import { isCloudflareImagePath } from '../utils/media'
 import { nanoid } from '../utils/nanoid'
 import { getFontCssUrl } from './fonts'
@@ -49,7 +53,7 @@ export const getHeadItems = ({
   context: FormulaContext
   data: ComponentData
   cssBasePath?: string
-  files: ProjectFiles
+  files: ProjectFiles<SsrFormulaHandler>
   page: PageComponent
   resetStylesheetPath?: string
   pageStylesheetPath?: string

@@ -69,7 +69,7 @@ export const applyFunctionFormula = (
         )
       } else {
         return newFunc.handler(args, {
-          root: ctx.root ?? document,
+          root: ctx.root ?? (typeof document !== 'undefined' ? document : null),
           env: ctx.env,
         } as any)
       }

@@ -20,6 +20,7 @@ import {
   type FunctionOperation,
 } from '@nordcraft/core'
 import type { ProjectFiles, ToddleProject } from '../ssr.types'
+import type { ProjectFilesWithCustomCode } from '../utils/routes'
 
 const projectFormulas = (files: ProjectFiles): GlobalFormulas<string> => ({
   formulas: files.formulas,
@@ -234,6 +235,56 @@ export const hasCustomCode = (component: Component, files: ProjectFiles) => {
     }
   }
   return false
+}
+
+export const isV2CodeFormula = (
+  formula: PluginFormula<string>,
+): formula is CodeFormula<string> & { version: 2 } =>
+  !isToddleFormula(formula) && formula.version === 2
+
+const renderFormulaHandler = (formula: CodeFormula<string>) =>
+  `(args, ctx) => {\n  ${formula.handler}\n  return ${safeFunctionName(formula.name)}(args, ctx)\n}`
+
+export const generateComponentFile = (file: ProjectFilesWithCustomCode) => {
+  const assignments: string[] = []
+
+  for (const name in file.formulas) {
+    const formula = file.formulas[name]
+    if (
+      formula &&
+      isV2CodeFormula(formula) &&
+      typeof formula.handler === 'string'
+    ) {
+      assignments.push(
+        `file.formulas[${JSON.stringify(name)}].handler = ${renderFormulaHandler(formula)};`,
+      )
+    }
+  }
+
+  for (const packageName in file.packages) {
+    const pkg = file.packages[packageName]
+    if (!pkg) {
+      continue
+    }
+    for (const formulaName in pkg.formulas) {
+      const formula = pkg.formulas[formulaName]
+      if (
+        formula &&
+        isV2CodeFormula(formula) &&
+        typeof formula.handler === 'string'
+      ) {
+        assignments.push(
+          `file.packages[${JSON.stringify(packageName)}].formulas[${JSON.stringify(formulaName)}].handler = ${renderFormulaHandler(formula)};`,
+        )
+      }
+    }
+  }
+
+  if (assignments.length === 0) {
+    return `export default ${JSON.stringify(file)}`
+  }
+
+  return `const file = ${JSON.stringify(file)};\n${assignments.join('\n')}\nexport default file;`
 }
 
 export const generateCustomCodeFile = ({

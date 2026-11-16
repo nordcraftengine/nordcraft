@@ -2,7 +2,7 @@
 // This script is executed by the build process
 import { RESET_STYLES } from '@nordcraft/core'
 import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr'
-import { splitRoutes } from '@nordcraft/ssr'
+import { generateComponentFile, splitRoutes } from '@nordcraft/ssr'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -68,6 +68,6 @@ fs.mkdirSync(resolvePath(`${distPath}/components`), { recursive: true })
 Object.entries(files).forEach(([name, file]) => {
   fs.writeFileSync(
     resolvePath(`${distPath}/components/`, `${name.toLowerCase()}.js`),
-    jsiFy(file),
+    generateComponentFile(file),
   )
 })

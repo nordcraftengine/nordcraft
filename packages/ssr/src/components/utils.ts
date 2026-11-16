@@ -1,6 +1,6 @@
 import type { Component, NodeModel, Nullable } from '@nordcraft/core'
 import { isDefined } from '@nordcraft/core'
-import type { ProjectFiles } from '../ssr.types'
+import type { ProjectFiles, SsrFormulaHandler } from '../ssr.types'
 
 export function takeIncludedComponents({
   root,
@@ -8,8 +8,8 @@ export function takeIncludedComponents({
   packages = {},
   includeRoot = true,
 }: {
-  projectComponents: ProjectFiles['components']
-  packages: ProjectFiles['packages']
+  projectComponents: ProjectFiles<SsrFormulaHandler>['components']
+  packages: ProjectFiles<SsrFormulaHandler>['packages']
   root: Component
   includeRoot?: Nullable<boolean>
 }) {

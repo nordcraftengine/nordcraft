@@ -4,6 +4,7 @@ import type {
   CustomProperty,
   CustomPropertyName,
   Formula,
+  FormulaHandlerV2,
   NodeStyleModel,
   Nullable,
   OldTheme,
@@ -31,12 +32,12 @@ export interface ToddleProject {
   thumbnail?: { path: string } | null
 }
 
-export interface ProjectFiles {
+export interface ProjectFiles<FormulaHandler = string> {
   // Partial to make sure we check for the existence of a Component
   components: Partial<Record<string, Component>>
-  packages?: Partial<Record<string, InstalledPackage>>
+  packages?: Partial<Record<string, InstalledPackage<FormulaHandler>>>
   actions?: Record<string, PluginAction>
-  formulas?: Record<string, PluginFormula<string>>
+  formulas?: Record<string, PluginFormula<FormulaHandler>>
   routes?: Record<string, Route>
   config?: {
     // See https://github.com/nordcraftengine/nordcraft/releases
@@ -104,8 +105,8 @@ export type ApiService =
   | UmbracoApiService
   | XanoApiService
 
-export type InstalledPackage = Pick<
-  ProjectFiles,
+export type InstalledPackage<FormulaHandler = string> = Pick<
+  ProjectFiles<FormulaHandler>,
   // we might want to add themes + config later
   'components' | 'actions' | 'formulas'
 > & {
@@ -115,6 +116,8 @@ export type InstalledPackage = Pick<
     commit: string
   }
 }
+
+export type SsrFormulaHandler = FormulaHandlerV2 | string
 
 interface BaseRoute {
   source: RouteDeclaration

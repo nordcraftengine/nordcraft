@@ -2,7 +2,7 @@ import * as ssrRenderingApi from '@nordcraft/ssr/rendering/api'
 import * as ssrRenderingComponents from '@nordcraft/ssr/rendering/components'
 import * as ssrRenderingFormulaContext from '@nordcraft/ssr/rendering/formulaContext'
 import * as ssrRenderingHtml from '@nordcraft/ssr/rendering/html'
-import { beforeEach, describe, expect, it, spyOn } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import { Hono } from 'hono'
 import { testClient } from 'hono/testing'
 import { timing } from 'hono/timing'
@@ -41,22 +41,33 @@ describe('nordcraftPage', () => {
     customCodeUrl: (name: string) => `/_static/cc_${name}.js`,
   } as any
 
+  let spies: Array<{ mockRestore: () => void }> = []
+
   beforeEach(() => {
-    spyOn(ssrRenderingApi, 'processComponentApis').mockImplementation(
-      (p: any) => p,
-    )
-    spyOn(ssrRenderingFormulaContext, 'getPageFormulaContext').mockReturnValue({
-      formulaContext: { env: { request: { cookies: {} } } },
-      data: {},
-    } as any)
-    spyOn(ssrRenderingHtml, 'getHtmlLanguage').mockReturnValue('en')
-    spyOn(ssrRenderingHtml, 'getCharset').mockReturnValue('utf-8')
-    spyOn(ssrRenderingHtml, 'getTheme').mockReturnValue('default')
-    spyOn(ssrRenderingComponents, 'renderPageBody').mockResolvedValue({
-      apiCache: {},
-      html: '<div>Test content</div>',
-      customProperties: [],
-    } as any)
+    spies = [
+      spyOn(ssrRenderingApi, 'processComponentApis').mockImplementation(
+        (p: any) => p,
+      ),
+      spyOn(
+        ssrRenderingFormulaContext,
+        'getPageFormulaContext',
+      ).mockReturnValue({
+        formulaContext: { env: { request: { cookies: {} } } },
+        data: {},
+      } as any),
+      spyOn(ssrRenderingHtml, 'getHtmlLanguage').mockReturnValue('en'),
+      spyOn(ssrRenderingHtml, 'getCharset').mockReturnValue('utf-8'),
+      spyOn(ssrRenderingHtml, 'getTheme').mockReturnValue('default'),
+      spyOn(ssrRenderingComponents, 'renderPageBody').mockResolvedValue({
+        apiCache: {},
+        html: '<div>Test content</div>',
+        customProperties: [],
+      } as any),
+    ]
+  })
+
+  afterAll(() => {
+    spies.forEach((spy) => spy.mockRestore())
   })
 
   it('should set response headers correctly', async () => {

@@ -15,6 +15,7 @@ import { takeIncludedComponents } from '../components/utils'
 import {
   generateCustomCodeFile,
   hasCustomCode,
+  isV2CodeFormula,
   takeReferencedFormulasAndActions,
 } from '../custom-code/codeRefs'
 import { getServerToddleObject } from '../rendering/formulaContext'
@@ -26,9 +27,10 @@ export interface Routes {
   routes: Record<string, Route>
 }
 
-export type ProjectFilesWithCustomCode = ProjectFiles & {
-  customCode: boolean
-}
+export type ProjectFilesWithCustomCode<FormulaHandler = string> =
+  ProjectFiles<FormulaHandler> & {
+    customCode: boolean
+  }
 
 export type Files = Record<string, ProjectFilesWithCustomCode>
 
@@ -125,9 +127,10 @@ export const splitRoutes = ({
           projectId: project.short_id,
         })
         codeMap[name] = output
-        formulas = filterObject(code.__PROJECT__.formulas, ([_, formula]) =>
-          // custom formulas are not supported during SSR yet
-          isToddleFormula(formula),
+        formulas = filterObject(
+          code.__PROJECT__.formulas,
+          ([_, formula]) =>
+            isToddleFormula(formula) || isV2CodeFormula(formula),
         )
       }
 
@@ -165,8 +168,8 @@ export const splitRoutes = ({
                       formulas: filterObject(
                         pkg.formulas ?? {},
                         ([_, pkgFormula]) =>
-                          // custom formulas are not supported during SSR yet
-                          isToddleFormula(pkgFormula),
+                          isToddleFormula(pkgFormula) ||
+                          isV2CodeFormula(pkgFormula),
                       ),
                     }
                   : undefined,
