@@ -905,6 +905,40 @@ export const createRoot = (
           await captureScreenshot(message.data)
           break
         }
+        case 'canvas_style': {
+          let el = document.getElementById(
+            'canvas-style',
+          ) as HTMLStyleElement | null
+          if (!el) {
+            el = document.createElement('style')
+            el.id = 'canvas-style'
+            document.head.appendChild(el)
+          }
+          el.textContent = message.data.css
+            ? `#App { ${message.data.css} }`
+            : ''
+
+          //domNode.style =
+          requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
+          break
+        }
+
+        //   let appliedCanvasStyleKeys: string[] = []
+
+        // case 'canvas_style': {
+        //   const domNode = document.getElementById('App')
+        //   if (!domNode) break
+        //   appliedCanvasStyleKeys.forEach((key) =>
+        //     domNode.style.removeProperty(key),
+        //   )
+        //   const styles: Record<string, string> = message.data.styles ?? {}
+        //   Object.entries(styles).forEach(([key, value]) =>
+        //     domNode.style.setProperty(key, value),
+        //   )
+        //   appliedCanvasStyleKeys = Object.keys(styles)
+        //   requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
+        //   break
+        // }
       }
     },
   )

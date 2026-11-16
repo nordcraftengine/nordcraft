@@ -150,6 +150,7 @@ export type NordcraftPreviewEvent =
       enabled: boolean
     }
   | { type: 'capture_screenshot'; id: string; viewportWidth?: number }
+  | { type: 'canvas_style'; css: string }
 
 export type EditorPostMessageType =
   | {
