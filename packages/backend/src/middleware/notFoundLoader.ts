@@ -3,12 +3,14 @@ import type { NotFoundHandler } from 'hono'
 import type { HonoEnv, HonoProject, HonoRoutes } from '../../hono'
 import type { PageLoader, PageLoaderUrls } from '../loaders/types'
 import { nordcraftPage } from '../routes/nordcraftPage'
+import type { PageStateStore } from '../routes/pageState'
 
 export const notFoundLoader: (
   pageLoader: PageLoader,
   options: PageLoaderUrls,
+  pageStateStore?: PageStateStore,
 ) => NotFoundHandler<HonoEnv<HonoRoutes & HonoProject>> =
-  (pageLoader, options) => async (ctx) => {
+  (pageLoader, options, pageStateStore) => async (ctx) => {
     const pageContent = await pageLoader({ ctx, name: '404' })
     const component = pageContent?.components?.['404']
     if (!component || !isPageComponent(component)) {
@@ -23,5 +25,6 @@ export const notFoundLoader: (
       page: component,
       status: 404,
       options,
+      pageStateStore,
     })
   }

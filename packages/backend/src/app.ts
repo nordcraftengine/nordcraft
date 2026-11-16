@@ -13,7 +13,7 @@ import { favicon } from './routes/favicon'
 import { fontRouter } from './routes/font'
 import { manifest } from './routes/manifest'
 import { pageHandler } from './routes/pageHandler'
-import { pageStateHandler } from './routes/pageState'
+import { createPageStateHandler, type PageStateStore } from './routes/pageState'
 import { robots } from './routes/robots'
 import { routeHandler } from './routes/routeHandler'
 import { serviceWorker } from './routes/serviceWorker'
@@ -30,6 +30,7 @@ export const getApp = <T extends Record<string, any>>(options: {
   }
   fileLoaders: MiddlewareHandler[]
   earlyMiddleware?: MiddlewareHandler[]
+  pageStateStore?: PageStateStore
 }) => {
   // Inject isEqual on globalThis used by some builtin formulas
   initIsEqual()
@@ -68,7 +69,10 @@ export const getApp = <T extends Record<string, any>>(options: {
     ),
   )
   app.get('/.nordcraft/cookies/set-cookie', setCookieHandler)
-  app.get('/.nordcraft/page-state/:renderId{.+.js}', pageStateHandler)
+  app.get(
+    '/.nordcraft/page-state/:renderId{.+.js}',
+    createPageStateHandler(options.pageStateStore),
+  )
 
   // Load project info and all routes for endpoints below to use
   app.use(...options.fileLoaders)
@@ -96,10 +100,21 @@ export const getApp = <T extends Record<string, any>>(options: {
   app.get('/serviceWorker.js', serviceWorker)
 
   // Load a page if it matches the URL
-  app.get('/*', pageHandler(options.pageLoader.loader, options.pageLoader.urls))
+  app.get(
+    '/*',
+    pageHandler(
+      options.pageLoader.loader,
+      options.pageLoader.urls,
+      options.pageStateStore,
+    ),
+  )
 
   app.notFound(
-    notFoundLoader(options.pageLoader.loader, options.pageLoader.urls) as any,
+    notFoundLoader(
+      options.pageLoader.loader,
+      options.pageLoader.urls,
+      options.pageStateStore,
+    ) as any,
   )
 
   return app
