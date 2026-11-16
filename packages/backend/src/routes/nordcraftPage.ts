@@ -8,6 +8,7 @@ import {
 import type {
   ApiCache,
   ProjectFilesWithCustomCode,
+  SsrFormulaHandler,
   ToddleProject,
 } from '@nordcraft/ssr'
 import {
@@ -44,7 +45,7 @@ export const nordcraftPage = async ({
 }: {
   hono: Context<HonoEnv<any>>
   project: ToddleProject
-  files: ProjectFilesWithCustomCode
+  files: ProjectFilesWithCustomCode<SsrFormulaHandler>
   page: PageComponent
   status: ContentfulStatusCode
   options: PageLoaderUrls

@@ -30,7 +30,7 @@ import {
   toValidClassName,
   VOID_HTML_ELEMENTS,
 } from '@nordcraft/core'
-import type { ProjectFiles } from '../ssr.types'
+import type { ProjectFiles, SsrFormulaHandler } from '../ssr.types'
 import type { ApiCache, ApiEvaluator } from './api'
 import { escapeAttrValue, getNodeAttrs, toEncodedText } from './attributes'
 import {
@@ -104,7 +104,7 @@ const renderComponent = async ({
   data: ComponentData
   env: ToddleServerEnv
   evaluateComponentApis: ApiEvaluator
-  files: ProjectFiles
+  files: ProjectFiles<SsrFormulaHandler>
   toddle: FormulaContext['toddle']
   includedComponents: Component[]
   instance: Record<string, string>
@@ -770,7 +770,7 @@ const createComponent = async ({
   contexts?: Record<string, Record<string, unknown>>
   env: ToddleServerEnv
   evaluateComponentApis: ApiEvaluator
-  files: ProjectFiles
+  files: ProjectFiles<SsrFormulaHandler>
   formulaContext: FormulaContext
   pageData: ComponentData
   includedComponents: Component[]
@@ -861,7 +861,7 @@ export const renderPageBody = async ({
   component: Component
   env: ToddleServerEnv
   evaluateComponentApis: ApiEvaluator
-  files: ProjectFiles
+  files: ProjectFiles<SsrFormulaHandler>
   formulaContext: FormulaContext
   data: ComponentData
   includedComponents: Component[]

@@ -1,4 +1,7 @@
-import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr'
+import type {
+  ProjectFilesWithCustomCode,
+  SsrFormulaHandler,
+} from '@nordcraft/ssr'
 import { getConnInfo } from 'hono/cloudflare-workers'
 import { endTime, startTime } from 'hono/timing'
 import { getApp } from './app'
@@ -13,9 +16,9 @@ const app = getApp({
     loader: async ({ name, ctx }) => {
       const timingKey = `pageLoader:${name}`
       startTime(ctx, timingKey)
-      const file = await loadJsFile<ProjectFilesWithCustomCode>(
-        `./components/${name}.js`,
-      )
+      const file = await loadJsFile<
+        ProjectFilesWithCustomCode<SsrFormulaHandler>
+      >(`./components/${name}.js`)
       endTime(ctx, timingKey)
       return file
     },
