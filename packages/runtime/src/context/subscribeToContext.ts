@@ -46,14 +46,13 @@ export function subscribeToContext(
           continue
         }
 
-        const initialVal = formulaDataSignal.get()
-        const initialContexts = (componentDataSignal.value.Contexts ??= {})
-        const initialProviderContext = (initialContexts[providerName] ??= {})
-        initialProviderContext[formulaName] = initialVal
+        ;((componentDataSignal.value.Contexts ??= {})[providerName] ??= {})[
+          formulaName
+        ] = formulaDataSignal.get()
 
-        const exposedFormula: unknown =
-          provider.component.formulas?.[formulaName]?.formula
-        if (isStaticFormula(exposedFormula)) {
+        if (
+          isStaticFormula(provider.component.formulas?.[formulaName]?.formula)
+        ) {
           continue
         }
 

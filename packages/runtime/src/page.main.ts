@@ -3,7 +3,6 @@ import type {
   ArgumentInputDataFunction,
   Component,
   ComponentData,
-  ComponentFormula,
   ComponentVariable,
   FormulaHandler,
   FormulaHandlerV2,
@@ -38,12 +37,14 @@ import {
 } from './components/hydration'
 import { getDynamicMetaEntries } from './components/meta'
 import { renderComponent } from './components/renderComponent'
-import { isContextProvider } from './context/isContextProvider'
+import {
+  createFormulaDataSignals,
+  isContextProvider,
+} from './context/isContextProvider'
 import { initLogState, registerComponentToLogState } from './debug/logState'
 import { Signal, signal } from './signal/signal'
 import type { ComponentContext, LocationSignal } from './types'
 import { getThemeSignal } from './utils/getThemeSignal'
-import { isStaticFormula } from './utils/isStaticFormula'
 
 initLogState()
 
@@ -66,7 +67,6 @@ export const initGlobalObject = (code?: {
     const legacyActions: Record<string, ActionHandler> = {}
     const legacyFormulas: Record<string, FormulaHandler> = {}
     const argumentInputDataList: Record<string, ArgumentInputDataFunction> = {}
-    const project = window.__toddle.project
     const toddle: Toddle<LocationSignal, never> = {
       isEqual: fastDeepEqual,
       errors: [],
@@ -98,19 +98,15 @@ export const initGlobalObject = (code?: {
       },
       getFormula: (name) => legacyFormulas[name],
       getCustomAction: (name, packageName) => {
-        const actions = toddle.actions[packageName ?? project]
         return (
-          actions?.[name] ??
-          (isDefined(packageName) ? toddle.actions[project]?.[name] : undefined)
+          toddle.actions[packageName ?? window.__toddle.project]?.[name] ??
+          toddle.actions[window.__toddle.project]?.[name]
         )
       },
       getCustomFormula: (name, packageName) => {
-        const formulas = toddle.formulas[packageName ?? project]
         return (
-          formulas?.[name] ??
-          (isDefined(packageName)
-            ? toddle.formulas[project]?.[name]
-            : undefined)
+          toddle.formulas[packageName ?? window.__toddle.project]?.[name] ??
+          toddle.formulas[window.__toddle.project]?.[name]
         )
       },
       // eslint-disable-next-line max-params
@@ -133,18 +129,20 @@ export const initGlobalObject = (code?: {
   })()
 
   // load default formulas and actions
-  Object.entries(libFormulas).forEach(([name, module]) =>
+  for (const name in libFormulas) {
+    const module = libFormulas[name as keyof typeof libFormulas]
     window.toddle.registerFormula(
       '@toddle/' + name,
       module.default as FormulaHandler,
       'getArgumentInputData' in module
         ? module.getArgumentInputData
         : undefined,
-    ),
-  )
-  Object.entries(libActions).forEach(([name, module]) =>
-    window.toddle.registerAction('@toddle/' + name, module.default),
-  )
+    )
+  }
+  for (const name in libActions) {
+    const module = libActions[name as keyof typeof libActions]
+    window.toddle.registerAction('@toddle/' + name, module.default)
+  }
 }
 
 export const createRoot = (domNode: HTMLElement) => {
@@ -265,7 +263,7 @@ export const createRoot = (domNode: HTMLElement) => {
   })
 
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
-  sortApiEntries(component.apis).forEach(([name, api]) => {
+  for (const [name, api] of sortApiEntries(component.apis)) {
     if (isLegacyApi(api)) {
       ctx.apis[name] = createLegacyAPI(api, ctx)
     } else {
@@ -275,7 +273,7 @@ export const createRoot = (domNode: HTMLElement) => {
         componentData: dataSignal.get(),
       })
     }
-  })
+  }
   // Trigger actions for all APIs after all of them are created.
   for (const name in ctx.apis) {
     const api = ctx.apis[name]
@@ -287,20 +285,11 @@ export const createRoot = (domNode: HTMLElement) => {
   let providers = ctx.providers
   if (isContextProvider(component)) {
     // Subscribe to exposed formulas and update the component's data signal
-    const formulaDataSignals: Record<string, Signal<ComponentData>> = {}
-    const componentFormulas = component.formulas
-    if (componentFormulas) {
-      for (const name in componentFormulas) {
-        const formula = componentFormulas[name]
-        if (!formula?.exposeInContext) {
-          continue
-        }
-        const exposed = (formula as ComponentFormula).formula
-        formulaDataSignals[name] = isStaticFormula(exposed)
-          ? signal(applyFormula(exposed, ctx, dataSignal.get()))
-          : dataSignal.map((data) => applyFormula(exposed, ctx, data))
-      }
-    }
+    const formulaDataSignals = createFormulaDataSignals(
+      component,
+      dataSignal,
+      ctx,
+    )
 
     providers = {
       ...providers,
@@ -334,9 +323,9 @@ export const createRoot = (domNode: HTMLElement) => {
     sweepUnhydratedNodes(domNode, hydration)
   } else {
     domNode.textContent = ''
-    elements.forEach((elem) => {
+    for (const elem of elements) {
       domNode.appendChild(elem)
-    })
+    }
   }
   window.__toddle.isPageLoaded = true
 }
@@ -345,7 +334,8 @@ function parseUrl(component: Component) {
   const path = window.location.pathname.split('/').slice(1)
   let params: Record<string, string | null> = {}
   if (component.route) {
-    component.route.path.forEach((segment, i) => {
+    for (let i = 0; i < component.route.path.length; i++) {
+      const segment = component.route.path[i]!
       if (segment.type === 'param') {
         if (isDefined(path[i]) && path[i] !== '') {
           params[segment.name] = decodeURIComponent(path[i])
@@ -355,7 +345,7 @@ function parseUrl(component: Component) {
       } else {
         params[segment.name] = segment.name
       }
-    })
+    }
   } else {
     const urlPattern = match<Record<string, string>>(component.page ?? '', {
       decode: decodeURIComponent,
@@ -471,12 +461,11 @@ const setupMetaUpdates = (
         document.getElementsByTagName('head')[0].appendChild(existingElement)
       }
       // Apply all attributes to the element
-      Object.entries(entry.attrs ?? {}).forEach(([key, value]) => {
-        if (!component) {
-          return
+      if (component && entry.attrs) {
+        for (const key in entry.attrs) {
+          existingElement.setAttribute(key, entry.attrs[key])
         }
-        existingElement!.setAttribute(key, value)
-      })
+      }
       if (
         typeof entry.content === 'string' &&
         !VOID_HTML_ELEMENTS.includes(entry.tag.toLowerCase())

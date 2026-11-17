@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import type {
   ComponentData,
+  ComponentNodeModel,
   ElementNodeModel,
   NodeModel,
   SlotNodeModel,
@@ -95,11 +96,8 @@ function renderNode(
                 : {}),
             }
       return createComponent({
-        ...props,
-        node: props.node,
-        nodeId: props.id,
+        ...(props as NodeRenderer<ComponentNodeModel>),
         ctx: childCtx,
-        parentElement: props.parentElement,
       })
     }
     case 'text':
@@ -146,15 +144,15 @@ function conditional(
       }
 
       const nextPathElement = getNextSiblingElement(path, parentElement)
-      const fragment = document.createDocumentFragment()
       for (const element of elements) {
-        fragment.appendChild(element)
+        parentElement.insertBefore(element, nextPathElement)
       }
-      parentElement.insertBefore(fragment, nextPathElement)
     } else if (!show) {
       childDataSignal?.destroy()
-      elements.forEach((elem) => elem.remove())
-      elements.splice(0, elements.length)
+      for (const elem of elements) {
+        elem.remove()
+      }
+      elements.length = 0
     }
   }
 
@@ -173,8 +171,10 @@ function conditional(
       destroy: () => {
         unsubscribePreview?.()
         childDataSignal?.destroy()
-        elements.forEach((elem) => elem.remove())
-        elements.splice(0, elements.length)
+        for (const elem of elements) {
+          elem.remove()
+        }
+        elements.length = 0
       },
     },
   )
@@ -289,7 +289,9 @@ function repeat(props: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
     for (const [key, item] of repeatItems) {
       if (!seenKeys.has(key)) {
         item.dataSignal.destroy()
-        item.elements.forEach((e) => e.remove())
+        for (const e of item.elements) {
+          e.remove()
+        }
         if (defaultElement === key) {
           defaultElement = null
         }

@@ -1,7 +1,6 @@
 import type {
   Component,
   ComponentData,
-  ComponentFormula,
   Toddle,
   ToddleEnv,
 } from '@nordcraft/core'
@@ -18,12 +17,14 @@ import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
 import { sortApiEntries } from '../api/sortApis'
 import { renderComponent } from '../components/renderComponent'
-import { isContextProvider } from '../context/isContextProvider'
+import {
+  createFormulaDataSignals,
+  isContextProvider,
+} from '../context/isContextProvider'
 import { Signal, signal } from '../signal/signal'
 import type { ComponentContext, LocationSignal } from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
 import { getThemeSignal } from '../utils/getThemeSignal'
-import { isStaticFormula } from '../utils/isStaticFormula'
 
 /**
  * Base class for all toddle components
@@ -177,7 +178,7 @@ export class ToddleComponent extends HTMLElement {
       })
     }
 
-    sortApiEntries(this.#component.apis).forEach(([name, api]) => {
+    for (const [name, api] of sortApiEntries(this.#component.apis)) {
       if (isLegacyApi(api)) {
         this.#ctx.apis[name] = createLegacyAPI(
           api,
@@ -192,7 +193,7 @@ export class ToddleComponent extends HTMLElement {
           componentData: this.#signal.get(),
         })
       }
-    })
+    }
     // Plain loop: `Object.values(...).filter(...)` allocated two arrays per
     // custom element even when there are no APIs at all.
     for (const name in this.#ctx.apis) {
@@ -205,29 +206,11 @@ export class ToddleComponent extends HTMLElement {
     let providers = this.#ctx.providers
     if (isContextProvider(this.#component)) {
       // Subscribe to exposed formulas and update the component's data signal
-      const formulaDataSignals: Record<string, Signal<ComponentData>> = {}
-      const componentFormulas = this.#component.formulas
-      if (componentFormulas) {
-        for (const name in componentFormulas) {
-          const formula = componentFormulas[name]
-          if (!formula?.exposeInContext) {
-            continue
-          }
-          const exposed = (formula as ComponentFormula).formula
-          // Static exposed formula: evaluate once into a detached signal
-          // (see createComponent).
-          formulaDataSignals[name] = isStaticFormula(exposed)
-            ? signal(applyFormula(exposed, this.#ctx, this.#signal.get()))
-            : this.#signal.map((data) =>
-                applyFormula(
-                  exposed,
-                  this.#ctx,
-                  data,
-                  IS_PREVIEW ? ['formulas', name] : undefined,
-                ),
-              )
-        }
-      }
+      const formulaDataSignals = createFormulaDataSignals(
+        this.#component,
+        this.#signal,
+        this.#ctx,
+      )
 
       providers = {
         ...providers,

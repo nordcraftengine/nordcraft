@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
 import type {
   ApiPerformance,
   ApiRequest,
@@ -176,34 +175,38 @@ export function createAPI({
     switch (eventName) {
       case 'message': {
         const event = createApiEvent('message', data.body)
-        api.client?.onMessage?.actions?.forEach((action) => {
-          handleAction(
-            action,
-            {
-              ...getApiData(api, componentData),
-              Event: event,
-            },
-            ctx,
-            event,
-            workflowCallback,
-          )
-        })
+        if (api.client?.onMessage?.actions) {
+          for (const action of api.client.onMessage.actions) {
+            void handleAction(
+              action,
+              {
+                ...getApiData(api, componentData),
+                Event: event,
+              },
+              ctx,
+              event,
+              workflowCallback,
+            )
+          }
+        }
         break
       }
       case 'success': {
         const event = createApiEvent('success', data.body)
-        api.client?.onCompleted?.actions?.forEach((action) => {
-          handleAction(
-            action,
-            {
-              ...getApiData(api, componentData),
-              Event: event,
-            },
-            ctx,
-            event,
-            workflowCallback,
-          )
-        })
+        if (api.client?.onCompleted?.actions) {
+          for (const action of api.client.onCompleted.actions) {
+            void handleAction(
+              action,
+              {
+                ...getApiData(api, componentData),
+                Event: event,
+              },
+              ctx,
+              event,
+              workflowCallback,
+            )
+          }
+        }
         break
       }
       case 'failed': {
@@ -211,18 +214,20 @@ export function createAPI({
           error: data.body,
           status: data.status,
         })
-        api.client?.onFailed?.actions?.forEach((action) => {
-          handleAction(
-            action,
-            {
-              ...getApiData(api, componentData),
-              Event: event,
-            },
-            ctx,
-            event,
-            workflowCallback,
-          )
-        })
+        if (api.client?.onFailed?.actions) {
+          for (const action of api.client.onFailed.actions) {
+            void handleAction(
+              action,
+              {
+                ...getApiData(api, componentData),
+                Event: event,
+              },
+              ctx,
+              event,
+              workflowCallback,
+            )
+          }
+        }
         break
       }
     }
@@ -915,7 +920,9 @@ export function createAPI({
         const concatenated = this.currentChunk + chunk
         const split = delimiter ? concatenated.split(delimiter) : [concatenated]
         this.currentChunk = split.pop() ?? ''
-        split.forEach((c) => this.add(c))
+        for (const c of split) {
+          this.add(c)
+        }
       },
     }
 

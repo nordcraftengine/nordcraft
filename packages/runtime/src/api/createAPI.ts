@@ -157,9 +157,9 @@ export function createLegacyAPI(
       case 'multipart/form-data': {
         const formData = new FormData()
         if (typeof body === 'object' && body !== null) {
-          Object.entries(body).forEach(([key, value]) => {
-            formData.set(key, value as string | Blob)
-          })
+          for (const key in body) {
+            formData.set(key, (body as Record<string, string | Blob>)[key]!)
+          }
         }
         return formData
       }
@@ -189,9 +189,11 @@ export function createLegacyAPI(
         Signal.FORCE_UPDATE,
       )
     }
-    api.onCompleted?.actions?.forEach((action) => {
-      handleAction(action, ctx.dataSignal.get(), ctx)
-    })
+    if (api.onCompleted?.actions) {
+      for (const action of api.onCompleted.actions) {
+        void handleAction(action, ctx.dataSignal.get(), ctx)
+      }
+    }
   }
 
   function apiError(error: any) {
@@ -213,9 +215,11 @@ export function createLegacyAPI(
         Signal.FORCE_UPDATE,
       )
     }
-    api.onFailed?.actions?.forEach((action) => {
-      handleAction(action, ctx.dataSignal.get(), ctx)
-    })
+    if (api.onFailed?.actions) {
+      for (const action of api.onFailed.actions) {
+        void handleAction(action, ctx.dataSignal.get(), ctx)
+      }
+    }
   }
 
   // Execute the request to the cloudflare Query proxy

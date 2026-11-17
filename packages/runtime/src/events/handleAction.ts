@@ -363,9 +363,9 @@ export function handleAction(
             return
           }
 
-          workflow.actions.forEach((action) =>
-            handleAction(
-              action,
+          for (const workflowAction of workflow.actions) {
+            void handleAction(
+              workflowAction,
               {
                 ...data,
                 ...provider.ctx.dataSignal.get(),
@@ -374,26 +374,28 @@ export function handleAction(
               provider.ctx,
               event,
               (callbackName, callbackData) => {
-                const callback = callbacks?.[callbackName]
-                callback?.actions?.forEach(
-                  (action) =>
-                    action &&
-                    handleAction(
-                      action,
-                      {
-                        ...data,
-                        ...ctx.dataSignal.get(),
-                        Parameters: parameters,
-                        Event: callbackData,
-                      },
-                      ctx,
-                      event,
-                      workflowCallback,
-                    ),
-                )
+                const callbackActions = callbacks?.[callbackName]?.actions
+                if (callbackActions) {
+                  for (const cbAction of callbackActions) {
+                    if (cbAction) {
+                      void handleAction(
+                        cbAction,
+                        {
+                          ...data,
+                          ...ctx.dataSignal.get(),
+                          Parameters: parameters,
+                          Event: callbackData,
+                        },
+                        ctx,
+                        event,
+                        workflowCallback,
+                      )
+                    }
+                  }
+                }
               },
-            ),
-          )
+            )
+          }
           return
         }
 
@@ -405,9 +407,9 @@ export function handleAction(
           return
         }
 
-        workflow.actions.forEach((action) =>
-          handleAction(
-            action,
+        for (const workflowAction of workflow.actions) {
+          void handleAction(
+            workflowAction,
             {
               ...data,
               ...ctx.dataSignal.get(),
@@ -416,45 +418,47 @@ export function handleAction(
             ctx,
             event,
             (callbackName, callbackData) => {
-              const callback = callbacks?.[callbackName]
-              callback?.actions?.forEach(
-                (action) =>
-                  action &&
-                  handleAction(
-                    action,
-                    {
-                      ...data,
-                      ...ctx.dataSignal.get(),
-                      Parameters: parameters,
-                      Event: callbackData,
-                    },
-                    ctx,
-                    event,
-                    workflowCallback,
-                  ),
-              )
+              const callbackActions = callbacks?.[callbackName]?.actions
+              if (callbackActions) {
+                for (const cbAction of callbackActions) {
+                  if (cbAction) {
+                    void handleAction(
+                      cbAction,
+                      {
+                        ...data,
+                        ...ctx.dataSignal.get(),
+                        Parameters: parameters,
+                        Event: callbackData,
+                      },
+                      ctx,
+                      event,
+                      workflowCallback,
+                    )
+                  }
+                }
+              }
             },
-          ),
-        )
+          )
+        }
         break
       }
       default: {
         try {
           // create a handler for actions triggering events
           const triggerActionEvent = (trigger: string, eventData: any) => {
-            const subEvent = action.events?.[trigger]
-            if (subEvent) {
-              subEvent.actions?.forEach((action) =>
-                handleAction(
-                  action,
+            const subEventActions = action.events?.[trigger]?.actions
+            if (subEventActions) {
+              for (const subAction of subEventActions) {
+                void handleAction(
+                  subAction,
                   eventData
                     ? { ...data, ...ctx.dataSignal.get(), Event: eventData }
                     : { ...data, ...ctx.dataSignal.get() },
                   ctx,
                   eventData ?? event,
                   workflowCallback,
-                ),
-              )
+                )
+              }
             }
           }
           const newAction =

@@ -1,5 +1,14 @@
-/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-import type { Component } from '@nordcraft/core'
+import type {
+  Component,
+  ComponentData,
+  ComponentFormula,
+  FormulaContext,
+} from '@nordcraft/core'
+import { applyFormula } from '@nordcraft/core'
+import '@nordcraft/core/compileTime'
+import type { Signal } from '../signal/signal'
+import { signal } from '../signal/signal'
+import { isStaticFormula } from '../utils/isStaticFormula'
 
 export const isContextProvider = (component: Component) => {
   const formulas = component.formulas
@@ -19,4 +28,33 @@ export const isContextProvider = (component: Component) => {
     }
   }
   return false
+}
+
+export const createFormulaDataSignals = (
+  component: Component,
+  dataSignal: Signal<ComponentData>,
+  ctx: FormulaContext,
+) => {
+  const formulaDataSignals: Record<string, Signal<ComponentData>> = {}
+  const componentFormulas = component.formulas
+  if (componentFormulas) {
+    for (const name in componentFormulas) {
+      const formula = componentFormulas[name]
+      if (!formula?.exposeInContext) {
+        continue
+      }
+      const exposed = (formula as ComponentFormula).formula
+      formulaDataSignals[name] = isStaticFormula(exposed)
+        ? signal(applyFormula(exposed, ctx, dataSignal.get()))
+        : dataSignal.map((data) =>
+            applyFormula(
+              exposed,
+              ctx,
+              data,
+              IS_PREVIEW ? ['formulas', name] : undefined,
+            ),
+          )
+    }
+  }
+  return formulaDataSignals
 }

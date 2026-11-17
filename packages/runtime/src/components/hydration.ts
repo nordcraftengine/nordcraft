@@ -48,7 +48,11 @@ function claimInRange(
       child.getAttribute(DATA_ATTR_ID) === path &&
       !hydration.adopted.has(child)
     ) {
-      if (tag && child.tagName.toLowerCase() !== tag.toLowerCase()) {
+      if (
+        tag &&
+        child.localName !== tag &&
+        child.tagName.toLowerCase() !== tag.toLowerCase()
+      ) {
         // SSR/CSR unexpected tag at a stable path, drop the stale node.
         child.remove()
         hydration.nextIndex.set(parent, i)
@@ -106,7 +110,15 @@ export function reconcileHydratedChildren(
   let cursor: ChildNode | null = parent.firstChild
   for (let i = 0; i < children.length; i++) {
     const child = children[i]!
-    while (cursor && !hydration.adopted.has(cursor as Element)) {
+    if (child === cursor) {
+      cursor = cursor.nextSibling
+      continue
+    }
+    while (
+      cursor &&
+      cursor !== child &&
+      !hydration.adopted.has(cursor as Element)
+    ) {
       cursor = cursor.nextSibling
     }
     if (child === cursor) {

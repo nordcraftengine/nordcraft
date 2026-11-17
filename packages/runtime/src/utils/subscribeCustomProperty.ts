@@ -4,6 +4,7 @@ import type {
   ComponentData,
   CustomProperty,
   FormulaContext,
+  Nullable,
   StyleVariant,
 } from '@nordcraft/core'
 import {
@@ -14,6 +15,7 @@ import {
 import '@nordcraft/core/compileTime'
 import { CustomPropertyStyleSheet } from '../styles/CustomPropertyStyleSheet'
 import type { ComponentContext } from '../types'
+import { formulaHasValue } from './formulaHasValue'
 import { isStaticFormula } from './isStaticFormula'
 
 export const customPropertiesStylesheets = new WeakMap<
@@ -64,51 +66,64 @@ export function subscribeCustomProperty({
   )
 }
 
-export function bindCustomProperty({
-  selector,
-  customPropertyName,
-  customProperty: { formula, unit },
-  variant,
-  dataSignal,
-  formulaCtx,
-  ctx,
-  reportPath,
-}: {
-  selector: string
-  customPropertyName: string
-  customProperty: CustomProperty
-  variant?: StyleVariant
-  dataSignal: Signal<ComponentData>
-  formulaCtx: FormulaContext
-  ctx: ComponentContext
-  reportPath?: (string | number)[]
-}) {
-  const stylesheet = getStyleSheet(ctx.root)
-  const update = stylesheet.registerProperty(
-    selector,
-    customPropertyName,
+export function bindCustomProperties(
+  customProperties: Record<string, Nullable<CustomProperty>>,
+  getSelector: () => string,
+  {
     variant,
-  )
-  const unregister = () => {
-    stylesheet.unregisterProperty(selector, customPropertyName, {
-      mediaQuery: variant?.mediaQuery,
-      startingStyle: variant?.startingStyle,
-    })
+    dataSignal,
+    formulaCtx,
+    ctx,
+    reportPrefix,
+  }: {
+    variant?: StyleVariant
+    dataSignal: Signal<ComponentData>
+    formulaCtx: FormulaContext
+    ctx: ComponentContext
+    reportPrefix?: (string | number)[]
+  },
+): boolean {
+  const stylesheet = getStyleSheet(ctx.root)
+  let selector: string | undefined
+  for (const customPropertyName in customProperties) {
+    const customProperty = customProperties[customPropertyName]
+    if (!customProperty || !formulaHasValue(customProperty.formula)) {
+      continue
+    }
+    selector ??= getSelector()
+    const targetSelector = selector
+    const { formula, unit } = customProperty
+    const update = stylesheet.registerProperty(
+      targetSelector,
+      customPropertyName,
+      variant,
+    )
+    const unregister = () => {
+      stylesheet.unregisterProperty(targetSelector, customPropertyName, {
+        mediaQuery: variant?.mediaQuery,
+        startingStyle: variant?.startingStyle,
+      })
+    }
+    if (isStaticFormula(formula)) {
+      update(appendUnit(formula.value, unit))
+      dataSignal.subscriptions.push(unregister)
+      continue
+    }
+    const reportPath =
+      IS_PREVIEW && reportPrefix
+        ? [...reportPrefix, customPropertyName, 'formula']
+        : undefined
+    dataSignal.subscribeMap(
+      (data) => {
+        const val = applyFormula(formula, formulaCtx, data, reportPath)
+        if (IS_PREVIEW && reportPath) {
+          ctx.reportFormulaEvaluation?.(reportPath, val, ctx)
+        }
+        return appendUnit(val, unit)
+      },
+      update,
+      { destroy: unregister },
+    )
   }
-  if (isStaticFormula(formula)) {
-    update(appendUnit(formula.value, unit))
-    dataSignal.subscriptions.push(unregister)
-    return
-  }
-  dataSignal.subscribeMap(
-    (data) => {
-      const val = applyFormula(formula, formulaCtx, data, reportPath)
-      if (IS_PREVIEW && reportPath) {
-        ctx.reportFormulaEvaluation?.(reportPath, val, ctx)
-      }
-      return appendUnit(val, unit)
-    },
-    update,
-    { destroy: unregister },
-  )
+  return selector !== undefined
 }
