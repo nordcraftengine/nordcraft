@@ -307,13 +307,14 @@ export type EditorPostMessageType =
     }
   | SnapTargetsMessage
   | {
-      type: 'canvasWheel'
+      type: 'wheel'
       deltaX: number
       deltaY: number
       clientX: number
       clientY: number
       ctrlKey: boolean
       metaKey: boolean
+      shiftKey: boolean
     }
 
 export type DragInsertState = {

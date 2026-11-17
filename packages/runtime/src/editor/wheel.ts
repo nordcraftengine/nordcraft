@@ -86,14 +86,14 @@ const isScrollHandledByPage = (
     if (
       canScrollOnAxis({
         element: target,
-        axis: 'x',
-        delta: deltaX,
+        axis: 'y',
+        delta: deltaY,
         isRoot: false,
       }) ||
       canScrollOnAxis({
         element: target,
-        axis: 'y',
-        delta: deltaY,
+        axis: 'x',
+        delta: deltaX,
         isRoot: false,
       })
     ) {
@@ -103,14 +103,14 @@ const isScrollHandledByPage = (
   return root
     ? canScrollOnAxis({
         element: root,
-        axis: 'x',
-        delta: deltaX,
+        axis: 'y',
+        delta: deltaY,
         isRoot: true,
       }) ||
         canScrollOnAxis({
           element: root,
-          axis: 'y',
-          delta: deltaY,
+          axis: 'x',
+          delta: deltaX,
           isRoot: true,
         })
     : false
@@ -130,18 +130,24 @@ export const initWheelListeners = (getMode: () => EditorMode) => {
       }
       const { deltaX, deltaY } = getPixelDelta(event)
       const isZoom = event.ctrlKey || event.metaKey
+
+      // If this isn't a zoom gesture AND the page can scroll,
+      // let the browser handle it.
       if (!isZoom && isScrollHandledByPage(event, deltaX, deltaY)) {
         return
       }
+
+      // Otherwise, let the editor handle it.
       event.preventDefault()
       postMessageToEditor({
-        type: 'canvasWheel',
+        type: 'wheel',
         deltaX,
         deltaY,
         clientX: event.clientX,
         clientY: event.clientY,
         ctrlKey: event.ctrlKey,
         metaKey: event.metaKey,
+        shiftKey: event.shiftKey,
       })
     },
     { passive: false },
