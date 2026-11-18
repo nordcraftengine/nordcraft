@@ -13,6 +13,7 @@ import type {
   PluginFormula,
   Toddle,
   ToddleEnv,
+  ToddleInternals,
 } from '@nordcraft/core'
 import {
   applyFormula,
@@ -20,6 +21,7 @@ import {
   isDefined,
   isLegacyApi,
   mapObject,
+  PAGE_STATE_SCRIPT_ID,
   THEME_DATA_ATTRIBUTE,
   VOID_HTML_ELEMENTS,
 } from '@nordcraft/core'
@@ -335,6 +337,58 @@ export const createRoot = (domNode: HTMLElement) => {
     })
   }
   window.__toddle.isPageLoaded = true
+}
+
+export const hydratePage = ({
+  project,
+  branch = 'main',
+  commit = 'unknown',
+  component,
+  components,
+  formulas = {},
+  actions = {},
+  loadCustomCode,
+}: {
+  project: string
+  branch?: string
+  commit?: string
+  component: Component
+  components: Component[]
+  formulas?: Record<string, Record<string, PluginFormula<FormulaHandlerV2>>>
+  actions?: Record<string, Record<string, PluginActionV2>>
+  loadCustomCode?: () => void
+}) => {
+  const stateElement = document.getElementById(PAGE_STATE_SCRIPT_ID)
+  const state = stateElement?.textContent
+    ? (JSON.parse(stateElement.textContent) as Pick<
+        ToddleInternals,
+        'pageState' | 'cookies'
+      >)
+    : ({
+        pageState: {
+          Apis: {},
+          Attributes: {},
+          Variables: {},
+        },
+        cookies: [],
+      } satisfies Pick<ToddleInternals, 'pageState' | 'cookies'>)
+
+  window.__toddle = {
+    project,
+    branch,
+    commit,
+    isPageLoaded: false,
+    ...state,
+    component,
+    components: [component, ...components],
+  }
+  initGlobalObject({ formulas, actions })
+  loadCustomCode?.()
+  const app = document.getElementById('App')
+  if (!app) {
+    throw new Error('Cant find root domNode')
+  }
+  createRoot(app)
 }
 
 function parseUrl(component: Component) {

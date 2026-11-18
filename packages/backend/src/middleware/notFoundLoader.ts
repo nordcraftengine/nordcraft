@@ -7,8 +7,9 @@ import { nordcraftPage } from '../routes/nordcraftPage'
 export const notFoundLoader: (
   pageLoader: PageLoader,
   options: PageLoaderUrls,
+  cacheBuster?: string,
 ) => NotFoundHandler<HonoEnv<HonoRoutes & HonoProject>> =
-  (pageLoader, options) => async (ctx) => {
+  (pageLoader, options, cacheBuster) => async (ctx) => {
     const pageContent = await pageLoader({ ctx, name: '404' })
     const component = pageContent?.components?.['404']
     if (!component || !isPageComponent(component)) {
@@ -23,5 +24,6 @@ export const notFoundLoader: (
       page: component,
       status: 404,
       options,
+      cacheBuster,
     })
   }
