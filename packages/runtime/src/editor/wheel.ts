@@ -122,6 +122,30 @@ const isScrollHandledByPage = (
  * itself, so the editor can pan/zoom the canvas instead.
  */
 export const initWheelListeners = (getMode: () => EditorMode) => {
+  // Cancel the scroll only for zoom gestures, so a scroll area under the cursor doesn't scroll
+  document.addEventListener(
+    'wheel',
+    (event) => {
+      const { deltaX, deltaY } = getPixelDelta(event)
+
+      const isZoom = event.ctrlKey || event.metaKey
+
+      if (getMode() === 'test' && isZoom) {
+        event.preventDefault()
+        postMessageToEditor({
+          type: 'wheel',
+          deltaX,
+          deltaY,
+          clientX: event.clientX,
+          clientY: event.clientY,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          shiftKey: event.shiftKey,
+        })
+      }
+    },
+    { passive: false },
+  )
   document.addEventListener('wheel', (event) => {
     if (getMode() !== 'test' || event.defaultPrevented) {
       return
@@ -136,8 +160,6 @@ export const initWheelListeners = (getMode: () => EditorMode) => {
     }
 
     // Otherwise, let the editor handle it.
-    event.preventDefault()
-
     postMessageToEditor({
       type: 'wheel',
       deltaX,
