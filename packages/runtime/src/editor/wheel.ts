@@ -122,34 +122,31 @@ const isScrollHandledByPage = (
  * itself, so the editor can pan/zoom the canvas instead.
  */
 export const initWheelListeners = (getMode: () => EditorMode) => {
-  document.addEventListener(
-    'wheel',
-    (event) => {
-      if (getMode() !== 'test' || event.defaultPrevented) {
-        return
-      }
-      const { deltaX, deltaY } = getPixelDelta(event)
-      const isZoom = event.ctrlKey || event.metaKey
+  document.addEventListener('wheel', (event) => {
+    if (getMode() !== 'test' || event.defaultPrevented) {
+      return
+    }
+    const { deltaX, deltaY } = getPixelDelta(event)
+    const isZoom = event.ctrlKey || event.metaKey
 
-      // If this isn't a zoom gesture AND the page can scroll,
-      // let the browser handle it.
-      if (!isZoom && isScrollHandledByPage(event, deltaX, deltaY)) {
-        return
-      }
+    // If this isn't a zoom gesture AND the page can scroll,
+    // let the browser handle it.
+    if (!isZoom && isScrollHandledByPage(event, deltaX, deltaY)) {
+      return
+    }
 
-      // Otherwise, let the editor handle it.
-      event.preventDefault()
-      postMessageToEditor({
-        type: 'wheel',
-        deltaX,
-        deltaY,
-        clientX: event.clientX,
-        clientY: event.clientY,
-        ctrlKey: event.ctrlKey,
-        metaKey: event.metaKey,
-        shiftKey: event.shiftKey,
-      })
-    },
-    { passive: false },
-  )
+    // Otherwise, let the editor handle it.
+    event.preventDefault()
+
+    postMessageToEditor({
+      type: 'wheel',
+      deltaX,
+      deltaY,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      ctrlKey: event.ctrlKey,
+      metaKey: event.metaKey,
+      shiftKey: event.shiftKey,
+    })
+  })
 }
