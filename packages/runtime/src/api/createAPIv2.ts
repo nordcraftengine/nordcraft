@@ -20,6 +20,7 @@ import {
   isJsonHeader,
   isJsonStreamHeader,
   isTextHeader,
+  isVideoHeader,
   mapHeadersToObject,
   omitPaths,
   PROXY_TEMPLATES_IN_BODY,
@@ -601,7 +602,7 @@ export function createAPI({
         parserMode = 'text'
       } else if (isJsonStreamHeader(contentType)) {
         parserMode = 'json-stream'
-      } else if (isImageHeader(contentType)) {
+      } else if (isImageHeader(contentType) || isVideoHeader(contentType)) {
         parserMode = 'blob'
       } else {
         parserMode = 'text'
