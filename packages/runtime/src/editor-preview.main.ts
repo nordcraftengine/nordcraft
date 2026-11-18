@@ -108,6 +108,7 @@ import type {
   PointerState,
   SelectionState,
 } from './editor/types'
+import { initWheelListeners } from './editor/wheel'
 import { handleAction } from './events/handleAction'
 import type { Signal } from './signal/signal'
 import { signal } from './signal/signal'
@@ -1269,6 +1270,8 @@ export const createRoot = (
   }
 
   initKeyListeners()
+
+  initWheelListeners(() => mode)
 
   let prevSelectionRect: ReturnType<typeof getRectData>
   let prevHighlightRect: ReturnType<typeof getRectData>
