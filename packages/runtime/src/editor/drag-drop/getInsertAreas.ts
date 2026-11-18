@@ -1,4 +1,9 @@
 import { isDefined } from '@nordcraft/core'
+import {
+  DATA_ATTR_IS_ROOT_COMPONENT,
+  DATA_ATTR_NODE_ID,
+  ROOT_NODE_ID,
+} from '../const'
 import { getDOMNodeFromNodeId } from '../dom'
 import {
   isFlexDisplay,
@@ -294,7 +299,7 @@ export function getInsertAreas() {
         (e.hasAttribute('data-node-slot-name') ||
           (e.parentElement?.closest('[data-component]') === null &&
             e.parentElement.closest(
-              '[data-node-id="root"]:not([data-has-slots-elements]):not([data-is-root-component])',
+              `[${DATA_ATTR_NODE_ID}="${ROOT_NODE_ID}"]:not([data-has-slots-elements]):not([${DATA_ATTR_IS_ROOT_COMPONENT}])`,
             ) === null)),
     )
     .map((e) => e.getAttribute('data-id'))
@@ -393,7 +398,7 @@ export function getInsertAreas() {
     if (
       defaultSlotContent &&
       index === 0 &&
-      !element.hasAttribute('data-is-root-component')
+      !element.hasAttribute(DATA_ATTR_IS_ROOT_COMPONENT)
     ) {
       const slotAttr = element.getAttribute('data-node-slot-name')
       // Same-name outlets each get their own overlay: only placeholders of
@@ -664,7 +669,7 @@ export function getInsertAreas() {
     if (!(el instanceof Element)) {
       continue
     }
-    if (el.hasAttribute('data-is-root-component')) {
+    if (el.hasAttribute(DATA_ATTR_IS_ROOT_COMPONENT)) {
       continue
     }
     const dataId = el.getAttribute('data-id')

@@ -14,7 +14,7 @@ import {
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
-import { Signal } from '../signal/signal'
+import { FORCE_UPDATE } from '../signal/signal'
 import type { ComponentContext } from '../types'
 
 export type ApiRequest = {
@@ -186,14 +186,12 @@ export function createLegacyAPI(
             [api.name]: value,
           },
         },
-        Signal.FORCE_UPDATE,
+        FORCE_UPDATE,
       )
     }
-    if (api.onCompleted?.actions) {
-      for (const action of api.onCompleted.actions) {
-        void handleAction(action, ctx.dataSignal.get(), ctx)
-      }
-    }
+    api.onCompleted?.actions?.forEach((action) => {
+      handleAction(action, ctx.dataSignal.get(), ctx)
+    })
   }
 
   function apiError(error: any) {
@@ -212,14 +210,12 @@ export function createLegacyAPI(
             [api.name]: value,
           },
         },
-        Signal.FORCE_UPDATE,
+        FORCE_UPDATE,
       )
     }
-    if (api.onFailed?.actions) {
-      for (const action of api.onFailed.actions) {
-        void handleAction(action, ctx.dataSignal.get(), ctx)
-      }
-    }
+    api.onFailed?.actions?.forEach((action) => {
+      handleAction(action, ctx.dataSignal.get(), ctx)
+    })
   }
 
   // Execute the request to the cloudflare Query proxy
@@ -239,7 +235,7 @@ export function createLegacyAPI(
             [api.name]: value,
           },
         },
-        Signal.FORCE_UPDATE,
+        FORCE_UPDATE,
       )
     }
     let response
@@ -328,7 +324,7 @@ export function createLegacyAPI(
           },
         },
       },
-      Signal.FORCE_UPDATE,
+      FORCE_UPDATE,
     )
   }
   if (api.autoFetch) {

@@ -10,24 +10,29 @@ import type { Signal } from '../signal/signal'
 import { signal } from '../signal/signal'
 import { isStaticFormula } from '../utils/isStaticFormula'
 
-export const isContextProvider = (component: Component) => {
-  const formulas = component.formulas
-  if (formulas) {
-    for (const name in formulas) {
-      if (formulas[name]?.exposeInContext) {
-        return true
-      }
+const contextProviderCache = new WeakMap<Component, boolean>()
+
+const checkContextProvider = ({ formulas, workflows }: Component) => {
+  for (const name in formulas) {
+    if (formulas[name]?.exposeInContext) {
+      return true
     }
   }
-  const workflows = component.workflows
-  if (workflows) {
-    for (const name in workflows) {
-      if (workflows[name]?.exposeInContext) {
-        return true
-      }
+  for (const name in workflows) {
+    if (workflows[name]?.exposeInContext) {
+      return true
     }
   }
   return false
+}
+
+export const isContextProvider = (component: Component) => {
+  let cached = contextProviderCache.get(component)
+  if (cached === undefined) {
+    cached = checkContextProvider(component)
+    contextProviderCache.set(component, cached)
+  }
+  return cached
 }
 
 export const createFormulaDataSignals = (

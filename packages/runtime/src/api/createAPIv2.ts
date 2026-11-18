@@ -31,7 +31,8 @@ import {
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
-import { Signal } from '../signal/signal'
+import type { Signal } from '../signal/signal'
+import { FORCE_UPDATE } from '../signal/signal'
 import type { ComponentContext, ContextApiV2 } from '../types'
 import { ApiAbortHandler } from './apiUtils'
 
@@ -175,38 +176,34 @@ export function createAPI({
     switch (eventName) {
       case 'message': {
         const event = createApiEvent('message', data.body)
-        if (api.client?.onMessage?.actions) {
-          for (const action of api.client.onMessage.actions) {
-            void handleAction(
-              action,
-              {
-                ...getApiData(api, componentData),
-                Event: event,
-              },
-              ctx,
-              event,
-              workflowCallback,
-            )
-          }
-        }
+        api.client?.onMessage?.actions?.forEach((action) => {
+          void handleAction(
+            action,
+            {
+              ...getApiData(api, componentData),
+              Event: event,
+            },
+            ctx,
+            event,
+            workflowCallback,
+          )
+        })
         break
       }
       case 'success': {
         const event = createApiEvent('success', data.body)
-        if (api.client?.onCompleted?.actions) {
-          for (const action of api.client.onCompleted.actions) {
-            void handleAction(
-              action,
-              {
-                ...getApiData(api, componentData),
-                Event: event,
-              },
-              ctx,
-              event,
-              workflowCallback,
-            )
-          }
-        }
+        api.client?.onCompleted?.actions?.forEach((action) => {
+          void handleAction(
+            action,
+            {
+              ...getApiData(api, componentData),
+              Event: event,
+            },
+            ctx,
+            event,
+            workflowCallback,
+          )
+        })
         break
       }
       case 'failed': {
@@ -214,20 +211,18 @@ export function createAPI({
           error: data.body,
           status: data.status,
         })
-        if (api.client?.onFailed?.actions) {
-          for (const action of api.client.onFailed.actions) {
-            void handleAction(
-              action,
-              {
-                ...getApiData(api, componentData),
-                Event: event,
-              },
-              ctx,
-              event,
-              workflowCallback,
-            )
-          }
-        }
+        api.client?.onFailed?.actions?.forEach((action) => {
+          void handleAction(
+            action,
+            {
+              ...getApiData(api, componentData),
+              Event: event,
+            },
+            ctx,
+            event,
+            workflowCallback,
+          )
+        })
         break
       }
     }
@@ -276,7 +271,7 @@ export function createAPI({
             [api.name]: value,
           },
         },
-        Signal.FORCE_UPDATE,
+        FORCE_UPDATE,
       )
     }
 
@@ -322,7 +317,7 @@ export function createAPI({
               [api.name]: redirectValue,
             },
           },
-          Signal.FORCE_UPDATE,
+          FORCE_UPDATE,
         )
       }
     }
@@ -370,7 +365,7 @@ export function createAPI({
             [api.name]: value,
           },
         },
-        Signal.FORCE_UPDATE,
+        FORCE_UPDATE,
       )
     }
 
@@ -416,7 +411,7 @@ export function createAPI({
               [api.name]: redirectValue,
             },
           },
-          Signal.FORCE_UPDATE,
+          FORCE_UPDATE,
         )
       }
     }
@@ -458,7 +453,7 @@ export function createAPI({
               [api.name]: value,
             },
           },
-          Signal.FORCE_UPDATE,
+          FORCE_UPDATE,
         )
       }
 
@@ -899,7 +894,7 @@ export function createAPI({
                   [api.name]: value,
                 },
               },
-              Signal.FORCE_UPDATE,
+              FORCE_UPDATE,
             )
           }
           if ((api.client?.onMessage?.actions ?? []).length > 0) {
@@ -1192,7 +1187,7 @@ export function createAPI({
               },
             },
           },
-          Signal.FORCE_UPDATE,
+          FORCE_UPDATE,
         )
       }
     }

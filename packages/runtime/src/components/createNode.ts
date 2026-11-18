@@ -8,9 +8,10 @@ import type {
   SupportedNamespaces,
   TextNodeModel,
 } from '@nordcraft/core'
-import { applyFormula, repeatPath, toBoolean } from '@nordcraft/core'
+import { applyFormula, isObject, repeatPath, toBoolean } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
-import { Signal, signal } from '../signal/signal'
+import type { Signal } from '../signal/signal'
+import { FORCE_UPDATE, signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { getComponent } from '../utils/getComponent'
 import { isStaticFormula } from '../utils/isStaticFormula'
@@ -238,7 +239,7 @@ function repeat(props: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
       }
       return entries
     }
-    return typeof list === 'object' && list !== null ? Object.entries(list) : []
+    return isObject(list) ? Object.entries(list) : []
   }
 
   let initialElements: ReadonlyArray<Element | Text> = []
@@ -315,7 +316,7 @@ function repeat(props: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
         existingItem.dataSignal.set(
           childData,
           // We can skip deep equality check as we know the ListItem object is always a fresh object with potentially new Index/Item.
-          Signal.FORCE_UPDATE,
+          FORCE_UPDATE,
         )
         for (let k = 0; k < existingItem.elements.length; k++) {
           orderedElements.push(existingItem.elements[k]!)
@@ -412,7 +413,7 @@ function repeat(props: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
             ...data,
             ListItem: item.dataSignal.value.ListItem,
           },
-          Signal.FORCE_UPDATE,
+          FORCE_UPDATE,
         )
       }
     },

@@ -9,6 +9,7 @@ import {
   getNodeSelector,
   isDefined,
   isLegacyApi,
+  ROOT_NODE_ID,
   slotBasePath,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
@@ -24,7 +25,8 @@ import {
 import { subscribeToContext } from '../context/subscribeToContext'
 import { registerComponentToLogState } from '../debug/logState'
 import { handleAction } from '../events/handleAction'
-import { Signal, signal } from '../signal/signal'
+import type { Signal } from '../signal/signal'
+import { FORCE_UPDATE, signal } from '../signal/signal'
 import type { ComponentChild, ComponentContext, ContextApi } from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
 import { getComponent } from '../utils/getComponent'
@@ -154,7 +156,7 @@ export function createComponent({
               Theme: newTheme,
             },
           },
-          Signal.FORCE_UPDATE,
+          FORCE_UPDATE,
         )
       }
     }),
@@ -312,11 +314,14 @@ export function createComponent({
   }
 
   if (hasDynamicAttrs) {
+    let skipData: ComponentData | undefined = initialData
     dataSignal.subscribe(
       (data) => {
-        if (data === initialData) {
+        if (data === skipData) {
+          skipData = undefined
           return
         }
+        skipData = undefined
         const prevAttrs = componentDataSignal.value.Attributes
         let nextAttrs: Record<string, unknown> | undefined
         for (const attr in attrs) {
@@ -347,7 +352,7 @@ export function createComponent({
               ...componentDataSignal.value,
               Attributes: nextAttrs,
             },
-            Signal.FORCE_UPDATE,
+            FORCE_UPDATE,
           )
         }
       },
@@ -379,8 +384,8 @@ export function createComponent({
     hydration,
     // If the root node is another component, then append and forward previous instance
     instance:
-      nodeId === 'root'
-        ? { ...instance, [ctx.component.name]: 'root' }
+      nodeId === ROOT_NODE_ID
+        ? { ...instance, [ctx.component.name]: ROOT_NODE_ID }
         : { [ctx.component.name]: nodeId ?? '' },
     ...(IS_PREVIEW
       ? {

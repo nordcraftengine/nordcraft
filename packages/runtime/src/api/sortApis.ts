@@ -14,15 +14,15 @@ export const sortApiEntries = (
   apis: Nullable<Record<string, Nullable<ComponentAPI>>>,
 ) => {
   const entries: Array<[string, ComponentAPI]> = []
-  if (apis) {
-    for (const name in apis) {
-      const api = apis[name]
-      if (isDefined(api)) {
-        entries.push([name, api])
-      }
+  for (const name in apis) {
+    const api = apis[name]
+    if (isDefined(api)) {
+      entries.push([name, api])
     }
   }
-  return sortApis(entries)
+  return entries.length > 1
+    ? entries.sort(([, aObj], [, bObj]) => compareApiDependencies(aObj, bObj))
+    : entries
 }
 
 const compareApiDependencies = (a: ComponentAPI, b: ComponentAPI) => {

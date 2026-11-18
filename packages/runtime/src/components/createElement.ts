@@ -14,10 +14,12 @@ import {
   getNodeSelector,
   getPathClassName,
   isDefined,
+  ROOT_NODE_ID,
   toBoolean,
   toValidClassName,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
+import { DATA_ATTR_IS_ROOT_COMPONENT } from '../editor/const'
 import { handlePreviewAutofocus } from '../editor/previewAutofocus'
 import { handleAction } from '../events/handleAction'
 import type { Signal } from '../signal/signal'
@@ -142,7 +144,7 @@ export function createElement({
       elem.setAttribute('data-node-slot-name', slotName)
     }
 
-    if (hasSlotElements && id === 'root') {
+    if (hasSlotElements && id === ROOT_NODE_ID) {
       elem.setAttribute('data-has-slots-elements', 'true')
       const slotNodes = Object.values(ctx.component.nodes).filter(
         (node) => node?.type === 'slot',
@@ -168,13 +170,13 @@ export function createElement({
   }
   if (!claimed) {
     if (IS_PREVIEW && ctx.isRootComponent) {
-      elem.setAttribute('data-is-root-component', 'true')
+      elem.setAttribute(DATA_ATTR_IS_ROOT_COMPONENT, 'true')
     }
     elem.setAttribute(DATA_ATTR_NODE_ID, id)
     if (path) {
       elem.setAttribute(DATA_ATTR_ID, path)
     }
-    if (IS_PREVIEW && ctx.isRootComponent === false && id !== 'root') {
+    if (IS_PREVIEW && ctx.isRootComponent === false && id !== ROOT_NODE_ID) {
       elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
     }
   }
@@ -203,8 +205,8 @@ export function createElement({
         } else {
           dataSignal.subscribeMap(
             (data) => toBoolean(applyFormula(formula, formulaCtx, data)),
-            (show) =>
-              show
+            (classEnabled) =>
+              classEnabled
                 ? elem.classList.add(className)
                 : elem.classList.remove(className),
           )
@@ -216,7 +218,7 @@ export function createElement({
   }
 
   let hasDynamicCustomProperties = false
-  if (instance && id === 'root') {
+  if (instance && id === ROOT_NODE_ID) {
     for (const key in instance) {
       if (!claimed) {
         elem.classList.add(toValidClassName(`${key}:${instance[key]}`))
@@ -226,9 +228,8 @@ export function createElement({
     }
   }
 
-  if (
-    node.customProperties &&
-    bindCustomProperties(
+  if (node.customProperties) {
+    const hasDynamicNodeCustomProperties = bindCustomProperties(
       node.customProperties,
       () => {
         const baseSelector = getNodeSelector(path)
@@ -246,17 +247,17 @@ export function createElement({
             : undefined,
       },
     )
-  ) {
-    hasDynamicCustomProperties = true
+    if (hasDynamicNodeCustomProperties) {
+      hasDynamicCustomProperties = true
+    }
   }
 
   const variants = node.variants
   if (variants) {
     for (let variantIndex = 0; variantIndex < variants.length; variantIndex++) {
       const variant = variants[variantIndex]!
-      if (
-        variant.customProperties &&
-        bindCustomProperties(
+      if (variant.customProperties) {
+        const hasDynamicVariantCustomProperties = bindCustomProperties(
           variant.customProperties,
           () => getNodeSelector(path, { variant }),
           {
@@ -270,8 +271,9 @@ export function createElement({
                 : undefined,
           },
         )
-      ) {
-        hasDynamicCustomProperties = true
+        if (hasDynamicVariantCustomProperties) {
+          hasDynamicCustomProperties = true
+        }
       }
     }
   }
@@ -397,23 +399,31 @@ export function createElement({
   // for script, style & SVG<text> tags we only render text child.
   // this can be removed once we fix the editor to handle raw text nodes without wrapping <span>
   if (nodeTag === 'script' || nodeTag === 'style') {
-    const textNodes = (node.children ?? [])
-      .map((child) => ctx.component.nodes?.[child])
-      .filter((n): n is TextNodeModel => n?.type === 'text')
-    const getText = (data: ComponentData) =>
-      textNodes
-        .map((n) =>
-          isStaticFormula(n.value)
-            ? String(n.value.value)
-            : String(applyFormula(n.value, formulaCtx, data)),
-        )
-        .join('')
-    if (textNodes.every((n) => isStaticFormula(n.value))) {
-      elem.textContent = getText(dataSignal.get())
-    } else {
+    const textNodes: TextNodeModel[] = []
+    let hasDynamicText = false
+    for (const childId of node.children ?? []) {
+      const childNode = ctx.component.nodes?.[childId]
+      if (childNode?.type === 'text') {
+        textNodes.push(childNode)
+        hasDynamicText ||= !isStaticFormula(childNode.value)
+      }
+    }
+    const getText = (data: ComponentData) => {
+      let text = ''
+      for (let i = 0; i < textNodes.length; i++) {
+        const val = textNodes[i]!.value
+        text += isStaticFormula(val)
+          ? String(val.value)
+          : String(applyFormula(val, formulaCtx, data))
+      }
+      return text
+    }
+    if (hasDynamicText) {
       dataSignal.subscribeMap(getText, (text) => {
         elem.textContent = text
       })
+    } else {
+      elem.textContent = getText(dataSignal.get())
     }
   } else if (node.children?.length) {
     const children = node.children
@@ -439,7 +449,7 @@ export function createElement({
         hydration,
       })
       for (let j = 0; j < nodes.length; j++) {
-        if (childNodes) {
+        if (IS_PAGE && childNodes) {
           childNodes.push(nodes[j]!)
         } else {
           elem.appendChild(nodes[j]!)

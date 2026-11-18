@@ -8,6 +8,7 @@ import {
   applyFormula,
   isDefined,
   isLegacyApi,
+  ROOT_NODE_ID,
   THEME_DATA_ATTRIBUTE,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
@@ -21,7 +22,8 @@ import {
   createFormulaDataSignals,
   isContextProvider,
 } from '../context/isContextProvider'
-import { Signal, signal } from '../signal/signal'
+import type { Signal } from '../signal/signal'
+import { FORCE_UPDATE, signal } from '../signal/signal'
 import type { ComponentContext, LocationSignal } from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
 import { getThemeSignal } from '../utils/getThemeSignal'
@@ -147,7 +149,7 @@ export class ToddleComponent extends HTMLElement {
               Theme: newTheme,
             },
           },
-          Signal.FORCE_UPDATE,
+          FORCE_UPDATE,
         )
       }
       if (isDefined(newTheme)) {
@@ -194,8 +196,6 @@ export class ToddleComponent extends HTMLElement {
         })
       }
     }
-    // Plain loop: `Object.values(...).filter(...)` allocated two arrays per
-    // custom element even when there are no APIs at all.
     for (const name in this.#ctx.apis) {
       const api = this.#ctx.apis[name]
       if (api && isContextApiV2(api)) {
@@ -246,7 +246,7 @@ export class ToddleComponent extends HTMLElement {
       path: '0',
       onEvent: this.dispatch.bind(this),
       parentElement: this.#shadowRoot,
-      instance: { [this.#component.name]: 'root' },
+      instance: { [this.#component.name]: ROOT_NODE_ID },
     })
 
     this.#shadowRoot.replaceChildren()
@@ -288,7 +288,7 @@ export class ToddleComponent extends HTMLElement {
             [attributeName]: value,
           },
         },
-        Signal.FORCE_UPDATE,
+        FORCE_UPDATE,
       )
     }
 
@@ -321,7 +321,7 @@ export class ToddleComponent extends HTMLElement {
             [attributeName]: newValue,
           },
         },
-        Signal.FORCE_UPDATE,
+        FORCE_UPDATE,
       )
     }
   }

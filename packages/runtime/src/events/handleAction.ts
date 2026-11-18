@@ -15,7 +15,7 @@ import {
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
-import { Signal } from '../signal/signal'
+import { FORCE_UPDATE } from '../signal/signal'
 import type { ComponentContext, Location } from '../types'
 import { getLocationUrl } from '../utils/url'
 
@@ -66,7 +66,7 @@ export function handleAction(
 
         // Fast-path as it is cheaper to check just the value than performing a deep update
         // on the entire new state. We can then `{ force: true }` to skip deep equality check in signal.
-        if (current === value || fastDeepEqual(current, value)) {
+        if (fastDeepEqual(current, value)) {
           break
         }
 
@@ -79,7 +79,7 @@ export function handleAction(
               [action.variable]: value,
             },
           },
-          Signal.FORCE_UPDATE,
+          FORCE_UPDATE,
         )
         break
       }
@@ -170,7 +170,7 @@ export function handleAction(
             window.history.replaceState({}, '', historyUrl)
           }
         }
-        ctx.toddle.locationSignal.set(newLocation, Signal.FORCE_UPDATE)
+        ctx.toddle.locationSignal.set(newLocation, FORCE_UPDATE)
         break
       }
       case 'SetURLParameters': {
@@ -253,7 +253,7 @@ export function handleAction(
             window.history.replaceState({}, '', historyUrl)
           }
         }
-        ctx.toddle.locationSignal.set(newLocation, Signal.FORCE_UPDATE)
+        ctx.toddle.locationSignal.set(newLocation, FORCE_UPDATE)
         break
       }
       case 'Fetch': {
@@ -363,9 +363,9 @@ export function handleAction(
             return
           }
 
-          for (const workflowAction of workflow.actions) {
-            void handleAction(
-              workflowAction,
+          workflow.actions.forEach((action) =>
+            handleAction(
+              action,
               {
                 ...data,
                 ...provider.ctx.dataSignal.get(),
@@ -374,28 +374,25 @@ export function handleAction(
               provider.ctx,
               event,
               (callbackName, callbackData) => {
-                const callbackActions = callbacks?.[callbackName]?.actions
-                if (callbackActions) {
-                  for (const cbAction of callbackActions) {
-                    if (cbAction) {
-                      void handleAction(
-                        cbAction,
-                        {
-                          ...data,
-                          ...ctx.dataSignal.get(),
-                          Parameters: parameters,
-                          Event: callbackData,
-                        },
-                        ctx,
-                        event,
-                        workflowCallback,
-                      )
-                    }
-                  }
-                }
+                callbacks?.[callbackName]?.actions?.forEach(
+                  (action) =>
+                    action &&
+                    handleAction(
+                      action,
+                      {
+                        ...data,
+                        ...ctx.dataSignal.get(),
+                        Parameters: parameters,
+                        Event: callbackData,
+                      },
+                      ctx,
+                      event,
+                      workflowCallback,
+                    ),
+                )
               },
-            )
-          }
+            ),
+          )
           return
         }
 
@@ -407,9 +404,9 @@ export function handleAction(
           return
         }
 
-        for (const workflowAction of workflow.actions) {
-          void handleAction(
-            workflowAction,
+        workflow.actions.forEach((action) =>
+          handleAction(
+            action,
             {
               ...data,
               ...ctx.dataSignal.get(),
@@ -418,48 +415,42 @@ export function handleAction(
             ctx,
             event,
             (callbackName, callbackData) => {
-              const callbackActions = callbacks?.[callbackName]?.actions
-              if (callbackActions) {
-                for (const cbAction of callbackActions) {
-                  if (cbAction) {
-                    void handleAction(
-                      cbAction,
-                      {
-                        ...data,
-                        ...ctx.dataSignal.get(),
-                        Parameters: parameters,
-                        Event: callbackData,
-                      },
-                      ctx,
-                      event,
-                      workflowCallback,
-                    )
-                  }
-                }
-              }
+              callbacks?.[callbackName]?.actions?.forEach(
+                (action) =>
+                  action &&
+                  handleAction(
+                    action,
+                    {
+                      ...data,
+                      ...ctx.dataSignal.get(),
+                      Parameters: parameters,
+                      Event: callbackData,
+                    },
+                    ctx,
+                    event,
+                    workflowCallback,
+                  ),
+              )
             },
-          )
-        }
+          ),
+        )
         break
       }
       default: {
         try {
           // create a handler for actions triggering events
           const triggerActionEvent = (trigger: string, eventData: any) => {
-            const subEventActions = action.events?.[trigger]?.actions
-            if (subEventActions) {
-              for (const subAction of subEventActions) {
-                void handleAction(
-                  subAction,
-                  eventData
-                    ? { ...data, ...ctx.dataSignal.get(), Event: eventData }
-                    : { ...data, ...ctx.dataSignal.get() },
-                  ctx,
-                  eventData ?? event,
-                  workflowCallback,
-                )
-              }
-            }
+            action.events?.[trigger]?.actions?.forEach((action) =>
+              handleAction(
+                action,
+                eventData
+                  ? { ...data, ...ctx.dataSignal.get(), Event: eventData }
+                  : { ...data, ...ctx.dataSignal.get() },
+                ctx,
+                eventData ?? event,
+                workflowCallback,
+              ),
+            )
           }
           const newAction =
             action.version === 2

@@ -86,7 +86,7 @@ export class Signal<T> {
   fork(): Signal<T> {
     const signal2 = signal(this.value)
     const subscriber = {
-      notify: (value: T) => signal2.set(value, Signal.FORCE_UPDATE),
+      notify: (value: T) => signal2.set(value, FORCE_UPDATE),
       destroy: () => signal2.destroy(),
     }
     this.subscribers.add(subscriber)
@@ -122,9 +122,9 @@ export class Signal<T> {
       this.subscribers.delete(subscriber)
     }
   }
-
-  static FORCE_UPDATE = { force: true }
 }
+
+export const FORCE_UPDATE = { force: true }
 
 export function signal<T>(value: T) {
   return new Signal(value)

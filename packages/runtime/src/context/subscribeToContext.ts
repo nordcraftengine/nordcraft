@@ -7,7 +7,8 @@ import type {
 import { isDefined } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import { providerContextMock } from '../editor/mockProviderContext'
-import { Signal } from '../signal/signal'
+import type { Signal } from '../signal/signal'
+import { FORCE_UPDATE } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { isStaticFormula } from '../utils/isStaticFormula'
 
@@ -37,12 +38,14 @@ export function subscribeToContext(
         const formulaName = formulas[i]!
         const formulaDataSignal = provider.formulaDataSignals[formulaName]
         if (!formulaDataSignal) {
-          // eslint-disable-next-line no-console
-          console.warn(
-            `Component error(${component.name}): Provider ${providerName} does not expose a formula named "${formulaName}". Available formulas are: ["${Object.keys(
-              provider.formulaDataSignals,
-            ).join('", "')}"]`,
-          )
+          if (IS_PREVIEW) {
+            // eslint-disable-next-line no-console
+            console.warn(
+              `Component error(${component.name}): Provider ${providerName} does not expose a formula named "${formulaName}". Available formulas are: ["${Object.keys(
+                provider.formulaDataSignals,
+              ).join('", "')}"]`,
+            )
+          }
           continue
         }
 
@@ -77,7 +80,7 @@ export function subscribeToContext(
             },
             // We know that the value has changed as we are just forwarding it,
             // so we can safely force the update and skip any subsequent checks for equality
-            Signal.FORCE_UPDATE,
+            FORCE_UPDATE,
           )
         })
         componentDataSignal.subscriptions.push(unsubscribe)

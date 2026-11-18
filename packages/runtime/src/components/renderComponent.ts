@@ -8,7 +8,12 @@ import type {
   Toddle,
   ToddleEnv,
 } from '@nordcraft/core'
-import { isMeasureEnabled, measure, noopMeasure } from '@nordcraft/core'
+import {
+  isMeasureEnabled,
+  measure,
+  noopMeasure,
+  ROOT_NODE_ID,
+} from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
@@ -125,12 +130,12 @@ export function renderComponent(
   }
 
   const rootElem = createNode({
-    id: 'root',
+    id: ROOT_NODE_ID,
     path,
     dataSignal,
     ctx:
       IS_PREVIEW && (ctx.reportFormulaEvaluation || ctx.jsonPath)
-        ? { ...ctx, jsonPath: ['nodes', 'root'] }
+        ? { ...ctx, jsonPath: ['nodes', ROOT_NODE_ID] }
         : ctx,
     parentElement,
     namespace,

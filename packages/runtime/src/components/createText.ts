@@ -14,6 +14,7 @@ import {
   DATA_NODE_TYPE_TEXT,
   isDefined,
 } from '@nordcraft/core'
+import { DATA_ATTR_IS_ROOT_COMPONENT } from '../editor/const'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { claimHydratedChild, type HydrationState } from './hydration'
@@ -90,7 +91,7 @@ export function createText({
     elem.setAttribute(DATA_ATTR_NODE_ID, id)
 
     if (IS_PREVIEW && ctx.isRootComponent) {
-      elem.setAttribute('data-is-root-component', 'true')
+      elem.setAttribute(DATA_ATTR_IS_ROOT_COMPONENT, 'true')
     }
 
     if (typeof id === 'string') {

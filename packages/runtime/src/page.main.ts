@@ -42,7 +42,8 @@ import {
   isContextProvider,
 } from './context/isContextProvider'
 import { initLogState, registerComponentToLogState } from './debug/logState'
-import { Signal, signal } from './signal/signal'
+import type { Signal } from './signal/signal'
+import { FORCE_UPDATE, signal } from './signal/signal'
 import type { ComponentContext, LocationSignal } from './types'
 import { getThemeSignal } from './utils/getThemeSignal'
 
@@ -210,7 +211,7 @@ export const createRoot = (domNode: HTMLElement) => {
           'URL parameters': route as Record<string, string>,
           Attributes: route,
         },
-        Signal.FORCE_UPDATE,
+        FORCE_UPDATE,
       ),
   )
 
@@ -252,7 +253,7 @@ export const createRoot = (domNode: HTMLElement) => {
             Theme: newTheme,
           },
         },
-        Signal.FORCE_UPDATE,
+        FORCE_UPDATE,
       )
     }
     if (isDefined(newTheme)) {

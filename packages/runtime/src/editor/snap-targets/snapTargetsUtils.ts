@@ -1,10 +1,12 @@
 import {
   DATA_ATTR_COMPONENT,
   DATA_ATTR_ID,
+  DATA_ATTR_IS_ROOT_COMPONENT,
   DATA_ATTR_NODE_ID,
   DATA_ATTR_NODE_TYPE,
   DATA_ATTR_VIEWPORT_HEIGHT,
   DATA_NODE_TYPE_TEXT,
+  ROOT_NODE_ID,
 } from '../const'
 import {
   escapeRegex,
@@ -225,19 +227,19 @@ export function buildContainingBlock(
 }
 
 function isComponentInstanceBoundary(el: Element): boolean {
-  if (el.hasAttribute('data-is-root-component')) {
+  if (el.hasAttribute(DATA_ATTR_IS_ROOT_COMPONENT)) {
     return false
   }
   const dataId = el.getAttribute(DATA_ATTR_ID)
   if (dataId === '0') {
     return false
   }
-  if (el.getAttribute(DATA_ATTR_NODE_ID) === 'root' && dataId !== null) {
+  if (el.getAttribute(DATA_ATTR_NODE_ID) === ROOT_NODE_ID && dataId !== null) {
     return true
   }
   if (el.hasAttribute(DATA_ATTR_COMPONENT)) {
     const ancestorComp = el.parentElement?.closest(
-      `[${DATA_ATTR_COMPONENT}], [${DATA_ATTR_NODE_ID}="root"]:not([data-is-root-component])`,
+      `[${DATA_ATTR_COMPONENT}], [${DATA_ATTR_NODE_ID}="${ROOT_NODE_ID}"]:not([${DATA_ATTR_IS_ROOT_COMPONENT}])`,
     )
     return !ancestorComp
   }

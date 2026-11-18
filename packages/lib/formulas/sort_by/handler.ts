@@ -1,5 +1,7 @@
 import type { FormulaHandler } from '@nordcraft/core'
 
+type SortKey = string | number | boolean
+
 const handler: FormulaHandler<Array<unknown>> = ([
   array,
   formula,
@@ -14,23 +16,29 @@ const handler: FormulaHandler<Array<unknown>> = ([
   if (typeof ascending !== 'boolean') {
     return null
   }
+  if (array.length <= 1) {
+    return [...array]
+  }
   const ascendingModifier = ascending ? 1 : -1
+  const evaluateKey = formula as (args: {
+    item: unknown
+  }) => SortKey | SortKey[]
   // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
-  const keyed = array.map((item) => [item, formula({ item })] as const)
-  keyed.sort(([, keyA]: any, [, keyB]: any) => {
+  const keyed = array.map((item) => [item, evaluateKey({ item })] as const)
+  keyed.sort(([, keyA], [, keyB]) => {
     if (Array.isArray(keyA) && Array.isArray(keyB)) {
-      for (const i in keyA) {
+      for (let i = 0; i < keyA.length; i++) {
         if (keyA[i] === keyB[i]) {
           continue
         }
-        return (keyA[i] > keyB[i] ? 1 : -1) * ascendingModifier
+        return (keyA[i]! > keyB[i]! ? 1 : -1) * ascendingModifier
       }
       return 0
     }
     if (keyA === keyB) {
       return 0
     }
-    return (keyA > keyB ? 1 : -1) * ascendingModifier
+    return ((keyA as SortKey) > (keyB as SortKey) ? 1 : -1) * ascendingModifier
   })
   return keyed.map(([item]) => item)
 }
