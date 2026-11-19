@@ -19,7 +19,11 @@ export function startBenchmarkServer(options: BenchmarkServerOptions) {
       if (pathname === '/' || pathname === '/harness.html') {
         const file = Bun.file(path.join(browserDir, 'harness.html'))
         return new Response(file, {
-          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+          headers: {
+            'Content-Type': 'text/html; charset=utf-8',
+            'Cross-Origin-Opener-Policy': 'same-origin',
+            'Cross-Origin-Embedder-Policy': 'require-corp',
+          },
         })
       }
 
