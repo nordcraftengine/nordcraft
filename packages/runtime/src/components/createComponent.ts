@@ -30,6 +30,7 @@ import { FORCE_UPDATE, signal } from '../signal/signal'
 import type { ComponentChild, ComponentContext, ContextApi } from '../types'
 import { createFormulaCache } from '../utils/createFormulaCache'
 import { getComponent } from '../utils/getComponent'
+import { needsAbortController } from '../utils/needsAbortController'
 import { bindCustomProperties } from '../utils/subscribeCustomProperty'
 import type { HydrationState } from './hydration'
 import { renderComponent } from './renderComponent'
@@ -180,10 +181,14 @@ export function createComponent({
   registerComponentToLogState(component, componentDataSignal)
 
   // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
-  const abortController = new AbortController()
-  componentDataSignal.subscriptions.push(() =>
-    abortController.abort(`Component ${component.name} unmounted`),
-  )
+  let abortSignal = ctx.abortSignal
+  if (needsAbortController(component)) {
+    const abortController = new AbortController()
+    abortSignal = abortController.signal
+    componentDataSignal.subscriptions.push(() =>
+      abortController.abort(`Component ${component.name} unmounted`),
+    )
+  }
   if (IS_PREVIEW && ctx.reportFormulaEvaluation) {
     componentDataSignal.subscribe((data) => {
       const vars = data.Variables
@@ -227,7 +232,7 @@ export function createComponent({
           apis,
           component,
           dataSignal: componentDataSignal,
-          abortSignal: abortController.signal,
+          abortSignal,
           isRootComponent: false,
           formulaCache,
           package: node.package ?? ctx.package,
@@ -241,7 +246,7 @@ export function createComponent({
             apis,
             component,
             dataSignal: componentDataSignal,
-            abortSignal: abortController.signal,
+            abortSignal,
             isRootComponent: false,
             formulaCache,
             package: node.package ?? ctx.package,
@@ -286,7 +291,7 @@ export function createComponent({
           apis,
           component,
           dataSignal: componentDataSignal,
-          abortSignal: abortController.signal,
+          abortSignal,
           triggerEvent: onEvent,
         },
       },
@@ -379,7 +384,7 @@ export function createComponent({
     providers,
     stores: ctx.stores,
     apis,
-    abortSignal: abortController.signal,
+    abortSignal,
     package: node.package ?? ctx.package,
     parentElement,
     onEvent,
