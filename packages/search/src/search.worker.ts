@@ -6,17 +6,12 @@ import { findSearch } from './findSearch'
 import type { SearchArgs } from './types'
 
 onmessage = (event: MessageEvent<SearchArgs>) => {
-  console.time('search:' + event.data.id)
-  findSearch(event.data, (results) => postMessage(results))
-    .then(() => {
-      console.timeEnd('search:' + event.data.id)
+  findSearch(event.data, (results) => postMessage(results)).catch((error) => {
+    postMessage({
+      id: event.data.id,
+      complete: true,
+      cancelled: true,
+      cancelReason: `Search failed with error: ${error instanceof Error ? error.message : String(error)}`,
     })
-    .catch((error) => {
-      postMessage({
-        id: event.data.id,
-        complete: true,
-        cancelled: true,
-        cancelReason: `Search failed with error: ${error instanceof Error ? error.message : String(error)}`,
-      })
-    })
+  })
 }
