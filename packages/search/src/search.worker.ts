@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * This function is a web worker that checks for problems in the files.
  */
