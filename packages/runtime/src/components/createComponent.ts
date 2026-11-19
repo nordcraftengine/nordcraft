@@ -219,23 +219,10 @@ export function createComponent({
       }
     }
   }
-  for (const [name, api] of sortApiEntries(component.apis)) {
-    if (isLegacyApi(api)) {
-      apis[name] = createLegacyAPI(api, {
-        ...ctx,
-        apis,
-        component,
-        dataSignal: componentDataSignal,
-        abortSignal: abortController.signal,
-        isRootComponent: false,
-        formulaCache,
-        package: node.package ?? ctx.package,
-        triggerEvent: onEvent,
-      })
-    } else {
-      apis[name] = createAPI({
-        apiRequest: api,
-        ctx: {
+  if (component.apis) {
+    for (const [name, api] of sortApiEntries(component.apis)) {
+      if (isLegacyApi(api)) {
+        apis[name] = createLegacyAPI(api, {
           ...ctx,
           apis,
           component,
@@ -245,15 +232,30 @@ export function createComponent({
           formulaCache,
           package: node.package ?? ctx.package,
           triggerEvent: onEvent,
-        },
-        componentData: componentDataSignal.get(),
-      })
+        })
+      } else {
+        apis[name] = createAPI({
+          apiRequest: api,
+          ctx: {
+            ...ctx,
+            apis,
+            component,
+            dataSignal: componentDataSignal,
+            abortSignal: abortController.signal,
+            isRootComponent: false,
+            formulaCache,
+            package: node.package ?? ctx.package,
+            triggerEvent: onEvent,
+          },
+          componentData: componentDataSignal.get(),
+        })
+      }
     }
-  }
-  for (const name in apis) {
-    const api = apis[name]
-    if (api && isContextApiV2(api)) {
-      api.triggerActions(componentDataSignal.get())
+    for (const name in apis) {
+      const api = apis[name]
+      if (api && isContextApiV2(api)) {
+        api.triggerActions(componentDataSignal.get())
+      }
     }
   }
 
@@ -292,25 +294,28 @@ export function createComponent({
   }
 
   const children: Record<string, Array<ComponentChild>> = {}
-  const slotChildPackage = node.package ?? ctx.package
-  const slotChildCtx =
-    slotChildPackage === ctx.package
-      ? ctx
-      : { ...ctx, package: slotChildPackage }
-  for (let i = 0; i < (node?.children ?? []).length; i++) {
-    const childId = node.children?.[i]
-    if (childId === undefined) {
-      continue
+  const nodeChildren = node.children
+  if (nodeChildren) {
+    const slotChildPackage = node.package ?? ctx.package
+    const slotChildCtx =
+      slotChildPackage === ctx.package
+        ? ctx
+        : { ...ctx, package: slotChildPackage }
+    for (let i = 0; i < nodeChildren.length; i++) {
+      const childId = nodeChildren[i]
+      if (childId === undefined) {
+        continue
+      }
+      const childNode = ctx.component.nodes?.[childId]
+      const slotName = childNode?.slot ?? 'default'
+      children[slotName] = children[slotName] ?? []
+      children[slotName].push({
+        id: childId,
+        path: slotBasePath(path, i, slotName),
+        dataSignal,
+        ctx: slotChildCtx,
+      })
     }
-    const childNode = ctx.component.nodes?.[childId]
-    const slotName = childNode?.slot ?? 'default'
-    children[slotName] = children[slotName] ?? []
-    children[slotName].push({
-      id: childId,
-      path: slotBasePath(path, i, slotName),
-      dataSignal,
-      ctx: slotChildCtx,
-    })
   }
 
   if (hasDynamicAttrs) {

@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import '../compileTime'
 import type { ComponentData } from '../component/component.types'
-import { isMeasureEnabled, measure, noopMeasure } from '../utils/measure'
 import {
   applyFormula,
   type ApplyOperation,
@@ -23,12 +22,6 @@ export const applyApplyFormula = (
     }
     return null
   }
-  const stopMeasure = isMeasureEnabled()
-    ? measure(`Formula: ${componentFormula.name}`, {
-        formula,
-        component: ctx.component?.name,
-      })
-    : noopMeasure
   const applyArgs = formula.arguments ?? []
   const Input: Record<string, unknown> = {}
   for (let i = 0; i < applyArgs.length; i++) {
@@ -66,7 +59,6 @@ export const applyApplyFormula = (
   const cache = ctx.formulaCache?.[formula.name]?.get(nextData)
 
   if (cache?.hit) {
-    stopMeasure({ cache: 'hit' })
     return cache.data
   } else {
     const result = applyFormula(
@@ -76,7 +68,6 @@ export const applyApplyFormula = (
       IS_PREVIEW && ctx.reportFormulaEvaluation ? ['formula'] : undefined,
     )
     ctx.formulaCache?.[formula.name]?.set(nextData, result)
-    stopMeasure({ cache: 'miss' })
     return result
   }
 }

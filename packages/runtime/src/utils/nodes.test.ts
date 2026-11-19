@@ -103,6 +103,29 @@ describe('getNextSiblingElement', () => {
 
     expect(getNextSiblingElement('0.1', parent, true)).toBe(nextNode)
   })
+
+  it('should return the first sibling after a repeat even when later siblings have deeper slot paths', () => {
+    const parent = document.createElement('div')
+    const repeat0 = document.createElement('div')
+    repeat0.setAttribute('data-id', '0.0')
+    const repeat1 = document.createElement('div')
+    repeat1.setAttribute('data-id', '0.0(1)')
+    const sibling1 = document.createElement('div')
+    sibling1.setAttribute('data-id', '0.1')
+    const slotChild = document.createElement('div')
+    slotChild.setAttribute('data-id', '0.2.0')
+    parent.append(repeat0, repeat1, sibling1, slotChild)
+
+    expect({
+      ignoreRepeatOnFirst: getNextSiblingElement('0.0', parent, true),
+      ignoreRepeatOnSecond: getNextSiblingElement('0.1', parent, true),
+      withRepeatOnSecond: getNextSiblingElement('0.1', parent, false),
+    }).toEqual({
+      ignoreRepeatOnFirst: sibling1,
+      ignoreRepeatOnSecond: slotChild,
+      withRepeatOnSecond: slotChild,
+    })
+  })
 })
 
 describe('ensureEfficientOrdering and getNextSiblingElement together', () => {

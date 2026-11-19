@@ -231,17 +231,6 @@ function repeat(props: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
   const repeatFormulaCtx =
     IS_PREVIEW && ctx.jsonPath ? { ...ctx, jsonPath: undefined } : ctx
 
-  const evaluateRepeatEntries = (list: unknown): Array<[string, unknown]> => {
-    if (Array.isArray(list)) {
-      const entries = new Array<[string, unknown]>(list.length)
-      for (let i = 0; i < list.length; i++) {
-        entries[i] = [String(i), list[i]]
-      }
-      return entries
-    }
-    return isObject(list) ? Object.entries(list) : []
-  }
-
   let initialElements: ReadonlyArray<Element | Text> = []
   const destroyRepeatItems = () => {
     for (const e of repeatItems.values()) {
@@ -252,16 +241,19 @@ function repeat(props: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
     }
     repeatItems.clear()
   }
-  const updateRepeatList = (list: Array<[string, unknown]>) => {
+  const updateRepeatList = (
+    values: ReadonlyArray<unknown>,
+    keys: ReadonlyArray<string> | null,
+  ) => {
     const data = dataSignal.get()
     const parentListItem = data.ListItem
+    const len = values.length
     const seenKeys = new Set<string | number>()
-    const childDatas: ComponentData[] = new Array(list.length)
-    const childKeys: Array<string | number> = new Array(list.length)
-    for (let n = 0; n < list.length; n++) {
-      const entry = list[n]!
-      const Key = entry[0]
-      const Item = entry[1]
+    const childDatas: ComponentData[] = new Array(len)
+    const childKeys: Array<string | number> = new Array(len)
+    for (let n = 0; n < len; n++) {
+      const Key = keys ? keys[n]! : String(n)
+      const Item = values[n]
       const ListItem = parentListItem
         ? { Parent: parentListItem, Item, Index: n, Key }
         : { Item, Index: n, Key }
@@ -307,7 +299,7 @@ function repeat(props: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
       }
     >()
     const orderedElements: Array<Element | Text> = []
-    for (let n = 0; n < list.length; n++) {
+    for (let n = 0; n < len; n++) {
       const childKey = childKeys[n]!
       const childData = childDatas[n]!
       const existingItem = repeatItems.get(childKey)
@@ -371,9 +363,18 @@ function repeat(props: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
   const repeatFormula = node?.repeat
   const staticRepeat = isStaticFormula(repeatFormula)
   if (staticRepeat) {
-    updateRepeatList(evaluateRepeatEntries(repeatFormula.value))
+    const val = repeatFormula.value
+    if (Array.isArray(val)) {
+      updateRepeatList(val, null)
+    } else if (isObject(val)) {
+      updateRepeatList(Object.values(val), Object.keys(val))
+    } else {
+      updateRepeatList([], null)
+    }
   }
-  let prevEntries: Array<[string, unknown]> | null = null
+  let prevList: unknown = undefined
+  let prevValues: ReadonlyArray<unknown> | null = null
+  let prevKeys: ReadonlyArray<string> | null = null
   dataSignal.subscribe(
     (data) => {
       if (!staticRepeat) {
@@ -383,24 +384,28 @@ function repeat(props: NodeRenderer<NodeModel>): ReadonlyArray<Element | Text> {
           data,
           listPath,
         )
-        const prev = prevEntries
-        if (
-          !(
-            prev &&
-            Array.isArray(list) &&
-            list.length === prev.length &&
-            prev.every(
-              (entry, i) => entry[0] === String(i) && entry[1] === list[i],
-            )
-          )
-        ) {
-          const entries = evaluateRepeatEntries(list)
+        if (prevValues === null || list !== prevList) {
+          prevList = list
+          let values: ReadonlyArray<unknown>
+          let keys: ReadonlyArray<string> | null = null
+          if (Array.isArray(list)) {
+            values = list
+          } else if (isObject(list)) {
+            keys = Object.keys(list)
+            values = Object.values(list)
+          } else {
+            values = []
+          }
           if (
-            entries.length !== prev?.length ||
-            entries.some((e, i) => e[0] !== prev[i]![0] || e[1] !== prev[i]![1])
+            prevValues === null ||
+            (keys === null) !== (prevKeys === null) ||
+            values.length !== prevValues.length ||
+            keys?.some((k, i) => k !== prevKeys![i]) ||
+            values.some((v, i) => v !== prevValues![i])
           ) {
-            prevEntries = entries
-            updateRepeatList(entries)
+            prevValues = values
+            prevKeys = keys
+            updateRepeatList(values, keys)
             return
           }
         }

@@ -8,12 +8,7 @@ import type {
   Toddle,
   ToddleEnv,
 } from '@nordcraft/core'
-import {
-  isMeasureEnabled,
-  measure,
-  noopMeasure,
-  ROOT_NODE_ID,
-} from '@nordcraft/core'
+import { ROOT_NODE_ID } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
@@ -95,16 +90,6 @@ export function renderComponent(
     slotSuffix,
     hydration,
   } = props
-  const stopMeasure = isMeasureEnabled()
-    ? measure(
-        `Render component: ${component.name}`,
-        {
-          component: component.name,
-          path,
-        },
-        'component',
-      )
-    : noopMeasure
   const ctx: ComponentContext = {
     triggerEvent: onEvent,
     component,
@@ -183,7 +168,6 @@ export function renderComponent(
       }
     })
   }
-  stopMeasure()
   return rootElem
 }
 

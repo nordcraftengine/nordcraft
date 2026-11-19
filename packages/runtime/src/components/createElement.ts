@@ -184,44 +184,25 @@ export function createElement({
   // class names are baked during preprocessing, except for in editor-preview where we generate them on the fly
   // Check the per-node cache first to avoid the `variants.some(...)` closure
   // + JSON.stringify on every repeat instance (200x per list).
+  let initialClass = ''
   if (!claimed) {
-    const cachedClass = classNameByNode.get(node)
-    if (cachedClass !== undefined) {
-      elem.classList.add(cachedClass)
-    } else if (node.style || node.variants?.some((v) => v.style)) {
-      const classHash = getClassName([node.style, node.variants])
-      classNameByNode.set(node, classHash)
-      elem.classList.add(classHash)
+    let cachedClass = classNameByNode.get(node)
+    if (cachedClass === undefined) {
+      cachedClass =
+        node.style || node.variants?.some((v) => v.style)
+          ? getClassName([node.style, node.variants])
+          : ''
+      classNameByNode.set(node, cachedClass)
     }
-  }
-  if (node.classes) {
-    for (const className in node.classes) {
-      const formula = node.classes[className].formula
-      if (formula) {
-        if (isStaticFormula(formula)) {
-          if (toBoolean(formula.value)) {
-            elem.classList.add(className)
-          }
-        } else {
-          dataSignal.subscribeMap(
-            (data) => toBoolean(applyFormula(formula, formulaCtx, data)),
-            (classEnabled) =>
-              classEnabled
-                ? elem.classList.add(className)
-                : elem.classList.remove(className),
-          )
-        }
-      } else {
-        elem.classList.add(className)
-      }
-    }
+    initialClass = cachedClass
   }
 
   let hasDynamicCustomProperties = false
   if (instance && id === ROOT_NODE_ID) {
     for (const key in instance) {
       if (!claimed) {
-        elem.classList.add(toValidClassName(`${key}:${instance[key]}`))
+        const cls = toValidClassName(`${key}:${instance[key]}`)
+        initialClass = initialClass ? `${initialClass} ${cls}` : cls
       }
       // TODO: We should forward info on whether the instance has dynamic custom properties, but for now we assume that if the instance has any custom properties, they are dynamic.
       hasDynamicCustomProperties = true
@@ -279,7 +260,33 @@ export function createElement({
   }
 
   if (!claimed && path && hasDynamicCustomProperties) {
-    elem.classList.add(getPathClassName(path))
+    const cls = getPathClassName(path)
+    initialClass = initialClass ? `${initialClass} ${cls}` : cls
+  }
+  if (!claimed && initialClass) {
+    elem.setAttribute('class', initialClass)
+  }
+  if (node.classes) {
+    for (const className in node.classes) {
+      const formula = node.classes[className].formula
+      if (formula) {
+        if (isStaticFormula(formula)) {
+          if (toBoolean(formula.value)) {
+            elem.classList.add(className)
+          }
+        } else {
+          dataSignal.subscribeMap(
+            (data) => toBoolean(applyFormula(formula, formulaCtx, data)),
+            (classEnabled) =>
+              classEnabled
+                ? elem.classList.add(className)
+                : elem.classList.remove(className),
+          )
+        }
+      } else {
+        elem.classList.add(className)
+      }
+    }
   }
 
   const attrs = node.attrs
