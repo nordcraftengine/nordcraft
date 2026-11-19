@@ -638,48 +638,10 @@ const renderComponent = async ({
           }
         })
 
-        // Add extra instance styling for each style-variable
-        Object.entries(node.customProperties ?? {}).forEach(
-          ([customPropertyName, customProperty]) => {
-            const value = appendUnit(
-              applyFormula(customProperty.formula, formulaContext, data),
-              customProperty.unit,
-            )
-            if (isDefined(value)) {
-              addCustomProperty(
-                getNodeSelector(path, {
-                  componentName: component.name,
-                  nodeId: id,
-                }),
-                `${customPropertyName}: ${value}` as CustomPropertyRule,
-              )
-            }
-          },
-        )
-
-        node.variants?.forEach((variant) => {
-          Object.entries(variant.customProperties ?? {}).forEach(
-            ([customPropertyName, customProperty]) => {
-              const value = appendUnit(
-                applyFormula(customProperty.formula, formulaContext, data),
-                customProperty.unit,
-              )
-              if (isDefined(value)) {
-                addCustomProperty(
-                  getNodeSelector(path, {
-                    componentName: component.name,
-                    nodeId: id,
-                    variant,
-                  }),
-                  `${customPropertyName}: ${value}` as CustomPropertyRule,
-                  variant,
-                )
-              }
-            },
-          )
-        })
-
-        return createComponent({
+        const instanceComponentName = packageName
+          ? `${packageName}/${component.name}`
+          : component.name
+        const renderedComponent = await createComponent({
           path,
           attrs,
           component: childComponent,
@@ -692,12 +654,10 @@ const renderComponent = async ({
             id === 'root'
               ? {
                   ...instance,
-                  [[packageName, component.name].filter(isDefined).join('/')]:
-                    'root',
+                  [instanceComponentName]: 'root',
                 }
               : {
-                  [[packageName, component.name].filter(isDefined).join('/')]:
-                    id,
+                  [instanceComponentName]: id,
                 },
           apis,
           env,
@@ -715,6 +675,63 @@ const renderComponent = async ({
           slotRepeatIndex,
           slotSuffix,
         })
+
+        // Add extra instance styling for each dynamic style-variable after the child tree is rendered to ensure correct order
+        if (node.customProperties) {
+          for (const customPropertyName in node.customProperties) {
+            const customProperty =
+              node.customProperties[customPropertyName as `--${string}`]!
+            // Only prerender dynamic properties here as static properties are already part of class-styling.
+            if (customProperty.formula?.type === 'value') {
+              continue
+            }
+            const value = appendUnit(
+              applyFormula(customProperty.formula, formulaContext, data),
+              customProperty.unit,
+            )
+            if (isDefined(value)) {
+              addCustomProperty(
+                getNodeSelector(path, {
+                  componentName: instanceComponentName,
+                  nodeId: id,
+                }),
+                `${customPropertyName}: ${value}` as CustomPropertyRule,
+              )
+            }
+          }
+        }
+
+        if (node.variants) {
+          for (const variant of node.variants) {
+            if (!variant.customProperties) {
+              continue
+            }
+            for (const customPropertyName in variant.customProperties) {
+              const customProperty =
+                variant.customProperties[customPropertyName as `--${string}`]!
+              if (customProperty.formula?.type === 'value') {
+                continue
+              }
+              const value = appendUnit(
+                applyFormula(customProperty.formula, formulaContext, data),
+                customProperty.unit,
+              )
+              if (isDefined(value)) {
+                addCustomProperty(
+                  getNodeSelector(path, {
+                    componentName: instanceComponentName,
+                    nodeId: id,
+                    variant,
+                  }),
+                  `${customPropertyName}: ${value}` as CustomPropertyRule,
+                  variant,
+                )
+              }
+            }
+          }
+        }
+
+        return renderedComponent
       }
     }
   }
@@ -928,10 +945,8 @@ export const renderPageBody = async ({
   return {
     html,
     apiCache,
-    customProperties: [...customProperties]
-      .map(([selector, vars]) =>
-        selector.replace('__RULES__', Array.from(vars).join(';\n')),
-      )
-      .toReversed(),
+    customProperties: [...customProperties].map(([selector, vars]) =>
+      selector.replace('__RULES__', Array.from(vars).join(';\n')),
+    ),
   }
 }

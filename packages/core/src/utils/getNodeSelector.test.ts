@@ -16,7 +16,7 @@ describe('getNodeSelector', () => {
     const nodeId = 'test-node'
     const selector = getNodeSelector(path, { componentName, nodeId })
     expect(selector).toBe(
-      `.${getPathClassName(path)}.test-component\\:test-node`,
+      `:where(.${getPathClassName(path)}).test-component\\:test-node`,
     )
   })
 
@@ -43,7 +43,7 @@ describe('getNodeSelector', () => {
     }
     const selector = getNodeSelector(path, { componentName, nodeId, variant })
     expect(selector).toBe(
-      `.${getPathClassName(path)}.test-component\\:test-node.test-class:active`,
+      `:where(.${getPathClassName(path)}).test-component\\:test-node.test-class:active`,
     )
   })
 
@@ -65,6 +65,6 @@ describe('getNodeSelector', () => {
       componentName: '404',
       nodeId: 'test-node',
     })
-    expect(selector).toBe(`.${getPathClassName(path)}._404\\:test-node`)
+    expect(selector).toBe(`:where(.${getPathClassName(path)})._404\\:test-node`)
   })
 })
