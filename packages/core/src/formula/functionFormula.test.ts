@@ -87,4 +87,47 @@ describe('applyFunctionFormula', () => {
     })
     expect(applyFunctionFormula(formula, ctx, {})).toEqual([1, 2, 3])
   })
+
+  it('passes null as root when ctx.root is undefined and document is unavailable', () => {
+    const originalDocument = globalThis.document
+    Object.defineProperty(globalThis, 'document', {
+      value: undefined,
+      configurable: true,
+    })
+    try {
+      let receivedRoot: unknown = 'uninitialized'
+      const ctx = {
+        ...contextWithCustomFormulas({
+          ssrFormula: {
+            version: 2,
+            name: 'ssrFormula',
+            handler: ({ value }, handlerCtx) => {
+              receivedRoot = handlerCtx.root
+              return Number(value) * 2
+            },
+            arguments: [{ name: 'value' }],
+          },
+        }),
+        root: undefined,
+      }
+      const result = applyFunctionFormula(
+        {
+          type: 'function',
+          name: 'ssrFormula',
+          arguments: [{ name: 'value', formula: valueFormula(21) }],
+        },
+        ctx,
+        {},
+      )
+      expect({ result, receivedRoot }).toEqual({
+        result: 42,
+        receivedRoot: null,
+      })
+    } finally {
+      Object.defineProperty(globalThis, 'document', {
+        value: originalDocument,
+        configurable: true,
+      })
+    }
+  })
 })

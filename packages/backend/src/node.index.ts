@@ -1,7 +1,10 @@
 import { serve } from '@hono/node-server'
 import { getConnInfo } from '@hono/node-server/conninfo'
 import { serveStatic } from '@hono/node-server/serve-static'
-import type { ProjectFilesWithCustomCode } from '@nordcraft/ssr'
+import type {
+  ProjectFilesWithCustomCode,
+  SsrFormulaHandler,
+} from '@nordcraft/ssr'
 import { compress } from 'hono/compress'
 import { getApp } from './app'
 import { loadJsFile } from './middleware/jsLoader'
@@ -17,7 +20,9 @@ const app = getApp({
   },
   pageLoader: {
     loader: ({ name }) =>
-      loadJsFile<ProjectFilesWithCustomCode>(`./components/${name}.js`),
+      loadJsFile<ProjectFilesWithCustomCode<SsrFormulaHandler>>(
+        `./components/${name}.js`,
+      ),
     urls: {
       pageStylesheetUrl: (name) => `/_static/${name}.css`,
       customCodeUrl: (name) => `/_static/cc_${name}.js`,

@@ -180,6 +180,145 @@ describe('drop lines', () => {
     )
     expect(dedupeOverlappingLines([line('a'), line('a')])).toHaveLength(1)
   })
+
+  test('absolute siblings get no lines and are ignored by block gap detection', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.1" data-node-id="1"><div data-id="0.1.0" data-node-id="2">a</div><div data-id="0.1.1" data-node-id="3" style="position: absolute">abs</div><div data-id="0.1.2" data-node-id="4">c</div></div></div>'
+    stub('[data-id="0.1.0"]', rect(50, 50, 300, 100))
+    stub('[data-id="0.1.1"]', rect(500, 50, 100, 100))
+    stub('[data-id="0.1.2"]', rect(50, 150, 300, 100))
+    stub('[data-id="0.1"]', rect(50, 50, 300, 200))
+    stub('#App', rect(0, 0, 800, 600))
+    const parent = $('0.1') as HTMLElement
+
+    expect(
+      getInsertAreas()
+        .filter((area) => area.parent === parent)
+        .map(({ layout, indexAll, index, direction, center, size }) => ({
+          layout,
+          indexAll,
+          index,
+          direction,
+          center,
+          size,
+        })),
+    ).toEqual([
+      {
+        layout: 'block',
+        indexAll: 0,
+        index: 0,
+        direction: -1,
+        center: { x: 200, y: 52 },
+        size: 300,
+      },
+      {
+        layout: 'block',
+        indexAll: 1,
+        index: 1,
+        direction: 1,
+        center: { x: 200, y: 150 },
+        size: 300,
+      },
+      {
+        layout: 'block',
+        indexAll: 3,
+        index: 3,
+        direction: 1,
+        center: { x: 200, y: 248 },
+        size: 300,
+      },
+    ])
+  })
+
+  test('absolute positioned children get no lines of their own', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.1" data-node-id="1" style="display: flex"><div data-id="0.1.0" data-node-id="2" style="position: absolute">abs</div></div></div>'
+    stub('[data-id="0.1.0"]', rect(50, 50, 300, 100))
+    stub('[data-id="0.1"]', rect(50, 50, 300, 100))
+    stub('#App', rect(0, 0, 800, 600))
+    const parent = $('0.1') as HTMLElement
+
+    expect(
+      getInsertAreas()
+        .filter((area) => area.parent === parent)
+        .map(({ indexAll, index, direction }) => ({
+          indexAll,
+          index,
+          direction,
+        })),
+    ).toEqual([])
+  })
+
+  test('an in-flow child is treated as the only flex child when siblings are absolute', () => {
+    document.body.innerHTML =
+      '<div id="App"><div data-id="0.1" data-node-id="1" style="display: flex"><div data-id="0.1.0" data-node-id="2">a</div><div data-id="0.1.1" data-node-id="3" style="position: absolute">abs</div></div></div>'
+    stub('[data-id="0.1.0"]', rect(50, 50, 300, 100))
+    stub('[data-id="0.1.1"]', rect(500, 50, 100, 100))
+    stub('[data-id="0.1"]', rect(50, 50, 300, 100))
+    stub('#App', rect(0, 0, 800, 600))
+    const parent = $('0.1') as HTMLElement
+
+    expect(
+      getInsertAreas()
+        .filter((area) => area.parent === parent)
+        .map(
+          ({
+            layout,
+            indexAll,
+            index,
+            direction,
+            center,
+            size,
+            'flex-direction': flexDirection,
+          }) => ({
+            layout,
+            indexAll,
+            index,
+            direction,
+            center,
+            size,
+            'flex-direction': flexDirection,
+          }),
+        ),
+    ).toEqual([
+      {
+        layout: 'block',
+        indexAll: 0,
+        index: 0,
+        direction: -1,
+        center: { x: 200, y: 50 },
+        size: 300,
+        'flex-direction': 'column',
+      },
+      {
+        layout: 'block',
+        indexAll: 1,
+        index: 1,
+        direction: 1,
+        center: { x: 200, y: 150 },
+        size: 300,
+        'flex-direction': 'column',
+      },
+      {
+        layout: 'inline',
+        indexAll: 0,
+        index: 0,
+        direction: -1,
+        center: { x: 50, y: 100 },
+        size: 100,
+        'flex-direction': 'row',
+      },
+      {
+        layout: 'inline',
+        indexAll: 1,
+        index: 1,
+        direction: 1,
+        center: { x: 350, y: 100 },
+        size: 100,
+        'flex-direction': 'row',
+      },
+    ])
+  })
 })
 
 describe('dropStyleProps', () => {

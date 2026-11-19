@@ -8,7 +8,7 @@ import type {
   Nullable,
 } from '@nordcraft/core'
 import { isDefined, mapObject, ToddleComponent } from '@nordcraft/core'
-import type { ProjectFiles } from '../ssr.types'
+import type { ProjectFiles, SsrFormulaHandler } from '../ssr.types'
 
 export type ApiCache = Record<string, ApiStatus>
 
@@ -50,9 +50,9 @@ export const sortApiEntries = (apis: Array<[string, Nullable<ComponentAPI>]>) =>
 
 export const processComponentApis = <T extends Component>(
   component: T,
-  files: ProjectFiles,
+  files: ProjectFiles<SsrFormulaHandler>,
 ): T => {
-  const toddleComponent = new ToddleComponent<string>({
+  const toddleComponent = new ToddleComponent<SsrFormulaHandler>({
     component,
     getComponent: (name, packageName) => {
       const nodeLookupKey = [packageName, name].filter(isDefined).join('/')

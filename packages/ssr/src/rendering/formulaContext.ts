@@ -1,9 +1,9 @@
 /* eslint-disable max-params */
 import type {
+  CodeFormula,
   ComponentData,
-  ComponentVariable,
   FormulaContext,
-  Nullable,
+  FormulaHandlerV2,
   PageComponent,
   PageRoute,
   PluginFormula,
@@ -11,7 +11,6 @@ import type {
 } from '@nordcraft/core'
 import {
   applyFormula,
-  filterObject,
   isDefined,
   isToddleFormula,
   mapHeadersToObject,
@@ -19,9 +18,14 @@ import {
 } from '@nordcraft/core'
 import * as libFormulas from '@nordcraft/std-lib/formulas'
 import { getPathSegments } from '../routing/routing'
-import type { InstalledPackage, ProjectFiles } from '../ssr.types'
+import type {
+  InstalledPackage,
+  ProjectFiles,
+  SsrFormulaHandler,
+} from '../ssr.types'
 import { getRequestCookies } from './cookies'
 import { escapeSearchParameters } from './request'
+import { getComponentVariables } from './staticCache'
 
 /**
  * Builds a FormulaContext that can be used to evaluate formulas for a page component
@@ -38,7 +42,7 @@ export const getPageFormulaContext = ({
   component: PageComponent | undefined
   req: Request
   logErrors: boolean
-  files: ProjectFiles
+  files: ProjectFiles<SsrFormulaHandler>
 }): {
   formulaContext: FormulaContext & { env: ToddleServerEnv }
   data: ComponentData
@@ -78,15 +82,11 @@ export const getPageFormulaContext = ({
       ? getThemeInitialValue(component, formulaContext, data, env)
       : null,
   }
-  data.Variables = mapValues(
-    filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-      component?.variables ?? {},
-      ([_, variable]) => isDefined(variable),
-    ),
-    ({ initialValue }) => {
-      return applyFormula(initialValue, formulaContext, data)
-    },
-  )
+  data.Variables = component
+    ? mapValues(getComponentVariables(component), ({ initialValue }) => {
+        return applyFormula(initialValue, formulaContext, data)
+      })
+    : {}
   // Re-apply theme after variables have been initialized to ensure it has access to any variables if needed
   data.Page = {
     Theme: component
@@ -99,32 +99,39 @@ export const getPageFormulaContext = ({
   }
 }
 
+const CORE_FORMULAS: Record<string, any> = Object.fromEntries(
+  Object.entries(libFormulas).map(([name, module]) => [
+    '@toddle/' + name,
+    module.default as any,
+  ]),
+)
+
+const isCompiledCodeFormula = (
+  formula: PluginFormula<SsrFormulaHandler>,
+): formula is CodeFormula<FormulaHandlerV2> =>
+  !isToddleFormula(formula) && typeof formula.handler === 'function'
+
 export const getServerToddleObject = (
-  files: Pick<ProjectFiles, 'formulas' | 'packages'> & {
-    packages?: Partial<Record<string, Pick<InstalledPackage, 'formulas'>>>
+  files: Pick<ProjectFiles<SsrFormulaHandler>, 'formulas' | 'packages'> & {
+    packages?: Partial<
+      Record<string, Pick<InstalledPackage<SsrFormulaHandler>, 'formulas'>>
+    >
   },
 ): FormulaContext['toddle'] => {
-  const coreFormulas = Object.fromEntries(
-    Object.entries(libFormulas).map(([name, module]) => [
-      '@toddle/' + name,
-      module.default as any,
-    ]),
-  )
   return {
-    getFormula: (name: string) => coreFormulas[name],
+    getFormula: (name: string) => CORE_FORMULAS[name],
     getCustomFormula: (
       name: string,
       packageName: string | null | undefined,
     ) => {
-      let formula: PluginFormula<string> | undefined
+      const formula = isDefined(packageName)
+        ? files.packages?.[packageName]?.formulas?.[name]
+        : files.formulas?.[name]
 
-      if (isDefined(packageName)) {
-        formula = files.packages?.[packageName]?.formulas?.[name]
-      } else {
-        formula = files.formulas?.[name]
+      if (!formula) {
+        return undefined
       }
-
-      if (formula && isToddleFormula(formula)) {
+      if (isToddleFormula(formula) || isCompiledCodeFormula(formula)) {
         return formula
       }
     },

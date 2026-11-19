@@ -14,7 +14,7 @@
       "description": "The input data encoded as base64."
     }
   ],
-  "description": "Deocde a base64 string to utf-8.",
+  "description": "Decode a base64 string to utf-8.",
   "output": {
     "description": "The decoded string.",
     "type": {

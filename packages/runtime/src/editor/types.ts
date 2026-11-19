@@ -11,6 +11,25 @@ import type {
   Theme,
 } from '@nordcraft/core'
 import type { getRectData } from './overlay'
+import type {
+  GetSnapTargetsMessage,
+  SnapContainingBlock,
+  SnapEqualSpacing,
+  SnapGap,
+  SnapRect,
+  SnapTarget,
+  SnapTargetsMessage,
+} from './snap-targets/snapTargets'
+
+export type {
+  GetSnapTargetsMessage,
+  SnapContainingBlock,
+  SnapEqualSpacing,
+  SnapGap,
+  SnapRect,
+  SnapTarget,
+  SnapTargetsMessage,
+}
 
 export type EditorMode = 'design' | 'test'
 
@@ -151,6 +170,7 @@ export type NordcraftPreviewEvent =
     }
   | { type: 'capture_screenshot'; id: string; viewportWidth?: number }
   | { type: 'canvas_style'; css: string }
+  | GetSnapTargetsMessage
 
 export type EditorPostMessageType =
   | {
@@ -285,6 +305,17 @@ export type EditorPostMessageType =
   | {
       type: 'requestViewportWidth'
       width: number
+    }
+  | SnapTargetsMessage
+  | {
+      type: 'wheel'
+      deltaX: number
+      deltaY: number
+      clientX: number
+      clientY: number
+      ctrlKey: boolean
+      metaKey: boolean
+      shiftKey: boolean
     }
 
 export type DragInsertState = {

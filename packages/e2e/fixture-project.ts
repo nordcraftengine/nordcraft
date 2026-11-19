@@ -1,7 +1,7 @@
 import type { Component } from '@nordcraft/core/dist/index'
 import { RESET_STYLES, theme as defaultTheme } from '@nordcraft/core/dist/index'
 import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/index'
-import { splitRoutes } from '@nordcraft/ssr/dist/index'
+import { generateComponentFile, splitRoutes } from '@nordcraft/ssr/dist/index'
 import fs from 'node:fs'
 import path from 'node:path'
 import { createCustomCode, loadFixtures } from './fixtures/loader'
@@ -176,7 +176,7 @@ export const writeFixtureProject = async (outputDir: string) => {
   for (const [name, file] of Object.entries(files)) {
     writeJavaScriptFile(
       path.join(outputDir, 'components', `${name.toLowerCase()}.js`),
-      toModule(file),
+      generateComponentFile(file),
     )
   }
 

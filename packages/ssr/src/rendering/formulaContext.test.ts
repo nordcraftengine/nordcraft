@@ -96,5 +96,103 @@ describe('formulaContext', () => {
       expect(result.data.Page?.Theme).toBe('dark')
       expect(result.data.Variables?.myVar).toBe('dark')
     })
+
+    test('evaluates v2 custom code formulas for project and packages alongside NordcraftFormulas', () => {
+      const component = {
+        name: 'TestPage',
+        route: {
+          path: [],
+          query: {},
+        },
+        variables: {
+          projectJsResult: {
+            initialValue: {
+              type: 'function',
+              name: 'myFormula',
+              arguments: [
+                { name: 'first', formula: { type: 'value', value: 4 } },
+                { name: 'second', formula: { type: 'value', value: 5 } },
+              ],
+            },
+          },
+          packageJsResult: {
+            initialValue: {
+              type: 'function',
+              name: 'pkgFormula',
+              package: 'my-pkg',
+              arguments: [{ name: 'x', formula: { type: 'value', value: 9 } }],
+            },
+          },
+          nordcraftFormulaResult: {
+            initialValue: {
+              type: 'function',
+              name: 'declarativeFormula',
+              arguments: [],
+            },
+          },
+          uncompiledFormulaResult: {
+            initialValue: {
+              type: 'function',
+              name: 'uncompiledFormula',
+              arguments: [],
+            },
+          },
+        },
+      }
+
+      const result = getPageFormulaContext({
+        branchName: 'main',
+        component: component as any,
+        req: {
+          url: 'https://toddle.dev/',
+          headers: new Headers(),
+        } as any,
+        logErrors: false,
+        files: {
+          formulas: {
+            myFormula: {
+              name: 'myFormula',
+              version: 2,
+              arguments: [{ name: 'first' }, { name: 'second' }],
+              handler: ({ first, second }: Record<string, unknown>) =>
+                Number(first) * Number(second) + Number(first),
+            },
+            declarativeFormula: {
+              name: 'declarativeFormula',
+              arguments: [],
+              formula: { type: 'value', value: 'hello' },
+            },
+            uncompiledFormula: {
+              name: 'uncompiledFormula',
+              version: 2,
+              arguments: [],
+              handler: 'function uncompiledFormula() { return 1 }',
+            },
+          },
+          packages: {
+            'my-pkg': {
+              manifest: { name: 'my-pkg', commit: 'abc' },
+              components: {},
+              actions: {},
+              formulas: {
+                pkgFormula: {
+                  name: 'pkgFormula',
+                  version: 2,
+                  arguments: [{ name: 'x' }],
+                  handler: ({ x }: Record<string, unknown>) => Number(x) + 1,
+                },
+              },
+            },
+          },
+        } as any,
+      })
+
+      expect(result.data.Variables).toEqual({
+        projectJsResult: 24,
+        packageJsResult: 10,
+        nordcraftFormulaResult: 'hello',
+        uncompiledFormulaResult: null,
+      })
+    })
   })
 })

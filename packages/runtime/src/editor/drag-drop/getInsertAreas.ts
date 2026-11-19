@@ -258,6 +258,9 @@ function isRectInOverscan(rect: {
  *   that child (above/below with `flex-direction: column`, left/right with
  *   `flex-direction: row`). Non-flex parents fall through to the generic
  *   lines below, positioned where the element will actually be inserted.
+ * - Out-of-flow (`position: absolute` or `fixed`) elements get no sibling
+ *   lines of their own and are ignored when measuring gaps between in-flow
+ *   siblings. Their own empty/slot drop zones still apply.
  * - A slot outlet with placeholder content gets a single full drop-zone
  *   covering the placeholders (never the 3x3 grid). Same-name outlets each
  *   get their own overlay; hovering one highlights all of them. Slots
@@ -279,6 +282,15 @@ export function getInsertAreas() {
     const display = window.getComputedStyle(element).display
     displayCache.set(element, display)
     return display
+  }
+  const positionCache = new Map<Element, string>()
+  const isOutOfFlow = (element: Element): boolean => {
+    let position = positionCache.get(element)
+    if (position === undefined) {
+      position = window.getComputedStyle(element).position
+      positionCache.set(element, position)
+    }
+    return position === 'absolute' || position === 'fixed'
   }
 
   const elementIds = Array.from(
@@ -436,7 +448,25 @@ export function getInsertAreas() {
       return
     }
 
-    const prevElement = siblingsAll[indexAll - 1] as Element | undefined
+    // Absolutely (or fixed) positioned elements are out of flow: lines before
+    // and after them would not correspond to where the element is inserted.
+    // Their own empty/slot drop zones above still apply.
+    if (isOutOfFlow(element)) {
+      return
+    }
+
+    // Out-of-flow siblings are ignored when measuring gaps and sibling
+    // relationships, but `indexAll` above still counts them so insertion
+    // indices keep matching the component tree.
+    const inFlowParentChildren = parentChildren.filter(
+      (child) => !isOutOfFlow(child),
+    )
+    const inFlowSiblings = siblingsAll.filter(
+      (sibling) => !isOutOfFlow(sibling),
+    )
+    const indexInFlow = inFlowSiblings.indexOf(element)
+
+    const prevElement = inFlowSiblings[indexInFlow - 1] as Element | undefined
     const prevId = prevElement?.getAttribute('data-id')
     const prevAfterCoversGap =
       prevElement !== undefined &&
@@ -465,10 +495,10 @@ export function getInsertAreas() {
     // indices there address repeated instances, not plain sibling slots.
     const parentDisplay = displayOf(parent)
     const parentIsFlex = isFlexDisplay(parentDisplay)
-    const hasRepeatChildren = parentChildren.some((child) =>
+    const hasRepeatChildren = inFlowParentChildren.some((child) =>
       child.getAttribute('data-id')?.endsWith(')'),
     )
-    if (siblingsAll.length === 1 && !hasRepeatChildren && parentIsFlex) {
+    if (inFlowSiblings.length === 1 && !hasRepeatChildren && parentIsFlex) {
       type SingleChildLine = Pick<
         InsertArea,
         | 'layout'
@@ -530,16 +560,16 @@ export function getInsertAreas() {
     }
 
     const repeatPrefix = `${id}(`
-    const repeatSiblings = parentChildren.filter((child) =>
+    const repeatSiblings = inFlowParentChildren.filter((child) =>
       child.getAttribute('data-id')?.startsWith(repeatPrefix),
     )
     const lastRepeatElement = repeatSiblings.at(-1) ?? element
     const lastRect = lastRepeatElement.getBoundingClientRect()
 
-    const nextSibling = siblingsAll[indexAll + 1] as Element | undefined
+    const nextSibling = inFlowSiblings[indexInFlow + 1] as Element | undefined
     const prevRepeatPrefix = prevId ? `${prevId}(` : ''
     const prevLastElement = prevRepeatPrefix
-      ? (parentChildren
+      ? (inFlowParentChildren
           .filter((c) =>
             c.getAttribute('data-id')?.startsWith(prevRepeatPrefix),
           )
@@ -548,7 +578,7 @@ export function getInsertAreas() {
     const nextRect = nextSibling?.getBoundingClientRect()
     const prevRect = prevLastElement?.getBoundingClientRect()
     const childrenToInspect =
-      siblingsAll.length > 1 ? siblingsAll : parentChildren
+      inFlowSiblings.length > 1 ? inFlowSiblings : inFlowParentChildren
     const isBlockLayout =
       childrenToInspect.length > 1
         ? childrenToInspect

@@ -2,7 +2,11 @@ import type { Component } from '@nordcraft/core'
 import { ToddleComponent } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import type { ProjectFiles } from '../ssr.types'
-import { getActionReferences, hasCustomCode } from './codeRefs'
+import {
+  generateComponentFile,
+  getActionReferences,
+  hasCustomCode,
+} from './codeRefs'
 
 describe('getActionReferences', () => {
   test('it return custom actions used in the component', () => {
@@ -310,5 +314,82 @@ describe('hasCustomCode', () => {
       },
     }
     expect(hasCustomCode(component, baseFiles)).toBe(false)
+  })
+})
+
+describe('generateComponentFile', () => {
+  test('emits plain JSON module when no v2 code formulas are present', () => {
+    const file = {
+      customCode: false,
+      components: {},
+      formulas: {
+        toddleFormula: {
+          name: 'toddleFormula',
+          arguments: [],
+          formula: { type: 'value' as const, value: 'ok' },
+        },
+        legacyFormula: {
+          name: 'legacyFormula',
+          arguments: [],
+          handler: 'toddle.registerFormula("legacyFormula", () => 1)',
+        },
+      },
+    }
+
+    expect(generateComponentFile(file)).toBe(
+      `export default ${JSON.stringify(file)}`,
+    )
+  })
+
+  test('emits compiled handler functions for v2 project and package code formulas alongside ToddleFormulas', () => {
+    const file = {
+      customCode: true,
+      components: {},
+      formulas: {
+        myFormula: {
+          name: 'myFormula',
+          version: 2 as const,
+          arguments: [{ name: 'first' }, { name: 'second' }],
+          handler:
+            'function myFormula({ first, second }) {\n  return first * second + first\n}',
+        },
+        toddleFormula: {
+          name: 'toddleFormula',
+          arguments: [],
+          formula: { type: 'value' as const, value: 'ok' },
+        },
+      },
+      packages: {
+        'my-pkg': {
+          manifest: { name: 'my-pkg', commit: 'abc' },
+          components: {},
+          actions: {},
+          formulas: {
+            pkgFormula: {
+              name: 'pkgFormula',
+              version: 2 as const,
+              arguments: [{ name: 'x' }],
+              handler: 'function pkgFormula({ x }) {\n  return x + 1\n}',
+            },
+          },
+        },
+      },
+    }
+
+    expect(generateComponentFile(file))
+      .toBe(`const file = ${JSON.stringify(file)};
+file.formulas["myFormula"].handler = (args, ctx) => {
+  function myFormula({ first, second }) {
+  return first * second + first
+}
+  return myFormula(args, ctx)
+};
+file.packages["my-pkg"].formulas["pkgFormula"].handler = (args, ctx) => {
+  function pkgFormula({ x }) {
+  return x + 1
+}
+  return pkgFormula(args, ctx)
+};
+export default file;`)
   })
 })
