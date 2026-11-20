@@ -2,6 +2,7 @@ import type { PageComponent, ToddleInternals } from '@nordcraft/core'
 import {
   applyFormula,
   theme as defaultTheme,
+  PAGE_STATE_SCRIPT_ID,
   THEME_DATA_ATTRIBUTE,
   toBoolean,
 } from '@nordcraft/core'
@@ -12,6 +13,7 @@ import type {
   ToddleProject,
 } from '@nordcraft/ssr'
 import {
+  escapeAttrValue,
   evaluateResponseHeaders,
   getCharset,
   getHeadItems,
@@ -23,8 +25,8 @@ import {
   REDIRECT_COMPONENT_NAME_HEADER,
   renderHeadItems,
   renderPageBody,
-  resolveClasses,
   takeIncludedComponents,
+  urlWithCacheBuster,
 } from '@nordcraft/ssr'
 import type { Context } from 'hono'
 import { html, raw } from 'hono/html'
@@ -33,7 +35,6 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
 import type { PageLoaderUrls } from '../loaders/types'
 import { evaluateComponentApis, RedirectError } from '../utils/api'
-import { cachePageState } from './pageState'
 
 export const nordcraftPage = async ({
   hono,
@@ -42,6 +43,7 @@ export const nordcraftPage = async ({
   page: _page,
   status,
   options,
+  cacheBuster,
 }: {
   hono: Context<HonoEnv<any>>
   project: ToddleProject
@@ -49,6 +51,7 @@ export const nordcraftPage = async ({
   page: PageComponent
   status: ContentfulStatusCode
   options: PageLoaderUrls
+  cacheBuster?: string
 }) => {
   const usesCustomCode = files.customCode
   const nordcraftPageTimingKey = 'nordcraftPage'
@@ -119,6 +122,7 @@ export const nordcraftPage = async ({
   let head = renderHeadItems({
     headItems: getHeadItems({
       url,
+      cacheBuster,
       // This refers to the endpoint we created in fontRouter for our proxied stylesheet
       cssBasePath: '/.toddle/fonts/stylesheet/css2',
       // Just to be explicit about where to grab the reset stylesheet from
@@ -140,22 +144,21 @@ export const nordcraftPage = async ({
     data,
   })
 
-  // Prepare the data to be passed to the client for hydration
-  const toddleInternals: ToddleInternals = {
-    project: project.short_id,
-    branch: 'main',
-    commit: 'unknown',
-    pageState: {
-      ...data,
-      Apis: {
-        ...apiCache,
+  // Prepare the dynamic per-request state to be serialized in the document for hydration
+  const serializablePageState: Pick<ToddleInternals, 'pageState' | 'cookies'> =
+    {
+      pageState: {
+        ...data,
+        Apis: {
+          ...apiCache,
+        },
       },
-    },
-    component: resolveClasses()(page),
-    components: includedComponents.map(resolveClasses()),
-    isPageLoaded: false,
-    cookies: Object.keys(formulaContext.env.request.cookies),
-  }
+      cookies: Object.keys(formulaContext.env.request.cookies),
+    }
+  const serializedState = JSON.stringify(serializablePageState).replace(
+    /</g,
+    '\\u003c',
+  )
   endTime(hono, nordcraftPageTimingKey)
 
   const htmlAttributes = Object.entries({
@@ -169,26 +172,36 @@ export const nordcraftPage = async ({
     .map(([key, value]) => `${key}="${value}"`)
     .join(' ')
 
-  // Persist the page state in a cache so that it can be retrieved by the client for hydration
-  const { pageStateUrl, customCodeUrl } = cachePageState({
-    state: toddleInternals,
-    ctx: hono,
-    pageName: page.name,
-    usesCustomCode,
-    options,
-  })
+  const componentsUrl = urlWithCacheBuster(
+    options.pageComponentsUrl?.(page.name) ??
+      `/_static/components_${page.name}.json`,
+    cacheBuster,
+  )
+  const customCodeUrl = usesCustomCode
+    ? urlWithCacheBuster(options.customCodeUrl(page.name), cacheBuster)
+    : undefined
+  const stateAttributes = [
+    `type="application/json"`,
+    `id="${PAGE_STATE_SCRIPT_ID}"`,
+    `data-components-url="${escapeAttrValue(componentsUrl)}"`,
+    ...(typeof customCodeUrl === 'string'
+      ? [`data-custom-code-url="${escapeAttrValue(customCodeUrl)}"`]
+      : []),
+  ].join(' ')
   const additionalHeadScripts = [
+    `<script ${stateAttributes}>${serializedState}</script>`,
+    // Tell the browser to start fetching the cached component structures as early as possible
+    `<link rel="preload" as="fetch" crossorigin="anonymous" href="${escapeAttrValue(componentsUrl)}" />`,
+    // Tell the browser to start fetching the runtime as early as possible
     `<link rel="modulepreload" href="/_static/page.main.esm.js" />`,
-    // Tell the browser to start fetching the state for hydration as early as possible
-    `<link rel="modulepreload" href="${pageStateUrl}" />`,
-    `<script type="module" src="${pageStateUrl}"></script>`,
+    ...(typeof customCodeUrl === 'string'
+      ? // Tell the browser to start fetching custom code for the page as early as possible (if needed)
+        [
+          `<link rel="modulepreload" href="${escapeAttrValue(customCodeUrl)}" />`,
+        ]
+      : []),
+    `<script type="module" src="/_static/page.main.esm.js"></script>`,
   ]
-  if (typeof customCodeUrl === 'string') {
-    // Tell the browser to start fetching custom code for the page as early as possible
-    additionalHeadScripts.push(
-      `<link rel="modulepreload" href="${customCodeUrl}" />`,
-    )
-  }
 
   head = `${head}\n${additionalHeadScripts.join('\n')}`
 

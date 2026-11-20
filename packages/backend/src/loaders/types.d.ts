@@ -17,4 +17,5 @@ export type PageLoader<T = any> = ({
 export interface PageLoaderUrls {
   pageStylesheetUrl: (name: string) => string
   customCodeUrl: (name: string) => string
+  pageComponentsUrl?: (name: string) => string
 }

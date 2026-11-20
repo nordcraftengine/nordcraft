@@ -1,3 +1,4 @@
+import { PAGE_STATE_SCRIPT_ID, type ToddleInternals } from '@nordcraft/core'
 import * as ssrRenderingApi from '@nordcraft/ssr/rendering/api'
 import * as ssrRenderingComponents from '@nordcraft/ssr/rendering/components'
 import * as ssrRenderingFormulaContext from '@nordcraft/ssr/rendering/formulaContext'
@@ -89,5 +90,163 @@ describe('nordcraftPage', () => {
     expect(res.headers.get('Cache-Control')).toBe('public, max-age=30')
     expect(res.headers.get('X-Custom-Header')).toBe('CustomValue')
     expect(res.headers.get('Content-Type')).toContain('text/html')
+  })
+
+  it('serializes only per-request state in the HTML script tag and loads component JSON separately', async () => {
+    spies.push(
+      spyOn(
+        ssrRenderingFormulaContext,
+        'getPageFormulaContext',
+      ).mockReturnValue({
+        formulaContext: {
+          env: { request: { cookies: { session: 'abc' } } },
+        },
+        data: {
+          Variables: { count: 2 },
+        },
+      } as any),
+      spyOn(ssrRenderingComponents, 'renderPageBody').mockResolvedValue({
+        apiCache: {
+          myApi: {
+            data: { message: '</script><script>alert(1)</script>' },
+            error: null,
+            isLoading: false,
+          },
+        },
+        html: '<div>Test content</div>',
+        customProperties: [],
+      } as any),
+    )
+
+    const app = new Hono()
+    app.use('*', timing())
+    app.get('/test', (c) => {
+      return nordcraftPage({
+        hono: c as any,
+        project: mockProject,
+        files: { ...mockFiles, customCode: true },
+        page: mockPage,
+        status: 200,
+        options: {
+          ...mockOptions,
+          pageComponentsUrl: (name: string) =>
+            `/custom-components/${name}.json`,
+        },
+      })
+    })
+    const client: any = testClient(app)
+
+    const res = await client.test.$get()
+    const htmlText = await res.text()
+    const stateMatch = htmlText.match(
+      new RegExp(
+        `<script type="application/json" id="${PAGE_STATE_SCRIPT_ID}" data-components-url="([^"]*)" data-custom-code-url="([^"]*)">([\\s\\S]*?)</script>`,
+      ),
+    )
+    const componentsUrlAttr = stateMatch?.[1] ?? ''
+    const customCodeUrlAttr = stateMatch?.[2] ?? ''
+    const rawState = stateMatch?.[3] ?? ''
+    const parsedState = JSON.parse(rawState) as Pick<
+      ToddleInternals,
+      'pageState' | 'cookies'
+    >
+
+    expect({
+      status: res.status,
+      componentsUrlAttr,
+      customCodeUrlAttr,
+      hasEscapedScriptTag: rawState.includes('\\u003c/script>'),
+      hasRawClosingScriptTag: rawState.includes('</script>'),
+      hasComponentsPreload: htmlText.includes(
+        '<link rel="preload" as="fetch" crossorigin="anonymous" href="/custom-components/test-page.json" />',
+      ),
+      hasRuntimePreload: htmlText.includes(
+        '<link rel="modulepreload" href="/_static/page.main.esm.js" />',
+      ),
+      hasCustomCodePreload: htmlText.includes(
+        '<link rel="modulepreload" href="/_static/cc_test-page.js" />',
+      ),
+      hasRuntimeModuleScript: htmlText.includes(
+        '<script type="module" src="/_static/page.main.esm.js"></script>',
+      ),
+      parsedState,
+    }).toEqual({
+      status: 200,
+      componentsUrlAttr: '/custom-components/test-page.json',
+      customCodeUrlAttr: '/_static/cc_test-page.js',
+      hasEscapedScriptTag: true,
+      hasRawClosingScriptTag: false,
+      hasComponentsPreload: true,
+      hasRuntimePreload: true,
+      hasCustomCodePreload: true,
+      hasRuntimeModuleScript: true,
+      parsedState: {
+        pageState: {
+          Variables: { count: 2 },
+          Apis: {
+            myApi: {
+              data: { message: '</script><script>alert(1)</script>' },
+              error: null,
+              isLoading: false,
+            },
+          },
+        },
+        cookies: ['session'],
+      },
+    })
+  })
+
+  it('applies cacheBuster to stylesheet, component JSON, and custom code URLs', async () => {
+    const app = new Hono()
+    app.use('*', timing())
+    app.get('/test', (c) => {
+      return nordcraftPage({
+        hono: c as any,
+        project: mockProject,
+        files: { ...mockFiles, customCode: true },
+        page: mockPage,
+        status: 200,
+        options: mockOptions,
+        cacheBuster: 'commit-sha-1',
+      })
+    })
+    const client: any = testClient(app)
+
+    const res = await client.test.$get()
+    const htmlText = await res.text()
+
+    expect({
+      status: res.status,
+      hasResetStylesheetWithCacheBuster: htmlText.includes(
+        'href="/_static/reset.css?v=commit-sha-1"',
+      ),
+      hasPageStylesheetWithCacheBuster: htmlText.includes(
+        'href="/_static/test-page.css?v=commit-sha-1"',
+      ),
+      hasStateComponentsAttrWithCacheBuster: htmlText.includes(
+        'data-components-url="/_static/components_test-page.json?v=commit-sha-1"',
+      ),
+      hasStateCustomCodeAttrWithCacheBuster: htmlText.includes(
+        'data-custom-code-url="/_static/cc_test-page.js?v=commit-sha-1"',
+      ),
+      hasComponentsPreloadWithCacheBuster: htmlText.includes(
+        '<link rel="preload" as="fetch" crossorigin="anonymous" href="/_static/components_test-page.json?v=commit-sha-1" />',
+      ),
+      hasCustomCodePreloadWithCacheBuster: htmlText.includes(
+        '<link rel="modulepreload" href="/_static/cc_test-page.js?v=commit-sha-1" />',
+      ),
+      hasRuntimeScript: htmlText.includes(
+        '<script type="module" src="/_static/page.main.esm.js"></script>',
+      ),
+    }).toEqual({
+      status: 200,
+      hasResetStylesheetWithCacheBuster: true,
+      hasPageStylesheetWithCacheBuster: true,
+      hasStateComponentsAttrWithCacheBuster: true,
+      hasStateCustomCodeAttrWithCacheBuster: true,
+      hasComponentsPreloadWithCacheBuster: true,
+      hasCustomCodePreloadWithCacheBuster: true,
+      hasRuntimeScript: true,
+    })
   })
 })

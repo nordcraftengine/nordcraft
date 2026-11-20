@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'bun:test'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import {
   createFixtureProject,
   renameComponentReferences,
+  writeFixtureProject,
 } from './fixture-project'
 import { loadFixtures } from './fixtures/loader'
 
@@ -95,5 +99,46 @@ describe('fixture project', () => {
       'fixture__ProviderB',
       'value',
     ])
+  })
+
+  it('writes static components_<page>.json files for every page', async () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nc-fixture-proj-'))
+    try {
+      await writeFixtureProject(tmpDir)
+      const { routes } = await createFixtureProject()
+      const firstPageName = Object.values(routes.pages)[0]?.name
+      if (!firstPageName) {
+        throw new Error('Expected at least one page')
+      }
+      const jsonPath = path.join(
+        tmpDir,
+        'assets/_static',
+        `components_${firstPageName}.json`,
+      )
+      const parsed = JSON.parse(fs.readFileSync(jsonPath, 'utf8')) as {
+        project: string
+        branch: string
+        commit: string
+        component: { name: string }
+        components: Array<{ name: string }>
+      }
+      expect({
+        exists: fs.existsSync(jsonPath),
+        project: parsed.project,
+        branch: parsed.branch,
+        commit: parsed.commit,
+        componentName: parsed.component.name,
+        hasComponentsArray: Array.isArray(parsed.components),
+      }).toEqual({
+        exists: true,
+        project: 'e2e',
+        branch: 'main',
+        commit: 'unknown',
+        componentName: firstPageName,
+        hasComponentsArray: true,
+      })
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    }
   })
 })
