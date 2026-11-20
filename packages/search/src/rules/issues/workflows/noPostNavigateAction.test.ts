@@ -566,4 +566,131 @@ describe('fix noPostNavigateAction', () => {
       )?.events?.click?.actions,
     ).toHaveLength(1)
   })
+
+  test('should detect and fix object workflow actions after a url navigate action', () => {
+    const files: ProjectFiles = {
+      formulas: {},
+      components: {
+        nav: {
+          attributes: {},
+          events: [],
+          formulas: {},
+          nodes: {},
+          variables: {},
+          apis: {},
+          name: 'nav',
+          workflows: {
+            RGyFQC: {
+              parameters: [],
+              name: 'Navigate',
+              actions: {
+                actLogAfter: {
+                  index: 2,
+                  name: '@toddle/logToConsole',
+                  arguments: [
+                    {
+                      name: 'Label',
+                      formula: {
+                        type: 'value',
+                        value: 'after',
+                      },
+                    },
+                  ],
+                  label: 'Log to console',
+                },
+                actNav: {
+                  index: 1,
+                  name: '@toddle/gotToURL',
+                  arguments: [
+                    {
+                      name: 'URL',
+                      formula: {
+                        type: 'value',
+                        value: 'https://example.com',
+                      },
+                    },
+                  ],
+                  label: 'Go to URL',
+                },
+                actLogBefore: {
+                  index: 0,
+                  name: '@toddle/logToConsole',
+                  arguments: [
+                    {
+                      name: 'Label',
+                      formula: {
+                        type: 'value',
+                        value: 'before',
+                      },
+                    },
+                  ],
+                  label: 'Log to console',
+                },
+              },
+              exposeInContext: false,
+            },
+          },
+        },
+      },
+    }
+
+    const problems = Array.from(
+      searchProject({
+        files,
+        rules: [noPostNavigateAction],
+      }),
+    )
+
+    expect(problems).toEqual([
+      {
+        code: 'no post navigate action',
+        category: 'Quality',
+        level: 'warning',
+        path: ['components', 'nav', 'workflows', 'RGyFQC', 'actions', 'actNav'],
+        fixes: ['delete-following-actions'],
+        info: {
+          title: 'Avoid actions after "Go to URL" action',
+          description:
+            'The "Go to URL" action should be the last action in a workflow, as subsequent actions might not be evaluated before the browser navigates to the new URL.',
+        },
+      },
+    ])
+
+    const fixedProject = fixProject({
+      files,
+      rule: noPostNavigateAction,
+      fixType: 'delete-following-actions',
+    })
+
+    expect(fixedProject.components.nav?.workflows?.RGyFQC?.actions).toEqual({
+      actNav: {
+        index: 1,
+        name: '@toddle/gotToURL',
+        arguments: [
+          {
+            name: 'URL',
+            formula: {
+              type: 'value',
+              value: 'https://example.com',
+            },
+          },
+        ],
+        label: 'Go to URL',
+      },
+      actLogBefore: {
+        index: 0,
+        name: '@toddle/logToConsole',
+        arguments: [
+          {
+            name: 'Label',
+            formula: {
+              type: 'value',
+              value: 'before',
+            },
+          },
+        ],
+        label: 'Log to console',
+      },
+    })
+  })
 })

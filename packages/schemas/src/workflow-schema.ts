@@ -1,7 +1,7 @@
 import type { ComponentWorkflow } from '@nordcraft/core'
 import * as v from 'valibot'
 import { ActionModelSchema } from './action-schema'
-import { MetadataSchema, SCHEMA_DESCRIPTIONS } from './valibot-schemas'
+import { MetadataSchema, record, SCHEMA_DESCRIPTIONS } from './valibot-schemas'
 
 export const ComponentWorkflowSchema: v.GenericSchema<
   unknown,
@@ -29,7 +29,10 @@ export const ComponentWorkflowSchema: v.GenericSchema<
       v.description('Parameters accepted by the workflow'),
     ),
     actions: v.pipe(
-      v.array(ActionModelSchema),
+      v.union([
+        v.array(ActionModelSchema),
+        record(v.string(), ActionModelSchema),
+      ]),
       v.description('List of actions that make up the workflow'),
     ),
     exposeInContext: v.pipe(
