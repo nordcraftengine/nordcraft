@@ -105,10 +105,18 @@ export const getStaticStyleAndVariants = (
   ] as [Nullable<NodeStyleModel>, Nullable<StyleVariant[]>]
 }
 
+const VALID_CLASSNAME_LOOKUP = new Map<string, string>()
+
 export const toValidClassName = (
   input: string,
   escapeSpecialCharacters = false,
 ) => {
+  if (!escapeSpecialCharacters) {
+    const cached = VALID_CLASSNAME_LOOKUP.get(input)
+    if (cached !== undefined) {
+      return cached
+    }
+  }
   // Replace invalid characters with hyphens
   let className = input
     // Remove leading and trailing whitespace
@@ -128,5 +136,8 @@ export const toValidClassName = (
     }
   }
 
+  if (!escapeSpecialCharacters) {
+    VALID_CLASSNAME_LOOKUP.set(input, className)
+  }
   return className
 }

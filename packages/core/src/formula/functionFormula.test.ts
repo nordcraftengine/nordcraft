@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import type { FormulaHandlerV2 } from '../types'
-import type { FunctionOperation } from './formula'
+import type { FormulaContext, FunctionOperation } from './formula'
 import type { PluginFormula } from './formulaTypes'
 import { applyFunctionFormula } from './functionFormula'
 import { createTestFormulaContext } from './testUtils.test'
@@ -129,5 +129,54 @@ describe('applyFunctionFormula', () => {
         configurable: true,
       })
     }
+  })
+
+  it('passes context to legacy formula handlers with default or rest parameters', () => {
+    const formula: FunctionOperation = {
+      type: 'function',
+      name: 'legacyWithDefault',
+      arguments: [],
+    }
+    const baseCtx = createTestFormulaContext()
+    const ctx = {
+      ...baseCtx,
+      toddle: {
+        ...baseCtx.toddle,
+        getCustomFormula: () => undefined,
+        getFormula: (name: string) =>
+          name === 'legacyWithDefault'
+            ? (_args: unknown[] = [], legacyCtx: any) =>
+                legacyCtx?.env?.branchName
+            : undefined,
+      },
+    }
+    expect(applyFunctionFormula(formula, ctx, {})).toBe('main')
+  })
+
+  it('skips getCustomFormula lookup for built-in @toddle/ formulas while forwarding env and root', () => {
+    let customLookupCalls = 0
+    const baseCtx = createTestFormulaContext()
+    const ctx: FormulaContext = {
+      ...baseCtx,
+      toddle: {
+        ...baseCtx.toddle,
+        getCustomFormula: () => {
+          customLookupCalls++
+          return undefined
+        },
+      },
+    }
+    const result = applyFunctionFormula(
+      {
+        type: 'function',
+        name: '@toddle/branchName',
+      },
+      ctx,
+      {},
+    )
+    expect({ result, customLookupCalls }).toEqual({
+      result: 'main',
+      customLookupCalls: 0,
+    })
   })
 })

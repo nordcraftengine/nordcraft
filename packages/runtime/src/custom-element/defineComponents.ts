@@ -1,5 +1,9 @@
 import type { Component, Theme, Toddle } from '@nordcraft/core'
-import { safeCustomElementName } from '@nordcraft/core'
+import {
+  createStylesheet,
+  theme as defaultTheme,
+  safeCustomElementName,
+} from '@nordcraft/core'
 import type { LocationSignal } from '../types'
 import { ToddleComponent } from './ToddleComponent'
 
@@ -29,35 +33,47 @@ export const defineComponents = (
   },
   toddle: Toddle<LocationSignal, never>,
 ) => {
-  componentNames
-    .map<Component>(
-      (name) =>
-        options.components.find(
-          (component) => component.name === name,
-        ) as Component,
+  for (const name of componentNames) {
+    const component = options.components.find(
+      (component) => component.name === name,
     )
-    .forEach((component) => {
-      const tag = safeCustomElementName(component.name)
-      if (customElements.get(tag)) {
-        // eslint-disable-next-line no-console
-        console.warn(`Component ${tag} already defined`)
-        return
-      }
+    if (!component) {
+      continue
+    }
+    const tag = safeCustomElementName(component.name)
+    if (customElements.get(tag)) {
+      // eslint-disable-next-line no-console
+      console.warn(`Component ${tag} already defined`)
+      continue
+    }
 
-      customElements.define(
-        tag,
-        class extends ToddleComponent {
-          constructor() {
-            super(component, options, toddle)
-          }
+    // The stylesheet only depends on the definition, so parse it once and
+    // share the parsed CSSStyleSheet between every instance of the element.
+    const styleSheet = new CSSStyleSheet()
+    styleSheet.replaceSync(
+      createStylesheet(
+        component,
+        options.components,
+        Object.keys(options.themes ?? {}).length
+          ? options.themes
+          : { defaultTheme },
+        { includeResetStyle: true, createFontFaces: false },
+      ),
+    )
+    customElements.define(
+      tag,
+      class extends ToddleComponent {
+        constructor() {
+          super(component!, { ...options, styleSheet }, toddle)
+        }
 
-          // When read from DOM, all attributes are lower case, so we must observe them as such
-          static get observedAttributes() {
-            return Object.keys(component.attributes ?? {}).map((key) =>
-              key.toLowerCase(),
-            )
-          }
-        },
-      )
-    })
+        // When read from DOM, all attributes are lower case, so we must observe them as such
+        static get observedAttributes() {
+          return Object.keys(component!.attributes ?? {}).map((key) =>
+            key.toLowerCase(),
+          )
+        }
+      },
+    )
+  }
 }

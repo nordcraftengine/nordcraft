@@ -29,4 +29,30 @@ describe('Formula: GET', () => {
       ),
     ).toBeUndefined()
   })
+
+  test('should resolve single-key lookups on objects, strings, and non-objects', () => {
+    const ctx = {
+      component: { name: 'Test', nodes: {} },
+      data: {},
+      root: undefined as never,
+      env: {
+        isServer: false as const,
+        branchName: 'main',
+        request: undefined,
+        runtime: 'page' as const,
+        logErrors: false,
+      },
+    }
+    expect({
+      objectKey: handler([{ nested: { ok: true } }, 'nested'], ctx),
+      stringIndex: handler(['abc', 1], ctx),
+      nullTarget: handler([null, 'a'], ctx),
+      primitiveTarget: handler([42, 'toFixed'], ctx),
+    }).toEqual({
+      objectKey: { ok: true },
+      stringIndex: 'b',
+      nullTarget: undefined,
+      primitiveTarget: undefined,
+    })
+  })
 })

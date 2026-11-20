@@ -1,22 +1,14 @@
 import type {
   Component,
-  ComponentAPI,
   ComponentData,
-  ComponentFormula,
-  ComponentVariable,
-  Nullable,
-  Theme,
   Toddle,
   ToddleEnv,
 } from '@nordcraft/core'
 import {
   applyFormula,
-  createStylesheet,
-  theme as defaultTheme,
-  filterObject,
   isDefined,
   isLegacyApi,
-  mapObject,
+  ROOT_NODE_ID,
   THEME_DATA_ATTRIBUTE,
 } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
@@ -24,15 +16,17 @@ import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
 import { createLegacyAPI } from '../api/createAPI'
 import { createAPI } from '../api/createAPIv2'
-import { sortApis } from '../api/sortApis'
+import { sortApiEntries } from '../api/sortApis'
 import { renderComponent } from '../components/renderComponent'
-import { isContextProvider } from '../context/isContextProvider'
+import {
+  createFormulaDataSignals,
+  isContextProvider,
+} from '../context/isContextProvider'
 import type { Signal } from '../signal/signal'
-import { signal } from '../signal/signal'
+import { FORCE_UPDATE, signal } from '../signal/signal'
 import type { ComponentContext, LocationSignal } from '../types'
+import { createFormulaCache } from '../utils/createFormulaCache'
 import { getThemeSignal } from '../utils/getThemeSignal'
-
-const stylesheetCache = new WeakMap<Component, string>()
 
 /**
  * Base class for all toddle components
@@ -46,7 +40,6 @@ export class ToddleComponent extends HTMLElement {
   #ctx: ComponentContext
   #shadowRoot: ShadowRoot
   #signal: Signal<ComponentData>
-  #files: { themes: Record<string, Theme> }
   // Maps lowercased attribute names to their original case, so attributeChangedCallback
   // (which receives lowercased names from observedAttributes) can look them up in the
   // component's attributes without scanning the whole object on every change.
@@ -55,7 +48,7 @@ export class ToddleComponent extends HTMLElement {
 
   constructor(
     component: Component,
-    options: { components: Component[]; themes: Record<string, Theme> },
+    options: { components: Component[]; styleSheet: CSSStyleSheet },
     toddle: Toddle<LocationSignal, never>,
   ) {
     super()
@@ -83,21 +76,26 @@ export class ToddleComponent extends HTMLElement {
       toddle,
       env,
     })
-    this.#files = {
-      themes: options.themes,
+    this.#shadowRoot.adoptedStyleSheets = [options.styleSheet]
+    this.#attributeNames = new Map()
+    const componentAttrs = component.attributes
+    if (componentAttrs) {
+      for (const key in componentAttrs) {
+        this.#attributeNames.set(key.toLowerCase(), key)
+      }
     }
-    this.#attributeNames = new Map(
-      Object.keys(component.attributes ?? {}).map((key) => [
-        key.toLowerCase(),
-        key,
-      ]),
-    )
 
     // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
     const abortController = new AbortController()
     this.#signal.subscriptions.push(() =>
       abortController.abort(`Component ${component.name} unmounted`),
     )
+
+    const themeSignal = getThemeSignal(component, this.#signal, env)
+    this.#signal.value.Page = {
+      ...this.#signal.value.Page,
+      Theme: themeSignal.get(),
+    }
 
     this.#ctx = {
       triggerEvent: this.dispatch.bind(this),
@@ -106,13 +104,13 @@ export class ToddleComponent extends HTMLElement {
       components: options.components,
       component: this.#component,
       dataSignal: this.#signal,
-      formulaCache: {},
+      formulaCache: createFormulaCache(component),
       apis: {},
       abortSignal: abortController.signal,
       children: {},
       providers: {},
       stores: {
-        theme: getThemeSignal(component, this.#signal, env),
+        theme: themeSignal,
       },
       package: undefined,
       toddle,
@@ -122,17 +120,36 @@ export class ToddleComponent extends HTMLElement {
   }
 
   connectedCallback() {
+    if (this.#ctx.abortSignal.aborted) {
+      const abortController = new AbortController()
+      this.#signal.subscriptions.push(() =>
+        abortController.abort(`Component ${this.#component.name} unmounted`),
+      )
+      this.#ctx.abortSignal = abortController.signal
+      const themeSignal = getThemeSignal(
+        this.#component,
+        this.#signal,
+        this.#ctx.env,
+      )
+      this.#ctx.stores.theme = themeSignal
+      this.#signal.value.Page = {
+        ...this.#signal.value.Page,
+        Theme: themeSignal.get(),
+      }
+    }
+
     this.#ctx.stores.theme.subscribe((newTheme) => {
       if (this.#signal.get().Page?.Theme !== newTheme) {
-        this.#signal.update(
-          (data) => ({
+        const data = this.#signal.value
+        this.#signal.set(
+          {
             ...data,
             Page: {
-              ...(data.Page ?? {}),
+              ...data.Page,
               Theme: newTheme,
             },
-          }),
-          { force: true },
+          },
+          FORCE_UPDATE,
         )
       }
       if (isDefined(newTheme)) {
@@ -143,25 +160,27 @@ export class ToddleComponent extends HTMLElement {
     })
 
     // Re-evaluate variable initial values now that initial DOM attributes and theme are populated
-    this.#signal.update((data) => ({
-      ...data,
-      Variables: mapObject(
-        filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-          this.#component.variables ?? {},
-          ([_, variable]) => isDefined(variable),
-        ),
-        ([name, { initialValue }]) => [
-          name,
-          applyFormula(initialValue, this.#ctx, data),
-        ],
-      ),
-    }))
+    const componentVariables = this.#component.variables
+    if (componentVariables) {
+      const data = this.#signal.value
+      const nextVariables: Record<string, unknown> = {}
+      for (const name in componentVariables) {
+        const variable = componentVariables[name]
+        if (isDefined(variable)) {
+          nextVariables[name] = applyFormula(
+            variable.initialValue,
+            this.#ctx,
+            data,
+          )
+        }
+      }
+      this.#signal.set({
+        ...data,
+        Variables: nextVariables,
+      })
+    }
 
-    sortApis(
-      Object.entries(this.#component.apis ?? {}).filter(
-        (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-      ),
-    ).forEach(([name, api]) => {
+    for (const [name, api] of sortApiEntries(this.#component.apis)) {
       if (isLegacyApi(api)) {
         this.#ctx.apis[name] = createLegacyAPI(
           api,
@@ -176,30 +195,21 @@ export class ToddleComponent extends HTMLElement {
           componentData: this.#signal.get(),
         })
       }
-    })
-    Object.values(this.#ctx.apis)
-      .filter(isContextApiV2)
-      .forEach((api) => {
+    }
+    for (const name in this.#ctx.apis) {
+      const api = this.#ctx.apis[name]
+      if (api && isContextApiV2(api)) {
         api.triggerActions(this.#signal.get())
-      })
+      }
+    }
 
     let providers = this.#ctx.providers
     if (isContextProvider(this.#component)) {
       // Subscribe to exposed formulas and update the component's data signal
-      const formulaDataSignals = Object.fromEntries(
-        Object.entries(this.#component.formulas ?? {})
-          .filter(([, formula]) => formula?.exposeInContext)
-          .map(([name, formula]) => [
-            name,
-            this.#signal.map((data) =>
-              applyFormula(
-                (formula as ComponentFormula).formula,
-                this.#ctx,
-                data,
-                IS_PREVIEW ? ['formulas', name] : undefined,
-              ),
-            ),
-          ]),
+      const formulaDataSignals = createFormulaDataSignals(
+        this.#component,
+        this.#signal,
+        this.#ctx,
       )
 
       providers = {
@@ -236,25 +246,10 @@ export class ToddleComponent extends HTMLElement {
       path: '0',
       onEvent: this.dispatch.bind(this),
       parentElement: this.#shadowRoot,
-      instance: { [this.#component.name]: 'root' },
+      instance: { [this.#component.name]: ROOT_NODE_ID },
     })
 
-    this.#shadowRoot.innerHTML = ''
-    let styles = stylesheetCache.get(this.#ctx.component)
-    if (styles === undefined) {
-      styles = createStylesheet(
-        this.#ctx.component,
-        this.#ctx.components,
-        Object.entries(this.#files.themes ?? {}).length > 0
-          ? this.#files.themes
-          : { defaultTheme },
-        { includeResetStyle: true, createFontFaces: false },
-      )
-      stylesheetCache.set(this.#ctx.component, styles)
-    }
-    const stylesElem = document.createElement('style')
-    stylesElem.appendChild(document.createTextNode(styles))
-    this.#shadowRoot.appendChild(stylesElem)
+    this.#shadowRoot.replaceChildren()
     const rootElement = elements[0] as Element | null
     if (rootElement) {
       this.#shadowRoot.appendChild(rootElement)
@@ -282,19 +277,18 @@ export class ToddleComponent extends HTMLElement {
     const attributeName = this.#attributeNames.get(name.toLowerCase()) ?? name
 
     // Update the signal with complex value
-    if (
-      fastDeepEqual(this.#signal.get().Attributes?.[attributeName], value) ===
-      false
-    ) {
+    const data = this.#signal.value
+    const currentAttr = data.Attributes?.[attributeName]
+    if (fastDeepEqual(currentAttr, value) === false) {
       this.#signal.set(
         {
-          ...this.#signal.get(),
+          ...data,
           Attributes: {
-            ...this.#signal.get().Attributes,
+            ...data.Attributes,
             [attributeName]: value,
           },
         },
-        { force: true },
+        FORCE_UPDATE,
       )
     }
 
@@ -316,21 +310,18 @@ export class ToddleComponent extends HTMLElement {
     }
     const attributeName = this.getAttributeCaseInsensitive(name)
 
-    if (
-      fastDeepEqual(
-        this.#signal.get().Attributes?.[attributeName],
-        newValue,
-      ) === false
-    ) {
+    const data = this.#signal.value
+    const currentAttr = data.Attributes?.[attributeName]
+    if (fastDeepEqual(currentAttr, newValue) === false) {
       this.#signal.set(
         {
-          ...this.#signal.get(),
+          ...data,
           Attributes: {
-            ...this.#signal.get().Attributes,
+            ...data.Attributes,
             [attributeName]: newValue,
           },
         },
-        { force: true },
+        FORCE_UPDATE,
       )
     }
   }
@@ -373,42 +364,50 @@ export const createSignal = ({
   toddle: Toddle<LocationSignal, never>
   env: ToddleEnv
 }) => {
+  const formulaCtx = {
+    component,
+    root,
+    package: undefined,
+    toddle,
+    env,
+  }
+  const initialVariables: Record<string, unknown> = {}
+  const componentVariables = component.variables
+  if (componentVariables) {
+    for (const name in componentVariables) {
+      const variable = componentVariables[name]
+      if (isDefined(variable)) {
+        initialVariables[name] = applyFormula(
+          variable.initialValue,
+          formulaCtx,
+          undefined,
+        )
+      }
+    }
+  }
+  const initialAttributes: Record<string, unknown> = {}
+  const componentAttributes = component.attributes
+  if (componentAttributes) {
+    for (const name in componentAttributes) {
+      // TODO: Perhaps we can get it from the DOM already and set initial attributes already?
+      initialAttributes[name] = undefined
+    }
+  }
+  const initialApis: Record<
+    string,
+    { data: null; isLoading: boolean; error: null }
+  > = {}
+  const componentApis = component.apis
+  if (componentApis) {
+    for (const name in componentApis) {
+      initialApis[name] = { data: null, isLoading: false, error: null }
+    }
+  }
   return signal<ComponentData>({
     // Pages are not supported as custom elements, so no need to add location signal
     Location: undefined,
-    Variables: mapObject(
-      filterObject<Nullable<ComponentVariable>, ComponentVariable>(
-        component.variables ?? {},
-        ([_, variable]) => isDefined(variable),
-      ),
-      ([name, { initialValue }]) => {
-        if (!component) {
-          throw new Error(`Component not found`)
-        }
-        return [
-          name,
-          applyFormula(
-            initialValue,
-            {
-              component: component,
-              root,
-              package: undefined,
-              toddle,
-              env,
-            },
-            undefined,
-          ),
-        ]
-      },
-    ),
-    Attributes: mapObject(component.attributes ?? {}, ([name]) => [
-      name,
-      // TODO: Perhaps we can get it from the DOM already and set initial attributes already?
-      undefined,
-    ]),
-    Apis: mapObject(component.apis ?? {}, ([name]) => [
-      name,
-      { data: null, isLoading: false, error: null },
-    ]),
+    Variables: initialVariables,
+    Attributes: initialAttributes,
+    Apis: initialApis,
   })
 }

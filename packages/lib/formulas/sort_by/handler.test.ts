@@ -64,4 +64,40 @@ describe('Formula: Sort by', () => {
       { name: 'Vakis', role: 'Marketing' },
     ])
   })
+  test('should return a shallow copy without evaluating formula on empty or single-element arrays', () => {
+    let calls = 0
+    const singleInput = [{ id: 1 }]
+    const emptyInput: unknown[] = []
+    const keyFn = (args: { item: unknown }) => {
+      calls++
+      return args.item
+    }
+    const ctx = {
+      component: { name: 'Test', nodes: {} },
+      data: {},
+      root: undefined as never,
+      env: {
+        isServer: false as const,
+        branchName: 'main',
+        request: undefined,
+        runtime: 'page' as const,
+        logErrors: false,
+      },
+    }
+    const singleResult = handler([singleInput, keyFn, true], ctx)
+    const emptyResult = handler([emptyInput, keyFn, true], ctx)
+    expect({
+      singleResult,
+      emptyResult,
+      singleIsCopy: singleResult !== singleInput,
+      emptyIsCopy: emptyResult !== emptyInput,
+      calls,
+    }).toEqual({
+      singleResult: [{ id: 1 }],
+      emptyResult: [],
+      singleIsCopy: true,
+      emptyIsCopy: true,
+      calls: 0,
+    })
+  })
 })

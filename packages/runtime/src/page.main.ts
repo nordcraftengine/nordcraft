@@ -2,9 +2,7 @@ import type {
   ActionHandler,
   ArgumentInputDataFunction,
   Component,
-  ComponentAPI,
   ComponentData,
-  ComponentFormula,
   ComponentVariable,
   FormulaHandler,
   FormulaHandlerV2,
@@ -16,6 +14,7 @@ import type {
 } from '@nordcraft/core'
 import {
   applyFormula,
+  BUILTIN_PREFIX,
   filterObject,
   isDefined,
   isLegacyApi,
@@ -31,7 +30,7 @@ import { match } from 'path-to-regexp'
 import { isContextApiV2 } from './api/apiUtils'
 import { createLegacyAPI } from './api/createAPI'
 import { createAPI } from './api/createAPIv2'
-import { sortApis } from './api/sortApis'
+import { sortApiEntries } from './api/sortApis'
 import {
   createHydrationState,
   reconcileHydratedChildren,
@@ -39,10 +38,13 @@ import {
 } from './components/hydration'
 import { getDynamicMetaEntries } from './components/meta'
 import { renderComponent } from './components/renderComponent'
-import { isContextProvider } from './context/isContextProvider'
+import {
+  createFormulaDataSignals,
+  isContextProvider,
+} from './context/isContextProvider'
 import { initLogState, registerComponentToLogState } from './debug/logState'
 import type { Signal } from './signal/signal'
-import { signal } from './signal/signal'
+import { FORCE_UPDATE, signal } from './signal/signal'
 import type { ComponentContext, LocationSignal } from './types'
 import { getThemeSignal } from './utils/getThemeSignal'
 
@@ -129,18 +131,20 @@ export const initGlobalObject = (code?: {
   })()
 
   // load default formulas and actions
-  Object.entries(libFormulas).forEach(([name, module]) =>
+  for (const name in libFormulas) {
+    const module = libFormulas[name as keyof typeof libFormulas]
     window.toddle.registerFormula(
-      '@toddle/' + name,
+      BUILTIN_PREFIX + name,
       module.default as FormulaHandler,
       'getArgumentInputData' in module
         ? module.getArgumentInputData
         : undefined,
-    ),
-  )
-  Object.entries(libActions).forEach(([name, module]) =>
-    window.toddle.registerAction('@toddle/' + name, module.default),
-  )
+    )
+  }
+  for (const name in libActions) {
+    const module = libActions[name as keyof typeof libActions]
+    window.toddle.registerAction(BUILTIN_PREFIX + name, module.default)
+  }
 }
 
 export const createRoot = (domNode: HTMLElement) => {
@@ -168,10 +172,6 @@ export const createRoot = (domNode: HTMLElement) => {
         hash,
       }
     })
-  })
-
-  const routeSignal = window.toddle.locationSignal.map(({ query, params }) => {
-    return { ...query, ...params }
   })
 
   const dataSignal = signal<ComponentData>({
@@ -203,15 +203,17 @@ export const createRoot = (domNode: HTMLElement) => {
 
   registerComponentToLogState(component, dataSignal)
 
-  routeSignal.subscribe((route) =>
-    dataSignal.update(
-      (data) => ({
-        ...data,
-        'URL parameters': route as Record<string, string>,
-        Attributes: route,
-      }),
-      { force: true },
-    ),
+  window.toddle.locationSignal.subscribeMap(
+    ({ query, params }) => ({ ...query, ...params }),
+    (route) =>
+      dataSignal.set(
+        {
+          ...dataSignal.value,
+          'URL parameters': route as Record<string, string>,
+          Attributes: route,
+        },
+        FORCE_UPDATE,
+      ),
   )
 
   // Call the abort signal if the component's datasignal is destroyed (component unmounted) to cancel any pending requests
@@ -240,12 +242,30 @@ export const createRoot = (domNode: HTMLElement) => {
     env,
   }
 
+  ctx.stores.theme.subscribe((newTheme) => {
+    // The page's dataSignal also needs to be updated so that `Page.Theme` formulas works on page components
+    if (dataSignal.get().Page?.Theme !== newTheme) {
+      const data = dataSignal.value
+      dataSignal.set(
+        {
+          ...data,
+          Page: {
+            ...data.Page,
+            Theme: newTheme,
+          },
+        },
+        FORCE_UPDATE,
+      )
+    }
+    if (isDefined(newTheme)) {
+      document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
+    } else {
+      document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE)
+    }
+  })
+
   // Note: this function must run procedurally to ensure apis (which are in correct order) can reference each other
-  sortApis(
-    Object.entries(component.apis ?? {}).filter(
-      (entry): entry is [string, ComponentAPI] => isDefined(entry[1]),
-    ),
-  ).forEach(([name, api]) => {
+  for (const [name, api] of sortApiEntries(component.apis)) {
     if (isLegacyApi(api)) {
       ctx.apis[name] = createLegacyAPI(api, ctx)
     } else {
@@ -255,26 +275,22 @@ export const createRoot = (domNode: HTMLElement) => {
         componentData: dataSignal.get(),
       })
     }
-  })
+  }
   // Trigger actions for all APIs after all of them are created.
-  Object.values(ctx.apis)
-    .filter(isContextApiV2)
-    .forEach((api) => {
+  for (const name in ctx.apis) {
+    const api = ctx.apis[name]
+    if (api && isContextApiV2(api)) {
       api.triggerActions(dataSignal.get())
-    })
+    }
+  }
 
   let providers = ctx.providers
   if (isContextProvider(component)) {
     // Subscribe to exposed formulas and update the component's data signal
-    const formulaDataSignals = Object.fromEntries(
-      Object.entries(component.formulas ?? {})
-        .filter(([, formula]) => formula?.exposeInContext)
-        .map(([name, formula]) => [
-          name,
-          dataSignal.map((data) =>
-            applyFormula((formula as ComponentFormula).formula, ctx, data),
-          ),
-        ]),
+    const formulaDataSignals = createFormulaDataSignals(
+      component,
+      dataSignal,
+      ctx,
     )
 
     providers = {
@@ -286,27 +302,6 @@ export const createRoot = (domNode: HTMLElement) => {
       },
     }
   }
-
-  ctx.stores.theme.subscribe((newTheme) => {
-    // The page's dataSignal also needs to be updated so that `Page.Theme` formulas works on page components
-    if (dataSignal.get().Page?.Theme !== newTheme) {
-      dataSignal.update(
-        (data) => ({
-          ...data,
-          Page: {
-            ...(data.Page ?? {}),
-            Theme: newTheme,
-          },
-        }),
-        { force: true },
-      )
-    }
-    if (isDefined(newTheme)) {
-      document.documentElement.setAttribute(THEME_DATA_ATTRIBUTE, newTheme)
-    } else {
-      document.documentElement.removeAttribute(THEME_DATA_ATTRIBUTE)
-    }
-  })
 
   // We can only setup meta updates after the dataSignal has been initiated with API data etc.
   setupMetaUpdates(component, dataSignal)
@@ -329,10 +324,10 @@ export const createRoot = (domNode: HTMLElement) => {
     reconcileHydratedChildren(domNode, elements, hydration)
     sweepUnhydratedNodes(domNode, hydration)
   } else {
-    domNode.innerText = ''
-    elements.forEach((elem) => {
+    domNode.textContent = ''
+    for (const elem of elements) {
       domNode.appendChild(elem)
-    })
+    }
   }
   window.__toddle.isPageLoaded = true
 }
@@ -341,7 +336,8 @@ function parseUrl(component: Component) {
   const path = window.location.pathname.split('/').slice(1)
   let params: Record<string, string | null> = {}
   if (component.route) {
-    component.route.path.forEach((segment, i) => {
+    for (let i = 0; i < component.route.path.length; i++) {
+      const segment = component.route.path[i]!
       if (segment.type === 'param') {
         if (isDefined(path[i]) && path[i] !== '') {
           params[segment.name] = decodeURIComponent(path[i])
@@ -351,7 +347,7 @@ function parseUrl(component: Component) {
       } else {
         params[segment.name] = segment.name
       }
-    })
+    }
   } else {
     const urlPattern = match<Record<string, string>>(component.page ?? '', {
       decode: decodeURIComponent,
@@ -402,30 +398,30 @@ const setupMetaUpdates = (
   const langFormula = component.route?.info?.language?.formula
   const dynamicLang = langFormula && langFormula.type !== 'value'
   if (dynamicLang) {
-    dataSignal
-      .map((data) =>
+    dataSignal.subscribeMap(
+      (data) =>
         component ? applyFormula(langFormula, formulaContext, data) : null,
-      )
-      .subscribe((newLang) => {
+      (newLang) => {
         if (isDefined(newLang) && document.documentElement.lang !== newLang) {
           document.documentElement.setAttribute('lang', newLang)
         }
-      })
+      },
+    )
   }
 
   // Handle dynamic updates of <head> elements (title, og:image etc.)
   const titleFormula = component.route?.info?.title?.formula
   const dynamicTitle = titleFormula && titleFormula.type !== 'value'
   if (dynamicTitle) {
-    dataSignal
-      .map((data) =>
+    dataSignal.subscribeMap(
+      (data) =>
         component ? applyFormula(titleFormula, formulaContext, data) : null,
-      )
-      .subscribe((newTitle) => {
+      (newTitle) => {
         if (isDefined(newTitle) && document.title !== newTitle) {
           document.title = newTitle
         }
-      })
+      },
+    )
   }
 
   const descriptionFormula = component.route?.info?.description?.formula
@@ -467,12 +463,11 @@ const setupMetaUpdates = (
         document.getElementsByTagName('head')[0].appendChild(existingElement)
       }
       // Apply all attributes to the element
-      Object.entries(entry.attrs ?? {}).forEach(([key, value]) => {
-        if (!component) {
-          return
+      if (component && entry.attrs) {
+        for (const key in entry.attrs) {
+          existingElement.setAttribute(key, entry.attrs[key])
         }
-        existingElement!.setAttribute(key, value)
-      })
+      }
       if (
         typeof entry.content === 'string' &&
         !VOID_HTML_ELEMENTS.includes(entry.tag.toLowerCase())
@@ -481,13 +476,12 @@ const setupMetaUpdates = (
       }
     }
     if (dynamicDescription) {
-      dataSignal
-        .map((data) =>
+      dataSignal.subscribeMap(
+        (data) =>
           component
             ? applyFormula(descriptionFormula, formulaContext, data)
             : null,
-        )
-        .subscribe((newDescription) => {
+        (newDescription) => {
           if (isDefined(newDescription)) {
             let descriptionElement = document
               .getElementsByTagName('meta')
@@ -525,36 +519,30 @@ const setupMetaUpdates = (
               })
             }
           }
-        })
+        },
+      )
     }
     if (Object.keys(dynamicMetaFormulas).length > 0) {
       for (const id in dynamicMetaFormulas) {
         const entry = dynamicMetaFormulas[id]
         if (entry) {
-          dataSignal
-            .map((data) => {
+          dataSignal.subscribeMap(
+            (data) => ({
               // Return the new values for all attributes (we assume they're strings)
-              const values = Object.entries(entry.attrs ?? {}).reduce(
-                (agg, [key, formula]) =>
-                  component
-                    ? {
-                        ...agg,
-                        [key]: applyFormula(formula, formulaContext, data),
-                      }
-                    : agg,
-                {},
-              )
-              return {
-                attrs: values,
-                content: entry.content
-                  ? applyFormula(entry.content, formulaContext, data)
-                  : undefined,
-              }
-            })
-            .subscribe(({ attrs, content }) =>
+              attrs: component
+                ? mapObject(entry.attrs ?? {}, ([key, formula]) => [
+                    key,
+                    applyFormula(formula, formulaContext, data),
+                  ])
+                : {},
+              content: entry.content
+                ? applyFormula(entry.content, formulaContext, data)
+                : undefined,
+            }),
+            ({ attrs, content }) =>
               // Update the meta tags with the new values
               updateMetaElement({ tag: entry.tag, attrs, content }, id),
-            )
+          )
         }
       }
     }

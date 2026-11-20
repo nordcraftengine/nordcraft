@@ -259,13 +259,13 @@ describe('custom-element.main', () => {
 
     const shadow = el.shadowRoot!
     expect(shadow).not.toBeNull()
-    expect(shadow.querySelector('style')).not.toBeNull()
+    expect(shadow.adoptedStyleSheets.length).toBe(1)
 
     const rootDiv = shadow.querySelector('[data-id="0"]') as HTMLElement
     expect(rootDiv).not.toBeNull()
     expect(rootDiv.classList.contains('card-shell')).toBe(true)
     expect(rootDiv.classList.contains('is-high')).toBe(false)
-    expect(rootDiv.getAttribute('data-is-root-component')).toBe('true')
+    expect(rootDiv.getAttribute('data-is-root-component')).toBeNull()
 
     const titleSpan = shadow.querySelector('[data-id="0.0"]')!
     const countSpan = shadow.querySelector('[data-id="0.1"]')!
