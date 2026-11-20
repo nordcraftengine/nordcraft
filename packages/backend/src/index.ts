@@ -8,10 +8,12 @@ import { getApp } from './app'
 import { loadJsFile } from './middleware/jsLoader'
 import { loadProjectInfo } from './middleware/projectInfo'
 import { routesLoader } from './middleware/routesLoader'
+import { createCloudflarePageStateStore } from './routes/pageState'
 
 const app = getApp({
   getConnInfo,
   fileLoaders: [routesLoader, loadProjectInfo],
+  pageStateStore: createCloudflarePageStateStore(),
   pageLoader: {
     loader: async ({ name, ctx }) => {
       const timingKey = `pageLoader:${name}`

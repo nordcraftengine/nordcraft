@@ -2,8 +2,13 @@ import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr'
 import type { DurableObject } from 'cloudflare:workers'
 import type { Routes } from './src/middleware/routesLoader'
 
-export interface HonoEnv<T = unknown> {
-  Variables: T & { app: Hono<HonoEnv<T>, BlankSchema, '/'> }
+export interface CloudflareBindings {
+  PAGE_STATE?: KVNamespace
+}
+
+export interface HonoEnv<T = unknown, B = CloudflareBindings> {
+  Bindings: B
+  Variables: T & { app: Hono<HonoEnv<T, B>, BlankSchema, '/'> }
 }
 
 export interface PreviewHonoEnv<T = never> extends HonoEnv<T> {

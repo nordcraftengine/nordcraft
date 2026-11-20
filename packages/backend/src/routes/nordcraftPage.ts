@@ -33,7 +33,7 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
 import type { PageLoaderUrls } from '../loaders/types'
 import { evaluateComponentApis, RedirectError } from '../utils/api'
-import { cachePageState } from './pageState'
+import { cachePageState, type PageStateStore } from './pageState'
 
 export const nordcraftPage = async ({
   hono,
@@ -42,6 +42,7 @@ export const nordcraftPage = async ({
   page: _page,
   status,
   options,
+  pageStateStore,
 }: {
   hono: Context<HonoEnv<any>>
   project: ToddleProject
@@ -49,6 +50,7 @@ export const nordcraftPage = async ({
   page: PageComponent
   status: ContentfulStatusCode
   options: PageLoaderUrls
+  pageStateStore?: PageStateStore
 }) => {
   const usesCustomCode = files.customCode
   const nordcraftPageTimingKey = 'nordcraftPage'
@@ -100,7 +102,7 @@ export const nordcraftPage = async ({
       files: files,
       includedComponents,
       evaluateComponentApis,
-      projectId: 'my_project',
+      projectId: project.short_id,
     })
     endTime(hono, 'renderPageBody')
     apiCache = pageBody.apiCache
@@ -169,13 +171,23 @@ export const nordcraftPage = async ({
     .map(([key, value]) => `${key}="${value}"`)
     .join(' ')
 
+  const responseHeaders = evaluateResponseHeaders({
+    formulaContext,
+    data,
+    responseHeaders: page.route.response?.headers,
+  })
+  const cacheControl =
+    responseHeaders['Cache-Control'] ?? responseHeaders['cache-control']
+
   // Persist the page state in a cache so that it can be retrieved by the client for hydration
-  const { pageStateUrl, customCodeUrl } = cachePageState({
+  const { pageStateUrl, customCodeUrl } = await cachePageState({
     state: toddleInternals,
     ctx: hono,
     pageName: page.name,
     usesCustomCode,
     options,
+    store: pageStateStore,
+    cacheControl,
   })
   const additionalHeadScripts = [
     `<link rel="modulepreload" href="/_static/page.main.esm.js" />`,
@@ -191,12 +203,6 @@ export const nordcraftPage = async ({
   }
 
   head = `${head}\n${additionalHeadScripts.join('\n')}`
-
-  const responseHeaders = evaluateResponseHeaders({
-    formulaContext,
-    data,
-    responseHeaders: page.route.response?.headers,
-  })
 
   const customStatusCode = applyFormula(
     page.route.response?.status,

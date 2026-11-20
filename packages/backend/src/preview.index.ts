@@ -5,6 +5,7 @@ import { getConnInfo } from 'hono/cloudflare-workers'
 import { createMiddleware } from 'hono/factory'
 import type { HonoProject, HonoRoutes, PreviewHonoEnv } from '../hono'
 import { getApp } from './app'
+import { createCloudflarePageStateStore } from './routes/pageState'
 import { customCode } from './routes/preview.customCode'
 import { stylesheetHandler } from './routes/preview.stylesheet'
 
@@ -63,6 +64,7 @@ const loadProject = ({
 
 const app = getApp({
   getConnInfo,
+  pageStateStore: createCloudflarePageStateStore(),
   stylesheetRouter: {
     path: '/.toddle/stylesheet/:pageName{.+.css}',
     handler: stylesheetHandler,
