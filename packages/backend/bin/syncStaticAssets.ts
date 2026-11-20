@@ -1,8 +1,12 @@
 // Copies and modifies relevant assets and JSON files to the dist/ folder
 // This script is executed by the build process
-import { RESET_STYLES } from '@nordcraft/core'
+import { isPageComponent, RESET_STYLES } from '@nordcraft/core'
 import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr'
-import { generateComponentFile, splitRoutes } from '@nordcraft/ssr'
+import {
+  generateComponentFile,
+  getPageComponentsData,
+  splitRoutes,
+} from '@nordcraft/ssr'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -70,4 +74,17 @@ Object.entries(files).forEach(([name, file]) => {
     resolvePath(`${distPath}/components/`, `${name.toLowerCase()}.js`),
     generateComponentFile(file),
   )
+  const pageComponent = file.components[name]
+  if (pageComponent && isPageComponent(pageComponent)) {
+    fs.writeFileSync(
+      resolvePath('../dist/assets/_static', `components_${name}.json`),
+      JSON.stringify(
+        getPageComponentsData({
+          page: pageComponent,
+          files: file,
+          projectId: project.project.short_id,
+        }),
+      ),
+    )
+  }
 })

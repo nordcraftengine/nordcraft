@@ -12,7 +12,6 @@ import { customElement } from './routes/customElement'
 import { favicon } from './routes/favicon'
 import { fontRouter } from './routes/font'
 import { manifest } from './routes/manifest'
-import { pageComponentsHandler } from './routes/pageComponents'
 import { pageHandler } from './routes/pageHandler'
 import { robots } from './routes/robots'
 import { routeHandler } from './routes/routeHandler'
@@ -24,6 +23,7 @@ export const getApp = <T extends Record<string, any>>(options: {
   staticRouter?: { path: string; handler: Handler }
   stylesheetRouter?: { path: string; handler: Handler }
   customCodeRouter?: { path: string; handler: Handler }
+  componentsRouter?: { path: string; handler: Handler }
   pageLoader: {
     loader: PageLoader
     urls: PageLoaderUrls
@@ -74,14 +74,6 @@ export const getApp = <T extends Record<string, any>>(options: {
   app.use(...options.fileLoaders)
 
   app.get(
-    '/.nordcraft/components/:pageName{.+.js}',
-    pageComponentsHandler({
-      pageLoader: options.pageLoader.loader,
-      urls: options.pageLoader.urls,
-      cacheBuster: options.cacheBuster,
-    }),
-  )
-  app.get(
     '/.toddle/custom-element/:filename{.+.js}',
     customElement(options.pageLoader.loader),
   )
@@ -91,6 +83,9 @@ export const getApp = <T extends Record<string, any>>(options: {
   }
   if (options.customCodeRouter) {
     app.get(options.customCodeRouter.path, options.customCodeRouter.handler)
+  }
+  if (options.componentsRouter) {
+    app.get(options.componentsRouter.path, options.componentsRouter.handler)
   }
 
   // Load a route if it matches the URL

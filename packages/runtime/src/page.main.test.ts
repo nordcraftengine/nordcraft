@@ -2,8 +2,16 @@
 import type { Component, ToddleInternals } from '@nordcraft/core'
 import { PAGE_STATE_SCRIPT_ID, THEME_DATA_ATTRIBUTE } from '@nordcraft/core'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import './happydom'
-import { createRoot, hydratePage, initGlobalObject } from './page.main'
+import {
+  createRoot,
+  hydrateFromDocument,
+  hydratePage,
+  initGlobalObject,
+} from './page.main'
 
 const setupToddleInternals = (
   component: Component,
@@ -1106,6 +1114,109 @@ describe('page.main', () => {
         hasAction: true,
         renderedText: 'fallback',
       })
+    })
+
+    test('hydrateFromDocument fetches components JSON and custom code module from script attributes', async () => {
+      const originalFetch = globalThis.fetch
+      const fetchedUrls: string[] = []
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nc-custom-code-'))
+      const customCodePath = path.join(tempDir, 'cc.mjs')
+      fs.writeFileSync(
+        customCodePath,
+        `
+        export const loadCustomCode = () => { globalThis.__customCodeCalled = true; };
+        export const formulas = { 'test-project': { f1: { name: 'f1', arguments: [], handler: () => 'v' } } };
+        export const actions = { 'test-project': { a1: { version: 2, name: 'a1', variableArguments: false, handler: () => {} } } };
+        `,
+      )
+
+      const stateScript = document.createElement('script')
+      stateScript.type = 'application/json'
+      stateScript.id = PAGE_STATE_SCRIPT_ID
+      stateScript.setAttribute(
+        'data-components-url',
+        '/_static/components_HomePage.json?v=sha-1',
+      )
+      stateScript.setAttribute('data-custom-code-url', customCodePath)
+      stateScript.textContent = JSON.stringify({
+        pageState: {
+          Attributes: {},
+          Variables: {},
+          Apis: {},
+        },
+        cookies: ['session'],
+      })
+      document.head.appendChild(stateScript)
+
+      const app = document.createElement('div')
+      app.id = 'App'
+      document.body.appendChild(app)
+
+      const pageComp: Component = {
+        name: 'HomePage',
+        page: '/',
+        nodes: {},
+        apis: {},
+        variables: {},
+        workflows: {},
+      }
+      const childComp: Component = {
+        name: 'ChildComp',
+        nodes: {},
+        apis: {},
+        variables: {},
+        workflows: {},
+      }
+
+      globalThis.fetch = (async (input: string | URL | Request) => {
+        fetchedUrls.push(String(input))
+        return new Response(
+          JSON.stringify({
+            project: 'test-project',
+            branch: 'main',
+            commit: 'sha-1',
+            component: pageComp,
+            components: [childComp],
+          }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+      }) as typeof fetch
+
+      try {
+        await hydrateFromDocument()
+        expect({
+          fetchedUrls,
+          customCodeCalled: (globalThis as { __customCodeCalled?: boolean })
+            .__customCodeCalled,
+          isPageLoaded: window.__toddle.isPageLoaded,
+          project: window.__toddle.project,
+          branch: window.__toddle.branch,
+          commit: window.__toddle.commit,
+          cookies: window.__toddle.cookies,
+          componentNames: window.__toddle.components.map((c) => c.name),
+          hasFormula: Boolean(window.toddle.getCustomFormula('f1', undefined)),
+          hasAction: Boolean(window.toddle.getCustomAction('a1', undefined)),
+        }).toEqual({
+          fetchedUrls: ['/_static/components_HomePage.json?v=sha-1'],
+          customCodeCalled: true,
+          isPageLoaded: true,
+          project: 'test-project',
+          branch: 'main',
+          commit: 'sha-1',
+          cookies: ['session'],
+          componentNames: ['HomePage', 'ChildComp'],
+          hasFormula: true,
+          hasAction: true,
+        })
+      } finally {
+        globalThis.fetch = originalFetch
+        fs.rmSync(tempDir, { recursive: true, force: true })
+        delete (globalThis as { __customCodeCalled?: boolean })
+          .__customCodeCalled
+      }
     })
   })
 })
