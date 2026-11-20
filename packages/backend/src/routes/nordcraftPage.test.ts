@@ -92,7 +92,7 @@ describe('nordcraftPage', () => {
     expect(res.headers.get('Content-Type')).toContain('text/html')
   })
 
-  it('serializes only per-request state in the HTML script tag and loads component structures separately', async () => {
+  it('serializes only per-request state in the HTML script tag and loads component JSON separately', async () => {
     spies.push(
       spyOn(
         ssrRenderingFormulaContext,
@@ -129,7 +129,8 @@ describe('nordcraftPage', () => {
         status: 200,
         options: {
           ...mockOptions,
-          pageComponentsUrl: (name: string) => `/custom-components/${name}.js`,
+          pageComponentsUrl: (name: string) =>
+            `/custom-components/${name}.json`,
         },
       })
     })
@@ -139,10 +140,12 @@ describe('nordcraftPage', () => {
     const htmlText = await res.text()
     const stateMatch = htmlText.match(
       new RegExp(
-        `<script type="application/json" id="${PAGE_STATE_SCRIPT_ID}">([\\s\\S]*?)</script>`,
+        `<script type="application/json" id="${PAGE_STATE_SCRIPT_ID}" data-components-url="([^"]*)" data-custom-code-url="([^"]*)">([\\s\\S]*?)</script>`,
       ),
     )
-    const rawState = stateMatch?.[1] ?? ''
+    const componentsUrlAttr = stateMatch?.[1] ?? ''
+    const customCodeUrlAttr = stateMatch?.[2] ?? ''
+    const rawState = stateMatch?.[3] ?? ''
     const parsedState = JSON.parse(rawState) as Pick<
       ToddleInternals,
       'pageState' | 'cookies'
@@ -150,29 +153,33 @@ describe('nordcraftPage', () => {
 
     expect({
       status: res.status,
+      componentsUrlAttr,
+      customCodeUrlAttr,
       hasEscapedScriptTag: rawState.includes('\\u003c/script>'),
       hasRawClosingScriptTag: rawState.includes('</script>'),
+      hasComponentsPreload: htmlText.includes(
+        '<link rel="preload" as="fetch" crossorigin="anonymous" href="/custom-components/test-page.json" />',
+      ),
       hasRuntimePreload: htmlText.includes(
         '<link rel="modulepreload" href="/_static/page.main.esm.js" />',
-      ),
-      hasComponentsPreload: htmlText.includes(
-        '<link rel="modulepreload" href="/custom-components/test-page.js" />',
       ),
       hasCustomCodePreload: htmlText.includes(
         '<link rel="modulepreload" href="/_static/cc_test-page.js" />',
       ),
-      hasComponentsModuleScript: htmlText.includes(
-        '<script type="module" src="/custom-components/test-page.js"></script>',
+      hasRuntimeModuleScript: htmlText.includes(
+        '<script type="module" src="/_static/page.main.esm.js"></script>',
       ),
       parsedState,
     }).toEqual({
       status: 200,
+      componentsUrlAttr: '/custom-components/test-page.json',
+      customCodeUrlAttr: '/_static/cc_test-page.js',
       hasEscapedScriptTag: true,
       hasRawClosingScriptTag: false,
-      hasRuntimePreload: true,
       hasComponentsPreload: true,
+      hasRuntimePreload: true,
       hasCustomCodePreload: true,
-      hasComponentsModuleScript: true,
+      hasRuntimeModuleScript: true,
       parsedState: {
         pageState: {
           Variables: { count: 2 },
@@ -189,7 +196,7 @@ describe('nordcraftPage', () => {
     })
   })
 
-  it('applies cacheBuster to stylesheet, component module, and custom code URLs', async () => {
+  it('applies cacheBuster to stylesheet, component JSON, and custom code URLs', async () => {
     const app = new Hono()
     app.use('*', timing())
     app.get('/test', (c) => {
@@ -216,22 +223,30 @@ describe('nordcraftPage', () => {
       hasPageStylesheetWithCacheBuster: htmlText.includes(
         'href="/_static/test-page.css?v=commit-sha-1"',
       ),
+      hasStateComponentsAttrWithCacheBuster: htmlText.includes(
+        'data-components-url="/_static/components_test-page.json?v=commit-sha-1"',
+      ),
+      hasStateCustomCodeAttrWithCacheBuster: htmlText.includes(
+        'data-custom-code-url="/_static/cc_test-page.js?v=commit-sha-1"',
+      ),
       hasComponentsPreloadWithCacheBuster: htmlText.includes(
-        '<link rel="modulepreload" href="/.nordcraft/components/test-page.js?v=commit-sha-1" />',
+        '<link rel="preload" as="fetch" crossorigin="anonymous" href="/_static/components_test-page.json?v=commit-sha-1" />',
       ),
       hasCustomCodePreloadWithCacheBuster: htmlText.includes(
         '<link rel="modulepreload" href="/_static/cc_test-page.js?v=commit-sha-1" />',
       ),
-      hasComponentsScriptWithCacheBuster: htmlText.includes(
-        '<script type="module" src="/.nordcraft/components/test-page.js?v=commit-sha-1"></script>',
+      hasRuntimeScript: htmlText.includes(
+        '<script type="module" src="/_static/page.main.esm.js"></script>',
       ),
     }).toEqual({
       status: 200,
       hasResetStylesheetWithCacheBuster: true,
       hasPageStylesheetWithCacheBuster: true,
+      hasStateComponentsAttrWithCacheBuster: true,
+      hasStateCustomCodeAttrWithCacheBuster: true,
       hasComponentsPreloadWithCacheBuster: true,
       hasCustomCodePreloadWithCacheBuster: true,
-      hasComponentsScriptWithCacheBuster: true,
+      hasRuntimeScript: true,
     })
   })
 })

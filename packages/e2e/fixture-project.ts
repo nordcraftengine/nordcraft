@@ -1,7 +1,15 @@
 import type { Component } from '@nordcraft/core/dist/index'
-import { RESET_STYLES, theme as defaultTheme } from '@nordcraft/core/dist/index'
+import {
+  theme as defaultTheme,
+  isPageComponent,
+  RESET_STYLES,
+} from '@nordcraft/core/dist/index'
 import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr/dist/index'
-import { generateComponentFile, splitRoutes } from '@nordcraft/ssr/dist/index'
+import {
+  generateComponentFile,
+  getPageComponentsData,
+  splitRoutes,
+} from '@nordcraft/ssr/dist/index'
 import fs from 'node:fs'
 import path from 'node:path'
 import { createCustomCode, loadFixtures } from './fixtures/loader'
@@ -173,14 +181,26 @@ export const writeFixtureProject = async (outputDir: string) => {
   writeJavaScriptFile(path.join(outputDir, 'project.js'), toModule(project))
   writeJavaScriptFile(path.join(outputDir, 'routes.js'), toModule(routes))
 
+  const staticDir = path.join(outputDir, 'assets/_static')
   for (const [name, file] of Object.entries(files)) {
     writeJavaScriptFile(
       path.join(outputDir, 'components', `${name.toLowerCase()}.js`),
       generateComponentFile(file),
     )
+    const pageComponent = file.components[name]
+    if (pageComponent && isPageComponent(pageComponent)) {
+      writeJavaScriptFile(
+        path.join(staticDir, `components_${name}.json`),
+        JSON.stringify(
+          getPageComponentsData({
+            page: pageComponent,
+            files: file,
+            projectId: project.project.short_id,
+          }),
+        ),
+      )
+    }
   }
-
-  const staticDir = path.join(outputDir, 'assets/_static')
   for (const [name, stylesheet] of Object.entries(styles)) {
     writeJavaScriptFile(path.join(staticDir, `${name}.css`), stylesheet)
   }

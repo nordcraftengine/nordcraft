@@ -386,6 +386,52 @@ export const hydratePage = ({
   createRoot(app)
 }
 
+interface CustomCodeModule {
+  loadCustomCode?: () => void
+  formulas?: Record<string, Record<string, PluginFormula<FormulaHandlerV2>>>
+  actions?: Record<string, Record<string, PluginActionV2>>
+}
+
+export const hydrateFromDocument = async () => {
+  const stateElement = document.getElementById(PAGE_STATE_SCRIPT_ID)
+  const componentsUrl = stateElement?.getAttribute('data-components-url')
+  if (!stateElement || !componentsUrl) {
+    return
+  }
+  const customCodeUrl = stateElement.getAttribute('data-custom-code-url')
+  const [componentsRes, customCode] = await Promise.all([
+    fetch(componentsUrl),
+    customCodeUrl
+      ? (import(customCodeUrl) as Promise<CustomCodeModule>)
+      : Promise.resolve<CustomCodeModule | undefined>(undefined),
+  ])
+  if (!componentsRes.ok) {
+    throw new Error(`Failed to load page components (${componentsRes.status})`)
+  }
+  const { project, branch, commit, component, components } =
+    (await componentsRes.json()) as Pick<
+      ToddleInternals,
+      'project' | 'branch' | 'commit' | 'component' | 'components'
+    >
+  hydratePage({
+    project,
+    branch,
+    commit,
+    component,
+    components,
+    formulas: customCode?.formulas,
+    actions: customCode?.actions,
+    loadCustomCode: customCode?.loadCustomCode,
+  })
+}
+
+if (IS_PAGE && typeof document !== 'undefined') {
+  hydrateFromDocument().catch((error) => {
+    // eslint-disable-next-line no-console
+    console.error('Failed to hydrate page', error)
+  })
+}
+
 function parseUrl(component: Component) {
   const path = window.location.pathname.split('/').slice(1)
   let params: Record<string, string | null> = {}

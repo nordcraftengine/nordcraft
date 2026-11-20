@@ -1,5 +1,6 @@
-import { type Component, type PageComponent } from '@nordcraft/core'
+import type { Component, PageComponent } from '@nordcraft/core'
 import type {
+  PageComponentsData,
   ProjectFilesWithCustomCode,
   Routes,
   ToddleProject,
@@ -7,7 +8,7 @@ import type {
 import { describe, expect, it } from 'bun:test'
 import { getConnInfo } from 'hono/bun'
 import { getApp } from '../app'
-import { pageComponentsUrl } from './pageComponents'
+import { pageComponentsHandler } from './pageComponents'
 
 const createPageComponent = (
   overrides?: Partial<PageComponent>,
@@ -80,18 +81,8 @@ const createRoutes = (): Routes => ({
   routes: {},
 })
 
-describe('pageComponents', () => {
-  it('builds encoded component module URLs', () => {
-    expect({
-      simple: pageComponentsUrl('HomePage'),
-      withSpaces: pageComponentsUrl('My Page'),
-    }).toEqual({
-      simple: '/.nordcraft/components/HomePage.js',
-      withSpaces: '/.nordcraft/components/My%20Page.js',
-    })
-  })
-
-  it('serves immutable 1-year cached JS module when ?v matches cacheBuster and includes cacheBuster on customCodeUrl', async () => {
+describe('pageComponentsHandler', () => {
+  it('serves JSON with resolved component structures and 1-year immutable cache when ?v matches cacheBuster', async () => {
     const page = createPageComponent()
     const child = createChildComponent()
     const files: ProjectFilesWithCustomCode = {
@@ -105,6 +96,13 @@ describe('pageComponents', () => {
     const app = getApp({
       getConnInfo,
       cacheBuster: 'commit-123',
+      componentsRouter: {
+        path: '/.toddle/components/:pageName{.+.json}',
+        handler: pageComponentsHandler({
+          pageLoader: ({ name }) => (name === 'HomePage' ? files : undefined),
+          cacheBuster: 'commit-123',
+        }),
+      },
       fileLoaders: [
         async (c, next) => {
           c.set('routes', createRoutes())
@@ -116,45 +114,48 @@ describe('pageComponents', () => {
       pageLoader: {
         loader: ({ name }) => (name === 'HomePage' ? files : undefined),
         urls: {
-          pageStylesheetUrl: (name) => `/_static/${name}.css`,
-          customCodeUrl: (name) => `/_static/cc_${name}.js`,
+          pageStylesheetUrl: (name) => `/.toddle/stylesheet/${name}.css`,
+          customCodeUrl: (name) => `/.toddle/custom-code/${name}.js`,
+          pageComponentsUrl: (name) => `/.toddle/components/${name}.json`,
         },
       },
     })
 
     const res = await app.request(
-      'http://localhost/.nordcraft/components/HomePage.js?v=commit-123',
+      'http://localhost/.toddle/components/HomePage.json?v=commit-123',
     )
-    const body = await res.text()
+    const json = (await res.json()) as PageComponentsData
 
+    const rootNode = json.component.nodes?.['root']
+    const childRootNode = json.components[0]?.nodes?.['root']
     expect({
       status: res.status,
       contentType: res.headers.get('content-type'),
       cacheControl: res.headers.get('cache-control'),
-      importsRuntime: body.includes(
-        "import { hydratePage } from '/_static/page.main.esm.js';",
-      ),
-      importsCustomCodeWithCacheBuster: body.includes(
-        "import { loadCustomCode, formulas, actions } from '/_static/cc_HomePage.js?v=commit-123';",
-      ),
-      callsHydratePageWithCustomCode: body.includes(
-        'hydratePage({\n  project: "test_project",\n  branch: "main",\n  commit: "unknown",\n  component,\n  components,\n  formulas,\n  actions,\n  loadCustomCode,\n});',
-      ),
-      containsChildComponent: body.includes('"name":"ChildButton"'),
-      resolvesStylesOut: !body.includes('"color":"red"'),
+      project: json.project,
+      branch: json.branch,
+      commit: json.commit,
+      rootName: json.component.name,
+      rootStyleCleared:
+        rootNode?.type === 'element' ? rootNode.style : 'not-element',
+      includedNames: json.components.map((c) => c.name),
+      childStyleCleared:
+        childRootNode?.type === 'element' ? childRootNode.style : 'not-element',
     }).toEqual({
       status: 200,
-      contentType: 'application/javascript',
+      contentType: 'application/json',
       cacheControl: 'public, max-age=31536000, immutable',
-      importsRuntime: true,
-      importsCustomCodeWithCacheBuster: true,
-      callsHydratePageWithCustomCode: true,
-      containsChildComponent: true,
-      resolvesStylesOut: true,
+      project: 'test_project',
+      branch: 'main',
+      commit: 'unknown',
+      rootName: 'HomePage',
+      rootStyleCleared: undefined,
+      includedNames: ['ChildButton'],
+      childStyleCleared: undefined,
     })
   })
 
-  it('serves no-cache when cacheBuster is omitted or ?v does not match, and omits custom code when customCode is false', async () => {
+  it('serves no-cache when cacheBuster is omitted or ?v does not match', async () => {
     const page = createPageComponent({ nodes: {} })
     const files: ProjectFilesWithCustomCode = {
       customCode: false,
@@ -165,6 +166,12 @@ describe('pageComponents', () => {
 
     const appWithoutCacheBuster = getApp({
       getConnInfo,
+      componentsRouter: {
+        path: '/.toddle/components/:pageName{.+.json}',
+        handler: pageComponentsHandler({
+          pageLoader: ({ name }) => (name === 'HomePage' ? files : undefined),
+        }),
+      },
       fileLoaders: [
         async (c, next) => {
           c.set('routes', createRoutes())
@@ -176,8 +183,9 @@ describe('pageComponents', () => {
       pageLoader: {
         loader: ({ name }) => (name === 'HomePage' ? files : undefined),
         urls: {
-          pageStylesheetUrl: (name) => `/_static/${name}.css`,
-          customCodeUrl: (name) => `/_static/cc_${name}.js`,
+          pageStylesheetUrl: (name) => `/.toddle/stylesheet/${name}.css`,
+          customCodeUrl: (name) => `/.toddle/custom-code/${name}.js`,
+          pageComponentsUrl: (name) => `/.toddle/components/${name}.json`,
         },
       },
     })
@@ -185,6 +193,13 @@ describe('pageComponents', () => {
     const appWithCacheBuster = getApp({
       getConnInfo,
       cacheBuster: 'commit-123',
+      componentsRouter: {
+        path: '/.toddle/components/:pageName{.+.json}',
+        handler: pageComponentsHandler({
+          pageLoader: ({ name }) => (name === 'HomePage' ? files : undefined),
+          cacheBuster: 'commit-123',
+        }),
+      },
       fileLoaders: [
         async (c, next) => {
           c.set('routes', createRoutes())
@@ -196,41 +211,35 @@ describe('pageComponents', () => {
       pageLoader: {
         loader: ({ name }) => (name === 'HomePage' ? files : undefined),
         urls: {
-          pageStylesheetUrl: (name) => `/_static/${name}.css`,
-          customCodeUrl: (name) => `/_static/cc_${name}.js`,
+          pageStylesheetUrl: (name) => `/.toddle/stylesheet/${name}.css`,
+          customCodeUrl: (name) => `/.toddle/custom-code/${name}.js`,
+          pageComponentsUrl: (name) => `/.toddle/components/${name}.json`,
         },
       },
     })
 
     const [noBusterRes, missingParamRes, staleParamRes] = await Promise.all([
       appWithoutCacheBuster.request(
-        'http://localhost/.nordcraft/components/HomePage.js',
+        'http://localhost/.toddle/components/HomePage.json',
       ),
       appWithCacheBuster.request(
-        'http://localhost/.nordcraft/components/HomePage.js',
+        'http://localhost/.toddle/components/HomePage.json',
       ),
       appWithCacheBuster.request(
-        'http://localhost/.nordcraft/components/HomePage.js?v=old-commit',
+        'http://localhost/.toddle/components/HomePage.json?v=old-commit',
       ),
     ])
-    const body = await noBusterRes.text()
 
     expect({
       noBusterStatus: noBusterRes.status,
       noBusterCacheControl: noBusterRes.headers.get('cache-control'),
       missingParamCacheControl: missingParamRes.headers.get('cache-control'),
       staleParamCacheControl: staleParamRes.headers.get('cache-control'),
-      callsHydratePageWithoutCustomCode: body.includes(
-        'hydratePage({\n  project: "test_project",\n  branch: "main",\n  commit: "unknown",\n  component,\n  components,\n});',
-      ),
-      hasLoadCustomCode: body.includes('loadCustomCode'),
     }).toEqual({
       noBusterStatus: 200,
       noBusterCacheControl: 'no-cache',
       missingParamCacheControl: 'no-cache',
       staleParamCacheControl: 'no-cache',
-      callsHydratePageWithoutCustomCode: true,
-      hasLoadCustomCode: false,
     })
   })
 
@@ -245,6 +254,13 @@ describe('pageComponents', () => {
 
     const app = getApp({
       getConnInfo,
+      componentsRouter: {
+        path: '/.toddle/components/:pageName{.+.json}',
+        handler: pageComponentsHandler({
+          pageLoader: ({ name }) =>
+            name === 'ChildButton' ? files : undefined,
+        }),
+      },
       fileLoaders: [
         async (c, next) => {
           c.set('routes', createRoutes())
@@ -256,15 +272,16 @@ describe('pageComponents', () => {
       pageLoader: {
         loader: ({ name }) => (name === 'ChildButton' ? files : undefined),
         urls: {
-          pageStylesheetUrl: (name) => `/_static/${name}.css`,
-          customCodeUrl: (name) => `/_static/cc_${name}.js`,
+          pageStylesheetUrl: (name) => `/.toddle/stylesheet/${name}.css`,
+          customCodeUrl: (name) => `/.toddle/custom-code/${name}.js`,
+          pageComponentsUrl: (name) => `/.toddle/components/${name}.json`,
         },
       },
     })
 
     const [missingRes, nonPageRes] = await Promise.all([
-      app.request('http://localhost/.nordcraft/components/MissingPage.js'),
-      app.request('http://localhost/.nordcraft/components/ChildButton.js'),
+      app.request('http://localhost/.toddle/components/MissingPage.json'),
+      app.request('http://localhost/.toddle/components/ChildButton.json'),
     ])
 
     expect({

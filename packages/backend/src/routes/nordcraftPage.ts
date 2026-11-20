@@ -13,6 +13,7 @@ import type {
   ToddleProject,
 } from '@nordcraft/ssr'
 import {
+  escapeAttrValue,
   evaluateResponseHeaders,
   getCharset,
   getHeadItems,
@@ -34,7 +35,6 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
 import type { PageLoaderUrls } from '../loaders/types'
 import { evaluateComponentApis, RedirectError } from '../utils/api'
-import { pageComponentsUrl } from './pageComponents'
 
 export const nordcraftPage = async ({
   hono,
@@ -173,22 +173,34 @@ export const nordcraftPage = async ({
     .join(' ')
 
   const componentsUrl = urlWithCacheBuster(
-    options.pageComponentsUrl?.(page.name) ?? pageComponentsUrl(page.name),
+    options.pageComponentsUrl?.(page.name) ??
+      `/_static/components_${page.name}.json`,
     cacheBuster,
   )
   const customCodeUrl = usesCustomCode
     ? urlWithCacheBuster(options.customCodeUrl(page.name), cacheBuster)
     : undefined
-  const additionalHeadScripts = [
-    `<script type="application/json" id="${PAGE_STATE_SCRIPT_ID}">${serializedState}</script>`,
-    `<link rel="modulepreload" href="/_static/page.main.esm.js" />`,
-    // Tell the browser to start fetching the cached component structures as early as possible
-    `<link rel="modulepreload" href="${componentsUrl}" />`,
+  const stateAttributes = [
+    `type="application/json"`,
+    `id="${PAGE_STATE_SCRIPT_ID}"`,
+    `data-components-url="${escapeAttrValue(componentsUrl)}"`,
     ...(typeof customCodeUrl === 'string'
-      ? // Tell the browser to start fetching custom code for the page as early as possible
-        [`<link rel="modulepreload" href="${customCodeUrl}" />`]
+      ? [`data-custom-code-url="${escapeAttrValue(customCodeUrl)}"`]
       : []),
-    `<script type="module" src="${componentsUrl}"></script>`,
+  ].join(' ')
+  const additionalHeadScripts = [
+    `<script ${stateAttributes}>${serializedState}</script>`,
+    // Tell the browser to start fetching the cached component structures as early as possible
+    `<link rel="preload" as="fetch" crossorigin="anonymous" href="${escapeAttrValue(componentsUrl)}" />`,
+    // Tell the browser to start fetching the runtime as early as possible
+    `<link rel="modulepreload" href="/_static/page.main.esm.js" />`,
+    ...(typeof customCodeUrl === 'string'
+      ? // Tell the browser to start fetching custom code for the page as early as possible (if needed)
+        [
+          `<link rel="modulepreload" href="${escapeAttrValue(customCodeUrl)}" />`,
+        ]
+      : []),
+    `<script type="module" src="/_static/page.main.esm.js"></script>`,
   ]
 
   head = `${head}\n${additionalHeadScripts.join('\n')}`

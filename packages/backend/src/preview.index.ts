@@ -5,6 +5,7 @@ import { getConnInfo } from 'hono/cloudflare-workers'
 import { createMiddleware } from 'hono/factory'
 import type { HonoProject, HonoRoutes, PreviewHonoEnv } from '../hono'
 import { getApp } from './app'
+import { pageComponentsHandler } from './routes/pageComponents'
 import { customCode } from './routes/preview.customCode'
 import { stylesheetHandler } from './routes/preview.stylesheet'
 
@@ -71,6 +72,12 @@ const app = getApp({
     path: '/.toddle/custom-code/:pageName{.+.js}',
     handler: customCode,
   },
+  componentsRouter: {
+    path: '/.toddle/components/:pageName{.+.json}',
+    handler: pageComponentsHandler({
+      pageLoader: ({ ctx }) => ({ customCode: true, ...ctx.get('files') }),
+    }),
+  },
   pageLoader: {
     loader: ({ ctx }) => {
       return { customCode: true, ...ctx.get('files') }
@@ -78,6 +85,7 @@ const app = getApp({
     urls: {
       pageStylesheetUrl: (name: string) => `/.toddle/stylesheet/${name}.css`,
       customCodeUrl: (name: string) => `/.toddle/custom-code/${name}.js`,
+      pageComponentsUrl: (name: string) => `/.toddle/components/${name}.json`,
     },
   },
   fileLoaders: [

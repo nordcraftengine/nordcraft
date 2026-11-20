@@ -37,7 +37,7 @@ app.use('*', timing())
 app.get('/health', (c) => c.text('ok'))
 
 // Page components handler from backend package
-app.get('/.nordcraft/components/:pageName{.+.js}', (c, next) => {
+app.get('/.nordcraft/components/:pageName{.+.json}', (c, next) => {
   const fixtureName = c.req.query('fixture')
   const fixture = fixtureName ? fixtures.get(fixtureName) : undefined
   if (!fixture || !fixtureName) {
@@ -63,11 +63,6 @@ app.get('/.nordcraft/components/:pageName{.+.js}', (c, next) => {
         ),
         customCode: usesCustomCode,
       }) as any,
-    urls: {
-      pageStylesheetUrl: (name) => `/_static/${name}.css`,
-      customCodeUrl: () =>
-        `/_custom_code/${encodeURIComponent(fixtureName)}.js`,
-    },
   })(c as any, next)
 })
 
@@ -126,7 +121,7 @@ app.get('/', async (c) => {
       pageStylesheetUrl: (name) => `/_static/${name}.css`,
       customCodeUrl: () => `/_custom_code/${fixtureName}.js`,
       pageComponentsUrl: (name) =>
-        `/.nordcraft/components/${encodeURIComponent(name)}.js?fixture=${encodeURIComponent(fixtureName)}`,
+        `/.nordcraft/components/${encodeURIComponent(name)}.json?fixture=${encodeURIComponent(fixtureName)}`,
     },
   })
 })
