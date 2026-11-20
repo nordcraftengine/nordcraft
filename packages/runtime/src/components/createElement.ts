@@ -184,7 +184,7 @@ export function createElement({
   // class names are baked during preprocessing, except for in editor-preview where we generate them on the fly
   // Check the per-node cache first to avoid the `variants.some(...)` closure
   // + JSON.stringify on every repeat instance (200x per list).
-  let initialClass = ''
+  let initialClasses = ''
   if (!claimed) {
     let cachedClass = classNameByNode.get(node)
     if (cachedClass === undefined) {
@@ -194,7 +194,7 @@ export function createElement({
           : ''
       classNameByNode.set(node, cachedClass)
     }
-    initialClass = cachedClass
+    initialClasses = cachedClass
   }
 
   let hasDynamicCustomProperties = false
@@ -202,7 +202,7 @@ export function createElement({
     for (const key in instance) {
       if (!claimed) {
         const cls = toValidClassName(`${key}:${instance[key]}`)
-        initialClass = initialClass ? `${initialClass} ${cls}` : cls
+        initialClasses = initialClasses ? `${initialClasses} ${cls}` : cls
       }
       // TODO: We should forward info on whether the instance has dynamic custom properties, but for now we assume that if the instance has any custom properties, they are dynamic.
       hasDynamicCustomProperties = true
@@ -261,10 +261,10 @@ export function createElement({
 
   if (!claimed && path && hasDynamicCustomProperties) {
     const cls = getPathClassName(path)
-    initialClass = initialClass ? `${initialClass} ${cls}` : cls
+    initialClasses = initialClasses ? `${initialClasses} ${cls}` : cls
   }
-  if (!claimed && initialClass) {
-    elem.setAttribute('class', initialClass)
+  if (!claimed && initialClasses) {
+    elem.setAttribute('class', initialClasses)
   }
   if (node.classes) {
     for (const className in node.classes) {

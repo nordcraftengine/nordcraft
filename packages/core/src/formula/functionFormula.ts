@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import '../compileTime'
 import type { ComponentData } from '../component/component.types'
+import { BUILTIN_PREFIX } from '../const'
 import type { FormulaHandler, Toddle } from '../types'
 import { isDefined } from '../utils/util'
 import {
@@ -22,7 +23,7 @@ export const applyFunctionFormula = (
   const toddle =
     ctx.toddle ??
     ((globalThis as any).toddle as Toddle<unknown, unknown> | undefined)
-  const isBuiltinFormula = formula.name.startsWith('@toddle/')
+  const isBuiltinFormula = formula.name.startsWith(BUILTIN_PREFIX)
   const newFunc = isBuiltinFormula
     ? undefined
     : toddle?.getCustomFormula(formula.name, packageName)
@@ -115,7 +116,7 @@ export const applyFunctionFormula = (
       try {
         return legacyFunc(
           args,
-          // Build in formulas does not require data, but legacy custom formulas do
+          // Built-in formulas do not require data, but legacy custom formulas do
           (isBuiltinFormula ? activeCtx : { ...activeCtx, data }) as any,
         )
       } catch (e) {

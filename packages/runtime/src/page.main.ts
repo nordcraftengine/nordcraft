@@ -14,6 +14,7 @@ import type {
 } from '@nordcraft/core'
 import {
   applyFormula,
+  BUILTIN_PREFIX,
   filterObject,
   isDefined,
   isLegacyApi,
@@ -133,7 +134,7 @@ export const initGlobalObject = (code?: {
   for (const name in libFormulas) {
     const module = libFormulas[name as keyof typeof libFormulas]
     window.toddle.registerFormula(
-      '@toddle/' + name,
+      BUILTIN_PREFIX + name,
       module.default as FormulaHandler,
       'getArgumentInputData' in module
         ? module.getArgumentInputData
@@ -142,7 +143,7 @@ export const initGlobalObject = (code?: {
   }
   for (const name in libActions) {
     const module = libActions[name as keyof typeof libActions]
-    window.toddle.registerAction('@toddle/' + name, module.default)
+    window.toddle.registerAction(BUILTIN_PREFIX + name, module.default)
   }
 }
 
