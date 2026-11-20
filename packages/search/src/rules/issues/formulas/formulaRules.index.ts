@@ -1,5 +1,7 @@
 import { duplicateFormulaArgumentNameRule } from './duplicateFormulaArgumentNameRule'
+import { invalidComponentFormulaReferenceRule } from './invalidComponentFormulaReferenceRule'
 import { invalidPathRule } from './invalidPathRule'
+import { invalidProjectFormulaReferenceRule } from './invalidProjectFormulaReferenceRule'
 import { legacyFormulaRule } from './legacyFormulaRule'
 import { namedComponentFormulaRule } from './namedComponentFormulaRule'
 import { noReferenceComponentFormulaRule } from './noReferenceComponentFormulaRule'
@@ -8,7 +10,9 @@ import { workflowParameterOutsideWorkflowRule } from './workflowParameterOutside
 
 export default [
   duplicateFormulaArgumentNameRule,
+  invalidComponentFormulaReferenceRule,
   invalidPathRule,
+  invalidProjectFormulaReferenceRule,
   legacyFormulaRule,
   namedComponentFormulaRule,
   noReferenceComponentFormulaRule,
