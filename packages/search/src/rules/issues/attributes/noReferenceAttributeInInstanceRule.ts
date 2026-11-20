@@ -1,5 +1,5 @@
+import { contextlessEvaluateFormula } from '@nordcraft/core'
 import type { ComponentAttributeNode, IssueRule } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 import { removeFromPathFix } from '../../../util/removeUnused.fix'
 import { componentIsReferenced } from '../components/componentIsReferenced.memo'
 
@@ -15,8 +15,11 @@ export const noReferenceAttributeInInstanceRule: IssueRule<
     if (
       (state?.projectDetails?.type === 'package' &&
         args.component.exported === true) ||
-      contextlessEvaluateFormula(args.component.customElement?.enabled)
-        .result === true
+      contextlessEvaluateFormula(args.component.customElement?.enabled, {
+        component: args.files.components[args.component.name],
+        formulas: args.files.formulas,
+        packages: args.files.packages,
+      }).result === true
     ) {
       return
     }

@@ -1,5 +1,5 @@
+import { contextlessEvaluateFormula } from '@nordcraft/core'
 import type { FormulaNode, IssueRule } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 // Formula switches are if/else (single case + default), even though the
 // data structure technically allows multiple cases.
@@ -14,20 +14,26 @@ export const noUnreachableSwitchCaseRule: IssueRule<
   level: 'warning',
   category: 'Quality',
   nodeTypes: 'formula',
-  visit: (report, { nodeType, path, value }) => {
+  visit: (report, { nodeType, path, value, files }) => {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (nodeType !== 'formula' || value.type !== 'switch') {
       return
     }
     const cases = value.cases ?? []
 
+    const component =
+      path[0] === 'components' ? files.components[path[1] as string] : undefined
     // Standard if/else: a single case (then) + default (else)
     if (cases.length === 1) {
       const c = cases[0]
       if (!c) {
         return
       }
-      const { isStatic, result } = contextlessEvaluateFormula(c.condition)
+      const { isStatic, result } = contextlessEvaluateFormula(c.condition, {
+        component,
+        formulas: files.formulas,
+        packages: files.packages,
+      })
       if (!isStatic) {
         return
       }
@@ -72,7 +78,11 @@ export const noUnreachableSwitchCaseRule: IssueRule<
         })
         continue
       }
-      const { isStatic, result } = contextlessEvaluateFormula(c.condition)
+      const { isStatic, result } = contextlessEvaluateFormula(c.condition, {
+        component,
+        formulas: files.formulas,
+        packages: files.packages,
+      })
       if (isStatic && Boolean(result) === true) {
         alwaysTrueIndex = i
       }
