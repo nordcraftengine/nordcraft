@@ -36,7 +36,10 @@ export class Signal<T> {
     this.set(f(this.value), options)
   }
   subscribe(notify: (value: T) => void, config?: { destroy?: () => void }) {
-    const subscriber = { notify, destroy: config?.destroy }
+    // Use var to avoid V8 TDZ hole checks on this closed-over hot-path variable;
+    // initialized before the returned unsubscribe closure is created.
+    // eslint-disable-next-line no-var
+    var subscriber = { notify, destroy: config?.destroy }
     this.subscribers.add(subscriber)
     notify(this.value)
     return () => {
@@ -67,8 +70,12 @@ export class Signal<T> {
     this.subscribers.clear()
   }
   map<T2>(f: (value: T) => T2): Signal<T2> {
-    const signal2 = signal(f(this.value))
-    const subscriber = {
+    // Use var to avoid V8 TDZ hole checks on closed-over hot-path variables;
+    // both are initialized before any subscriber/cleanup closure is created.
+    // eslint-disable-next-line no-var
+    var signal2 = signal(f(this.value))
+    // eslint-disable-next-line no-var
+    var subscriber = {
       notify: (value: T) => signal2.set(f(value)),
       destroy: () => signal2.destroy(),
     }
