@@ -3,6 +3,7 @@
 import { RESET_STYLES } from '@nordcraft/core'
 import type { ProjectFiles, ToddleProject } from '@nordcraft/ssr'
 import { generateComponentFile, splitRoutes } from '@nordcraft/ssr'
+import esbuild from 'esbuild'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -37,7 +38,14 @@ fs.mkdirSync(staticDir, { recursive: true })
   const destination = resolvePath('../dist/assets/_static', f)
   fs.copyFileSync(source, destination)
 })
-fs.writeFileSync(resolvePath('../dist/assets/_static/reset.css'), RESET_STYLES)
+const resetCss = await esbuild.transform(RESET_STYLES, {
+  loader: 'css',
+  minify: true,
+})
+fs.writeFileSync(
+  resolvePath('../dist/assets/_static/reset.css'),
+  resetCss.code,
+)
 
 // Read the project.json file and split it into routes and files
 const projectFile = fs.readFileSync(resolvePath('../__project__/project.json'))
@@ -51,15 +59,34 @@ const { project, routes, files, styles, code } = splitRoutes({
   project: json.project,
 })
 // Create a stylesheet for each component
-Object.entries(styles).forEach(([name, style]) => {
-  const styleDestination = resolvePath('../dist/assets/_static', `${name}.css`)
-  fs.writeFileSync(styleDestination, style)
-})
+await Promise.all(
+  Object.entries(styles).map(async ([name, style]) => {
+    const styleDestination = resolvePath(
+      '../dist/assets/_static',
+      `${name}.css`,
+    )
+    const minified = await esbuild.transform(style, {
+      loader: 'css',
+      minify: true,
+    })
+    fs.writeFileSync(styleDestination, minified.code)
+  }),
+)
 // Create a js file with custom code for each component
-Object.entries(code).forEach(([name, c]) => {
-  const ccDestination = resolvePath('../dist/assets/_static', `cc_${name}.js`)
-  fs.writeFileSync(ccDestination, c)
-})
+await Promise.all(
+  Object.entries(code).map(async ([name, c]) => {
+    const ccDestination = resolvePath(
+      '../dist/assets/_static',
+      `cc_${name}.js`,
+    )
+    const minified = await esbuild.transform(c, {
+      loader: 'js',
+      minify: true,
+    })
+    fs.writeFileSync(ccDestination, minified.code)
+  }),
+)
+await esbuild.stop()
 // Serving dynamic assets as ESModule is slightly faster than JSON
 const jsiFy = (obj: any) => `export default ${JSON.stringify(obj)}`
 fs.writeFileSync(resolvePath(`${distPath}/project.js`), jsiFy(project))
