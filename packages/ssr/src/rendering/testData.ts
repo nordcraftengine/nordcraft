@@ -271,12 +271,70 @@ export const removeComponentTestData = (component: Component): Component =>
 
 export const removeProjectTestData = (files: ProjectFiles): ProjectFiles => {
   const packages = treeShakePackages(files)
+  const cleanPluginFormulas = (
+    formulas: ProjectFiles['formulas'],
+  ): ProjectFiles['formulas'] =>
+    formulas
+      ? mapObject(formulas, ([key, formula]) => [
+          key,
+          formula
+            ? {
+                ...omitKeys(formula as unknown as Record<string, unknown>, [
+                  'description',
+                  'handlerRaw',
+                ]),
+                ...(Array.isArray(formula.arguments)
+                  ? {
+                      arguments: formula.arguments.map((arg) =>
+                        omitKeys(arg as Record<string, unknown>, [
+                          'description',
+                          'testValue',
+                        ]),
+                      ),
+                    }
+                  : {}),
+              }
+            : formula,
+        ]) as ProjectFiles['formulas']
+      : formulas
+
+  const cleanPluginActions = (
+    actions: ProjectFiles['actions'],
+  ): ProjectFiles['actions'] =>
+    actions
+      ? mapObject(actions, ([key, action]) => [
+          key,
+          action
+            ? {
+                ...omitKeys(action as unknown as Record<string, unknown>, [
+                  'description',
+                  'handlerRaw',
+                ]),
+                ...(Array.isArray(action.arguments)
+                  ? {
+                      arguments: action.arguments.map((arg) =>
+                        omitKeys(arg as Record<string, unknown>, [
+                          'description',
+                          'testValue',
+                        ]),
+                      ),
+                    }
+                  : {}),
+              }
+            : action,
+        ]) as ProjectFiles['actions']
+      : actions
+
   return {
     ...files,
     components: mapObject(files.components ?? {}, ([key, comp]) => [
       key,
       comp ? removeComponentTestData(comp) : comp,
     ]),
+    ...(files.formulas
+      ? { formulas: cleanPluginFormulas(files.formulas) }
+      : {}),
+    ...(files.actions ? { actions: cleanPluginActions(files.actions) } : {}),
     ...(packages
       ? {
           packages: mapObject(packages, ([pkgName, pkg]) => [
@@ -288,6 +346,12 @@ export const removeProjectTestData = (files: ProjectFiles): ProjectFiles => {
                     ck,
                     cv ? removeComponentTestData(cv) : cv,
                   ]),
+                  ...(pkg.formulas
+                    ? { formulas: cleanPluginFormulas(pkg.formulas) }
+                    : {}),
+                  ...(pkg.actions
+                    ? { actions: cleanPluginActions(pkg.actions) }
+                    : {}),
                 }
               : pkg,
           ]),
@@ -312,15 +376,17 @@ const cleanNode = (node: NodeModel): NodeModel => {
     case 'element': {
       const updatedNode: NodeModel = {
         ...node,
-        events: mapObject(node.events ?? {}, ([eventKey, eventValue]) => [
-          eventKey,
-          eventValue
-            ? {
-                ...eventValue,
-                actions: eventValue.actions?.map(removeActionTestData),
-              }
-            : null,
-        ]),
+        events: node.events
+          ? mapObject(node.events, ([eventKey, eventValue]) => [
+              eventKey,
+              eventValue
+                ? {
+                    ...eventValue,
+                    actions: eventValue.actions?.map(removeActionTestData),
+                  }
+                : null,
+            ])
+          : undefined,
         condition: node.condition
           ? removeFormulaTestData(node.condition)
           : undefined,
@@ -399,15 +465,17 @@ const cleanNode = (node: NodeModel): NodeModel => {
     case 'component': {
       const updatedNode: NodeModel = {
         ...node,
-        events: mapObject(node.events ?? {}, ([eventKey, eventValue]) => [
-          eventKey,
-          eventValue
-            ? {
-                ...eventValue,
-                actions: eventValue.actions?.map(removeActionTestData),
-              }
-            : null,
-        ]),
+        events: node.events
+          ? mapObject(node.events, ([eventKey, eventValue]) => [
+              eventKey,
+              eventValue
+                ? {
+                    ...eventValue,
+                    actions: eventValue.actions?.map(removeActionTestData),
+                  }
+                : null,
+            ])
+          : undefined,
         condition: node.condition
           ? removeFormulaTestData(node.condition)
           : undefined,
@@ -744,10 +812,7 @@ export const removeFormulaTestData = (_formula: Formula): Formula => {
         ...formula,
         ...(formula.arguments
           ? {
-              arguments: formula.arguments.map((arg) => ({
-                ...arg,
-                formula: removeFormulaTestData(arg.formula),
-              })),
+              arguments: formula.arguments.map(cleanFunctionArgument),
             }
           : {}),
       }
