@@ -15,6 +15,17 @@ import {
 import { postMessageToEditor } from './postMessageToEditor'
 import type { EditorMode } from './types'
 
+export const getElementsFromPoint = (x: number, y: number): Element[] => {
+  const style = document.createElement('style')
+  style.textContent = `[${DATA_ATTR_ID}] { pointer-events: auto !important; }`
+  document.head.appendChild(style)
+  try {
+    return document.elementsFromPoint(x, y)
+  } finally {
+    style.remove()
+  }
+}
+
 export const handleCanvasPointerEvent = (options: {
   event: {
     x: number
@@ -46,7 +57,7 @@ export const handleCanvasPointerEvent = (options: {
 
   const { x, y, type } = event
   const isMeta = Boolean(event.metaKey ?? metaKey)
-  const elementsAtPoint = document.elementsFromPoint(x, y)
+  const elementsAtPoint = getElementsFromPoint(x, y)
   const isSelectable = (elem: Element): boolean => {
     const id = elem.getAttribute(DATA_ATTR_ID)
     if (
@@ -143,7 +154,7 @@ export const handleCanvasPointerEvent = (options: {
       selectedNode?.getAttribute(DATA_ATTR_NODE_TYPE) === DATA_NODE_TYPE_TEXT
     const cursorInsideSelectedElement =
       selectedNode instanceof HTMLElement &&
-      selectedNode.contains(document.elementFromPoint(x, y))
+      selectedNode.contains(elementsAtPoint[0] ?? null)
     if (selectedNodeIsText && cursorInsideSelectedElement) {
       if (highlightedNodeId !== null) {
         postMessageToEditor({
