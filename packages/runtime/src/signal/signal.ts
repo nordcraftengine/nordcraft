@@ -57,7 +57,7 @@ export class Signal<T> {
     for (const subscription of this.subscriptions) {
       subscription()
     }
-    this.subscriptions.splice(0, this.subscriptions.length)
+    this.subscriptions.length = 0
     this.destroying = false
   }
   cleanSubscribers() {
@@ -78,7 +78,53 @@ export class Signal<T> {
     })
     return signal2
   }
+  /**
+   * Creates a child signal that forwards updates from this signal without
+   * re-running deep equality checks, useful for scoped lifecycle cleanup
+   * (e.g. conditional branches and slots).
+   */
+  fork(): Signal<T> {
+    const signal2 = signal(this.value)
+    const subscriber = {
+      notify: (value: T) => signal2.set(value, FORCE_UPDATE),
+      destroy: () => signal2.destroy(),
+    }
+    this.subscribers.add(subscriber)
+    signal2.subscriptions.push(() => {
+      this.subscribers.delete(subscriber)
+    })
+    return signal2
+  }
+  /**
+   * Subscribes to a mapped version of the signal, only notifying when the mapped value changes.
+   * This is more efficient than a map and then subscribing to the mapped signal as it skips an
+   * intermediate signal and only notifies when the mapped value actually changes.
+   */
+  subscribeMap<T2>(
+    f: (value: T) => T2,
+    notify: (value: T2) => void,
+    config?: { destroy?: () => void },
+  ) {
+    let prev = f(this.value)
+    const subscriber = {
+      notify: (value: T) => {
+        const next = f(value)
+        if (fastDeepEqual(next, prev) === false) {
+          prev = next
+          notify(next)
+        }
+      },
+      destroy: config?.destroy,
+    }
+    this.subscribers.add(subscriber)
+    notify(prev)
+    return () => {
+      this.subscribers.delete(subscriber)
+    }
+  }
 }
+
+export const FORCE_UPDATE = { force: true }
 
 export function signal<T>(value: T) {
   return new Signal(value)

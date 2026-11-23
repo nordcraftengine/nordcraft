@@ -70,34 +70,37 @@ export const getNextSiblingElement = (
   parentElement: Element | ShadowRoot,
   ignoreRepeat = false,
 ) => {
-  const lastDot = path.lastIndexOf('.')
-  const lastPathPart = lastDot === -1 ? path : path.slice(lastDot + 1)
-  const parenIndex = lastPathPart.indexOf('(')
-  const index =
-    parenIndex === -1
-      ? parseInt(lastPathPart, 10)
-      : parseInt(lastPathPart.slice(0, parenIndex), 10)
-  const repeatIndex =
-    ignoreRepeat || parenIndex === -1
-      ? 0
-      : parseInt(lastPathPart.slice(parenIndex + 1), 10)
-
+  const segmentStart = path.lastIndexOf('.') + 1
+  const lastPathPart = segmentStart === 0 ? path : path.slice(segmentStart)
+  const index = parseInt(lastPathPart, 10)
   const children = parentElement.children
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i]!
-    const childPath = child.getAttribute('data-id')
-    if (childPath === null) {
-      continue
+  if (ignoreRepeat) {
+    let nextSibling: Element | null = null
+    for (let i = children.length - 1; i >= 0; i--) {
+      const child = children[i]
+      const childPath = child.getAttribute('data-id')
+      if (childPath === null) continue
+      const childIndex = parseInt(childPath.slice(segmentStart), 10)
+      if (childIndex > index) {
+        nextSibling = child
+      } else if (childIndex <= index) {
+        break
+      }
     }
-    const childLastDot = childPath.lastIndexOf('.')
-    const lastChildPathPart =
-      childLastDot === -1 ? childPath : childPath.slice(childLastDot + 1)
-    const childParenIndex = lastChildPathPart.indexOf('(')
-    const childIndex =
-      childParenIndex === -1
-        ? parseInt(lastChildPathPart, 10)
-        : parseInt(lastChildPathPart.slice(0, childParenIndex), 10)
-    if (!ignoreRepeat && childIndex === index) {
+    return nextSibling
+  }
+  const parenIndex = lastPathPart.indexOf('(')
+  const repeatIndex =
+    parenIndex === -1 ? 0 : parseInt(lastPathPart.slice(parenIndex + 1), 10)
+
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+    const childPath = child.getAttribute('data-id')
+    if (childPath === null) continue
+    const lastChildPathPart = childPath.slice(segmentStart)
+    const childIndex = parseInt(lastChildPathPart, 10)
+    if (childIndex === index) {
+      const childParenIndex = lastChildPathPart.indexOf('(')
       const childRepeatIndex =
         childParenIndex === -1
           ? 0

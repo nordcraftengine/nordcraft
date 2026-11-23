@@ -15,6 +15,7 @@ import {
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { isContextApiV2 } from '../api/apiUtils'
+import { FORCE_UPDATE } from '../signal/signal'
 import type { ComponentContext, Location } from '../types'
 import { getLocationUrl } from '../utils/url'
 
@@ -69,19 +70,16 @@ export function handleAction(
           break
         }
 
-        ctx.dataSignal.update(
-          (data) => {
-            return {
-              ...data,
-              Variables: {
-                ...data.Variables,
-                [action.variable]: value,
-              },
-            }
-          },
+        const currentData = ctx.dataSignal.value
+        ctx.dataSignal.set(
           {
-            force: true,
+            ...currentData,
+            Variables: {
+              ...currentData.Variables,
+              [action.variable]: value,
+            },
           },
+          FORCE_UPDATE,
         )
         break
       }
@@ -172,7 +170,7 @@ export function handleAction(
             window.history.replaceState({}, '', historyUrl)
           }
         }
-        ctx.toddle.locationSignal.set(newLocation, { force: true })
+        ctx.toddle.locationSignal.set(newLocation, FORCE_UPDATE)
         break
       }
       case 'SetURLParameters': {
@@ -255,7 +253,7 @@ export function handleAction(
             window.history.replaceState({}, '', historyUrl)
           }
         }
-        ctx.toddle.locationSignal.set(newLocation, { force: true })
+        ctx.toddle.locationSignal.set(newLocation, FORCE_UPDATE)
         break
       }
       case 'Fetch': {
@@ -350,10 +348,11 @@ export function handleAction(
         )
         const callbacks = action.callbacks
         if (action.contextProvider) {
+          const providerKey = isDefined(ctx.package)
+            ? `${ctx.package}/${action.contextProvider}`
+            : action.contextProvider
           const provider =
-            ctx.providers[
-              [ctx.package, action.contextProvider].filter(isDefined).join('/')
-            ] ?? ctx.providers[action.contextProvider]
+            ctx.providers[providerKey] ?? ctx.providers[action.contextProvider]
           const workflow = provider?.component.workflows?.[action.workflow]
           if (!workflow) {
             if (provider) {
@@ -375,8 +374,7 @@ export function handleAction(
               provider.ctx,
               event,
               (callbackName, callbackData) => {
-                const callback = callbacks?.[callbackName]
-                callback?.actions?.forEach(
+                callbacks?.[callbackName]?.actions?.forEach(
                   (action) =>
                     action &&
                     handleAction(
@@ -417,8 +415,7 @@ export function handleAction(
             ctx,
             event,
             (callbackName, callbackData) => {
-              const callback = callbacks?.[callbackName]
-              callback?.actions?.forEach(
+              callbacks?.[callbackName]?.actions?.forEach(
                 (action) =>
                   action &&
                   handleAction(
@@ -443,20 +440,17 @@ export function handleAction(
         try {
           // create a handler for actions triggering events
           const triggerActionEvent = (trigger: string, eventData: any) => {
-            const subEvent = action.events?.[trigger]
-            if (subEvent) {
-              subEvent.actions?.forEach((action) =>
-                handleAction(
-                  action,
-                  eventData
-                    ? { ...data, ...ctx.dataSignal.get(), Event: eventData }
-                    : { ...data, ...ctx.dataSignal.get() },
-                  ctx,
-                  eventData ?? event,
-                  workflowCallback,
-                ),
-              )
-            }
+            action.events?.[trigger]?.actions?.forEach((action) =>
+              handleAction(
+                action,
+                eventData
+                  ? { ...data, ...ctx.dataSignal.get(), Event: eventData }
+                  : { ...data, ...ctx.dataSignal.get() },
+                ctx,
+                eventData ?? event,
+                workflowCallback,
+              ),
+            )
           }
           const newAction =
             action.version === 2
@@ -498,20 +492,18 @@ export function handleAction(
               result &&
               (typeof result === 'function' || result instanceof Promise)
             ) {
-              ctx.dataSignal.subscribe((data) => data, {
-                destroy: () => {
-                  if (result instanceof Promise) {
-                    result
-                      .then((cleanup) => {
-                        if (typeof cleanup === 'function') {
-                          cleanup()
-                        }
-                      })
-                      .catch((err) => console.error(err))
-                  } else {
-                    result()
-                  }
-                },
+              ctx.dataSignal.subscriptions.push(() => {
+                if (result instanceof Promise) {
+                  result
+                    .then((cleanup) => {
+                      if (typeof cleanup === 'function') {
+                        cleanup()
+                      }
+                    })
+                    .catch((err) => console.error(err))
+                } else {
+                  result()
+                }
               })
             }
 

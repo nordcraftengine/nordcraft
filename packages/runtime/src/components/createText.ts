@@ -14,6 +14,7 @@ import {
   DATA_NODE_TYPE_TEXT,
   isDefined,
 } from '@nordcraft/core'
+import { DATA_ATTR_IS_ROOT_COMPONENT } from '../editor/const'
 import type { Signal } from '../signal/signal'
 import type { ComponentContext } from '../types'
 import { claimHydratedChild, type HydrationState } from './hydration'
@@ -65,7 +66,6 @@ export function createText({
     hydration.adopted.add(elem)
   }
 
-  // This is editor only logic and we should move out of the runtime bundle when possible
   if (
     IS_PREVIEW &&
     ctx.env?.runtime === 'preview' &&
@@ -88,14 +88,16 @@ export function createText({
     }
   }
   if (!claimed) {
-    if (ctx.isRootComponent) {
-      elem.setAttribute('data-is-root-component', 'true')
-    }
     elem.setAttribute(DATA_ATTR_NODE_ID, id)
+
+    if (IS_PREVIEW && ctx.isRootComponent) {
+      elem.setAttribute(DATA_ATTR_IS_ROOT_COMPONENT, 'true')
+    }
+
     if (typeof id === 'string') {
       elem.setAttribute(DATA_ATTR_ID, path)
     }
-    if (ctx.isRootComponent === false) {
+    if (IS_PREVIEW && ctx.isRootComponent === false) {
       elem.setAttribute(DATA_ATTR_COMPONENT, ctx.component.name)
     }
     elem.setAttribute(DATA_ATTR_NODE_TYPE, DATA_NODE_TYPE_TEXT)
@@ -103,12 +105,12 @@ export function createText({
   if (value.type !== 'value') {
     const valuePath =
       IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
-    const sig = dataSignal.map((data) =>
-      String(applyFormula(value, ctx, data, valuePath)),
+    dataSignal.subscribeMap(
+      (data) => String(applyFormula(value, ctx, data, valuePath)),
+      (value) => {
+        elem.innerText = value
+      },
     )
-    sig.subscribe((value) => {
-      elem.innerText = value
-    })
   } else {
     if (IS_PREVIEW) {
       ctx.reportFormulaEvaluation?.(
@@ -138,12 +140,12 @@ export function createTextNS({
   if (value.type !== 'value') {
     const valuePathNS =
       IS_PREVIEW && ctx.reportFormulaEvaluation ? ['value'] : undefined
-    const sig = dataSignal.map((data) =>
-      String(applyFormula(value, ctx, data, valuePathNS)),
+    dataSignal.subscribeMap(
+      (data) => String(applyFormula(value, ctx, data, valuePathNS)),
+      (value) => {
+        textNode.nodeValue = value
+      },
     )
-    sig.subscribe((value) => {
-      textNode.nodeValue = value
-    })
   } else {
     textNode.nodeValue = String(value.value)
   }

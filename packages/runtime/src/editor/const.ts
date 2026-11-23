@@ -6,9 +6,11 @@ export {
   DATA_ATTR_NODE_ID,
   DATA_ATTR_NODE_TYPE,
   DATA_NODE_TYPE_TEXT,
+  ROOT_NODE_ID,
 } from '@nordcraft/core'
 
 export const DATA_ATTR_VIEWPORT_HEIGHT = 'data-viewport-height'
+export const DATA_ATTR_IS_ROOT_COMPONENT = 'data-is-root-component'
 export const DATA_ATTR_SELECTED = 'data-selected'
 export const DATA_ATTR_REPEAT_SELECTED = 'data-repeat-selected'
 export const DATA_ATTR_MODE = 'data-mode'

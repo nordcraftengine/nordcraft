@@ -8,7 +8,7 @@ import type {
   Toddle,
   ToddleEnv,
 } from '@nordcraft/core'
-import { isMeasureEnabled, measure, noopMeasure } from '@nordcraft/core'
+import { ROOT_NODE_ID } from '@nordcraft/core'
 import '@nordcraft/core/compileTime'
 import fastDeepEqual from 'fast-deep-equal'
 import { handleAction } from '../events/handleAction'
@@ -90,16 +90,6 @@ export function renderComponent(
     slotSuffix,
     hydration,
   } = props
-  const stopMeasure = isMeasureEnabled()
-    ? measure(
-        `Render component: ${component.name}`,
-        {
-          component: component.name,
-          path,
-        },
-        'component',
-      )
-    : noopMeasure
   const ctx: ComponentContext = {
     triggerEvent: onEvent,
     component,
@@ -125,12 +115,12 @@ export function renderComponent(
   }
 
   const rootElem = createNode({
-    id: 'root',
+    id: ROOT_NODE_ID,
     path,
     dataSignal,
     ctx:
       IS_PREVIEW && (ctx.reportFormulaEvaluation || ctx.jsonPath)
-        ? { ...ctx, jsonPath: ['nodes', 'root'] }
+        ? { ...ctx, jsonPath: ['nodes', ROOT_NODE_ID] }
         : ctx,
     parentElement,
     namespace,
@@ -146,9 +136,9 @@ export function renderComponent(
     BATCH_QUEUE.add(() => {
       let prev: Record<string, any> | undefined
       if (hasAttributeChangeActions) {
-        dataSignal
-          .map((data) => data.Attributes)
-          .subscribe((props) => {
+        dataSignal.subscribeMap(
+          (data) => data.Attributes,
+          (props) => {
             const previous = prev
             prev = props // always update, regardless of early returns below
 
@@ -168,16 +158,16 @@ export function renderComponent(
             for (const action of actions) {
               void handleAction(action, dataSignal.get(), ctx, event)
             }
-          })
+          },
+        )
       }
-      if (hasOnLoadActions) {
-        component.onLoad?.actions?.forEach((action) => {
+      if (hasOnLoadActions && component.onLoad?.actions) {
+        for (const action of component.onLoad.actions) {
           void handleAction(action, dataSignal.get(), ctx)
-        })
+        }
       }
     })
   }
-  stopMeasure()
   return rootElem
 }
 
