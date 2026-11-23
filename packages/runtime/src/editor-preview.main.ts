@@ -916,6 +916,27 @@ export const createRoot = (
           await captureScreenshot(message.data)
           break
         }
+        case 'canvas_style': {
+          let el = document.getElementById(
+            'canvas-style',
+          ) as HTMLStyleElement | null
+          if (!el) {
+            el = document.createElement('style')
+            el.id = 'canvas-style'
+            document.head.appendChild(el)
+          }
+          const { css, bodyCss } = message.data
+          el.textContent = [
+            bodyCss ? `body { ${bodyCss} }` : '',
+            css ? `#App { ${css} }` : '',
+          ]
+            .filter(Boolean)
+            .join('\n')
+
+          requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
+          break
+        }
+
         case 'getSnapTargets': {
           snapTargets.start({
             nodeId: message.data.nodeId,
