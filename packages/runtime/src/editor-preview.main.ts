@@ -925,9 +925,13 @@ export const createRoot = (
             el.id = 'canvas-style'
             document.head.appendChild(el)
           }
-          el.textContent = message.data.css
-            ? `#App { ${message.data.css} }`
-            : ''
+          const { css, bodyCss } = message.data
+          el.textContent = [
+            bodyCss ? `body { ${bodyCss} }` : '',
+            css ? `#App { ${css} }` : '',
+          ]
+            .filter(Boolean)
+            .join('\n')
 
           requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
           break
