@@ -223,11 +223,9 @@ export interface ComponentMeta {
   description?: Nullable<string> // Useful for AI agents
   tags?: Nullable<string[]> // Useful for AI agents
   testScenarios?: Nullable<Record<string, Nullable<TestScenario>>>
-  meta?: Nullable<{
-    canvas?: Nullable<{
-      style?: Nullable<NodeStyleModel>
-      customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
-    }>
+  canvas?: Nullable<{
+    style?: Nullable<NodeStyleModel>
+    customProperties?: Nullable<Record<CustomPropertyName, CustomProperty>>
   }>
 }
 
