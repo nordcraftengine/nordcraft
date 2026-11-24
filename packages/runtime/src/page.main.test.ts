@@ -1,6 +1,15 @@
 /* eslint-disable no-console */
-import type { Component, ToddleInternals } from '@nordcraft/core'
-import { PAGE_STATE_SCRIPT_ID, THEME_DATA_ATTRIBUTE } from '@nordcraft/core'
+import type {
+  Component,
+  PageComponentsData,
+  PageStateData,
+} from '@nordcraft/core'
+import {
+  DATA_ATTR_COMPONENTS_URL,
+  DATA_ATTR_CUSTOM_CODE_URL,
+  PAGE_STATE_SCRIPT_ID,
+  THEME_DATA_ATTRIBUTE,
+} from '@nordcraft/core'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import fs from 'node:fs'
 import os from 'node:os'
@@ -15,7 +24,9 @@ import {
 
 const setupToddleInternals = (
   component: Component,
-  overrides: Partial<ToddleInternals> = {},
+  overrides: Partial<
+    PageComponentsData & PageStateData & { isPageLoaded: boolean }
+  > = {},
 ) => {
   window.__toddle = {
     project: 'test-project',
@@ -1134,10 +1145,10 @@ describe('page.main', () => {
       stateScript.type = 'application/json'
       stateScript.id = PAGE_STATE_SCRIPT_ID
       stateScript.setAttribute(
-        'data-components-url',
+        DATA_ATTR_COMPONENTS_URL,
         '/_static/components_HomePage.json?v=sha-1',
       )
-      stateScript.setAttribute('data-custom-code-url', customCodePath)
+      stateScript.setAttribute(DATA_ATTR_CUSTOM_CODE_URL, customCodePath)
       stateScript.textContent = JSON.stringify({
         pageState: {
           Attributes: {},

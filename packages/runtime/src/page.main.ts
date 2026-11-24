@@ -7,15 +7,18 @@ import type {
   FormulaHandler,
   FormulaHandlerV2,
   Nullable,
+  PageComponentsData,
+  PageStateData,
   PluginActionV2,
   PluginFormula,
   Toddle,
   ToddleEnv,
-  ToddleInternals,
 } from '@nordcraft/core'
 import {
   applyFormula,
   BUILTIN_PREFIX,
+  DATA_ATTR_COMPONENTS_URL,
+  DATA_ATTR_CUSTOM_CODE_URL,
   filterObject,
   isDefined,
   isLegacyApi,
@@ -355,10 +358,7 @@ export const hydratePage = ({
 }) => {
   const stateElement = document.getElementById(PAGE_STATE_SCRIPT_ID)
   const state = stateElement?.textContent
-    ? (JSON.parse(stateElement.textContent) as Pick<
-        ToddleInternals,
-        'pageState' | 'cookies'
-      >)
+    ? (JSON.parse(stateElement.textContent) as PageStateData)
     : ({
         pageState: {
           Apis: {},
@@ -366,7 +366,7 @@ export const hydratePage = ({
           Variables: {},
         },
         cookies: [],
-      } satisfies Pick<ToddleInternals, 'pageState' | 'cookies'>)
+      } satisfies PageStateData)
 
   window.__toddle = {
     project,
@@ -394,11 +394,11 @@ interface CustomCodeModule {
 
 export const hydrateFromDocument = async () => {
   const stateElement = document.getElementById(PAGE_STATE_SCRIPT_ID)
-  const componentsUrl = stateElement?.getAttribute('data-components-url')
+  const componentsUrl = stateElement?.getAttribute(DATA_ATTR_COMPONENTS_URL)
   if (!stateElement || !componentsUrl) {
     return
   }
-  const customCodeUrl = stateElement.getAttribute('data-custom-code-url')
+  const customCodeUrl = stateElement.getAttribute(DATA_ATTR_CUSTOM_CODE_URL)
   const [componentsRes, customCode] = await Promise.all([
     fetch(componentsUrl),
     customCodeUrl
@@ -409,10 +409,7 @@ export const hydrateFromDocument = async () => {
     throw new Error(`Failed to load page components (${componentsRes.status})`)
   }
   const { project, branch, commit, component, components } =
-    (await componentsRes.json()) as Pick<
-      ToddleInternals,
-      'project' | 'branch' | 'commit' | 'component' | 'components'
-    >
+    (await componentsRes.json()) as PageComponentsData
   hydratePage({
     project,
     branch,

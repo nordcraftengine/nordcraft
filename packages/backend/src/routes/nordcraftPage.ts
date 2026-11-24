@@ -1,6 +1,8 @@
-import type { PageComponent, ToddleInternals } from '@nordcraft/core'
+import type { PageComponent, PageStateData } from '@nordcraft/core'
 import {
   applyFormula,
+  DATA_ATTR_COMPONENTS_URL,
+  DATA_ATTR_CUSTOM_CODE_URL,
   theme as defaultTheme,
   PAGE_STATE_SCRIPT_ID,
   THEME_DATA_ATTRIBUTE,
@@ -145,16 +147,15 @@ export const nordcraftPage = async ({
   })
 
   // Prepare the dynamic per-request state to be serialized in the document for hydration
-  const serializablePageState: Pick<ToddleInternals, 'pageState' | 'cookies'> =
-    {
-      pageState: {
-        ...data,
-        Apis: {
-          ...apiCache,
-        },
+  const serializablePageState: PageStateData = {
+    pageState: {
+      ...data,
+      Apis: {
+        ...apiCache,
       },
-      cookies: Object.keys(formulaContext.env.request.cookies),
-    }
+    },
+    cookies: Object.keys(formulaContext.env.request.cookies),
+  }
   const serializedState = JSON.stringify(serializablePageState).replace(
     /</g,
     '\\u003c',
@@ -183,13 +184,12 @@ export const nordcraftPage = async ({
   const stateAttributes = [
     `type="application/json"`,
     `id="${PAGE_STATE_SCRIPT_ID}"`,
-    `data-components-url="${escapeAttrValue(componentsUrl)}"`,
+    `${DATA_ATTR_COMPONENTS_URL}="${escapeAttrValue(componentsUrl)}"`,
     ...(typeof customCodeUrl === 'string'
-      ? [`data-custom-code-url="${escapeAttrValue(customCodeUrl)}"`]
+      ? [`${DATA_ATTR_CUSTOM_CODE_URL}="${escapeAttrValue(customCodeUrl)}"`]
       : []),
   ].join(' ')
-  const additionalHeadScripts = [
-    `<script ${stateAttributes}>${serializedState}</script>`,
+  const headPreloads = [
     // Tell the browser to start fetching the cached component structures as early as possible
     `<link rel="preload" as="fetch" crossorigin="anonymous" href="${escapeAttrValue(componentsUrl)}" />`,
     // Tell the browser to start fetching the runtime as early as possible
@@ -200,10 +200,13 @@ export const nordcraftPage = async ({
           `<link rel="modulepreload" href="${escapeAttrValue(customCodeUrl)}" />`,
         ]
       : []),
+  ]
+  const bodyScripts = [
+    `<script ${stateAttributes}>${serializedState}</script>`,
     `<script type="module" src="/_static/page.main.esm.js"></script>`,
   ]
 
-  head = `${head}\n${additionalHeadScripts.join('\n')}`
+  head = `${head}\n${headPreloads.join('\n')}`
 
   const responseHeaders = evaluateResponseHeaders({
     formulaContext,
@@ -229,6 +232,7 @@ export const nordcraftPage = async ({
         </head>
         <body>
           <div id="App">${raw(body)}</div>
+          ${raw(bodyScripts.join('\n'))}
         </body>
       </html>`,
     statusCode,

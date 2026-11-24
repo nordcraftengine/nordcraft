@@ -6,9 +6,10 @@ import type {
   Formula,
   FormulaEvaluationReporter,
   Toddle as NewToddle,
+  PageComponentsData,
+  PageStateData,
   Toddle,
   ToddleEnv,
-  ToddleInternals,
   ValueOperationValue,
 } from '@nordcraft/core'
 import type { ApiRequest } from './api/createAPI'
@@ -17,7 +18,11 @@ import type { Signal } from './signal/signal'
 declare global {
   interface Window {
     __components: Record<string, Signal<ComponentData>> // used for debugging
-    __toddle: ToddleInternals
+    __toddle: PageComponentsData &
+      PageStateData & {
+        // Flag that indicates if the page is done with the createRoot function.
+        isPageLoaded: boolean
+      }
     toddle: NewToddle<LocationSignal, PreviewShowSignal>
   }
 }

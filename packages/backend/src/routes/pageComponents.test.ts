@@ -1,6 +1,9 @@
-import type { Component, PageComponent } from '@nordcraft/core'
 import type {
+  Component,
+  PageComponent,
   PageComponentsData,
+} from '@nordcraft/core'
+import type {
   ProjectFilesWithCustomCode,
   Routes,
   ToddleProject,
@@ -243,53 +246,131 @@ describe('pageComponentsHandler', () => {
     })
   })
 
-  it('returns 404 when page is missing or not a page component', async () => {
+  it('returns 404 with application/json when page is missing, not a page component, project is missing, or loader throws', async () => {
     const child = createChildComponent()
+    const page = createPageComponent()
     const files: ProjectFilesWithCustomCode = {
       customCode: false,
       components: {
         ChildButton: child,
       },
     }
-
-    const app = getApp({
-      getConnInfo,
-      componentsRouter: {
-        path: '/.toddle/components/:pageName{.+.json}',
-        handler: pageComponentsHandler({
-          pageLoader: ({ name }) =>
-            name === 'ChildButton' ? files : undefined,
-        }),
+    const validFiles: ProjectFilesWithCustomCode = {
+      customCode: false,
+      components: {
+        HomePage: page,
       },
-      fileLoaders: [
-        async (c, next) => {
-          c.set('routes', createRoutes())
-          c.set('project', createProject())
-          c.set('config', undefined)
-          return next()
-        },
-      ],
-      pageLoader: {
-        loader: ({ name }) => (name === 'ChildButton' ? files : undefined),
-        urls: {
-          pageStylesheetUrl: (name) => `/.toddle/stylesheet/${name}.css`,
-          customCodeUrl: (name) => `/.toddle/custom-code/${name}.js`,
-          pageComponentsUrl: (name) => `/.toddle/components/${name}.json`,
-        },
-      },
-    })
+    }
 
-    const [missingRes, nonPageRes] = await Promise.all([
-      app.request('http://localhost/.toddle/components/MissingPage.json'),
-      app.request('http://localhost/.toddle/components/ChildButton.json'),
-    ])
+    const createTestApp = ({
+      includeProject = true,
+      throwOnLoad = false,
+    }: {
+      includeProject?: boolean
+      throwOnLoad?: boolean
+    } = {}) =>
+      getApp({
+        getConnInfo,
+        componentsRouter: {
+          path: '/.toddle/components/:pageName{.+.json}',
+          handler: pageComponentsHandler({
+            pageLoader: ({ name }) => {
+              if (throwOnLoad) {
+                throw new Error('boom')
+              }
+              if (name === 'HomePage') {
+                return validFiles
+              }
+              return name === 'ChildButton' ? files : undefined
+            },
+          }),
+        },
+        fileLoaders: [
+          async (c, next) => {
+            c.set('routes', createRoutes())
+            if (includeProject) {
+              c.set('project', createProject())
+            }
+            c.set('config', undefined)
+            return next()
+          },
+        ],
+        pageLoader: {
+          loader: ({ name }) => (name === 'ChildButton' ? files : undefined),
+          urls: {
+            pageStylesheetUrl: (name) => `/.toddle/stylesheet/${name}.css`,
+            customCodeUrl: (name) => `/.toddle/custom-code/${name}.js`,
+            pageComponentsUrl: (name) => `/.toddle/components/${name}.json`,
+          },
+        },
+      })
+
+    const app = createTestApp()
+    const appWithoutProject = createTestApp({ includeProject: false })
+    const appThrowing = createTestApp({ throwOnLoad: true })
+
+    const [missingRes, nonPageRes, missingProjectRes, thrownRes] =
+      await Promise.all([
+        app.request('http://localhost/.toddle/components/MissingPage.json'),
+        app.request('http://localhost/.toddle/components/ChildButton.json'),
+        appWithoutProject.request(
+          'http://localhost/.toddle/components/HomePage.json',
+        ),
+        appThrowing.request(
+          'http://localhost/.toddle/components/HomePage.json',
+        ),
+      ])
+
+    const [missingBody, nonPageBody, missingProjectBody, thrownBody] =
+      await Promise.all([
+        missingRes.json(),
+        nonPageRes.json(),
+        missingProjectRes.json(),
+        thrownRes.json(),
+      ])
 
     expect({
-      missingStatus: missingRes.status,
-      nonPageStatus: nonPageRes.status,
+      missing: {
+        status: missingRes.status,
+        contentType: missingRes.headers.get('content-type'),
+        body: missingBody,
+      },
+      nonPage: {
+        status: nonPageRes.status,
+        contentType: nonPageRes.headers.get('content-type'),
+        body: nonPageBody,
+      },
+      missingProject: {
+        status: missingProjectRes.status,
+        contentType: missingProjectRes.headers.get('content-type'),
+        body: missingProjectBody,
+      },
+      thrown: {
+        status: thrownRes.status,
+        contentType: thrownRes.headers.get('content-type'),
+        body: thrownBody,
+      },
     }).toEqual({
-      missingStatus: 404,
-      nonPageStatus: 404,
+      missing: {
+        status: 404,
+        contentType: 'application/json',
+        body: { error: 'Page not found' },
+      },
+      nonPage: {
+        status: 404,
+        contentType: 'application/json',
+        body: { error: 'Page not found' },
+      },
+      missingProject: {
+        status: 404,
+        contentType: 'application/json',
+        body: { error: 'Page not found' },
+      },
+      thrown: {
+        status: 404,
+        contentType: 'application/json',
+        body: { error: 'Page not found' },
+      },
     })
   })
 })

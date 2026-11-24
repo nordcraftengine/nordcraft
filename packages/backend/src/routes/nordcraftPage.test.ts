@@ -1,4 +1,9 @@
-import { PAGE_STATE_SCRIPT_ID, type ToddleInternals } from '@nordcraft/core'
+import {
+  DATA_ATTR_COMPONENTS_URL,
+  DATA_ATTR_CUSTOM_CODE_URL,
+  PAGE_STATE_SCRIPT_ID,
+  type PageStateData,
+} from '@nordcraft/core'
 import * as ssrRenderingApi from '@nordcraft/ssr/rendering/api'
 import * as ssrRenderingComponents from '@nordcraft/ssr/rendering/components'
 import * as ssrRenderingFormulaContext from '@nordcraft/ssr/rendering/formulaContext'
@@ -138,18 +143,24 @@ describe('nordcraftPage', () => {
 
     const res = await client.test.$get()
     const htmlText = await res.text()
-    const stateMatch = htmlText.match(
+    const headMatch = htmlText.match(/<head>([\s\S]*?)<\/head>/)
+    const bodyMatch = htmlText.match(/<body>([\s\S]*?)<\/body>/)
+    const headHtml = headMatch?.[1] ?? ''
+    const bodyHtml = bodyMatch?.[1] ?? ''
+    const stateMatch = bodyHtml.match(
       new RegExp(
-        `<script type="application/json" id="${PAGE_STATE_SCRIPT_ID}" data-components-url="([^"]*)" data-custom-code-url="([^"]*)">([\\s\\S]*?)</script>`,
+        `<script type="application/json" id="${PAGE_STATE_SCRIPT_ID}" ${DATA_ATTR_COMPONENTS_URL}="([^"]*)" ${DATA_ATTR_CUSTOM_CODE_URL}="([^"]*)">([\\s\\S]*?)</script>`,
       ),
     )
     const componentsUrlAttr = stateMatch?.[1] ?? ''
     const customCodeUrlAttr = stateMatch?.[2] ?? ''
     const rawState = stateMatch?.[3] ?? ''
-    const parsedState = JSON.parse(rawState) as Pick<
-      ToddleInternals,
-      'pageState' | 'cookies'
-    >
+    const parsedState = JSON.parse(rawState) as PageStateData
+    const appIndex = bodyHtml.indexOf('<div id="App">')
+    const stateScriptIndex = bodyHtml.indexOf(`id="${PAGE_STATE_SCRIPT_ID}"`)
+    const runtimeScriptIndex = bodyHtml.indexOf(
+      '<script type="module" src="/_static/page.main.esm.js"></script>',
+    )
 
     expect({
       status: res.status,
@@ -157,18 +168,23 @@ describe('nordcraftPage', () => {
       customCodeUrlAttr,
       hasEscapedScriptTag: rawState.includes('\\u003c/script>'),
       hasRawClosingScriptTag: rawState.includes('</script>'),
-      hasComponentsPreload: htmlText.includes(
+      hasComponentsPreloadInHead: headHtml.includes(
         '<link rel="preload" as="fetch" crossorigin="anonymous" href="/custom-components/test-page.json" />',
       ),
-      hasRuntimePreload: htmlText.includes(
+      hasRuntimePreloadInHead: headHtml.includes(
         '<link rel="modulepreload" href="/_static/page.main.esm.js" />',
       ),
-      hasCustomCodePreload: htmlText.includes(
+      hasCustomCodePreloadInHead: headHtml.includes(
         '<link rel="modulepreload" href="/_static/cc_test-page.js" />',
       ),
-      hasRuntimeModuleScript: htmlText.includes(
+      hasStateScriptInHead: headHtml.includes(`id="${PAGE_STATE_SCRIPT_ID}"`),
+      hasRuntimeScriptInHead: headHtml.includes(
         '<script type="module" src="/_static/page.main.esm.js"></script>',
       ),
+      scriptsAfterAppInBody:
+        appIndex !== -1 &&
+        stateScriptIndex > appIndex &&
+        runtimeScriptIndex > stateScriptIndex,
       parsedState,
     }).toEqual({
       status: 200,
@@ -176,10 +192,12 @@ describe('nordcraftPage', () => {
       customCodeUrlAttr: '/_static/cc_test-page.js',
       hasEscapedScriptTag: true,
       hasRawClosingScriptTag: false,
-      hasComponentsPreload: true,
-      hasRuntimePreload: true,
-      hasCustomCodePreload: true,
-      hasRuntimeModuleScript: true,
+      hasComponentsPreloadInHead: true,
+      hasRuntimePreloadInHead: true,
+      hasCustomCodePreloadInHead: true,
+      hasStateScriptInHead: false,
+      hasRuntimeScriptInHead: false,
+      scriptsAfterAppInBody: true,
       parsedState: {
         pageState: {
           Variables: { count: 2 },
@@ -224,10 +242,10 @@ describe('nordcraftPage', () => {
         'href="/_static/test-page.css?v=commit-sha-1"',
       ),
       hasStateComponentsAttrWithCacheBuster: htmlText.includes(
-        'data-components-url="/_static/components_test-page.json?v=commit-sha-1"',
+        `${DATA_ATTR_COMPONENTS_URL}="/_static/components_test-page.json?v=commit-sha-1"`,
       ),
       hasStateCustomCodeAttrWithCacheBuster: htmlText.includes(
-        'data-custom-code-url="/_static/cc_test-page.js?v=commit-sha-1"',
+        `${DATA_ATTR_CUSTOM_CODE_URL}="/_static/cc_test-page.js?v=commit-sha-1"`,
       ),
       hasComponentsPreloadWithCacheBuster: htmlText.includes(
         '<link rel="preload" as="fetch" crossorigin="anonymous" href="/_static/components_test-page.json?v=commit-sha-1" />',

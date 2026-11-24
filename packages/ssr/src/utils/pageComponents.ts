@@ -1,17 +1,9 @@
-import type { Component } from '@nordcraft/core'
+import type { Component, PageComponentsData } from '@nordcraft/core'
 import { takeIncludedComponents } from '../components/utils'
 import { processComponentApis } from '../rendering/api'
 import { resolveClasses } from '../rendering/classes'
 import { removeTestData } from '../rendering/testData'
 import type { ProjectFiles, SsrFormulaHandler } from '../ssr.types'
-
-export interface PageComponentsData {
-  project: string
-  branch: string
-  commit: string
-  component: Component
-  components: Component[]
-}
 
 export const getPageComponentsData = ({
   page,
