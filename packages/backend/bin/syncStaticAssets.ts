@@ -42,10 +42,7 @@ const resetCss = await esbuild.transform(RESET_STYLES, {
   loader: 'css',
   minify: true,
 })
-fs.writeFileSync(
-  resolvePath('../dist/assets/_static/reset.css'),
-  resetCss.code,
-)
+fs.writeFileSync(resolvePath('../dist/assets/_static/reset.css'), resetCss.code)
 
 // Read the project.json file and split it into routes and files
 const projectFile = fs.readFileSync(resolvePath('../__project__/project.json'))
@@ -75,10 +72,7 @@ await Promise.all(
 // Create a js file with custom code for each component
 await Promise.all(
   Object.entries(code).map(async ([name, c]) => {
-    const ccDestination = resolvePath(
-      '../dist/assets/_static',
-      `cc_${name}.js`,
-    )
+    const ccDestination = resolvePath('../dist/assets/_static', `cc_${name}.js`)
     const minified = await esbuild.transform(c, {
       loader: 'js',
       minify: true,
