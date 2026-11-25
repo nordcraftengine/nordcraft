@@ -146,15 +146,16 @@ export interface Toddle<LocationSignal, ShowSignal> {
   env: ToddleEnv
 }
 
-export interface ToddleInternals {
+export interface PageComponentsData {
   project: string
   branch: string
   commit: string
-  pageState: ComponentData
   component: Component
   components: Component[]
-  // Flag that indicates if the page is done with the createRoot function.
-  isPageLoaded: boolean
+}
+
+export interface PageStateData {
+  pageState: ComponentData
   cookies: string[]
 }
 

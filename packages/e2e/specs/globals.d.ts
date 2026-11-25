@@ -1,8 +1,14 @@
-import type { ToddleInternals } from '@nordcraft/core/dist/types'
+import type {
+  PageComponentsData,
+  PageStateData,
+} from '@nordcraft/core/dist/types'
 
 declare global {
   interface Window {
-    __toddle?: ToddleInternals
+    __toddle?: PageComponentsData &
+      PageStateData & {
+        isPageLoaded: boolean
+      }
     __e2e?: {
       ready: boolean
       error: string | null

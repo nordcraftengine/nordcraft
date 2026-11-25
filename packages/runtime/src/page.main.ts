@@ -7,6 +7,8 @@ import type {
   FormulaHandler,
   FormulaHandlerV2,
   Nullable,
+  PageComponentsData,
+  PageStateData,
   PluginActionV2,
   PluginFormula,
   Toddle,
@@ -15,10 +17,13 @@ import type {
 import {
   applyFormula,
   BUILTIN_PREFIX,
+  DATA_ATTR_COMPONENTS_URL,
+  DATA_ATTR_CUSTOM_CODE_URL,
   filterObject,
   isDefined,
   isLegacyApi,
   mapObject,
+  PAGE_STATE_SCRIPT_ID,
   THEME_DATA_ATTRIBUTE,
   VOID_HTML_ELEMENTS,
 } from '@nordcraft/core'
@@ -330,6 +335,103 @@ export const createRoot = (domNode: HTMLElement) => {
     }
   }
   window.__toddle.isPageLoaded = true
+}
+
+export const hydratePage = ({
+  project,
+  branch = 'main',
+  commit = 'unknown',
+  component,
+  components,
+  formulas = {},
+  actions = {},
+  loadCustomCode,
+}: {
+  project: string
+  branch?: string
+  commit?: string
+  component: Component
+  components: Component[]
+  formulas?: Record<string, Record<string, PluginFormula<FormulaHandlerV2>>>
+  actions?: Record<string, Record<string, PluginActionV2>>
+  loadCustomCode?: () => void
+}) => {
+  const stateElement = document.getElementById(PAGE_STATE_SCRIPT_ID)
+  const state = stateElement?.textContent
+    ? (JSON.parse(stateElement.textContent) as PageStateData)
+    : ({
+        pageState: {
+          Apis: {},
+          Attributes: {},
+          Variables: {},
+        },
+        cookies: [],
+      } satisfies PageStateData)
+
+  window.__toddle = {
+    project,
+    branch,
+    commit,
+    isPageLoaded: false,
+    ...state,
+    component,
+    components: [component, ...components],
+  }
+  initGlobalObject({ formulas, actions })
+  loadCustomCode?.()
+  const app = document.getElementById('App')
+  if (!app) {
+    throw new Error('Cant find root domNode')
+  }
+  createRoot(app)
+}
+
+interface CustomCodeModule {
+  loadCustomCode?: () => void
+  formulas?: Record<string, Record<string, PluginFormula<FormulaHandlerV2>>>
+  actions?: Record<string, Record<string, PluginActionV2>>
+}
+
+/**
+ * Entry point for client-side page hydration. Reads the serialized page state
+ * script tag (`#__nordcraft-state`), fetches the static page components JSON
+ * and optional custom code module in parallel, and starts hydrating `#App`.
+ */
+export const hydrateFromDocument = async () => {
+  const stateElement = document.getElementById(PAGE_STATE_SCRIPT_ID)
+  const componentsUrl = stateElement?.getAttribute(DATA_ATTR_COMPONENTS_URL)
+  if (!stateElement || !componentsUrl) {
+    return
+  }
+  const customCodeUrl = stateElement.getAttribute(DATA_ATTR_CUSTOM_CODE_URL)
+  const [componentsRes, customCode] = await Promise.all([
+    fetch(componentsUrl),
+    customCodeUrl
+      ? (import(customCodeUrl) as Promise<CustomCodeModule>)
+      : Promise.resolve<CustomCodeModule | undefined>(undefined),
+  ])
+  if (!componentsRes.ok) {
+    throw new Error(`Failed to load page components (${componentsRes.status})`)
+  }
+  const { project, branch, commit, component, components } =
+    (await componentsRes.json()) as PageComponentsData
+  hydratePage({
+    project,
+    branch,
+    commit,
+    component,
+    components,
+    formulas: customCode?.formulas,
+    actions: customCode?.actions,
+    loadCustomCode: customCode?.loadCustomCode,
+  })
+}
+
+if (typeof document !== 'undefined') {
+  hydrateFromDocument().catch((error) => {
+    // eslint-disable-next-line no-console
+    console.error('Failed to hydrate page', error)
+  })
 }
 
 function parseUrl(component: Component) {

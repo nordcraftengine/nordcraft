@@ -13,7 +13,6 @@ import { favicon } from './routes/favicon'
 import { fontRouter } from './routes/font'
 import { manifest } from './routes/manifest'
 import { pageHandler } from './routes/pageHandler'
-import { pageStateHandler } from './routes/pageState'
 import { robots } from './routes/robots'
 import { routeHandler } from './routes/routeHandler'
 import { serviceWorker } from './routes/serviceWorker'
@@ -24,12 +23,14 @@ export const getApp = <T extends Record<string, any>>(options: {
   staticRouter?: { path: string; handler: Handler }
   stylesheetRouter?: { path: string; handler: Handler }
   customCodeRouter?: { path: string; handler: Handler }
+  componentsRouter?: { path: string; handler: Handler }
   pageLoader: {
     loader: PageLoader
     urls: PageLoaderUrls
   }
   fileLoaders: MiddlewareHandler[]
   earlyMiddleware?: MiddlewareHandler[]
+  cacheBuster?: string
 }) => {
   // Inject isEqual on globalThis used by some builtin formulas
   initIsEqual()
@@ -68,7 +69,6 @@ export const getApp = <T extends Record<string, any>>(options: {
     ),
   )
   app.get('/.nordcraft/cookies/set-cookie', setCookieHandler)
-  app.get('/.nordcraft/page-state/:renderId{.+.js}', pageStateHandler)
 
   // Load project info and all routes for endpoints below to use
   app.use(...options.fileLoaders)
@@ -84,6 +84,9 @@ export const getApp = <T extends Record<string, any>>(options: {
   if (options.customCodeRouter) {
     app.get(options.customCodeRouter.path, options.customCodeRouter.handler)
   }
+  if (options.componentsRouter) {
+    app.get(options.componentsRouter.path, options.componentsRouter.handler)
+  }
 
   // Load a route if it matches the URL
   app.all('/*', routeHandler(options.getConnInfo))
@@ -96,10 +99,21 @@ export const getApp = <T extends Record<string, any>>(options: {
   app.get('/serviceWorker.js', serviceWorker)
 
   // Load a page if it matches the URL
-  app.get('/*', pageHandler(options.pageLoader.loader, options.pageLoader.urls))
+  app.get(
+    '/*',
+    pageHandler(
+      options.pageLoader.loader,
+      options.pageLoader.urls,
+      options.cacheBuster,
+    ),
+  )
 
   app.notFound(
-    notFoundLoader(options.pageLoader.loader, options.pageLoader.urls) as any,
+    notFoundLoader(
+      options.pageLoader.loader,
+      options.pageLoader.urls,
+      options.cacheBuster,
+    ) as any,
   )
 
   return app

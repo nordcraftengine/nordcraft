@@ -25,6 +25,7 @@ const app = getApp({
     urls: {
       pageStylesheetUrl: (name) => `/_static/${name}.css`,
       customCodeUrl: (name) => `/_static/cc_${name}.js`,
+      pageComponentsUrl: (name) => `/_static/components_${name}.json`,
     },
   },
 })
