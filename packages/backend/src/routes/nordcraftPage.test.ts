@@ -214,6 +214,56 @@ describe('nordcraftPage', () => {
     })
   })
 
+  it('streams the HTML head and body before the serialized state script', async () => {
+    const app = new Hono()
+    app.use('*', timing())
+    app.get('/test', (c) => {
+      return nordcraftPage({
+        hono: c as any,
+        project: mockProject,
+        files: mockFiles,
+        page: mockPage,
+        status: 200,
+        options: mockOptions,
+      })
+    })
+    const client: any = testClient(app)
+
+    const res = await client.test.$get()
+    const reader = res.body?.getReader()
+    expect(reader !== undefined).toBe(true)
+
+    const decoder = new TextDecoder()
+    const chunks: string[] = []
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) {
+          break
+        }
+        chunks.push(decoder.decode(value, { stream: true }))
+      }
+    }
+
+    expect({
+      chunkCount: chunks.length,
+      firstChunkHasHeadAndApp:
+        chunks[0]?.includes('<head>') &&
+        chunks[0]?.includes('<div id="App"><div>Test content</div></div>'),
+      firstChunkHasStateScript: chunks[0]?.includes(
+        `id="${PAGE_STATE_SCRIPT_ID}"`,
+      ),
+      lastChunkHasStateScript: chunks[chunks.length - 1]?.includes(
+        `id="${PAGE_STATE_SCRIPT_ID}"`,
+      ),
+    }).toEqual({
+      chunkCount: 2,
+      firstChunkHasHeadAndApp: true,
+      firstChunkHasStateScript: false,
+      lastChunkHasStateScript: true,
+    })
+  })
+
   it('applies cacheBuster to stylesheet, component JSON, and custom code URLs', async () => {
     const app = new Hono()
     app.use('*', timing())

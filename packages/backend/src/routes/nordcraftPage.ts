@@ -31,7 +31,6 @@ import {
   urlWithCacheBuster,
 } from '@nordcraft/ssr'
 import type { Context } from 'hono'
-import { html, raw } from 'hono/html'
 import { endTime, startTime } from 'hono/timing'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { HonoEnv } from '../../hono'
@@ -156,10 +155,6 @@ export const nordcraftPage = async ({
     },
     cookies: Object.keys(formulaContext.env.request.cookies),
   }
-  const serializedState = JSON.stringify(serializablePageState).replace(
-    /</g,
-    '\\u003c',
-  )
   endTime(hono, nordcraftPageTimingKey)
 
   const htmlAttributes = Object.entries({
@@ -201,11 +196,6 @@ export const nordcraftPage = async ({
         ]
       : []),
   ]
-  const bodyScripts = [
-    `<script ${stateAttributes}>${serializedState}</script>`,
-    `<script type="module" src="/_static/page.main.esm.js"></script>`,
-  ]
-
   head = `${head}\n${headPreloads.join('\n')}`
 
   const responseHeaders = evaluateResponseHeaders({
@@ -224,21 +214,36 @@ export const nordcraftPage = async ({
       ? (customStatusCode as any as ContentfulStatusCode)
       : status
 
-  return hono.html(
-    html`<!doctype html>
-      <html lang="${language}" ${htmlAttributes}>
-        <head>
-          ${raw(head)}
-        </head>
-        <body>
-          <div id="App">${raw(body)}</div>
-          ${raw(bodyScripts.join('\n'))}
-        </body>
-      </html>`,
-    statusCode,
-    {
+  const encoder = new TextEncoder()
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      controller.enqueue(
+        encoder.encode(
+          `<!doctype html><html lang="${language}" ${htmlAttributes}><head>${head}</head><body><div id="App">${body}</div>`,
+        ),
+      )
+      // Yield so the first chunk can be flushed to the client before serializing state
+      await Promise.resolve()
+      const serializedState = JSON.stringify(serializablePageState).replace(
+        /</g,
+        '\\u003c',
+      )
+      const bodyScripts = [
+        `<script ${stateAttributes}>${serializedState}</script>`,
+        `<script type="module" src="/_static/page.main.esm.js"></script>`,
+      ]
+      controller.enqueue(
+        encoder.encode(`${bodyScripts.join('\n')}</body></html>`),
+      )
+      controller.close()
+    },
+  })
+
+  return new Response(stream, {
+    status: statusCode,
+    headers: {
       'Content-Type': `text/html; charset=${charset}`,
       ...responseHeaders,
     },
-  )
+  })
 }
