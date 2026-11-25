@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { nordcraftPage } from '@nordcraft/backend/routes/nordcraftPage'
-import { pageStateHandler } from '@nordcraft/backend/routes/pageState'
+import { pageComponentsHandler } from '@nordcraft/backend/routes/pageComponents'
 import { initIsEqual } from '@nordcraft/ssr/dist/rendering/equals'
 import { Hono } from 'hono'
 import { timing } from 'hono/timing'
@@ -36,8 +36,40 @@ app.use('*', timing())
 
 app.get('/health', (c) => c.text('ok'))
 
-// Page state handler from backend package
-app.get('/.nordcraft/page-state/:renderId{.+}', pageStateHandler as any)
+// Page components handler from backend package
+app.get('/.nordcraft/components/:pageName{.+.js}', (c, next) => {
+  const fixtureName = c.req.query('fixture')
+  const fixture = fixtureName ? fixtures.get(fixtureName) : undefined
+  if (!fixture || !fixtureName) {
+    return c.body(null, 404)
+  }
+  const usesCustomCode = Boolean(
+    fixture.customActions && Object.keys(fixture.customActions).length > 0,
+  )
+  c.set(
+    'project' as never,
+    {
+      name: 'E2E Tests',
+      short_id: 'e2e',
+      id: 'e2e',
+      type: 'app',
+    } as never,
+  )
+  return pageComponentsHandler({
+    pageLoader: () =>
+      ({
+        components: Object.fromEntries(
+          fixture.components.map((comp) => [comp.name, comp]),
+        ),
+        customCode: usesCustomCode,
+      }) as any,
+    urls: {
+      pageStylesheetUrl: (name) => `/_static/${name}.css`,
+      customCodeUrl: () =>
+        `/_custom_code/${encodeURIComponent(fixtureName)}.js`,
+    },
+  })(c as any, next)
+})
 
 // Custom code handler to support fixtures with custom actions / formulas
 app.get('/_custom_code/:fixture', (c) => {
@@ -93,6 +125,8 @@ app.get('/', async (c) => {
     options: {
       pageStylesheetUrl: (name) => `/_static/${name}.css`,
       customCodeUrl: () => `/_custom_code/${fixtureName}.js`,
+      pageComponentsUrl: (name) =>
+        `/.nordcraft/components/${encodeURIComponent(name)}.js?fixture=${encodeURIComponent(fixtureName)}`,
     },
   })
 })

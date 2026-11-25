@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import type { Component, ToddleInternals } from '@nordcraft/core'
-import { THEME_DATA_ATTRIBUTE } from '@nordcraft/core'
+import { PAGE_STATE_SCRIPT_ID, THEME_DATA_ATTRIBUTE } from '@nordcraft/core'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import './happydom'
-import { createRoot, initGlobalObject } from './page.main'
+import { createRoot, hydratePage, initGlobalObject } from './page.main'
 
 const setupToddleInternals = (
   component: Component,
@@ -991,6 +991,121 @@ describe('page.main', () => {
       expect(createdMeta).not.toBeNull()
       expect(createdMeta?.getAttribute('content')).toBe('New Site')
       expect(createdMeta?.textContent).toBe('')
+    })
+  })
+
+  describe('hydratePage', () => {
+    test('reads serialized state from __nordcraft-state script tag, mounts root, and runs custom code', () => {
+      const stateScript = document.createElement('script')
+      stateScript.type = 'application/json'
+      stateScript.id = PAGE_STATE_SCRIPT_ID
+      stateScript.textContent = JSON.stringify({
+        pageState: {
+          Attributes: {},
+          Variables: { greeting: 'hello' },
+          Apis: {},
+        },
+        cookies: ['session'],
+      })
+      document.head.appendChild(stateScript)
+
+      const app = document.createElement('div')
+      app.id = 'App'
+      document.body.appendChild(app)
+
+      const childComp: Component = {
+        name: 'ChildComp',
+        nodes: {},
+        apis: {},
+        variables: {},
+        workflows: {},
+      }
+      const pageComp: Component = {
+        name: 'HomePage',
+        page: '/',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'span',
+            attrs: {},
+            events: {},
+            style: {},
+            classes: {},
+            children: ['txt'],
+          },
+          txt: {
+            type: 'text',
+            value: { type: 'path', path: ['Variables', 'greeting'] },
+          },
+        },
+        apis: {},
+        variables: {
+          greeting: { initialValue: { type: 'value', value: 'fallback' } },
+        },
+        workflows: {},
+      }
+
+      let customCodeLoaded = false
+      const formulas = {
+        'test-project': {
+          myFormula: {
+            name: 'myFormula',
+            arguments: [],
+            handler: () => 'ok',
+          },
+        },
+      }
+      const actions = {
+        'test-project': {
+          myAction: {
+            version: 2 as const,
+            name: 'myAction',
+            variableArguments: false,
+            handler: () => {},
+          },
+        },
+      }
+
+      hydratePage({
+        project: 'test-project',
+        branch: 'main',
+        commit: 'abc123',
+        component: pageComp,
+        components: [childComp],
+        formulas,
+        actions,
+        loadCustomCode: () => {
+          customCodeLoaded = true
+        },
+      })
+
+      expect({
+        customCodeLoaded,
+        isPageLoaded: window.__toddle.isPageLoaded,
+        project: window.__toddle.project,
+        branch: window.__toddle.branch,
+        commit: window.__toddle.commit,
+        cookies: window.__toddle.cookies,
+        componentNames: window.__toddle.components.map((c) => c.name),
+        hasFormula: Boolean(
+          window.toddle.getCustomFormula('myFormula', undefined),
+        ),
+        hasAction: Boolean(
+          window.toddle.getCustomAction('myAction', undefined),
+        ),
+        renderedText: app.textContent,
+      }).toEqual({
+        customCodeLoaded: true,
+        isPageLoaded: true,
+        project: 'test-project',
+        branch: 'main',
+        commit: 'abc123',
+        cookies: ['session'],
+        componentNames: ['HomePage', 'ChildComp'],
+        hasFormula: true,
+        hasAction: true,
+        renderedText: 'fallback',
+      })
     })
   })
 })

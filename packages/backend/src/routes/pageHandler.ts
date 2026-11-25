@@ -8,8 +8,9 @@ import { nordcraftPage } from './nordcraftPage'
 export const pageHandler: (
   pageLoader: PageLoader,
   options: PageLoaderUrls,
+  cacheBuster?: string,
 ) => MiddlewareHandler<HonoEnv<HonoRoutes & HonoProject>> =
-  (pageLoader, options) => async (ctx, next) => {
+  (pageLoader, options, cacheBuster) => async (ctx, next) => {
     const url = new URL(ctx.req.url)
     const pageMatch = matchPageForUrl({
       url,
@@ -28,6 +29,7 @@ export const pageHandler: (
         page: component,
         status: pageMatch.name === '404' ? 404 : 200,
         options,
+        cacheBuster,
       })
     }
     return next()

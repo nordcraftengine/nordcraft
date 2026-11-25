@@ -420,7 +420,18 @@ const getPageDescription = ({
   return typeof description === 'string' ? description : defaultDescription
 }
 
-const urlWithCacheBuster = (url: string, cacheBuster?: string) =>
-  typeof cacheBuster === 'string'
-    ? `${url}?${new URLSearchParams([['v', cacheBuster]]).toString()}`
-    : url
+const DUMMY_ORIGIN = 'http://nordcraft.invalid'
+
+export const urlWithCacheBuster = (url: string, cacheBuster?: string) => {
+  if (typeof cacheBuster !== 'string') {
+    return url
+  }
+  const parsed = new URL(url, DUMMY_ORIGIN)
+  parsed.searchParams.set('v', cacheBuster)
+  if (parsed.origin !== DUMMY_ORIGIN) {
+    return url.startsWith('//')
+      ? `//${parsed.host}${parsed.pathname}${parsed.search}${parsed.hash}`
+      : parsed.href
+  }
+  return `${parsed.pathname}${parsed.search}${parsed.hash}`
+}
