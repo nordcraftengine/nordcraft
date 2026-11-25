@@ -35,6 +35,7 @@ import type {
 } from '@nordcraft/ssr'
 import type { Delta } from 'jsondiffpatch'
 import type { LegacyActionRuleFix } from './rules/issues/actions/legacyActionRule'
+import type { LegacyCustomActionRuleFix } from './rules/issues/actions/legacyCustomActionRule'
 import type { NoReferenceProjectActionRuleFix } from './rules/issues/actions/noReferenceProjectActionRule'
 import type { UnknownActionArgumentRuleFix } from './rules/issues/actions/unknownActionArgumentRule'
 import type { UnknownActionEventRuleFix } from './rules/issues/actions/unknownActionEventRule'
@@ -94,6 +95,7 @@ export type Code =
   | 'invalid element child'
   | 'invalid style syntax'
   | 'legacy action'
+  | 'legacy custom action'
   | 'legacy api'
   | 'legacy formula'
   | 'legacy style variable'
@@ -515,6 +517,7 @@ export type FixType =
   | DeleteTestScenarioReferenceFix
   | InvalidStyleSyntaxRuleFix
   | LegacyActionRuleFix
+  | LegacyCustomActionRuleFix
   | LegacyFormulaRuleFix
   | LegacyStyleVariableRuleFix
   | NoContextFormulaArgumentsRuleFix
