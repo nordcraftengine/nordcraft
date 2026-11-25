@@ -306,8 +306,7 @@ export function dragInsertStarted({
     const interpolation = 0.4
     dragInsertState.repeatedNodes.forEach((node, i) => {
       const cached = repeatPositions[i] as
-        | (typeof repeatPositions)[number]
-        | undefined
+        (typeof repeatPositions)[number] | undefined
       if (!cached) {
         return
       }

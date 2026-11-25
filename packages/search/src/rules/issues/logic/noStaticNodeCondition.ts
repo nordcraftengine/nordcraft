@@ -21,14 +21,12 @@ export const noStaticNodeCondition: IssueRule<
   category: 'Quality',
   nodeTypes: 'formula',
   visit: (report, { path, value }) => {
-    if (
-      !(
-        path.length === 5 &&
-        path[0] === 'components' &&
-        path[2] === 'nodes' &&
-        path[4] === 'condition'
-      )
-    ) {
+    if (!(
+      path.length === 5 &&
+      path[0] === 'components' &&
+      path[2] === 'nodes' &&
+      path[4] === 'condition'
+    )) {
       return
     }
 

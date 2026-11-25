@@ -127,9 +127,9 @@
       let i = e.split('/'),
         p = t === '.' ? [] : t.split('/'),
         o = 0
-      for (; o < p.length && i[0] === p[o]; ) (i.shift(), o++)
+      for (; o < p.length && i[0] === p[o];) (i.shift(), o++)
       if (o === p.length) i.unshift('.')
-      else for (; o < p.length; ) (i.unshift('..'), o++)
+      else for (; o < p.length;) (i.unshift('..'), o++)
       return i.join('/')
     },
     Zt = (e) => {
@@ -479,7 +479,7 @@
           ;((o[a] = { e: a, h: void 0, o: 'entry-point', s: void 0 }),
             r.push(a))
         }
-      for (; r.length > 0; ) {
+      for (; r.length > 0;) {
         let l = []
         for (let a of r) {
           let f = t[a]
@@ -722,7 +722,7 @@
         }
       return (
         ((l, a, f, u, N) => {
-          for (; l < e.length; ) {
+          for (; l < e.length;) {
             let H = 0
             for (let C = l; C < e.length; C++) H += e[C].t
             let x = h.min(u, N),
@@ -730,7 +730,7 @@
               I = l,
               G = 0,
               se = 0
-            for (; I < e.length; ) {
+            for (; I < e.length;) {
               let C = e[I].t * P,
                 k = n(l, I, x, G + C, P)
               if (I > l && se < k) break
@@ -848,7 +848,7 @@
           let b = 0,
             v = d.length,
             T = 0
-          for (; T < v; ) {
+          for (; T < v;) {
             let S = re(d.charCodeAt(T))
             if (c < b + X + S) return [d.slice(0, T) + '...', b + X]
             ;((b += S), T++)
@@ -1075,7 +1075,7 @@
     Hl = 'q',
     kl = 'T'
   var Al = (e, t) => {
-      for (; t; ) {
+      for (; t;) {
         if (t === e) return !0
         t = t.i
       }
@@ -1106,7 +1106,7 @@
         for (let f in a) we(p, Se(f), a[f].bytesInOutput)
       }
       let n = o(p)
-      for (; n.l.length === 1; ) n = n.l[0]
+      for (; n.l.length === 1;) n = n.l[0]
       return { u: n, b: s(n, 0) }
     },
     _t = (e, t, i) => {
@@ -1627,7 +1627,7 @@
           let L = U,
             O = y.length,
             M = 0
-          for (; M < O && ((L += D(y.charCodeAt(M))), !(L > w)); ) M++
+          for (; M < O && ((L += D(y.charCodeAt(M))), !(L > w));) M++
           return y.slice(0, M) + '...'
         },
         j = (y, w, L, O, M) => {

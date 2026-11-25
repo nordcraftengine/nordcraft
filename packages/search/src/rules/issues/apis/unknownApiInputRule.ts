@@ -26,8 +26,7 @@ export const unknownApiInputRule: IssueRule<
     }
     const apiInput = (
       files.components?.[componentName]?.apis?.[apiKey] as
-        | ApiRequest
-        | undefined
+        ApiRequest | undefined
     )?.inputs?.[value.path[1]]
     if (!apiInput) {
       report({

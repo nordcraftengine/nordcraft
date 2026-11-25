@@ -126,8 +126,7 @@ export const unknownCSSVariableRule: IssueRule<
       if (node.type === 'component' && typeof node.name === 'string') {
         const referencedComponent = files.components[node.name]
         const rootNode = referencedComponent?.nodes?.root as
-          | { customProperties?: Record<string, unknown> }
-          | undefined
+          { customProperties?: Record<string, unknown> } | undefined
         const rootCustomProperties = rootNode?.customProperties
         if (rootCustomProperties) {
           for (const varName in rootCustomProperties) {
@@ -147,8 +146,7 @@ export const unknownCSSVariableRule: IssueRule<
       const vars = new Set<string>()
       varsCache.set(currentNodeName, vars)
       const node = nodes[currentNodeName] as
-        | Parameters<typeof collectOwnVars>[0]
-        | undefined
+        Parameters<typeof collectOwnVars>[0] | undefined
       if (node) {
         for (const v of collectOwnVars(node)) {
           vars.add(v)

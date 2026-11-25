@@ -439,11 +439,7 @@ export function evaluateTimeVerdict({
 }
 
 export type BenchmarkTimeStatus =
-  | '1:1'
-  | 'improvement'
-  | 'regression'
-  | 'stable'
-  | 'inconclusive'
+  '1:1' | 'improvement' | 'regression' | 'stable' | 'inconclusive'
 
 export interface TimeBenchmarkResult {
   baseTimes: readonly number[]

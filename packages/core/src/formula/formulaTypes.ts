@@ -27,8 +27,7 @@ export interface CodeFormula<Handler = string | Function> extends BaseFormula {
 }
 
 export type PluginFormula<Handler = string | Function> =
-  | NordcraftFormula
-  | CodeFormula<Handler>
+  NordcraftFormula | CodeFormula<Handler>
 
 export interface GlobalFormulas<Handler = string | Function> {
   formulas?: Nullable<Record<string, PluginFormula<Handler>>>
