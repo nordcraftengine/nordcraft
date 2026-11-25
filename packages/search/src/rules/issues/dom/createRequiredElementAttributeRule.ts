@@ -1,6 +1,9 @@
-import { isDefined, toBoolean } from '@nordcraft/core'
+import {
+  contextlessEvaluateFormula,
+  isDefined,
+  toBoolean,
+} from '@nordcraft/core'
 import type { ComponentNodeNode, IssueRule, Level } from '../../../types'
-import { contextlessEvaluateFormula } from '../../../util/contextlessEvaluateFormula'
 
 /**
  * @param tag - The HTML tag of the element to check (e.g., 'img', 'a').
@@ -32,7 +35,8 @@ export function createRequiredElementAttributeRule({
     level: level,
     category: 'Accessibility',
     nodeTypes: 'component-node',
-    visit: (report, { path, value }) => {
+    visit: (report, args) => {
+      const { path, value, files } = args
       if (value?.type === 'element' && value.tag === tag) {
         const attributes = Array.isArray(attribute) ? attribute : [attribute]
         if (
@@ -42,6 +46,11 @@ export function createRequiredElementAttributeRule({
             }
             const { isStatic, result } = contextlessEvaluateFormula(
               value.attrs[attr],
+              {
+                component: args.component,
+                formulas: files.formulas,
+                packages: files.packages,
+              },
             )
             return (
               // Dynamic attributes are considered valid
