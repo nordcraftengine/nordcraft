@@ -5,7 +5,7 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = ([
   collection,
   key,
 ]) => {
-  if (typeof collection !== 'object' || collection === null) {
+  if (!isObject(collection)) {
     return null
   }
   if (
@@ -17,7 +17,7 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = ([
   }
 
   const run = (
-    collection: any,
+    collection: unknown,
     [key, ...path]: string[],
   ): Record<string, any> | null => {
     if (Array.isArray(collection)) {
@@ -39,11 +39,11 @@ const handler: FormulaHandler<Array<unknown> | Record<string, unknown>> = ([
         )
       }
       if (typeof key !== 'string' && typeof key !== 'number') {
-        return { ...collection }
+        return { ...(collection as Record<string, any>) } // We check if it's an array above
       } else {
         return {
-          ...collection,
-          [key]: run(collection[key], path),
+          ...(collection as Record<string, any>), // We check if it's an array above
+          [key]: run((collection as Record<string, any>)[key], path), // We check if it's an array above
         }
       }
     }

@@ -404,7 +404,9 @@ export class ToddleComponent<Handler> {
     for (const [workflowKey, workflow] of Object.entries(
       this.workflows ?? {},
     )) {
-      for (const [actionKey, action] of workflow?.actions.entries() ?? []) {
+      for (const [actionKey, action] of Array.isArray(workflow?.actions)
+        ? workflow.actions.entries()
+        : Object.entries(workflow?.actions ?? {})) {
         yield* getFormulasInAction({
           action,
           globalFormulas,
