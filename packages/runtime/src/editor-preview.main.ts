@@ -73,6 +73,7 @@ import { updateComponentLinks } from './editor/links'
 import { markSelectedElement } from './editor/markSelectedElement'
 import { getRectData } from './editor/overlay'
 import { postMessageToEditor } from './editor/postMessageToEditor'
+import { watchPreviewMedia } from './editor/previewMedia'
 import { applyPreviewResources } from './editor/previewResources'
 import {
   applyPreviewState,
@@ -676,6 +677,9 @@ export const createRoot = (
           break
         case 'report_document_scroll_size':
           requestResizeCanvas({
+            // Measure with the viewport height the editor has set, so vh units
+            // resolve the same way as in all other measurements
+            viewport: resizeCanvasOptions.viewport,
             force: true,
           })
           break
@@ -951,14 +955,23 @@ export const createRoot = (
   const hasLivePreviewStyle = () =>
     Boolean(document.head.querySelector(SELECTOR_SELECTED_NODE_STYLES))
 
-  const resizeObserver = new ResizeObserver(() => {
+  const handleContentResize = () => {
     if (hasLivePreviewStyle()) {
       requestSyncOverlayRects()
       return
     }
     requestResizeCanvas(resizeCanvasOptions, requestSyncOverlayRects)
-  })
+  }
+
+  const resizeObserver = new ResizeObserver(handleContentResize)
   resizeObserver.observe(domNode)
+  // The resize observer only fires when the root element itself changes size,
+  // so also measure again whenever media in the page finishes loading. This
+  // also makes lazy media load straight away (see watchPreviewMedia).
+  const stopWatchingPreviewMedia = watchPreviewMedia(
+    domNode,
+    handleContentResize,
+  )
   requestResizeCanvas(resizeCanvasOptions)
 
   window.addEventListener('beforeunload', () => {
@@ -973,6 +986,7 @@ export const createRoot = (
     }
     storeScrollState(component?.name)
     resizeObserver.disconnect()
+    stopWatchingPreviewMedia()
   })
 
   const updateStyle = (comp: Component | null) => {
