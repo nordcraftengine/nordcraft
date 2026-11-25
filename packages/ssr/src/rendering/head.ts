@@ -420,15 +420,18 @@ const getPageDescription = ({
   return typeof description === 'string' ? description : defaultDescription
 }
 
-const DUMMY_ORIGIN = 'http://nordcraft.invalid'
+// URL() requires a base origin to parse root-relative (/foo) and protocol-relative (//cdn...) URLs.
+// Using an RFC 2606 `.invalid` placeholder lets us safely manipulate search params while preserving
+// existing query parameters and hash fragments, then detect whether the input had its own origin.
+const PLACEHOLDER_ORIGIN = 'http://nordcraft.invalid'
 
 export const urlWithCacheBuster = (url: string, cacheBuster?: string) => {
   if (typeof cacheBuster !== 'string') {
     return url
   }
-  const parsed = new URL(url, DUMMY_ORIGIN)
+  const parsed = new URL(url, PLACEHOLDER_ORIGIN)
   parsed.searchParams.set('v', cacheBuster)
-  if (parsed.origin !== DUMMY_ORIGIN) {
+  if (parsed.origin !== PLACEHOLDER_ORIGIN) {
     return url.startsWith('//')
       ? `//${parsed.host}${parsed.pathname}${parsed.search}${parsed.hash}`
       : parsed.href

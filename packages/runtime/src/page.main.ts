@@ -392,6 +392,11 @@ interface CustomCodeModule {
   actions?: Record<string, Record<string, PluginActionV2>>
 }
 
+/**
+ * Entry point for client-side page hydration. Reads the serialized page state
+ * script tag (`#__nordcraft-state`), fetches the static page components JSON
+ * and optional custom code module in parallel, and starts hydrating `#App`.
+ */
 export const hydrateFromDocument = async () => {
   const stateElement = document.getElementById(PAGE_STATE_SCRIPT_ID)
   const componentsUrl = stateElement?.getAttribute(DATA_ATTR_COMPONENTS_URL)
@@ -422,7 +427,7 @@ export const hydrateFromDocument = async () => {
   })
 }
 
-if (IS_PAGE && typeof document !== 'undefined') {
+if (typeof document !== 'undefined') {
   hydrateFromDocument().catch((error) => {
     // eslint-disable-next-line no-console
     console.error('Failed to hydrate page', error)
