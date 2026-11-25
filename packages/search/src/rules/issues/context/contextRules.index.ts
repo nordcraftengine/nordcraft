@@ -1,5 +1,6 @@
 import { unknownContextProviderWorkflowRule } from '../workflows/unknownContextProviderWorkflowRule'
 import { unknownContextWorkflowRule } from '../workflows/unknownContextWorkflowRule'
+import { invalidContextFormulaReferenceRule } from './invalidContextFormulaReferenceRule'
 import { noContextConsumersRule } from './noContextConsumersRule'
 import { noContextFormulaArgumentsRule } from './noContextFormulaArgumentsRule'
 import { noReferenceContextFormulaRule } from './noReferenceContextFormulaRule'
@@ -9,6 +10,7 @@ import { unknownContextProviderFormulaRule } from './unknownContextProviderFormu
 import { unknownContextProviderRule } from './unknownContextProviderRule'
 
 export default [
+  invalidContextFormulaReferenceRule,
   noContextConsumersRule,
   noContextFormulaArgumentsRule,
   noReferenceContextFormulaRule,
