@@ -21,8 +21,4 @@ export interface ExportedHtmlElement {
 }
 
 export type ExportedHtmlElementCategory =
-  | 'form'
-  | 'typography'
-  | 'media'
-  | 'svg'
-  | 'semantic'
+  'form' | 'typography' | 'media' | 'svg' | 'semantic'

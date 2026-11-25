@@ -678,8 +678,7 @@ export interface FixProblemsCompleteResponse {
 }
 
 export type FixProblemsResponse =
-  | FixProblemsProgressResponse
-  | FixProblemsCompleteResponse
+  FixProblemsProgressResponse | FixProblemsCompleteResponse
 
 export interface SearchArgs {
   id: string

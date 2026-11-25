@@ -30,8 +30,7 @@ function getStyleSheet(root: Document | ShadowRoot) {
       root,
       (
         root.getElementById(CUSTOM_PROPERTIES_STYLESHEET_ID) as
-          | HTMLStyleElement
-          | undefined
+          HTMLStyleElement | undefined
       )?.sheet,
     )
     customPropertiesStylesheets.set(root, stylesheet)

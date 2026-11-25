@@ -77,10 +77,7 @@ export function createElement({
   const claimed =
     IS_PAGE && hydration && !hydration.sealed
       ? (claimHydratedChild(parentElement, path, hydration, tag) as
-          | HTMLElement
-          | SVGElement
-          | MathMLElement
-          | null)
+          HTMLElement | SVGElement | MathMLElement | null)
       : null
   const elem =
     claimed ??
