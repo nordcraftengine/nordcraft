@@ -1,5 +1,12 @@
 import type { Component, PageComponent } from '@nordcraft/core'
-import { functionFormula, valueFormula } from '@nordcraft/core'
+import {
+  functionFormula,
+  getClassName,
+  getPathClassName,
+  getStaticStyleAndVariants,
+  pathFormula,
+  valueFormula,
+} from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import type { ProjectFiles } from '../ssr.types'
 import { renderPageBody } from './components'
@@ -1428,5 +1435,309 @@ describe('renderPageBody', () => {
     expect(html).toBe(
       '<div data-id="0" data-node-id="root" class="dspZcA extra-class HomePage:root bnID nc-carousel-root"></div>',
     )
+  })
+
+  test('does not emit static customProperties on component instances or their variants into SSR customProperties', async () => {
+    const swatchRoot = {
+      type: 'element' as const,
+      tag: 'div',
+      attrs: {},
+      style: {
+        background: 'var(--x, gray)',
+      },
+      events: {},
+      classes: {
+        checked: {
+          formula: pathFormula(['Attributes', 'checked']),
+        },
+      },
+      children: [],
+    }
+    const swatchComponent: Component = {
+      name: 'swatch',
+      attributes: {
+        checked: {
+          name: 'checked',
+          testValue: true,
+        },
+      },
+      variables: {},
+      nodes: {
+        root: swatchRoot,
+      },
+    }
+    const pageComponent: PageComponent = {
+      name: 'HomePage',
+      route: {
+        path: [],
+        query: {},
+      },
+      attributes: {},
+      variables: {},
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          attrs: {},
+          events: {},
+          children: ['a', 'c'],
+        },
+        a: {
+          type: 'component',
+          name: 'swatch',
+          attrs: {
+            checked: valueFormula(true),
+          },
+          events: {},
+          children: [],
+          customProperties: {
+            '--x': {
+              formula: valueFormula('red'),
+            },
+          },
+          variants: [
+            {
+              className: 'checked',
+              style: {
+                '--x': 'blue',
+              },
+            },
+          ],
+        },
+        c: {
+          type: 'component',
+          name: 'swatch',
+          attrs: {
+            checked: valueFormula(true),
+          },
+          events: {},
+          children: [],
+          customProperties: {
+            '--x': {
+              formula: valueFormula('red'),
+            },
+          },
+          variants: [
+            {
+              className: 'checked',
+              style: {},
+              customProperties: {
+                '--x': {
+                  formula: valueFormula('blue'),
+                },
+              },
+            },
+          ],
+        },
+      },
+    }
+
+    const req = new Request('http://localhost')
+    const files: ProjectFiles = {
+      components: {
+        HomePage: pageComponent,
+        swatch: swatchComponent,
+      },
+    }
+    const { formulaContext, data } = getPageFormulaContext({
+      component: pageComponent,
+      branchName: 'main',
+      req,
+      logErrors: false,
+      files,
+    })
+
+    const result = await renderPageBody({
+      evaluateComponentApis: async () => ({}),
+      component: pageComponent,
+      formulaContext,
+      data,
+      env: formulaContext.env,
+      files,
+      includedComponents: [pageComponent, swatchComponent],
+      projectId: 'my-project',
+      req,
+    })
+
+    const swatchClass = getClassName(getStaticStyleAndVariants(swatchRoot))
+    const pathClassA = getPathClassName('0.0')
+    const pathClassC = getPathClassName('0.1')
+
+    expect(result).toEqual({
+      html: `<div data-id="0" data-node-id="root"><div data-id="0.0" data-node-id="root" class="${swatchClass} checked HomePage:a ${pathClassA}"></div><div data-id="0.1" data-node-id="root" class="${swatchClass} checked HomePage:c ${pathClassC}"></div></div>`,
+      apiCache: {},
+      customProperties: [],
+    })
+  })
+
+  test('emits dynamic customProperties on component instances and variants in cascade order with zero-specificity path selector', async () => {
+    const innerRoot = {
+      type: 'element' as const,
+      tag: 'div',
+      attrs: {},
+      events: {},
+      children: [],
+      customProperties: {
+        '--x': {
+          formula: pathFormula(['Variables', 'innerBase']),
+        },
+      },
+      variants: [
+        {
+          className: 'checked',
+          style: {},
+          customProperties: {
+            '--x': {
+              formula: pathFormula(['Variables', 'innerChecked']),
+            },
+          },
+        },
+      ],
+    }
+    const innerComponent: Component = {
+      name: 'inner',
+      attributes: {},
+      variables: {
+        innerBase: {
+          initialValue: valueFormula('green'),
+        },
+        innerChecked: {
+          initialValue: valueFormula('teal'),
+        },
+      },
+      nodes: {
+        root: innerRoot,
+      },
+    }
+    const wrapperComponent: Component = {
+      name: 'wrapper',
+      attributes: {},
+      variables: {
+        wrapperBase: {
+          initialValue: valueFormula('yellow'),
+        },
+      },
+      nodes: {
+        root: {
+          type: 'component',
+          name: 'inner',
+          attrs: {},
+          events: {},
+          children: [],
+          customProperties: {
+            '--x': {
+              formula: pathFormula(['Variables', 'wrapperBase']),
+            },
+          },
+        },
+      },
+    }
+    const pageComponent: PageComponent = {
+      name: 'HomePage',
+      route: {
+        path: [],
+        query: {},
+      },
+      attributes: {},
+      variables: {
+        baseColor: {
+          initialValue: valueFormula('red'),
+        },
+        variantFirst: {
+          initialValue: valueFormula('orange'),
+        },
+        variantSecond: {
+          initialValue: valueFormula('blue'),
+        },
+      },
+      nodes: {
+        root: {
+          type: 'element',
+          tag: 'div',
+          attrs: {},
+          events: {},
+          children: ['a'],
+        },
+        a: {
+          type: 'component',
+          name: 'wrapper',
+          attrs: {},
+          events: {},
+          children: [],
+          customProperties: {
+            '--x': {
+              formula: pathFormula(['Variables', 'baseColor']),
+            },
+            '--static': {
+              formula: valueFormula('ignored'),
+            },
+          },
+          variants: [
+            {
+              className: 'first',
+              style: {},
+              customProperties: {
+                '--x': {
+                  formula: pathFormula(['Variables', 'variantFirst']),
+                },
+              },
+            },
+            {
+              className: 'second',
+              style: {},
+              customProperties: {
+                '--x': {
+                  formula: pathFormula(['Variables', 'variantSecond']),
+                },
+              },
+            },
+          ],
+        },
+      },
+    }
+
+    const req = new Request('http://localhost')
+    const files: ProjectFiles = {
+      components: {
+        HomePage: pageComponent,
+        wrapper: wrapperComponent,
+        inner: innerComponent,
+      },
+    }
+    const { formulaContext, data } = getPageFormulaContext({
+      component: pageComponent,
+      branchName: 'main',
+      req,
+      logErrors: false,
+      files,
+    })
+
+    const result = await renderPageBody({
+      evaluateComponentApis: async () => ({}),
+      component: pageComponent,
+      formulaContext,
+      data,
+      env: formulaContext.env,
+      files,
+      includedComponents: [pageComponent, wrapperComponent, innerComponent],
+      projectId: 'my-project',
+      req,
+    })
+
+    const innerClass = getClassName(getStaticStyleAndVariants(innerRoot))
+    const pathClass = getPathClassName('0.0')
+
+    expect(result).toEqual({
+      html: `<div data-id="0" data-node-id="root"><div data-id="0.0" data-node-id="root" class="${innerClass} HomePage:a wrapper:root ${pathClass}"></div></div>`,
+      apiCache: {},
+      customProperties: [
+        `.${pathClass} { --x: green }`,
+        `.${pathClass}.checked { --x: teal }`,
+        `:where(.${pathClass}).wrapper\\:root { --x: yellow }`,
+        `:where(.${pathClass}).HomePage\\:a { --x: red }`,
+        `:where(.${pathClass}).HomePage\\:a.first { --x: orange }`,
+        `:where(.${pathClass}).HomePage\\:a.second { --x: blue }`,
+      ],
+    })
   })
 })

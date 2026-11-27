@@ -3,7 +3,7 @@ import type { ComponentData, ToddleEnv } from '@nordcraft/core'
 import { describe, expect, test } from 'bun:test'
 import '../happydom'
 import { signal } from '../signal/signal'
-import type { ComponentContext } from '../types'
+import type { ComponentContext, Location } from '../types'
 import { customPropertiesStylesheets } from '../utils/subscribeCustomProperty'
 import { createNode } from './createNode'
 import { renderComponent } from './renderComponent'
@@ -674,9 +674,154 @@ describe('createNode()', () => {
     // Test that the order makes sense
     expect(Array.from(sheet?.cssRules ?? []).map((r) => r.cssText)).toEqual([
       `.bnID { --color: ${innermostColor}; }`,
-      `.bnID.first_wrapper\\:root { --color: ${middleColor}; }`,
-      `.bnID.My_Component\\:root { --color: ${outermostColor}; }`,
+      `:where(.bnID).first_wrapper\\:root { --color: ${middleColor}; }`,
+      `:where(.bnID).My_Component\\:root { --color: ${outermostColor}; }`,
     ])
+  })
+
+  test('component instance style variant beats its own base custom property', () => {
+    const shadowHost = document.createElement('div')
+    document.body.appendChild(shadowHost)
+    const shadowRoot = shadowHost.attachShadow({ mode: 'open' })
+
+    const pageStylesheet = document.createElement('style')
+    pageStylesheet.textContent = `
+      .HomePage\\:a { --x: red; }
+      .HomePage\\:a.checked { --x: blue; }
+    `
+    shadowRoot.appendChild(pageStylesheet)
+
+    const parentElement = document.createElement('div')
+    shadowRoot.appendChild(parentElement)
+
+    const env: ToddleEnv = {
+      runtime: 'preview',
+      isServer: false,
+      branchName: 'main',
+      request: undefined,
+      logErrors: false,
+    }
+    const ctx: ComponentContext = {
+      isRootComponent: true,
+      component: {
+        name: 'HomePage',
+        nodes: {
+          a: {
+            id: 'a',
+            type: 'component',
+            name: 'swatch',
+            attrs: {
+              checked: { type: 'value', value: true },
+            },
+            events: {},
+            children: [],
+            customProperties: {
+              '--x': {
+                formula: { type: 'path', path: ['Variables', 'baseColor'] },
+              },
+            },
+            variants: [
+              {
+                className: 'checked',
+                style: { '--x': 'blue' },
+              },
+            ],
+          },
+        },
+      },
+      root: shadowRoot,
+      formulaCache: {},
+      apis: {},
+      abortSignal: new AbortController().signal,
+      children: {},
+      providers: {},
+      package: undefined,
+      toddle: {
+        project: 'test',
+        branch: 'main',
+        commit: 'test',
+        errors: [],
+        formulas: {},
+        actions: {},
+        isEqual: Object.is,
+        registerAction: () => {},
+        registerFormula: () => {},
+        getAction: () => undefined,
+        getFormula: () => undefined,
+        getCustomFormula: () => undefined,
+        getCustomAction: () => undefined,
+        getArgumentInputData: (...args) => args[3],
+        data: {},
+        components: [],
+        locationSignal: signal<Location>({
+          route: { path: [], query: {} },
+          path: '/',
+          query: {},
+          params: {},
+        }),
+        eventLog: [],
+        pageState: {},
+        env,
+      },
+      env,
+      stores: {
+        theme: signal<string | null>(null),
+      },
+      components: [
+        {
+          name: 'swatch',
+          attributes: {
+            checked: { name: 'checked', testValue: true },
+          },
+          nodes: {
+            root: {
+              type: 'element',
+              tag: 'div',
+              attrs: {},
+              events: {},
+              children: [],
+              style: { background: 'var(--x, gray)' },
+              classes: {
+                checked: {
+                  formula: { type: 'path', path: ['Attributes', 'checked'] },
+                },
+              },
+            },
+          },
+        },
+      ],
+      triggerEvent: () => {},
+      dataSignal: signal<ComponentData>({
+        Attributes: {},
+        Variables: { baseColor: 'red' },
+      }),
+    }
+
+    const nodes = createNode({
+      ctx,
+      namespace: 'http://www.w3.org/1999/xhtml',
+      dataSignal: ctx.dataSignal,
+      path: '0.0',
+      id: 'a',
+      parentElement,
+      instance: {},
+    })
+    parentElement.append(...nodes)
+
+    // Materialize adopted custom property rules as a later <style> block in shadowRoot
+    // matching browser cascade order (adoptedStyleSheets / #nc-custom-properties after page stylesheet)
+    const cpSheet = customPropertiesStylesheets.get(shadowRoot)?.getStyleSheet()
+    const dynamicStyleElem = document.createElement('style')
+    dynamicStyleElem.textContent = Array.from(cpSheet?.cssRules ?? [])
+      .map((r) => r.cssText)
+      .join('\n')
+    shadowRoot.appendChild(dynamicStyleElem)
+
+    expect(
+      getComputedStyle(parentElement.firstElementChild!).getPropertyValue(
+        '--x',
+      ),
+    ).toBe('blue')
   })
 
   test('it should add repeat index even if a new item is added at the beginning of a list, if that list have other items with repeat index', () => {

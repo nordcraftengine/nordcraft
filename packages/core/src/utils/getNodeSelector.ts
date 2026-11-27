@@ -18,7 +18,9 @@ export function getNodeSelector(
   path: string,
   { componentName, nodeId, variant }: NodeSelectorOptions = {},
 ): string {
-  let selector = `.${getPathClassName(path)}`
+  let selector = componentName
+    ? `:where(.${getPathClassName(path)})`
+    : `.${getPathClassName(path)}`
   if (componentName) {
     // Do not allow classes to start with a number, for example a page named "404" would result in a selector starting with a number which is invalid in CSS.
     selector += startsWithNumber(componentName)
